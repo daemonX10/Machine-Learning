@@ -1,0 +1,18 @@
+2023-07-20 13:45:28,787  root  INFO this is the start of for  loop for : 1
+2023-07-20 13:45:28,787  root  INFO this is the value of i in list = 1
+2023-07-20 13:45:28,787  root  INFO this is the start of for  loop for : 2
+2023-07-20 13:45:28,787  root  INFO this is the value of i in list = 2
+2023-07-20 13:45:28,787  root  INFO this is the start of for  loop for : 3
+2023-07-20 13:45:28,787  root  INFO this is the value of i in list = 3
+2023-07-20 13:45:28,787  root  INFO this is the start of for  loop for : 4
+2023-07-20 13:45:28,787  root  INFO this is the value of i in list = 4
+2023-07-20 13:45:28,787  root  INFO this is the start of for  loop for : [4, 5, 6]
+2023-07-20 13:45:28,787  root  INFO this is the value of i in list = [4, 5, 6]
+2023-07-20 13:45:28,788  root  INFO logging my j 4 and i is [4, 5, 6]
+2023-07-20 13:45:28,788  root  INFO logging my j 5 and i is [4, 5, 6]
+2023-07-20 13:45:28,788  root  INFO logging my j 6 and i is [4, 5, 6]
+2023-07-20 13:45:28,788  root  INFO this is the start of for  loop for : sudh
+2023-07-20 13:45:28,788  root  INFO this is the value of i in list = sudh
+2023-07-20 13:45:28,788  root  INFO this is the start of for  loop for : kumar
+2023-07-20 13:45:28,788  root  INFO this is the value of i in list = kumar
+2023-07-20 13:45:28,788  root  INFO this is my final result with all int [1, 2, 3, 4, 4, 5, 6] , with all str ['sudh', 'kumar'] 

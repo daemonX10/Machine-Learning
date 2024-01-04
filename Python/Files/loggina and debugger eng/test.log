@@ -1,0 +1,10 @@
+INFO:root:this is my line of execution
+ERROR:root:this is my error
+CRITICAL:root:this is my critical
+INFO:root:this is my line of execution
+ERROR:root:this is my error
+CRITICAL:root:this is my critical
+WARNING:root:this is my warning
+ERROR:root:this is my exception
+ERROR:root:this is my exception
+NoneType: None
