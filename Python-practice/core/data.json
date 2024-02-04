@@ -1,0 +1,1 @@
+{"name": "Damodar", "age": 25, "city": "Bangalore", "email": "damodar@gm.com", "is_student": true, "courses": ["Python", "Data Science", "Machine Learning"], "phone_numbers": {"home": 1234567890, "work": 9876543210}}
