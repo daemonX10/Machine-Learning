@@ -1,7 +1,7 @@
-name,Damodar
-age,25
-city,Bangalore
-email,damodar@gm.com
-is_student,True
-courses,"['Python', 'Data Science', 'Machine Learning']"
-phone_numbers,"{'home': 1234567890, 'work': 9876543210}"
+n,a,m,e
+a,g,e
+c,i,t,y
+e,m,a,i,l
+i,s,_,s,t,u,d,e,n,t
+c,o,u,r,s,e,s
+p,h,o,n,e,_,n,u,m,b,e,r,s
