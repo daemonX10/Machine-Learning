@@ -1,4 +1,4 @@
-name = "*"  # replace with your name
+name = "❤️"  # replace with your name
 
 # define heart shape
 heart = [
