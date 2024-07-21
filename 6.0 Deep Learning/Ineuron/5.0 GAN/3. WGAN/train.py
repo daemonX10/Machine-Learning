@@ -1,7 +1,7 @@
 """
 Training of DCGAN network with WGAN loss
 
-Programmed by Aladdin Persson <aladdin.persson at hotmail dot com>
+free Use
 * 2020-11-01: Initial coding
 * 2022-12-20: Small revision of code, checked that it works with latest PyTorch version
 """

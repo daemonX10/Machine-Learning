@@ -3,7 +3,7 @@ Discriminator and Generator implementation from DCGAN paper,
 with removed Sigmoid() as output from Discriminator (and therefor
 it should be called critic)
 
-Programmed by Aladdin Persson <aladdin.persson at hotmail dot com>
+free Use
 * 2020-11-01: Initial coding
 * 2022-12-20: Small revision of code, checked that it works with latest PyTorch version
 """

@@ -2,7 +2,7 @@
 Training of DCGAN network on MNIST dataset with Discriminator
 and Generator imported from models.py
 
-Programmed by Aladdin Persson <aladdin.persson at hotmail dot com>
+free Use
 * 2020-11-01: Initial coding
 * 2022-12-20: Small revision of code, checked that it works with latest PyTorch version
 """
