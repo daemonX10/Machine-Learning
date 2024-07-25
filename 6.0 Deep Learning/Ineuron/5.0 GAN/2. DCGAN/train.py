@@ -39,7 +39,7 @@ transforms = transforms.Compose(
 )
 
 # If you train on MNIST, remember to set channels_img to 1
-dataset = datasets.MNIST(
+dataset = datasets.FashionMNIST(
     root="dataset/", train=True, transform=transforms, download=True
 )
 
