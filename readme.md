@@ -1,6 +1,6 @@
-# Data Science Master Notes and Code
+# Data Science and GenAi
 
-This repository contains comprehensive notes and code written during my journey to learn Data Science. It is organized into various sections covering essential topics and concepts, providing a valuable resource for anyone interested in mastering Data Science.
+This repository contains comprehensive notes and code written during my journey to learn Data Science and AI. It is organized into various sections covering essential topics and concepts, providing a valuable resource for anyone interested in mastering Data Science.
 
 ## Table of Contents
 1. [Introduction](#introduction)
