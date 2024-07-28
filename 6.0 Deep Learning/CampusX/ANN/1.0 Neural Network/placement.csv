@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+version https://git-lfs.github.com/spec/v1
+oid sha256:4e5b6d4a38abe230a9d75dba93a5e3dc88bc4edd32d4678851299bba4fe7b87a
+size 1408
+=======
 cgpa,resume_score,placed
 8.14,6.52,1
 6.17,5.17,0
@@ -99,3 +104,4 @@ cgpa,resume_score,placed
 6.65,7.78,0
 8.14,5.63,1
 6.09,6.61,0
+>>>>>>> d548872c9ddb32d2491c8ce090891e61d2c2d6fe

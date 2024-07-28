@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+version https://git-lfs.github.com/spec/v1
+oid sha256:18d3d1312beaa477a569c48a25b7d489341a761588622e852458453953e9506d
+size 19696
+=======
 sl_no,gender,ssc_p,ssc_b,hsc_p,hsc_b,hsc_s,degree_p,degree_t,workex,etest_p,specialisation,mba_p,status,salary
 1,M,67.00,Others,91.00,Others,Commerce,58.00,Sci&Tech,No,55,Mkt&HR,58.8,Placed,270000
 2,M,79.33,Central,78.33,Others,Science,77.48,Sci&Tech,Yes,86.5,Mkt&Fin,66.28,Placed,200000
@@ -214,3 +219,4 @@ sl_no,gender,ssc_p,ssc_b,hsc_p,hsc_b,hsc_s,degree_p,degree_t,workex,etest_p,spec
 213,M,67.00,Others,67.00,Others,Commerce,73.00,Comm&Mgmt,Yes,59,Mkt&Fin,69.72,Placed,295000
 214,F,74.00,Others,66.00,Others,Commerce,58.00,Comm&Mgmt,No,70,Mkt&HR,60.23,Placed,204000
 215,M,62.00,Central,58.00,Others,Science,53.00,Comm&Mgmt,No,89,Mkt&HR,60.22,Not Placed,
+>>>>>>> d548872c9ddb32d2491c8ce090891e61d2c2d6fe

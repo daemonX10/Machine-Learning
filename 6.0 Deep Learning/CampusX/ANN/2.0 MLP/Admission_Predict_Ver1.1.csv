@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+version https://git-lfs.github.com/spec/v1
+oid sha256:1798a8d4679061b90a271bbb57d80d2670b9c9ea6df30ece53b9f626269aaa2a
+size 15877
+=======
 Serial No.,GRE Score,TOEFL Score,University Rating,SOP,LOR ,CGPA,Research,Chance of Admit 
 1,337,118,4,4.5,4.5,9.65,1,0.92
 2,324,107,4,4,4.5,8.87,1,0.76
@@ -499,3 +504,4 @@ Serial No.,GRE Score,TOEFL Score,University Rating,SOP,LOR ,CGPA,Research,Chance
 498,330,120,5,4.5,5,9.56,1,0.93
 499,312,103,4,4,5,8.43,0,0.73
 500,327,113,4,4.5,4.5,9.04,0,0.84
+>>>>>>> d548872c9ddb32d2491c8ce090891e61d2c2d6fe

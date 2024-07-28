@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+version https://git-lfs.github.com/spec/v1
+oid sha256:687bf0be93621b62bdcc2158dd27fe7c64de950e4f61ebff5f414192faf15070
+size 10727
+=======
 User ID,Gender,Age,EstimatedSalary,Purchased
 15624510,Male,19,19000,0
 15810944,Male,35,20000,0
@@ -399,3 +404,4 @@ User ID,Gender,Age,EstimatedSalary,Purchased
 15654296,Female,50,20000,1
 15755018,Male,36,33000,0
 15594041,Female,49,36000,1
+>>>>>>> d548872c9ddb32d2491c8ce090891e61d2c2d6fe

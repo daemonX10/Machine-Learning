@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+version https://git-lfs.github.com/spec/v1
+oid sha256:4a873006659c2ca29bfd706bcc9542046d5a0028223024921b18b7ffcab654c9
+size 675058
+=======
 RowNumber,CustomerId,Surname,CreditScore,Geography,Gender,Age,Tenure,Balance,NumOfProducts,HasCrCard,IsActiveMember,EstimatedSalary,Exited
 1,15634602,Hargrave,619,France,Female,42,2,0,1,1,1,101348.88,1
 2,15647311,Hill,608,Spain,Female,41,1,83807.86,1,0,1,112542.58,0
@@ -9999,3 +10004,4 @@ RowNumber,CustomerId,Surname,CreditScore,Geography,Gender,Age,Tenure,Balance,Num
 9998,15584532,Liu,709,France,Female,36,7,0,1,0,1,42085.58,1
 9999,15682355,Sabbatini,772,Germany,Male,42,3,75075.31,2,1,0,92888.52,1
 10000,15628319,Walker,792,France,Female,28,4,130142.79,1,1,0,38190.78,0
+>>>>>>> d548872c9ddb32d2491c8ce090891e61d2c2d6fe
