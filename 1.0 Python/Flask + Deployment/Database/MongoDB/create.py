@@ -1,1 +1,1 @@
-mongodb+srv://legend:yadav152530@cluster0.touoeey.mongodb.net/?retryWrites=true&w=majority
+'mongodb+srv://legend:yadav152530@cluster0.touoeey.mongodb.net/?retryWrites=true&w=majority'
