@@ -2,3 +2,4 @@
 7.0 Big Data/
 6.0 Deep Learning/Youtube
 .gitignore
+**/**.env
