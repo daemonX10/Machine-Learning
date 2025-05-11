@@ -1,1 +1,464 @@
-hello guys welcome to another L Chain video in this video we're going to be deep diving into memory in L chain what are the different classes that are available uh in Lang chain to handle memory what are the best practices as well and also talk about you know where the direction of you know Lang chain ecosystem is going it is going in terms of you know land graph but you know we have to understand everything that precedes it so that we understand properly how to handle memory and L graph as well so this video will takeyou through everything so first we will talk about why is memory even important right so yeah people treat chat agents like they're human so what this means is when you're talking to a human being let's say there's a lot of uh two and fr happening you expect the human to understand or remember what happened previously in the conversation so that the context is maintained right so that is very important so there needs to be some way for the llm to have memory of past conversations right so yeah therehave been some existing attempts to add memory to llms uh you know in the past developers have tried to add inbuilt memory to Transformer models so what this means is you know it is memory sort of built in into the llm itself right but so far it hasn't been very optimal uh even uh the best models out there like open a anthropic in 2025 they still don't have inbuilt memory especially when there are better ways and more optimal ways of doing it because having that memory in our control is very important right because we can then youknow shape it in however way we want so but we can expect it to be added to models as models become more and more powerful okay we can definitely expect it to you know happen in the future but right now it is not so what are our options right so what options do we have right now for memory in llms firstly put it as part of the prompt right so whenever you are you know um sending uh asking a question to the llm you know there could have been like a several back and forth conversation that happened in the pastyou can add all of that history to the llm in the prompt itself right so that way uh it will be able to answer in a much more informed way external lookup external lookup is basically like you know using Rags retrieval augmented generation if you do not know what that is we will uh glance over it in the later part of the video as well but basically you are having memory you know in a database right especially if the memory is like huge in amount you put it in a database and then you um keep it there and then whenever it is requiredyou just like retrieve uh specific chunks from it and then provide context to the llm along with the users's question okay so if you don't understand it don't worry we will be talking more about it later on in this video now let us look at an example of the the first one which is put it as part of the prompt okay so if you worked with Lang chain before you know that you know uh the open AI apis you know or you know anthropic cpis they accept a system message and a human message right so the system message could be something like adigital assistant named Alex who enjoys talking with Harish right so this is the history of the conversation okay I'm passing this history to The Prompt as well right so you can see that you know I'm introducing myself and I'm telling the AI that I love photography and the AI is like you know hi arish I'm Alex photography is fascinating you know the user is which is me I'm seeing mostly nature shots especially Birds you know the AI see saying something else so in the future date I can just come you knowtalk continue the conversation I can just say hi Alex remember my bird photography and the assistant is like I certainly do Harish right it remembers my name as well and the reason why it is able to do that is because we are storing the history somewhere else in our code right and then we are attaching that entire history to The Prompt right all right so this is the first one but there are a couple of disadvantages as you can imagine right so the first one is context window limitation so what this means is you know the latest openAI models only allow 124,000 tokens per prompt right so uh yeah so what this means is like imagine the conversation is really long right what if the conversations like you know you talk to the AI for like you know two two full days and it has like you know a billion tokens worth of History right you can't really possibly put all of that condens it into one prompt to the llm right because the context window is going to get um exhausted right it is going to struggle to identify okay uh it is going to struggle to you know it's it's going tostart to hallucinate and all and even the apis are not going to let you uh put in dump in those much uh that much amount of History to the llm call right so that is one thing which is context window limitation and also the latest a open AI models only allow 124,000 tokens per prompt so there is a limitation that is happening right here so let's now look at you know what are the ways that L chain solves it uh as you can imagine L chain offers a lot of classes easy to understand classes that you can use uhuh to sort of you know manage memory in a much more efficient way so these are the simple classes that L chain provides the first one is conversation buffer memory and the second one is conversation summary memory okay and advanced classes we also have like conversation buffer memory window conversation summary buffer memory right so uh it's not just that there are much more complicated things like entity memory and custom memory as well so let me actually take you to the documentation of L chain I'll show youquickly you know what are the types that are available so if you see down here you can see that we've got conversation buffer conversation buffer window entity conversation knowledge cph uh conversation summary token buffer and backed by a vector store right let's just jump into the code okay so so as you can see I've already prepared the code for you guys uh let me just remove this let me Zoom it in a little bit all right so all that I've done is you know I'm uh using the chat open AI chat modelum but you can definitely go for for Gemini guys I mean if you don't have the money or if you don't want to pay that $5 to open AI you can go for Gro you can go for uh uh you know Gemini you know I've got a lang chain crash course uh tutorial which I'll link somewhere up here also in the description there you know in the very first section I'm talking about chat models and it's very simple to understand you can basically Lang chain provides classes that let you you know talk to pretty much any llm outthere uh using very simple you just got to swap up one chat model with another right so right here I'm using chat open AI instead of that you can just go with you know Gemini's open Gemini's model or you know grock's model or llama's model whatever right so I'm just using chat open right here I'm specifying the model to be GPT 4 setting the temperature to be zero right and the second thing is I'm introducing I'm importing something called a conversation chain a conversation buffer memory okay so thefirst type of memory that we are going to be looking at is the conversation buffer memory if you remember remember that is the first one right here okay so let us understand this is like the most basic class if you understand this you know a lot of other things become very easy so okay so uh here's what I'm uh doing I'm setting the memory to conversation buffer memory to this particular class and then I'm also using the conversation chain right here so basically a conversation chain is something that you know U remembers youknow everything that happened before in the conversation the two and fr and then it's Al it also sort sort sort of you know um prints it out okay this is what happened this is the history and this is what the AI said I'll I'll show you uh in a minute so in the conversation chain I'm passing the llm I'm passing verbos true meaning we are going to be able to see all of the logs printed in the console right and we also passing the type of memory which is the conversation buffer memory all right so let's comedown all right so this is how I'm going to pass an input to the conversation uh basically in in a real world we are not going to be using this conversation chain but since you know we are the focus is memory we are going to be manually sort of you know send um adding you know uh user inputs to the conversation chain so you can say conversation. predict and then input hi there I'm Harish all right so now entering the new conversation chain so uh this is this is part of the conversation chain okay so it says the following is a friendly conversation between a human and an AI the AI is talkative and provides lots of specific details from its context if the AI does not know the answer to a question it truthfully says I do not know okay so this is part of the conversation chain it just uh provides a much more easier way to for us to learn memory right so yeah this is how it goes the currentconversation is the human say hi there I'm Harish right so this is going to be the input that I'm providing and let's see what the AI is going to say right so this is what the AI says hello Harish it is great to meet you uh I an AI here to chat and I help you with any questions you might have how is your day going so far right all right so I'm I'm going to uh you know uh ask input my second uh prompt which is how are you today I I know it's dumb but the point is you know I'm saying something else right here andthen let's see what's happening the same thing is happening the current conversation it is stacking up right the memory is basically stacking up so that is what is called conversation buffer so you can see okay the human said this thing the AI said this thing now the human is saying uh how are you today and then the AI is saying hello Harish I'm just a digital entity so I don't have any feelings in the human sense but I'm here and ready to assist you with whatever you need whatever you curiousabout right so basically the first class that we're dealing with right here this conversation buffer memory whatever happened exactly it is going to store it in the buffer okay exactly what happened the human said this thing the AI said this thing the human said this thing the AI said this thing and it is going to provide all of that memory to The Prompt okay all of that memory to the prompt it's not going to modify anything that is the base class which is the conversation buffer okay so I can also say something else good can you help mewith some content for LinkedIn right I'm saying something like this and then you know you can see that it is appending this new two and fr conversation to the existing history and then sending it to the llm right so the human said this thing the AI said this thing human Ai and then finally the human is like good can you help me with some content for LinkedIn and then the the AI response with this thing and then finally if I I want to look at the entire buffer conversation history I can just say conversation. memory. buffer okay sobuffer is where you know all the raw conversation history is going to be maintained say uh so you can see that we can see all the in uh you know conversation history that happened right here okay so that is what is called this particular uh class which is conversation buffer okay now uh before we move on to the next conversation summary memory uh you there are a couple of disadvantages when it comes to this type of memory right so this is very like hardcoded straightforward right so everything every single conversationthat happens it just like appens it to the history appens it to the history and every single new prompt that the human is going to provide it is going to take all of that history send it dump it all in the llm prompt right so you can imagine that as time goes on it is difficult to scale right the history is going to get longer and longer and longer and there comes a point when you know the token limmit is going to get exceeded in that case the llm is not going to accept that particular prompt or it's going to start to hallucinateright so this is a drawback when it comes to conversation buffer okay now let's move on to the next type of uh um this thing called conversation summary memory okay so we're going to be looking at this particular thing the conversation summary memory all right so let us see what this does so uh even the name the conversation summary memory you know it should sort of indicate what this does right so it sort of addresses the disadvantage that we faced with the conversation buffer memory conversation buffer it hard quods everything whereasconversation summary memory what it does is instead of having all of the history you know hardcoded in the buffer instead of that it is going to make an additional internal llm call and it is going to summarize the entire conversation uh you know it's going to tell the llm okay the this is the history summarize everything give it to me in one string and it is going to store it so that way in the future if the user were to ask another question then there is going to be a summarized version right there's going to besummarized version and that is what is called uh that is what this conversation summary memory does so uh let's see let's look at an example right so I'm using this conversation summary memory I'm again you know importing it from L chain memory and I'm passing this time instead of passing the buffer memory I'm passing in the summary memory in the conversation chain okay so let's see what happens so here I'm saying haish um prompt after formatting the following okay the same thing uh thehuman is saying this and the AI is saying hello Harish it's great to meet you very simple stuff no difference so far all right now the second prompt okay can you help me with writing a funny tweet okay so now let's see what happens so instead of you know hard coding you know what I said right here hi there I'm Harish instead of hard coding that there is a su that is created right here okay so it say the current conversation Harish introduces himself to the AI the AI greets Harish warmly expressingReadiness to chat and assist with a variety of topics including technology books right and then the human this is again hardcoded right can you help me with writing a funny tweet okay so now this AI is going to answer this question very good because it is summarized right it is summarized so it is saying of course Harish I'm writing of can be delightful way to engage with your followers again I can you know look at the conversation buffer memory this this this query right here that would also be summarized right Harish introduceshimself AI greets Harish warmly expressing Readiness to chat uh and then finally uh you know um Harish is asking to write him a funny tweet right so that is also summarized right here okay so basically instead of hardcoding the entire uh conversation history there is another additional llm call that is getting made which summarizes the entire thing that is the only difference right here okay I hope that that makes sense let us now look at the next type of memory which is called conversation buffer window memory if you understand conversation uhlet's let me also show you where it is conversation buffer window right this one is what we the second one is what we are talking about right now if you understand conversation buffer which we know that you know it is just going to store the raw conversation history right the second one is very different uh I mean uh it's very similar I mean if you know what a window is we can basically specify this is the amount of past conversation two and fro that we can save in the memory okay which is saying that so basically what this means isinstead of having the entire conversation history instead of instead of having the entire conversation history as we do in conversation buffer memory instead of that we can just instruct the Lang chain class okay only save K is equal to 5 so in that that case only the uh the latest 5 two and pro is going to be saved in memory all the previous exchanges the conversation exchanges are going to be flushed out from memory okay so that is the only difference so let me uh I hope that makes sense let me actually you know umso show you what we're doing right here so similarly I'm importing it from memory the conversation buffer window memory and then we're setting K is equal to 2 and this only retains the last two interactions in memory okay so the same thing I'm setting verbos through instead of uh you know um uh the summary memory I'm passing in this window memory in the memory right here all right so first prompt right the first prompt is hi there I'm Harish um okay it is it is happening in the history buffer and thenthe AI saying hello Harish I'm great to meet you it's great to meet you and then I'm saying can you write me a funny LinkedIn post on something I ask right so uh what's happening right now uh so you can see that you know uh this is still maintained M right the first human message it is still maintained hello Harish it's great to meet you right and then the hum says can you write me a funny tweet on something I ask and then AI says absolutely Harish all right so you know uh everything is maintained thethis particular uh two and4 which constitutes as one conversation right that is maintained the second one is also maintained and then the third one is happening right now okay so I'm asking a question right here the AI saying of course Harish just let me know what is the topic and now I'm saying memory in Lang chain I wanted to write a LinkedIn post on memory in Lang chain so now let's let us look at the uh you know the history right here and you can see that there only exist the last two last two two and for conversations right onlythe last two is maintained all the things that happened previously is flushed out from memory so you can see that you know this hi there I'm Harish and hello Harish all of that is like removed from this particular history right here right so this would particularly be helpful if you know there are applications where you know most of the cases only the last two or five or at Max 10 uh you know history exchanges are required everything else we can probably remove right uh the users aren't going to um you know beable to notice it so in that case we can go for this particular type of uh this thing called conversation buffer window okay so that is why we have this window we can specify the window it could be K is equal to 3 5 10 whatever okay all right so let us now look at the next type of memory class which is called conversation summary buffer memory okay so you can find it right here conversation summary buffer memory so this is a hybrid model okay so in the past we've seen the window memory basically you can specify K is equal 2and you know it is only going to retain the last two conversations and then everything else is flushed out we also know the summary memory which is going to summarize everything that happened instead of keeping the hard data the the raw data this is a high ibrid wherein we can specify okay these are the amount of conversations that we have to hard code and then whatever is you know before that don't discard it but rather create a summary of it so there is another llm call that is being made and that summarizes everything together all rightso that is what this does so if I um there's a small difference with this particular class and the window memory in the window memory we specify a k value K is equal to 2 K is equal 3 K is equal 5 but this one we are specifying the token limit right so right here I'm specifying the token limit to be 40 okay so let's look at this particular conversation chain here I'm saying hi there I'm Harish and uh all right so this uh history is maintained right here and the AI gives a response and then youcan see that uh I'm asking another question right here I'm asking the AI to you know write me a LinkedIn post and then let's look at the history right here okay so the history you know all the human AI messages uh you know it is is summarized right here Harish introduces himself to the AI right and the reason why it is not you know restoring the original uh thing despite me setting 40 token limit that is because even that particular thing you know exceeded the 40 token limit so let me actually try to you know increase itto let's say uh uh let's say 200 right so let's try to do that I'm increasing it to 200 all right so I've just increased the token limit to 200 and I'm running it again so right now you can see that you know humans is this thing as usual we've already seen this AI responds with this particular thing and then this is the second input that I'm providing which is I'm doing good can you write me a LinkedIn post so now because I've increased the token limit to 200 you can see that this first thingis maintained right here okay previously because I set it very less it started summarizing it right away but then since I set it to 200 right now it is maintaining this hi there I'm Harish hello Harish it's great to meet you and you know this is the next input that I'm giving can you write me something about AI agents keep it short right so yeah ever after that it is it is started to summarize everything and that is how the conversation summary buffer memory works so so far we've seen how theconversation buffer memory Works how the conversation summary memory works and also the hybrid types like conversation buffer window memory conversation summary buffer memory right so let's now go ahead and start looking at what is entity memory so let us now look at what is entity memory so this type of memory remembers information about different entities so first let's look at what is an entity let's try to understand it better so that you know um we'll be able to see exactly what is the problem thatentity memory solves so an entity is any specific person or an organization or a product or concept that we want to track information about okay so entity memory stores and updates information about these entities across conversations the llm refers back to the entities and their values for future user prompts okay so I'll give you some examples of entities as well a person entity could be JN right JN is an entity right JN is a software engineer who likes coffee right so the llm is basically going to create entities like you know Johnequals software engineer who likes coffee right so the difference between all the different types of memory classes and this is that instead of you know summarizing it or you know coding everything together or something like that instead of all of that it is just going to have a dictionary or an object of entities and you know it's it's just going to have John and then this is what John does if there is another entity that comes in let's say Google uh introduced a particular product let's say Google equals you know introduced aparticular product uh so uh product entity iPhone 14 is a smartphone released in 2022 company entity so Tesla is an entity right there right Tesla equals Mix electric cars and batteries right so let's look at an example that I've prepared U this is basically to sort of help you contrast between you know without using entity memory and with using entity memory all right so this is the without case and we are not using any type of memory for that matter here right so I'm saying uh you know me the user is saying my cat whiskers is 3years old the AI is like that's nice and then you are seeing whiskers like tuna like stuna the AI is saying oh you have a cat what was the name again right because there is no memory at all so the llm does not know you know what is happening before what has happened before right uh let's look at you know with entity memory what happens so with entity memory uh okay if I were to say the same thing my cat whiskers is 3 years old The Entity memory gets saved whiskers is equal to cat ag3 AI is like that's nice you know andthen you are saying whiskers likes tuna and then the entity memory gets updated as time goes on so whiskers is now equal to Cat age3 likees tuna and the AI now has access to that particular entity and then it is saying oh good to know what Whiskers enjoys does your three-year-old cat like others Seafood too and then I'm seeing does whiskers like in the future if I were to ask something like does whiskers like fish well since whiskers enjoy stuna they probably like other fish too so you can see that the AI nowhas access to this entity memory right right so this object of you know um entities and their values are available to the llm so instead of storing the hard raw data in the memory or instead of you know summarizing everything this is like you know creating entities so that it becomes very easy for the llm to you know draw relationships between different entities okay so let's look at the advantages of using this particular entity memory and you'll be able to see where you can sort of employ this particular type of memory in yourapplications so more efficient storage right only keeping what matters right uh better organized information structured by entity in the past memory classes this would not be possible Right easier to update and reference specific details as well less context window usage since you're not storing every single message all right all right so this is all uh for entity memory let us now move on to another type of uh memory there there another type of memory after that but the last but before one is going to bethe conversation Knowledge Graph memory this Builds on top of the entity memory that we saw earlier let's let us look at you know what this does so this conversation graph memory is what we have right here all right so think of ckg or basically short for conversation Knowledge Graph memory as a sophisticated way to connect information in conversations like creating a web of relationships between different pieces of information so let's look at an example without a Knowledge Graph what happens so I cansay like you know John works at Apple Apple makes iPhones who makes John's company's products right so AI might struggle to connect these facts right so U basically imagine that you know um this is pretty straightforward you might argue that you know the llm can figure these things out but imagine there is like so many different you know relationships that are happening in the past the llm might actually struggle to uh or there's a lot of noise basically it is not a clear signal for the AI to go and fetch the relationships right solet's look at with Knowledge Graph so you are saying John works at Apple so basically what the llm does it creates nodes and relationships so it says John works at Apple right and then again I'm saying Apple makes iPhones it adds relationships Apple makes iPhones and then again if I were to ask a question let's say who makes John's company's products it can follow the connections John Apple iPhones so the AI can easily answer the company John works at Apple makes iPhones okay so entities is basicallyI'll I'll give you you know exactly what are the differences between uh you know what are the key differences between conversation Knowledge Graph memory and entity memory so instead of just storing facts like entity memory it stores uh the knowledge graph memory it stor stores relationship between those facts okay so that is the only difference information is stored as a network not just a list right so you you can imagine a graph to be a network of things right but if we if we were to look at the entity memory it is just a list ofthings right so can answer complex questions by following these connections so think of it like entity memory is like keeping organized notes about individual things whereas a Knowledge Graph memory is like drawing lines between these nodes not nodes nodes to show how everything is connected together okay so you now you might have a question can't llm figure out the relationship on its own we can just use a conversational buffer memory for everything right that seems like a very simple thing or convers window buffermemory right or a summary memory so why not why do we have to in some cases go for Knowledge Graph memory so one thing the obvious thing is context window limitations the conversation buffer memory uh you know here's a thousand message conversation about you know John Apple iPhones and other topics the llm has to process all of this to find the relevant connections okay but in a Knowledge Graph there is a graph like structure all the relationship are maintained all the relationships are maintained so Johnworks at Apple makes iPhones so it gets straight to the point with relationships okay let's look at the second one reliability of extraction so let's let's contrast conversation buffer memory and Knowledge Graph okay so the human if the human says who makes the products at John's company AI has to scan through potentially hundreds of messages might miss connections if they far apart could get distracted by irrelevant conversations in between because there's so much noise right but in a Knowledge Graph the human sorry ina Knowledge Graph human says okay who makes the product at John's company AI follows a clear path Johan works at Apple makes products so it is a structured path the llm doesn't have to work as much you save context limits you you save a lot of money there as well but at the same time you get more reliable answers all right let's look at the third one noise versus signal so the conversation buffer memory might contain you know the entire history right Hi how are you good thanks by the way John works at Apple that's cool do you makedid you watch a game yesterday Apple makes iPhones you know these are some history that you know it is Stay Saved but Knowledge Graph only extracts all the relationships between each of those things all right so the summary is that even though llms are great at understanding relationships giving them structured data Knowledge Graph instead of a raw conversation buffer helps them be more you know precise efficient reliable and memory efficient as well all right now so uh we we've come to the uh the last uh type of memory thatlangin provides which is called Vector store backed memory right so uh I'm hoping that you already know what Vector stores are vector you know uh retrieval augmented generation is if you do not know it I've got a longchain complete crash course where I'm teaching everything from scratch about what Rags are you know what Vector embeddings are what Vector databases are but if you do not know it that is completely fine I will give you sort of like a primer on it okay so let's look look at what arevector embeddings first all right so words and concepts are converted into numbers that capture their meaning all right so that is what a vector embedding is we're converting all the words sentences everything into a numerical representation so that you know for example cat and kitten would have very similar number patterns because they are related all right uh so basically what is a vector storage or a vector database A specialized database that stores these Vector embeddings all right so it can quickly find similar patterns when yousearch for something so we are able to semantically search for you know the right uh parts from the database based on whatever the user is asking for because everything is converted into a numerical representation like having a smart filing system that understands meaning not just exact matches all right so why use Vector storage it can handle massive amounts of text efficiently finds relevant information even if you use different words much faster than searching through raw text perfect for finding uh you know perfect forsearching through years of meeting recordings documents or chat logs right so you can imagine that you know basically let's say uh you are sort of you want to store you know all the information all the content uh let's say you want to you know record or transcribe all of the zoom meetings that happened in your company for the last one year and you might have had like so many different meetings every single day right that is a lot of data and you want the AI to go and search for you know okay what happened on this particularday at this particular thing what did we talk about with let's say John right so if you want the AI to go and retrieve that particular thing alone you can't like dump all the text to The llm Prompt it's not going to work out right because the context limit is like it's nowhere there right uh so that is exactly why we store it in this thing called Vector database and then we can query it and that serves as a memory for us right so this is the last type which is the vector store backed memory so basicallywe're using a database here and not a a class or anything like that a lch class so so far we've looked at all these different types of memories but you might also notice another thing if you come to this L chain documentation if I scroll up right here you can see that you know this is a documentation for L chain version one which is no longer maintained right you have to go for the latest version right here so the latest version recommends that we use land graph to maintain memory and not uh these particular classes and the reasonwhy I still included that in this particular video is that you know we still have to understand all these different types of uh you know memory in order to efficiently use it in L graph so L graph the way it handles it is a little different that is a separate course on its own but I will give you a very short primer as to how lra handles it all right so I've prepared the code for that already so let me me come right here so basically uh when we working with Lang chain you can imagine it like chains right it goes from left to rightright it goes from you know the the the starting it goes from the next thing you can't really stop it you can't really have a human come and review it it starts from the start and then goes till the end and nothing can stop it so that is a chain there is no real intelligence involved whereas with L graph though there is a lot of you know flexibility in how we can actually do things so we can actually pause a particular node executing have wait uh you know make it wait for a human to come and approve ityou know you can have a human and loop scenarios done you can create really complex agents which is not possible with Lang chain right so these are some things that L graph does which is why the entire world is sort of moving towards L graph uh for creating complex agents but uh as far as memory is concerned it is pretty straightforward so if you do not know how L graph works you can basically think of it as a graph data structure okay so in a graph data structure we have multiple nodes and all these nodes have relationships with eachother that is how land graph does as well and it gives you a lot of flexibility of building um really powerful you know uh agents right agentic workflows right so this is the code um this is where we are actually initializing the app let's actually go to this create chat app okay so this is a very simple chat uh application the chat bot that we're building right here so first off we are defining a new graph I'm saying State graph and then we are passing the messages state right here okay so the way it works is there is aglobal you can think of it like Redux for applications but instead for the entire node data structure there is going to be one Central uh store for saving the state right so that is going to be this uh particular messages state right here and then you know we're defining the model here as well basically every L graph app to have a start node and then a uh an end node right so this is going to be the start node we are adding another node right here called the call model node where you know anytime this particular node iscalled it is going to invoke the llm and then it is going to store the latest message to the messages list that we saw right here you can think of it as like an array of messages and every time we call this particular call uh model it is going to take the latest response and then append it to the global store the state and then if we come down here we have memory saver right and this is going to be the memory saver class and we are providing the memory right here okay so in the workflow compile we providing this is the type of memorywe're instructing L graph to use this particular type of memory and then we starting to you know run this particular thing right so uh you know I'm getting the user input and then you know if I were to say quit it just comes out of the loop or else you know it just Loops through the same thing again and again and again and then this memory saver is going to basically what this memory saver is it's it's the exact same thing as what we saw the conversation buffer memory it it just saves everything as araw uh data right so if I were to run this thing so I can say something like uh hey my name is Harish okay hello Harish it's nice to meet you okay and now I can say what is my name and it is going to your it is going to say your name is Harish right so basically how this works is no different to this particular conversation buffer memory okay so this is how Lang graph does it uh learning Lang graph is like a separate tutorial all together but I'll just give you a primer on how lingraph handles memory right so right now we areusing this class called memory saver which is going to be as I said the equivalent of the first class that we saw in Lang chain if we want in the future to have above a window there is going to be another class corresponding to the same thing right similar to that we have entty memory as well similar to that we have conversation summary as well right so now that we understand all these different types picking this up is going to be very very easy so if you're interested in L graph I've got a complete crash course on lra includingmemory that I'm attaching right here depending on when you're watching it might be there or not but I'll be attaching it right here but if it is not there right now do subscribe to the channel so that you know when I do put it out you'll be the first to know so that's pretty much it on memories and longchain I'll see you in the next video
+# LangChain Memory: Building Conversational Intelligence
+
+## Table of Contents
+- [LangChain Memory: Building Conversational Intelligence](#langchain-memory-building-conversational-intelligence)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Why Memory Matters](#why-memory-matters)
+  - [Memory Approaches in LLM Applications](#memory-approaches-in-llm-applications)
+    - [1. Built-in Model Memory](#1-built-in-model-memory)
+    - [2. Prompt-Based Memory](#2-prompt-based-memory)
+    - [3. External Storage and Retrieval](#3-external-storage-and-retrieval)
+  - [Memory Types in LangChain](#memory-types-in-langchain)
+    - [ConversationBufferMemory](#conversationbuffermemory)
+    - [ConversationSummaryMemory](#conversationsummarymemory)
+    - [ConversationBufferWindowMemory](#conversationbufferwindowmemory)
+    - [ConversationSummaryBufferMemory](#conversationsummarybuffermemory)
+    - [EntityMemory](#entitymemory)
+    - [ConversationKnowledgeGraphMemory](#conversationknowledgegraphmemory)
+    - [VectorStoreBackedMemory](#vectorstorebackedmemory)
+  - [Best Practices](#best-practices)
+    - [1. Match Memory Type to Use Case](#1-match-memory-type-to-use-case)
+    - [2. Consider Token Economy](#2-consider-token-economy)
+    - [3. Implement Memory Persistence](#3-implement-memory-persistence)
+    - [4. Provide Transparency to Users](#4-provide-transparency-to-users)
+    - [5. Address Privacy Concerns](#5-address-privacy-concerns)
+  - [Memory in LangGraph](#memory-in-langgraph)
+  - [Summary](#summary)
+
+## Introduction
+
+Memory is one of the most critical components in building effective conversational AI systems. Without memory, language models respond to each prompt in isolation, unable to remember previous interactions or maintain context over time. This creates disjointed conversations that feel unnatural and lack the continuity humans expect.
+
+LangChain provides a robust framework for implementing different types of memory in your LLM applications, allowing your AI to maintain conversation context, track entities, build knowledge graphs, and deliver more coherent and personalized interactions.
+
+## Why Memory Matters
+
+Memory is essential in LLM applications for several key reasons:
+
+1. **Human-like Interactions**: Humans naturally expect conversation partners to remember previous exchanges. When an AI recalls details from earlier in the conversation, it creates a more natural and satisfying user experience.
+
+2. **Context Maintenance**: Many questions and statements only make sense in the context of previous exchanges. Memory allows the AI to interpret these contextual references correctly.
+
+3. **Personalization**: By remembering user preferences, characteristics, and previous interactions, AI can provide more personalized and relevant responses.
+
+4. **Efficiency**: Without memory, users would need to restate relevant information in every prompt, making conversations tedious and inefficient.
+
+## Memory Approaches in LLM Applications
+
+There have been several approaches to implementing memory in LLM applications:
+
+### 1. Built-in Model Memory
+
+Some attempts have been made to build memory capabilities directly into transformer models. However, this approach hasn't been optimal, even with the most advanced models from OpenAI and Anthropic as of 2025. Built-in memory remains limited, which is why external memory management is the preferred approach.
+
+### 2. Prompt-Based Memory
+
+The simplest approach is to include conversation history directly in the prompt. For example:
+
+```python
+system_message = "You are a digital assistant named Alex who enjoys talking with Harish."
+history = [
+    {"role": "user", "content": "Hi, I'm Harish. I love photography."},
+    {"role": "assistant", "content": "Hi Harish! I'm Alex. Photography is fascinating!"},
+    {"role": "user", "content": "I mostly take nature shots, especially birds."},
+    {"role": "assistant", "content": "Bird photography requires such patience and precision!"}
+]
+new_user_message = "Hi Alex, remember my bird photography?"
+```
+
+By including the entire conversation history in the prompt, the model can respond with appropriate context. However, this approach has significant limitations:
+
+- **Context Window Constraints**: Even the most advanced models have token limits (e.g., 128K tokens for GPT-4). As conversations grow, they will eventually exceed these limits.
+- **Cost Inefficiency**: Including the entire conversation history in every prompt increases token usage and costs.
+- **Performance Issues**: Large prompts can slow down model response times.
+
+### 3. External Storage and Retrieval
+
+A more advanced approach is to store conversation history in external systems (databases, vector stores, etc.) and selectively retrieve relevant information when needed. This approach is particularly effective for long conversations or when incorporating external knowledge.
+
+## Memory Types in LangChain
+
+LangChain offers several memory implementations, each designed for different use cases and with unique strengths and limitations:
+
+### ConversationBufferMemory
+
+This is the most basic form of memory in LangChain. It simply stores the complete conversation history (messages from both the human and AI) and includes it in future prompts.
+
+```python
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationChain
+from langchain.chat_models import ChatOpenAI
+
+# Initialize the memory
+memory = ConversationBufferMemory()
+
+# Create a conversation chain with the memory
+conversation = ConversationChain(
+    llm=ChatOpenAI(model="gpt-4", temperature=0),
+    memory=memory,
+    verbose=True
+)
+
+# First interaction
+conversation.predict(input="Hi there, I'm Harish.")
+# Output: "Hello Harish, it's great to meet you..."
+
+# Second interaction
+conversation.predict(input="How are you today?")
+# The prompt now includes the previous exchange
+```
+
+**How it works:**
+- The entire conversation history is stored verbatim in a buffer.
+- For each new prompt, the complete history is included in the context.
+- No processing or summarization is performed.
+
+**Advantages:**
+- Simple to implement and understand
+- Preserves all conversation details exactly as they occurred
+- Perfect for short conversations
+
+**Limitations:**
+- Not scalable for lengthy conversations due to context window limitations
+- Can become expensive as token count increases
+- No filtering or prioritization of information
+
+### ConversationSummaryMemory
+
+Instead of storing the full conversation verbatim, this memory type periodically creates a summary of the conversation history using an LLM. This summary replaces the detailed history to save tokens.
+
+```python
+from langchain.memory import ConversationSummaryMemory
+
+memory = ConversationSummaryMemory(llm=ChatOpenAI(model="gpt-4", temperature=0))
+conversation = ConversationChain(
+    llm=ChatOpenAI(model="gpt-4", temperature=0),
+    memory=memory,
+    verbose=True
+)
+
+# After several interactions
+# Instead of storing all messages, it will contain a summary like:
+# "Harish introduced himself to the AI. They discussed photography, 
+# particularly Harish's interest in bird photography. The AI expressed 
+# appreciation for the technical skill required in wildlife photography."
+```
+
+**How it works:**
+- After each exchange, the memory uses an LLM to generate a concise summary of the conversation so far.
+- Only this summary (not the raw conversation) is included in future prompts.
+- The summary is continually updated as the conversation progresses.
+
+**Advantages:**
+- Significantly reduces token usage for long conversations
+- Maintains essential context while discarding less important details
+- More scalable than buffer memory for extended interactions
+
+**Limitations:**
+- May lose specific details that could be important later
+- Requires additional LLM calls to generate summaries, adding latency and cost
+- Summary quality depends on the underlying LLM
+
+### ConversationBufferWindowMemory
+
+This memory type keeps only the most recent K interactions in the conversation history, discarding older exchanges.
+
+```python
+from langchain.memory import ConversationBufferWindowMemory
+
+# Only keep the last 2 interactions in memory
+memory = ConversationBufferWindowMemory(k=2)
+conversation = ConversationChain(
+    llm=ChatOpenAI(model="gpt-4", temperature=0),
+    memory=memory,
+    verbose=True
+)
+
+# First interaction
+conversation.predict(input="Hi there, I'm Harish.")
+# Second interaction
+conversation.predict(input="Can you write me a LinkedIn post?")
+# Third interaction
+conversation.predict(input="Make it about AI in healthcare.")
+
+# At this point, the memory only contains the second and third interactions
+# The first interaction has been forgotten
+```
+
+**How it works:**
+- Maintains a fixed-size window of the most recent K conversation turns.
+- When new messages arrive, the oldest messages are removed to maintain the window size.
+- Only messages within this window are included in future prompts.
+
+**Advantages:**
+- Keeps token usage constant regardless of conversation length
+- Focuses on recent context, which is often most relevant
+- Simple to implement and predictable memory usage
+
+**Limitations:**
+- Completely loses older context that might still be relevant
+- Fixed window size may be too small or large for different conversations
+- Can make the AI seem forgetful about earlier topics
+
+### ConversationSummaryBufferMemory
+
+This is a hybrid approach that combines aspects of both buffer and summary memory. It keeps the most recent conversations in a buffer while summarizing older conversations.
+
+```python
+from langchain.memory import ConversationSummaryBufferMemory
+
+# Keep messages up to a token limit, then summarize older ones
+memory = ConversationSummaryBufferMemory(
+    llm=ChatOpenAI(model="gpt-4", temperature=0),
+    max_token_limit=200
+)
+conversation = ConversationChain(
+    llm=ChatOpenAI(model="gpt-4", temperature=0),
+    memory=memory,
+    verbose=True
+)
+```
+
+**How it works:**
+- Tracks the token count of the conversation buffer.
+- When the token count exceeds the specified limit, it summarizes the oldest messages.
+- The summary and the recent messages (still in buffer) are both included in future prompts.
+
+**Advantages:**
+- Balances detail retention with token efficiency
+- Preserves exact wording of recent exchanges while maintaining context from older ones
+- More flexible than either pure buffer or pure summary approaches
+
+**Limitations:**
+- More complex to implement and tune
+- Still requires additional LLM calls for summarization
+- Finding the optimal token limit requires experimentation
+
+### EntityMemory
+
+Instead of focusing on the chronological flow of conversation, EntityMemory tracks specific entities (people, organizations, products, concepts) mentioned in the conversation and remembers attributes associated with them.
+
+```python
+from langchain.memory import ConversationEntityMemory
+
+memory = ConversationEntityMemory(llm=ChatOpenAI(model="gpt-4", temperature=0))
+conversation = ConversationChain(
+    llm=ChatOpenAI(model="gpt-4", temperature=0),
+    memory=memory,
+    verbose=True
+)
+
+# User: "My cat Whiskers is 3 years old."
+# Memory stores: {"whiskers": "cat, age 3"}
+
+# User: "Whiskers likes tuna."
+# Memory updates: {"whiskers": "cat, age 3, likes tuna"}
+
+# Later, user asks: "Does Whiskers like fish?"
+# The AI can access the entity information to inform its response
+```
+
+**How it works:**
+- As the conversation progresses, the memory identifies entities and their attributes.
+- These are stored in a structured format (typically a dictionary).
+- When entities are referenced in later conversations, the memory provides their attributes to the LLM.
+
+**Advantages:**
+- More efficient storage, only keeping information about specific entities
+- Better organized information, structured by entity
+- Easier to update and reference specific details
+- Reduces context window usage compared to full conversation storage
+
+**Limitations:**
+- May miss contextual information that isn't tied to specific entities
+- Requires more sophisticated parsing to identify entities and attributes
+- Entity extraction may not always be accurate
+
+### ConversationKnowledgeGraphMemory
+
+This memory type extends EntityMemory by not just tracking entities and their attributes, but also the relationships between different entities, creating a knowledge graph.
+
+```python
+from langchain.memory import ConversationKnowledgeGraphMemory
+
+memory = ConversationKnowledgeGraphMemory(llm=ChatOpenAI(model="gpt-4", temperature=0))
+conversation = ConversationChain(
+    llm=ChatOpenAI(model="gpt-4", temperature=0),
+    memory=memory,
+    verbose=True
+)
+
+# User: "John works at Apple."
+# Graph stores: (John) -[works at]-> (Apple)
+
+# User: "Apple makes iPhones."
+# Graph stores: (Apple) -[makes]-> (iPhones)
+
+# User: "Who makes John's company's products?"
+# The AI can follow the path: John -[works at]-> Apple -[makes]-> iPhones
+```
+
+**How it works:**
+- Creates a graph structure where entities are nodes and relationships are edges.
+- As new information is introduced, it updates this graph accordingly.
+- For answering questions, it can traverse the graph to find connections between entities.
+
+**Advantages:**
+- Stores relationships between facts, not just the facts themselves
+- Can answer complex questions by following connection paths
+- Information is stored as a network, not just a list
+- More structured representation of knowledge than raw text
+
+**Limitations:**
+- More complex to implement and maintain
+- Relationship extraction may not always be accurate
+- May not capture nuanced or ambiguous relationships well
+
+### VectorStoreBackedMemory
+
+This advanced memory type uses vector embeddings and semantic search to retrieve relevant past conversations based on the current query, rather than including all history.
+
+```python
+from langchain.memory import VectorStoreRetrieverMemory
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import Chroma
+
+# Create embeddings
+embeddings = OpenAIEmbeddings()
+# Create vector store
+vector_store = Chroma(embedding_function=embeddings)
+# Create retriever
+retriever = vector_store.as_retriever(search_kwargs={"k": 3})
+# Create memory
+memory = VectorStoreRetrieverMemory(retriever=retriever)
+
+# As conversation happens, messages are stored in the vector store
+# When a new query comes, semantically similar previous messages are retrieved
+```
+
+**How it works:**
+- Conversation turns are converted into vector embeddings that capture their semantic meaning.
+- These embeddings are stored in a vector database.
+- For each new user input, semantically similar previous exchanges are retrieved and included in the prompt.
+
+**Advantages:**
+- Can handle massive amounts of conversation history efficiently
+- Retrieves only the most relevant past context for each new query
+- Finds relevant information even when different wording is used
+- Perfect for long-running conversations or knowledge bases with years of data
+
+**Limitations:**
+- More complex to set up and maintain
+- Requires additional infrastructure for the vector store
+- Embedding generation adds latency and cost
+- Quality depends on the embedding model and retrieval strategy
+
+## Best Practices
+
+When implementing memory in your LangChain applications, consider these best practices:
+
+### 1. Match Memory Type to Use Case
+
+Different memory types are suitable for different scenarios:
+- **Short, simple conversations**: Use `ConversationBufferMemory`
+- **Long conversations with general context**: Use `ConversationSummaryMemory`
+- **Focus on recent exchanges**: Use `ConversationBufferWindowMemory`
+- **Tracking specific entities**: Use `EntityMemory`
+- **Complex relationship tracking**: Use `ConversationKnowledgeGraphMemory`
+- **Massive conversation history**: Use `VectorStoreBackedMemory`
+
+### 2. Consider Token Economy
+
+Memory directly impacts token usage, which affects both cost and performance:
+- Monitor token usage with different memory implementations
+- Set appropriate limits for buffer sizes and summary frequencies
+- Consider hybrid approaches for the best balance
+
+### 3. Implement Memory Persistence
+
+For production applications, ensure memory persists across sessions:
+- Implement serialization/deserialization of memory objects
+- Consider database storage for memory state
+- Enable users to clear or manage their conversation history
+
+### 4. Provide Transparency to Users
+
+Users should understand how and what the system remembers:
+- Consider adding a feature to view what the AI remembers
+- Allow users to correct misconceptions in the AI's memory
+- Provide options to delete sensitive information from memory
+
+### 5. Address Privacy Concerns
+
+Memory raises important privacy considerations:
+- Clearly communicate what information is being stored
+- Implement appropriate data retention policies
+- Ensure compliance with relevant privacy regulations
+- Consider offering "incognito" modes that don't store history
+
+## Memory in LangGraph
+
+While traditional LangChain memory classes are still useful, the LangChain ecosystem is evolving toward LangGraph for more complex applications. LangGraph offers a more flexible and powerful way to implement memory in agent-based systems.
+
+Unlike the linear flow of traditional chains, LangGraph uses a graph-based approach where nodes can represent different states and components of your application, with memory integrated into the state management system.
+
+```python
+from langgraph.graph import StateGraph
+from typing import Dict, List
+
+# Define the graph state (including memory)
+class GraphState:
+    messages: List[Dict]
+    memory: Dict
+
+# Create a new graph
+graph = StateGraph(GraphState)
+
+# Define nodes
+@graph.node
+async def call_model(state: GraphState) -> GraphState:
+    # Process state, call model, update memory
+    return updated_state
+
+# Connect nodes
+graph.add_node("call_model", call_model)
+graph.set_entry_point("call_model")
+```
+
+LangGraph offers several advantages for memory management:
+- More flexible state management
+- Support for complex agent systems
+- Ability to pause execution for human intervention
+- Better handling of multi-agent conversations
+- Integration with different types of memory simultaneously
+
+## Summary
+
+Memory is a crucial component in building effective LLM applications that can maintain context, remember important details, and deliver coherent, personalized experiences. LangChain provides a comprehensive set of memory implementations to suit different use cases and requirements.
+
+When designing your application, consider the nature of the conversations, the importance of historical context, token efficiency, and the specific entities or relationships you need to track. By selecting the appropriate memory type and implementing best practices, you can create conversational AI experiences that feel natural, informed, and responsive.
+
+As the field evolves, the move toward graph-based systems like LangGraph opens new possibilities for even more sophisticated memory management in complex AI applications.
+
+```mermaid
+graph TD
+    A[Conversation Input] --> B{Memory Type}
+    B -->|Simple| C[ConversationBufferMemory]
+    B -->|Summarized| D[ConversationSummaryMemory]
+    B -->|Recent Only| E[ConversationBufferWindowMemory]
+    B -->|Hybrid| F[ConversationSummaryBufferMemory]
+    B -->|Entity Tracking| G[EntityMemory]
+    B -->|Relationship Tracking| H[ConversationKnowledgeGraphMemory]
+    B -->|Semantic Search| I[VectorStoreBackedMemory]
+    C --> J[LLM Processing]
+    D --> J
+    E --> J
+    F --> J
+    G --> J
+    H --> J
+    I --> J
+    J --> K[Response Generation]
+    K --> L[Update Memory]
+    L --> A
+```
