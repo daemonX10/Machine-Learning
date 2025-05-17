@@ -523,19 +523,20 @@ Input → Prompt Template → LLM → Output
 ### Sequential Chain
 ```
 Input → Chain1 → Output1 → Chain2 → Output2 → ... → ChainN → Final Output
+
 ```
 
 ### Router Chain
-
+```
                     ┌─────► Chain1 ─────┐
                     │                   │
 Input → Routing LLM ├─────► Chain2 ─────┤ → Output
                     │                   │
                     └─────► Chain3 ─────┘
-
+```
 
 ### Retrieval QA Chain
-
+```
 Question ──────────────────────┐
                                │
                                ▼
@@ -549,10 +550,10 @@ Document DB → Retriever → Retrieved Docs → Context Construction
                                                │
                                                ▼
                                             Answer
-
+```
 
 ## Memory Types and Their Use Cases
-
+```
 
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Memory Types                              │
@@ -573,11 +574,11 @@ Document DB → Retriever → Retrieved Docs → Context Construction
 │ Conversation  │ Manages messages      │ Multi-turn               │
 │ Token Buffer  │ within token limits   │ conversations            │
 └───────────────┴───────────────────────┴──────────────────────────┘
-
+```
 
 ## Core Abstractions in LangChain
 
-
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Core LangChain Abstractions                  │
 ├─────────────┬─────────────┬────────────────┬───────────────────┤
@@ -589,7 +590,7 @@ Document DB → Retriever → Retrieved Docs → Context Construction
 │  Memory     │  Retriever  │   Embedding    │     Agent         │
 │             │             │                │                   │
 └─────────────┴─────────────┴────────────────┴───────────────────┘
-
+```
 
 ## LangChain Class Hierarchy and Functions
 
