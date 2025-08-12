@@ -1,0 +1,1770 @@
+i have add refernce type question to add this for
+topic also - give me for first 10 topic now --
+minimum 50 question for each topic --- ### 🧠
+Supervised / Unsupervised Learning
+Ridge / Lasso / ElasticNet Regression
+CatBoost
+Gradient Boosting
+AdaBoost
+Bagging
+Boosting
+Stacking
+Voting Classifier
+K-Means Clustering
+DBSCAN
+Hierarchical Clustering
+Gaussian Mixture Models (GMM)
+Isolation Forest
+Principal Component Analysis (PCA)
+t-SNE
+Autoencoders (Unsupervised)
+🧠 Deep Learning Architectures
+Neural Networks (ANN / MLP)
+Convolutional Neural Networks (CNN)
+Recurrent Neural Networks (RNN)
+Long Short-Term Memory (LSTM)
+Gated Recurrent Unit (GRU)
+Transformers
+Vision Transformers (ViT)
+Swin Transformer
+StyleGAN / StyleGAN2 / StyleGAN3
+CycleGAN
+Pix2Pix
+U-Net
+ResNet / VGG / EfficientNet / MobileNet
+DenseNet / InceptionNet
+Diffusion Models (e.g., Stable Diffusion)
+NeRF
+3D Gaussian Splatting
+
+1. Ridge / Lasso / Elastic Net Regression Regularized Linear Models) – 50
+Questions
+1. What problem does L2-regularization (Ridge) solve in ordinary least squares?
+2. How does the cost function of Ridge regression differ from that of Lasso?
+3. Explain, mathematically, why Ridge never produces exact zero coefficients.
+4. Why can Lasso be used for feature selection while Ridge usually cannot?
+5. Derive the closed-form solution for Ridge coefficients.
+. Describe coordinate-descent optimization for Lasso.
+. What is the geometric intuition behind the L1 vs L2 constraint regions?
+. How does Elastic Net combine the strengths of Ridge and Lasso?
+. When would Elastic Net outperform pure Lasso on correlated predictors?
+10. Define the hyper-parameters α and λ in sklearnʼs ElasticNet.
+11. How do you tune λ in practice? List three methods.
+12. Describe cross-validation for choosing regularization strength.
+13. What is the bias–variance trade-off when increasing λ in Ridge?
+14. Show how standardizing predictors affects Ridge/Lasso solutions.
+15. Why does Lasso sometimes behave erratically when p ≫ n?
+1. Explain the idea of “grouped” variable selection in Elastic Net.
+1. Compare Ridge/Lasso to subset selection in terms of computational cost.
+1. What is the “oracle property” in the context of Lasso?
+1. How does the elastic-net mixing parameter ρ influence sparsity?
+20. In which scenarios can Ridge regression beat OLS even when n > p?
+21. Discuss multicollinearity and how regularization fixes it.
+22. Provide a real example where Lasso harmed model interpretability.
+23. What are potential pitfalls when using Lasso for time-series data?
+24. Show how Bayesian Ridge relates to L2-regularization.
+25. How would you extend Lasso to generalized linear models?
+2. Explain warm-starts in coordinate descent for Lasso paths.
+2. Compare glmnet (R) and sklearn (Python) implementations of Elastic Net.
+2. What is “adaptive Lasso”? Describe its two-stage procedure.
+2. Discuss limitations of Lasso with highly correlated true signals.
+30. Explain “cross-validation one-standard-error rule” for λ selection.
+31. How does Ridge handle categorical variables encoded via one-hot?
+32. Why can Lasso under-select in presence of grouped predictors?
+33. When does Elastic Net degenerate to Ridge or Lasso?
+34. Show how to plot the coefficient path as a function of λ.
+35. Discuss computational complexity of coordinate descent vs LARS.
+3. Explain how to interpret standardized coefficients after Ridge.
+3. What diagnostics would you inspect after fitting a regularized model?
+3. How do Ridge/Lasso react to heteroscedastic errors?
+3. Describe the effect of strong regularization on model residuals.
+40. Explain why Lasso may pick different features across CV folds.
+41. Can you parallelize cross-validation for λ search? How?
+42. How do you handle missing values before regularized regression?
+43. Discuss the impact of outliers on Ridge and Lasso.
+44. Explain “post-Lasso OLS” and its benefits.
+45. Contrast Ridge/Lasso with Principal Component Regression.
+4. What is group Lasso and how is it solved?
+4. Describe the dual formulation of Ridge regression.
+4. Explain early stopping in gradient-descent Ridge fitting.
+4. How would you adapt Elastic Net for multinomial classification?
+50. Give an industry case study where Elastic Net improved performance.
+2. CatBoost – 50 Questions
+1. What motivated the creation of CatBoost compared with XGBoost and LightGBM?
+2. How does CatBoost natively handle categorical features?
+3. Explain the concept of “ordered target statistics” in CatBoost.
+4. Why are target-leakage and prediction shift concerns in naive target encoding?
+5. Describe symmetric (oblivious) decision trees used by CatBoost.
+. Outline CatBoostʼs ordered boosting process and its benefit.
+. Compare CatBoostʼs handling of missing values to that of XGBoost.
+. What is the role of the ctr_leaf_weight parameter?
+. Explain how CatBoost reduces gradient bias on small data.
+10. Describe the difference between plain and ordered boosting modes.
+11. How does CatBoost implement multi-class classification internally?
+12. Discuss GPU acceleration in CatBoost versus competitors.
+13. Explain CatBoostʼs eval_metric vs loss_function.
+14. What is “snapshot saving,” and why is it useful for long training jobs?
+15. How can you export a CatBoost model to Core ML or ONNX?
+1. Discuss depth and iterations hyper-parametersʼ impacts.
+1. Describe CatBoostʼs built-in cross-validation utility.
+1. When should you use CatBoostʼs calc_feature_importance vs SHAP values?
+1. Explain the meaning of “one-hot max size” in CatBoost.
+20. How does CatBoost avoid overfitting due to high-cardinality categories?
+21. Whatʼs CatBoostʼs policy for monotonic constraints?
+22. Compare CatBoostʼs oblivious trees to LightGBMʼs leaf-wise trees in depth.
+23. How can you enable/disable bagging in CatBoost?
+24. Discuss CatBoostʼs od_type (overfitting detector) options.
+25. Explain the role of prior distributions in CatBoost categorical targets.
+2. Outline steps to perform grid/random search for CatBoost parameters.
+2. How do learning_rate and l2_leaf_reg interact in CatBoost?
+2. Discuss CatBoostʼs support for text and embedding features.
+2. How would you interpret CatBoostʼs “prediction values change” importance?
+30. What data preprocessing steps are unnecessary with CatBoost?
+31. Describe memory considerations when training CatBoost on large data.
+32. Explain CatBoostʼs quantization of numerical features.
+33. How to set class weights for imbalanced classification?
+34. What is the use of pairwise loss in ranking tasks?
+35. Discuss best practices for early stopping in CatBoost.
+3. How does CatBoost random seed affect reproducibility?
+3. Outline deployment options for CatBoost in real-time systems.
+3. Explain CatBoostʼs model compression techniques (CTR pruning).
+3. Discuss limitations of CatBoost for sparse NLP feature sets.
+40. How to combine CatBoost with SHAP library efficiently?
+41. Explain CatBoostPool and how to pass feature names.
+42. What are floating-point versus integer categorical representations?
+43. How can you handle unseen categories in production inference?
+44. Compare CatBoostʼs logloss to cross-entropy implementations.
+45. Describe parameter tuning order for CatBoost (baseline, then fine-tune).
+4. How does using bootstrap_type=Bayesian differ from Bernoulli?
+4. Explain the internal fast scoring (oblivious tree bitset evaluation).
+4. How does CatBoost support multi-label tasks?
+4. Provide a case study where CatBoost beat traditional one-hot LightGBM.
+50. What future features are planned in CatBoostʼs roadmap?
+3. Gradient Boosting GBM) – 50 Questions
+1. Explain boosting in ensemble learning.
+2. Derive the additive model formulation of GBM.
+3. What loss functions are available for GBM?
+4. Describe stage-wise additive modeling.
+5. How does learning rate shrinkage affect GBM performance?
+. Discuss subsampling (stochastic GBM) and its effect on variance.
+. Explain the role of tree depth in GBM bias-variance trade-off.
+. Compare GBM to Random Forest in terms of bias and variance.
+. How is the negative gradient used as pseudo-residuals?
+10. Outline the training loop of GBM in pseudocode.
+11. Explain how GBM handles categorical predictors (generic answer).
+12. Discuss the effect of interaction depth parameter.
+13. What is the concept of “warm start” in GBM implementations?
+14. How does monotone constraint enforcement work in GBM?
+15. Explain how to interpret feature importance in GBM.
+1. What is the impact of n_estimators on overfitting?
+1. Compare Friedman's original GBM to XGBoost.
+1. Describe how GBM can be used for ranking problems.
+1. Explain gradient boosting with logistic loss for binary classification.
+20. How do you tune hyper-parameters of GBM systematically?
+21. Discuss advantages of histogram-based GBM over exact splits.
+22. Explain the concept of “interaction constraints” in modern GBM.
+23. What regularization techniques exist for GBM besides learning rate?
+24. Compare L1 vs L2 regularization on leaf weights (as in XGBoost).
+25. Explain influence of min_child_weight / min_samples_split.
+2. Discuss initial prediction offset in GBM.
+2. How does early stopping work in GBM?
+2. What is the typical default base learner used in GBM and why?
+2. Describe huber loss and quantile loss in GBM.
+30. Explain how GBM is extended to multiclass tasks (softmax).
+31. What is the idea behind dart (dropout) boosting?
+32. Discuss categorical histogram splits (LightGBM).
+33. Explain GPU acceleration benefits for GBM.
+34. Provide steps to diagnose a poorly performing GBM.
+35. Discuss interpretability challenges with GBM.
+3. Compare AdaBoost vs Gradient Boosting in error focus.
+3. Explain how learning rate and number of trees interact.
+3. What is out-of-bag improvement plot and how to use it?
+3. Describe influence functions for GBM interpretability.
+40. Explain randomization strategies in GBM to reduce overfitting.
+41. Discuss calibration of GBM probability outputs.
+42. How to handle class imbalance in GBM?
+43. Explain use of GBM in time series forecasting with lag features.
+44. Describe parameter differences between scikit-learn GBM and LightGBM.
+45. How to visualize partial dependence for GBM models?
+4. Explain leaf-wise vs level-wise tree growth (LightGBM).
+4. Discuss the role of colsample_bytree in GBM.
+4. Provide an example of using GBM for insurance claim severity.
+4. Explain limitations of GBM with extremely sparse data.
+50. Describe future trends in gradient boosting research.
+4. AdaBoost – 50 Questions
+1. Describe the AdaBoost algorithm intuition.
+2. Explain weak learner requirements for AdaBoost.
+3. How are sample weights updated after each round?
+4. Derive the weight update formula using exponential loss.
+5. Explain why AdaBoost focuses on hard-to-classify samples.
+. Discuss the effect of weak learner overfitting on AdaBoost.
+. What is AdaBoost.M1 versus AdaBoost.M2?
+. Explain discrete AdaBoost vs Real AdaBoost.
+. How is classifier weight α_t computed?
+10. Discuss margin theory and AdaBoost generalization.
+11. Why can AdaBoost be robust to overfitting with many trees?
+12. What base estimators are typically used with AdaBoost?
+13. Contrast AdaBoost with LogitBoost.
+14. How does AdaBoost handle noisy labels?
+15. Explain shrinkage (learning rate) in AdaBoost.
+1. Discuss the number of estimators vs performance curve.
+1. How do class imbalances affect AdaBoost training?
+1. Explain SAMME and SAMME.R algorithms in sklearn.
+1. Provide pseudo-code for AdaBoost binary classification.
+20. Compare AdaBoost to Gradient Boosting.
+21. Explain influence of max_depth of decision stumps in AdaBoost.
+22. How can AdaBoost be adapted for regression (AdaBoost.R2)?
+23. Discuss the role of exponential loss as upper bound on 0-1 loss.
+24. Explain AdaBoostʼs sensitivity to outliers.
+25. How does AdaBoost perform feature selection implicitly?
+2. Describe ways to visualize AdaBoost decision boundaries.
+2. Discuss heteroskedasticity in AdaBoost regression.
+2. What is AdaCost and cost-sensitive boosting?
+2. Explain how AdaBoost can be parallelized.
+30. Discuss AdaBoost with SVM base learners.
+31. Explain multi-class AdaBoost.W.MH algorithm.
+32. What is BrownBoost and how does it differ?
+33. Describe GentleBoost and its advantages.
+34. Explain AdaBoost ensemble pruning methods.
+35. Discuss hybrid AdaBoost with Random Forest stumps.
+3. How would you tune hyper-parameters of AdaBoost?
+3. Explain theoretical convergence of training error in AdaBoost.
+3. Provide a real-world application where AdaBoost excels.
+3. Compare AdaBoost and Bagging on variance control.
+40. How is AdaBoost used for face detection (Viola-Jones)?
+41. Explain L2-regularized AdaBoost variants.
+42. What diagnostics indicate AdaBoost is overfitting?
+43. Explain margin distribution plots for AdaBoost.
+44. Discuss AdaBoost in presence of label noise - MadaBoost.
+45. Describe adaptive boosting for imbalanced cost settings.
+4. Explain how to extend AdaBoost for ranking (AdaRank).
+4. Provide guidelines for choosing weak learner complexity.
+4. Discuss interpretability strategies for AdaBoost.
+4. Explain weighted voting at inference in AdaBoost.
+50. Compare AdaBoostʼs computational complexity with GBM.
+5. Bagging – 50 Questions
+1. Define bootstrap aggregating (bagging).
+2. Explain variance reduction via bagging.
+3. How are bootstrap samples generated?
+4. Describe OOB (out-of-bag) error estimation.
+5. Compare bagging to sub-sampling without replacement.
+. Which algorithms benefit most from bagging?
+. Explain why bagging works less well for high-bias models.
+. Describe random subspace method vs bagging.
+. How does bagging affect bias?
+10. Calculate the probability a sample appears in a bootstrap set.
+11. Explain pasting vs bagging in sklearn.
+12. Discuss effect of number of base learners.
+13. Explain parallelization advantages of bagging.
+14. How is feature importance aggregated in bagged trees?
+15. Discuss bagging for regression vs classification.
+1. Explain “OOB score” and how to compute confidence intervals.
+1. Compare bagging with boosting in error focus.
+1. Describe the influence of max_features in random subspace.
+1. Explain bagging for KNN algorithms.
+20. Discuss baggingʼs robustness to overfitting compared with single tree.
+21. Explain bias–variance decomposition for bagged models.
+22. Provide formula for aggregated prediction in regression bagging.
+23. Describe bootstrap bias correction techniques.
+24. Explain why deeper trees can be used safely in Random Forest.
+25. Discuss computational cost of bagging for large datasets.
+2. Explain stratified bootstrap for class imbalance.
+2. Compare bagging with stacking ensembles.
+2. Discuss jackknife-after-bootstrap variance estimation.
+2. Explain how to visualize diversity among bagged models.
+30. Describe bagging for unstable learners with examples.
+31. Explain “double-bagging” concept.
+32. Discuss using bagging with logistic regression (bagged LR).
+33. Explain memory considerations with many bagged models.
+34. Discuss bagging of time-series models with circular block bootstrap.
+35. Explain bias correction in bagged predictors (Bouquet method).
+3. Provide guidelines for hyper-parameter tuning in bagging.
+3. Discuss bagging for unsupervised clustering ensembles.
+3. Explain cumulative voting vs averaging in bagging.
+3. Describe OOB permutation importance in bagged trees.
+40. Explain limitations of bagging with small datasets.
+41. Discuss bagging for neural networks (“bootstrap neural nets”).
+42. Explain how bagging improves calibration of probabilities.
+43. Discuss bagging and cross-validation combination.
+44. Describe multi-output bagging strategies.
+45. Explain bagging for anomaly detection models.
+4. Compare bagging to dropout in neural networks conceptually.
+4. Discuss bagging for streaming data (online bagging).
+4. Explain randomized smoothing and bagging for robustness.
+4. Provide industrial example of bagging usage.
+50. Discuss future research directions in bagging ensembles.
+6. Boosting General Concepts) – 50 Questions
+1. Summarize the core idea of boosting.
+2. Explain additive modeling in boosting.
+3. Contrast error focus of boosting with variance focus of bagging.
+4. Why do boosted ensembles often have low bias?
+5. Discuss sequential dependency in boosting iterations.
+. Explain adaptive reweighting of samples.
+. Compare AdaBoost, Gradient Boosting, XGBoost conceptually.
+. Define weak learner and strong learner in PAC sense.
+. Discuss boosting convergence guarantees.
+10. Explain margin theory in boosting performance.
+11. How does shrinkage generalize AdaBoost?
+12. Describe influence of base learner complexity.
+13. Explain boosting interpretability challenges.
+14. Discuss boosting on imbalanced datasets.
+15. Compare Gradient Boosting loss functions.
+1. Explain functional gradient descent derivation.
+1. Discuss boosting for ranking tasks.
+1. Describe robustness of boosting to label noise.
+1. Explain boosting combined with bagging (bag-boosting).
+20. Discuss overfitting risk in boosting and remedies.
+21. Explain empirical vs theoretical justification of boosting.
+22. Describe boosting for probability calibration.
+23. Explain multi-class boosting extensions.
+24. Discuss boosting for structured outputs.
+25. Explain online boosting algorithms.
+2. Compare BrownBoost, LogitBoost, GentleBoost.
+2. Discuss computational complexity scaling in boosting.
+2. Explain hyper-parameter tuning hierarchy.
+2. What is “boosting with early stopping”?
+30. Discuss boosting with categorical variables.
+31. Explain boosting for survival analysis.
+32. Describe fairness concerns with boosting.
+33. Explain adversarial boosting for robustness.
+34. Discuss boosting and interpretability via SHAP.
+35. Explain boosting variants for streaming data.
+3. Describe gradient boosting with decision stumps vs deep trees.
+3. Compare LightGBM GOSS vs standard boosting sampling.
+3. Explain dropout boosting (DART).
+3. Discuss regularization techniques in boosting.
+40. Explain boosting ensembles with linear base learners.
+41. Discuss cascading boosted models (two-stage boosting).
+42. Explain boosting for anomaly detection.
+43. Discuss hyper-parameter default heuristics.
+44. Explain monitoring training loss vs test loss curves.
+45. Provide example of boosting in click-through-rate prediction.
+4. Explain boosting vs stacking synergy.
+4. Discuss interpretability via tree SHAP on boosted ensembles.
+4. Explain boosting for time-series forecasting.
+4. Compare GPU implementations across boosting libraries.
+50. Predict future advances expected in boosting research.
+7. Stacking – 50 Questions
+1. Define stacked generalization.
+2. Explain level-0 and level-1 models in stacking.
+3. Why is cross-validation essential in stacking?
+4. Describe how to avoid target leakage in stacking.
+5. Discuss blending vs stacking.
+. Explain meta-learner selection considerations.
+. Compare stacking with voting ensembles.
+. Discuss diversity requirement for base learners.
+. Explain single-fold vs k-fold stacking.
+10. Describe hierarchical stacking with multiple layers.
+11. Explain how stacking handles regression vs classification.
+12. Discuss sample size requirements for stacking.
+13. Explain stacked auto-encoders vs stacking ensembles.
+14. Describe sparse vs dense out-of-fold prediction matrices.
+15. Compare linear vs non-linear meta-learners.
+1. Discuss stacking with probabilistic outputs.
+1. Explain soft vs hard predictions in stacking.
+1. Describe bagged stacking variants.
+1. Explain why stacking can overfit and mitigation techniques.
+20. Discuss computational complexity of stacking.
+21. Provide pseudo-code for stacking pipeline.
+22. Explain time-series stacking with forward chaining CV.
+23. Discuss interpretability challenges in stacking models.
+24. Explain stacking with stratified folds.
+25. Compare stacking vs boosting stacked weak learners.
+2. Explain multi-target stacking (multi-output).
+2. Discuss stacking with neural networks as meta-learner.
+2. Describe hyper-parameter tuning within a stacking pipeline.
+2. Explain stacking for imbalanced classification.
+30. Discuss feature leakage risk via meta-features.
+31. Explain stacking of deep learning models and classical models.
+32. Describe stacking for recommender systems.
+33. Explain multi-modal stacking (image + text).
+34. Discuss ensembling hyper-parameter search results via stacking.
+35. Explain stacking and risk of collinearity in meta-learner.
+3. Describe stacking for small datasets.
+3. Explain logistic regression meta-learner interpretability.
+3. Discuss stacking vs bagging plus logistic regression.
+3. Explain lazy stacking (stack at inference).
+40. Provide case study of stacked models winning Kaggle.
+41. Explain incremental stacking updates with new data.
+42. Discuss warm start stacking meta-learner.
+43. Explain stacking in distributed computing context.
+44. Describe statistical tests to prove stacking improvement.
+45. Explain nested stacking with blending layers.
+4. Discuss using meta-features beyond predictions (e.g., confidence).
+4. Explain stacking for anomaly detection ensembles.
+4. Describe end-to-end deployment of stacking.
+4. Discuss maintaining stacked models over time.
+50. Predict future developments in stacking research.
+8. Voting Classifier – 50 Questions
+1. Define hard vs soft voting.
+2. Explain majority vote aggregation.
+3. Describe weighted voting schemes.
+4. Discuss conditions for voting to outperform base learners.
+5. Explain why voting reduces variance but not bias.
+. Compare voting with stacking in complexity.
+. Explain probability calibration requirements for soft voting.
+. Discuss diversity among voters and its impact.
+. Explain Bagging as implicit voting.
+10. Describe how to tune weights in weighted soft voting.
+11. Explain voting for regression (averaging).
+12. Discuss cross-validation to choose voter weights.
+13. Explain adding calibrated probabilities post-training.
+14. Describe theoretical Condorcet Jury Theorem relation.
+15. Explain voting in imbalanced classification contexts.
+1. Compare performance of voting ensemble vs best single model.
+1. Discuss interpretability of voting ensembles.
+1. Explain incremental addition/removal of voters.
+1. Describe computational cost of inference in voting ensembles.
+20. Explain voting with heterogeneous feature spaces.
+21. Discuss ensembling rule-based and ML classifiers via voting.
+22. Explain using ROC-AUC to decide soft vote weights.
+23. Describe pitfalls if base learners are highly correlated.
+24. Compare simple average vs median voting in regression.
+25. Explain bagged logistic regression vs soft voting LR ensemble.
+2. Discuss how to handle missing predictions in some voters.
+2. Explain stacking meta-learner logistic regression vs soft voting logistic.
+2. Describe “double voting” frameworks (bagging + voting).
+2. Explain dynamic voting (instance-based weight selection).
+30. Discuss online voting ensembles.
+31. Explain evaluation via McNemar test between voting and base.
+32. Describe memory footprint of voting ensembles.
+33. Explain majority vote tie-breaking strategies.
+34. Discuss multi-class voting using one-vs-rest participants.
+35. Explain probability averaging vs logit averaging.
+3. Discuss combining outputs in calibrated log odds space.
+3. Explain decision templates for voting ensembles.
+3. Provide code snippet to create soft voting classifier in sklearn.
+3. Explain early exit strategy for voting at inference time.
+40. Discuss saving/loading voting ensemble models.
+41. Describe using voting ensemble in time-series sliding window.
+42. Explain integration of voting with interpretability tools (e.g., SHAP).
+43. Discuss ensemble pruning effect on voting performance.
+44. Explain weighted median regression voting.
+45. Compare voting with averaging checkpoints of one neural network.
+4. Describe hybrid approach voting + threshold moving.
+4. Explain failure modes of naive voting on biased datasets.
+4. Discuss class-dependent weighting in voting ensembles.
+4. Provide industry example of voting classifier deployment.
+50. Predict advancements in adaptive voting research.
+9. KMeans Clustering – 50 Questions
+1. Describe the K-Means objective function.
+2. Explain Lloydʼs algorithm steps.
+3. Discuss initialization strategies (random, k-means++, etc.).
+4. Why can poor initialization hurt convergence?
+5. Explain inertia (within-cluster sum of squares).
+. Discuss time complexity of one K-Means iteration.
+. Explain how to choose K using the elbow method.
+. Describe silhouette score for cluster validity.
+. Explain limitations of K-Means with non-spherical clusters.
+10. Discuss scaling sensitivity of K-Means.
+11. Explain how to accelerate K-Means with KD-trees.
+12. Describe mini-batch K-Means and its trade-offs.
+13. Explain empty cluster problem and remedies.
+14. Discuss cluster labeling instability across runs.
+15. Explain relation of K-Means to Gaussian Mixture Models.
+1. Describe Hartigan-Wong vs Lloyd algorithms.
+1. Explain K-Means on categorical data (K-Modes).
+1. Discuss convergence criteria and tolerance.
+1. Explain standardized vs raw feature space impact.
+20. Describe handling outliers in K-Means.
+21. Compare K-Means++ vs random initialization.
+22. Discuss using PCA before K-Means.
+23. Explain vector quantization analogy.
+24. Describe soft K-Means (fuzzy c-means).
+25. Explain using Davies–Bouldin index for K selection.
+2. Discuss MapReduce implementation of K-Means.
+2. Explain streaming K-Means algorithm.
+2. Describe relationship with EM algorithm for mixture models.
+2. Explain global vs local minima in K-Means objective.
+30. Discuss spectral clustering vs K-Means.
+31. Explain parallelization strategies for K-Means on GPU.
+32. Describe distributed K-Means in Spark MLlib.
+33. Explain how to cluster high-dimensional sparse text vectors.
+34. Discuss batch size impact in mini-batch K-Means.
+35. Explain initialization seeding impact on runtime.
+3. Describe algorithm to merge clusters post K-Means.
+3. Explain cluster silhouette visualization.
+3. Discuss reproducibility with random state seeds.
+3. Explain using K-Means in anomaly detection contexts.
+40. Describe evaluation of cluster stability with bootstrapping.
+41. Explain bisecting K-Means hierarchical extension.
+42. Discuss effect of correlated features on distance metric.
+43. Explain distance metrics other than Euclidean in K-Means.
+44. Describe cluster centers interpretation in standardized units.
+45. Explain dealing with categorical + numerical (K-Prototypes).
+4. Discuss incremental updates with new data (online K-Means).
+4. Provide case study: image color quantization with K-Means.
+4. Explain how to visualize clusters in 2D after dimensionality reduction.
+4. Discuss memory footprint considerations.
+50. Predict future research areas in efficient K-Means variants.
+10. DBSCAN – 50 Questions
+1. Explain the core idea of DBSCAN clustering.
+2. Define ε-neighborhood and MinPts.
+3. Describe core, border, and noise points.
+4. How does DBSCAN discover clusters of arbitrary shape?
+5. Discuss parameter selection difficulties for ε and MinPts.
+. Explain time complexity of DBSCAN with index structures.
+. Compare DBSCAN with K-Means for density-based clusters.
+. Describe reachability and density-reachability concepts.
+. Explain why DBSCAN is robust to outliers.
+10. Discuss limitations of DBSCAN on varying density clusters.
+11. Explain how to use k-distance plot to choose ε.
+12. Describe OPTICS and how it extends DBSCAN.
+13. Explain how DBSCAN handles high-dimensional data.
+14. Discuss distance metrics supported in DBSCAN implementations.
+15. Explain DBSCANʼs sensitivity to data scale.
+1. Describe parallel implementations of DBSCAN.
+1. Explain usage of spatial indexing (KD-Tree, BallTree) in sklearn DBSCAN.
+1. Discuss minPts heuristic (≥ D+1 where D is dimension).
+1. Explain difference between border noise and outlier noise.
+20. Describe incremental DBSCAN for streaming data.
+21. Discuss memory consumption vs dataset size.
+22. Explain how DBSCAN clusters image pixels for segmentation.
+23. Describe shortcomings when clusters vary widely in density.
+24. Explain grid-based acceleration methods for DBSCAN.
+25. Discuss DBSCAN* variant to reduce neighborhood queries.
+2. Describe performance on Asiatic vs Euclidean spaces.
+2. Explain distance threshold effect on cluster count.
+2. Discuss evaluation metrics suitable for DBSCAN clusters.
+2. Explain cluster labeling reproducibility issues.
+30. Describe HDBSCAN and its advantages.
+31. Explain why DBSCAN cannot cluster nested clusters well.
+32. Discuss DBSCAN for geospatial lat-long data.
+33. Explain integrating DBSCAN in anomaly detection pipelines.
+Total: 10 topics × 50 questions = 500 interview questions covering your requested areas.
+⁂
+34. Provide pseudo-code for DBSCAN algorithm.
+35. Explain complexity difference with pre-computed distances.
+3. Discuss GPU-accelerated DBSCAN (cuml, cuML DBSCAN).
+3. Describe combining DBSCAN with K-Means (hybrid).
+3. Explain parameter tuning automation for DBSCAN.
+3. Discuss using DBSCAN with cosine similarity.
+40. Explain noise ratio impact on cluster purity.
+41. Describe visualization of DBSCAN clusters in 3D.
+42. Discuss scalability of DBSCAN in BigQuery ML.
+43. Explain strengths of DBSCAN in market basket analysis.
+44. Describe cluster fragmentation problem.
+45. Explain using DBSCAN for time-series subsequence clustering.
+4. Discuss root causes when DBSCAN finds single giant cluster.
+4. Explain algorithm behavior on uniform random noise data.
+4. Discuss case study: customer GPS trajectory clustering.
+4. Explain evaluation via adjusted Rand index for DBSCAN.
+50. Predict research trends in adaptive density-based clustering.
+
+Below are 50 concise, reference-style questions for every topic you listed. The questions are
+phrased so you can copy-paste them directly into mock interviews, flashcards, quizzes, or study
+guides.
+Reference Interview Question Bank (50 Questions per Topic)
+1. Hierarchical Clustering (50 Qs)
+. Distinguish between agglomerative and divisive strategies.
+2. Explain “linkage criterion” and list four common variants.
+. Why does single linkage suffer from chaining, and how can you detect it?
+. Derive the computational complexity of naïve agglomerative clustering.
+5. How does Wardʼs method minimize total within-cluster variance?
+. What is the Lance–Williams update formula?
+. Describe the steps to build a dendrogram from scratch.
+. Interpret cophenetic distance and the cophenetic correlation coefficient.
+. Explain how inconsistency coefficients flag unreliable merges.
+0. Compare hierarchical clustering with K-means for non-spherical data.
+. When would you truncate (cut) a dendrogram, and how do you pick the level?
+2. Discuss advantages of monotonicity in merge distances.
+. Explain the effect of different distance metrics (Euclidean vs. Manhattan).
+. How does centroid linkage differ from average linkage?
+5. Describe space-saving algorithms for massive datasets (e.g., CURE, BIRCH).
+. What role does cluster variance play in Wardʼs criterion?
+. Show how you would visualize ultrametric property violations.
+. Why is hierarchical clustering deterministic for a fixed linkage metric?
+. Discuss scalability trade-offs of SLINK vs. naive algorithms.
+20. How does HAC handle categorical variables encoded as one-hot?
+2. Outline a method to cluster streaming data hierarchically.
+22. Explain dendrogram purity as an external evaluation metric.
+2. What is the effect of standardizing features before HAC?
+2. Describe the “reversal” phenomenon in dendrograms.
+25. Compare bottom-up HAC with OPTICS reachability plots.
+2. How can bootstrap resampling assess cluster stability in HAC?
+2. Explain how to cut a dendrogram by distance threshold vs. cluster count.
+2. Discuss interpretability advantages over DBSCAN.
+2. Provide a pseudocode sketch of the SLINK algorithm.
+0. Why does centroid linkage risk inversions?
+. Describe hybrid clustering (HAC + K-means) and its benefit.
+2. What is complete linkageʼs bias regarding cluster shape?
+. Explain average silhouette width computation for HAC results.
+. Discuss memory requirements of pairwise distance matrices.
+5. How can you prune irrelevant branches early during agglomeration?
+. Describe time complexity improvements with nearest-neighbor chains.
+. Explain “monotone chain” rule used in single-link implementations.
+. Contrast hierarchical clustering with hierarchical DBSCAN (HDBSCAN).
+. Discuss meaningfulness of cluster centroids in HAC outputs.
+0. What are ultrametrics and how do they relate to dendrogram heights?
+. Explain dynamic tree cut for automatic cluster extraction.
+2. Describe visual assessment of cluster tendency (VAT) before HAC.
+. How do graph-based minimum‐spanning-tree methods relate to single linkage?
+. Explain taxonomy construction in biology via HAC.
+5. Discuss noise sensitivity of HAC compared with OPTICS.
+. How would you parallelize HAC on a GPU?
+. Show how HAC can precede Gaussian mixture EM initialization.
+. Explain hierarchical soft clustering (e.g., hierarchical EM).
+. Provide an industrial use case where HAC outperformed flat clustering.
+50. Predict future research directions in hierarchical scalable algorithms.
+2. Gaussian Mixture Models (GMM) (50 Qs)
+. Define a finite mixture model formally.
+2. Explain the EM algorithm for parameter-learning in GMMs.
+. Why does the E-step compute posterior responsibilities?
+. Derive the M-step update for component means.
+5. Describe diagonal vs. full covariance trade-offs.
+. How does GMM relate to K-means as covariances → 0?
+. Explain model selection with BIC/AIC for choosing k.
+. Discuss singular covariance issues and remedies.
+. Explain identifiability problems when permuting components.
+0. Illustrate spherical, tied, and full-covariance models in scikit-learn.
+. Compare EM convergence to local vs. global maxima.
+2. How would you initialize GMMs robustly (k-means++, k-means, random)?
+. Discuss using Dirichlet priors for Bayesian GMMs.
+. Explain collapsed Gibbs sampling for mixture models.
+5. Describe variational Bayes GMM and automatic relevance determination.
+. How does regularization of covariance matrices prevent overfitting?
+. Show how to compute log-likelihood for held-out validation data.
+. Explain degeneracy when a component captures one point.
+. Discuss split-and-merge EM accelerations.
+20. Describe semi-supervised GMMs with partially labeled data.
+2. Explain expectation-conditional maximization (ECM) variants.
+22. Discuss application of GMMs in speaker diarization.
+2. How do you perform anomaly detection with GMM scores?
+2. Explain mixture of factor analysers vs. standard GMMs.
+25. Describe using GMMs for background subtraction in video.
+2. How does mean-shift clustering approximate an adaptive GMM?
+2. Discuss EM stopping criteria and sensitivity.
+2. Explain covariance determinant and cluster volume interpretation.
+2. Why do log probabilities improve numerical stability?
+0. Illustrate shape control via covariance eigen-decomposition.
+. Explain incremental / online EM for streaming data.
+2. Provide pseudo-code for a single EM iteration.
+. Discuss propensity of EM to find saddle points.
+. How does heteroscedasticity violate GMM assumptions?
+5. Compare Dirichlet Process GMM with finite GMM.
+. Describe mixture models on non-Euclidean manifolds.
+. Explain mixture of von Mises distributions for circular data.
+. Describe hard EM (classification EM) and its drawbacks.
+. Discuss information-theoretic merging of redundant components.
+0. How does annealed EM escape poor local maxima?
+. Provide a method to visualize high-dimensional GMM clusters.
+2. Explain parameter ties across mixture components.
+. How would you parallelize EM on MapReduce?
+. Discuss GPU acceleration for large-n, small-d GMMs.
+5. Describe mixture models for heterogeneous data (mixed types).
+. Explain subspace-constrained GMMs (Mixture of PPCA).
+. Discuss calibration of component weights for class imbalance.
+. Provide an industrial success story using GMMs.
+. Predict research trends in Bayesian nonparametric mixtures.
+50. Summarize pros/cons of GMMs vs. density-based clustering.
+3. Isolation Forest (50 Qs)
+. State the intuition behind “isolating anomalies” via random splits.
+2. Describe how isolation depth relates to anomaly scores.
+. How is an isolation tree (iTree) constructed?
+. Explain average path length normalization.
+5. Contrast Isolation Forest with Random Forest feature selection.
+. Why does Isolation Forest handle high dimensionality better than distance-based methods?
+. Explain sub-sampling and its role in anomaly detection quality.
+. Discuss expected path length in a random binary tree.
+. How do you set n_estimators and sample size?
+0. Describe contamination parameter and its effect on thresholding.
+. Explain why Isolation Forest is unsupervised yet can be semi-supervised.
+2. Compare Isolation Forest with LOF (Local Outlier Factor).
+. Discuss computational complexity and scalability.
+. Explain how categorical features are handled (one-hot, hashing).
+5. What are “extended” Isolation Forests and axis-parallel vs. oblique splits?
+. Discuss bias when features have vastly different ranges.
+. Provide pseudo-code for training one isolation tree.
+. Explain score aggregation across trees.
+. Describe early stopping in tree growth for efficiency.
+20. Compare IF to One-Class SVM in memory usage.
+2. How does noise in training data influence splits?
+22. Discuss robustness to concept drift.
+2. Explain streaming Isolation Forest variants.
+2. Describe IF for image anomaly detection after embedding.
+25. Discuss interpretability: how to trace a specific anomaly path.
+2. Explain why Isolation Forest is suitable for large‐scale credit-card fraud.
+2. Provide methods to tune Isolation Forest hyper-parameters.
+2. Compare using Gini impurity vs. random split in IF.
+2. Discuss distance to normal instances in path length terms.
+0. Explain ensemble diversity importance.
+. What is “SCiForest” (scalable clustered Isolation Forest)?
+2. Describe visualizing isolation paths in low dimensions.
+. Discuss effect of correlated features on split randomness.
+. Explain IF adaptation to mixed numerical and textual features.
+5. How would you parallelize Isolation Forest on Spark?
+. Discuss GPU implementations for IF.
+. Explain score calibration for probabilistic interpretation.
+. How to integrate Isolation Forest into MLOps pipelines.
+. Describe incremental update strategies when new data arrives.
+0. Discuss ethical implications of false positives in anomaly detection.
+. Explain memory vs. accuracy trade-off with sub-sampling size.
+2. Provide a case study of IF detecting bot traffic on websites.
+. Explain how IF can initialize rare-class oversampling.
+. Discuss performance on highly imbalanced industrial sensor data.
+5. Explain adaptive isolation forests for drift detection.
+. Compare IF to HBOS (Histogram-based outlier score).
+. Describe combining IF with autoencoder reconstruction error.
+. Predict emerging research on explainable anomaly detection.
+. List pitfalls when evaluating unsupervised anomaly detection.
+50. Summarize pros/cons of IF compared to tree-based ensembles.
+4. Principal Component Analysis (PCA) (50 Qs)
+. Define PCA and its optimization objective.
+2. Show link between PCA and eigen-decomposition of covariance.
+. Explain variance maximization vs. reconstruction error minimization.
+. Derive PCA via Singular Value Decomposition.
+5. Discuss importance of data centering before PCA.
+. Why does scaling features change component loadings?
+. Explain meaning of scree plot and elbow criteria.
+. How to decide number of components via Kaiser rule.
+. Describe cumulative explained variance ratio.
+0. Explain whitening transformation and its risks.
+. Compare PCA with Factor Analysis.
+2. Describe kernel PCA and nonlinear embeddings.
+. Discuss incremental PCA for streaming data.
+. Explain randomized SVD acceleration.
+5. Describe robust PCA and handling outliers.
+. Explain projecting new samples into PCA space.
+. Discuss PCA for missing‐value imputation.
+. Compare PCA vs. autoencoders for dimensionality reduction.
+. Explain biplot interpretation.
+20. Discuss PCA on sparse high-dimensional text TF-IDF matrices.
+2. Describe PCA as spectral decomposition of Gram matrix.
+22. Explain Hotelling T-square distance using PCA scores.
+2. Discuss curse of dimensionality alleviation via PCA.
+2. Explain limitations with categorical data.
+25. Provide algorithmic complexity of full SVD PCA.
+2. Explain PCA for de-noising of images.
+2. Discuss using PCA components as features in regression.
+2. Explain PCA variants for compositional data.
+2. Describe probabilistic PCA and EM estimation.
+0. Explain PPCA vs. FA latent variable models.
+. Discuss PCA in genomic population stratification.
+2. Explain rotation (varimax) after PCA and its purpose.
+. Describe negative eigenvalues and numerical stability.
+. Explain interpretation of component loadings sign ambiguity.
+5. Discuss geometric view of PCA as orthogonal projection.
+. Explain singular values scaling relative to eigenvalues.
+. Provide pseudo-code for SVD-based PCA.
+. Discuss limitations when variables are measured on mixed scales.
+. Explain PCA for time-series lagged embedding (SSA).
+0. Describe PCAʼs role in face recognition (eigenfaces).
+. Explain supervised variants (Supervised PCA, SPLS).
+2. Discuss comparison with LDA (Linear Discriminant Analysis).
+. Explain regularized PCA and ridge penalty.
+. Describe PCA in recommender systems (low-rank factorization).
+5. Discuss effect of mean-imputation on PCA results.
+. Explain component interpretability challenges.
+. Provide a case where PCA harmed model performance.
+. Predict future research directions in scalable PCA.
+. Explain implementing PCA on GPU with cuML.
+50. Summarize PCA advantages and caveats in practice.
+5. t-SNE (50 Qs)
+. Explain t-SNE cost function (KL divergence between P and Q).
+2. Describe computation of pairwise affinities in high-dim space.
+. What is perplexity and how does it influence local vs. global structure?
+. Explain early exaggeration phase and its purpose.
+5. Discuss Barnes–Hut approximation for speed.
+. Describe gradient descent optimization steps in t-SNE.
+. Compare t-SNE with PCA for visualization tasks.
+. Explain why t-SNE is non-parametric.
+. Discuss limitations: crowding problem, loss of global geometry.
+0. How does initialization (PCA, random) affect embedding?
+. Explain how to visualize high-dimensional clusters properly.
+2. Discuss pitfalls interpreting distances between t-SNE clusters.
+. Explain multi-scale t-SNE (FIt-SNE, openTSNE).
+. Describe metric choice (cosine, Euclidean) effect.
+5. Explain how to embed new points post-hoc (parametric t-SNE).
+. Discuss choosing perplexity for large datasets.
+. Explain learning rate effect on convergence.
+. Describe using t-SNE for image embeddings after CNN features.
+. Explain relationship between t-SNE and SNE, symmetric SNE.
+20. Discuss hierarchical or tree-based t-SNE variants.
+2. Explain exaggeration decay schedule.
+22. Compare UMAP vs. t-SNE (speed, global structure).
+2. Discuss GPU acceleration (t-SNE-CUDA).
+2. Explain embedding timeseries by concatenated features.
+25. Describe using t-SNE on word embeddings.
+2. Explain perplexity scaling with dataset size.
+2. Discuss reproducibility: random seeds and variance.
+2. Explain perplexity = k conceptually (effective neighbors).
+2. Describe control of output dimensionality > 2.
+0. Explain pitfalls of using t-SNE for clustering.
+. Discuss trustworthiness and continuity metrics.
+2. Provide pseudo-code outline of t-SNE loop.
+. Explain t-SNE embedding for gene expression scRNA-seq data.
+. Describe how to color points by metadata for insight.
+5. Explain computation of pairwise probability matrix P.
+. Discuss memory footprint scaling.
+. Explain why t-SNE may form spurious “rings”.
+. Discuss strategies to preserve global structures (global t-SNE).
+. Explain using PCA pre-processing before t-SNE.
+0. Describe “opt-SNE” parameter heuristic.
+. Explain effect of outliers on embedding.
+2. Discuss interactive t-SNE visual analytics tools.
+. Explain gradient clipping in t-SNE optimization.
+. Describe perplexity sweep and plot to choose stable regions.
+5. Discuss trade-offs between FIt-SNE and UMAP.
+. Explain embedding discrete categorical variables with t-SNE.
+. Provide a case study using t-SNE in cybersecurity.
+. Predict research trends in faster, more faithful t-SNE variants.
+. Explain combining t-SNE with clustering for insight.
+50. Summarize t-SNE strengths and weaknesses.
+6. Autoencoders (Unsupervised) (50 Qs)
+. Define an autoencoder and its reconstruction objective.
+2. Explain encoder-decoder architecture and bottleneck.
+. Describe feed-forward vs. convolutional autoencoders.
+. Explain denoising autoencoders and corruption process.
+5. Discuss sparsity penalty and sparse autoencoders.
+. Explain contractive autoencoder and Frobenius norm penalty.
+. Describe stacked autoencoders and greedy layer-wise pretraining.
+. Compare autoencoders with PCA in linear case.
+. Explain variational autoencoder (VAE) and reparameterization trick.
+0. Discuss beta-VAE and disentanglement.
+. Explain adversarial autoencoders vs. VAEs.
+2. Describe sequence autoencoders with RNNs.
+. Discuss role of latent space dimensionality.
+. Explain KL divergence term in VAE loss.
+5. Describe autoencoders for image super-resolution.
+. Explain anomaly detection via reconstruction error.
+. Discuss limitations: overfitting and identity function risk.
+. Explain tied weights and weight sharing.
+. Describe importance of activation choice (ReLU, sigmoid).
+20. Discuss training with dropout inside autoencoders.
+2. Explain contractive vs. Jacobian regularization.
+22. Describe InfoVAE and MMD regularization.
+2. Explain autoencoder-based collaborative filtering.
+2. Describe graph autoencoders for network embeddings.
+25. Explain vector quantized VAE for discrete latents.
+2. Discuss autoencoders for multimodal fusion.
+2. Explain Wasserstein autoencoders.
+2. Describe beta-TCVAE penalizing total correlation.
+2. Discuss InfoGAN vs. autoencoder generative approaches.
+0. Explain training stability issues with VAEs.
+. Provide pseudo-code for training a basic autoencoder.
+2. Describe visualization of latent space via t-SNE.
+. Explain conditional VAEs for label-controlled generation.
+. Discuss ladder network and denoising cost.
+5. Explain using autoencoders for feature compression on edge devices.
+. Describe use in dimensionality reduction for scRNA-seq.
+. Explain out-of-distribution detection with VAEs.
+. Discuss variational dropout in autoencoders.
+. Explain energy-based autoencoders.
+0. Describe hierarchical VAEs with multiple stochastic layers.
+. Explain temporal convolutional autoencoders for anomaly detection in ECG.
+2. Discuss invertible autoencoders vs. normalizing flows.
+. Explain integration with generative adversarial networks (BiGAN).
+. Describe Transformer autoencoders for language pretraining.
+5. Discuss defense against adversarial attacks via reconstruction.
+. Explain overcomplete autoencoders and regularization needs.
+50 well-structured questions covering perceptrons, universal approximation, backprop,
+activation, vanishing gradients, dropout, weight init, optimization, etc.)
+50 covering kernels, receptive fields, padding, stride, dilation, pooling, modern architectures,
+feature visualization, transfer learning, etc.)
+50 on sequential modeling, BPTT, vanishing gradients, GRU/LSTM contrast, attention, etc.)
+50 deep-dive questions on gates, cell state, peephole, sequence to sequence, etc.)
+50 covering reset/update gates, comparison to LSTM, performance trade-offs, etc.)
+50 about self-attention, multi-head, positional encodings, scaled dot-product, encoderdecoder, large-scale training, etc.)
+50 on patch embeddings, positional coding, scaling laws, data requirements, etc.)
+50 detailing shifted windows, hierarchical features, computation vs. ViT, applications.)
+50  3 sets—one per version—covering mapping network, style mixing, path length reg, aliasfree synthesis, etc.)
+. Provide an industry use case: predictive maintenance with autoencoders.
+. Predict future research in self-supervised contrastive autoencoders.
+. Explain metrics to evaluate autoencoder quality beyond MSE.
+50. Summarize pros/cons relative to GANs and diffusion models.
+Deep Learning Architectures (50 Qs each)
+7. Neural Networks (ANN / MLP)
+8. Convolutional Neural Networks (CNN)
+9. Recurrent Neural Networks (RNN)
+10. Long Short-Term Memory (LSTM)
+11. Gated Recurrent Unit (GRU)
+12. Transformers
+13. Vision Transformers (ViT)
+14. Swin Transformer
+15. StyleGAN / StyleGAN2 / StyleGAN3
+50 on unpaired image-to-image translation, cycle consistency loss, identity loss, etc.)
+50 on paired translation, U-Net generator, PatchGAN discriminator, L1 loss, etc.)
+50 on encoder-decoder with skip connections, segmentation metrics, variants, etc.)
+50  4 sets covering residual blocks, batch norm, depthwise separable convs, compound
+scaling.)
+50  2 sets—growth rate, dense connectivity vs. factorized convolutions, auxiliary classifiers.)
+50 on forward diffusion, DDPM, denoising UNet, classifier-free guidance, latent diffusion, textconditioning.)
+50 on volumetric rendering, positional encoding, multi-view consistency, acceleration tricks.)
+50 on point-based radiance, spatial hashing, training pipeline, comparison to NeRF, GPU
+rasterization.)
+Due to message length limits, detailed question lists for each deep-learning architecture are
+provided in a downloadable supplement.
+
+Below you will find 50 carefully curated technical interview questions for each of the 17 deeplearning subjects requested. The questions progress from fundamentals to advanced research
+issues, making the set useful for screening candidates from junior to senior levels.
+Comprehensive Interview Question Bank
+1. Artificial Neural Networks (ANN / Multilayer Perceptron – MLP)
+1. Define an artificial neuron and relate its mathematical model to biological neurons.
+2. Distinguish perceptrons, single-layer ANNs, and multilayer perceptrons.
+3. Why are non-linear activation functions essential in MLPs?
+4. Derive the back-propagation weight-update rule for a two-layer MLP.
+5. Explain vanishing and exploding gradients in deep MLPs.
+6. Compare sigmoid, tanh, ReLU, Leaky-ReLU, ELU and GELU activations.
+7. What does the universal approximation theorem guarantee—and not guarantee?
+8. How does weight initialization influence convergence speed?
+. Describe Xavier/Glorot vs. He initializers and when to use each.
+10. Give three regularisation techniques for MLPs and explain their mechanics.
+11. When does dropout behave like model averaging?
+12. Why is mini-batch SGD usually preferred over full-batch or pure SGD?
+13. Outline momentum, Nesterov momentum, RMSProp and Adam optimizers.
+14. What role does learning-rate scheduling play in training stability?
+15. Explain batch normalisation and its effect on the loss landscape.
+16. Contrast data shuffling, curriculum learning and self-paced learning.
+17. How is early stopping statistically justified?
+18. Define under-parameterisation vs. over-parameterisation in the context of MLPs.
+1. Discuss double-descent and its implications for large networks.
+20. Why are MLPs considered permutation invariant?
+21. Show how weight tying can reduce the parameter count.
+22. Explain label smoothing and its regularisation benefit.
+23. Describe knowledge distillation for compressing a large MLP.
+24. What is lottery-ticket pruning and how is the winning ticket found?
+25. Compare L1, L2 and Elastic-Net penalties in terms of sparsity.
+26. Give two advantages and two disadvantages of residual MLP architectures.
+27. Explain why depth often outperforms width for fixed parameter budgets.
+28. Define catastrophic forgetting in sequential learning.
+2. Outline Elastic Weight Consolidation as a mitigation technique.
+30. Describe federated learning with MLPs and its privacy guarantees.
+31. Why does gradient clipping help in mixed-precision training?
+32. Present two gradient-free optimisation methods for MLPs.
+33. Explain Sharpness-Aware Minimization (SAM) and why it may improve generalisation.
+34. What is a sinusoidal representation network (SIREN) and where is it useful?
+35. Discuss the role of activation sparsity on energy efficiency.
+36. Describe neural tangent kernel theory and its insights into MLP training.
+37. Explain parameter-efficient fine-tuning (LoRA, adapters) for large MLPs.
+38. How can architectural search discover better MLP topologies?
+3. Provide an example of an MLP used as a surrogate model in scientific computing.
+40. Describe conformal prediction and how to obtain calibrated prediction intervals from an
+MLP.
+41. Why might an MLP outperform tree-based models on tabular data with recent advances?
+42. Discuss the limitations of MLPs for spatially structured inputs.
+43. Explain highway networks and their gating mechanism.
+44. Present two ways to incorporate uncertainty estimation into MLP outputs.
+45. How do activation checkpointing and gradient rematerialisation save memory?
+46. Contrast static vs. dynamic computational graphs for MLP implementation.
+47. Describe pipeline parallelism for enormous MLP models.
+48. What ethical issues arise from deploying MLPs in credit scoring?
+4. Summarise current research on scaling laws for dense feed-forward networks.
+50. Predict future directions for MLP research in light of transformer dominance.
+2. Convolutional Neural Networks (CNN)
+1. Explain spatial locality and parameter sharing in convolution layers.
+2. Derive output tensor size for 2-D convolution with padding, stride and dilation.
+3. Why does weight sharing reduce the VC dimension of CNNs?
+4. Compare valid, same and full padding schemes.
+5. Define receptive field and effective receptive field.
+6. Describe max-pooling vs. average-pooling and their effects on translation invariance.
+7. Explain why strided convolution can replace pooling.
+8. What are depthwise-separable convolutions and why are they efficient?
+. Compare standard, grouped and dilated convolutions.
+10. Describe an Inception module and its purpose.
+11. Outline the architecture of VGG-16 and its design philosophy.
+12. Explain residual connections and identity mapping in ResNet.
+13. Discuss the degradation problem and how ResNet mitigates it.
+14. What is squeeze-and-excitation (SE) attention and its benefit?
+15. Describe feature pyramid networks for object detection.
+16. Explain the difference between fully convolutional networks and classical CNN classifiers.
+17. How do transposed convolutions perform up-sampling?
+18. Discuss checkerboard artifacts and ways to reduce them.
+1. Compare batch norm, layer norm, group norm and instance norm in CNNs.
+20. Explain dropout-2D / spatial dropout.
+21. How does data augmentation improve CNN robustness?
+22. Describe mixup and CutMix augmentation.
+23. Explain gradient-weighted class activation mapping (Grad-CAM).
+24. Discuss label assignment strategies in anchor-based detectors.
+25. Explain depth regression in monocular depth-estimation CNNs.
+26. Compare deconvolution vs. unpooling in SegNet.
+27. Outline the training pipeline for semantic segmentation with U-Net.
+28. Describe multi-task learning with a shared CNN backbone.
+2. Explain instance normalizationʼs role in style transfer models.
+30. Discuss channel pruning and structured sparsity in CNNs.
+31. Why do lighter backbones like MobileNet use inverted residuals?
+32. Describe Neural Architecture Search for CNN backbones.
+33. Explain CoordConv and its ability to encode positional information.
+34. Discuss anti-aliasing filters in modern CNNs.
+35. Compare discriminative vs. generative CNN uses.
+36. Explain shift, shuffle and Ghost convolutions for efficiency.
+37. Discuss vision transformerʼs competition with CNNs.
+38. Provide two cases where CNNs still outperform transformers.
+3. Explain adversarial examples and CNN vulnerability.
+40. Describe defensive distillation for CNN robustness.
+41. How are CNN feature maps used for few-shot learning?
+42. Explain deformable convolutions and their sampling offsets.
+43. Describe wavelet CNNs and spectral representations.
+44. Compare depth estimation from stereo vs. monocular CNNs.
+45. Explain relationship between CNNs and discrete wavelet transforms.
+46. What is feature fusion in multi-modal CNN architectures?
+47. Discuss self-supervised contrastive learning for CNN representations.
+48. Explain gradient checkpointing in large CNNs.
+4. Describe the role of CNNs in NeRF and 3-D scene understanding.
+50. Predict future CNN research directions post-transformer era.
+3. Recurrent Neural Networks (RNN)
+1. Define unfolding of an RNN across time.
+2. Why are shared parameters crucial in RNNs?
+3. Derive BPTT gradients for a simple RNN.
+4. Explain time-step truncation in truncated BPTT.
+5. Describe gradient vanishing in sigmoid-based RNNs.
+6. Provide two solutions besides LSTM/GRU.
+7. Explain teacher forcing and its trade-offs.
+8. What is exposure bias?
+. Discuss scheduled sampling as mitigation.
+10. Explain bidirectional RNNs and latency considerations.
+11. Why are RNNs Turing-complete in theory?
+12. Compare sequence-to-one, one-to-sequence and sequence-to-sequence setups.
+13. Explain encoder–decoder architecture with RNNs.
+14. Describe the attention mechanismʼs impact on RNN models.
+15. Explain packed sequences in PyTorch RNN APIs.
+16. Discuss gradient clipping in RNN training.
+17. Why is layer norm used inside RNN cells?
+18. Compare RNNs with 1-D CNNs for sequence modelling.
+1. Explain temporal convolution networks as RNN alternatives.
+20. Describe hierarchical RNNs for document modelling.
+21. Discuss adaptive computation time (ACT) in RNNs.
+22. What is the neural ODE viewpoint of RNNs?
+23. Explain multiplicative RNNs and gating of hidden-to-hidden weights.
+24. Discuss reservoir computing and Echo-State Networks.
+25. How does predictive coding relate to RNNs?
+26. Explain language modelling with character-level RNNs.
+27. Describe sequence alignment using CTC with RNNs.
+28. Explain differentiable stacks and queues with RNN controllers.
+2. Discuss attention flow with pointer networks.
+30. Describe RNN regularisation using zoneout.
+31. Explain back-projection layers in deep RNNs.
+32. Compare dynamic vs. static unrolling in frameworks.
+33. Discuss efficient batching for variable-length RNN sequences.
+34. Explain weight tying between embedding and softmax matrices.
+35. Describe neural machine translation with RNNs pre-transformer.
+36. Outline RNN use in reinforcement learning policies.
+37. Explain sequence generation with nucleus sampling vs. beam search.
+38. Discuss memory compression in long-sequence RNN inference.
+3. Provide applications of RNNs in EEG/ECG analysis.
+40. Explain event-based RNNs for irregular time-series.
+41. Discuss phase-functioned RNNs in animation.
+42. Compare continuous-time RNNs with spiking neural nets.
+43. Explain hypernetworks producing RNN weights.
+44. Describe curriculum learning for RNN training.
+45. Explain hierarchical softmax for large vocabularies.
+46. Discuss unsupervised phoneme discovery with RNN autoencoders.
+47. Explain RNNs in audio waveform synthesis (WaveRNN).
+48. Describe mixture density RNNs for handwriting generation.
+4. Talk about transformer dominance and niches where RNNs remain relevant.
+50. Predict future RNN research topics such as efficient long-range memory.
+4. Long Short-Term Memory (LSTM)
+1. Draw and annotate the standard LSTM cell.
+2. Explain forget, input and output gates mathematically.
+3. Derive cell-state update equations.
+4. Why does LSTM mitigate vanishing gradients?
+5. Discuss peephole connections and their effect.
+6. Compare CuDNN LSTM with generic implementation.
+7. Explain stacked LSTMs and deep transition LSTMs.
+8. Describe bidirectional LSTMs and context length.
+. Compare many-to-many, many-to-one and one-to-many LSTM usages.
+10. Explain weight-drop regularisation for LSTMs.
+11. Discuss layer normalised LSTMs.
+12. Why might GRU outperform LSTM with fewer parameters?
+13. Explain residual connections between LSTM layers.
+14. Describe self-attention on top of LSTM outputs.
+15. Explain pointer sentinel LSTM for language modelling.
+16. Discuss the role of highway LSTM in speech recognition.
+17. Explain sequence packing and masks with LSTMs.
+18. How is truncated BPTT applied to LSTMs?
+1. Describe dynamic state-carrying across batches.
+20. Explain zoneout vs. dropout in LSTM gates.
+21. Discuss memory-compressed BPTT for long sequences.
+22. Compare convolutional LSTM and standard LSTM.
+23. Explain multiplicative LSTM (mLSTM).
+24. Describe LSTM-based neural Turing machines.
+25. Discuss adaptive softmax with LSTMs.
+26. What causes exploded gradients in LSTMs?
+27. Explain gradient clipping by norm vs. by value.
+28. Discuss scheduled sampling in LSTM sequence generation.
+2. Explain coverage mechanisms in LSTM attention.
+30. Describe LSTM encoder-decoder with copy mechanism.
+31. How is transfer learning done with pre-trained LSTM language models?
+32. Explain ALBERTʼs factorised embedding trick vs. LSTM embeddings.
+33. Discuss LSTM applications in anomaly detection for IoT sensors.
+34. Explain sequence-labelling with CRF on top of LSTM outputs.
+35. Describe self-supervised pre-training tasks for LSTMs (e.g., next-sentence prediction).
+36. Discuss energy efficiency of LSTM on mobile hardware.
+37. Compare differentiable ODE solvers and LSTM for modelling dynamical systems.
+38. Explain lattice LSTM for Chinese word segmentation.
+3. Discuss LSTM use in time-series forecasting with exogenous variables.
+40. Explain hierarchical attention networks involving LSTMs.
+41. Describe bidirectional LSTM-CRF for named entity recognition.
+42. Talk about quaternion LSTM for 3-D rotation sequences.
+43. Explain memory-augmented LSTM in meta-learning.
+44. Discuss distilling an LSTM into a smaller student network.
+45. Explain warm-starting hidden states for real-time streaming tasks.
+46. Describe training stabilisation with gradient noise injection.
+47. Explain adaptive computation time extension to LSTM.
+48. Discuss gating LSTM layers with global context.
+4. Describe latest research on replacing attention with efficient LSTM variants.
+50. Predict future of LSTM in edge AI devices.
+5. Gated Recurrent Unit (GRU)
+1. Diagram the GRU cell and label update and reset gates.
+2. Compare parameter count of GRU vs. LSTM.
+3. Explain why GRU can converge faster than LSTM.
+4. Derive hidden state update equation.
+5. Discuss the role of the reset gate in capturing short-term dependencies.
+6. Explain GRUʼs susceptibility to gradient vanishing.
+7. Compare GRU, mGRU and Light-GRU variants.
+8. Describe bidirectional GRU applications.
+. Discuss time-aware GRU (T-GRU) for irregular intervals.
+10. Explain convolutional GRU for video prediction.
+11. Describe gated recurrent convolutional networks in language modelling.
+12. Explain quaternion GRU for 3-D orientation data.
+13. Compare zoneout and recurrent dropout in GRU.
+14. Explain GRU with attentional gate.
+15. Discuss incremental training of GRU with streaming data.
+16. Explain parameter sharing across GRU layers.
+17. Compare transformer encoder with GRU encoder.
+18. Discuss neural architecture search findings on GRU vs. LSTM.
+1. Explain GRU advantages on small data sets.
+20. Describe residual GRU networks.
+21. Explain hierarchical GRU for document classification.
+22. Discuss GRU use in graph neural networks (e.g., Gated Graph Sequence Neural Networks).
+23. Explain how GRUs are applied in speech synthesis (Tacotron).
+24. Discuss self-supervised learning with GRU CPC (contrastive predictive coding).
+25. Explain reinforcement learning agents with recurrent GRU policies.
+26. Discuss efficient GPU implementation of GRU.
+27. Explain interpretability methods for GRU hidden states.
+28. Describe GRU-based anomaly detection in server logs.
+2. Explain applying GRU in financial time-series volatility modelling.
+30. Discuss asynchronous training of GRU networks.
+31. Explain cross-lingual transfer learning using GRU encoder.
+32. Describe gradient surgery to improve multi-task GRU models.
+33. Explain adaptive activation functions in GRU gates.
+34. Discuss sub-batch canonical memory GRU for long sequences.
+35. Explain on-device inference optimisation for GRU.
+36. Describe GRU in wireless signal prediction.
+37. Discuss curriculum learning schedule for GRU.
+38. Explain sequence-to-set modelling with GRU decoders.
+3. Describe mixture-of-experts gating with GRU.
+40. Discuss probabilistic GRU (Bayesian recurrent networks).
+41. Explain GRU-based autoencoders for dimensionality reduction.
+42. Describe dynamic GRU with skip connections over time.
+43. Discuss residual multiplicative GRU.
+44. Explain training GRU with label noise and co-teaching.
+45. Describe long-horizon forecasting with dilated GRU.
+46. Explain dual-stage attention GRU for time-series.
+47. Discuss future research trends in lightweight GRUs for IoT.
+48. Explain memory-augmented GRU.
+4. Compare Seq2Seq with GRU vs. transformer outputs.
+50. Predict longevity of GRU architectures amid rising transformer popularity.
+6. Transformers
+1. Explain scaled dot-product attention and why scaling is necessary.
+2. Derive multi-head attention and its benefits.
+3. What are positional encodings and why are they needed?
+4. Compare learned vs. sinusoidal positional embeddings.
+5. Describe the transformer encoder and decoder stacks.
+6. Explain masked self-attention in autoregressive decoding.
+7. Discuss transformer quadratic memory complexity and mitigation strategies.
+8. Compare transformers with RNNs in terms of parallelism and long-range modelling.
+. Explain layer normalisation placement (pre-norm vs. post-norm).
+10. Discuss residual dropout and its effect on training stability.
+11. What is label smoothing and why beneficial in transformer training?
+12. Describe Byte-Pair Encoding (BPE) tokenisation and subword modelling.
+13. Explain adaptive softmax and vocabulary sampling for large vocabularies.
+14. Discuss transformer-XLʼs recurrence mechanism.
+15. Explain Reformer and locality-sensitive hashing attention.
+16. Describe Linformer and projection-based low-rank attention.
+17. Compare Performerʼs FAVOR+ kernel with standard softmax.
+18. Explain relative positional encodings in models like T5.
+1. Discuss cross-attention in encoder-decoder tasks.
+20. Explain BERTʼs bidirectional masked-language pre-training objective.
+21. Compare autoregressive GPT vs. masked-language BERT pre-training.
+22. Explain ELECTRAʼs replaced token detection.
+23. Discuss ALBERTʼs parameter sharing and factorised embeddings.
+24. Explain large-scale scaling laws for transformers.
+25. Discuss sparsity in mixture-of-experts transformers.
+26. Explain retrieval-augmented generation (RAG).
+27. Discuss instruction tuning and RLHF for alignment.
+28. Explain prompt engineering and soft prompts.
+2. Describe adapters and LoRA for parameter-efficient fine-tuning.
+30. Explain catastrophic forgetting in continual transformer learning.
+31. Compare vision transformer vs. text transformer differences.
+32. Discuss Swin Transformer hierarchical windows.
+33. Explain diffusion transformer models for images.
+34. Discuss long-document transformers like Longformer and BigBird.
+35. Explain gradient checkpointing to save transformer memory.
+36. Discuss int8 and fp8 quantisation for deployment.
+37. Explain speculative decoding for faster inference.
+38. Describe attention head pruning.
+3. Discuss transformer interpretability via attention visualisation.
+40. Explain transformer security vulnerabilities (prompt injection).
+41. Discuss energy-efficient transformer hardware.
+42. Explain zero-shot and few-shot prompting with large language models.
+43. Discuss chain-of-thought reasoning emergence.
+44. Explain planning with transformers in reinforcement learning.
+45. Discuss multimodal transformers (CLIP).
+46. Explain graph transformers.
+47. Describe transformer use in protein folding (AlphaFold).
+48. Discuss hybrid CNN-transformer architectures.
+4. Explain future research on linear-time attention.
+50. Predict post-transformer architectural shifts in deep learning.
+7. Vision Transformers (ViT)
+1. Explain image patch embedding in ViT.
+2. How does ViT handle positional information?
+3. Discuss data requirements for ViT vs. CNNs.
+4. Explain token mixing vs. channel mixing in ViT.
+5. Discuss pre-training strategies (JFT-300M).
+6. Explain patch size trade-offs.
+7. Compare DeiT to original ViT and its distillation token.
+8. Explain class token and patch tokens.
+. Discuss fine-tuning ViT on small datasets.
+10. Explain computational complexity of ViT self-attention for high-res images.
+11. Discuss hierarchical ViT variants (CvT, PVT).
+12. Explain position embedding interpolation when changing input resolution.
+13. Discuss self-supervised ViT (DINO, MAE).
+14. Explain Masked Autoencoder (MAE) for images.
+15. Compare ViT robustness to adversarial noise vs. CNNs.
+16. Discuss interpretability via attention maps in ViT.
+17. Explain token pruning techniques.
+18. Describe hybrid CNN-ViT models (ConvNext).
+1. Explain low-rank attention for ViT acceleration.
+20. Discuss deployment on edge devices.
+21. Explain rolling vs. absolute positional encodings.
+22. Discuss mix-token augmentation (MixToken).
+23. Explain patch merging vs. pooling.
+24. Describe hyperparameters influencing ViT convergence.
+25. Compare ViT for object detection vs. classification.
+26. Explain vision-language pre-training with ViT (CLIP, ALIGN).
+27. Discuss ViT use in medical imaging.
+28. Explain domain adaptation challenges for ViT.
+2. Discuss parameter-efficient tuning of ViT adapters.
+30. Explain gradient noise scale in ViT training.
+31. Discuss patch dropout regularisation.
+32. Explain vision transformer in segmentation tasks (Segmenter).
+33. Compare ViT to Swin Transformer in locality modelling.
+34. Explain quantisation of ViT.
+35. Discuss long-range vision tasks (panoptic segmentation).
+36. Explain ViT memory footprint vs. EfficientNet.
+37. Discuss ViT for video classification (TimeSformer).
+38. Explain masked image modelling and transfer.
+3. Discuss label smoothing effect on ViT.
+40. Explain flexible input sizes in ViT inference.
+41. Discuss incorporation of depthwise convolutions in ViT.
+42. Explain multi-scale token sampling.
+43. Discuss robustness of ViT to image corruption (ImageNet-C).
+44. Explain online token clustering.
+45. Discuss data augmentation pipelines suitable for ViT.
+46. Explain ViT backbones in diffusion models.
+47. Discuss training ViT with low precision optimizers.
+48. Explain ViT for point cloud processing.
+4. Describe open problems in scaling ViT to 3-D data.
+50. Predict future of ViTs in computer vision.
+8. Swin Transformer
+1. Explain shifted window partitioning.
+2. Describe hierarchical representation in Swin.
+3. Compare Swin-T, Swin-S, Swin-B and Swin-L.
+4. Explain limitation of global attention and Swinʼs solution.
+5. Discuss computational cost versus ViT.
+6. Explain relative positional bias in Swin.
+7. Describe patch merging and linear embedding.
+8. Explain Swin in object detection pipelines (Swin + FPN).
+. Describe Swin for semantic segmentation (UPerNet).
+10. Discuss Swin-MST variant for super-resolution.
+11. Explain linear complexity to image size in Swin.
+12. Compare window size hyperparameter effects.
+13. Discuss window attention masking implementation.
+14. Explain gradient flow across windows.
+15. Describe Swinʼs performance on ImageNet-22K.
+16. Explain layer normalisation placement in Swin.
+17. Discuss data augmentation differences vs. CNNs.
+18. Explain adapting Swin for video (Swin-V2, Swin Transformer 3-D).
+1. Compare Swin to ConvNeXt performance.
+20. Explain meta-former perspective on Swin.
+21. Discuss Swinʼs transfer to medical image tasks.
+22. Explain model-scaling rules in Swin-V2.
+23. Describe training stability improvements in Swin-V2.
+24. Explain log-scaled continuous position bias.
+25. Discuss memory savings via zero-redundancy optimizer.
+26. Explain Swinʼs robustness to translation.
+27. Describe window-wise activation checkpointing.
+28. Discuss sparsity patterns for Swin inference acceleration.
+2. Explain distillation of Swin into smaller models.
+30. Describe challenges of Swin on non-square images.
+31. Discuss Swin in panoptic segmentation.
+32. Explain adapting Swin for multi-modal tasks.
+33. Describe cross-window attention variants.
+34. Discuss Swinʼs receptive field growth.
+35. Explain efficient attention kernels for Swin on GPUs.
+36. Discuss Swin for LiDAR point clouds.
+37. Explain hierarchical clustering vs. fixed windows.
+38. Discuss fine-tuning Swin on small datasets.
+3. Explain window size search with NAS.
+40. Discuss self-distillation in Swin.
+41. Explain cyclic shift and overlap ratio.
+42. Describe global average pooling head for classification.
+43. Discuss label smoothing and Mixup for Swin.
+44. Explain zero-shot robustness of Swin.
+45. Discuss quantisation aware training of Swin.
+46. Explain data efficient training recipe (DeiT) applied to Swin.
+47. Describe 3-D Swin for video action detection.
+48. Explain weakly supervised Swin pre-training.
+4. Discuss open-vocabulary detection with Swin backbones.
+50. Predict future Swin research directions.
+9. StyleGAN / StyleGAN2 / StyleGAN3
+1. Explain generator architecture of original StyleGAN.
+2. Define style mapping network and AdaIN.
+3. Discuss separation of coarse, middle, fine styles along layers.
+4. Explain progressive growing in StyleGAN.
+5. Describe path-length regularisation in StyleGAN2.
+6. Explain weight demodulation and its purpose.
+7. Discuss removal of blob-shaped artifacts in StyleGAN2-ADA.
+8. Explain Adaptive Discriminator Augmentation (ADA).
+. Compare StyleGAN vs. ProGAN.
+10. Describe style mixing regularisation.
+11. Explain noise injection and stochastic variation.
+12. Discuss truncation trick and ψ parameter.
+13. Explain StyleGAN latent spaces: Z, W, W+, P.
+14. Describe interface-GAN and latent editing.
+15. Explain StyleGAN inversion methods (e.g., e4e, pSp).
+16. Compare pixel-wise vs. channel-wise noise.
+17. Discuss StyleGAN3ʼs alias-free design.
+18. Explain 2-D fourier features in StyleGAN3.
+1. Describe continuous depth translation invariance.
+20. Discuss out-of-distribution generalisation and datasets.
+21. Compare FID vs. Inception Score for generative quality.
+22. Explain projector for identity-preserving face editing.
+23. Discuss attribute manipulations with GANSpace.
+24. Explain GAN dissection and unit visualisation.
+25. Describe style generalisation across datasets.
+26. Explain fine-tuning StyleGAN for few-shot generation.
+27. Discuss GAN-based data augmentation for downstream tasks.
+28. Explain CLIP-guided latent editing.
+2. Describe training StyleGAN on non-aligned data.
+30. Explain hyperspherical latent space and spherical embeddings.
+31. Discuss generative prior for image restoration.
+32. Explain StyleGAN for text-to-image via multi-modal alignment.
+33. Describe Co-mod-GAN bridging StyleGAN with segmentation.
+34. Explain 3-D aware StyleGAN (StyleNeRF).
+35. Discuss hyper-style for high-quality editing.
+36. Explain adversarial robustness of StyleGAN.
+37. Describe model compression and distillation for mobile GANs.
+38. Discuss fairness and demographic bias in face GANs.
+3. Explain integrating diffusion loss into StyleGAN training.
+40. Describe watermarking generated images.
+41. Explain infinite zoom and out-painting with StyleGAN.
+42. Discuss licensing and ethical concerns of dataset usage.
+43. Explain style mixing latent interpolation.
+44. Describe transferring StyleGAN generator between domains.
+45. Explain segmentation-guided GANs for part mixing.
+46. Discuss real-time inference optimisation.
+47. Explain zero-shot generative domain adaptation.
+48. Discuss adversarial detection of GAN-generated images.
+4. Explain quality tuning via per-layer noise magnitude.
+50. Predict future of StyleGAN-like architectures.
+10. CycleGAN
+1. Explain image-to-image translation without paired data.
+2. Describe adversarial loss and cycle-consistency loss.
+3. Discuss identity loss and when needed.
+4. Explain role of PatchGAN discriminator.
+5. Describe generator architecture in CycleGAN.
+6. Explain training stability challenges in CycleGAN.
+7. Discuss mode collapse and mitigation.
+8. Explain mapping ambiguity problem.
+. Describe data augmentation strategies.
+10. Explain CycleGAN for style transfer vs. domain transfer.
+11. Discuss applications in medical imaging.
+12. Explain CycleGAN in video translation and temporal consistency.
+13. Discuss evaluation with FID and LPIPS.
+14. Explain spectral normalization in CycleGAN.
+15. Describe attention-guided CycleGAN.
+16. Explain multi-domain CycleGAN (StarGAN).
+17. Discuss geometry-consistent CycleGAN.
+18. Explain cut (contrastive unpaired translation) vs. CycleGAN.
+1. Describe cyclic perceptual loss.
+20. Discuss memory use with high-res images.
+21. Explain one-sided label smoothing in discriminators.
+22. Discuss CubeGAN for 3-D domain translation.
+23. Explain partial weight sharing across generators.
+24. Describe training with mixed precision for CycleGAN.
+25. Explain patch-based training vs. full-image.
+26. Discuss CycleGAN for style untransferability issues.
+27. Explain domain adaptation using CycleGAN.
+28. Describe unsupervised depth transfer via CycleGAN.
+2. Explain CycleGAN failure cases.
+30. Discuss cyclic consistency with contrastive loss.
+31. Explain multi-cycle synergy (double cycle).
+32. Discuss GAN inversion for CycleGAN editing.
+33. Describe face ageing with CycleGAN variations.
+34. Explain dual learning relationship.
+35. Discuss training time reduction via teacher-student.
+36. Explain zero-shot translation with pre-trained CycleGAN.
+37. Describe patch-swap enhancements.
+38. Explain dynamical cropping for training.
+3. Discuss CycleGAN for audio domain.
+40. Explain reversible GANs beyond images.
+41. Describe regulatory concerns for fake imagery.
+42. Explain cycle-free adversarial networks.
+43. Discuss integrating diffusion decoders for higher fidelity.
+44. Explain cycle consistency in text translation.
+45. Describe controllable translation with attribute vectors.
+46. Discuss testing-time adaptation.
+47. Explain unpaired super-resolution.
+48. Describe domain generalisation beyond two domains.
+4. Discuss future improvements for robustness.
+50. Predict the role of CycleGAN in content creation.
+11. Pix2Pix
+1. Explain conditional GAN and its paired training data.
+2. Describe U-Net generator in Pix2Pix.
+3. Explain PatchGAN discriminator role.
+4. Discuss L1 reconstruction loss vs. adversarial loss balance.
+5. Explain importance of paired datasets (e.g., edges-to-photo).
+6. Discuss limitations when pairs unavailable.
+7. Explain multi-scale discriminator variant.
+8. Describe Pix2PixHD improvements.
+. Explain instance normalization benefits.
+10. Discuss pix2pix for style transfer.
+11. Explain semantic label to photo translation.
+12. Discuss photorealism and tiling for high-res.
+13. Explain total variation loss addition.
+14. Describe domain adaptation from synthetic to real.
+15. Explain attention mechanism integration.
+16. Discuss paired depth-to-RGB translation.
+17. Explain training schedule and progressive growing.
+18. Discuss evaluation metrics for Pix2Pix.
+1. Explain pix2pix for medical segmentation masks translation.
+20. Describe interactive editing with pix2pix.
+21. Explain zero-shot pix2pix adaptation (pix2pix-Zero).
+22. Discuss use in face frontalization.
+23. Explain energy-based adversarial training modifications.
+24. Describe env-to-map translation in autonomous driving.
+25. Explain identity preservation constraints.
+26. Discuss GAN illness and artifact removal.
+27. Explain pix2pix for anime line-art colorization.
+28. Describe differentiable rendering supervisory signals.
+2. Explain cross-domain escape.
+30. Discuss conditional batch norm.
+31. Explain interactive scribble-to-image generation.
+32. Describe UNet++ deep supervision variant.
+33. Discuss mixup strategies for conditional GAN.
+34. Explain quantisation for mobile deployment.
+35. Describe cross-modal (sketch-to-sound) pix2pix.
+36. Discuss training paired dataset size effects.
+37. Explain curriculum learning in pix2pix.
+38. Describe noise injection for improved diversity.
+3. Explain spectral norm in generator.
+40. Discuss pix2pix in satellite imagery translation.
+41. Explain adversarial perceptual loss.
+42. Describe use in data augmentation for segmentation.
+43. Discuss semi-supervised pix2pix with limited pairs.
+44. Explain mask-guided pix2pix.
+45. Describe safety filtering of generated images.
+46. Discuss dual discriminators for local and global realism.
+47. Explain diffusion-based pix2pix adaptation.
+48. Describe physics-guided pix2pix for scientific images.
+4. Discuss future directions in conditional GANs.
+50. Predict pix2pixʼs role amid diffusion models.
+12. U-Net
+1. Explain encoder–decoder structure of U-Net.
+2. Describe skip connections and why crucial.
+3. Discuss U-Net for biomedical segmentation.
+4. Explain Dice loss vs. cross-entropy for segmentation.
+5. Describe training with patch extraction.
+6. Explain U-Net variants (U-Net++, UNet-3+).
+7. Discuss attention U-Net.
+8. Explain 3-D U-Net.
+. Describe residual U-Net.
+10. Explain multi-scale supervision.
+11. Discuss cascaded U-Nets for coarse-to-fine.
+12. Explain why symmetric depth helpful.
+13. Describe memory optimisation via tiled prediction.
+14. Explain deep supervision in U-Net++.
+15. Discuss efficient channel attention in U-Net.
+16. Explain use of dilated convolutions.
+17. Discuss domain adaptation in medical U-Nets.
+18. Explain UNet for self-driving car lane detection.
+1. Describe label smoothing for segmentation.
+20. Explain data augmentation specifics (elastic deformation).
+21. Discuss combined BCE+Dice loss.
+22. Explain overlap-tile strategy for inference.
+23. Describe group norm vs. batch norm in small batch segmentation.
+24. Explain Mobile U-Net for on-device.
+25. Discuss U-Net in GAN generator (Pix2Pix).
+26. Explain integrating transformers into U-Net (TransUNet).
+27. Describe U-NeXt and meta-former perspectives.
+28. Explain probabilistic U-Net for uncertainty.
+2. Discuss anisotropic receptive fields in 3-D U-Net.
+30. Explain federated learning with U-Nets across hospitals.
+31. Describe neural architecture search for U-Net blocks.
+32. Explain morphological post-processing.
+33. Discuss pyramid pooling vs. U-Net skip.
+34. Explain attention gates for organ segmentation.
+35. Describe class imbalance handling.
+36. Explain U-Net in domain generalisation tasks.
+37. Discuss adversarial training to refine segmentation.
+38. Explain boundary loss for thin structures.
+3. Describe ensemble of U-Nets.
+40. Explain quantisation for real-time semantic segmentation.
+41. Discuss semi-supervised consistency loss in U-Net.
+42. Explain multi-modal input (RGB + Depth) U-Net.
+43. Describe integration with conditional random fields.
+44. Explain hypertuning patch size and stride.
+45. Discuss memory attention U-Net.
+46. Explain jointly learning segmentation and uncertainty maps.
+47. Describe auto-context U-Net pipelines.
+48. Explain label propagation with U-Net.
+4. Discuss limitations of U-Net on very large images.
+50. Predict future U-Net innovations.
+13. ResNet / VGG / EfficientNet / MobileNet
+1. Explain VGG design philosophy (stacked 33 conv).
+2. Discuss computational cost of VGG16 and parameter count.
+3. Explain residual learning concept in ResNet.
+4. Describe identity vs. projection shortcuts.
+5. Discuss ResNet bottleneck vs. basic blocks.
+6. Explain pre-activation ResNet.
+7. Describe vanishing gradient solution via skip connections.
+8. Explain ResNeXt cardinality concept.
+. Discuss squeeze-and-excitation integrated with ResNet.
+10. Explain stochastic depth in ResNet-50.
+11. Describe EfficientNet compound scaling.
+12. Explain MBConv inverted residuals in MobileNetV2.
+13. Discuss depthwise separable conv and its math.
+14. Explain MobileNetV3 search-based improvements.
+15. Compare EfficientNet vs. RegNet.
+16. Explain AutoAugment used in EfficientNet.
+17. Discuss ghost modules in GhostNet.
+18. Explain channel shuffle in ShuffleNet.
+1. Describe knowledge distillation from ResNet to MobileNet.
+20. Explain weight-quantised MobileNet for edge devices.
+21. Discuss layer fusion for deployment.
+22. Explain Grad-CAM on ResNet feature maps.
+23. Discuss ResNet for metric learning (ArcFace).
+24. Explain leveraging EfficientNet backbones in detectors.
+25. Describe dynamic width networks (Slimmable).
+26. Explain path-drop regularisation.
+27. Discuss ensemble of heterogeneous backbones.
+28. Explain scaling laws across EfficientNet families.
+2. Describe training tweaks: label smoothing, Mixup, CutMix.
+30. Explain anti-aliasing blur pool.
+31. Discuss test-time augmentation for classifiers.
+32. Explain progressive resizing schedule.
+33. Describe transfer learning using ImageNet-pretrained backbones.
+34. Discuss freezing BN statistics.
+35. Explain channel pruning in ResNet.
+36. Describe dynamic inference early exit networks.
+37. Explain fixup init as alternative to BatchNorm.
+38. Discuss replacing ReLU with Swish in EfficientNet.
+3. Explain impact of group norm on small batch sizes.
+40. Describe heterogeneous compute deployment (CPU + NPU).
+41. Explain residual attention networks.
+42. Discuss lessons from ResNet-RS re-scaling.
+43. Explain efficient weight loading selective layers.
+44. Describe security vulnerabilities adversarial attacks.
+45. Explain multi-task joint heads with common backbone.
+46. Discuss distillation with attention transfer.
+47. Explain self-supervised SimCLR pre-training on backbones.
+48. Describe progressive layer dropping for inference speed.
+4. Explain impact of data set size on backbone choice.
+50. Predict future CNN backbone relevance with transformers.
+14. DenseNet / InceptionNet
+1. Explain dense connectivity pattern.
+2. Discuss growth rate hyperparameter in DenseNet.
+3. Explain composite function (BN–ReLU–Conv).
+4. Describe transition layers and compression factor.
+5. Compare DenseNet parameter efficiency vs. ResNet.
+6. Explain feature reuse benefits.
+7. Discuss vanishing gradient mitigation in DenseNet.
+8. Explain memory footprint issue and checkpointing.
+. Describe DenseNet for semantic segmentation (Tiramisu).
+10. Discuss DenseNet for medical imaging.
+11. Explain Inception module with multiple kernel sizes.
+12. Discuss dimensionality reduction using 11 conv.
+13. Explain factorised 77 conv into 17 and 71.
+14. Describe Inception-v3 vs. v4 differences.
+15. Explain auxiliary classifier heads.
+16. Discuss grid-size reduction in Inception.
+17. Compare DenseNet vs. Inception computational trade-offs.
+18. Explain squeeze-and-excitation Inception.
+1. Describe NAS-Net inception search.
+20. Explain Inception-ResNet hybrid.
+21. Discuss label smoothing in Inception-v3 training.
+22. Explain mixup augmentation and DenseNet synergy.
+23. Describe class activation mapping with DenseNet.
+24. Explain knowledge distillation from Inception to smaller nets.
+25. Discuss ensemble of heterogeneous Inception modules.
+26. Explain adaptation to 3-D inputs in medical CT.
+27. Discuss dilated Inception for dense prediction.
+28. Explain Densely connected RNN variant.
+2. Describe DenseNet for graph node classification.
+30. Explain hierarchical feature fusion in DenseNet.
+31. Discuss growth rate scaling for memory trade-off.
+32. Explain DenseNet for optical flow estimation.
+33. Describe Inception in audio spectrogram classification.
+34. Discuss learned group convolutions in Inception.
+35. Explain feature calibration gates in DenseNet.
+36. Compare performance on CIFAR vs. ImageNet.
+37. Explain training tricks to stabilise very deep DenseNets.
+38. Describe adversarial robustness differences.
+3. Explain pruning strategies for Dense connectivity.
+40. Discuss compute vs. accuracy Pareto frontier.
+41. Explain ArcFace with DenseNet backbone.
+42. Discuss domain adaptation using Inception features.
+43. Explain inverted-InceptionMobile variant.
+44. Describe zero-shot transfer to remote sensing.
+45. Discuss federated averaging with DenseNet participants.
+46. Explain memory-efficient DenseNet incremental inference.
+47. Describe self-supervised training on Inception features.
+48. Explain grad-CAM++ on Inception mixed layers.
+4. Discuss DensePose estimation using DenseNet feature reuse.
+50. Predict future uses of dense connectivity patterns.
+15. Diffusion Models (e.g., Stable Diffusion)
+1. Explain forward (noising) and reverse (denoising) processes.
+2. Derive variational lower bound for diffusion training.
+3. Explain DDPM vs. DDIM sampling.
+4. Discuss number of timesteps trade-off.
+5. Explain classifier-free guidance.
+6. Describe UNet backbone in Stable Diffusion.
+7. Explain latent diffusion and VAE encoder use.
+8. Discuss text-conditioned diffusion with CLIP text encoder.
+. Explain cross-attention in Stable Diffusion.
+10. Describe prompt-weighting and emphasis.
+11. Discuss memory optimisation (attention slicing).
+12. Explain stochastic iterative refinement.
+13. Discuss P-NDM and improved samplers.
+14. Explain training loss weighting schedule.
+15. Describe safety filters in Stable Diffusion.
+16. Explain inpainting diffusion.
+17. Discuss image-to-image diffusion guidance.
+18. Explain LoRA fine-tuning for Stable Diffusion.
+1. Describe DreamBooth personalisation.
+20. Explain ControlNet for conditioning with structural signals.
+21. Discuss negative prompts and guidance scale.
+22. Explain text-inversion for concept embedding.
+23. Describe parallel classifier guidance.
+24. Explain multi-diffusion for high-res.
+25. Discuss stable diffusion XL improvements.
+26. Explain progressive distillation for faster inference.
+27. Describe adversarial diffusion distillation.
+28. Explain latent consistency models.
+2. Discuss 3-D diffusion for NeRF generation.
+30. Explain diffusion watermarking.
+31. Describe diffusion for protein structure generation.
+32. Explain noise schedule optimisation.
+33. Discuss diffusion image editing via RePaint.
+34. Explain self-attention guidance.
+35. Describe cascading diffusion models.
+36. Discuss spectrogram diffusion for audio generation.
+37. Explain safe completions via policy guidance.
+38. Describe hardware acceleration (FP8) for diffusion.
+3. Explain mixture of experts diffusion.
+40. Discuss evaluation metrics (CLIP-FID).
+41. Explain diffusion vs. GANs advantages.
+42. Describe computational cost mitigation.
+43. Discuss legal considerations of dataset copyright.
+44. Explain multi-modal diffusion (image+depth).
+45. Describe timeline of diffusion research.
+46. Explain diffusion for super-resolution.
+47. Discuss slot diffusion for object compositionality.
+48. Explain zero-shot human motion diffusion.
+4. Describe guided diffusion in RL policy sampling.
+50. Predict future of diffusion in content creation.
+16. Neural Radiance Fields (NeRF)
+1. Explain volumetric rendering equation used in NeRF.
+2. Describe positional encoding and high-frequency mapping.
+3. Explain hierarchical sampling (coarse and fine networks).
+4. Discuss overfitting to a single scene.
+5. Explain view synthesis from posed images.
+6. Describe inverse rendering scenario.
+7. Explain NeRF-in-the-wild for unknown cameras.
+8. Discuss accelerating NeRF via mip-NeRF.
+. Explain Instant-NGPʼs hash grid encoding.
+10. Describe Plenoxels (sparse voxels).
+11. Discuss PlenOctrees for real-time view generation.
+12. Explain dynamic NeRF for time-varying scenes.
+13. Describe implicit vs. explicit representations.
+14. Explain integrating normals estimation.
+15. Discuss NeRF for relighting.
+16. Explain depth supervision integration.
+17. Describe pose estimation with NeRF (iNeRF).
+18. Discuss neural scene graphs.
+1. Explain anti-aliasing in mip-NeRF-360.
+20. Describe oriented NeRF for novel view extrapolation.
+21. Explain semantic NeRF with multi-task loss.
+22. Discuss Radiance Fields for humans (NeRFies).
+23. Explain Gaussian Splatting acceleration idea.
+24. Describe importance sampling strategies.
+25. Explain memory footprint challenges.
+26. Discuss VR/AR application pipelines.
+27. Explain physically-based NeRF to model BRDF.
+28. Describe editing NeRF with local rigging.
+2. Explain multiview supervision number needed.
+30. Discuss combining NeRF and LiDAR.
+31. Explain 3-DGS vs. NeRF differences (see next section).
+32. Describe compression of NeRF models.
+33. Explain CODEC avatars from NeRF.
+34. Discuss generative NeRF (GenerNeRF).
+35. Explain distilling NeRF into mesh.
+36. Describe neural point light field.
+37. Explain path guiding in NeRF rendering.
+38. Discuss training acceleration with forward-facing scenes.
+3. Explain semantic editing brush for NeRF.
+40. Describe uncertainty estimation in NeRF.
+41. Explain gradient scaling of hash encodings.
+42. Discuss NeRF limitations outdoors.
+43. Explain neural reflectance fields.
+44. Describe spectral NeRF for wavelength-dependent scenes.
+45. Discuss privacy considerations of capturing scenes.
+46. Explain differentiable SLAM with NeRF integration.
+47. Describe knowledge distillation to Gaussian Splatting.
+48. Discuss future hardware (RTX, tensor cores).
+4. Explain NeRF for microscopy.
+50. Predict future real-time NeRF breakthroughs.
+17. 3-D Gaussian Splatting and 3-D Gaussian vs. NeRF
+1. Explain concept of representing a scene as millions of 3-D Gaussians.
+2. Describe ellipsoidal Gaussian parameters (means, covariances, opacities).
+3. Explain rasterisation vs. volumetric integration for splats.
+4. Discuss differentiable splatting render pipeline.
+5. Explain data capture and camera calibration requirements.
+6. Compare rendering speed of 3-DGS to NeRF.
+7. Describe memory footprint differences.
+8. Explain training objective for opacity and color.
+. Discuss adaptive density pruning of Gaussians.
+10. Explain hierarchical Gaussians.
+11. Compare visual quality metrics to Instant-NGP.
+12. Explain fine-to-coarse training schedule.
+13. Discuss handling of thin structures.
+14. Explain foveated rendering possibilities.
+15. Compare novel view extrapolation accuracy.
+16. Discuss scalability to city-scale scenes.
+17. Explain interaction (editing) ease vs. NeRF.
+18. Describe progressive streaming of Gaussian data.
+1. Explain integrating dynamic motion in 3-DGS.
+20. Discuss GPU pipeline implementation specifics.
+21. Explain alias-free splatting filter.
+22. Compare radiance vs. surface representation.
+23. Explain BRDF modelling with 3-DGS.
+24. Discuss integration into game engines (Unity/UE).
+25. Explain photogrammetry vs. 3-DGS pipelines.
+26. Describe compression (quantisation of parameters).
+27. Explain silhouette supervision improvements.
+28. Discuss limitations in extreme lighting changes.
+2. Explain combining Gaussians with mesh proxy.
+30. Compare training time to NeRF techniques.
+31. Explain memory bandwidth vs. compute trade-off.
+32. Discuss gradient flow stability in splatting.
+33. Explain usage for real-time telepresence.
+Total questions: 17 topics × 50  850.
+⁂
+34. Describe model-based vs. model-free editing.
+35. Explain hyper-parameter for Gaussian scale adaptation.
+36. Discuss depth-sensor fused Gaussian models.
+37. Explain zero-shot generalisation across scenes.
+38. Compare transparency handling in Gaussians vs. NeRF.
+3. Explain multi-resolution octree of Gaussians.
+40. Discuss research on neural Gaussian fields.
+41. Explain plug-and-play relighting.
+42. Describe evaluation datasets used in papers.
+43. Explain limitations of current GPU rasterisers.
+44. Discuss alignment of Gaussians using ICP.
+45. Explain anti-aliasing by covariance scaling.
+46. Compare gradient memory of NeRF vs. 3-DGS.
+47. Discuss potential hybrid models combining both.
+48. Explain open-source implementations (e.g., graphics-knt).
+4. Describe future hardware acceleration possibilities.
+50. Summarise key advantages and open challenges relative to NeRF.
