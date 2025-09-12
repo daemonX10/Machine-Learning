@@ -20,7 +20,7 @@
 
 **Discuss separation of coarse, middle, fine styles along layers.**
 
-**Answer:** _[To be filled]_
+**Answer:** _[To be filled]_   
 
 ---
 
