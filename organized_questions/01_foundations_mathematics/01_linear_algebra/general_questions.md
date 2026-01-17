@@ -4,42 +4,59 @@
 
 **How do you perform matrix addition and subtraction?**
 
-**Answer:** Matrix addition and subtraction are fundamental operations performed element-wise on matrices of the same dimensions:
+### Answer
 
-**Matrix Addition:**
-- **Rule**: Add corresponding elements from two matrices
-- **Requirement**: Matrices must have identical dimensions (same number of rows and columns)
-- **Formula**: If A = [aᵢⱼ] and B = [bᵢⱼ], then C = A + B = [aᵢⱼ + bᵢⱼ]
+**Definition:**  
+Matrix addition and subtraction are element-wise operations between two matrices of identical dimensions. Each element in the result is the sum (or difference) of corresponding elements.
+
+**Core Concepts:**
+- Matrices must have the **same dimensions** (m×n)
+- Operations are performed element-by-element
+- Commutative: A + B = B + A
+- Associative: (A + B) + C = A + (B + C)
+
+**Mathematical Formulation:**
+
+Addition:
+$$(A + B)_{ij} = A_{ij} + B_{ij}$$
+
+Subtraction:
+$$(A - B)_{ij} = A_{ij} - B_{ij}$$
 
 **Example:**
-```
-A = [1  2]    B = [5  6]    A + B = [1+5  2+6] = [6   8]
-    [3  4]        [7  8]            [3+7  4+8]   [10 12]
+$$\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} + \begin{pmatrix} 5 & 6 \\ 7 & 8 \end{pmatrix} = \begin{pmatrix} 6 & 8 \\ 10 & 12 \end{pmatrix}$$
+
+**Python Example:**
+```python
+import numpy as np
+
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[5, 6], [7, 8]])
+
+# Addition
+C_add = A + B
+# [[6, 8], [10, 12]]
+
+# Subtraction
+C_sub = A - B
+# [[-4, -4], [-4, -4]]
+
+# Manual implementation
+def matrix_add(A, B):
+    if A.shape != B.shape:
+        raise ValueError("Matrices must have same dimensions")
+    return [[A[i][j] + B[i][j] for j in range(len(A[0]))] for i in range(len(A))]
 ```
 
-**Matrix Subtraction:**
-- **Rule**: Subtract corresponding elements of the second matrix from the first
-- **Requirement**: Matrices must have identical dimensions
-- **Formula**: If A = [aᵢⱼ] and B = [bᵢⱼ], then C = A - B = [aᵢⱼ - bᵢⱼ]
+**ML Applications:**
+- Gradient accumulation in mini-batch training
+- Residual connections: output = F(x) + x
+- Combining multiple feature matrices
 
-**Example:**
-```
-A = [5  8]    B = [1  3]    A - B = [5-1  8-3] = [4  5]
-    [6  9]        [2  4]            [6-2  9-4]   [4  5]
-```
-
-**Properties:**
-1. **Commutative**: A + B = B + A
-2. **Associative**: (A + B) + C = A + (B + C)
-3. **Identity Element**: A + 0 = A (zero matrix)
-4. **Inverse Element**: A + (-A) = 0
-5. **Distributive with scalar multiplication**: k(A + B) = kA + kB
-
-**Applications:**
-- Combining datasets in data science
-- Image processing (adding/subtracting image matrices)
-- Economic modeling (combining cost/revenue matrices)
-- Physics simulations (superposition of fields)
+**Interview Tips:**
+- Dimension mismatch is a common error—always check shapes
+- Broadcasting in NumPy can auto-expand dimensions (be careful!)
+- Subtraction is not commutative: A - B ≠ B - A
 
 ---
 
@@ -47,42 +64,66 @@ A = [5  8]    B = [1  3]    A - B = [5-1  8-3] = [4  5]
 
 **Define the transpose of a matrix.**
 
-**Answer:** The transpose of a matrix is a fundamental operation that reflects the matrix across its main diagonal:
+### Answer
 
-**Definition:**
-The transpose of matrix A, denoted as Aᵀ or A', is formed by interchanging the rows and columns of A. If A is an m×n matrix, then Aᵀ is an n×m matrix.
+**Definition:**  
+The transpose of a matrix A, denoted Aᵀ, is obtained by interchanging its rows and columns. Element at position (i, j) becomes element at position (j, i).
 
-**Mathematical Notation:**
-If A = [aᵢⱼ], then Aᵀ = [aⱼᵢ]
+**Core Concepts:**
+- Original: m×n → Transpose: n×m
+- Diagonal elements remain in place
+- (Aᵀ)ᵀ = A
+- Symmetric matrix: A = Aᵀ
+
+**Mathematical Formulation:**
+$$(A^T)_{ij} = A_{ji}$$
 
 **Example:**
-```
-A = [1  2  3]     Aᵀ = [1  4]
-    [4  5  6]          [2  5]
-                       [3  6]
-```
+$$A = \begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{pmatrix} \quad \Rightarrow \quad A^T = \begin{pmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{pmatrix}$$
 
 **Key Properties:**
-1. **(Aᵀ)ᵀ = A** - Transpose of transpose returns original matrix
-2. **(A + B)ᵀ = Aᵀ + Bᵀ** - Transpose of sum equals sum of transposes
-3. **(AB)ᵀ = BᵀAᵀ** - Transpose of product reverses order
-4. **(kA)ᵀ = kAᵀ** - Scalar factor can be factored out
-5. **det(Aᵀ) = det(A)** - Determinant unchanged by transpose
+| Property | Formula |
+|----------|---------|
+| Double transpose | (Aᵀ)ᵀ = A |
+| Sum | (A + B)ᵀ = Aᵀ + Bᵀ |
+| Product | (AB)ᵀ = BᵀAᵀ (reverse order!) |
+| Scalar | (cA)ᵀ = cAᵀ |
+| Inverse | (A⁻¹)ᵀ = (Aᵀ)⁻¹ |
 
-**Special Cases:**
-- **Symmetric Matrix**: A = Aᵀ (matrix equals its transpose)
-- **Skew-Symmetric Matrix**: A = -Aᵀ (matrix equals negative of its transpose)
-- **Orthogonal Matrix**: AᵀA = I (transpose equals inverse)
+**Python Example:**
+```python
+import numpy as np
 
-**Applications:**
-- **Statistics**: Covariance matrices (XᵀX)
-- **Machine Learning**: Normal equations (XᵀX)β = Xᵀy
-- **Physics**: Converting between row and column vectors
-- **Computer Graphics**: Matrix transformations
-- **Data Science**: Feature matrix manipulations
+A = np.array([[1, 2, 3],
+              [4, 5, 6]])
 
-**Geometric Interpretation:**
-Transpose represents a reflection across the main diagonal, effectively rotating the matrix coordinate system by swapping axes.
+# Transpose
+A_T = A.T           # Shape: (3, 2)
+A_T = A.transpose() # Equivalent
+A_T = np.transpose(A)  # Equivalent
+
+# Verify property: (AB)^T = B^T @ A^T
+B = np.array([[1, 2],
+              [3, 4],
+              [5, 6]])
+AB = A @ B
+assert np.allclose((A @ B).T, B.T @ A.T)
+
+# Create symmetric matrix
+S = A @ A.T  # Always symmetric
+print(np.allclose(S, S.T))  # True
+```
+
+**ML Applications:**
+- **Covariance matrix**: Σ = XᵀX / n
+- **Gradient computation**: ∂L/∂W often involves transposes
+- **Weight sharing**: CNNs use transposed convolutions
+- **Normal equations**: (XᵀX)⁻¹Xᵀy
+
+**Interview Tips:**
+- (AB)ᵀ = BᵀAᵀ — the order reverses (very common mistake!)
+- Row vector becomes column vector after transpose
+- XᵀX is always symmetric and positive semi-definite
 
 ---
 
@@ -90,101 +131,75 @@ Transpose represents a reflection across the main diagonal, effectively rotating
 
 **How do you calculate the norm of a vector and what does it represent?**
 
-**Answer:** The norm of a vector is a measure of its length or magnitude in vector space, providing essential geometric and analytical insights:
+### Answer
 
-**Definition:**
-A norm is a function that assigns a non-negative real number to each vector, representing its "size" or "length."
+**Definition:**  
+A vector norm measures the "size" or "length" of a vector. Different norms capture different notions of magnitude, with L2 (Euclidean) being most common.
 
-**Common Types of Vector Norms:**
+**Core Concepts:**
+- Norm is always non-negative
+- ||**v**|| = 0 iff **v** = **0**
+- Triangle inequality: ||**u** + **v**|| ≤ ||**u**|| + ||**v**||
+- Homogeneity: ||c**v**|| = |c| · ||**v**||
 
-**1. L2 Norm (Euclidean Norm):**
-- **Formula**: ||v||₂ = √(v₁² + v₂² + ... + vₙ²)
-- **Most Common**: Standard geometric length
-- **Example**: For v = [3, 4], ||v||₂ = √(3² + 4²) = √25 = 5
+**Common Norms:**
 
-**2. L1 Norm (Manhattan Norm):**
-- **Formula**: ||v||₁ = |v₁| + |v₂| + ... + |vₙ|
-- **Interpretation**: Sum of absolute values
-- **Example**: For v = [3, -4], ||v||₁ = |3| + |-4| = 7
+| Norm | Formula | Interpretation |
+|------|---------|----------------|
+| **L1** (Manhattan) | Σ\|vᵢ\| | Sum of absolute values |
+| **L2** (Euclidean) | √(Σvᵢ²) | Straight-line distance |
+| **L∞** (Max) | max(\|vᵢ\|) | Largest absolute component |
+| **Lp** (General) | (Σ\|vᵢ\|ᵖ)^(1/p) | Generalized norm |
 
-**3. L∞ Norm (Maximum Norm):**
-- **Formula**: ||v||∞ = max(|v₁|, |v₂|, ..., |vₙ|)
-- **Interpretation**: Largest absolute component
-- **Example**: For v = [3, -7, 2], ||v||∞ = 7
+**Mathematical Formulation:**
 
-**4. General Lp Norm:**
-- **Formula**: ||v||ₚ = (|v₁|ᵖ + |v₂|ᵖ + ... + |vₙ|ᵖ)^(1/p)
-- **Special Cases**: p=1 (L1), p=2 (L2), p→∞ (L∞)
+$$\|\mathbf{v}\|_1 = \sum_{i=1}^{n} |v_i|$$
 
-**Mathematical Properties:**
-1. **Non-negativity**: ||v|| ≥ 0, and ||v|| = 0 iff v = 0
-2. **Homogeneity**: ||cv|| = |c| · ||v|| for scalar c
-3. **Triangle Inequality**: ||u + v|| ≤ ||u|| + ||v||
-4. **Subadditivity**: ||u - v|| ≥ ||u|| - ||v||
+$$\|\mathbf{v}\|_2 = \sqrt{\sum_{i=1}^{n} v_i^2} = \sqrt{\mathbf{v}^T\mathbf{v}}$$
 
-**What Norms Represent:**
+$$\|\mathbf{v}\|_\infty = \max_i |v_i|$$
 
-**Geometric Interpretation:**
-- **L2 Norm**: Straight-line distance from origin
-- **L1 Norm**: City-block distance (Manhattan distance)
-- **L∞ Norm**: Chebyshev distance (maximum coordinate difference)
-
-**Physical Interpretations:**
-- **Magnitude**: Vector strength or intensity
-- **Energy**: In physics, ||v||₂² often represents energy
-- **Error**: Distance between actual and predicted values
-- **Similarity**: Smaller norm differences indicate similarity
-
-**Applications:**
-
-**1. Machine Learning:**
-- **Regularization**: L1 (Lasso), L2 (Ridge) regression
-- **Distance Metrics**: k-NN, clustering algorithms
-- **Gradient Descent**: Step size and convergence criteria
-
-**2. Signal Processing:**
-- **Signal Power**: ||signal||₂²
-- **Noise Measurement**: Error norms
-- **Filter Design**: Frequency response norms
-
-**3. Optimization:**
-- **Convergence Criteria**: ||gradient|| < tolerance
-- **Constraint Bounds**: ||x|| ≤ radius
-- **Penalty Functions**: Norm-based regularization
-
-**4. Computer Graphics:**
-- **Vector Normalization**: Converting to unit vectors
-- **Distance Calculations**: Object positioning
-- **Collision Detection**: Proximity testing
-
-**Calculation Examples:**
-
+**Python Example:**
 ```python
-# Vector v = [1, -2, 3, -4]
+import numpy as np
 
-# L2 norm (Euclidean)
-L2 = sqrt(1² + (-2)² + 3² + (-4)²) = sqrt(30) ≈ 5.477
+v = np.array([3, -4, 5])
 
 # L1 norm (Manhattan)
-L1 = |1| + |-2| + |3| + |-4| = 10
+l1 = np.linalg.norm(v, ord=1)  # |3| + |-4| + |5| = 12
+l1_manual = np.sum(np.abs(v))
 
-# L∞ norm (Maximum)
-L_inf = max(|1|, |-2|, |3|, |-4|) = 4
+# L2 norm (Euclidean) - default
+l2 = np.linalg.norm(v)         # sqrt(9 + 16 + 25) = sqrt(50) ≈ 7.07
+l2_manual = np.sqrt(np.dot(v, v))
+
+# L-infinity norm (Max)
+linf = np.linalg.norm(v, ord=np.inf)  # max(3, 4, 5) = 5
+
+# Normalize to unit vector
+unit_v = v / np.linalg.norm(v)
+print(np.linalg.norm(unit_v))  # 1.0
+
+# Matrix norms
+A = np.array([[1, 2], [3, 4]])
+frobenius = np.linalg.norm(A, 'fro')  # sqrt(sum of squares)
+spectral = np.linalg.norm(A, 2)       # Largest singular value
 ```
 
-**Unit Vectors:**
-A unit vector has norm 1: ||u|| = 1
-- **Normalization**: u = v/||v|| creates unit vector in direction of v
-- **Purpose**: Represents direction without magnitude
-- **Applications**: Coordinate systems, direction vectors
+**ML Applications:**
+| Application | Norm Used |
+|-------------|-----------|
+| **L2 Regularization** (Ridge) | ||**w**||₂² |
+| **L1 Regularization** (Lasso) | ||**w**||₁ |
+| **Gradient clipping** | ||∇||₂ |
+| **Distance metrics** | ||**x** - **y**||₂ |
+| **Batch normalization** | ||**x**||₂ |
 
-**Relationship to Inner Products:**
-For real vectors: ||v||₂ = √⟨v,v⟩ where ⟨v,v⟩ is the inner product
-
-**Practical Considerations:**
-- **Numerical Stability**: Use robust algorithms for very large/small values
-- **Computational Complexity**: L2 requires square root, L1 and L∞ don't
-- **Choice of Norm**: Depends on application requirements and geometric properties needed
+**Interview Tips:**
+- L1 promotes sparsity (many zeros), L2 promotes small weights
+- L2 is differentiable everywhere; L1 is not differentiable at 0
+- Frobenius norm for matrices = L2 norm of flattened matrix
+- Spectral norm = largest singular value (important for Lipschitz)
 
 ---
 
@@ -192,151 +207,88 @@ For real vectors: ||v||₂ = √⟨v,v⟩ where ⟨v,v⟩ is the inner product
 
 **Define the concept of orthogonality in linear algebra.**
 
-**Answer:** Orthogonality is a fundamental concept representing perpendicularity and independence in vector spaces, with broad applications across mathematics and engineering:
+### Answer
 
-**Basic Definition:**
-Two vectors u and v are orthogonal if their dot product (inner product) equals zero: u · v = 0
+**Definition:**  
+Two vectors are orthogonal if their dot product is zero, meaning they are perpendicular in geometric terms. Orthogonal sets form the foundation for many decompositions and are crucial for numerical stability.
 
-**Geometric Interpretation:**
-Orthogonal vectors meet at a 90-degree angle, representing perpendicular directions in space.
+**Core Concepts:**
+- **Orthogonal vectors**: **u** · **v** = 0
+- **Orthonormal vectors**: Orthogonal + unit length (||**u**|| = 1)
+- **Orthogonal matrix**: Q where QᵀQ = QQᵀ = I
+- **Orthogonal complement**: All vectors perpendicular to a subspace
 
 **Mathematical Formulation:**
-For vectors u = [u₁, u₂, ..., uₙ] and v = [v₁, v₂, ..., vₙ]:
-- **Orthogonal**: u · v = u₁v₁ + u₂v₂ + ... + uₙvₙ = 0
-- **Orthonormal**: Orthogonal AND ||u|| = ||v|| = 1 (unit length)
 
-**Examples:**
+Vectors orthogonal:
+$$\mathbf{u} \perp \mathbf{v} \iff \mathbf{u}^T\mathbf{v} = 0 \iff \langle\mathbf{u}, \mathbf{v}\rangle = 0$$
+
+Orthonormal set {**q**₁, **q**₂, ..., **q**ₙ}:
+$$\mathbf{q}_i^T\mathbf{q}_j = \delta_{ij} = \begin{cases} 1 & i = j \\ 0 & i \neq j \end{cases}$$
+
+**Orthogonal Projection:**
+$$\text{proj}_\mathbf{u}(\mathbf{v}) = \frac{\mathbf{u}^T\mathbf{v}}{\mathbf{u}^T\mathbf{u}}\mathbf{u}$$
+
+**Python Example:**
+```python
+import numpy as np
+
+# Check orthogonality
+u = np.array([1, 0, 0])
+v = np.array([0, 1, 0])
+w = np.array([1, 1, 0])
+
+print(np.dot(u, v))  # 0 → orthogonal
+print(np.dot(u, w))  # 1 → not orthogonal
+
+# Orthonormal vectors (standard basis)
+e1 = np.array([1, 0, 0])
+e2 = np.array([0, 1, 0])
+e3 = np.array([0, 0, 1])
+
+# Verify orthonormality
+Q = np.column_stack([e1, e2, e3])
+print(np.allclose(Q.T @ Q, np.eye(3)))  # True
+
+# Gram-Schmidt orthogonalization
+def gram_schmidt(V):
+    """Orthonormalize columns of V."""
+    Q = np.zeros_like(V, dtype=float)
+    for i in range(V.shape[1]):
+        q = V[:, i].astype(float)
+        for j in range(i):
+            q -= np.dot(Q[:, j], V[:, i]) * Q[:, j]
+        Q[:, i] = q / np.linalg.norm(q)
+    return Q
+
+# Example
+V = np.array([[1, 1], [1, 0], [0, 1]], dtype=float)
+Q = gram_schmidt(V)
+print("Q^T Q:\n", Q.T @ Q)  # ≈ Identity
+
+# Orthogonal projection
+def project(v, u):
+    """Project v onto u."""
+    return (np.dot(u, v) / np.dot(u, u)) * u
+
+# Project onto subspace spanned by orthonormal columns of Q
+def project_subspace(v, Q):
+    """Project v onto column space of orthonormal Q."""
+    return Q @ (Q.T @ v)
 ```
-2D: u = [1, 0], v = [0, 1] → u · v = 1×0 + 0×1 = 0 ✓ orthogonal
-3D: u = [1, 1, 0], v = [1, -1, 0] → u · v = 1×1 + 1×(-1) + 0×0 = 0 ✓ orthogonal
-```
 
-**Extended Concepts:**
-
-**1. Orthogonal Sets:**
-- A set of vectors where every pair is orthogonal
-- **Example**: {[1,0,0], [0,1,0], [0,0,1]} - standard basis vectors
-- **Property**: Linearly independent (unless containing zero vector)
-
-**2. Orthonormal Sets:**
-- Orthogonal set where all vectors have unit length
-- **Advantage**: Simplifies calculations and transformations
-- **Construction**: Normalize orthogonal vectors: eᵢ = vᵢ/||vᵢ||
-
-**3. Orthogonal Matrices:**
-- Square matrix Q where QᵀQ = I
-- **Columns**: Form orthonormal set
-- **Properties**: Preserves lengths and angles
-- **Determinant**: det(Q) = ±1
-
-**4. Orthogonal Subspaces:**
-- Two subspaces V and W where every vector in V is orthogonal to every vector in W
-- **Notation**: V ⊥ W
-- **Example**: Row space and null space of a matrix
-
-**5. Orthogonal Complement:**
-- For subspace V, orthogonal complement V⊥ contains all vectors orthogonal to V
-- **Property**: V ∩ V⊥ = {0} and V ⊕ V⊥ = Rⁿ
-
-**Key Properties:**
-
-**1. Pythagorean Theorem:**
-If u ⊥ v, then ||u + v||² = ||u||² + ||v||²
-
-**2. Orthogonal Projection:**
-Projection of vector v onto orthogonal vector u:
-proj_u(v) = (v · u / ||u||²) × u
-
-**3. Independence:**
-Orthogonal vectors (except zero) are linearly independent
-
-**4. Preservation:**
-Orthogonal transformations preserve angles and lengths
-
-**Applications:**
-
-**1. Machine Learning:**
+**ML Applications:**
 - **PCA**: Principal components are orthogonal
-- **Feature Engineering**: Creating independent features
+- **QR decomposition**: Q is orthogonal
+- **Orthogonal weight initialization**: Helps gradient flow
+- **Decorrelation**: Whitening produces orthogonal features
 - **Regularization**: Orthogonal constraints in neural networks
 
-**2. Signal Processing:**
-- **Fourier Transform**: Orthogonal basis functions
-- **Wavelet Analysis**: Orthogonal wavelet families
-- **Compression**: Orthogonal transforms for data compression
-
-**3. Computer Graphics:**
-- **Coordinate Systems**: Orthogonal axes
-- **Rotations**: Orthogonal transformation matrices
-- **Projection**: Orthogonal projection onto viewing planes
-
-**4. Statistics:**
-- **Regression**: Orthogonal residuals
-- **ANOVA**: Orthogonal contrasts
-- **Experimental Design**: Orthogonal factors
-
-**5. Numerical Methods:**
-- **QR Decomposition**: Orthogonal matrix Q
-- **Gram-Schmidt Process**: Creating orthogonal bases
-- **Iterative Methods**: Orthogonal search directions
-
-**Construction Methods:**
-
-**1. Gram-Schmidt Process:**
-```
-Input: Linearly independent vectors {v₁, v₂, ..., vₖ}
-Output: Orthogonal vectors {u₁, u₂, ..., uₖ}
-
-u₁ = v₁
-u₂ = v₂ - proj_u₁(v₂)
-u₃ = v₃ - proj_u₁(v₃) - proj_u₂(v₃)
-...
-```
-
-**2. QR Decomposition:**
-Any matrix A can be factored as A = QR where Q is orthogonal and R is upper triangular
-
-**3. Householder Reflections:**
-Orthogonal transformations that reflect vectors across hyperplanes
-
-**Important Theorems:**
-
-**1. Orthogonal Decomposition Theorem:**
-Every vector space can be decomposed into orthogonal subspaces
-
-**2. Spectral Theorem:**
-Symmetric matrices have orthogonal eigenvectors
-
-**3. Fundamental Theorem of Linear Algebra:**
-Four fundamental subspaces have orthogonal relationships
-
-**Practical Benefits:**
-
-**1. Computational Advantages:**
-- Simplified dot product calculations
-- Stable numerical algorithms
-- Efficient projections
-
-**2. Geometric Clarity:**
-- Clear spatial relationships
-- Intuitive transformations
-- Simplified coordinate systems
-
-**3. Statistical Independence:**
-- Uncorrelated features
-- Independent components
-- Reduced multicollinearity
-
-**Common Misconceptions:**
-- Orthogonality ≠ linear independence (but orthogonal ⇒ independent)
-- Orthogonal matrices preserve MORE than just orthogonality
-- Zero vector is orthogonal to all vectors (trivial case)
-
-**Testing Orthogonality:**
-1. **Vectors**: Check if dot product equals zero
-2. **Matrices**: Verify if AᵀA = I
-3. **Subspaces**: Check if all vector pairs have zero dot product
-4. **Numerical**: Use tolerance for floating-point comparisons
+**Interview Tips:**
+- Orthogonal vectors are always linearly independent
+- Orthogonal matrices preserve lengths and angles
+- Gram-Schmidt is numerically unstable; use QR decomposition instead
+- In high dimensions, random vectors are nearly orthogonal
 
 ---
 
@@ -344,186 +296,86 @@ Four fundamental subspaces have orthogonal relationships
 
 **Define what a symmetric matrix is.**
 
-**Answer:** A symmetric matrix is a square matrix that equals its own transpose, representing perfect symmetry across its main diagonal:
+### Answer
 
-**Mathematical Definition:**
-A matrix A is symmetric if and only if A = Aᵀ, which means aᵢⱼ = aⱼᵢ for all i, j.
+**Definition:**  
+A symmetric matrix is a square matrix that equals its own transpose: A = Aᵀ. This means element Aᵢⱼ = Aⱼᵢ for all i, j—the matrix is mirrored across its main diagonal.
 
-**Visual Representation:**
-```
-Symmetric Matrix:        Non-Symmetric Matrix:
-[a  b  c]               [1  2  3]
-[b  d  e]               [4  5  6]  
-[c  e  f]               [7  8  9]
-```
+**Core Concepts:**
+- Only square matrices can be symmetric
+- Diagonal elements can be any value
+- Off-diagonal elements are mirrored: Aᵢⱼ = Aⱼᵢ
+- Real symmetric matrices have real eigenvalues
 
-**Examples:**
-```
-2×2 Symmetric:          3×3 Symmetric:
-[1   3]                 [2   -1   4]
-[3   5]                 [-1   3   0]
-                        [4    0   1]
-```
+**Mathematical Formulation:**
+$$A = A^T \iff A_{ij} = A_{ji} \quad \forall i, j$$
 
 **Key Properties:**
+| Property | Description |
+|----------|-------------|
+| Eigenvalues | Always real |
+| Eigenvectors | Orthogonal (for distinct eigenvalues) |
+| Diagonalizable | A = QΛQᵀ (Q orthogonal) |
+| XᵀAX | = (XᵀAX)ᵀ (quadratic form is scalar) |
 
-**1. Eigenvalue Properties:**
-- All eigenvalues are **real numbers** (no complex eigenvalues)
-- Eigenvectors corresponding to different eigenvalues are orthogonal
-- Can be diagonalized by an orthogonal matrix: A = QΛQᵀ
+**Special Symmetric Matrices:**
+- **Covariance matrix**: Σ = E[(X - μ)(X - μ)ᵀ]
+- **Gram matrix**: G = XᵀX
+- **Kernel matrix**: K where Kᵢⱼ = k(xᵢ, xⱼ)
+- **Laplacian matrix**: L = D - A (graph theory)
 
-**2. Spectral Decomposition:**
-Every symmetric matrix can be written as A = Σᵢ λᵢvᵢvᵢᵀ where λᵢ are eigenvalues and vᵢ are orthonormal eigenvectors
-
-**3. Quadratic Forms:**
-Symmetric matrices naturally arise in quadratic forms: xᵀAx
-
-**4. Definiteness:**
-Symmetric matrices can be classified as:
-- **Positive Definite**: All eigenvalues > 0
-- **Positive Semi-definite**: All eigenvalues ≥ 0
-- **Negative Definite**: All eigenvalues < 0
-- **Negative Semi-definite**: All eigenvalues ≤ 0
-- **Indefinite**: Mixed positive and negative eigenvalues
-
-**Special Types of Symmetric Matrices:**
-
-**1. Identity Matrix:**
-```
-I = [1  0  0]
-    [0  1  0]
-    [0  0  1]
-```
-
-**2. Diagonal Matrices:**
-```
-D = [a  0  0]
-    [0  b  0]
-    [0  0  c]
-```
-
-**3. Covariance Matrices:**
-Always symmetric and positive semi-definite
-
-**4. Correlation Matrices:**
-Symmetric with 1's on diagonal and values between -1 and 1
-
-**Mathematical Operations:**
-
-**1. Addition/Subtraction:**
-Sum/difference of symmetric matrices is symmetric
-
-**2. Scalar Multiplication:**
-Scalar multiple of symmetric matrix is symmetric
-
-**3. Matrix Multiplication:**
-- A symmetric × B symmetric ≠ necessarily symmetric
-- But AᵀBA is symmetric if A and B exist
-
-**4. Powers:**
-If A is symmetric, then A² is symmetric (and positive semi-definite)
-
-**Applications:**
-
-**1. Statistics and Data Science:**
-- **Covariance Matrices**: Measure relationships between variables
-- **Correlation Matrices**: Normalized covariance matrices
-- **Gram Matrices**: XᵀX in regression and PCA
-- **Distance Matrices**: Symmetric distance/similarity measures
-
-**2. Machine Learning:**
-- **Kernel Matrices**: Symmetric positive semi-definite
-- **Hessian Matrices**: Second derivatives in optimization
-- **Feature Covariance**: Understanding feature relationships
-- **Regularization**: Ridge regression uses symmetric terms
-
-**3. Physics and Engineering:**
-- **Moment of Inertia**: Tensor representations
-- **Stress/Strain Tensors**: Material property matrices
-- **Network Analysis**: Adjacency matrices for undirected graphs
-- **Vibration Analysis**: Mass and stiffness matrices
-
-**4. Optimization:**
-- **Quadratic Programming**: Objective functions with symmetric Q
-- **Newton's Method**: Hessian matrices
-- **Convex Optimization**: Positive definite symmetric matrices
-
-**Computational Advantages:**
-
-**1. Storage Efficiency:**
-Only need to store n(n+1)/2 elements instead of n²
-
-**2. Numerical Stability:**
-- Symmetric eigenvalue algorithms are more stable
-- Cholesky decomposition for positive definite matrices
-- Specialized algorithms exploit symmetry
-
-**3. Parallel Computing:**
-Symmetry enables efficient parallel algorithms
-
-**Decomposition Methods:**
-
-**1. Eigendecomposition:**
-A = QΛQᵀ where Q is orthogonal and Λ is diagonal
-
-**2. Cholesky Decomposition (if positive definite):**
-A = LLᵀ where L is lower triangular
-
-**3. LDL Decomposition:**
-A = LDLᵀ where L is unit lower triangular and D is diagonal
-
-**Recognition Techniques:**
-
-**1. Visual Inspection:**
-Check if matrix equals its transpose
-
-**2. Element-wise Check:**
-Verify aᵢⱼ = aⱼᵢ for all i, j
-
-**3. Computational Verification:**
+**Python Example:**
 ```python
-def is_symmetric(A, tolerance=1e-10):
-    return np.allclose(A, A.T, atol=tolerance)
+import numpy as np
+
+# Check symmetry
+A = np.array([[1, 2, 3],
+              [2, 5, 6],
+              [3, 6, 9]])
+
+is_symmetric = np.allclose(A, A.T)
+print(f"Is symmetric: {is_symmetric}")  # True
+
+# Create symmetric matrix from any matrix
+B = np.random.randn(3, 3)
+B_symmetric = (B + B.T) / 2
+print(np.allclose(B_symmetric, B_symmetric.T))  # True
+
+# Covariance matrix is always symmetric
+X = np.random.randn(100, 5)
+cov = np.cov(X.T)
+print(f"Covariance symmetric: {np.allclose(cov, cov.T)}")  # True
+
+# Gram matrix X^T X is symmetric
+G = X.T @ X
+print(f"Gram symmetric: {np.allclose(G, G.T)}")  # True
+
+# Eigendecomposition of symmetric matrix
+eigenvalues, eigenvectors = np.linalg.eigh(A)  # eigh for symmetric
+print(f"Eigenvalues (real): {eigenvalues}")
+
+# Verify orthogonal eigenvectors
+Q = eigenvectors
+print(f"Q^T Q ≈ I: {np.allclose(Q.T @ Q, np.eye(3))}")
+
+# Reconstruct: A = Q Λ Q^T
+Lambda = np.diag(eigenvalues)
+A_reconstructed = Q @ Lambda @ Q.T
+print(f"Reconstruction correct: {np.allclose(A, A_reconstructed)}")
 ```
 
-**Common Sources of Symmetric Matrices:**
+**ML Applications:**
+- **PCA**: Eigendecomposition of symmetric covariance matrix
+- **Kernel methods**: Kernel matrix is symmetric
+- **Graph algorithms**: Laplacian matrix is symmetric
+- **Optimization**: Hessian matrix (second derivatives) is symmetric
+- **Covariance estimation**: Sample covariance is symmetric
 
-**1. Gram Matrices:**
-Given matrix X, then XᵀX is always symmetric
-
-**2. Quadratic Forms:**
-Matrices representing quadratic expressions
-
-**3. Physical Systems:**
-Many physical laws naturally produce symmetric relationships
-
-**4. Optimization Problems:**
-Second-order conditions often involve symmetric Hessians
-
-**Important Theorems:**
-
-**1. Spectral Theorem:**
-Every real symmetric matrix can be diagonalized by an orthogonal matrix
-
-**2. Principal Axis Theorem:**
-Symmetric matrices correspond to conic sections aligned with coordinate axes
-
-**3. Sylvester's Criterion:**
-Tests for positive definiteness using leading principal minors
-
-**Practical Considerations:**
-
-**1. Numerical Precision:**
-Use appropriate tolerances when checking symmetry computationally
-
-**2. Memory Optimization:**
-Store only upper or lower triangular part
-
-**3. Algorithm Selection:**
-Choose algorithms designed for symmetric matrices
-
-**4. Conditioning:**
-Symmetric matrices can still be ill-conditioned despite nice theoretical properties
+**Interview Tips:**
+- Use `np.linalg.eigh()` for symmetric matrices (faster, more stable)
+- Symmetric + positive definite → Cholesky decomposition exists
+- Skew-symmetric: A = -Aᵀ (Aᵢⱼ = -Aⱼᵢ)
+- Any matrix can be decomposed: A = (A + Aᵀ)/2 + (A - Aᵀ)/2 (symmetric + skew)
 
 ---
 
@@ -531,176 +383,103 @@ Symmetric matrices can still be ill-conditioned despite nice theoretical propert
 
 **Define positive definiteness of a matrix.**
 
-**Answer:** Positive definiteness is a crucial property of symmetric matrices that ensures they behave like "positive numbers" in the matrix world, with fundamental implications for optimization, stability, and geometric interpretations:
+### Answer
 
-**Mathematical Definition:**
-A real symmetric matrix A is **positive definite** if for every non-zero vector x:
-**xᵀAx > 0**
+**Definition:**  
+A symmetric matrix A is positive definite (PD) if **x**ᵀA**x** > 0 for all non-zero vectors **x**. Positive semi-definite (PSD) allows **x**ᵀA**x** ≥ 0. These matrices have non-negative eigenvalues and arise naturally in ML.
 
-**Related Definitions:**
-- **Positive Semi-definite**: xᵀAx ≥ 0 for all x (allows zero)
-- **Negative Definite**: xᵀAx < 0 for all non-zero x
-- **Negative Semi-definite**: xᵀAx ≤ 0 for all x
-- **Indefinite**: xᵀAx can be positive, negative, or zero for different x
+**Core Concepts:**
+- Must be symmetric (for real matrices)
+- All eigenvalues > 0 (PD) or ≥ 0 (PSD)
+- Cholesky decomposition exists: A = LLᵀ
+- Represents valid covariance matrices
 
-**Equivalent Characterizations:**
+**Types:**
+| Type | Condition | Eigenvalues |
+|------|-----------|-------------|
+| Positive definite (PD) | **x**ᵀA**x** > 0, ∀**x** ≠ 0 | All λᵢ > 0 |
+| Positive semi-definite (PSD) | **x**ᵀA**x** ≥ 0, ∀**x** | All λᵢ ≥ 0 |
+| Negative definite | **x**ᵀA**x** < 0, ∀**x** ≠ 0 | All λᵢ < 0 |
+| Indefinite | Mixed signs possible | Mixed λᵢ |
 
-**1. Eigenvalue Test:**
-A is positive definite ⟺ All eigenvalues λᵢ > 0
+**Tests for Positive Definiteness:**
+1. All eigenvalues > 0
+2. All leading principal minors > 0 (Sylvester's criterion)
+3. Cholesky decomposition succeeds
+4. det(A) > 0 and A₁₁ > 0 (necessary but not sufficient alone)
 
-**2. Principal Minor Test (Sylvester's Criterion):**
-A is positive definite ⟺ All leading principal minors > 0
-```
-For 3×3 matrix: det(A₁₁) > 0, det([A₁₁ A₁₂; A₂₁ A₂₂]) > 0, det(A) > 0
-```
+**Mathematical Formulation:**
 
-**3. Cholesky Decomposition:**
-A is positive definite ⟺ A = LLᵀ exists with L lower triangular and positive diagonal
+Positive definite:
+$$\mathbf{x}^T A \mathbf{x} > 0 \quad \forall \mathbf{x} \neq \mathbf{0}$$
 
-**4. Quadratic Form:**
-A is positive definite ⟺ The quadratic form Q(x) = xᵀAx defines an ellipsoid
+Quadratic form expansion (2×2):
+$$\begin{pmatrix} x_1 & x_2 \end{pmatrix} \begin{pmatrix} a & b \\ b & c \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = ax_1^2 + 2bx_1x_2 + cx_2^2$$
 
-**Examples:**
-
-**Positive Definite:**
-```
-A = [2  1]    →    Eigenvalues: λ₁ = 3, λ₂ = 1 (both > 0) ✓
-    [1  2]
-
-Check: For x = [1, 1]ᵀ, xᵀAx = [1 1][2 1][1] = [1 1][3] = 6 > 0 ✓
-                                    [1 2][1]       [3]
-```
-
-**Not Positive Definite:**
-```
-B = [1  2]    →    Eigenvalues: λ₁ = 3, λ₂ = -1 (one negative) ✗
-    [2  1]
-```
-
-**Geometric Interpretation:**
-
-**1. Quadratic Forms:**
-- Positive definite: Creates "bowl-shaped" surfaces (ellipsoids)
-- Positive semi-definite: Flat in some directions
-- Indefinite: Saddle-shaped surfaces
-
-**2. Distance Metrics:**
-Positive definite matrices define valid distance metrics via:
-d(x,y) = √[(x-y)ᵀA(x-y)]
-
-**3. Energy Functions:**
-In physics, positive definite matrices ensure energy is always positive
-
-**Applications:**
-
-**1. Optimization:**
-- **Convex Functions**: f(x) = xᵀAx + bᵀx + c is convex iff A is positive semi-definite
-- **Local Minima**: Second derivative test requires positive definite Hessian
-- **Global Minima**: Guaranteed for positive definite quadratic functions
-- **Newton's Method**: Uses positive definite Hessian approximations
-
-**2. Machine Learning:**
-- **Covariance Matrices**: Always positive semi-definite
-- **Kernel Matrices**: Must be positive semi-definite for valid kernels
-- **Regularization**: Adding positive definite terms ensures stability
-- **Gaussian Distributions**: Precision matrices are positive definite
-
-**3. Statistics:**
-- **Multivariate Normal**: Covariance matrix must be positive definite
-- **Fisher Information**: Information matrix is positive semi-definite
-- **Confidence Regions**: Elliptical regions from positive definite matrices
-
-**4. Numerical Analysis:**
-- **System Solving**: Positive definite systems have unique solutions
-- **Iterative Methods**: Convergence guaranteed for positive definite systems
-- **Stability**: Positive definite matrices ensure numerical stability
-
-**Testing for Positive Definiteness:**
-
-**1. Eigenvalue Method:**
+**Python Example:**
 ```python
-eigenvalues = np.linalg.eigvals(A)
-is_pos_def = np.all(eigenvalues > 0)
-```
+import numpy as np
+from scipy.linalg import cholesky
 
-**2. Cholesky Decomposition:**
-```python
+# Positive definite matrix
+A = np.array([[4, 2],
+              [2, 3]])
+
+# Test 1: Eigenvalues all positive
+eigenvalues = np.linalg.eigvalsh(A)
+is_pd_eigen = np.all(eigenvalues > 0)
+print(f"Eigenvalues: {eigenvalues}")  # [1.76, 5.24] - all positive
+print(f"PD by eigenvalues: {is_pd_eigen}")
+
+# Test 2: Cholesky succeeds
 try:
-    np.linalg.cholesky(A)
-    is_pos_def = True
+    L = cholesky(A, lower=True)
+    print("Cholesky successful → PD")
+    print(f"L:\n{L}")
+    print(f"L @ L.T:\n{L @ L.T}")  # Reconstructs A
 except np.linalg.LinAlgError:
-    is_pos_def = False
+    print("Cholesky failed → Not PD")
+
+# Test 3: Quadratic form test
+def is_positive_definite(A, n_samples=1000):
+    """Monte Carlo test for positive definiteness."""
+    for _ in range(n_samples):
+        x = np.random.randn(A.shape[0])
+        if x.T @ A @ x <= 0:
+            return False
+    return True
+
+# Creating PD matrices
+# Method 1: A^T A is always PSD
+B = np.random.randn(3, 3)
+PSD = B.T @ B  # Positive semi-definite
+
+# Method 2: Add diagonal to make PD
+PD = B.T @ B + 0.1 * np.eye(3)  # Positive definite
+
+# Covariance matrix (always PSD)
+X = np.random.randn(100, 5)
+cov = np.cov(X.T)
+print(f"Covariance eigenvalues: {np.linalg.eigvalsh(cov)}")  # All ≥ 0
+
+# Regularization to ensure PD
+def make_positive_definite(A, eps=1e-6):
+    """Add small diagonal to ensure positive definiteness."""
+    return A + eps * np.eye(A.shape[0])
 ```
 
-**3. Sylvester's Criterion:**
-Check all leading principal minors are positive
+**ML Applications:**
+- **Covariance matrices**: Must be PSD
+- **Kernel matrices**: Valid kernels produce PSD Gram matrices
+- **Optimization**: Hessian PD at minimum (convex)
+- **Gaussian processes**: Kernel matrix must be PSD
+- **Regularization**: λI ensures PD (Ridge regression)
 
-**4. Quadratic Form Sampling:**
-Test xᵀAx > 0 for many random vectors x
-
-**Special Cases and Properties:**
-
-**1. Diagonal Matrices:**
-Positive definite ⟺ All diagonal elements > 0
-
-**2. Sum of Positive Definite Matrices:**
-A + B is positive definite if A, B are positive definite
-
-**3. Congruent Transformations:**
-If A is positive definite and P is invertible, then PᵀAP is positive definite
-
-**4. Schur Complement:**
-For block matrix [A B; Bᵀ C], positive definiteness relates to Schur complements
-
-**Practical Considerations:**
-
-**1. Numerical Issues:**
-- **Conditioning**: Well-conditioned positive definite matrices are numerically stable
-- **Regularization**: Add λI to make nearly positive definite matrices stable
-- **Tolerances**: Use appropriate thresholds for eigenvalue tests
-
-**2. Computational Efficiency:**
-- **Cholesky**: O(n³/3) vs O(n³) for general LU decomposition
-- **Specialized Algorithms**: Many algorithms optimized for positive definite case
-- **Memory**: Can store only lower triangular part
-
-**3. Modifications:**
-- **Regularization**: A + λI where λ > 0
-- **Pivoting**: Modified Cholesky for indefinite matrices
-- **Projection**: Project onto positive definite cone
-
-**Common Errors and Misconceptions:**
-
-**1. Symmetry Requirement:**
-Positive definiteness only applies to symmetric (or Hermitian) matrices
-
-**2. Element Signs:**
-Positive diagonal elements ≠ positive definite (counterexample: [[1, 2], [2, 1]])
-
-**3. Determinant:**
-Positive determinant ≠ positive definite (could be indefinite)
-
-**4. Semi-definite vs Definite:**
-Positive semi-definite allows zero eigenvalues (singular matrices)
-
-**Applications in Different Fields:**
-
-**1. Economics:**
-- **Utility Functions**: Concave utility requires negative definite Hessian
-- **Production Functions**: Convexity constraints
-- **Portfolio Optimization**: Covariance matrices in mean-variance optimization
-
-**2. Engineering:**
-- **Control Systems**: Lyapunov stability analysis
-- **Structural Analysis**: Stiffness matrices must be positive definite
-- **Signal Processing**: Autocorrelation matrices
-
-**3. Computer Science:**
-- **Graphics**: Metric tensors in rendering
-- **Robotics**: Positive definite dynamics for stability
-- **Machine Learning**: Kernel methods and optimization
-
-The concept of positive definiteness is fundamental because it bridges linear algebra with optimization, geometry, and probability, providing both theoretical foundations and practical computational advantages.
+**Interview Tips:**
+- Covariance matrices are PSD by construction
+- Near-PSD matrices (numerical issues) → add small diagonal (jitter)
+- PD ⟹ invertible (all eigenvalues non-zero)
+- **x**ᵀA**x** is the "energy" associated with state **x**
 
 ---
 
@@ -708,318 +487,96 @@ The concept of positive definiteness is fundamental because it bridges linear al
 
 **How do you represent a system of linear equations using matrices?**
 
-**Answer:** Matrix representation of linear systems is a fundamental technique that transforms algebraic equations into compact matrix form, enabling powerful computational methods and theoretical analysis:
+### Answer
 
-**Standard Form of Linear System:**
+**Definition:**  
+A system of linear equations can be compactly written as A**x** = **b**, where A is the coefficient matrix, **x** is the unknown vector, and **b** is the constants vector. This matrix form enables systematic solution methods.
 
-**Algebraic Form:**
-```
-a₁₁x₁ + a₁₂x₂ + ... + a₁ₙxₙ = b₁
-a₂₁x₁ + a₂₂x₂ + ... + a₂ₙxₙ = b₂
-...
-aₘ₁x₁ + aₘ₂x₂ + ... + aₘₙxₙ = bₘ
-```
+**Core Concepts:**
+- Each row of A corresponds to one equation
+- Each column of A corresponds to one variable
+- Matrix form enables computational solutions
+- Existence/uniqueness depends on rank
 
-**Matrix Form:**
-**Ax = b**
+**Mathematical Formulation:**
 
-Where:
-- **A**: Coefficient matrix (m×n)
-- **x**: Variable vector (n×1)
-- **b**: Constant vector (m×1)
+System of equations:
+$$\begin{cases} a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n = b_1 \\ a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n = b_2 \\ \vdots \\ a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n = b_m \end{cases}$$
 
-**Component Breakdown:**
+Matrix form:
+$$\underbrace{\begin{pmatrix} a_{11} & \cdots & a_{1n} \\ \vdots & \ddots & \vdots \\ a_{m1} & \cdots & a_{mn} \end{pmatrix}}_{A} \underbrace{\begin{pmatrix} x_1 \\ \vdots \\ x_n \end{pmatrix}}_{\mathbf{x}} = \underbrace{\begin{pmatrix} b_1 \\ \vdots \\ b_m \end{pmatrix}}_{\mathbf{b}}$$
 
-**1. Coefficient Matrix A:**
-```
-A = [a₁₁  a₁₂  ...  a₁ₙ]
-    [a₂₁  a₂₂  ...  a₂ₙ]
-    [...  ...  ...  ...]
-    [aₘ₁  aₘ₂  ...  aₘₙ]
-```
+**Solution Methods:**
+| Method | When to Use | Complexity |
+|--------|-------------|------------|
+| Direct inverse | Small, invertible A | O(n³) |
+| LU decomposition | Square, multiple b vectors | O(n³) |
+| QR decomposition | Rectangular, least squares | O(mn²) |
+| Iterative (CG, GMRES) | Large, sparse | O(n²) per iteration |
 
-**2. Variable Vector x:**
-```
-x = [x₁]
-    [x₂]
-    [...]
-    [xₙ]
-```
-
-**3. Constant Vector b:**
-```
-b = [b₁]
-    [b₂]
-    [...]
-    [bₘ]
-```
-
-**Detailed Example:**
-
-**System of Equations:**
-```
-2x + 3y - z = 7
-x - y + 2z = 4
-3x + 2y + z = 10
-```
-
-**Matrix Representation:**
-```
-[2   3  -1] [x]   [7 ]
-[1  -1   2] [y] = [4 ]
-[3   2   1] [z]   [10]
-```
-
-**Component Identification:**
-- **A** = [[2, 3, -1], [1, -1, 2], [3, 2, 1]] (3×3 coefficient matrix)
-- **x** = [x, y, z]ᵀ (3×1 variable vector)
-- **b** = [7, 4, 10]ᵀ (3×1 constant vector)
-
-**Different System Types:**
-
-**1. Square System (m = n):**
-- Same number of equations and unknowns
-- Matrix A is square
-- **Unique solution** if det(A) ≠ 0
-- **No solution or infinite solutions** if det(A) = 0
-
-**2. Overdetermined System (m > n):**
-- More equations than unknowns
-- Matrix A is tall and rectangular
-- Usually **no exact solution** (inconsistent)
-- Use **least squares** for best approximate solution
-
-**3. Underdetermined System (m < n):**
-- Fewer equations than unknowns
-- Matrix A is wide and rectangular
-- **Infinite solutions** if consistent
-- Can find **particular + homogeneous solutions**
-
-**Matrix Equation Verification:**
-
-**Multiplication Check:**
-For Ax = b, verify by expanding matrix multiplication:
+**Python Example:**
 ```python
 import numpy as np
 
-A = np.array([[2, 3, -1],
-              [1, -1, 2],
-              [3, 2, 1]])
-x = np.array([1, 2, 1])  # Example solution
-b = np.array([7, 4, 10])
+# System: 2x + y = 5
+#         x + 3y = 7
 
-result = A @ x
-print(f"Ax = {result}")
-print(f"b = {b}")
-print(f"Ax = b? {np.allclose(result, b)}")
-```
+A = np.array([[2, 1],
+              [1, 3]])
+b = np.array([5, 7])
 
-**Augmented Matrix Representation:**
-
-**Extended Form:**
-For analysis purposes, combine coefficient matrix and constant vector:
-```
-[A|b] = [2   3  -1 |  7]
-        [1  -1   2 |  4]
-        [3   2   1 | 10]
-```
-
-**Applications in Row Operations:**
-Augmented matrix form is essential for:
-- **Gaussian Elimination**
-- **Gauss-Jordan Elimination**
-- **Row Reduction to RREF**
-
-**Solution Methods Using Matrix Form:**
-
-**1. Direct Inversion (if A is square and invertible):**
-```
-x = A⁻¹b
-```
-
-**Implementation:**
-```python
-# For square invertible systems
-A_inv = np.linalg.inv(A)
-x = A_inv @ b
-print(f"Solution: x = {x}")
-```
-
-**2. LU Decomposition:**
-```
-A = LU
-Ly = b  (forward substitution)
-Ux = y  (backward substitution)
-```
-
-**3. QR Decomposition:**
-```
-A = QR
-Rx = Qᵀb
-```
-
-**4. Singular Value Decomposition (SVD):**
-```
-A = UΣVᵀ
-x = VΣ⁺Uᵀb  (where Σ⁺ is pseudoinverse)
-```
-
-**Practical Implementation Examples:**
-
-**Example 1: Economics - Supply and Demand**
-```python
-# System: Market equilibrium
-# 2P - 3Q = 10  (Supply equation)
-# P + Q = 15    (Demand equation)
-
-A = np.array([[2, -3],
-              [1,  1]])
-b = np.array([10, 15])
+# Method 1: np.linalg.solve (recommended)
 x = np.linalg.solve(A, b)
-print(f"Price P = {x[0]}, Quantity Q = {x[1]}")
-```
+print(f"Solution: {x}")  # [1.6, 1.8]
 
-**Example 2: Physics - Circuit Analysis**
-```python
-# Kirchhoff's laws in electrical circuit
-# Node equations: I₁ + I₂ - I₃ = 0
-# Loop equations: R₁I₁ + R₂I₂ = V₁
-#                R₂I₂ + R₃I₃ = V₂
+# Verify
+print(f"Ax = {A @ x}")  # Should equal b
 
-A = np.array([[1,  1, -1],
-              [5,  3,  0],
-              [0,  3,  7]])
-b = np.array([0, 12, 15])
-currents = np.linalg.solve(A, b)
-print(f"Currents: I₁={currents[0]:.2f}, I₂={currents[1]:.2f}, I₃={currents[2]:.2f}")
-```
+# Method 2: Using inverse (not recommended for large systems)
+x_inv = np.linalg.inv(A) @ b
 
-**Example 3: Machine Learning - Linear Regression**
-```python
-# Multiple linear regression: y = β₀ + β₁x₁ + β₂x₂ + ε
-# Matrix form: y = Xβ + ε
-# Normal equation: β = (XᵀX)⁻¹Xᵀy
+# Method 3: Least squares (for overdetermined systems)
+# 3 equations, 2 unknowns
+A_over = np.array([[1, 1],
+                   [2, 1],
+                   [1, 2]])
+b_over = np.array([3, 4, 4])
 
-# Design matrix X includes intercept column
-X = np.array([[1, 2, 3],    # [1, x₁, x₂] for observation 1
-              [1, 4, 5],    # [1, x₁, x₂] for observation 2
-              [1, 6, 7]])   # [1, x₁, x₂] for observation 3
-y = np.array([8, 14, 20])
+x_lstsq, residuals, rank, s = np.linalg.lstsq(A_over, b_over, rcond=None)
+print(f"Least squares solution: {x_lstsq}")
 
-# Solve normal equation
-XTX = X.T @ X
-XTy = X.T @ y
-beta = np.linalg.solve(XTX, XTy)
-print(f"Coefficients: β₀={beta[0]:.2f}, β₁={beta[1]:.2f}, β₂={beta[2]:.2f}")
-```
-
-**Homogeneous vs Non-homogeneous Systems:**
-
-**Homogeneous System:**
-```
-Ax = 0  (zero vector on right-hand side)
-```
-- Always has trivial solution x = 0
-- Non-trivial solutions exist iff det(A) = 0
-- Solution space forms a vector subspace
-
-**Non-homogeneous System:**
-```
-Ax = b  (non-zero vector b)
-```
-- May have no solution, unique solution, or infinite solutions
-- Solution depends on rank conditions
-
-**Rank and Solvability Conditions:**
-
-**Rank-Nullity Theorem Applications:**
-- **rank(A) = rank([A|b])**: System is consistent
-- **rank(A) < rank([A|b])**: System is inconsistent (no solution)
-- **rank(A) = n**: Unique solution (if consistent)
-- **rank(A) < n**: Infinite solutions (if consistent)
-
-**Computational Considerations:**
-
-**1. Numerical Stability:**
-```python
-# Check condition number for numerical stability
-cond_num = np.linalg.cond(A)
-if cond_num > 1e12:
-    print("Warning: Matrix is ill-conditioned")
-```
-
-**2. Sparse Systems:**
-```python
+# Method 4: For sparse systems
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import spsolve
 
-# For large sparse systems
 A_sparse = csr_matrix(A)
 x_sparse = spsolve(A_sparse, b)
+
+# Linear regression as system of equations
+# Normal equations: (X^T X) w = X^T y
+X = np.random.randn(100, 5)
+y = np.random.randn(100)
+
+XtX = X.T @ X
+Xty = X.T @ y
+w = np.linalg.solve(XtX, Xty)
+
+# Equivalent to
+w_lstsq = np.linalg.lstsq(X, y, rcond=None)[0]
+print(f"Solutions match: {np.allclose(w, w_lstsq)}")
 ```
 
-**3. Iterative Methods:**
-```python
-from scipy.sparse.linalg import cg
+**ML Applications:**
+- **Linear regression**: Solve X**w** = **y** (or normal equations)
+- **Neural network training**: Solve for weights
+- **Kalman filter**: State estimation via linear systems
+- **Least squares**: Overdetermined systems in curve fitting
 
-# Conjugate gradient for positive definite systems
-x_iterative, info = cg(A, b)
-```
-
-**Error Analysis and Validation:**
-
-**1. Residual Check:**
-```python
-x_computed = np.linalg.solve(A, b)
-residual = A @ x_computed - b
-residual_norm = np.linalg.norm(residual)
-print(f"Residual norm: {residual_norm}")
-```
-
-**2. Perturbation Analysis:**
-```python
-# Sensitivity to coefficient changes
-A_perturbed = A + 0.01 * np.random.randn(*A.shape)
-x_perturbed = np.linalg.solve(A_perturbed, b)
-sensitivity = np.linalg.norm(x_perturbed - x_computed)
-print(f"Solution sensitivity: {sensitivity}")
-```
-
-**Advanced Applications:**
-
-**1. Control Systems:**
-State-space representation: ẋ = Ax + Bu
-
-**2. Computer Graphics:**
-Transformation matrices for rotation, scaling, translation
-
-**3. Data Science:**
-Principal Component Analysis, dimensionality reduction
-
-**4. Network Analysis:**
-Graph Laplacian matrices for community detection
-
-**5. Optimization:**
-Linear programming in standard form: minimize cᵀx subject to Ax = b, x ≥ 0
-
-**Best Practices:**
-
-**1. Problem Setup:**
-- Clearly identify variables, coefficients, and constants
-- Verify dimensional consistency
-- Check for special structure (symmetric, sparse, etc.)
-
-**2. Method Selection:**
-- **Small dense systems**: Direct methods (LU, Cholesky)
-- **Large sparse systems**: Iterative methods (CG, GMRES)
-- **Overdetermined systems**: Least squares (QR, SVD)
-
-**3. Validation:**
-- Always verify solutions by substitution
-- Check residual norms for accuracy
-- Analyze condition numbers for stability
-
-The matrix representation of linear systems provides a unified framework that connects algebraic manipulation with geometric interpretation and computational methods, making it indispensable in mathematics, science, and engineering applications.
+**Interview Tips:**
+- Use `np.linalg.solve()` not `np.linalg.inv() @` (more stable, faster)
+- Overdetermined (m > n): Use least squares
+- Underdetermined (m < n): Infinite solutions, need regularization
+- Check condition number for numerical stability
 
 ---
 
@@ -1027,388 +584,105 @@ The matrix representation of linear systems provides a unified framework that co
 
 **Define and differentiate between homogeneous and non-homogeneous systems.**
 
-**Answer:** Homogeneous and non-homogeneous linear systems represent two fundamental categories of linear equations with distinct mathematical properties, solution characteristics, and applications:
+### Answer
 
-**Homogeneous Linear System:**
+**Definition:**  
+A **homogeneous system** has the form A**x** = **0** (zero vector on right side). A **non-homogeneous system** has A**x** = **b** where **b** ≠ **0**. Homogeneous systems always have at least the trivial solution (**x** = **0**).
 
-**Definition:**
-A linear system where all constant terms are zero:
-**Ax = 0**
+**Core Concepts:**
 
-**General Form:**
-```
-a₁₁x₁ + a₁₂x₂ + ... + a₁ₙxₙ = 0
-a₂₁x₁ + a₂₂x₂ + ... + a₂ₙxₙ = 0
-...
-aₘ₁x₁ + aₘ₂x₂ + ... + aₘₙxₙ = 0
-```
+| Aspect | Homogeneous (A**x** = **0**) | Non-homogeneous (A**x** = **b**) |
+|--------|------------------------------|----------------------------------|
+| Trivial solution | Always exists (**x** = **0**) | May not exist |
+| Non-trivial solutions | Exist if rank(A) < n | Depend on rank conditions |
+| Solution set | Vector subspace (null space) | Affine subspace |
+| Consistency | Always consistent | May be inconsistent |
 
-**Matrix Representation:**
-```
-[a₁₁  a₁₂  ...  a₁ₙ] [x₁]   [0]
-[a₂₁  a₂₂  ...  a₂ₙ] [x₂] = [0]
-[...  ...  ...  ...] [...] [...]
-[aₘ₁  aₘ₂  ...  aₘₙ] [xₙ]   [0]
-```
-
-**Non-Homogeneous Linear System:**
-
-**Definition:**
-A linear system where at least one constant term is non-zero:
-**Ax = b** (where b ≠ 0)
-
-**General Form:**
-```
-a₁₁x₁ + a₁₂x₂ + ... + a₁ₙxₙ = b₁
-a₂₁x₁ + a₂₂x₂ + ... + a₂ₙxₙ = b₂
-...
-aₘ₁x₁ + aₘ₂x₂ + ... + aₘₙxₙ = bₘ
-```
-
-**Matrix Representation:**
-```
-[a₁₁  a₁₂  ...  a₁ₙ] [x₁]   [b₁]
-[a₂₁  a₂₂  ...  a₂ₙ] [x₂] = [b₂]
-[...  ...  ...  ...] [...] [...]
-[aₘ₁  aₘ₂  ...  aₘₙ] [xₙ]   [bₘ]
-```
-
-**Key Differences:**
-
-| Aspect | Homogeneous (Ax = 0) | Non-Homogeneous (Ax = b) |
-|--------|---------------------|--------------------------|
-| **Constant Vector** | All zeros (b = 0) | At least one non-zero (b ≠ 0) |
-| **Trivial Solution** | Always exists (x = 0) | May not exist |
-| **Solution Set** | Vector subspace | Affine subspace (if exists) |
-| **Closure Properties** | Closed under addition/scaling | Not closed under these operations |
-| **Geometric Interpretation** | Planes/lines through origin | Planes/lines not through origin |
-
-**Solution Properties:**
-
-**Homogeneous Systems:**
-
-**1. Trivial Solution:**
-- **x = 0** is always a solution
-- Called the "trivial solution"
-
-**2. Non-trivial Solutions:**
-- Exist if and only if **det(A) = 0** (for square matrices)
-- Or equivalently, **rank(A) < n** (number of variables)
-
-**3. Solution Space Structure:**
-- Forms a **vector subspace** (null space of A)
-- **Dimension** = n - rank(A) (nullity)
-- **Closed under linear combinations**
-
-**Example:**
-```python
-import numpy as np
-
-# Homogeneous system: 2x + 3y = 0, x - y = 0
-A = np.array([[2, 3],
-              [1, -1]])
-b_homo = np.array([0, 0])
-
-# Find null space (solution space)
-_, _, V = np.linalg.svd(A)
-null_space = V[-1:]  # Last row of V for rank-deficient case
-print(f"Null space basis: {null_space}")
-
-# Verify: A @ null_space.T should be zero
-verification = A @ null_space.T
-print(f"A * null_space = {verification.flatten()}")
-```
-
-**Non-Homogeneous Systems:**
-
-**1. Solution Existence:**
-- Solution exists if and only if **rank(A) = rank([A|b])**
-- **Rouché-Capelli theorem**
-
-**2. Solution Uniqueness:**
-- **Unique solution**: rank(A) = n (number of variables)
-- **Infinite solutions**: rank(A) < n
-- **No solution**: rank(A) ≠ rank([A|b])
-
-**3. Solution Structure:**
-- If xₚ is a particular solution and xₕ is the general solution to Ax = 0
-- **General solution**: x = xₚ + xₕ
-- Forms an **affine subspace**
-
-**Detailed Examples:**
-
-**Example 1: 2×2 Homogeneous System**
-```
-2x + 3y = 0
-4x + 6y = 0
-```
-
-**Analysis:**
-- Second equation is 2× first equation (dependent)
-- rank(A) = 1 < 2 (number of variables)
-- **Infinite solutions** exist
-
-**Solution:**
-```python
-# From 2x + 3y = 0, we get y = -2x/3
-# General solution: x = t, y = -2t/3 for any real t
-# Or in vector form: [t, -2t/3] = t[1, -2/3]
-```
-
-**Example 2: 2×2 Non-Homogeneous System**
-```
-2x + 3y = 7
-4x + 6y = 14
-```
-
-**Analysis:**
-- Consistent system (second equation = 2× first)
-- **Infinite solutions** (rank(A) = 1 < 2)
-
-**Solution:**
-```python
-# Particular solution: Let x = 0, then 3y = 7 → y = 7/3
-# Particular solution: xₚ = [0, 7/3]
-# Homogeneous solution: xₕ = t[1, -2/3]
-# General solution: x = [0, 7/3] + t[1, -2/3]
-```
-
-**Example 3: 3×3 Systems Comparison**
+**Mathematical Formulation:**
 
 **Homogeneous:**
+$$A\mathbf{x} = \mathbf{0}$$
+- Solutions form the **null space** of A: Null(A) = {**x** : A**x** = **0**}
+- Dimension = n - rank(A)
+
+**Non-homogeneous:**
+$$A\mathbf{x} = \mathbf{b}$$
+- General solution: **x** = **x**ₚ + **x**ₕ
+  - **x**ₚ = particular solution
+  - **x**ₕ = any homogeneous solution
+
+**Solution Structure:**
+```
+Non-homogeneous solution = Particular solution + Null space
+
+If x_p solves Ax = b, then all solutions are:
+x = x_p + x_h where x_h ∈ Null(A)
+```
+
+**Python Example:**
 ```python
-A = np.array([[1, 2, 1],
-              [2, 4, 3],
-              [1, 2, 2]])
-b_homo = np.array([0, 0, 0])
+import numpy as np
+from scipy.linalg import null_space
 
-# Check if non-trivial solutions exist
-det_A = np.linalg.det(A)
-print(f"det(A) = {det_A}")  # If ≈ 0, non-trivial solutions exist
+# Homogeneous system: Ax = 0
+A = np.array([[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9]])
+
+# Find null space (all solutions to Ax = 0)
+null_A = null_space(A)
+print(f"Null space dimension: {null_A.shape[1]}")  # 1
+
+# Verify: A @ null_vector ≈ 0
+if null_A.size > 0:
+    print(f"A @ null_vector: {A @ null_A[:, 0]}")  # ≈ [0, 0, 0]
+
+# Trivial solution always works
+x_trivial = np.zeros(3)
+print(f"A @ 0: {A @ x_trivial}")  # [0, 0, 0]
+
+# Non-homogeneous system: Ax = b
+A_nh = np.array([[2, 1],
+                 [1, 3]])
+b = np.array([5, 7])
+
+# Particular solution
+x_particular = np.linalg.solve(A_nh, b)
+print(f"Particular solution: {x_particular}")
+
+# For this system, null space is trivial (unique solution)
+null_A_nh = null_space(A_nh)
+print(f"Null space dimension: {null_A_nh.shape[1]}")  # 0
+
+# Example with infinite solutions
+A_inf = np.array([[1, 2, 3],
+                  [2, 4, 6]])  # Row 2 = 2 * Row 1
+b_inf = np.array([6, 12])     # Consistent
+
+# General solution = particular + null space
+x_part, _, _, _ = np.linalg.lstsq(A_inf, b_inf, rcond=None)
+null_A_inf = null_space(A_inf)
+
+print(f"Particular: {x_part}")
+print(f"Null space basis:\n{null_A_inf}")
+
+# Any solution: x = x_part + c1*null[:,0] + c2*null[:,1]
+c1, c2 = 2, -1
+x_general = x_part + c1 * null_A_inf[:, 0] + c2 * null_A_inf[:, 1]
+print(f"Verify: A @ x_general = {A_inf @ x_general}")  # Should ≈ b_inf
 ```
 
-**Non-Homogeneous:**
-```python
-b_non_homo = np.array([1, 3, 2])
+**ML Applications:**
+- **Regularization**: Without regularization, weight space has null space
+- **Kernel trick**: Kernel null space affects solution
+- **Feature engineering**: Detecting redundant features (non-trivial null space)
+- **Underdetermined systems**: Compressed sensing exploits structure
 
-# Check consistency
-A_augmented = np.column_stack([A, b_non_homo])
-rank_A = np.linalg.matrix_rank(A)
-rank_Ab = np.linalg.matrix_rank(A_augmented)
-
-print(f"rank(A) = {rank_A}")
-print(f"rank([A|b]) = {rank_Ab}")
-
-if rank_A == rank_Ab:
-    if rank_A == A.shape[1]:
-        print("Unique solution exists")
-    else:
-        print("Infinite solutions exist")
-else:
-    print("No solution exists")
-```
-
-**Geometric Interpretation:**
-
-**2D Geometric View:**
-
-**Homogeneous System:**
-- Equations represent **lines through the origin**
-- Solution set is intersection of these lines
-- Always includes origin (0,0)
-
-**Non-Homogeneous System:**
-- Equations represent **lines not necessarily through origin**
-- Solution set is intersection of these lines
-- May not include origin
-
-**3D Geometric View:**
-
-**Homogeneous System:**
-- Equations represent **planes through the origin**
-- Solution space is intersection (line or plane through origin)
-
-**Non-Homogeneous System:**
-- Equations represent **planes not necessarily through origin**
-- Solution set is intersection (point, line, or empty)
-
-**Vector Space Properties:**
-
-**Homogeneous Systems (Vector Subspace):**
-
-**1. Closure under Addition:**
-If x₁ and x₂ are solutions, then x₁ + x₂ is also a solution
-```
-A(x₁ + x₂) = Ax₁ + Ax₂ = 0 + 0 = 0 ✓
-```
-
-**2. Closure under Scalar Multiplication:**
-If x is a solution and k is a scalar, then kx is also a solution
-```
-A(kx) = k(Ax) = k(0) = 0 ✓
-```
-
-**3. Contains Zero Vector:**
-x = 0 is always a solution
-
-**Non-Homogeneous Systems (Affine Subspace):**
-
-**1. NOT Closed under Addition:**
-If x₁ and x₂ are solutions, x₁ + x₂ is generally NOT a solution
-```
-A(x₁ + x₂) = Ax₁ + Ax₂ = b + b = 2b ≠ b ✗
-```
-
-**2. NOT Closed under Scalar Multiplication:**
-If x is a solution and k ≠ 1, then kx is generally NOT a solution
-```
-A(kx) = k(Ax) = kb ≠ b (unless k = 1) ✗
-```
-
-**Relationship Between Systems:**
-
-**Associated Homogeneous System:**
-For every non-homogeneous system Ax = b, there's an associated homogeneous system Ax = 0
-
-**Complete Solution Structure:**
-If xₚ is any particular solution to Ax = b, then:
-```
-General solution to Ax = b = xₚ + (general solution to Ax = 0)
-```
-
-**Computational Example:**
-```python
-# Non-homogeneous system
-A = np.array([[1, 2],
-              [3, 6]])
-b = np.array([1, 3])
-
-# Find particular solution
-try:
-    x_particular = np.linalg.lstsq(A, b, rcond=None)[0]
-    print(f"Particular solution: {x_particular}")
-except:
-    print("No solution exists")
-
-# Find homogeneous solution (null space)
-_, _, V = np.linalg.svd(A)
-null_space = V[-1:] if np.linalg.matrix_rank(A) < A.shape[1] else np.array([])
-print(f"Null space: {null_space}")
-
-# General solution (if exists)
-if len(null_space) > 0:
-    print("General solution: x_particular + t * null_space_vector")
-```
-
-**Applications:**
-
-**Homogeneous Systems:**
-
-**1. Physics:**
-- **Equilibrium states**: Forces sum to zero
-- **Oscillatory motion**: Natural frequencies and modes
-- **Wave equations**: Standing wave patterns
-
-**2. Engineering:**
-- **Structural analysis**: Static equilibrium
-- **Circuit analysis**: Kirchhoff's laws with no external sources
-- **Control systems**: Stability analysis
-
-**3. Mathematics:**
-- **Eigenvalue problems**: (A - λI)x = 0
-- **Linear independence**: Testing if vectors are linearly independent
-- **Kernel/null space**: Finding basis for solution space
-
-**Non-Homogeneous Systems:**
-
-**1. Economics:**
-- **Market equilibrium**: Supply and demand with external factors
-- **Input-output models**: Production with final demand
-- **Linear programming**: Optimization with constraints
-
-**2. Science:**
-- **Chemical reactions**: Balancing with initial concentrations
-- **Population dynamics**: Growth with external migration
-- **Heat transfer**: Temperature distribution with heat sources
-
-**3. Data Science:**
-- **Linear regression**: Finding best-fit parameters
-- **Signal processing**: System identification with input signals
-- **Machine learning**: Training models with labeled data
-
-**Solution Algorithms:**
-
-**For Homogeneous Systems:**
-
-**1. Row Reduction:**
-```python
-def solve_homogeneous(A):
-    """Find null space using row reduction"""
-    m, n = A.shape
-    # Row reduce to find null space
-    Q, R = np.linalg.qr(A.T)
-    rank = np.linalg.matrix_rank(R)
-    null_space = Q[:, rank:]
-    return null_space
-```
-
-**2. SVD Method:**
-```python
-def solve_homogeneous_svd(A):
-    """Find null space using SVD"""
-    U, s, V = np.linalg.svd(A)
-    rank = np.sum(s > 1e-10)  # Numerical tolerance
-    null_space = V[rank:].T
-    return null_space
-```
-
-**For Non-Homogeneous Systems:**
-
-**1. Direct Solution:**
-```python
-def solve_non_homogeneous(A, b):
-    """Solve Ax = b using various methods"""
-    try:
-        # Try direct solution
-        return np.linalg.solve(A, b)
-    except np.linalg.LinAlgError:
-        # Use least squares for overdetermined/inconsistent systems
-        return np.linalg.lstsq(A, b, rcond=None)[0]
-```
-
-**2. Complete Solution:**
-```python
-def complete_solution(A, b):
-    """Find particular + homogeneous solutions"""
-    # Particular solution
-    x_p = np.linalg.lstsq(A, b, rcond=None)[0]
-    
-    # Homogeneous solution
-    U, s, V = np.linalg.svd(A)
-    rank = np.sum(s > 1e-10)
-    null_space = V[rank:].T if rank < A.shape[1] else np.array([]).reshape(A.shape[1], 0)
-    
-    return x_p, null_space
-```
-
-**Practical Considerations:**
-
-**1. Numerical Stability:**
-- Use appropriate tolerances for rank determination
-- Consider condition numbers for ill-conditioned systems
-- Apply regularization for near-singular systems
-
-**2. Computational Efficiency:**
-- Exploit sparsity patterns when available
-- Use iterative methods for large systems
-- Consider specialized algorithms for structured matrices
-
-**3. Verification:**
-- Always check solutions by substitution
-- Verify linear independence of null space vectors
-- Test consistency conditions for non-homogeneous systems
-
-Understanding the distinction between homogeneous and non-homogeneous systems is crucial for analyzing solution existence, uniqueness, and structure, providing the foundation for advanced topics in linear algebra, optimization, and applied mathematics.
+**Interview Tips:**
+- Homogeneous systems always have **x** = **0**; question is whether other solutions exist
+- Non-trivial homogeneous solutions exist iff rank(A) < n
+- General solution = particular + homogeneous is key insight
+- Regularization "picks" one solution from infinite possibilities
 
 ---
 
@@ -1416,354 +690,118 @@ Understanding the distinction between homogeneous and non-homogeneous systems is
 
 **How do you compute the inverse of a matrix and when is it possible?**
 
-**Answer:** Matrix inversion is a fundamental operation that finds a matrix A⁻¹ such that AA⁻¹ = A⁻¹A = I, enabling the solution of linear systems and many other applications:
+### Answer
 
-**Definition:**
-For a square matrix A, the inverse A⁻¹ is a matrix such that:
-- **AA⁻¹ = I** (identity matrix)
-- **A⁻¹A = I**
+**Definition:**  
+The inverse of a square matrix A, denoted A⁻¹, is the matrix such that AA⁻¹ = A⁻¹A = I. A matrix is invertible (non-singular) if and only if its determinant is non-zero.
 
-**Conditions for Existence:**
+**Core Concepts:**
+- Only **square matrices** can have inverses
+- Inverse exists iff det(A) ≠ 0
+- Inverse exists iff rank(A) = n (full rank)
+- Inverse exists iff all eigenvalues ≠ 0
 
-**1. Square Matrix Requirement:**
-Only square matrices (n×n) can have inverses
+**Conditions for Invertibility:**
+| Condition | Invertible | Singular |
+|-----------|------------|----------|
+| Determinant | det(A) ≠ 0 | det(A) = 0 |
+| Rank | rank(A) = n | rank(A) < n |
+| Eigenvalues | All λᵢ ≠ 0 | Some λᵢ = 0 |
+| Null space | {0} only | Non-trivial |
+| Columns | Linearly independent | Linearly dependent |
 
-**2. Non-singular (Invertible) Condition:**
-A matrix A is invertible if and only if:
-- **det(A) ≠ 0** (determinant is non-zero)
-- **rank(A) = n** (full rank)
-- **A has linearly independent rows/columns**
-- **Null space contains only zero vector**
+**Mathematical Formulation:**
 
-**3. Singular (Non-invertible) Matrices:**
-A matrix is singular (no inverse exists) if:
-- **det(A) = 0**
-- **rank(A) < n**
-- **Rows/columns are linearly dependent**
+**2×2 Matrix Inverse:**
+$$A = \begin{pmatrix} a & b \\ c & d \end{pmatrix} \quad \Rightarrow \quad A^{-1} = \frac{1}{ad-bc}\begin{pmatrix} d & -b \\ -c & a \end{pmatrix}$$
 
-**Methods for Computing Matrix Inverse:**
+**Properties:**
+- (A⁻¹)⁻¹ = A
+- (AB)⁻¹ = B⁻¹A⁻¹ (reverse order)
+- (Aᵀ)⁻¹ = (A⁻¹)ᵀ
+- (cA)⁻¹ = (1/c)A⁻¹
 
-**Method 1: Gauss-Jordan Elimination**
+**Computation Methods:**
+1. **Gauss-Jordan elimination**: [A | I] → [I | A⁻¹]
+2. **LU decomposition**: Solve AU = I column by column
+3. **Adjugate method**: A⁻¹ = adj(A)/det(A)
 
-**Process:**
-1. Form augmented matrix [A|I]
-2. Apply row operations to transform left side to identity matrix
-3. Right side becomes A⁻¹
-
-**Example:**
-```
-Find inverse of A = [2  1]
-                    [1  1]
-
-Step 1: Form [A|I] = [2  1 | 1  0]
-                     [1  1 | 0  1]
-
-Step 2: Row operations
-R1 ← R1 - R2:        [1  0 | 1 -1]
-                     [1  1 | 0  1]
-
-R2 ← R2 - R1:        [1  0 | 1 -1]
-                     [0  1 |-1  2]
-
-Therefore: A⁻¹ = [ 1 -1]
-                 [-1  2]
-```
-
-**Verification:**
-```
-AA⁻¹ = [2  1][ 1 -1] = [2-1  -2+2] = [1  0] = I ✓
-       [1  1][-1  2]   [1-1  -1+2]   [0  1]
-```
-
-**Method 2: Determinant and Adjugate (Cofactor Method)**
-
-**Formula:**
-```
-A⁻¹ = (1/det(A)) × adj(A)
-```
-
-**Process:**
-1. Calculate determinant det(A)
-2. Find cofactor matrix C
-3. Transpose cofactor matrix to get adjugate: adj(A) = Cᵀ
-4. Divide by determinant
-
-**Example:**
+**Python Example:**
 ```python
 import numpy as np
 
-A = np.array([[2, 1],
-              [1, 1]])
+A = np.array([[4, 7],
+              [2, 6]])
 
-# Method using numpy
-A_inv = np.linalg.inv(A)
-print(f"A⁻¹ = \n{A_inv}")
-
-# Manual calculation
+# Check if invertible
 det_A = np.linalg.det(A)
-print(f"det(A) = {det_A}")
+print(f"Determinant: {det_A}")  # 10 (non-zero → invertible)
 
-# For 2×2 matrix: A⁻¹ = (1/det)[[d,-b],[-c,a]]
-a, b, c, d = A[0,0], A[0,1], A[1,0], A[1,1]
-A_inv_manual = (1/det_A) * np.array([[d, -b], [-c, a]])
-print(f"Manual A⁻¹ = \n{A_inv_manual}")
-```
-
-**Method 3: LU Decomposition**
-
-**Process:**
-1. Decompose A = LU
-2. Solve LY = I (forward substitution)
-3. Solve UX = Y (backward substitution)
-4. X = A⁻¹
-
-**Method 4: SVD (Singular Value Decomposition)**
-
-**Process:**
-1. Decompose A = UΣVᵀ
-2. A⁻¹ = VΣ⁻¹Uᵀ (if all singular values > 0)
-
-**Computational Implementation:**
-
-**Complete Implementation:**
-```python
-import numpy as np
-from scipy.linalg import solve
-
-def matrix_inverse_methods(A):
-    """Demonstrate various matrix inversion methods"""
+if np.abs(det_A) > 1e-10:
+    # Method 1: NumPy inverse
+    A_inv = np.linalg.inv(A)
+    print(f"Inverse:\n{A_inv}")
     
-    # Check if matrix is square
-    if A.shape[0] != A.shape[1]:
-        return "Error: Matrix must be square"
-    
-    # Check if matrix is invertible
-    det_A = np.linalg.det(A)
-    if abs(det_A) < 1e-10:
-        return "Error: Matrix is singular (not invertible)"
-    
-    print(f"Matrix A:\n{A}")
-    print(f"Determinant: {det_A:.6f}")
-    
-    # Method 1: NumPy's built-in inverse
-    A_inv_numpy = np.linalg.inv(A)
-    print(f"\nMethod 1 - NumPy inverse:\n{A_inv_numpy}")
-    
-    # Method 2: Solve AA⁻¹ = I
-    I = np.eye(A.shape[0])
-    A_inv_solve = solve(A, I)
-    print(f"\nMethod 2 - Solve method:\n{A_inv_solve}")
-    
-    # Method 3: Manual for 2×2 matrices
-    if A.shape == (2, 2):
-        a, b, c, d = A[0,0], A[0,1], A[1,0], A[1,1]
-        A_inv_manual = (1/det_A) * np.array([[d, -b], [-c, a]])
-        print(f"\nMethod 3 - Manual 2×2:\n{A_inv_manual}")
-    
-    # Verification
-    verification = A @ A_inv_numpy
-    print(f"\nVerification (AA⁻¹):\n{verification}")
-    print(f"Is close to identity? {np.allclose(verification, I)}")
-    
-    return A_inv_numpy
+    # Verify: A @ A_inv = I
+    print(f"A @ A_inv:\n{A @ A_inv}")
 
-# Example usage
-A = np.array([[2, 1, 0],
-              [1, 2, 1],
-              [0, 1, 2]])
-matrix_inverse_methods(A)
-```
+# 2x2 inverse formula (manual)
+def inverse_2x2(A):
+    a, b = A[0, 0], A[0, 1]
+    c, d = A[1, 0], A[1, 1]
+    det = a*d - b*c
+    if np.abs(det) < 1e-10:
+        raise ValueError("Matrix is singular")
+    return np.array([[d, -b], [-c, a]]) / det
 
-**Special Cases and Properties:**
+A_inv_manual = inverse_2x2(A)
+print(f"Manual inverse matches: {np.allclose(A_inv, A_inv_manual)}")
 
-**1. 2×2 Matrix Formula:**
-```
-For A = [a  b], A⁻¹ = (1/(ad-bc)) [d  -b]
-        [c  d]                     [-c  a]
-```
+# Singular matrix (no inverse)
+B = np.array([[1, 2],
+              [2, 4]])  # Row 2 = 2 * Row 1
+print(f"Singular det: {np.linalg.det(B)}")  # ≈ 0
 
-**2. Diagonal Matrix:**
-```
-For D = diag(d₁, d₂, ..., dₙ), D⁻¹ = diag(1/d₁, 1/d₂, ..., 1/dₙ)
-```
+# Use pseudoinverse for singular matrices
+B_pinv = np.linalg.pinv(B)
+print(f"Pseudoinverse:\n{B_pinv}")
 
-**3. Orthogonal Matrix:**
-```
-For orthogonal matrix Q: Q⁻¹ = Qᵀ
-```
+# Solving Ax = b: use solve, not inverse
+b = np.array([1, 2])
 
-**4. Block Matrix Inverse:**
-```
-For [A  B]⁻¹ = [A⁻¹ + A⁻¹B(D-CA⁻¹B)⁻¹CA⁻¹  -A⁻¹B(D-CA⁻¹B)⁻¹]
-    [C  D]     [-(D-CA⁻¹B)⁻¹CA⁻¹            (D-CA⁻¹B)⁻¹      ]
-```
-
-**Properties of Matrix Inverse:**
-
-**1. Uniqueness:**
-If A⁻¹ exists, it is unique
-
-**2. Inverse of Inverse:**
-(A⁻¹)⁻¹ = A
-
-**3. Inverse of Product:**
-(AB)⁻¹ = B⁻¹A⁻¹ (order reverses)
-
-**4. Inverse of Transpose:**
-(Aᵀ)⁻¹ = (A⁻¹)ᵀ
-
-**5. Inverse of Scalar Multiple:**
-(kA)⁻¹ = (1/k)A⁻¹ for k ≠ 0
-
-**6. Determinant of Inverse:**
-det(A⁻¹) = 1/det(A)
-
-**Applications:**
-
-**1. Solving Linear Systems:**
-Instead of Gaussian elimination, use x = A⁻¹b
-```python
-# Solve Ax = b
-A = np.array([[2, 1], [1, 3]])
-b = np.array([5, 7])
-x = np.linalg.inv(A) @ b
-print(f"Solution: x = {x}")
-```
-
-**2. Change of Basis:**
-Transform coordinates between different bases
-
-**3. Computer Graphics:**
-Inverse transformations for rendering and animation
-
-**4. Statistics:**
-- **Covariance Matrix Inverse**: Precision matrix
-- **Normal Equations**: (XᵀX)⁻¹Xᵀy in regression
-
-**5. Control Systems:**
-System analysis and controller design
-
-**6. Machine Learning:**
-- **Gaussian Distributions**: Involving covariance inverse
-- **Ridge Regression**: (XᵀX + λI)⁻¹
-- **Kalman Filtering**: State estimation
-
-**Numerical Considerations:**
-
-**1. Condition Number:**
-```python
-cond_num = np.linalg.cond(A)
-if cond_num > 1e12:
-    print("Warning: Matrix is ill-conditioned")
-    print("Consider regularization or different approach")
-```
-
-**2. Numerical Stability:**
-- **Avoid explicit inversion** when possible
-- **Use solve() instead of inv()** for linear systems
-- **Consider iterative methods** for large systems
-
-**3. Memory Efficiency:**
-- **Direct solution**: O(n³) time, O(n²) space
-- **Iterative methods**: May be better for sparse matrices
-
-**When NOT to Compute Inverse:**
-
-**1. Solving Ax = b:**
-```python
-# Don't do this:
-x = np.linalg.inv(A) @ b
-
-# Do this instead:
+# Good (numerically stable)
 x = np.linalg.solve(A, b)
+
+# Bad (less stable, slower)
+x_bad = np.linalg.inv(A) @ b
+
+# Check condition number
+cond = np.linalg.cond(A)
+print(f"Condition number: {cond}")  # Lower is better
+
+# Near-singular matrix (ill-conditioned)
+C = np.array([[1, 1],
+              [1, 1.0001]])
+print(f"Near-singular condition: {np.linalg.cond(C)}")  # Very large!
 ```
 
-**2. Large Sparse Systems:**
-Use iterative methods like CG, GMRES
+**Algorithm: Gauss-Jordan Inverse**
+1. Create augmented matrix [A | I]
+2. Apply row operations to transform A into I
+3. The right side becomes A⁻¹
+4. If A cannot become I, matrix is singular
 
-**3. Ill-conditioned Matrices:**
-Consider regularization or pseudoinverse
+**ML Applications:**
+- **Normal equations**: w = (XᵀX)⁻¹Xᵀy
+- **Covariance inverse**: Precision matrix Σ⁻¹
+- **Kalman filter**: Innovation covariance inverse
+- **Newton's method**: Hessian inverse for optimization
 
-**Pseudoinverse for Singular Matrices:**
-
-**Moore-Penrose Pseudoinverse:**
-For rectangular or singular matrices, use A⁺:
-```python
-# For any matrix (including non-square/singular)
-A_plus = np.linalg.pinv(A)
-
-# Properties:
-# AA⁺A = A
-# A⁺AA⁺ = A⁺
-# (AA⁺)ᵀ = AA⁺
-# (A⁺A)ᵀ = A⁺A
-```
-
-**Error Analysis and Validation:**
-
-**1. Residual Check:**
-```python
-def validate_inverse(A, A_inv):
-    """Validate computed inverse"""
-    I_computed = A @ A_inv
-    I_expected = np.eye(A.shape[0])
-    residual = np.linalg.norm(I_computed - I_expected)
-    
-    print(f"Residual norm: {residual}")
-    return residual < 1e-10
-```
-
-**2. Condition-based Warnings:**
-```python
-def safe_inverse(A, threshold=1e12):
-    """Compute inverse with condition number check"""
-    cond_num = np.linalg.cond(A)
-    
-    if cond_num > threshold:
-        print(f"Warning: Condition number {cond_num:.2e} exceeds threshold")
-        return np.linalg.pinv(A)  # Use pseudoinverse
-    else:
-        return np.linalg.inv(A)
-```
-
-**Advanced Topics:**
-
-**1. Matrix Square Root:**
-For positive definite A, find B such that B² = A
-
-**2. Matrix Logarithm:**
-Inverse operation of matrix exponential
-
-**3. Structured Matrix Inversion:**
-Exploiting special structure (Toeplitz, circulant, etc.)
-
-**4. Parallel Algorithms:**
-Block-based methods for large matrices
-
-**Best Practices:**
-
-**1. Always check invertibility** before computing inverse
-**2. Use appropriate tolerances** for numerical comparisons
-**3. Consider alternative methods** (solve, decompositions) when possible
-**4. Validate results** through residual analysis
-**5. Handle edge cases** (singular, ill-conditioned matrices)
-**6. Choose method based on** matrix properties and computational requirements
-
-**Common Pitfalls:**
-
-**1. Numerical Precision:**
-Floating-point errors can make nearly singular matrices appear invertible
-
-**2. Computational Cost:**
-O(n³) operation - expensive for large matrices
-
-**3. Stability Issues:**
-Small changes in input can cause large changes in inverse for ill-conditioned matrices
-
-**4. Memory Requirements:**
-Storing full inverse matrix may be unnecessary
-
-Matrix inversion is a powerful tool, but should be used judiciously with proper consideration of numerical stability, computational efficiency, and alternative approaches for specific problem contexts.
+**Interview Tips:**
+- **Never use inverse directly** to solve Ax = b; use `np.linalg.solve()`
+- Pseudoinverse (A⁺) works for any matrix, including singular
+- High condition number → numerical instability → use regularization
+- Computing inverse is O(n³), same as solving one system, but solving is more stable
 
 ---
 
@@ -1771,450 +809,124 @@ Matrix inversion is a powerful tool, but should be used judiciously with proper 
 
 **How do you perform QR decomposition?**
 
-**Answer:** QR decomposition is a fundamental matrix factorization that expresses any matrix as the product of an orthogonal matrix Q and an upper triangular matrix R, with widespread applications in numerical linear algebra:
+### Answer
 
-**Definition:**
-For any m×n matrix A, QR decomposition factors A as:
-**A = QR**
+**Definition:**  
+QR decomposition factors a matrix A into Q (orthogonal) and R (upper triangular) such that A = QR. It is numerically stable and fundamental for solving least squares problems and eigenvalue computation.
 
-Where:
-- **Q**: m×m orthogonal matrix (QᵀQ = I)
-- **R**: m×n upper triangular matrix
+**Core Concepts:**
+- Q: Orthogonal matrix (QᵀQ = I)
+- R: Upper triangular matrix
+- Works for any m×n matrix (m ≥ n)
+- More numerically stable than normal equations
 
-**Types of QR Decomposition:**
+**Mathematical Formulation:**
+$$A = QR$$
 
-**1. Full QR Decomposition:**
+For A ∈ ℝᵐˣⁿ (m ≥ n):
+- Full QR: Q ∈ ℝᵐˣᵐ, R ∈ ℝᵐˣⁿ
+- Reduced QR: Q ∈ ℝᵐˣⁿ, R ∈ ℝⁿˣⁿ
+
+**Methods:**
+
+| Method | Description | Stability |
+|--------|-------------|-----------|
+| **Gram-Schmidt** | Orthogonalize columns sequentially | Poor |
+| **Modified Gram-Schmidt** | More stable variant | Moderate |
+| **Householder** | Reflections to zero below diagonal | Best |
+| **Givens** | Rotations to zero elements | Good for sparse |
+
+**Algorithm: Modified Gram-Schmidt**
 ```
-A(m×n) = Q(m×m) × R(m×n)
-```
-Q is square orthogonal, R has zeros below diagonal
-
-**2. Reduced (Thin) QR Decomposition:**
-```
-A(m×n) = Q(m×n) × R(n×n)  [when m ≥ n]
-```
-Q has orthonormal columns, R is square upper triangular
-
-**Methods for Computing QR Decomposition:**
-
-**Method 1: Gram-Schmidt Process**
-
-**Classical Gram-Schmidt:**
-```
-Input: Columns a₁, a₂, ..., aₙ of matrix A
-Output: Orthonormal columns q₁, q₂, ..., qₙ and upper triangular R
-
-for k = 1 to n:
-    q̃ₖ = aₖ - Σⱼ₌₁ᵏ⁻¹ (aₖ · qⱼ)qⱼ    # Remove projections
-    qₖ = q̃ₖ / ||q̃ₖ||                  # Normalize
-    rⱼₖ = aₖ · qⱼ for j < k           # Upper triangular entries
-    rₖₖ = ||q̃ₖ||                      # Diagonal entries
+For j = 1 to n:
+    q_j = a_j
+    For i = 1 to j-1:
+        r_ij = q_i^T a_j
+        q_j = q_j - r_ij * q_i
+    r_jj = ||q_j||
+    q_j = q_j / r_jj
 ```
 
-**Implementation:**
+**Python Example:**
 ```python
 import numpy as np
 
-def gram_schmidt_qr(A):
-    """Classical Gram-Schmidt QR decomposition"""
-    m, n = A.shape
-    Q = np.zeros((m, n))
-    R = np.zeros((n, n))
-    
-    for k in range(n):
-        # Start with k-th column of A
-        q_tilde = A[:, k].copy()
-        
-        # Remove projections onto previous q vectors
-        for j in range(k):
-            R[j, k] = np.dot(Q[:, j], A[:, k])
-            q_tilde -= R[j, k] * Q[:, j]
-        
-        # Normalize
-        R[k, k] = np.linalg.norm(q_tilde)
-        if R[k, k] > 1e-10:  # Avoid division by zero
-            Q[:, k] = q_tilde / R[k, k]
-        else:
-            Q[:, k] = q_tilde  # Handle zero vector case
-    
-    return Q, R
-
-# Example usage
 A = np.array([[1, 1, 0],
               [1, 0, 1],
               [0, 1, 1]], dtype=float)
 
-Q, R = gram_schmidt_qr(A)
-print(f"Original A:\n{A}")
-print(f"\nQ matrix:\n{Q}")
-print(f"\nR matrix:\n{R}")
-print(f"\nVerification QR:\n{Q @ R}")
-print(f"\nQ orthogonality check (QᵀQ):\n{Q.T @ Q}")
-```
+# NumPy QR decomposition
+Q, R = np.linalg.qr(A)
+print("Q:\n", Q)
+print("R:\n", R)
 
-**Modified Gram-Schmidt (More Stable):**
-```python
-def modified_gram_schmidt_qr(A):
-    """Modified Gram-Schmidt QR decomposition (numerically stable)"""
+# Verify
+print("Q @ R:\n", Q @ R)  # Should equal A
+print("Q^T @ Q:\n", Q.T @ Q)  # Should be identity
+
+# Modified Gram-Schmidt implementation
+def modified_gram_schmidt(A):
     m, n = A.shape
     Q = np.zeros((m, n))
     R = np.zeros((n, n))
-    
-    # Copy A to avoid modifying original
-    V = A.copy()
-    
-    for k in range(n):
-        # Compute diagonal element
-        R[k, k] = np.linalg.norm(V[:, k])
-        
-        # Normalize to get q_k
-        Q[:, k] = V[:, k] / R[k, k]
-        
-        # Update remaining columns
-        for j in range(k + 1, n):
-            R[k, j] = np.dot(Q[:, k], V[:, j])
-            V[:, j] -= R[k, j] * Q[:, k]
-    
-    return Q, R
-```
-
-**Method 2: Householder Reflections**
-
-**Concept:**
-Use Householder matrices to zero out elements below diagonal
-
-**Householder Matrix:**
-```
-H = I - 2uuᵀ/||u||²
-```
-where u is chosen to reflect vector to coordinate axis
-
-**Implementation:**
-```python
-def householder_qr(A):
-    """QR decomposition using Householder reflections"""
-    m, n = A.shape
-    Q = np.eye(m)
-    R = A.copy()
-    
-    for k in range(min(m-1, n)):
-        # Extract column below diagonal
-        x = R[k:, k]
-        
-        # Skip if already zero
-        if np.linalg.norm(x[1:]) < 1e-10:
-            continue
-            
-        # Construct Householder vector
-        alpha = -np.sign(x[0]) * np.linalg.norm(x)
-        u = x.copy()
-        u[0] -= alpha
-        u = u / np.linalg.norm(u)
-        
-        # Apply Householder reflection to R
-        R[k:, :] -= 2 * np.outer(u, u @ R[k:, :])
-        
-        # Update Q
-        Q[:, k:] -= 2 * Q[:, k:] @ np.outer(u, u)
-    
-    return Q, R
-
-# Example with verification
-A = np.array([[12, -51, 4],
-              [6, 167, -68],
-              [-4, 24, -41]], dtype=float)
-
-Q, R = householder_qr(A)
-print(f"Householder QR:")
-print(f"Q:\n{Q}")
-print(f"R:\n{R}")
-print(f"QR product:\n{Q @ R}")
-print(f"Original A:\n{A}")
-print(f"Difference norm: {np.linalg.norm(A - Q @ R)}")
-```
-
-**Method 3: Givens Rotations**
-
-**Concept:**
-Use sequence of 2×2 rotation matrices to zero elements
-
-**Givens Rotation Matrix:**
-```
-G(i,j,θ) = [... 1   ...   0   ... ]
-           [... 0   cos θ -sin θ ...]
-           [... 0   sin θ  cos θ ...]
-           [... 0   ...   1   ... ]
-```
-
-**Implementation:**
-```python
-def givens_qr(A):
-    """QR decomposition using Givens rotations"""
-    m, n = A.shape
-    Q = np.eye(m)
-    R = A.copy()
     
     for j in range(n):
-        for i in range(m-1, j, -1):  # Bottom to top
-            if abs(R[i, j]) > 1e-10:
-                # Compute Givens rotation
-                a, b = R[i-1, j], R[i, j]
-                r = np.sqrt(a*a + b*b)
-                c, s = a/r, -b/r
-                
-                # Apply rotation to R
-                R[[i-1, i], :] = [[c, -s], [s, c]] @ R[[i-1, i], :]
-                
-                # Update Q
-                Q[:, [i-1, i]] = Q[:, [i-1, i]] @ [[c, s], [-s, c]]
+        v = A[:, j].copy()
+        for i in range(j):
+            R[i, j] = Q[:, i] @ A[:, j]
+            v = v - R[i, j] * Q[:, i]
+        R[j, j] = np.linalg.norm(v)
+        Q[:, j] = v / R[j, j]
     
     return Q, R
-```
 
-**Computational Comparison:**
+Q_mgs, R_mgs = modified_gram_schmidt(A)
+print("MGS matches NumPy:", np.allclose(np.abs(Q), np.abs(Q_mgs)))
 
-**NumPy Built-in:**
-```python
-def compare_qr_methods(A):
-    """Compare different QR decomposition methods"""
-    
-    # NumPy's QR (uses LAPACK)
-    Q_np, R_np = np.linalg.qr(A)
-    
-    # Custom implementations
-    Q_gs, R_gs = gram_schmidt_qr(A)
-    Q_mgs, R_mgs = modified_gram_schmidt_qr(A)
-    Q_hh, R_hh = householder_qr(A)
-    
-    # Compare accuracy
-    methods = [
-        ("NumPy", Q_np, R_np),
-        ("Gram-Schmidt", Q_gs, R_gs),
-        ("Modified GS", Q_mgs, R_mgs),
-        ("Householder", Q_hh, R_hh)
-    ]
-    
-    print("QR Decomposition Accuracy Comparison:")
-    print("-" * 50)
-    
-    for name, Q, R in methods:
-        reconstruction_error = np.linalg.norm(A - Q @ R)
-        orthogonality_error = np.linalg.norm(Q.T @ Q - np.eye(Q.shape[1]))
-        
-        print(f"{name:15s}: Reconstruction={reconstruction_error:.2e}, "
-              f"Orthogonality={orthogonality_error:.2e}")
-
-# Test with example matrix
-A = np.random.randn(5, 3)
-compare_qr_methods(A)
-```
-
-**Properties of QR Decomposition:**
-
-**1. Existence and Uniqueness:**
-- **Existence**: Every matrix has QR decomposition
-- **Uniqueness**: If A has full column rank and R has positive diagonal, QR is unique
-
-**2. Computational Complexity:**
-- **Gram-Schmidt**: O(mn²)
-- **Householder**: O(mn² - n³/3)
-- **Givens**: O(mn²)
-
-**3. Numerical Stability:**
-- **Modified Gram-Schmidt** > **Classical Gram-Schmidt**
-- **Householder** ≈ **Modified Gram-Schmidt** (both stable)
-- **Givens**: Good for sparse matrices
-
-**Applications:**
-
-**1. Solving Linear Least Squares:**
-For overdetermined system Ax = b:
-```python
+# Solving least squares via QR (more stable than normal equations)
 def solve_least_squares_qr(A, b):
-    """Solve least squares using QR decomposition"""
+    """Solve min ||Ax - b||² using QR decomposition."""
     Q, R = np.linalg.qr(A)
-    
-    # Transform: A = QR, so Ax = b becomes Rx = Qᵀb
-    Qtb = Q.T @ b
-    
-    # Solve upper triangular system Rx = Qᵀb
-    x = np.linalg.solve(R, Qtb)
-    
-    return x
+    # Ax = b → QRx = b → Rx = Q^T b
+    return np.linalg.solve(R, Q.T @ b)
 
-# Example: Fit line to data points
-x_data = np.array([1, 2, 3, 4, 5])
-y_data = np.array([2.1, 3.9, 6.1, 8.0, 9.9])
+# Overdetermined system
+A_over = np.array([[1, 1],
+                   [1, 2],
+                   [1, 3]], dtype=float)
+b = np.array([1, 2, 2], dtype=float)
 
-# Design matrix for y = ax + b
-A = np.column_stack([x_data, np.ones(len(x_data))])
-coeffs = solve_least_squares_qr(A, y_data)
-print(f"Line fit: y = {coeffs[0]:.2f}x + {coeffs[1]:.2f}")
+x_qr = solve_least_squares_qr(A_over, b)
+x_lstsq = np.linalg.lstsq(A_over, b, rcond=None)[0]
+print(f"QR solution: {x_qr}")
+print(f"Solutions match: {np.allclose(x_qr, x_lstsq)}")
+
+# QR for computing eigenvalues (QR algorithm)
+def qr_algorithm(A, n_iter=50):
+    """Find eigenvalues using QR iteration."""
+    Ak = A.copy()
+    for _ in range(n_iter):
+        Q, R = np.linalg.qr(Ak)
+        Ak = R @ Q
+    return np.diag(Ak)  # Eigenvalues on diagonal
+
+eigenvalues_qr = qr_algorithm(A)
+eigenvalues_true = np.linalg.eigvalsh(A)
+print(f"QR eigenvalues: {sorted(eigenvalues_qr)}")
+print(f"True eigenvalues: {sorted(eigenvalues_true)}")
 ```
 
-**2. Eigenvalue Computation (QR Algorithm):**
-```python
-def qr_eigenvalue_iteration(A, max_iter=100, tol=1e-10):
-    """QR algorithm for finding eigenvalues"""
-    A_k = A.copy()
-    
-    for k in range(max_iter):
-        Q, R = np.linalg.qr(A_k)
-        A_k_new = R @ Q
-        
-        # Check convergence
-        if np.linalg.norm(A_k_new - A_k) < tol:
-            break
-            
-        A_k = A_k_new
-    
-    # Eigenvalues are diagonal elements
-    eigenvalues = np.diag(A_k)
-    return eigenvalues, A_k
-```
+**ML Applications:**
+- **Linear regression**: Solve least squares via QR (more stable)
+- **Eigenvalue computation**: QR algorithm
+- **Orthogonalization**: Neural network weight orthogonalization
+- **PCA**: QR can be used as part of SVD computation
 
-**3. Orthogonal Basis Construction:**
-```python
-def orthogonal_basis(vectors):
-    """Create orthogonal basis from given vectors"""
-    A = np.column_stack(vectors)
-    Q, R = np.linalg.qr(A)
-    
-    # Check rank to determine number of independent vectors
-    rank = np.sum(np.abs(np.diag(R)) > 1e-10)
-    
-    return Q[:, :rank], rank
-```
-
-**4. Matrix Rank Determination:**
-```python
-def matrix_rank_qr(A, tol=1e-10):
-    """Compute matrix rank using QR decomposition"""
-    Q, R = np.linalg.qr(A)
-    
-    # Count non-zero diagonal elements in R
-    rank = np.sum(np.abs(np.diag(R)) > tol)
-    
-    return rank
-```
-
-**Advanced Applications:**
-
-**1. Gram-Schmidt with Reorthogonalization:**
-```python
-def gram_schmidt_reorthogonalize(A, max_reorth=2):
-    """Gram-Schmidt with reorthogonalization for better stability"""
-    m, n = A.shape
-    Q = np.zeros((m, n))
-    R = np.zeros((n, n))
-    
-    for k in range(n):
-        q = A[:, k].copy()
-        
-        # Multiple orthogonalization passes
-        for reorth in range(max_reorth):
-            for j in range(k):
-                r_jk = np.dot(Q[:, j], q)
-                if reorth == 0:
-                    R[j, k] += r_jk
-                q -= r_jk * Q[:, j]
-        
-        R[k, k] = np.linalg.norm(q)
-        Q[:, k] = q / R[k, k] if R[k, k] > 1e-14 else q
-    
-    return Q, R
-```
-
-**2. Pivoted QR (Column Pivoting):**
-```python
-def qr_with_pivoting(A):
-    """QR decomposition with column pivoting for rank-deficient matrices"""
-    # NumPy doesn't have built-in column pivoting, but scipy does
-    from scipy.linalg import qr
-    
-    Q, R, P = qr(A, pivoting=True)
-    return Q, R, P
-
-# Usage
-A = np.array([[1, 2, 3],
-              [2, 4, 6],
-              [1, 1, 1]], dtype=float)
-
-Q, R, P = qr_with_pivoting(A)
-print(f"Pivoted QR:")
-print(f"A[:, P] = Q @ R")
-print(f"Permutation: {P}")
-```
-
-**Error Analysis and Validation:**
-
-**1. Orthogonality Check:**
-```python
-def check_qr_quality(Q, R, A):
-    """Comprehensive QR decomposition validation"""
-    
-    # Reconstruction error
-    reconstruction_error = np.linalg.norm(A - Q @ R)
-    
-    # Orthogonality of Q
-    orthogonality_error = np.linalg.norm(Q.T @ Q - np.eye(Q.shape[1]))
-    
-    # Upper triangular property of R
-    lower_triangular_norm = np.linalg.norm(np.tril(R, -1))
-    
-    print(f"QR Quality Assessment:")
-    print(f"Reconstruction error: {reconstruction_error:.2e}")
-    print(f"Orthogonality error:  {orthogonality_error:.2e}")
-    print(f"Lower triangular norm: {lower_triangular_norm:.2e}")
-    
-    return {
-        'reconstruction': reconstruction_error,
-        'orthogonality': orthogonality_error,
-        'triangular': lower_triangular_norm
-    }
-```
-
-**2. Condition Number Effects:**
-```python
-def qr_condition_analysis(A):
-    """Analyze how condition number affects QR decomposition"""
-    
-    cond_A = np.linalg.cond(A)
-    Q, R = np.linalg.qr(A)
-    cond_R = np.linalg.cond(R)
-    
-    print(f"Original matrix condition number: {cond_A:.2e}")
-    print(f"R matrix condition number: {cond_R:.2e}")
-    
-    # For full rank matrices, cond(A) ≈ cond(R)
-    print(f"Condition number preservation: {abs(cond_A - cond_R)/cond_A:.2e}")
-```
-
-**Best Practices:**
-
-**1. Method Selection:**
-- **Dense matrices**: Householder reflections
-- **Sparse matrices**: Givens rotations
-- **Educational purposes**: Gram-Schmidt
-- **Production code**: NumPy/LAPACK implementations
-
-**2. Numerical Considerations:**
-- Use **modified Gram-Schmidt** over classical
-- Check for **rank deficiency** using R diagonal
-- Apply **pivoting** for rank-deficient matrices
-- Monitor **condition numbers** for stability
-
-**3. Memory Efficiency:**
-- **In-place algorithms** when matrix can be overwritten
-- **Blocked algorithms** for large matrices
-- **Incremental QR** for streaming data
-
-**4. Accuracy Verification:**
-- Always check **reconstruction error**
-- Verify **orthogonality** of Q matrix
-- Confirm **upper triangular** structure of R
-
-QR decomposition is fundamental to numerical linear algebra, providing a stable foundation for solving least squares problems, computing eigenvalues, and constructing orthogonal bases with guaranteed numerical properties.
+**Interview Tips:**
+- QR is more stable than (XᵀX)⁻¹Xᵀy for least squares
+- Householder QR is the default in NumPy (most stable)
+- QR algorithm iteratively finds eigenvalues
+- For tall matrices, reduced QR is more memory efficient
 
 ---
 
@@ -2222,421 +934,125 @@ QR decomposition is fundamental to numerical linear algebra, providing a stable 
 
 **How can you represent linear transformation using a matrix?**
 
-**Answer:** Linear transformations can be completely represented by matrices, providing a powerful bridge between geometric operations and algebraic computations:
+### Answer
 
-**Definition:**
-A linear transformation T: Rⁿ → Rᵐ can be represented by an m×n matrix A such that:
-**T(x) = Ax**
+**Definition:**  
+Every linear transformation T: ℝⁿ → ℝᵐ can be uniquely represented by an m×n matrix A, where T(**x**) = A**x**. The matrix is constructed by applying T to each standard basis vector.
 
-**Key Properties for Linear Transformations:**
-1. **Additivity**: T(u + v) = T(u) + T(v)
-2. **Homogeneity**: T(cu) = cT(u) for scalar c
-3. **Combined**: T(cu + dv) = cT(u) + dT(v)
+**Core Concepts:**
+- Linear transformation ↔ Matrix (one-to-one correspondence)
+- Matrix columns = transformed basis vectors
+- Composition of transformations = matrix multiplication
+- The matrix depends on the choice of basis
 
-**Matrix Construction from Transformation:**
+**Mathematical Formulation:**
 
-**Method: Apply to Standard Basis Vectors**
-If T: Rⁿ → Rᵐ, the matrix A has columns [T(e₁) | T(e₂) | ... | T(eₙ)]
-where eᵢ are standard basis vectors.
+Construction of matrix A for transformation T:
+$$A = \begin{pmatrix} | & | & & | \\ T(\mathbf{e}_1) & T(\mathbf{e}_2) & \cdots & T(\mathbf{e}_n) \\ | & | & & | \end{pmatrix}$$
 
-**Example - 2D Rotation:**
+where **e**ᵢ are standard basis vectors.
+
+**Common Transformations:**
+
+| Transformation | Matrix (2D) | Effect |
+|----------------|-------------|--------|
+| **Scaling** | [[sₓ, 0], [0, sᵧ]] | Scale by sₓ, sᵧ |
+| **Rotation** (θ) | [[cos θ, -sin θ], [sin θ, cos θ]] | Rotate by θ |
+| **Reflection** (x-axis) | [[1, 0], [0, -1]] | Flip vertically |
+| **Shear** (horizontal) | [[1, k], [0, 1]] | Shear by k |
+| **Projection** (x-axis) | [[1, 0], [0, 0]] | Project onto x-axis |
+
+**Python Example:**
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
 
-# 45-degree counterclockwise rotation
-theta = np.pi/4
+# Rotation transformation
+def rotation_matrix(theta):
+    """Return 2D rotation matrix for angle theta (radians)."""
+    c, s = np.cos(theta), np.sin(theta)
+    return np.array([[c, -s],
+                     [s,  c]])
 
-# Apply to standard basis vectors
-e1 = np.array([1, 0])
-e2 = np.array([0, 1])
+# Scaling transformation
+def scaling_matrix(sx, sy):
+    return np.array([[sx, 0],
+                     [0, sy]])
 
-T_e1 = np.array([np.cos(theta), np.sin(theta)])     # Rotated [1,0]
-T_e2 = np.array([-np.sin(theta), np.cos(theta)])    # Rotated [0,1]
+# Apply transformation to points
+def transform(points, matrix):
+    """Transform points (2xN) using transformation matrix."""
+    return matrix @ points
 
-# Construct transformation matrix
-A_rotation = np.column_stack([T_e1, T_e2])
-print(f"Rotation matrix:\n{A_rotation}")
-
-# Verify with built-in
-A_expected = np.array([[np.cos(theta), -np.sin(theta)],
-                       [np.sin(theta),  np.cos(theta)]])
-print(f"Expected:\n{A_expected}")
-```
-
-**Common 2D Transformations:**
-
-**1. Rotation (counterclockwise by θ):**
-```
-R(θ) = [cos θ  -sin θ]
-       [sin θ   cos θ]
-```
-
-**2. Scaling:**
-```
-S(sx, sy) = [sx   0 ]
-            [0   sy]
-```
-
-**3. Reflection across x-axis:**
-```
-Ref_x = [1   0]
-        [0  -1]
-```
-
-**4. Shear (horizontal):**
-```
-Shear = [1  k]
-        [0  1]
-```
-
-**3D Transformations:**
-
-**1. Rotation about z-axis:**
-```
-Rz(θ) = [cos θ  -sin θ   0]
-        [sin θ   cos θ   0]
-        [0       0       1]
-```
-
-**2. Scaling in 3D:**
-```
-S = [sx   0    0 ]
-    [0   sy    0 ]
-    [0    0   sz ]
-```
-
-**Implementation Examples:**
-
-**Complete 2D Transformation System:**
-```python
-class LinearTransformation2D:
-    def __init__(self, matrix):
-        self.matrix = np.array(matrix)
-    
-    def apply(self, points):
-        """Apply transformation to points (2×n array)"""
-        if points.ndim == 1:
-            points = points.reshape(2, 1)
-        return self.matrix @ points
-    
-    def compose(self, other):
-        """Compose with another transformation"""
-        return LinearTransformation2D(self.matrix @ other.matrix)
-    
-    def inverse(self):
-        """Compute inverse transformation"""
-        return LinearTransformation2D(np.linalg.inv(self.matrix))
-    
-    def __str__(self):
-        return f"Linear Transformation:\n{self.matrix}"
-
-# Create transformations
-rotation_45 = LinearTransformation2D([[np.cos(np.pi/4), -np.sin(np.pi/4)],
-                                     [np.sin(np.pi/4),  np.cos(np.pi/4)]])
-
-scaling_2x = LinearTransformation2D([[2, 0],
-                                    [0, 2]])
-
-# Compose transformations (scale then rotate)
-combined = rotation_45.compose(scaling_2x)
-
-# Test on unit square
+# Create a square
 square = np.array([[0, 1, 1, 0, 0],
                    [0, 0, 1, 1, 0]])
 
-transformed = combined.apply(square)
-print(f"Original square:\n{square}")
-print(f"Transformed:\n{transformed}")
+# Apply transformations
+theta = np.pi / 4  # 45 degrees
+R = rotation_matrix(theta)
+S = scaling_matrix(2, 0.5)
+
+square_rotated = transform(square, R)
+square_scaled = transform(square, S)
+square_both = transform(square, R @ S)  # Composition
+
+# Construct matrix from transformation
+def construct_matrix(T, n):
+    """Construct matrix for transformation T: R^n -> R^m."""
+    columns = []
+    for i in range(n):
+        e_i = np.zeros(n)
+        e_i[i] = 1
+        columns.append(T(e_i))
+    return np.column_stack(columns)
+
+# Example: Define a transformation
+def my_transform(x):
+    """T(x, y) = (2x + y, x - y)"""
+    return np.array([2*x[0] + x[1], x[0] - x[1]])
+
+A = construct_matrix(my_transform, 2)
+print(f"Matrix for transformation:\n{A}")
+# [[2, 1],
+#  [1, -1]]
+
+# Verify: A @ [1, 1] should equal T([1, 1])
+x = np.array([1, 1])
+print(f"A @ x: {A @ x}")
+print(f"T(x): {my_transform(x)}")
+
+# Neural network layer as linear transformation
+def linear_layer(x, W, b=None):
+    """y = Wx + b (affine transformation)"""
+    y = W @ x
+    if b is not None:
+        y = y + b  # b makes it affine, not linear
+    return y
+
+# Weight matrix IS the transformation matrix
+W = np.random.randn(10, 5)  # Transform from R^5 to R^10
+x = np.random.randn(5)
+y = linear_layer(x, W)
+print(f"Input dim: {x.shape}, Output dim: {y.shape}")
 ```
 
-**Homogeneous Coordinates for Affine Transformations:**
+**Intuition:**
+- Matrix A "encodes" what T does to basis vectors
+- Each column shows where a basis vector lands
+- Matrix multiplication = applying the transformation
 
-**Problem**: Pure linear transformations cannot represent translations
-**Solution**: Use homogeneous coordinates (add dimension with 1)
+**ML Applications:**
+- **Neural network layers**: y = Wx (before activation)
+- **Feature transformation**: Map features to new space
+- **PCA**: Transform to principal component space
+- **Attention**: Query, key, value projections
 
-**2D Homogeneous Form:**
-```
-[x']   [a  b  tx] [x]
-[y'] = [c  d  ty] [y]
-[1 ]   [0  0  1 ] [1]
-```
-
-**3D Homogeneous Form:**
-```
-[x']   [r11 r12 r13 tx] [x]
-[y']   [r21 r22 r23 ty] [y]
-[z'] = [r31 r32 r33 tz] [z]
-[1 ]   [0   0   0   1 ] [1]
-```
-
-**Example - Translation:**
-```python
-def create_translation_2d(tx, ty):
-    """Create 2D translation matrix in homogeneous coordinates"""
-    return np.array([[1, 0, tx],
-                     [0, 1, ty],
-                     [0, 0, 1]])
-
-def create_rotation_2d(theta):
-    """Create 2D rotation matrix in homogeneous coordinates"""
-    c, s = np.cos(theta), np.sin(theta)
-    return np.array([[c, -s, 0],
-                     [s,  c, 0],
-                     [0,  0, 1]])
-
-# Combine rotation and translation
-T_translate = create_translation_2d(3, 2)
-T_rotate = create_rotation_2d(np.pi/6)
-
-# Compose: translate then rotate
-T_combined = T_rotate @ T_translate
-
-print(f"Combined transformation:\n{T_combined}")
-
-# Apply to point [1, 1]
-point_homo = np.array([1, 1, 1])
-result = T_combined @ point_homo
-print(f"Point [1,1] transforms to [{result[0]:.2f}, {result[1]:.2f}]")
-```
-
-**Finding Transformation Matrix from Examples:**
-
-**Given input-output pairs, find the matrix:**
-```python
-def find_transformation_matrix(input_points, output_points):
-    """Find transformation matrix from corresponding points"""
-    # For 2D: need at least 3 non-collinear points for affine transformation
-    # For linear transformation: need 2 linearly independent points
-    
-    if input_points.shape[0] == 2:  # 2D case
-        # Linear transformation: A @ input = output
-        A = output_points @ np.linalg.pinv(input_points)
-        return A
-    elif input_points.shape[0] == 3:  # 2D homogeneous case
-        # Solve: T @ input_homo = output_homo
-        input_homo = np.vstack([input_points[:2], np.ones(input_points.shape[1])])
-        output_homo = np.vstack([output_points[:2], np.ones(output_points.shape[1])])
-        T = output_homo @ np.linalg.pinv(input_homo)
-        return T
-
-# Example: Find transformation that maps unit square to parallelogram
-input_pts = np.array([[0, 1, 1, 0],    # x coordinates
-                      [0, 0, 1, 1]])    # y coordinates
-
-output_pts = np.array([[0, 2, 3, 1],   # transformed x coordinates  
-                       [0, 1, 2, 1]])   # transformed y coordinates
-
-T = find_transformation_matrix(input_pts, output_pts)
-print(f"Found transformation:\n{T}")
-
-# Verify
-verification = T @ input_pts
-print(f"Verification error: {np.linalg.norm(verification - output_pts)}")
-```
-
-**Applications in Computer Graphics:**
-
-**Model-View-Projection Pipeline:**
-```python
-def create_projection_matrix(fov, aspect, near, far):
-    """Create perspective projection matrix"""
-    f = 1.0 / np.tan(fov / 2.0)
-    
-    return np.array([
-        [f/aspect, 0, 0, 0],
-        [0, f, 0, 0],
-        [0, 0, (far+near)/(near-far), (2*far*near)/(near-far)],
-        [0, 0, -1, 0]
-    ])
-
-def create_view_matrix(eye, target, up):
-    """Create view matrix (camera transformation)"""
-    forward = target - eye
-    forward = forward / np.linalg.norm(forward)
-    
-    right = np.cross(forward, up)
-    right = right / np.linalg.norm(right)
-    
-    up_new = np.cross(right, forward)
-    
-    # Create rotation matrix
-    rotation = np.array([
-        [right[0], right[1], right[2], 0],
-        [up_new[0], up_new[1], up_new[2], 0],
-        [-forward[0], -forward[1], -forward[2], 0],
-        [0, 0, 0, 1]
-    ])
-    
-    # Create translation matrix
-    translation = np.array([
-        [1, 0, 0, -eye[0]],
-        [0, 1, 0, -eye[1]],
-        [0, 0, 1, -eye[2]],
-        [0, 0, 0, 1]
-    ])
-    
-    return rotation @ translation
-```
-
-**Machine Learning Applications:**
-
-**PCA as Linear Transformation:**
-```python
-def pca_transformation_matrix(X, n_components):
-    """Create PCA transformation matrix"""
-    # Center the data
-    X_centered = X - np.mean(X, axis=0)
-    
-    # Compute covariance matrix
-    cov_matrix = np.cov(X_centered.T)
-    
-    # Eigendecomposition
-    eigenvalues, eigenvectors = np.linalg.eigh(cov_matrix)
-    
-    # Sort by eigenvalues (descending)
-    idx = np.argsort(eigenvalues)[::-1]
-    eigenvalues = eigenvalues[idx]
-    eigenvectors = eigenvectors[:, idx]
-    
-    # Take first n_components
-    transformation_matrix = eigenvectors[:, :n_components]
-    
-    return transformation_matrix, eigenvalues[:n_components]
-
-# Example usage
-X = np.random.randn(100, 5)  # 100 samples, 5 features
-T, eigenvals = pca_transformation_matrix(X, 2)
-
-print(f"PCA transformation matrix (5D → 2D):\n{T}")
-print(f"Explained variance ratios: {eigenvals/np.sum(eigenvals)}")
-
-# Apply transformation
-X_centered = X - np.mean(X, axis=0)
-X_transformed = X_centered @ T
-print(f"Transformed data shape: {X_transformed.shape}")
-```
-
-**Properties and Invariants:**
-
-**1. Determinant and Area/Volume Scaling:**
-```python
-def analyze_transformation_properties(A):
-    """Analyze geometric properties of linear transformation"""
-    
-    det_A = np.linalg.det(A)
-    print(f"Determinant: {det_A}")
-    print(f"Area/volume scaling factor: {abs(det_A)}")
-    
-    if det_A > 0:
-        print("Orientation preserving")
-    elif det_A < 0:
-        print("Orientation reversing")
-    else:
-        print("Singular transformation (reduces dimension)")
-    
-    # Eigenvalues and eigenvectors
-    eigenvals, eigenvecs = np.linalg.eig(A)
-    print(f"Eigenvalues: {eigenvals}")
-    
-    # Check for special properties
-    if np.allclose(A @ A.T, np.eye(A.shape[0])):
-        print("Orthogonal transformation (preserves lengths and angles)")
-    
-    if np.allclose(A, A.T):
-        print("Symmetric transformation")
-    
-    return {
-        'determinant': det_A,
-        'eigenvalues': eigenvals,
-        'eigenvectors': eigenvecs
-    }
-
-# Example
-A = np.array([[2, 1], [0, 1]])  # Shear transformation
-properties = analyze_transformation_properties(A)
-```
-
-**2. Composition of Transformations:**
-```python
-def demonstrate_composition():
-    """Show how matrix multiplication represents composition"""
-    
-    # Define individual transformations
-    scale = np.array([[2, 0], [0, 3]])      # Scale x by 2, y by 3
-    rotate = np.array([[0, -1], [1, 0]])    # 90° rotation
-    shear = np.array([[1, 0.5], [0, 1]])    # Horizontal shear
-    
-    # Composition: First scale, then rotate, then shear
-    # Applied right to left: T = Shear * Rotate * Scale
-    T_composed = shear @ rotate @ scale
-    
-    # Test on a point
-    point = np.array([1, 1])
-    
-    # Step by step
-    step1 = scale @ point
-    step2 = rotate @ step1
-    step3 = shear @ step2
-    
-    # Direct application
-    direct = T_composed @ point
-    
-    print(f"Original point: {point}")
-    print(f"After scaling: {step1}")
-    print(f"After rotation: {step2}")
-    print(f"After shearing: {step3}")
-    print(f"Direct composition: {direct}")
-    print(f"Match: {np.allclose(step3, direct)}")
-
-demonstrate_composition()
-```
-
-**Advanced Topics:**
-
-**1. Linear Transformations in Higher Dimensions:**
-```python
-def random_linear_transformation(input_dim, output_dim):
-    """Generate random linear transformation"""
-    return np.random.randn(output_dim, input_dim)
-
-# Example: 4D to 3D transformation
-T_4d_to_3d = random_linear_transformation(4, 3)
-print(f"4D → 3D transformation shape: {T_4d_to_3d.shape}")
-
-# Apply to 4D points
-points_4d = np.random.randn(4, 10)  # 10 points in 4D
-points_3d = T_4d_to_3d @ points_4d
-print(f"Transformed to 3D: {points_3d.shape}")
-```
-
-**2. Basis Change and Coordinate Transformations:**
-```python
-def change_of_basis_matrix(old_basis, new_basis):
-    """Compute change of basis matrix"""
-    # Matrix whose columns are new basis vectors in old coordinates
-    P = np.column_stack(new_basis)
-    
-    # Inverse gives transformation from new to old coordinates
-    P_inv = np.linalg.inv(P)
-    
-    return P, P_inv
-
-# Example: Change from standard basis to custom basis
-standard_basis = [np.array([1, 0]), np.array([0, 1])]
-custom_basis = [np.array([1, 1]), np.array([1, -1])]
-
-P, P_inv = change_of_basis_matrix(standard_basis, custom_basis)
-print(f"Change of basis matrix P:\n{P}")
-print(f"Inverse P⁻¹:\n{P_inv}")
-
-# Transform a vector
-v_standard = np.array([3, 1])
-v_custom = P_inv @ v_standard
-print(f"Vector {v_standard} in standard basis = {v_custom} in custom basis")
-```
-
-Linear transformations represented as matrices provide the mathematical foundation for computer graphics, machine learning dimensionality reduction, coordinate system changes, and geometric computations across mathematics and engineering.
+**Interview Tips:**
+- Matrix multiplication is function composition (right to left)
+- The same transformation has different matrices in different bases
+- Affine transformation (Wx + b) is not linear (doesn't preserve origin)
+- Knowing this connection helps understand what weight matrices "do"
 
 ---
 
@@ -2644,446 +1060,111 @@ Linear transformations represented as matrices provide the mathematical foundati
 
 **How is linear regression related to linear algebra?**
 
-**Answer:** Linear regression is fundamentally built on linear algebra concepts, using matrix operations to solve optimization problems and make predictions efficiently:
+### Answer
 
-**Mathematical Foundation:**
+**Definition:**  
+Linear regression finds weights **w** that minimize ||X**w** - **y**||². The solution involves solving linear systems, matrix decompositions, and projections—all core linear algebra operations.
 
-**Basic Linear Regression Model:**
-```
-y = Xβ + ε
-```
-Where:
-- **y**: Response vector (n×1)
-- **X**: Design matrix (n×p) - features
-- **β**: Parameter vector (p×1) - coefficients
-- **ε**: Error vector (n×1)
+**Core Concepts:**
+- Model: y = X**w** + ε
+- Objective: min ||X**w** - **y**||²
+- Solution: Normal equations, QR, or SVD
+- Geometric view: Project **y** onto column space of X
 
-**Matrix Formulation:**
-```
-[y₁]   [1  x₁₁  x₁₂  ...  x₁ₚ] [β₀]   [ε₁]
-[y₂] = [1  x₂₁  x₂₂  ...  x₂ₚ] [β₁] + [ε₂]
-[⋮ ]   [⋮   ⋮    ⋮   ⋱   ⋮  ] [⋮ ]   [⋮ ]
-[yₙ]   [1  xₙ₁  xₙ₂  ...  xₙₚ] [βₚ]   [εₙ]
-```
+**Mathematical Formulation:**
 
-**Normal Equations (Closed-Form Solution):**
-
-**Derivation using Linear Algebra:**
-Minimize ||y - Xβ||² by setting gradient to zero:
-```
-∇β ||y - Xβ||² = 0
-∇β (y - Xβ)ᵀ(y - Xβ) = 0
--2Xᵀ(y - Xβ) = 0
-XᵀXβ = Xᵀy
-```
-
-**Solution:**
-```
-β = (XᵀX)⁻¹Xᵀy
-```
-
-**Implementation:**
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-
-def linear_regression_normal_equations(X, y):
-    """Solve linear regression using normal equations"""
-    
-    # Add intercept column if not present
-    if X.ndim == 1:
-        X = X.reshape(-1, 1)
-    
-    # Add bias column (intercept)
-    X_with_bias = np.column_stack([np.ones(X.shape[0]), X])
-    
-    # Normal equations: β = (XᵀX)⁻¹Xᵀy
-    XTX = X_with_bias.T @ X_with_bias
-    XTy = X_with_bias.T @ y
-    beta = np.linalg.solve(XTX, XTy)
-    
-    return beta, X_with_bias
-
-# Example: Simple linear regression
-np.random.seed(42)
-x = np.linspace(0, 10, 50)
-y_true = 2 * x + 1
-y = y_true + np.random.normal(0, 1, len(x))
-
-beta, X_design = linear_regression_normal_equations(x, y)
-print(f"Fitted coefficients: intercept={beta[0]:.3f}, slope={beta[1]:.3f}")
-print(f"True coefficients: intercept=1.000, slope=2.000")
-
-# Predictions
-y_pred = X_design @ beta
-
-# Visualization
-plt.figure(figsize=(10, 6))
-plt.scatter(x, y, alpha=0.6, label='Data')
-plt.plot(x, y_pred, 'r-', label=f'Fitted: y = {beta[1]:.2f}x + {beta[0]:.2f}')
-plt.plot(x, y_true, 'g--', label='True: y = 2x + 1')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.legend()
-plt.title('Linear Regression using Normal Equations')
-plt.show()
-```
-
-**Multiple Linear Regression Example:**
-```python
-def multiple_linear_regression():
-    """Demonstrate multiple linear regression with linear algebra"""
-    
-    # Generate synthetic data
-    np.random.seed(123)
-    n_samples, n_features = 100, 3
-    
-    # True coefficients
-    true_beta = np.array([1.5, -2.0, 0.8, 3.0])  # [intercept, β₁, β₂, β₃]
-    
-    # Features
-    X = np.random.randn(n_samples, n_features)
-    
-    # Add intercept column
-    X_with_intercept = np.column_stack([np.ones(n_samples), X])
-    
-    # Generate target with noise
-    y_true = X_with_intercept @ true_beta
-    y = y_true + np.random.normal(0, 0.1, n_samples)
-    
-    # Solve using normal equations
-    beta_hat = np.linalg.solve(X_with_intercept.T @ X_with_intercept, 
-                               X_with_intercept.T @ y)
-    
-    print("Multiple Linear Regression Results:")
-    print(f"True coefficients: {true_beta}")
-    print(f"Estimated coefficients: {beta_hat}")
-    print(f"Estimation error: {np.linalg.norm(beta_hat - true_beta):.6f}")
-    
-    # Compute R-squared
-    y_pred = X_with_intercept @ beta_hat
-    ss_res = np.sum((y - y_pred) ** 2)
-    ss_tot = np.sum((y - np.mean(y)) ** 2)
-    r_squared = 1 - (ss_res / ss_tot)
-    print(f"R-squared: {r_squared:.4f}")
-    
-    return beta_hat, X_with_intercept, y
-
-beta_estimated, X_matrix, y_data = multiple_linear_regression()
-```
+**Normal Equations:**
+$$X^TX\mathbf{w} = X^T\mathbf{y}$$
+$$\mathbf{w} = (X^TX)^{-1}X^T\mathbf{y}$$
 
 **Geometric Interpretation:**
+The prediction ŷ = X**w** is the orthogonal projection of **y** onto Col(X).
 
-**Projection onto Column Space:**
-The solution β minimizes ||y - Xβ||², which geometrically means projecting y onto the column space of X.
+**Ridge Regression (Regularized):**
+$$\mathbf{w} = (X^TX + \lambda I)^{-1}X^T\mathbf{y}$$
 
+**Solution Methods:**
+
+| Method | Formula | When to Use |
+|--------|---------|-------------|
+| Normal equations | (XᵀX)⁻¹Xᵀy | Small n, well-conditioned |
+| QR decomposition | R⁻¹Qᵀy | General, numerically stable |
+| SVD | VΣ⁻¹Uᵀy | Ill-conditioned, regularization |
+| Gradient descent | Iterative | Large-scale, online |
+
+**Python Example:**
 ```python
-def demonstrate_projection_interpretation(X, y):
-    """Show geometric interpretation of linear regression"""
-    
-    # Compute projection matrix
-    P = X @ np.linalg.inv(X.T @ X) @ X.T
-    
-    # Project y onto column space of X
-    y_proj = P @ y
-    
-    # Residual vector (orthogonal to column space)
-    residual = y - y_proj
-    
-    print("Geometric Interpretation:")
-    print(f"Original y norm: {np.linalg.norm(y):.3f}")
-    print(f"Projected y norm: {np.linalg.norm(y_proj):.3f}")
-    print(f"Residual norm: {np.linalg.norm(residual):.3f}")
-    
-    # Verify orthogonality: residual ⊥ column space of X
-    orthogonality_check = X.T @ residual
-    print(f"Orthogonality check (should be ~0): {np.linalg.norm(orthogonality_check):.2e}")
-    
-    # Verify Pythagorean theorem: ||y||² = ||y_proj||² + ||residual||²
-    pythagorean_check = (np.linalg.norm(y)**2 - 
-                        np.linalg.norm(y_proj)**2 - 
-                        np.linalg.norm(residual)**2)
-    print(f"Pythagorean theorem check: {pythagorean_check:.2e}")
+import numpy as np
+from sklearn.linear_model import LinearRegression, Ridge
 
-# Example
-X = np.column_stack([np.ones(50), np.random.randn(50, 2)])
-y = X @ np.array([1, 2, -1]) + 0.1 * np.random.randn(50)
-demonstrate_projection_interpretation(X, y)
+np.random.seed(42)
+
+# Generate data
+n_samples, n_features = 100, 5
+X = np.random.randn(n_samples, n_features)
+true_w = np.array([1, -2, 3, -4, 5])
+y = X @ true_w + 0.5 * np.random.randn(n_samples)
+
+# Method 1: Normal equations
+XtX = X.T @ X
+Xty = X.T @ y
+w_normal = np.linalg.solve(XtX, Xty)
+print(f"Normal equations: {w_normal}")
+
+# Method 2: QR decomposition (more stable)
+Q, R = np.linalg.qr(X)
+w_qr = np.linalg.solve(R, Q.T @ y)
+print(f"QR method: {w_qr}")
+
+# Method 3: SVD (most stable, handles rank-deficiency)
+U, s, Vt = np.linalg.svd(X, full_matrices=False)
+w_svd = Vt.T @ np.diag(1/s) @ U.T @ y
+print(f"SVD method: {w_svd}")
+
+# Method 4: Pseudoinverse
+w_pinv = np.linalg.pinv(X) @ y
+print(f"Pseudoinverse: {w_pinv}")
+
+# Method 5: sklearn
+lr = LinearRegression(fit_intercept=False)
+lr.fit(X, y)
+print(f"sklearn: {lr.coef_}")
+
+# All methods give same result
+print(f"All close: {np.allclose(w_normal, w_qr) and np.allclose(w_qr, w_svd)}")
+
+# Ridge regression (regularization)
+lambda_reg = 1.0
+w_ridge = np.linalg.solve(XtX + lambda_reg * np.eye(n_features), Xty)
+
+ridge = Ridge(alpha=lambda_reg, fit_intercept=False)
+ridge.fit(X, y)
+print(f"Ridge (manual): {w_ridge}")
+print(f"Ridge (sklearn): {ridge.coef_}")
+
+# Geometric interpretation: projection
+y_hat = X @ w_normal  # Projection of y onto Col(X)
+residual = y - y_hat   # Residual is orthogonal to Col(X)
+
+# Verify orthogonality: X^T @ residual ≈ 0
+print(f"X^T @ residual ≈ 0: {np.allclose(X.T @ residual, 0)}")
 ```
 
-**Alternative Linear Algebra Solutions:**
+**Key Linear Algebra Insights:**
+| Concept | Role in Linear Regression |
+|---------|---------------------------|
+| Matrix multiplication | X**w** computes predictions |
+| Transpose | Xᵀ appears in normal equations |
+| Inverse | (XᵀX)⁻¹ solves for weights |
+| Projection | ŷ = X(XᵀX)⁻¹Xᵀy |
+| Rank | rank(X) < n causes issues |
+| Condition number | High κ(XᵀX) → unstable |
 
-**1. QR Decomposition Method:**
-```python
-def linear_regression_qr(X, y):
-    """Solve linear regression using QR decomposition"""
-    Q, R = np.linalg.qr(X)
-    
-    # Solve Rβ = Qᵀy
-    beta = np.linalg.solve(R, Q.T @ y)
-    
-    return beta
-
-# More numerically stable than normal equations
-X = np.column_stack([np.ones(100), np.random.randn(100, 3)])
-y = X @ np.array([1, 2, -1, 0.5]) + 0.1 * np.random.randn(100)
-
-beta_normal = np.linalg.solve(X.T @ X, X.T @ y)
-beta_qr = linear_regression_qr(X, y)
-
-print("Comparison of methods:")
-print(f"Normal equations: {beta_normal}")
-print(f"QR decomposition: {beta_qr}")
-print(f"Difference: {np.linalg.norm(beta_normal - beta_qr):.2e}")
-```
-
-**2. SVD Method (for Rank-Deficient Matrices):**
-```python
-def linear_regression_svd(X, y):
-    """Solve linear regression using SVD (handles rank deficiency)"""
-    U, s, Vt = np.linalg.svd(X, full_matrices=False)
-    
-    # Compute pseudoinverse using SVD
-    # X⁺ = V * diag(1/s_i for s_i > threshold) * Uᵀ
-    threshold = 1e-10
-    s_inv = np.where(s > threshold, 1/s, 0)
-    X_pinv = Vt.T @ np.diag(s_inv) @ U.T
-    
-    beta = X_pinv @ y
-    
-    return beta, s
-
-# Example with rank-deficient matrix
-X_rank_def = np.array([[1, 2, 4],
-                       [1, 3, 6],
-                       [1, 4, 8],
-                       [1, 5, 10]])  # Third column = 2 * second column
-y = np.array([3, 5, 7, 9])
-
-beta_svd, singular_values = linear_regression_svd(X_rank_def, y)
-print(f"SVD solution: {beta_svd}")
-print(f"Singular values: {singular_values}")
-print(f"Rank: {np.sum(singular_values > 1e-10)}")
-```
-
-**Regularized Regression:**
-
-**Ridge Regression (L2 Regularization):**
-```python
-def ridge_regression(X, y, lambda_reg):
-    """Ridge regression with L2 regularization"""
-    n_features = X.shape[1]
-    
-    # Modified normal equations: (XᵀX + λI)β = Xᵀy
-    XTX_reg = X.T @ X + lambda_reg * np.eye(n_features)
-    XTy = X.T @ y
-    
-    beta = np.linalg.solve(XTX_reg, XTy)
-    
-    return beta
-
-# Example showing effect of regularization
-X = np.column_stack([np.ones(50), np.random.randn(50, 10)])
-true_beta = np.array([1] + [0]*5 + [2, -1, 0, 0, 0])  # Sparse coefficients
-y = X @ true_beta + 0.1 * np.random.randn(50)
-
-lambdas = [0, 0.1, 1.0, 10.0]
-print("Ridge Regression - Effect of Regularization:")
-print("Lambda\tCoeff Norm\tPrediction Error")
-
-for lam in lambdas:
-    beta_ridge = ridge_regression(X, y, lam)
-    y_pred = X @ beta_ridge
-    mse = np.mean((y - y_pred)**2)
-    coeff_norm = np.linalg.norm(beta_ridge)
-    
-    print(f"{lam:5.1f}\t{coeff_norm:10.3f}\t{mse:15.6f}")
-```
-
-**Statistical Properties from Linear Algebra:**
-
-**1. Covariance Matrix of Estimates:**
-```python
-def regression_uncertainty_analysis(X, y, sigma_squared=None):
-    """Analyze uncertainty in regression estimates"""
-    
-    # Estimate noise variance if not provided
-    if sigma_squared is None:
-        beta = np.linalg.solve(X.T @ X, X.T @ y)
-        residuals = y - X @ beta
-        sigma_squared = np.sum(residuals**2) / (len(y) - X.shape[1])
-    
-    # Covariance matrix of coefficient estimates
-    # Cov(β̂) = σ²(XᵀX)⁻¹
-    XTX_inv = np.linalg.inv(X.T @ X)
-    cov_beta = sigma_squared * XTX_inv
-    
-    # Standard errors
-    std_errors = np.sqrt(np.diag(cov_beta))
-    
-    # Confidence intervals (95%)
-    from scipy.stats import t
-    dof = len(y) - X.shape[1]
-    t_critical = t.ppf(0.975, dof)
-    
-    beta = np.linalg.solve(X.T @ X, X.T @ y)
-    ci_lower = beta - t_critical * std_errors
-    ci_upper = beta + t_critical * std_errors
-    
-    return {
-        'coefficients': beta,
-        'std_errors': std_errors,
-        'confidence_intervals': (ci_lower, ci_upper),
-        'covariance_matrix': cov_beta
-    }
-
-# Example
-X = np.column_stack([np.ones(100), np.random.randn(100, 2)])
-y = X @ np.array([1, 2, -1]) + np.random.normal(0, 0.5, 100)
-
-results = regression_uncertainty_analysis(X, y)
-print("Regression Uncertainty Analysis:")
-for i, (coef, se, ci_low, ci_high) in enumerate(zip(
-    results['coefficients'], 
-    results['std_errors'],
-    results['confidence_intervals'][0],
-    results['confidence_intervals'][1])):
-    print(f"β{i}: {coef:.3f} ± {se:.3f}, 95% CI: [{ci_low:.3f}, {ci_high:.3f}]")
-```
-
-**2. Prediction Intervals:**
-```python
-def prediction_intervals(X_train, y_train, X_test):
-    """Compute prediction intervals for new observations"""
-    
-    # Fit model
-    beta = np.linalg.solve(X_train.T @ X_train, X_train.T @ y_train)
-    
-    # Predictions
-    y_pred = X_test @ beta
-    
-    # Prediction variance
-    residuals = y_train - X_train @ beta
-    sigma_squared = np.sum(residuals**2) / (len(y_train) - X_train.shape[1])
-    
-    # Prediction error variance: σ²(1 + xᵀ(XᵀX)⁻¹x)
-    XTX_inv = np.linalg.inv(X_train.T @ X_train)
-    
-    pred_variances = []
-    for x_new in X_test:
-        pred_var = sigma_squared * (1 + x_new.T @ XTX_inv @ x_new)
-        pred_variances.append(pred_var)
-    
-    pred_std = np.sqrt(pred_variances)
-    
-    return y_pred, pred_std
-
-# Example
-X_train = np.column_stack([np.ones(80), np.random.randn(80, 1)])
-y_train = X_train @ np.array([1, 2]) + np.random.normal(0, 0.3, 80)
-
-X_test = np.column_stack([np.ones(20), np.random.randn(20, 1)])
-y_pred, pred_std = prediction_intervals(X_train, y_train, X_test)
-
-print("Prediction Intervals:")
-for i in range(5):  # Show first 5 predictions
-    print(f"Prediction {i+1}: {y_pred[i]:.3f} ± {1.96*pred_std[i]:.3f}")
-```
-
-**Computational Efficiency and Scalability:**
-
-**1. Gradient Descent (for Large Datasets):**
-```python
-def linear_regression_gradient_descent(X, y, learning_rate=0.01, max_iter=1000):
-    """Solve linear regression using gradient descent"""
-    
-    n_features = X.shape[1]
-    beta = np.zeros(n_features)
-    
-    for i in range(max_iter):
-        # Compute predictions and residuals
-        y_pred = X @ beta
-        residuals = y_pred - y
-        
-        # Compute gradient: ∇β = XᵀX β - Xᵀy = Xᵀ(Xβ - y)
-        gradient = X.T @ residuals
-        
-        # Update parameters
-        beta -= learning_rate * gradient
-        
-        # Optional: check convergence
-        if i % 100 == 0:
-            cost = 0.5 * np.sum(residuals**2)
-            print(f"Iteration {i}, Cost: {cost:.6f}")
-    
-    return beta
-
-# Compare with normal equations
-X = np.column_stack([np.ones(1000), np.random.randn(1000, 5)])
-true_beta = np.array([1, 2, -1, 0.5, -0.8, 1.2])
-y = X @ true_beta + 0.1 * np.random.randn(1000)
-
-beta_normal = np.linalg.solve(X.T @ X, X.T @ y)
-beta_gd = linear_regression_gradient_descent(X, y, learning_rate=0.001, max_iter=1000)
-
-print(f"Normal equations: {beta_normal}")
-print(f"Gradient descent: {beta_gd}")
-print(f"Difference: {np.linalg.norm(beta_normal - beta_gd):.6f}")
-```
-
-**Advanced Applications:**
-
-**1. Polynomial Regression using Linear Algebra:**
-```python
-def polynomial_features(x, degree):
-    """Create polynomial feature matrix"""
-    return np.column_stack([x**i for i in range(degree + 1)])
-
-def polynomial_regression(x, y, degree):
-    """Fit polynomial regression using linear algebra"""
-    X = polynomial_features(x, degree)
-    beta = np.linalg.solve(X.T @ X, X.T @ y)
-    return beta, X
-
-# Example: Fit cubic polynomial
-x = np.linspace(-2, 2, 100)
-y_true = 0.5 * x**3 - 2 * x**2 + x + 1
-y = y_true + 0.2 * np.random.randn(100)
-
-beta, X_poly = polynomial_regression(x, y, degree=3)
-y_pred = X_poly @ beta
-
-print(f"Polynomial coefficients: {beta}")
-```
-
-**2. Weighted Least Squares:**
-```python
-def weighted_least_squares(X, y, weights):
-    """Solve weighted least squares: minimize ||W^(1/2)(y - Xβ)||²"""
-    W_sqrt = np.diag(np.sqrt(weights))
-    
-    X_weighted = W_sqrt @ X
-    y_weighted = W_sqrt @ y
-    
-    beta = np.linalg.solve(X_weighted.T @ X_weighted, X_weighted.T @ y_weighted)
-    
-    return beta
-
-# Example: Give more weight to certain observations
-X = np.column_stack([np.ones(50), np.random.randn(50, 2)])
-y = X @ np.array([1, 2, -1]) + np.random.randn(50)
-
-# Create weights (emphasize first half of data)
-weights = np.concatenate([np.ones(25) * 2, np.ones(25)])
-
-beta_ols = np.linalg.solve(X.T @ X, X.T @ y)
-beta_wls = weighted_least_squares(X, y, weights)
-
-print(f"OLS coefficients: {beta_ols}")
-print(f"WLS coefficients: {beta_wls}")
-```
-
-Linear algebra provides the complete mathematical foundation for linear regression, enabling efficient computation, statistical inference, and extensions to regularized and generalized models. The matrix formulation transforms regression from an optimization problem into a system of linear equations, leveraging the power of linear algebra for both theoretical understanding and practical implementation.
+**Interview Tips:**
+- Never compute (XᵀX)⁻¹ directly; use `np.linalg.solve()` or decompositions
+- Ridge regression makes XᵀX + λI always invertible
+- SVD-based solution handles rank-deficiency gracefully
+- The residual **y** - X**w** is orthogonal to all columns of X
 
 ---
 
@@ -3091,532 +1172,126 @@ Linear algebra provides the complete mathematical foundation for linear regressi
 
 **How do eigenvalues and eigenvectors apply to Principal Component Analysis (PCA)?**
 
-**Answer:** Eigenvalues and eigenvectors form the mathematical foundation of PCA, providing the optimal directions for dimensionality reduction and variance maximization:
+### Answer
 
-**PCA Mathematical Foundation:**
+**Definition:**  
+PCA finds orthogonal directions (principal components) that maximize variance in data. These directions are the eigenvectors of the covariance matrix, and the eigenvalues represent the variance along each direction.
 
-**Core Concept:**
-PCA finds orthogonal directions (principal components) that capture maximum variance in the data through eigendecomposition of the covariance matrix.
+**Core Concepts:**
+- Covariance matrix Σ is symmetric → real eigenvalues, orthogonal eigenvectors
+- Eigenvectors = principal component directions
+- Eigenvalues = variance explained along each direction
+- Sort by eigenvalue (descending) to rank importance
 
-**Step-by-Step Process:**
+**Mathematical Formulation:**
 
-**1. Data Preparation:**
+**Covariance matrix:**
+$$\Sigma = \frac{1}{n-1}X_c^T X_c$$
+where Xc is centered data (mean subtracted).
+
+**Eigendecomposition:**
+$$\Sigma \mathbf{v}_i = \lambda_i \mathbf{v}_i$$
+
+**PCA transformation:**
+$$Z = X_c V_k$$
+where V_k contains top-k eigenvectors.
+
+**Variance explained:**
+$$\text{Explained variance ratio}_i = \frac{\lambda_i}{\sum_j \lambda_j}$$
+
+**Connection to SVD:**
+If X = UΣVᵀ, then:
+- Columns of V = eigenvectors of XᵀX (principal components)
+- Σ² / (n-1) = eigenvalues of covariance matrix
+
+**Python Example:**
 ```python
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
-from sklearn.datasets import make_blobs
+from sklearn.preprocessing import StandardScaler
 
-def prepare_data_for_pca(X):
-    """Prepare data for PCA analysis"""
-    # Center the data (subtract mean)
-    X_centered = X - np.mean(X, axis=0)
-    
-    # Compute covariance matrix
-    n_samples = X.shape[0]
-    cov_matrix = (X_centered.T @ X_centered) / (n_samples - 1)
-    
-    return X_centered, cov_matrix
-
-# Generate sample data
 np.random.seed(42)
-X, _ = make_blobs(n_samples=200, centers=3, n_features=2, 
-                  cluster_std=2.0, random_state=42)
 
-# Add correlation between features
-rotation_matrix = np.array([[0.8, 0.6], [-0.6, 0.8]])
-X_rotated = X @ rotation_matrix.T
+# Generate correlated data
+n_samples = 1000
+X = np.random.randn(n_samples, 3)
+# Introduce correlation
+X[:, 1] = X[:, 0] + 0.5 * np.random.randn(n_samples)
+X[:, 2] = 0.5 * X[:, 0] - 0.5 * X[:, 1] + 0.3 * np.random.randn(n_samples)
 
-X_centered, cov_matrix = prepare_data_for_pca(X_rotated)
-print(f"Covariance Matrix:\n{cov_matrix}")
+# Center the data
+X_centered = X - X.mean(axis=0)
+
+# Method 1: Eigendecomposition of covariance matrix
+cov_matrix = np.cov(X_centered.T)
+eigenvalues, eigenvectors = np.linalg.eigh(cov_matrix)
+
+# Sort by eigenvalue (descending)
+idx = eigenvalues.argsort()[::-1]
+eigenvalues = eigenvalues[idx]
+eigenvectors = eigenvectors[:, idx]
+
+print("Eigenvalues (variance along each PC):", eigenvalues)
+print("Explained variance ratio:", eigenvalues / eigenvalues.sum())
+
+# Transform data
+X_pca_manual = X_centered @ eigenvectors
+
+# Method 2: SVD (numerically more stable)
+U, s, Vt = np.linalg.svd(X_centered, full_matrices=False)
+X_pca_svd = U * s  # Or: X_centered @ Vt.T
+
+# Eigenvalues from singular values
+eigenvalues_from_svd = (s ** 2) / (n_samples - 1)
+print("Eigenvalues from SVD:", eigenvalues_from_svd)
+
+# Method 3: sklearn PCA
+pca = PCA(n_components=3)
+X_pca_sklearn = pca.fit_transform(X_centered)
+
+print("\nExplained variance ratio (sklearn):", pca.explained_variance_ratio_)
+print("Principal components (eigenvectors):\n", pca.components_)
+
+# Verify all methods match
+print("\nMethods match:", np.allclose(np.abs(X_pca_manual), np.abs(X_pca_sklearn)))
+
+# Dimensionality reduction: keep top 2 PCs
+n_components = 2
+X_reduced = X_centered @ eigenvectors[:, :n_components]
+print(f"\nOriginal shape: {X.shape}, Reduced shape: {X_reduced.shape}")
+
+# Reconstruction
+X_reconstructed = X_reduced @ eigenvectors[:, :n_components].T + X.mean(axis=0)
+reconstruction_error = np.mean((X - X_reconstructed) ** 2)
+print(f"Reconstruction MSE: {reconstruction_error:.4f}")
+
+# Cumulative explained variance
+cumsum = np.cumsum(eigenvalues / eigenvalues.sum())
+print(f"Cumulative variance: {cumsum}")
+# Choose n_components where cumsum > 0.95 for 95% variance
 ```
 
-**2. Eigendecomposition of Covariance Matrix:**
-```python
-def pca_eigendecomposition(cov_matrix):
-    """Perform eigendecomposition for PCA"""
-    
-    # Compute eigenvalues and eigenvectors
-    eigenvalues, eigenvectors = np.linalg.eigh(cov_matrix)
-    
-    # Sort by eigenvalues (descending order)
-    idx = np.argsort(eigenvalues)[::-1]
-    eigenvalues_sorted = eigenvalues[idx]
-    eigenvectors_sorted = eigenvectors[:, idx]
-    
-    # Compute explained variance ratios
-    total_variance = np.sum(eigenvalues_sorted)
-    explained_variance_ratio = eigenvalues_sorted / total_variance
-    
-    return eigenvalues_sorted, eigenvectors_sorted, explained_variance_ratio
+**Algorithm: PCA via Eigendecomposition**
+1. Center data: X_c = X - mean(X)
+2. Compute covariance: Σ = X_cᵀ X_c / (n-1)
+3. Eigendecompose: Σ = VΛVᵀ
+4. Sort eigenvectors by eigenvalues (descending)
+5. Project: Z = X_c V_k (top k eigenvectors)
 
-eigenvals, eigenvecs, var_ratios = pca_eigendecomposition(cov_matrix)
+**ML Applications:**
+| Application | How PCA Helps |
+|-------------|---------------|
+| **Dimensionality reduction** | Reduce features while preserving variance |
+| **Visualization** | Project to 2D/3D for plotting |
+| **Noise reduction** | Remove low-variance components |
+| **Feature extraction** | Decorrelated features |
+| **Preprocessing** | Before clustering, classification |
 
-print(f"\nEigenvalues: {eigenvals}")
-print(f"Eigenvectors (columns):\n{eigenvecs}")
-print(f"Explained variance ratios: {var_ratios}")
-print(f"Cumulative explained variance: {np.cumsum(var_ratios)}")
-```
-
-**3. Principal Component Transformation:**
-```python
-def apply_pca_transformation(X_centered, eigenvectors, n_components=None):
-    """Apply PCA transformation using eigenvectors"""
-    
-    if n_components is None:
-        n_components = eigenvectors.shape[1]
-    
-    # Select first n_components eigenvectors (principal components)
-    principal_components = eigenvectors[:, :n_components]
-    
-    # Transform data: project onto principal components
-    X_transformed = X_centered @ principal_components
-    
-    return X_transformed, principal_components
-
-# Transform to principal component space
-X_pca, pc_matrix = apply_pca_transformation(X_centered, eigenvecs, n_components=2)
-
-print(f"\nOriginal data shape: {X_centered.shape}")
-print(f"Transformed data shape: {X_pca.shape}")
-print(f"Principal components (columns):\n{pc_matrix}")
-```
-
-**Complete PCA Implementation:**
-```python
-class PCAFromScratch:
-    def __init__(self, n_components=None):
-        self.n_components = n_components
-        self.mean_ = None
-        self.components_ = None
-        self.explained_variance_ = None
-        self.explained_variance_ratio_ = None
-        
-    def fit(self, X):
-        """Fit PCA model to data"""
-        # Center the data
-        self.mean_ = np.mean(X, axis=0)
-        X_centered = X - self.mean_
-        
-        # Compute covariance matrix
-        n_samples = X.shape[0]
-        cov_matrix = (X_centered.T @ X_centered) / (n_samples - 1)
-        
-        # Eigendecomposition
-        eigenvalues, eigenvectors = np.linalg.eigh(cov_matrix)
-        
-        # Sort by eigenvalues (descending)
-        idx = np.argsort(eigenvalues)[::-1]
-        eigenvalues = eigenvalues[idx]
-        eigenvectors = eigenvectors[:, idx]
-        
-        # Store results
-        if self.n_components is None:
-            self.n_components = len(eigenvalues)
-            
-        self.components_ = eigenvectors[:, :self.n_components]
-        self.explained_variance_ = eigenvalues[:self.n_components]
-        self.explained_variance_ratio_ = self.explained_variance_ / np.sum(eigenvalues)
-        
-        return self
-    
-    def transform(self, X):
-        """Transform data to principal component space"""
-        X_centered = X - self.mean_
-        return X_centered @ self.components_
-    
-    def fit_transform(self, X):
-        """Fit and transform in one step"""
-        return self.fit(X).transform(X)
-    
-    def inverse_transform(self, X_transformed):
-        """Reconstruct original data from principal components"""
-        return X_transformed @ self.components_.T + self.mean_
-
-# Example usage and comparison with sklearn
-pca_custom = PCAFromScratch(n_components=2)
-X_transformed_custom = pca_custom.fit_transform(X_rotated)
-
-pca_sklearn = PCA(n_components=2)
-X_transformed_sklearn = pca_sklearn.fit_transform(X_rotated)
-
-print("Comparison of Custom vs Sklearn PCA:")
-print(f"Custom explained variance: {pca_custom.explained_variance_}")
-print(f"Sklearn explained variance: {pca_sklearn.explained_variance_}")
-print(f"Difference in results: {np.linalg.norm(X_transformed_custom - X_transformed_sklearn):.2e}")
-```
-
-**Geometric Interpretation:**
-
-**Visualization of Principal Components:**
-```python
-def visualize_pca_components(X, pca_model):
-    """Visualize original data and principal components"""
-    
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-    
-    # Original data
-    axes[0].scatter(X[:, 0], X[:, 1], alpha=0.6, color='blue')
-    axes[0].set_title('Original Data')
-    axes[0].set_xlabel('Feature 1')
-    axes[0].set_ylabel('Feature 2')
-    axes[0].grid(True, alpha=0.3)
-    
-    # Add principal component vectors
-    mean_point = pca_model.mean_
-    scale = 3  # Scale for visualization
-    
-    for i, (component, var) in enumerate(zip(pca_model.components_.T, pca_model.explained_variance_)):
-        end_point = mean_point + scale * np.sqrt(var) * component
-        axes[0].arrow(mean_point[0], mean_point[1], 
-                     end_point[0] - mean_point[0], end_point[1] - mean_point[1],
-                     head_width=0.3, head_length=0.2, fc=f'C{i}', ec=f'C{i}',
-                     linewidth=3, label=f'PC{i+1} (var={var:.2f})')
-    
-    axes[0].legend()
-    
-    # Transformed data
-    X_transformed = pca_model.transform(X)
-    axes[1].scatter(X_transformed[:, 0], X_transformed[:, 1], alpha=0.6, color='red')
-    axes[1].set_title('Data in Principal Component Space')
-    axes[1].set_xlabel(f'PC1 ({pca_model.explained_variance_ratio_[0]:.1%} variance)')
-    axes[1].set_ylabel(f'PC2 ({pca_model.explained_variance_ratio_[1]:.1%} variance)')
-    axes[1].grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.show()
-
-visualize_pca_components(X_rotated, pca_custom)
-```
-
-**Mathematical Properties:**
-
-**1. Variance Maximization:**
-```python
-def demonstrate_variance_maximization(X, pca_model):
-    """Show that PC1 maximizes variance"""
-    
-    X_centered = X - pca_model.mean_
-    
-    # Variance along first principal component
-    pc1_direction = pca_model.components_[:, 0]
-    projection_pc1 = X_centered @ pc1_direction
-    variance_pc1 = np.var(projection_pc1, ddof=1)
-    
-    print(f"Variance along PC1: {variance_pc1:.4f}")
-    print(f"First eigenvalue: {pca_model.explained_variance_[0]:.4f}")
-    print(f"Match: {np.isclose(variance_pc1, pca_model.explained_variance_[0])}")
-    
-    # Compare with random directions
-    np.random.seed(123)
-    random_variances = []
-    
-    for _ in range(1000):
-        random_direction = np.random.randn(X.shape[1])
-        random_direction = random_direction / np.linalg.norm(random_direction)
-        projection = X_centered @ random_direction
-        random_variances.append(np.var(projection, ddof=1))
-    
-    print(f"\nRandom direction variances:")
-    print(f"Mean: {np.mean(random_variances):.4f}")
-    print(f"Max: {np.max(random_variances):.4f}")
-    print(f"PC1 variance is maximum: {variance_pc1 >= np.max(random_variances)}")
-
-demonstrate_variance_maximization(X_rotated, pca_custom)
-```
-
-**2. Orthogonality of Principal Components:**
-```python
-def verify_orthogonality(pca_model):
-    """Verify that principal components are orthogonal"""
-    
-    # Compute dot products between components
-    dot_products = pca_model.components_.T @ pca_model.components_
-    
-    print("Dot products between principal components:")
-    print(dot_products)
-    
-    # Check if it's identity matrix (orthogonal)
-    is_orthogonal = np.allclose(dot_products, np.eye(pca_model.n_components))
-    print(f"Components are orthogonal: {is_orthogonal}")
-    
-    return dot_products
-
-orthogonality_matrix = verify_orthogonality(pca_custom)
-```
-
-**Dimensionality Reduction Applications:**
-
-**1. Choosing Number of Components:**
-```python
-def analyze_component_selection(X):
-    """Analyze how many components to keep"""
-    
-    pca_full = PCAFromScratch()
-    pca_full.fit(X)
-    
-    cumulative_variance = np.cumsum(pca_full.explained_variance_ratio_)
-    
-    # Plot explained variance
-    plt.figure(figsize=(12, 5))
-    
-    plt.subplot(1, 2, 1)
-    plt.bar(range(1, len(pca_full.explained_variance_) + 1), 
-            pca_full.explained_variance_ratio_)
-    plt.xlabel('Principal Component')
-    plt.ylabel('Explained Variance Ratio')
-    plt.title('Explained Variance by Component')
-    
-    plt.subplot(1, 2, 2)
-    plt.plot(range(1, len(cumulative_variance) + 1), cumulative_variance, 'bo-')
-    plt.axhline(y=0.95, color='r', linestyle='--', label='95% threshold')
-    plt.xlabel('Number of Components')
-    plt.ylabel('Cumulative Explained Variance')
-    plt.title('Cumulative Explained Variance')
-    plt.legend()
-    
-    plt.tight_layout()
-    plt.show()
-    
-    # Find number of components for 95% variance
-    n_components_95 = np.argmax(cumulative_variance >= 0.95) + 1
-    print(f"Components needed for 95% variance: {n_components_95}")
-    
-    return cumulative_variance
-
-# Example with higher-dimensional data
-X_high_dim = np.random.randn(200, 10)
-# Add some structure
-X_high_dim[:, :3] = X_high_dim[:, :3] @ np.random.randn(3, 3)
-X_high_dim[:, 3:] = 0.1 * X_high_dim[:, 3:]  # Add noise dimensions
-
-variance_explained = analyze_component_selection(X_high_dim)
-```
-
-**2. Reconstruction and Compression:**
-```python
-def demonstrate_reconstruction(X, n_components_list):
-    """Show reconstruction with different numbers of components"""
-    
-    results = {}
-    original_size = X.size
-    
-    for n_comp in n_components_list:
-        pca = PCAFromScratch(n_components=n_comp)
-        X_transformed = pca.fit_transform(X)
-        X_reconstructed = pca.inverse_transform(X_transformed)
-        
-        # Compute reconstruction error
-        reconstruction_error = np.mean((X - X_reconstructed)**2)
-        
-        # Compute compression ratio
-        compressed_size = (n_comp * X.shape[1] +  # components
-                          n_comp * X.shape[0] +   # transformed data
-                          X.shape[1])             # mean vector
-        compression_ratio = compressed_size / original_size
-        
-        results[n_comp] = {
-            'error': reconstruction_error,
-            'compression': compression_ratio,
-            'variance_explained': np.sum(pca.explained_variance_ratio_)
-        }
-    
-    print("Reconstruction Analysis:")
-    print("Components\tRecon Error\tCompression\tVariance Explained")
-    for n_comp, result in results.items():
-        print(f"{n_comp:9d}\t{result['error']:11.6f}\t{result['compression']:11.3f}\t{result['variance_explained']:17.3f}")
-    
-    return results
-
-# Test with 2D data
-reconstruction_results = demonstrate_reconstruction(X_rotated, [1, 2])
-```
-
-**Advanced Applications:**
-
-**1. PCA for Feature Extraction:**
-```python
-def pca_feature_extraction(X_train, X_test, n_components):
-    """Use PCA for feature extraction in machine learning pipeline"""
-    
-    # Fit PCA on training data only
-    pca = PCAFromScratch(n_components=n_components)
-    X_train_pca = pca.fit_transform(X_train)
-    
-    # Transform test data using same PCA
-    X_test_pca = pca.transform(X_test)
-    
-    print(f"Original dimensions: {X_train.shape[1]}")
-    print(f"Reduced dimensions: {n_components}")
-    print(f"Variance retained: {np.sum(pca.explained_variance_ratio_):.3f}")
-    
-    return X_train_pca, X_test_pca, pca
-
-# Example with classification data
-from sklearn.datasets import load_digits
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-
-digits = load_digits()
-X_train, X_test, y_train, y_test = train_test_split(
-    digits.data, digits.target, test_size=0.3, random_state=42)
-
-# Compare classification accuracy with different numbers of components
-components_to_test = [10, 20, 30, 40, 50]
-accuracies = []
-
-for n_comp in components_to_test:
-    X_train_pca, X_test_pca, pca = pca_feature_extraction(X_train, X_test, n_comp)
-    
-    # Train classifier
-    clf = LogisticRegression(random_state=42, max_iter=1000)
-    clf.fit(X_train_pca, y_train)
-    
-    # Predict and evaluate
-    y_pred = clf.predict(X_test_pca)
-    accuracy = accuracy_score(y_test, y_pred)
-    accuracies.append(accuracy)
-    
-    print(f"Components: {n_comp:2d}, Accuracy: {accuracy:.4f}, "
-          f"Variance: {np.sum(pca.explained_variance_ratio_):.3f}")
-```
-
-**2. Kernel PCA (Nonlinear Extension):**
-```python
-def demonstrate_kernel_pca_concept():
-    """Show the concept behind kernel PCA"""
-    
-    # Generate nonlinear data
-    t = np.linspace(0, 2*np.pi, 200)
-    X_circle = np.column_stack([np.cos(t), np.sin(t)]) + 0.1 * np.random.randn(200, 2)
-    
-    # Standard PCA won't work well for circular data
-    pca_standard = PCAFromScratch(n_components=1)
-    X_pca_standard = pca_standard.fit_transform(X_circle)
-    
-    # Kernel PCA using sklearn (for demonstration)
-    from sklearn.decomposition import KernelPCA
-    
-    kpca = KernelPCA(n_components=1, kernel='rbf', gamma=1)
-    X_kpca = kpca.fit_transform(X_circle)
-    
-    # Visualize
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-    
-    axes[0].scatter(X_circle[:, 0], X_circle[:, 1], c=t, cmap='viridis')
-    axes[0].set_title('Original Circular Data')
-    
-    axes[1].scatter(X_pca_standard[:, 0], np.zeros_like(X_pca_standard[:, 0]), c=t, cmap='viridis')
-    axes[1].set_title('Standard PCA (1D)')
-    
-    axes[2].scatter(X_kpca[:, 0], np.zeros_like(X_kpca[:, 0]), c=t, cmap='viridis')
-    axes[2].set_title('Kernel PCA (1D)')
-    
-    plt.tight_layout()
-    plt.show()
-
-demonstrate_kernel_pca_concept()
-```
-
-**Numerical Considerations:**
-
-**1. Stability and Conditioning:**
-```python
-def analyze_pca_stability(X):
-    """Analyze numerical stability of PCA"""
-    
-    # Add small perturbation
-    epsilon = 1e-10
-    X_perturbed = X + epsilon * np.random.randn(*X.shape)
-    
-    # Compute PCA for both
-    pca_original = PCAFromScratch().fit(X)
-    pca_perturbed = PCAFromScratch().fit(X_perturbed)
-    
-    # Compare eigenvalues
-    eigenval_diff = np.abs(pca_original.explained_variance_ - pca_perturbed.explained_variance_)
-    
-    # Compare eigenvectors (account for sign ambiguity)
-    eigenvec_diff = []
-    for i in range(len(eigenval_diff)):
-        v1 = pca_original.components_[:, i]
-        v2 = pca_perturbed.components_[:, i]
-        
-        # Check both orientations
-        diff1 = np.linalg.norm(v1 - v2)
-        diff2 = np.linalg.norm(v1 + v2)
-        eigenvec_diff.append(min(diff1, diff2))
-    
-    print("PCA Stability Analysis:")
-    print(f"Perturbation magnitude: {epsilon}")
-    print(f"Max eigenvalue change: {np.max(eigenval_diff):.2e}")
-    print(f"Max eigenvector change: {np.max(eigenvec_diff):.2e}")
-    
-    # Condition number of covariance matrix
-    cov_matrix = np.cov(X.T)
-    cond_num = np.linalg.cond(cov_matrix)
-    print(f"Covariance matrix condition number: {cond_num:.2e}")
-
-analyze_pca_stability(X_rotated)
-```
-
-**2. Alternative Eigendecomposition Methods:**
-```python
-def compare_eigendecomposition_methods(cov_matrix):
-    """Compare different methods for eigendecomposition"""
-    
-    import time
-    
-    methods = {
-        'numpy.linalg.eigh': lambda C: np.linalg.eigh(C),
-        'numpy.linalg.eig': lambda C: np.linalg.eig(C),
-        'scipy.linalg.eigh': lambda C: __import__('scipy.linalg').linalg.eigh(C)
-    }
-    
-    print("Eigendecomposition Method Comparison:")
-    print("Method\t\t\tTime (ms)\tMax Error")
-    
-    # Reference solution
-    eigenvals_ref, eigenvecs_ref = np.linalg.eigh(cov_matrix)
-    idx = np.argsort(eigenvals_ref)[::-1]
-    eigenvals_ref = eigenvals_ref[idx]
-    eigenvecs_ref = eigenvecs_ref[:, idx]
-    
-    for name, method in methods.items():
-        start_time = time.time()
-        eigenvals, eigenvecs = method(cov_matrix)
-        elapsed = (time.time() - start_time) * 1000
-        
-        # Sort results
-        if name == 'numpy.linalg.eig':
-            # eig returns complex results even for symmetric matrices
-            eigenvals = eigenvals.real
-            eigenvecs = eigenvecs.real
-            
-        idx = np.argsort(eigenvals)[::-1]
-        eigenvals = eigenvals[idx]
-        eigenvecs = eigenvecs[:, idx]
-        
-        # Compute error (handle sign ambiguity)
-        eigenval_error = np.max(np.abs(eigenvals - eigenvals_ref))
-        
-        eigenvec_errors = []
-        for i in range(eigenvecs.shape[1]):
-            v1 = eigenvecs_ref[:, i]
-            v2 = eigenvecs[:, i]
-            error = min(np.linalg.norm(v1 - v2), np.linalg.norm(v1 + v2))
-            eigenvec_errors.append(error)
-        
-        max_eigenvec_error = np.max(eigenvec_errors)
-        max_error = max(eigenval_error, max_eigenvec_error)
-        
-        print(f"{name:20s}\t{elapsed:8.3f}\t{max_error:.2e}")
-
-compare_eigendecomposition_methods(cov_matrix)
-```
-
-PCA's foundation in eigendecomposition makes it a powerful tool for dimensionality reduction, where eigenvectors provide the optimal directions for preserving variance and eigenvalues quantify the importance of each direction. This mathematical foundation enables applications ranging from data compression and visualization to noise reduction and feature extraction in machine learning pipelines.
+**Interview Tips:**
+- Use SVD for PCA in practice (numerically stable)
+- PCA assumes linear relationships; use kernel PCA for non-linear
+- Standardize features first if scales differ
+- sklearn's PCA uses SVD internally, not eigendecomposition
 
 ---
 
@@ -3624,625 +1299,161 @@ PCA's foundation in eigendecomposition makes it a powerful tool for dimensionali
 
 **What would you consider when choosing a library for linear algebra operations?**
 
-**Answer:** Selecting the right linear algebra library is crucial for performance, accuracy, and development efficiency. Here's a comprehensive evaluation framework:
+### Answer
 
-**Key Selection Criteria:**
+**Definition:**  
+Choosing the right linear algebra library depends on factors like performance requirements, hardware availability (CPU vs GPU), ease of use, numerical stability, and integration with ML frameworks. The right choice can significantly impact both development speed and runtime performance.
 
-**1. Performance Considerations:**
+**Core Considerations:**
+- **Performance**: BLAS/LAPACK optimization, GPU support
+- **Numerical stability**: Handling ill-conditioned matrices
+- **Memory efficiency**: Sparse matrix support, in-place operations
+- **Ecosystem integration**: ML framework compatibility
+- **Development speed**: API simplicity, debugging support
 
-**BLAS/LAPACK Backend:**
+**Library Comparison:**
+
+| Library | Strengths | Best For | Limitations |
+|---------|-----------|----------|-------------|
+| **NumPy** | Easy API, widespread, good for prototyping | Small-medium matrices, CPU | No GPU, limited parallelism |
+| **SciPy** | Sparse matrices, specialized decompositions | Sparse data, scientific computing | Still CPU-only |
+| **PyTorch** | GPU support, autograd, DL integration | Deep learning, batched ops | Overhead for simple tasks |
+| **TensorFlow** | Distributed computing, production deployment | Large-scale ML, TPU support | Complex API |
+| **JAX** | JIT compilation, autograd, XLA optimization | Research, custom gradients | Learning curve |
+| **CuPy** | NumPy API on GPU | Drop-in GPU acceleration | NVIDIA-only |
+| **Intel MKL** | Highly optimized for Intel CPUs | Production CPU systems | Vendor lock-in |
+
+**Mathematical Considerations:**
+
+**Condition number** (numerical stability):
+$$\kappa(A) = \|A\| \cdot \|A^{-1}\|$$
+High κ → need double precision or pivoting strategies.
+
+**Computational complexity:**
+- Matrix multiply: O(n³) or O(n^{2.37}) with Strassen
+- SVD: O(min(mn², m²n)) for m×n matrix
+- Sparse operations: O(nnz) where nnz = non-zero elements
+
+**Python Example:**
 ```python
 import numpy as np
 import time
+from scipy import sparse
+from scipy.sparse.linalg import svds
 
-def benchmark_matrix_operations(size=1000, iterations=5):
-    """Benchmark basic linear algebra operations"""
-    
-    # Check which BLAS library NumPy is using
-    print("NumPy Configuration:")
-    print(f"BLAS info: {np.show_config()}")
-    
-    # Generate test matrices
-    A = np.random.randn(size, size)
-    B = np.random.randn(size, size)
-    b = np.random.randn(size)
-    
-    operations = {
-        'Matrix Multiplication': lambda: A @ B,
-        'Matrix Inversion': lambda: np.linalg.inv(A),
-        'Eigendecomposition': lambda: np.linalg.eigh(A + A.T),  # Symmetric
-        'SVD': lambda: np.linalg.svd(A),
-        'Linear System Solve': lambda: np.linalg.solve(A, b)
-    }
-    
-    print(f"\nBenchmark Results (Matrix size: {size}×{size}):")
-    print("Operation\t\t\tTime (ms)\tMemory Usage")
-    
-    for op_name, operation in operations.items():
-        times = []
-        for _ in range(iterations):
-            start_time = time.time()
-            result = operation()
-            elapsed = (time.time() - start_time) * 1000
-            times.append(elapsed)
-        
-        avg_time = np.mean(times)
-        std_time = np.std(times)
-        print(f"{op_name:25s}\t{avg_time:8.2f}±{std_time:5.2f}")
+# Function to benchmark operations
+def benchmark(name, func, iterations=10):
+    times = []
+    for _ in range(iterations):
+        start = time.perf_counter()
+        func()
+        times.append(time.perf_counter() - start)
+    print(f"{name}: {np.mean(times)*1000:.2f} ms ± {np.std(times)*1000:.2f} ms")
 
-benchmark_matrix_operations()
-```
+# Dense vs Sparse comparison
+n = 1000
+density = 0.01  # 1% non-zero
 
-**2. Library Comparison:**
+# Dense matrix
+A_dense = np.random.randn(n, n)
+A_dense[np.random.rand(n, n) > density] = 0
 
-```python
-def compare_linear_algebra_libraries():
-    """Compare different linear algebra libraries"""
-    
-    libraries = {
-        'NumPy': {
-            'pros': [
-                'Standard in Python ecosystem',
-                'Excellent BLAS/LAPACK integration',
-                'Comprehensive functionality',
-                'Great documentation',
-                'Broadcasting capabilities'
-            ],
-            'cons': [
-                'GIL limitations for threading',
-                'Memory overhead for small matrices',
-                'No GPU support natively'
-            ],
-            'best_for': 'General-purpose scientific computing',
-            'performance': 'High (with optimized BLAS)',
-            'ease_of_use': 'Excellent'
-        },
-        
-        'SciPy': {
-            'pros': [
-                'Extends NumPy functionality',
-                'Sparse matrix support',
-                'Advanced decompositions',
-                'Optimization routines',
-                'Statistical functions'
-            ],
-            'cons': [
-                'Additional dependency',
-                'Larger memory footprint',
-                'Some redundancy with NumPy'
-            ],
-            'best_for': 'Scientific computing with sparse matrices',
-            'performance': 'High (specialized algorithms)',
-            'ease_of_use': 'Good'
-        },
-        
-        'CuPy': {
-            'pros': [
-                'GPU acceleration',
-                'NumPy-compatible API',
-                'Excellent for large matrices',
-                'Custom kernels support'
-            ],
-            'cons': [
-                'Requires NVIDIA GPU',
-                'Memory transfer overhead',
-                'Limited CPU fallback'
-            ],
-            'best_for': 'GPU-accelerated computing',
-            'performance': 'Very High (on GPU)',
-            'ease_of_use': 'Good (if familiar with NumPy)'
-        },
-        
-        'JAX': {
-            'pros': [
-                'Just-in-time compilation',
-                'Automatic differentiation',
-                'GPU/TPU support',
-                'Functional programming paradigm'
-            ],
-            'cons': [
-                'Learning curve for functional style',
-                'Compilation overhead',
-                'Beta software (evolving)'
-            ],
-            'best_for': 'Machine learning and optimization',
-            'performance': 'Very High (compiled)',
-            'ease_of_use': 'Moderate'
-        },
-        
-        'PyTorch': {
-            'pros': [
-                'Excellent GPU support',
-                'Automatic differentiation',
-                'Dynamic computation graphs',
-                'Strong ML ecosystem'
-            ],
-            'cons': [
-                'Overhead for simple operations',
-                'Different API from NumPy',
-                'Primarily ML-focused'
-            ],
-            'best_for': 'Deep learning and ML research',
-            'performance': 'Very High (GPU)',
-            'ease_of_use': 'Good (for ML)'
-        },
-        
-        'Intel MKL': {
-            'pros': [
-                'Highly optimized for Intel CPUs',
-                'Excellent threading support',
-                'Comprehensive BLAS/LAPACK',
-                'Commercial support'
-            ],
-            'cons': [
-                'Intel-specific optimizations',
-                'Licensing considerations',
-                'Platform dependency'
-            ],
-            'best_for': 'High-performance computing on Intel',
-            'performance': 'Excellent (Intel hardware)',
-            'ease_of_use': 'Good (as NumPy backend)'
-        }
-    }
-    
-    return libraries
+# Sparse matrix (same data)
+A_sparse = sparse.csr_matrix(A_dense)
 
-libraries_info = compare_linear_algebra_libraries()
+print(f"Dense memory: {A_dense.nbytes / 1e6:.2f} MB")
+print(f"Sparse memory: {(A_sparse.data.nbytes + A_sparse.indices.nbytes + A_sparse.indptr.nbytes) / 1e6:.2f} MB")
 
-# Display comparison
-print("Linear Algebra Library Comparison:")
-print("=" * 80)
-for lib_name, info in libraries_info.items():
-    print(f"\n{lib_name}:")
-    print(f"  Best for: {info['best_for']}")
-    print(f"  Performance: {info['performance']}")
-    print(f"  Ease of use: {info['ease_of_use']}")
-    print(f"  Pros: {', '.join(info['pros'][:3])}")  # Show first 3 pros
-    print(f"  Cons: {', '.join(info['cons'][:2])}")  # Show first 2 cons
-```
+# Benchmark matrix-vector multiplication
+x = np.random.randn(n)
+benchmark("Dense matmul", lambda: A_dense @ x)
+benchmark("Sparse matmul", lambda: A_sparse @ x)
 
-**3. Performance Testing Framework:**
+# SVD comparison for sparse
+k = 10  # Top k singular values
+benchmark("Dense SVD (top-k)", lambda: np.linalg.svd(A_dense, full_matrices=False)[1][:k])
+benchmark("Sparse SVD (top-k)", lambda: svds(A_sparse, k=k, return_singular_vectors=False))
 
-```python
-def comprehensive_performance_test():
-    """Test performance across different scenarios"""
-    
-    test_scenarios = [
-        {'name': 'Small Dense', 'size': 100, 'sparsity': 0.0},
-        {'name': 'Medium Dense', 'size': 1000, 'sparsity': 0.0},
-        {'name': 'Large Dense', 'size': 5000, 'sparsity': 0.0},
-        {'name': 'Sparse', 'size': 1000, 'sparsity': 0.95}
-    ]
-    
-    results = {}
-    
-    for scenario in test_scenarios:
-        print(f"\nTesting {scenario['name']} matrices:")
-        
-        size = scenario['size']
-        sparsity = scenario['sparsity']
-        
-        # Generate test data
-        if sparsity > 0:
-            from scipy.sparse import random as sparse_random
-            A_sparse = sparse_random(size, size, density=1-sparsity, format='csr')
-            A = A_sparse.toarray()
-        else:
-            A = np.random.randn(size, size)
-        
-        b = np.random.randn(size)
-        
-        # Test different operations
-        operations = {
-            'solve': lambda: np.linalg.solve(A, b) if sparsity == 0 else None,
-            'eigenvals': lambda: np.linalg.eigvals(A) if size <= 1000 else None,
-            'matrix_mult': lambda: A @ A.T,
-            'norm': lambda: np.linalg.norm(A)
-        }
-        
-        scenario_results = {}
-        for op_name, operation in operations.items():
-            if operation() is None:
-                continue
-                
-            try:
-                start_time = time.time()
-                result = operation()
-                elapsed = time.time() - start_time
-                scenario_results[op_name] = elapsed
-                print(f"  {op_name}: {elapsed:.4f}s")
-            except Exception as e:
-                print(f"  {op_name}: Failed ({str(e)[:50]})")
-        
-        results[scenario['name']] = scenario_results
-    
-    return results
+# Check numerical stability
+def condition_number_analysis(A):
+    """Analyze matrix condition for numerical stability."""
+    cond = np.linalg.cond(A)
+    if cond < 1e3:
+        stability = "Well-conditioned"
+    elif cond < 1e6:
+        stability = "Moderate - use double precision"
+    elif cond < 1e12:
+        stability = "Ill-conditioned - consider regularization"
+    else:
+        stability = "Severely ill-conditioned - use SVD/pseudoinverse"
+    return cond, stability
 
-performance_results = comprehensive_performance_test()
-```
+# Example ill-conditioned matrix
+A_good = np.random.randn(100, 100)
+A_bad = np.vander(np.linspace(0.1, 1, 20))  # Vandermonde matrices are ill-conditioned
 
-**4. Numerical Accuracy Assessment:**
+print(f"\nRandom matrix: κ = {condition_number_analysis(A_good)[0]:.2e} ({condition_number_analysis(A_good)[1]})")
+print(f"Vandermonde: κ = {condition_number_analysis(A_bad)[0]:.2e} ({condition_number_analysis(A_bad)[1]})")
 
-```python
-def assess_numerical_accuracy():
-    """Test numerical accuracy across different libraries"""
-    
-    # Create test matrices with known properties
-    n = 50
-    
-    # Well-conditioned symmetric positive definite matrix
-    A_spd = np.random.randn(n, n)
-    A_spd = A_spd @ A_spd.T + np.eye(n)
-    
-    # Ill-conditioned matrix
-    A_ill = np.random.randn(n, n)
-    A_ill[-1, :] = A_ill[0, :] + 1e-12  # Nearly dependent rows
-    
-    test_matrices = {
-        'Well-conditioned SPD': A_spd,
-        'Ill-conditioned': A_ill,
-        'Random': np.random.randn(n, n)
-    }
-    
-    print("Numerical Accuracy Assessment:")
-    print("=" * 50)
-    
-    for matrix_name, A in test_matrices.items():
-        print(f"\n{matrix_name} Matrix:")
-        print(f"Condition number: {np.linalg.cond(A):.2e}")
-        
-        # Test matrix inversion accuracy
-        if np.linalg.cond(A) < 1e12:
-            try:
-                A_inv = np.linalg.inv(A)
-                identity_error = np.linalg.norm(A @ A_inv - np.eye(n))
-                print(f"Inversion error: {identity_error:.2e}")
-            except:
-                print("Inversion failed")
-        
-        # Test eigendecomposition accuracy
-        try:
-            eigenvals, eigenvecs = np.linalg.eig(A)
-            # Reconstruct matrix
-            A_reconstructed = eigenvecs @ np.diag(eigenvals) @ np.linalg.inv(eigenvecs)
-            reconstruction_error = np.linalg.norm(A - A_reconstructed)
-            print(f"Eigendecomposition error: {reconstruction_error:.2e}")
-        except:
-            print("Eigendecomposition failed")
-
-assess_numerical_accuracy()
-```
-
-**5. Memory Usage Analysis:**
-
-```python
-import psutil
-import os
-
-def analyze_memory_usage():
-    """Analyze memory usage patterns"""
-    
-    def get_memory_usage():
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / 1024 / 1024  # MB
-    
-    print("Memory Usage Analysis:")
-    print("=" * 30)
-    
-    initial_memory = get_memory_usage()
-    print(f"Initial memory: {initial_memory:.1f} MB")
-    
-    # Test memory usage for different operations
-    sizes = [500, 1000, 2000]
-    
-    for size in sizes:
-        print(f"\nMatrix size: {size}×{size}")
-        
-        # Create matrix
-        mem_before = get_memory_usage()
-        A = np.random.randn(size, size)
-        mem_after_creation = get_memory_usage()
-        
-        print(f"  Creation: +{mem_after_creation - mem_before:.1f} MB")
-        
-        # Matrix multiplication
-        mem_before = mem_after_creation
-        B = A @ A
-        mem_after_mult = get_memory_usage()
-        
-        print(f"  Multiplication: +{mem_after_mult - mem_before:.1f} MB")
-        
-        # Cleanup
-        del A, B
-        import gc
-        gc.collect()
-
-analyze_memory_usage()
-```
-
-**6. Decision Framework:**
-
-```python
-def library_selection_framework(requirements):
-    """Framework for selecting appropriate library"""
-    
-    # Define scoring weights for different criteria
-    criteria_weights = {
-        'performance': 0.3,
-        'ease_of_use': 0.2,
-        'memory_efficiency': 0.15,
-        'gpu_support': 0.1,
-        'sparse_support': 0.1,
-        'ecosystem': 0.1,
-        'stability': 0.05
-    }
-    
-    # Library scores for each criterion (0-10 scale)
-    library_scores = {
-        'NumPy': {
-            'performance': 8,
-            'ease_of_use': 9,
-            'memory_efficiency': 7,
-            'gpu_support': 2,
-            'sparse_support': 4,
-            'ecosystem': 10,
-            'stability': 10
-        },
-        'SciPy': {
-            'performance': 8,
-            'ease_of_use': 8,
-            'memory_efficiency': 7,
-            'gpu_support': 2,
-            'sparse_support': 9,
-            'ecosystem': 9,
-            'stability': 9
-        },
-        'CuPy': {
-            'performance': 9,
-            'ease_of_use': 8,
-            'memory_efficiency': 8,
-            'gpu_support': 10,
-            'sparse_support': 6,
-            'ecosystem': 6,
-            'stability': 7
-        },
-        'JAX': {
-            'performance': 9,
-            'ease_of_use': 6,
-            'memory_efficiency': 8,
-            'gpu_support': 9,
-            'sparse_support': 5,
-            'ecosystem': 7,
-            'stability': 6
-        },
-        'PyTorch': {
-            'performance': 9,
-            'ease_of_use': 7,
-            'memory_efficiency': 8,
-            'gpu_support': 9,
-            'sparse_support': 6,
-            'ecosystem': 8,
-            'stability': 8
-        }
-    }
-    
-    # Compute weighted scores
-    library_rankings = {}
-    for lib, scores in library_scores.items():
-        weighted_score = sum(scores[criterion] * weight 
-                           for criterion, weight in criteria_weights.items())
-        library_rankings[lib] = weighted_score
-    
-    # Sort by score
-    ranked_libraries = sorted(library_rankings.items(), 
-                             key=lambda x: x[1], reverse=True)
-    
-    print("Library Recommendation Framework:")
-    print("Criterion\t\tWeight")
-    for criterion, weight in criteria_weights.items():
-        print(f"{criterion:20s}\t{weight:.2f}")
-    
-    print(f"\nRanked Recommendations:")
-    for i, (lib, score) in enumerate(ranked_libraries, 1):
-        print(f"{i}. {lib}: {score:.2f}")
-    
-    return ranked_libraries
-
-# Example usage with specific requirements
-requirements = {
-    'matrix_sizes': 'large',
-    'gpu_available': True,
-    'sparse_matrices': False,
-    'ml_focus': True
-}
-
-recommendations = library_selection_framework(requirements)
-```
-
-**7. Specific Use Case Recommendations:**
-
-```python
-def use_case_recommendations():
-    """Specific recommendations for different use cases"""
-    
-    recommendations = {
-        'Data Science/Analytics': {
-            'primary': 'NumPy + SciPy',
-            'reasoning': 'Comprehensive ecosystem, excellent documentation, pandas integration',
-            'alternatives': 'Intel MKL for performance',
-            'considerations': 'Use sparse matrices (SciPy) for large datasets'
-        },
-        
-        'Machine Learning Research': {
-            'primary': 'JAX or PyTorch',
-            'reasoning': 'Automatic differentiation, GPU support, research flexibility',
-            'alternatives': 'TensorFlow for production',
-            'considerations': 'JAX for functional programming, PyTorch for dynamic graphs'
-        },
-        
-        'High-Performance Computing': {
-            'primary': 'NumPy + Intel MKL',
-            'reasoning': 'Maximum CPU performance, threading support',
-            'alternatives': 'CuPy for GPU clusters',
-            'considerations': 'Consider Numba for JIT compilation'
-        },
-        
-        'Web Applications': {
-            'primary': 'NumPy (minimal)',
-            'reasoning': 'Smaller deployment size, good performance',
-            'alternatives': 'TensorFlow.js for browser',
-            'considerations': 'Consider WASM for browser deployment'
-        },
-        
-        'Embedded Systems': {
-            'primary': 'NumPy (optimized)',
-            'reasoning': 'Memory efficiency, CPU-only requirements',
-            'alternatives': 'Custom C implementations',
-            'considerations': 'Profile memory usage carefully'
-        },
-        
-        'Prototyping': {
-            'primary': 'NumPy',
-            'reasoning': 'Quick development, excellent documentation, debugging tools',
-            'alternatives': 'MATLAB-style libraries',
-            'considerations': 'Focus on ease of use over performance'
-        }
-    }
-    
-    print("Use Case Specific Recommendations:")
-    print("=" * 50)
-    
-    for use_case, rec in recommendations.items():
-        print(f"\n{use_case}:")
-        print(f"  Primary: {rec['primary']}")
-        print(f"  Reasoning: {rec['reasoning']}")
-        print(f"  Alternatives: {rec['alternatives']}")
-        print(f"  Considerations: {rec['considerations']}")
-
-use_case_recommendations()
-```
-
-**8. Installation and Setup Considerations:**
-
-```python
-def installation_guide():
-    """Guide for optimal installation"""
-    
-    installation_tips = {
-        'NumPy with optimized BLAS': {
-            'conda': 'conda install numpy blas=*=mkl',
-            'pip': 'pip install numpy[mkl]',
-            'verification': '''
-import numpy as np
-print(np.show_config())  # Check BLAS backend
-            '''
-        },
-        
-        'GPU Libraries': {
-            'cupy': 'conda install cupy',
-            'jax_gpu': 'pip install jax[gpu]',
-            'pytorch_gpu': 'conda install pytorch cudatoolkit',
-            'verification': '''
-# CuPy
+# GPU example (pseudo-code for reference)
+"""
+# CuPy (NumPy API on GPU)
 import cupy as cp
-print(cp.cuda.runtime.getDeviceCount())
+A_gpu = cp.array(A_dense)
+x_gpu = cp.array(x)
+result_gpu = A_gpu @ x_gpu
 
-# JAX
-import jax
-print(jax.devices())
-            '''
-        },
-        
-        'Development Environment': {
-            'jupyter': 'conda install jupyterlab',
-            'profiling': 'pip install line_profiler memory_profiler',
-            'debugging': 'conda install gdb',
-            'testing': 'pip install pytest pytest-benchmark'
-        }
-    }
-    
-    print("Installation and Setup Guide:")
-    print("=" * 40)
-    
-    for category, commands in installation_tips.items():
-        print(f"\n{category}:")
-        for method, command in commands.items():
-            if method == 'verification':
-                print(f"  Verification:\n{command}")
-            else:
-                print(f"  {method}: {command}")
+# PyTorch GPU
+import torch
+A_torch = torch.tensor(A_dense, device='cuda')
+x_torch = torch.tensor(x, device='cuda')
+result_torch = A_torch @ x_torch
+"""
 
-installation_guide()
+# Library selection decision tree
+decision_tree = """
+Library Selection Guide:
+========================
+1. Is your data sparse (>90% zeros)?
+   YES → SciPy sparse or PyTorch sparse
+   NO → Continue
+
+2. Do you need GPU acceleration?
+   YES → CuPy (simple), PyTorch/JAX (ML), TensorFlow (production)
+   NO → Continue
+
+3. Do you need automatic differentiation?
+   YES → PyTorch, JAX, or TensorFlow
+   NO → NumPy/SciPy
+
+4. Is it production deployment?
+   YES → Consider Intel MKL, TensorFlow Serving
+   NO → NumPy is usually fine
+"""
+print(decision_tree)
 ```
 
-**9. Performance Monitoring:**
+**Algorithm: Library Selection Process**
+1. Profile your data: size, sparsity, batch requirements
+2. Identify hardware: CPU-only, NVIDIA GPU, TPU, distributed
+3. Check ML framework requirements (PyTorch, TensorFlow, sklearn)
+4. Benchmark critical operations with realistic data sizes
+5. Consider maintenance and team expertise
 
-```python
-def setup_performance_monitoring():
-    """Set up performance monitoring for linear algebra operations"""
-    
-    monitoring_code = '''
-import time
-import functools
-import numpy as np
+**ML Applications:**
+| Scenario | Recommended Libraries |
+|----------|----------------------|
+| **Prototyping** | NumPy + SciPy |
+| **Sparse NLP features** | SciPy sparse |
+| **Deep learning training** | PyTorch/TensorFlow |
+| **Research with custom ops** | JAX |
+| **Production inference** | ONNX Runtime, TensorRT |
 
-def monitor_performance(func):
-    """Decorator to monitor linear algebra performance"""
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        start_memory = get_memory_usage()
-        
-        result = func(*args, **kwargs)
-        
-        elapsed_time = time.time() - start_time
-        memory_used = get_memory_usage() - start_memory
-        
-        print(f"{func.__name__}: {elapsed_time:.4f}s, {memory_used:.1f}MB")
-        return result
-    return wrapper
-
-@monitor_performance
-def matrix_multiply(A, B):
-    return A @ B
-
-@monitor_performance  
-def solve_system(A, b):
-    return np.linalg.solve(A, b)
-
-# Usage example
-A = np.random.randn(1000, 1000)
-B = np.random.randn(1000, 1000)
-b = np.random.randn(1000)
-
-result1 = matrix_multiply(A, B)
-result2 = solve_system(A, b)
-    '''
-    
-    print("Performance Monitoring Setup:")
-    print(monitoring_code)
-
-setup_performance_monitoring()
-```
-
-**Final Decision Matrix:**
-
-| Criterion | NumPy | SciPy | CuPy | JAX | PyTorch | Recommendation |
-|-----------|-------|-------|------|-----|---------|----------------|
-| **General Purpose** | ★★★★★ | ★★★★☆ | ★★★☆☆ | ★★★☆☆ | ★★☆☆☆ | NumPy |
-| **Scientific Computing** | ★★★★☆ | ★★★★★ | ★★★☆☆ | ★★★★☆ | ★★☆☆☆ | SciPy |
-| **GPU Computing** | ★☆☆☆☆ | ★☆☆☆☆ | ★★★★★ | ★★★★★ | ★★★★★ | CuPy/JAX |
-| **Machine Learning** | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ★★★★★ | ★★★★★ | JAX/PyTorch |
-| **Ease of Use** | ★★★★★ | ★★★★☆ | ★★★★☆ | ★★★☆☆ | ★★★★☆ | NumPy |
-| **Performance** | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ | GPU libraries |
-
-**Key Takeaways:**
-1. **Start with NumPy** for general linear algebra
-2. **Add SciPy** for scientific computing and sparse matrices
-3. **Consider GPU libraries** (CuPy, JAX, PyTorch) for large-scale computation
-4. **Profile your specific use case** before making final decisions
-5. **Ensure proper BLAS backend** for optimal CPU performance
-6. **Test numerical stability** with your specific problem domain
+**Interview Tips:**
+- Know when NumPy is sufficient vs when to use specialized libraries
+- Understand sparse matrix formats (CSR, CSC, COO) and their trade-offs
+- Be aware of BLAS backends (OpenBLAS, MKL) that accelerate NumPy
+- Mention memory vs speed trade-offs for large matrices
 
 ---
 
@@ -4250,587 +1461,220 @@ setup_performance_monitoring()
 
 **How do you ensure numerical stability when performing matrix computations?**
 
-**Answer:** Numerical stability is critical in matrix computations to avoid accumulated errors, overflow, and underflow that can lead to meaningless results. Here's a comprehensive approach:
+### Answer
 
-**Understanding Numerical Stability Issues:**
+**Definition:**  
+Numerical stability refers to algorithms that produce accurate results even with finite precision arithmetic (floating-point). Unstable algorithms amplify rounding errors, leading to catastrophic loss of precision, especially for ill-conditioned problems.
 
-**1. Sources of Numerical Errors:**
+**Core Concepts:**
+- **Condition number**: Sensitivity of output to input perturbations
+- **Forward stability**: Small errors in output relative to exact computation
+- **Backward stability**: Result is exact for slightly perturbed input
+- **Catastrophic cancellation**: Loss of precision when subtracting similar numbers
+
+**Mathematical Formulation:**
+
+**Condition number:**
+$$\kappa(A) = \|A\| \cdot \|A^{-1}\| = \frac{\sigma_{max}}{\sigma_{min}}$$
+
+**Error amplification:**
+$$\frac{\|\Delta \mathbf{x}\|}{\|\mathbf{x}\|} \leq \kappa(A) \frac{\|\Delta \mathbf{b}\|}{\|\mathbf{b}\|}$$
+
+**Machine epsilon** (float64):
+$$\epsilon \approx 2.2 \times 10^{-16}$$
+
+**Digits of accuracy lost:**
+$$\text{digits lost} \approx \log_{10}(\kappa(A))$$
+
+**Stability Strategies:**
+
+| Problem | Unstable Approach | Stable Approach |
+|---------|-------------------|-----------------|
+| **Solve Ax = b** | A⁻¹b (explicit inverse) | LU with pivoting, QR |
+| **Least squares** | (AᵀA)⁻¹Aᵀb (normal equations) | QR decomposition, SVD |
+| **Eigenvalues** | det(A - λI) = 0 | QR algorithm |
+| **Matrix exponential** | Taylor series | Padé approximation + scaling |
+
+**Python Example:**
 ```python
 import numpy as np
-import matplotlib.pyplot as plt
+from scipy import linalg
 
-def demonstrate_numerical_errors():
-    """Demonstrate common sources of numerical errors"""
-    
-    print("Common Numerical Stability Issues:")
-    print("=" * 50)
-    
-    # 1. Catastrophic Cancellation
-    print("\n1. Catastrophic Cancellation:")
-    a = 1.0
-    b = 1e-15
-    
-    # Bad: (a + b) - a loses precision
-    result_bad = (a + b) - a
-    print(f"(1.0 + 1e-15) - 1.0 = {result_bad}")
-    print(f"Expected: 1e-15, Relative error: {abs(result_bad - b)/b:.2e}")
-    
-    # 2. Loss of Significance in Matrix Operations
-    print("\n2. Ill-conditioned Matrix Example:")
-    epsilon = 1e-10
-    A_ill = np.array([[1, 1], [1, 1 + epsilon]])
-    b = np.array([2, 2 + epsilon])
-    
-    # True solution
-    x_true = np.array([1, 1])
-    
-    # Computed solution
-    x_computed = np.linalg.solve(A_ill, b)
-    
-    print(f"Condition number: {np.linalg.cond(A_ill):.2e}")
-    print(f"True solution: {x_true}")
-    print(f"Computed solution: {x_computed}")
-    print(f"Error: {np.linalg.norm(x_computed - x_true):.2e}")
-    
-    # 3. Overflow/Underflow
-    print("\n3. Overflow/Underflow Example:")
-    large_matrix = np.random.randn(3, 3) * 1e100
-    try:
-        det = np.linalg.det(large_matrix)
-        print(f"Determinant: {det}")
-    except Exception as e:
-        print(f"Error computing determinant: {e}")
+np.set_printoptions(precision=15)
 
-demonstrate_numerical_errors()
+# ========================================
+# 1. CONDITION NUMBER AND ERROR ANALYSIS
+# ========================================
+
+def analyze_stability(A, b):
+    """Analyze numerical stability of solving Ax = b."""
+    cond = np.linalg.cond(A)
+    machine_eps = np.finfo(float).eps
+    
+    # Solve the system
+    x = np.linalg.solve(A, b)
+    
+    # Check residual
+    residual = np.linalg.norm(A @ x - b) / np.linalg.norm(b)
+    
+    # Estimated relative error bound
+    error_bound = cond * machine_eps
+    
+    print(f"Condition number: {cond:.2e}")
+    print(f"Machine epsilon: {machine_eps:.2e}")
+    print(f"Relative residual: {residual:.2e}")
+    print(f"Error bound: {error_bound:.2e}")
+    print(f"Digits of accuracy: ~{max(0, 16 - np.log10(cond)):.1f}")
+    
+    return x, cond
+
+# Well-conditioned system
+A_good = np.array([[4, 1], [1, 3]], dtype=float)
+b = np.array([1, 2], dtype=float)
+print("=== Well-conditioned system ===")
+x_good, _ = analyze_stability(A_good, b)
+
+# Ill-conditioned system (Hilbert matrix)
+n = 10
+A_bad = linalg.hilbert(n)  # Notoriously ill-conditioned
+b_bad = np.ones(n)
+print("\n=== Hilbert matrix (ill-conditioned) ===")
+x_bad, _ = analyze_stability(A_bad, b_bad)
+
+# ========================================
+# 2. STABLE VS UNSTABLE ALGORITHMS
+# ========================================
+
+print("\n=== Least Squares: Normal Equations vs QR ===")
+
+# Create a problem with collinear columns
+np.random.seed(42)
+m, n = 100, 5
+A = np.random.randn(m, n)
+A[:, 4] = A[:, 3] + 1e-10 * np.random.randn(m)  # Near-collinear
+b = np.random.randn(m)
+
+# Method 1: Normal equations (UNSTABLE for ill-conditioned A)
+try:
+    ATA = A.T @ A
+    ATb = A.T @ b
+    x_normal = np.linalg.solve(ATA, ATb)
+    print(f"Normal equations κ(AᵀA) = {np.linalg.cond(ATA):.2e}")
+except np.linalg.LinAlgError:
+    print("Normal equations failed!")
+    x_normal = None
+
+# Method 2: QR decomposition (STABLE)
+Q, R = np.linalg.qr(A)
+x_qr = linalg.solve_triangular(R, Q.T @ b)
+
+# Method 3: SVD with truncation (MOST STABLE)
+U, s, Vt = np.linalg.svd(A, full_matrices=False)
+threshold = 1e-10 * s[0]  # Truncate small singular values
+s_inv = np.where(s > threshold, 1/s, 0)
+x_svd = (Vt.T * s_inv) @ (U.T @ b)
+
+# Compare residuals
+if x_normal is not None:
+    print(f"Normal eq. residual: {np.linalg.norm(A @ x_normal - b):.6e}")
+print(f"QR residual: {np.linalg.norm(A @ x_qr - b):.6e}")
+print(f"SVD residual: {np.linalg.norm(A @ x_svd - b):.6e}")
+
+# ========================================
+# 3. PIVOTING FOR STABILITY
+# ========================================
+
+print("\n=== LU Decomposition with/without Pivoting ===")
+
+# Matrix where pivoting matters
+A_pivot = np.array([[1e-20, 1], [1, 1]], dtype=float)
+b_pivot = np.array([1, 2], dtype=float)
+
+# Without pivoting (if we could - numpy always pivots)
+# Simulating what would happen
+print(f"Without pivoting, 1/a[0,0] = {1/A_pivot[0,0]:.2e} → overflow risk")
+
+# With partial pivoting (standard)
+P, L, U = linalg.lu(A_pivot)
+x_lu = np.linalg.solve(A_pivot, b_pivot)
+print(f"With pivoting solution: {x_lu}")
+print(f"Residual: {np.linalg.norm(A_pivot @ x_lu - b_pivot):.2e}")
+
+# ========================================
+# 4. CATASTROPHIC CANCELLATION
+# ========================================
+
+print("\n=== Catastrophic Cancellation Example ===")
+
+def quadratic_unstable(a, b, c):
+    """Standard formula - unstable for b² >> 4ac."""
+    disc = np.sqrt(b**2 - 4*a*c)
+    x1 = (-b + disc) / (2*a)
+    x2 = (-b - disc) / (2*a)
+    return x1, x2
+
+def quadratic_stable(a, b, c):
+    """Stable formula using alternative form."""
+    disc = np.sqrt(b**2 - 4*a*c)
+    if b >= 0:
+        x1 = (-b - disc) / (2*a)
+        x2 = (2*c) / (-b - disc)  # Avoids subtraction
+    else:
+        x1 = (-b + disc) / (2*a)
+        x2 = (2*c) / (-b + disc)
+    return x1, x2
+
+# Case where b² >> 4ac
+a, b, c = 1, 1e8, 1
+x1_u, x2_u = quadratic_unstable(a, b, c)
+x1_s, x2_s = quadratic_stable(a, b, c)
+
+print(f"Unstable: x1={x1_u:.15e}, x2={x2_u:.15e}")
+print(f"Stable:   x1={x1_s:.15e}, x2={x2_s:.15e}")
+print(f"True x2 ≈ -c/b = {-c/b:.15e}")
+
+# ========================================
+# 5. REGULARIZATION FOR STABILITY
+# ========================================
+
+print("\n=== Tikhonov Regularization ===")
+
+# Ill-conditioned least squares
+A_ill = linalg.hilbert(8)[:, :6]
+b_ill = np.ones(8)
+
+# Unregularized (unstable)
+x_unreg = np.linalg.lstsq(A_ill, b_ill, rcond=None)[0]
+
+# Regularized (stable)
+lambda_reg = 1e-6
+x_reg = np.linalg.solve(A_ill.T @ A_ill + lambda_reg * np.eye(6), A_ill.T @ b_ill)
+
+print(f"Unregularized ||x||: {np.linalg.norm(x_unreg):.2e}")
+print(f"Regularized ||x||: {np.linalg.norm(x_reg):.2e}")
 ```
 
-**2. Condition Number Analysis:**
-```python
-def analyze_condition_numbers():
-    """Analyze impact of condition numbers on stability"""
-    
-    def create_matrix_with_condition(n, condition_number):
-        """Create matrix with specified condition number"""
-        # Start with random orthogonal matrix
-        Q, _ = np.linalg.qr(np.random.randn(n, n))
-        
-        # Create diagonal matrix with specific condition number
-        singular_values = np.logspace(0, np.log10(condition_number), n)[::-1]
-        S = np.diag(singular_values)
-        
-        # Another random orthogonal matrix
-        U, _ = np.linalg.qr(np.random.randn(n, n))
-        
-        # Construct matrix A = U * S * Q^T
-        A = U @ S @ Q.T
-        
-        return A
-    
-    condition_numbers = [1e2, 1e6, 1e10, 1e14]
-    n = 5
-    
-    print("Condition Number Impact Analysis:")
-    print("Cond Number\tSolve Error\tInverse Error\tEigen Error")
-    print("-" * 60)
-    
-    for cond_num in condition_numbers:
-        A = create_matrix_with_condition(n, cond_num)
-        actual_cond = np.linalg.cond(A)
-        
-        # Test linear system solving
-        x_true = np.random.randn(n)
-        b = A @ x_true
-        x_computed = np.linalg.solve(A, b)
-        solve_error = np.linalg.norm(x_computed - x_true) / np.linalg.norm(x_true)
-        
-        # Test matrix inversion
-        try:
-            A_inv = np.linalg.inv(A)
-            inverse_error = np.linalg.norm(A @ A_inv - np.eye(n))
-        except:
-            inverse_error = float('inf')
-        
-        # Test eigendecomposition
-        try:
-            eigenvals, eigenvecs = np.linalg.eig(A)
-            # Reconstruction error
-            A_reconstructed = eigenvecs @ np.diag(eigenvals) @ np.linalg.inv(eigenvecs)
-            eigen_error = np.linalg.norm(A - A_reconstructed) / np.linalg.norm(A)
-        except:
-            eigen_error = float('inf')
-        
-        print(f"{actual_cond:.1e}\t{solve_error:.2e}\t{inverse_error:.2e}\t{eigen_error:.2e}")
+**Algorithm: Numerically Stable Least Squares**
+1. Compute thin SVD: A = UΣVᵀ
+2. Set threshold τ = ε · σ_max (ε = machine precision)
+3. For each σᵢ: σᵢ⁺ = 1/σᵢ if σᵢ > τ, else 0
+4. Compute x = V · diag(σ⁺) · Uᵀ · b
 
-analyze_condition_numbers()
-```
+**Best Practices:**
+| Practice | Rationale |
+|----------|-----------|
+| **Use QR/SVD, not normal equations** | κ(AᵀA) = κ(A)² |
+| **Always use pivoting in LU** | Prevents division by small numbers |
+| **Check condition number first** | Know if problem is solvable |
+| **Use double precision** | 16 digits vs 7 (single) |
+| **Regularize ill-conditioned problems** | Ridge regression, truncated SVD |
 
-**3. Stable Algorithm Selection:**
-
-**3.1 Linear System Solving:**
-```python
-def stable_linear_system_solving():
-    """Demonstrate stable methods for solving linear systems"""
-    
-    def compare_solving_methods(A, b):
-        """Compare different methods for solving Ax = b"""
-        
-        methods = {}
-        
-        # Method 1: Direct inversion (unstable)
-        try:
-            start_time = time.time()
-            x1 = np.linalg.inv(A) @ b
-            time1 = time.time() - start_time
-            methods['Matrix Inversion'] = {'solution': x1, 'time': time1}
-        except:
-            methods['Matrix Inversion'] = {'solution': None, 'time': float('inf')}
-        
-        # Method 2: LU decomposition with partial pivoting (stable)
-        try:
-            from scipy.linalg import solve
-            start_time = time.time()
-            x2 = solve(A, b)
-            time2 = time.time() - start_time
-            methods['LU with Pivoting'] = {'solution': x2, 'time': time2}
-        except:
-            methods['LU with Pivoting'] = {'solution': None, 'time': float('inf')}
-        
-        # Method 3: QR decomposition (stable)
-        try:
-            start_time = time.time()
-            Q, R = np.linalg.qr(A)
-            x3 = np.linalg.solve(R, Q.T @ b)
-            time3 = time.time() - start_time
-            methods['QR Decomposition'] = {'solution': x3, 'time': time3}
-        except:
-            methods['QR Decomposition'] = {'solution': None, 'time': float('inf')}
-        
-        # Method 4: SVD (most stable, expensive)
-        try:
-            start_time = time.time()
-            U, s, Vt = np.linalg.svd(A)
-            x4 = Vt.T @ (np.diag(1/s) @ (U.T @ b))
-            time4 = time.time() - start_time
-            methods['SVD'] = {'solution': x4, 'time': time4}
-        except:
-            methods['SVD'] = {'solution': None, 'time': float('inf')}
-        
-        return methods
-    
-    # Test with different condition numbers
-    import time
-    
-    print("Solving Method Comparison:")
-    print("=" * 60)
-    
-    for cond_target in [1e3, 1e8, 1e12]:
-        print(f"\nCondition Number ≈ {cond_target:.0e}:")
-        
-        # Create test problem
-        n = 100
-        A = create_matrix_with_condition(n, cond_target)
-        x_true = np.random.randn(n)
-        b = A @ x_true
-        
-        methods = compare_solving_methods(A, b)
-        
-        print("Method\t\t\tError\t\tTime (ms)")
-        for method_name, result in methods.items():
-            if result['solution'] is not None:
-                error = np.linalg.norm(result['solution'] - x_true) / np.linalg.norm(x_true)
-                time_ms = result['time'] * 1000
-                print(f"{method_name:20s}\t{error:.2e}\t{time_ms:.2f}")
-            else:
-                print(f"{method_name:20s}\tFailed\t\t-")
-
-# Note: create_matrix_with_condition function from previous example needed
-def create_matrix_with_condition(n, condition_number):
-    Q, _ = np.linalg.qr(np.random.randn(n, n))
-    singular_values = np.logspace(0, np.log10(condition_number), n)[::-1]
-    S = np.diag(singular_values)
-    U, _ = np.linalg.qr(np.random.randn(n, n))
-    return U @ S @ Q.T
-
-stable_linear_system_solving()
-```
-
-**3.2 Eigenvalue Computation:**
-```python
-def stable_eigenvalue_computation():
-    """Demonstrate stable eigenvalue computation techniques"""
-    
-    def compare_eigenvalue_methods(A):
-        """Compare different eigenvalue computation methods"""
-        
-        methods = {}
-        
-        # Method 1: Basic eig (uses QR algorithm internally)
-        try:
-            eigenvals1, eigenvecs1 = np.linalg.eig(A)
-            # Sort eigenvalues
-            idx = np.argsort(np.abs(eigenvals1))[::-1]
-            eigenvals1 = eigenvals1[idx]
-            eigenvecs1 = eigenvecs1[:, idx]
-            methods['Standard eig'] = {'eigenvals': eigenvals1, 'eigenvecs': eigenvecs1}
-        except:
-            methods['Standard eig'] = None
-        
-        # Method 2: eigh for symmetric matrices (more stable)
-        if np.allclose(A, A.T):
-            try:
-                eigenvals2, eigenvecs2 = np.linalg.eigh(A)
-                idx = np.argsort(np.abs(eigenvals2))[::-1]
-                eigenvals2 = eigenvals2[idx]
-                eigenvecs2 = eigenvecs2[:, idx]
-                methods['Symmetric eigh'] = {'eigenvals': eigenvals2, 'eigenvecs': eigenvecs2}
-            except:
-                methods['Symmetric eigh'] = None
-        
-        # Method 3: Power iteration for largest eigenvalue
-        try:
-            eigenval_power, eigenvec_power = power_iteration(A)
-            methods['Power Iteration'] = {
-                'eigenvals': np.array([eigenval_power]), 
-                'eigenvecs': eigenvec_power.reshape(-1, 1)
-            }
-        except:
-            methods['Power Iteration'] = None
-        
-        return methods
-    
-    def power_iteration(A, max_iter=1000, tol=1e-10):
-        """Power iteration for largest eigenvalue"""
-        n = A.shape[0]
-        v = np.random.randn(n)
-        v = v / np.linalg.norm(v)
-        
-        for i in range(max_iter):
-            Av = A @ v
-            eigenval = np.dot(v, Av)
-            v_new = Av / np.linalg.norm(Av)
-            
-            if np.linalg.norm(v_new - v) < tol:
-                break
-            v = v_new
-        
-        return eigenval, v
-    
-    # Test cases
-    test_matrices = {
-        'Random Symmetric': lambda n: (lambda A: A + A.T)(np.random.randn(n, n)),
-        'Diagonally Dominant': lambda n: np.diag(np.arange(1, n+1)) + 0.1 * np.random.randn(n, n),
-        'Nearly Singular': lambda n: create_matrix_with_condition(n, 1e12)
-    }
-    
-    print("Eigenvalue Computation Stability:")
-    print("=" * 50)
-    
-    for matrix_name, matrix_generator in test_matrices.items():
-        print(f"\n{matrix_name} Matrix:")
-        
-        n = 10
-        A = matrix_generator(n)
-        
-        methods = compare_eigenvalue_methods(A)
-        
-        for method_name, result in methods.items():
-            if result is not None:
-                eigenvals = result['eigenvals']
-                eigenvecs = result['eigenvecs']
-                
-                # Verify eigenvalue equation: Av = λv
-                if len(eigenvals) > 0:
-                    v = eigenvecs[:, 0]
-                    λ = eigenvals[0]
-                    residual = np.linalg.norm(A @ v - λ * v)
-                    print(f"  {method_name:15s}: λ₁ = {λ:.4f}, residual = {residual:.2e}")
-                else:
-                    print(f"  {method_name:15s}: No eigenvalues computed")
-            else:
-                print(f"  {method_name:15s}: Failed")
-
-stable_eigenvalue_computation()
-```
-
-**4. Pivoting and Scaling Strategies:**
-```python
-def demonstrate_pivoting_strategies():
-    """Show importance of pivoting in Gaussian elimination"""
-    
-    def gaussian_elimination_no_pivoting(A, b):
-        """Gaussian elimination without pivoting (potentially unstable)"""
-        n = len(b)
-        A = A.astype(float)
-        b = b.astype(float)
-        
-        # Forward elimination
-        for k in range(n-1):
-            if abs(A[k, k]) < 1e-14:
-                raise ValueError("Zero pivot encountered")
-            
-            for i in range(k+1, n):
-                factor = A[i, k] / A[k, k]
-                A[i, k:] -= factor * A[k, k:]
-                b[i] -= factor * b[k]
-        
-        # Back substitution
-        x = np.zeros(n)
-        for i in range(n-1, -1, -1):
-            x[i] = (b[i] - np.dot(A[i, i+1:], x[i+1:])) / A[i, i]
-        
-        return x
-    
-    def gaussian_elimination_partial_pivoting(A, b):
-        """Gaussian elimination with partial pivoting (more stable)"""
-        n = len(b)
-        A = A.astype(float)
-        b = b.astype(float)
-        
-        # Forward elimination with partial pivoting
-        for k in range(n-1):
-            # Find pivot
-            max_row = k + np.argmax(abs(A[k:, k]))
-            
-            # Swap rows
-            if max_row != k:
-                A[[k, max_row]] = A[[max_row, k]]
-                b[k], b[max_row] = b[max_row], b[k]
-            
-            if abs(A[k, k]) < 1e-14:
-                raise ValueError("Matrix is singular")
-            
-            # Elimination
-            for i in range(k+1, n):
-                factor = A[i, k] / A[k, k]
-                A[i, k:] -= factor * A[k, k:]
-                b[i] -= factor * b[k]
-        
-        # Back substitution
-        x = np.zeros(n)
-        for i in range(n-1, -1, -1):
-            x[i] = (b[i] - np.dot(A[i, i+1:], x[i+1:])) / A[i, i]
-        
-        return x
-    
-    # Test with matrix that needs pivoting
-    A_pivot = np.array([
-        [1e-20, 1, 1],
-        [1, 1, 1],
-        [1, 2, 1]
-    ])
-    
-    x_true = np.array([1, 2, 3])
-    b = A_pivot @ x_true
-    
-    print("Pivoting Strategy Comparison:")
-    print("=" * 40)
-    print(f"True solution: {x_true}")
-    
-    try:
-        x_no_pivot = gaussian_elimination_no_pivoting(A_pivot.copy(), b.copy())
-        error_no_pivot = np.linalg.norm(x_no_pivot - x_true)
-        print(f"No pivoting: {x_no_pivot}, Error: {error_no_pivot:.2e}")
-    except Exception as e:
-        print(f"No pivoting: Failed - {e}")
-    
-    try:
-        x_with_pivot = gaussian_elimination_partial_pivoting(A_pivot.copy(), b.copy())
-        error_with_pivot = np.linalg.norm(x_with_pivot - x_true)
-        print(f"With pivoting: {x_with_pivot}, Error: {error_with_pivot:.2e}")
-    except Exception as e:
-        print(f"With pivoting: Failed - {e}")
-    
-    # NumPy solve (uses LAPACK with pivoting)
-    x_numpy = np.linalg.solve(A_pivot, b)
-    error_numpy = np.linalg.norm(x_numpy - x_true)
-    print(f"NumPy solve: {x_numpy}, Error: {error_numpy:.2e}")
-
-demonstrate_pivoting_strategies()
-```
-
-**5. Regularization Techniques:**
-```python
-def regularization_techniques():
-    """Demonstrate regularization for ill-conditioned problems"""
-    
-    def ridge_regularization(A, b, lambda_reg):
-        """Solve (A^T A + λI)x = A^T b"""
-        AtA = A.T @ A
-        Atb = A.T @ b
-        AtA_reg = AtA + lambda_reg * np.eye(AtA.shape[0])
-        return np.linalg.solve(AtA_reg, Atb)
-    
-    def truncated_svd_solve(A, b, rank):
-        """Solve using truncated SVD"""
-        U, s, Vt = np.linalg.svd(A, full_matrices=False)
-        
-        # Keep only largest singular values
-        s_trunc = s[:rank]
-        U_trunc = U[:, :rank]
-        Vt_trunc = Vt[:rank, :]
-        
-        # Compute solution
-        x = Vt_trunc.T @ (np.diag(1/s_trunc) @ (U_trunc.T @ b))
-        return x
-    
-    # Create ill-conditioned least squares problem
-    m, n = 50, 20
-    A = np.random.randn(m, n)
-    # Make some singular values very small
-    U, s, Vt = np.linalg.svd(A, full_matrices=False)
-    s[n//2:] *= 1e-10  # Make problem ill-conditioned
-    A = U @ np.diag(s) @ Vt
-    
-    x_true = np.random.randn(n)
-    b = A @ x_true + 0.01 * np.random.randn(m)  # Add noise
-    
-    print("Regularization Techniques for Ill-conditioned Problems:")
-    print("=" * 60)
-    print(f"Matrix condition number: {np.linalg.cond(A):.2e}")
-    
-    # Standard least squares (unstable)
-    try:
-        x_lstsq = np.linalg.lstsq(A, b, rcond=None)[0]
-        error_lstsq = np.linalg.norm(x_lstsq - x_true)
-        print(f"Standard least squares error: {error_lstsq:.4f}")
-    except:
-        print("Standard least squares: Failed")
-    
-    # Ridge regression with different regularization parameters
-    lambdas = [1e-6, 1e-4, 1e-2, 1e0]
-    print("\nRidge Regularization:")
-    for lam in lambdas:
-        x_ridge = ridge_regularization(A, b, lam)
-        error_ridge = np.linalg.norm(x_ridge - x_true)
-        print(f"λ = {lam:.0e}: error = {error_ridge:.4f}")
-    
-    # Truncated SVD
-    print("\nTruncated SVD:")
-    for rank in [5, 10, 15, n]:
-        x_tsvd = truncated_svd_solve(A, b, rank)
-        error_tsvd = np.linalg.norm(x_tsvd - x_true)
-        print(f"Rank {rank:2d}: error = {error_tsvd:.4f}")
-
-regularization_techniques()
-```
-
-**6. Error Analysis and Monitoring:**
-```python
-def error_analysis_framework():
-    """Framework for monitoring and analyzing numerical errors"""
-    
-    def backward_error_analysis(A, x, b):
-        """Compute backward error: ||Ax - b|| / ||A|| ||x||"""
-        residual = A @ x - b
-        backward_error = np.linalg.norm(residual) / (np.linalg.norm(A) * np.linalg.norm(x))
-        return backward_error
-    
-    def forward_error_analysis(x_computed, x_true):
-        """Compute forward error: ||x_computed - x_true|| / ||x_true||"""
-        if np.linalg.norm(x_true) == 0:
-            return np.linalg.norm(x_computed)
-        return np.linalg.norm(x_computed - x_true) / np.linalg.norm(x_true)
-    
-    def error_bounds(A, condition_number, machine_epsilon=np.finfo(float).eps):
-        """Theoretical error bounds for linear system solving"""
-        return condition_number * machine_epsilon
-    
-    # Test different scenarios
-    scenarios = [
-        {'name': 'Well-conditioned', 'cond': 1e2},
-        {'name': 'Moderately ill-conditioned', 'cond': 1e8},
-        {'name': 'Severely ill-conditioned', 'cond': 1e14}
-    ]
-    
-    print("Error Analysis Framework:")
-    print("=" * 80)
-    print("Scenario\t\t\tCond#\t\tBackward\tForward\t\tBound")
-    print("-" * 80)
-    
-    for scenario in scenarios:
-        n = 20
-        A = create_matrix_with_condition(n, scenario['cond'])
-        x_true = np.random.randn(n)
-        b = A @ x_true
-        
-        # Add small perturbation to simulate floating-point errors
-        b_perturbed = b + np.finfo(float).eps * np.random.randn(n) * np.linalg.norm(b)
-        
-        x_computed = np.linalg.solve(A, b_perturbed)
-        
-        backward_err = backward_error_analysis(A, x_computed, b_perturbed)
-        forward_err = forward_error_analysis(x_computed, x_true)
-        theoretical_bound = error_bounds(A, np.linalg.cond(A))
-        
-        print(f"{scenario['name']:25s}\t{np.linalg.cond(A):.1e}\t{backward_err:.2e}\t{forward_err:.2e}\t{theoretical_bound:.2e}")
-
-error_analysis_framework()
-```
-
-**7. Best Practices Summary:**
-```python
-def numerical_stability_checklist():
-    """Comprehensive checklist for numerical stability"""
-    
-    checklist = {
-        'Algorithm Selection': [
-            '✓ Use stable algorithms (QR, SVD) for ill-conditioned problems',
-            '✓ Prefer specialized routines for structured matrices (symmetric, sparse)',
-            '✓ Avoid explicit matrix inversion when possible',
-            '✓ Use iterative refinement for improved accuracy'
-        ],
-        
-        'Pivoting and Scaling': [
-            '✓ Always use partial pivoting for LU decomposition',
-            '✓ Consider complete pivoting for severely ill-conditioned matrices',
-            '✓ Scale matrices to improve condition numbers when possible',
-            '✓ Check for zero or near-zero pivots'
-        ],
-        
-        'Condition Number Monitoring': [
-            '✓ Always check condition numbers before solving',
-            '✓ Use rcond parameter in NumPy functions',
-            '✓ Consider regularization for ill-conditioned problems',
-            '✓ Monitor singular values in SVD'
-        ],
-        
-        'Error Control': [
-            '✓ Implement backward error analysis',
-            '✓ Use appropriate tolerances for convergence',
-            '✓ Validate results with residual checks',
-            '✓ Consider iterative refinement for better accuracy'
-        ],
-        
-        'Implementation Details': [
-            '✓ Use double precision when needed',
-            '✓ Avoid catastrophic cancellation',
-            '✓ Handle edge cases (empty matrices, singular systems)',
-            '✓ Profile for performance vs accuracy trade-offs'
-        ]
-    }
-    
-    print("Numerical Stability Checklist:")
-    print("=" * 50)
-    
-    for category, items in checklist.items():
-        print(f"\n{category}:")
-        for item in items:
-            print(f"  {item}")
-
-numerical_stability_checklist()
-```
-
-**Key Takeaways for Numerical Stability:**
-
-1. **Choose the right algorithm** for your specific problem structure
-2. **Monitor condition numbers** and use regularization when needed
-3. **Implement proper pivoting** strategies
-4. **Validate results** through error analysis
-5. **Use stable decompositions** (QR, SVD) for critical applications
-6. **Consider trade-offs** between accuracy and computational cost
-7. **Test thoroughly** with different data characteristics
-
-Remember: Numerical stability is not just about using the "best" algorithm—it's about understanding your problem, monitoring potential issues, and choosing appropriate techniques for your specific requirements.
+**Interview Tips:**
+- Mention condition number as key metric
+- Know why normal equations are unstable (squaring condition number)
+- Explain pivoting's role in LU decomposition
+- Discuss trade-offs: stability vs computational cost
+- Real-world: sklearn's `LinearRegression` uses SVD for stability
 
 ---
 
@@ -4838,1490 +1682,522 @@ Remember: Numerical stability is not just about using the "best" algorithm—it'
 
 **How do graph theory and linear algebra intersect in machine learning?**
 
-**Answer:** Graph theory and linear algebra intersect in machine learning through matrix representations of graphs that enable powerful algorithms for network analysis, dimensionality reduction, clustering, and learning on structured data. This intersection is fundamental to modern ML applications involving social networks, knowledge graphs, molecular structures, and recommendation systems.
+### Answer
 
-**1. Graph Representations in Linear Algebra:**
+**Definition:**  
+Graphs are naturally represented as matrices (adjacency, Laplacian), enabling powerful linear algebra techniques for graph analysis. This intersection powers graph neural networks, spectral clustering, PageRank, and network analysis in ML.
 
-**1.1 Adjacency Matrix:**
+**Core Concepts:**
+- **Adjacency matrix** (A): A[i,j] = 1 if edge from i to j
+- **Degree matrix** (D): Diagonal with D[i,i] = degree of node i
+- **Laplacian matrix** (L): L = D - A (unnormalized)
+- **Normalized Laplacian**: L_norm = I - D^(-1/2) A D^(-1/2)
+- **Graph Fourier Transform**: Eigendecomposition of Laplacian
+
+**Mathematical Formulation:**
+
+**Adjacency matrix:**
+$$A_{ij} = \begin{cases} w_{ij} & \text{if edge } (i,j) \text{ exists} \\ 0 & \text{otherwise} \end{cases}$$
+
+**Graph Laplacian:**
+$$L = D - A$$
+
+**Normalized Laplacian:**
+$$L_{norm} = I - D^{-1/2}AD^{-1/2}$$
+
+**Spectral properties:**
+- L is positive semi-definite (all eigenvalues ≥ 0)
+- Number of zero eigenvalues = number of connected components
+- Second smallest eigenvalue (Fiedler value) = algebraic connectivity
+
+**Random walk transition:**
+$$P = D^{-1}A \quad (\text{row stochastic})$$
+
+**Python Example:**
 ```python
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.linalg import eigh
-from scipy.sparse import csr_matrix
+from scipy import sparse
+from scipy.sparse.linalg import eigsh
+import networkx as nx
 
-def create_adjacency_matrix():
-    """Demonstrate adjacency matrix representation"""
-    
-    # Create sample graphs
-    graphs = {
-        'Undirected Simple': {
-            'edges': [(0, 1), (1, 2), (2, 3), (3, 0), (1, 3)],
-            'directed': False,
-            'weighted': False
-        },
-        'Directed Simple': {
-            'edges': [(0, 1), (1, 2), (2, 0), (1, 3)],
-            'directed': True,
-            'weighted': False
-        },
-        'Weighted Undirected': {
-            'edges': [(0, 1, 0.5), (1, 2, 1.2), (2, 3, 0.8), (3, 0, 2.0)],
-            'directed': False,
-            'weighted': True
-        }
-    }
-    
-    print("Adjacency Matrix Representations:")
-    print("=" * 50)
-    
-    for graph_name, graph_data in graphs.items():
-        print(f"\n{graph_name} Graph:")
-        
-        # Determine number of vertices
-        edges = graph_data['edges']
-        if graph_data['weighted']:
-            vertices = set()
-            for edge in edges:
-                vertices.update([edge[0], edge[1]])
-        else:
-            vertices = set()
-            for edge in edges:
-                vertices.update(edge)
-        
-        n = max(vertices) + 1
-        A = np.zeros((n, n))
-        
-        # Fill adjacency matrix
-        for edge in edges:
-            if graph_data['weighted']:
-                i, j, weight = edge
-                A[i, j] = weight
-                if not graph_data['directed']:
-                    A[j, i] = weight
-            else:
-                i, j = edge
-                A[i, j] = 1
-                if not graph_data['directed']:
-                    A[j, i] = 1
-        
-        print(f"Adjacency Matrix A:")
-        print(A)
-        
-        # Properties
-        print(f"Graph properties:")
-        print(f"  - Vertices: {n}")
-        print(f"  - Edges: {len(edges)}")
-        print(f"  - Density: {np.sum(A > 0) / (n * n):.3f}")
-        if not graph_data['directed']:
-            print(f"  - Symmetric: {np.allclose(A, A.T)}")
+np.random.seed(42)
 
-create_adjacency_matrix()
+# ========================================
+# 1. GRAPH MATRIX REPRESENTATIONS
+# ========================================
+
+# Create a simple graph
+edges = [(0,1), (0,2), (1,2), (1,3), (2,3), (3,4), (4,5), (5,6), (4,6)]
+n_nodes = 7
+
+# Adjacency matrix
+A = np.zeros((n_nodes, n_nodes))
+for i, j in edges:
+    A[i, j] = 1
+    A[j, i] = 1  # Undirected
+
+# Degree matrix
+D = np.diag(A.sum(axis=1))
+
+# Graph Laplacian
+L = D - A
+
+# Normalized Laplacian
+D_inv_sqrt = np.diag(1 / np.sqrt(np.diag(D)))
+L_norm = np.eye(n_nodes) - D_inv_sqrt @ A @ D_inv_sqrt
+
+print("Adjacency matrix A:\n", A)
+print("\nDegree matrix diagonal:", np.diag(D))
+print("\nLaplacian L:\n", L)
+
+# ========================================
+# 2. SPECTRAL CLUSTERING
+# ========================================
+
+print("\n=== Spectral Clustering ===")
+
+# Generate two clusters with connecting bridge
+from sklearn.datasets import make_moons
+from sklearn.neighbors import kneighbors_graph
+from sklearn.cluster import KMeans
+
+X, y_true = make_moons(n_samples=200, noise=0.05, random_state=42)
+
+# Build k-NN graph
+k = 10
+A_knn = kneighbors_graph(X, k, mode='connectivity', include_self=False)
+A_knn = 0.5 * (A_knn + A_knn.T)  # Make symmetric
+
+# Compute normalized Laplacian
+D_knn = sparse.diags(np.array(A_knn.sum(axis=1)).flatten())
+D_inv_sqrt = sparse.diags(1 / np.sqrt(np.array(A_knn.sum(axis=1)).flatten() + 1e-10))
+L_norm_knn = sparse.eye(A_knn.shape[0]) - D_inv_sqrt @ A_knn @ D_inv_sqrt
+
+# Get bottom k eigenvectors (excluding λ=0)
+n_clusters = 2
+eigenvalues, eigenvectors = eigsh(L_norm_knn, k=n_clusters+1, which='SM')
+print(f"Smallest eigenvalues: {eigenvalues}")
+
+# Use eigenvectors for clustering (skip first which is constant)
+embedding = eigenvectors[:, 1:n_clusters+1]
+
+# Normalize rows
+embedding = embedding / np.linalg.norm(embedding, axis=1, keepdims=True)
+
+# Cluster in spectral embedding space
+kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+labels = kmeans.fit_predict(embedding)
+
+# Compare with true labels
+from sklearn.metrics import adjusted_rand_score
+print(f"Spectral clustering ARI: {adjusted_rand_score(y_true, labels):.3f}")
+
+# ========================================
+# 3. PAGERANK ALGORITHM
+# ========================================
+
+print("\n=== PageRank ===")
+
+def pagerank(A, damping=0.85, max_iter=100, tol=1e-6):
+    """Compute PageRank using power iteration."""
+    n = A.shape[0]
+    
+    # Row normalize (transition matrix)
+    out_degree = A.sum(axis=1)
+    out_degree[out_degree == 0] = 1  # Handle dangling nodes
+    P = A / out_degree[:, np.newaxis]
+    
+    # PageRank iteration
+    # r = d * P^T @ r + (1-d) / n
+    r = np.ones(n) / n
+    
+    for i in range(max_iter):
+        r_new = damping * (P.T @ r) + (1 - damping) / n
+        if np.linalg.norm(r_new - r) < tol:
+            print(f"Converged in {i+1} iterations")
+            break
+        r = r_new
+    
+    return r
+
+# Simple web graph
+web_edges = [(0,1), (0,2), (1,2), (2,0), (2,3), (3,0)]
+A_web = np.zeros((4, 4))
+for i, j in web_edges:
+    A_web[i, j] = 1
+
+ranks = pagerank(A_web)
+print(f"PageRank scores: {ranks}")
+print(f"Most important node: {np.argmax(ranks)}")
+
+# Compare with networkx
+G = nx.DiGraph()
+G.add_edges_from(web_edges)
+nx_ranks = nx.pagerank(G, alpha=0.85)
+print(f"NetworkX PageRank: {list(nx_ranks.values())}")
+
+# ========================================
+# 4. GRAPH NEURAL NETWORK PROPAGATION
+# ========================================
+
+print("\n=== GNN Message Passing ===")
+
+def gcn_layer(A, X, W):
+    """
+    Graph Convolutional Network layer.
+    H = σ(Ã X W) where Ã = D̃^(-1/2) Â D̃^(-1/2)
+    Â = A + I (add self-loops)
+    """
+    n = A.shape[0]
+    
+    # Add self-loops
+    A_hat = A + np.eye(n)
+    
+    # Normalize
+    D_hat = np.diag(A_hat.sum(axis=1))
+    D_hat_inv_sqrt = np.diag(1 / np.sqrt(np.diag(D_hat)))
+    A_norm = D_hat_inv_sqrt @ A_hat @ D_hat_inv_sqrt
+    
+    # Propagate and transform
+    H = A_norm @ X @ W
+    
+    # ReLU activation
+    return np.maximum(0, H)
+
+# Node features
+n_nodes = 7
+n_features = 4
+n_hidden = 3
+
+X = np.random.randn(n_nodes, n_features)
+W = np.random.randn(n_features, n_hidden) * 0.1
+
+# One GCN layer
+H = gcn_layer(A, X, W)
+print(f"Input shape: {X.shape}")
+print(f"Output shape after GCN layer: {H.shape}")
+
+# ========================================
+# 5. GRAPH PROPERTIES FROM EIGENVALUES
+# ========================================
+
+print("\n=== Spectral Graph Properties ===")
+
+eigenvalues_L, eigenvectors_L = np.linalg.eigh(L)
+
+print(f"Laplacian eigenvalues: {eigenvalues_L}")
+print(f"Number of connected components: {np.sum(eigenvalues_L < 1e-10)}")
+print(f"Algebraic connectivity (Fiedler value): {eigenvalues_L[1]:.4f}")
+
+# Fiedler vector for graph partitioning
+fiedler_vector = eigenvectors_L[:, 1]
+partition = fiedler_vector > 0
+print(f"Fiedler vector: {fiedler_vector}")
+print(f"Graph partition: {partition.astype(int)}")
 ```
 
-**1.2 Laplacian Matrix:**
-```python
-def laplacian_matrices():
-    """Demonstrate different types of Laplacian matrices"""
-    
-    def compute_laplacians(A):
-        """Compute various Laplacian matrices from adjacency matrix"""
-        
-        # Degree matrix
-        degrees = np.sum(A, axis=1)
-        D = np.diag(degrees)
-        
-        # Laplacian matrix
-        L = D - A
-        
-        # Normalized Laplacian
-        D_sqrt_inv = np.diag(1 / np.sqrt(degrees + 1e-8))  # Add small epsilon
-        L_norm = D_sqrt_inv @ L @ D_sqrt_inv
-        
-        # Random walk Laplacian
-        D_inv = np.diag(1 / (degrees + 1e-8))
-        L_rw = D_inv @ L
-        
-        return {
-            'Degree': D,
-            'Laplacian': L,
-            'Normalized': L_norm,
-            'Random Walk': L_rw,
-            'degrees': degrees
-        }
-    
-    # Example: Path graph
-    print("Laplacian Matrices for Different Graphs:")
-    print("=" * 50)
-    
-    # Path graph: 0-1-2-3
-    A_path = np.array([
-        [0, 1, 0, 0],
-        [1, 0, 1, 0],
-        [0, 1, 0, 1],
-        [0, 0, 1, 0]
-    ])
-    
-    print("\nPath Graph (0-1-2-3):")
-    print("Adjacency Matrix:")
-    print(A_path)
-    
-    laplacians_path = compute_laplacians(A_path)
-    
-    for name, matrix in laplacians_path.items():
-        if name != 'degrees':
-            print(f"\n{name} Matrix:")
-            print(matrix)
-    
-    # Circle graph: 0-1-2-3-0
-    A_circle = np.array([
-        [0, 1, 0, 1],
-        [1, 0, 1, 0],
-        [0, 1, 0, 1],
-        [1, 0, 1, 0]
-    ])
-    
-    print("\n\nCircle Graph (0-1-2-3-0):")
-    print("Adjacency Matrix:")
-    print(A_circle)
-    
-    laplacians_circle = compute_laplacians(A_circle)
-    
-    for name, matrix in laplacians_circle.items():
-        if name != 'degrees':
-            print(f"\n{name} Matrix:")
-            print(matrix)
+**Algorithm: Spectral Clustering**
+1. Build similarity graph (k-NN or ε-neighborhood)
+2. Compute normalized Laplacian: L = I - D^(-1/2)AD^(-1/2)
+3. Find k smallest eigenvectors of L
+4. Form matrix U ∈ R^(n×k) from eigenvectors
+5. Normalize rows of U to unit length
+6. Apply k-means to rows of U
 
-laplacian_matrices()
-```
+**ML Applications:**
+| Application | Linear Algebra Technique |
+|-------------|--------------------------|
+| **Spectral clustering** | Laplacian eigenvectors |
+| **PageRank / link analysis** | Power iteration on transition matrix |
+| **Graph neural networks** | Normalized adjacency multiplication |
+| **Community detection** | Modularity matrix eigendecomposition |
+| **Node embeddings** | Random walk transition matrices |
+| **Knowledge graphs** | Tensor factorization |
 
-**2. Spectral Graph Theory in ML:**
+**Key Connections:**
+- GCN: Smoothing via Laplacian → feature propagation
+- DeepWalk/Node2Vec: Random walk → implicit matrix factorization
+- Attention in GAT: Weighted adjacency with learned weights
 
-**2.1 Eigenanalysis for Graph Properties:**
-```python
-def spectral_graph_analysis():
-    """Analyze graph properties through eigenvalues"""
-    
-    def analyze_graph_spectrum(A, name):
-        """Analyze spectral properties of graph"""
-        
-        n = A.shape[0]
-        
-        # Compute Laplacian
-        degrees = np.sum(A, axis=1)
-        D = np.diag(degrees)
-        L = D - A
-        
-        # Eigenvalues and eigenvectors
-        eigenvals, eigenvecs = eigh(L)
-        
-        # Sort eigenvalues
-        idx = np.argsort(eigenvals)
-        eigenvals = eigenvals[idx]
-        eigenvecs = eigenvecs[:, idx]
-        
-        print(f"\n{name} Graph Analysis:")
-        print("-" * 30)
-        print(f"Laplacian eigenvalues: {eigenvals}")
-        
-        # Number of connected components
-        num_zero_eigenvals = np.sum(np.abs(eigenvals) < 1e-10)
-        print(f"Connected components: {num_zero_eigenvals}")
-        
-        # Algebraic connectivity (Fiedler value)
-        if num_zero_eigenvals == 1:
-            algebraic_connectivity = eigenvals[1]
-            print(f"Algebraic connectivity: {algebraic_connectivity:.6f}")
-        
-        # Spectral gap
-        if len(eigenvals) > 1:
-            spectral_gap = eigenvals[1] - eigenvals[0]
-            print(f"Spectral gap: {spectral_gap:.6f}")
-        
-        return eigenvals, eigenvecs
-    
-    # Test different graph types
-    graphs = {
-        'Path': np.array([
-            [0, 1, 0, 0, 0],
-            [1, 0, 1, 0, 0],
-            [0, 1, 0, 1, 0],
-            [0, 0, 1, 0, 1],
-            [0, 0, 0, 1, 0]
-        ]),
-        
-        'Star': np.array([
-            [0, 1, 1, 1, 1],
-            [1, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0]
-        ]),
-        
-        'Complete': np.ones((5, 5)) - np.eye(5),
-        
-        'Disconnected': np.array([
-            [0, 1, 0, 0, 0],
-            [1, 0, 0, 0, 0],
-            [0, 0, 0, 1, 1],
-            [0, 0, 1, 0, 1],
-            [0, 0, 1, 1, 0]
-        ])
-    }
-    
-    print("Spectral Graph Analysis:")
-    print("=" * 40)
-    
-    spectrum_data = {}
-    for name, A in graphs.items():
-        eigenvals, eigenvecs = analyze_graph_spectrum(A, name)
-        spectrum_data[name] = {'eigenvals': eigenvals, 'eigenvecs': eigenvecs}
-    
-    return spectrum_data
-
-spectrum_data = spectral_graph_analysis()
-```
-
-**2.2 Spectral Clustering:**
-```python
-def spectral_clustering():
-    """Demonstrate spectral clustering using Laplacian eigenvectors"""
-    
-    def create_clustered_graph(cluster_sizes, inter_cluster_prob=0.1, intra_cluster_prob=0.8):
-        """Create graph with known cluster structure"""
-        
-        n = sum(cluster_sizes)
-        A = np.zeros((n, n))
-        
-        # Track cluster membership
-        cluster_labels = []
-        start_idx = 0
-        
-        for i, size in enumerate(cluster_sizes):
-            cluster_labels.extend([i] * size)
-            
-            # Intra-cluster edges
-            for u in range(start_idx, start_idx + size):
-                for v in range(u + 1, start_idx + size):
-                    if np.random.rand() < intra_cluster_prob:
-                        A[u, v] = A[v, u] = 1
-            
-            start_idx += size
-        
-        # Inter-cluster edges
-        for u in range(n):
-            for v in range(u + 1, n):
-                if cluster_labels[u] != cluster_labels[v]:
-                    if np.random.rand() < inter_cluster_prob:
-                        A[u, v] = A[v, u] = 1
-        
-        return A, cluster_labels
-    
-    def simple_kmeans(X, k, max_iters=100):
-        """Simple k-means implementation"""
-        n, d = X.shape
-        
-        # Initialize centroids randomly
-        centroids = X[np.random.choice(n, k, replace=False)]
-        
-        for iteration in range(max_iters):
-            # Assign points to closest centroid
-            distances = np.sqrt(((X - centroids[:, np.newaxis])**2).sum(axis=2))
-            assignments = np.argmin(distances, axis=0)
-            
-            # Update centroids
-            new_centroids = np.array([X[assignments == i].mean(axis=0) if np.sum(assignments == i) > 0 
-                                    else centroids[i] for i in range(k)])
-            
-            # Check convergence
-            if np.allclose(centroids, new_centroids):
-                break
-            centroids = new_centroids
-        
-        return assignments
-    
-    def spectral_clustering_algorithm(A, k):
-        """Perform spectral clustering"""
-        
-        # Compute normalized Laplacian
-        degrees = np.sum(A, axis=1)
-        D_inv_sqrt = np.diag(1 / np.sqrt(degrees + 1e-8))
-        L_norm = np.eye(len(degrees)) - D_inv_sqrt @ A @ D_inv_sqrt
-        
-        # Compute k smallest eigenvalues and eigenvectors
-        eigenvals, eigenvecs = eigh(L_norm)
-        
-        # Use k smallest eigenvectors as features
-        features = eigenvecs[:, :k]
-        
-        # K-means on spectral features
-        cluster_assignments = simple_kmeans(features, k)
-        
-        return cluster_assignments, features, eigenvals
-    
-    # Create test graph with 3 clusters
-    np.random.seed(42)  # For reproducibility
-    cluster_sizes = [8, 6, 10]
-    A, true_labels = create_clustered_graph(cluster_sizes)
-    
-    print("Spectral Clustering Example:")
-    print("=" * 40)
-    print(f"Graph size: {A.shape[0]} vertices")
-    print(f"True clusters: {cluster_sizes}")
-    print(f"Edge density: {np.sum(A) / (A.shape[0] * (A.shape[0] - 1)):.3f}")
-    
-    # Perform spectral clustering
-    k = len(cluster_sizes)
-    predicted_labels, features, eigenvals = spectral_clustering_algorithm(A, k)
-    
-    print(f"\nSpectral clustering results:")
-    print(f"Predicted cluster sizes: {[np.sum(predicted_labels == i) for i in range(k)]}")
-    
-    # Show eigenvalue spectrum
-    print(f"\nLaplacian eigenvalues (first 10): {eigenvals[:10]}")
-    print(f"Spectral gap: {eigenvals[k] - eigenvals[k-1]:.6f}")
-
-spectral_clustering()
-```
-
-**3. Graph Neural Networks (GNNs):**
-
-**3.1 Message Passing Framework:**
-```python
-def graph_neural_network_concepts():
-    """Demonstrate core concepts of Graph Neural Networks"""
-    
-    def message_passing_layer(A, X, W_message, W_update):
-        """
-        Simple message passing layer
-        A: adjacency matrix (n x n)
-        X: node features (n x d)
-        W_message: message transformation (d x d)
-        W_update: update transformation (d x d)
-        """
-        
-        # Step 1: Transform features for messaging
-        messages = X @ W_message
-        
-        # Step 2: Aggregate messages from neighbors
-        # A @ messages aggregates messages from neighbors
-        aggregated = A @ messages
-        
-        # Step 3: Update node features
-        # Combine original features with aggregated messages
-        updated_features = np.tanh(X @ W_update + aggregated)
-        
-        return updated_features
-    
-    def simple_gcn_layer(A, X, W):
-        """
-        Simple Graph Convolutional Network layer
-        Implements: H^(l+1) = σ(D^(-1/2) A D^(-1/2) H^(l) W^(l))
-        """
-        
-        # Add self-loops
-        A_tilde = A + np.eye(A.shape[0])
-        
-        # Compute degree matrix
-        degrees = np.sum(A_tilde, axis=1)
-        D_inv_sqrt = np.diag(1 / np.sqrt(degrees))
-        
-        # Normalize adjacency matrix
-        A_norm = D_inv_sqrt @ A_tilde @ D_inv_sqrt
-        
-        # Apply linear transformation and activation
-        output = np.tanh(A_norm @ X @ W)
-        
-        return output
-    
-    # Example graph and features
-    A = np.array([
-        [0, 1, 1, 0],
-        [1, 0, 1, 1],
-        [1, 1, 0, 1],
-        [0, 1, 1, 0]
-    ])
-    
-    # Initial node features (4 nodes, 3 features each)
-    X = np.array([
-        [1.0, 0.5, 0.2],
-        [0.8, 1.0, 0.1],
-        [0.3, 0.7, 1.0],
-        [0.9, 0.2, 0.8]
-    ])
-    
-    print("Graph Neural Network Concepts:")
-    print("=" * 40)
-    print("Adjacency matrix:")
-    print(A)
-    print("\nInitial node features:")
-    print(X)
-    
-    # Message passing example
-    d = X.shape[1]
-    W_message = np.random.randn(d, d) * 0.1
-    W_update = np.random.randn(d, d) * 0.1
-    
-    X_updated = message_passing_layer(A, X, W_message, W_update)
-    print("\nAfter message passing:")
-    print(X_updated)
-    
-    # GCN layer example
-    W_gcn = np.random.randn(d, d) * 0.1
-    X_gcn = simple_gcn_layer(A, X, W_gcn)
-    print("\nAfter GCN layer:")
-    print(X_gcn)
-
-graph_neural_network_concepts()
-```
-
-**3.2 Graph Attention Mechanism:**
-```python
-def graph_attention_mechanism():
-    """Demonstrate graph attention mechanism"""
-    
-    def attention_layer(A, X, W_q, W_k, W_v):
-        """
-        Graph attention layer
-        A: adjacency matrix
-        X: node features
-        W_q, W_k, W_v: query, key, value transformation matrices
-        """
-        
-        # Transform features to query, key, value
-        Q = X @ W_q  # Queries
-        K = X @ W_k  # Keys
-        V = X @ W_v  # Values
-        
-        # Compute attention scores
-        attention_scores = Q @ K.T
-        
-        # Mask attention scores for non-connected nodes
-        mask = (A == 0) & (np.eye(A.shape[0]) == 0)
-        attention_scores[mask] = -np.inf
-        
-        # Apply softmax to get attention weights
-        attention_weights = np.exp(attention_scores)
-        attention_weights = attention_weights / (np.sum(attention_weights, axis=1, keepdims=True) + 1e-8)
-        
-        # Apply attention to values
-        output = attention_weights @ V
-        
-        return output, attention_weights
-    
-    # Example usage
-    A = np.array([
-        [1, 1, 0, 1],
-        [1, 1, 1, 0],
-        [0, 1, 1, 1],
-        [1, 0, 1, 1]
-    ])
-    
-    X = np.array([
-        [1.0, 0.5],
-        [0.8, 1.0],
-        [0.3, 0.7],
-        [0.9, 0.2]
-    ])
-    
-    print("Graph Attention Mechanism:")
-    print("=" * 30)
-    
-    d_model = X.shape[1]
-    W_q = np.random.randn(d_model, d_model) * 0.1
-    W_k = np.random.randn(d_model, d_model) * 0.1
-    W_v = np.random.randn(d_model, d_model) * 0.1
-    
-    output, attention_weights = attention_layer(A, X, W_q, W_k, W_v)
-    
-    print("Attention weights:")
-    print(attention_weights)
-    print("\nOutput features:")
-    print(output)
-
-graph_attention_mechanism()
-```
-
-**4. Graph Embeddings:**
-
-**4.1 Spectral Embeddings:**
-```python
-def graph_embeddings():
-    """Demonstrate various graph embedding techniques"""
-    
-    def adjacency_spectral_embedding(A, dim=2):
-        """Embed graph using adjacency matrix eigendecomposition"""
-        
-        eigenvals, eigenvecs = eigh(A)
-        
-        # Sort by eigenvalue magnitude
-        idx = np.argsort(np.abs(eigenvals))[::-1]
-        eigenvals = eigenvals[idx]
-        eigenvecs = eigenvecs[:, idx]
-        
-        # Take top-k eigenvectors
-        embedding = eigenvecs[:, :dim]
-        
-        return embedding, eigenvals[:dim]
-    
-    def laplacian_spectral_embedding(A, dim=2):
-        """Embed graph using Laplacian eigendecomposition"""
-        
-        # Compute normalized Laplacian
-        degrees = np.sum(A, axis=1)
-        D_inv_sqrt = np.diag(1 / np.sqrt(degrees + 1e-8))
-        L_norm = np.eye(len(degrees)) - D_inv_sqrt @ A @ D_inv_sqrt
-        
-        eigenvals, eigenvecs = eigh(L_norm)
-        
-        # Use smallest non-zero eigenvalues
-        embedding = eigenvecs[:, 1:dim+1]  # Skip first (zero) eigenvalue
-        
-        return embedding, eigenvals[1:dim+1]
-    
-    def node2vec_random_walk(A, start_node, walk_length, p=1, q=1):
-        """
-        Simulate biased random walk for node2vec
-        p: return parameter
-        q: in-out parameter
-        """
-        
-        walk = [start_node]
-        
-        for _ in range(walk_length - 1):
-            current = walk[-1]
-            neighbors = np.where(A[current] > 0)[0]
-            
-            if len(neighbors) == 0:
-                break
-            
-            if len(walk) == 1:
-                # First step: uniform random
-                next_node = np.random.choice(neighbors)
-            else:
-                # Biased random walk
-                prev = walk[-2]
-                
-                # Compute transition probabilities
-                probs = []
-                for neighbor in neighbors:
-                    if neighbor == prev:
-                        # Return to previous node
-                        prob = 1 / p
-                    elif A[prev, neighbor] > 0:
-                        # Move to node connected to previous
-                        prob = 1
-                    else:
-                        # Move to disconnected node
-                        prob = 1 / q
-                    probs.append(prob)
-                
-                # Normalize probabilities
-                probs = np.array(probs)
-                probs = probs / np.sum(probs)
-                
-                next_node = np.random.choice(neighbors, p=probs)
-            
-            walk.append(next_node)
-        
-        return walk
-    
-    # Create example graph (cycle + some connections)
-    n = 8
-    A = np.zeros((n, n))
-    
-    # Create cycle
-    for i in range(n):
-        A[i, (i + 1) % n] = 1
-        A[(i + 1) % n, i] = 1
-    
-    # Add some extra connections
-    A[0, 4] = A[4, 0] = 1  # Diameter connection
-    A[2, 6] = A[6, 2] = 1  # Another diameter connection
-    
-    print("Graph Embedding Example:")
-    print("=" * 40)
-    print(f"Graph adjacency matrix:")
-    print(A.astype(int))
-    
-    # Adjacency embedding
-    adj_embedding, adj_eigenvals = adjacency_spectral_embedding(A, dim=2)
-    print(f"\nAdjacency embedding eigenvalues: {adj_eigenvals}")
-    print("Node embeddings (Adjacency):")
-    for i, emb in enumerate(adj_embedding):
-        print(f"Node {i}: ({emb[0]:.3f}, {emb[1]:.3f})")
-    
-    # Laplacian embedding
-    lap_embedding, lap_eigenvals = laplacian_spectral_embedding(A, dim=2)
-    print(f"\nLaplacian embedding eigenvalues: {lap_eigenvals}")
-    print("Node embeddings (Laplacian):")
-    for i, emb in enumerate(lap_embedding):
-        print(f"Node {i}: ({emb[0]:.3f}, {emb[1]:.3f})")
-    
-    # Random walk example
-    print(f"\nRandom walk examples:")
-    for start in [0, 3]:
-        walk = node2vec_random_walk(A, start, walk_length=10)
-        print(f"Walk from node {start}: {walk}")
-
-graph_embeddings()
-```
-
-**5. Applications in Recommendation Systems:**
-
-**5.1 Collaborative Filtering with Matrix Factorization:**
-```python
-def collaborative_filtering_graphs():
-    """Demonstrate collaborative filtering using graph-based approaches"""
-    
-    def create_bipartite_graph(user_item_matrix):
-        """Create bipartite graph from user-item interactions"""
-        
-        n_users, n_items = user_item_matrix.shape
-        n_total = n_users + n_items
-        
-        # Create bipartite adjacency matrix
-        A = np.zeros((n_total, n_total))
-        
-        # Fill user-item connections
-        A[:n_users, n_users:] = user_item_matrix
-        A[n_users:, :n_users] = user_item_matrix.T
-        
-        return A
-    
-    def graph_based_recommendations(A, user_idx, n_users, top_k=3):
-        """Generate recommendations using graph-based methods"""
-        
-        # Random walk with restart
-        alpha = 0.15  # Restart probability
-        max_iter = 100
-        tol = 1e-6
-        
-        # Initialize personalization vector
-        e = np.zeros(A.shape[0])
-        e[user_idx] = 1
-        
-        # Transition matrix
-        degrees = np.sum(A, axis=1)
-        degrees[degrees == 0] = 1  # Avoid division by zero
-        P = A / degrees[:, np.newaxis]
-        
-        # Random walk with restart
-        r = e.copy()
-        
-        for iteration in range(max_iter):
-            r_new = (1 - alpha) * (P.T @ r) + alpha * e
-            
-            if np.linalg.norm(r_new - r) < tol:
-                break
-            
-            r = r_new
-        
-        # Extract item scores (items are nodes n_users:)
-        item_scores = r[n_users:]
-        
-        # Get top-k recommendations
-        top_items = np.argsort(item_scores)[::-1][:top_k]
-        
-        return top_items, item_scores
-    
-    # Example user-item matrix
-    user_item_matrix = np.array([
-        [5, 3, 0, 1, 0],  # User 0 ratings
-        [4, 0, 0, 1, 2],  # User 1 ratings
-        [1, 1, 0, 5, 0],  # User 2 ratings
-        [0, 0, 4, 4, 0],  # User 3 ratings
-        [0, 1, 5, 4, 0],  # User 4 ratings
-    ])
-    
-    print("Graph-Based Collaborative Filtering:")
-    print("=" * 40)
-    print("User-Item Rating Matrix:")
-    print(user_item_matrix)
-    
-    # Create bipartite graph
-    A = create_bipartite_graph(user_item_matrix > 0)  # Binary interactions
-    n_users, n_items = user_item_matrix.shape
-    
-    print(f"\nBipartite graph shape: {A.shape}")
-    print(f"Users: 0-{n_users-1}, Items: {n_users}-{n_users+n_items-1}")
-    
-    # Generate recommendations for user 0
-    user_idx = 0
-    recommendations, scores = graph_based_recommendations(A, user_idx, n_users)
-    
-    print(f"\nRecommendations for User {user_idx}:")
-    for i, item_idx in enumerate(recommendations):
-        print(f"  {i+1}. Item {item_idx}: score = {scores[item_idx]:.4f}")
-    
-    # Show which items user hasn't rated
-    unrated_items = np.where(user_item_matrix[user_idx] == 0)[0]
-    print(f"\nUnrated items for User {user_idx}: {unrated_items}")
-
-collaborative_filtering_graphs()
-```
-
-**6. Knowledge Graphs and Embeddings:**
-
-**6.1 Knowledge Graph Embeddings:**
-```python
-def knowledge_graph_embeddings():
-    """Demonstrate knowledge graph embedding concepts"""
-    
-    def translational_embedding_loss(h, r, t, margin=1.0):
-        """
-        TransE loss: ||h + r - t||
-        h: head entity embedding
-        r: relation embedding  
-        t: tail entity embedding
-        """
-        
-        positive_score = np.linalg.norm(h + r - t)
-        return max(0, margin + positive_score)
-    
-    def create_knowledge_graph_triples():
-        """Create example knowledge graph triples"""
-        
-        # Entities: 0=Paris, 1=France, 2=Berlin, 3=Germany, 4=Europe
-        # Relations: 0=capital_of, 1=located_in
-        
-        triples = [
-            (0, 0, 1),  # Paris capital_of France
-            (2, 0, 3),  # Berlin capital_of Germany
-            (1, 1, 4),  # France located_in Europe
-            (3, 1, 4),  # Germany located_in Europe
-        ]
-        
-        entity_names = ["Paris", "France", "Berlin", "Germany", "Europe"]
-        relation_names = ["capital_of", "located_in"]
-        
-        return triples, entity_names, relation_names
-    
-    def simple_transe_training(triples, n_entities, n_relations, embedding_dim=3, 
-                              epochs=100, lr=0.01):
-        """Simple TransE training simulation"""
-        
-        # Initialize embeddings
-        entity_embeddings = np.random.randn(n_entities, embedding_dim) * 0.1
-        relation_embeddings = np.random.randn(n_relations, embedding_dim) * 0.1
-        
-        # Normalize entity embeddings
-        entity_embeddings = entity_embeddings / np.linalg.norm(entity_embeddings, axis=1, keepdims=True)
-        
-        losses = []
-        
-        for epoch in range(epochs):
-            epoch_loss = 0
-            
-            for h, r, t in triples:
-                # Positive triple
-                h_emb = entity_embeddings[h]
-                r_emb = relation_embeddings[r]
-                t_emb = entity_embeddings[t]
-                
-                # Positive score
-                pos_score = np.linalg.norm(h_emb + r_emb - t_emb)
-                
-                # Negative sampling (corrupt head or tail)
-                if np.random.rand() > 0.5:
-                    # Corrupt head
-                    h_neg = np.random.randint(0, n_entities)
-                    h_neg_emb = entity_embeddings[h_neg]
-                    neg_score = np.linalg.norm(h_neg_emb + r_emb - t_emb)
-                else:
-                    # Corrupt tail
-                    t_neg = np.random.randint(0, n_entities)
-                    t_neg_emb = entity_embeddings[t_neg]
-                    neg_score = np.linalg.norm(h_emb + r_emb - t_neg_emb)
-                
-                # Margin loss
-                loss = max(0, 1.0 + pos_score - neg_score)
-                epoch_loss += loss
-                
-                # Gradient update (simplified)
-                if loss > 0:
-                    # Update embeddings (simplified gradient descent)
-                    if np.random.rand() > 0.5:  # Corrupted head
-                        entity_embeddings[h] -= lr * 0.1 * np.random.randn(embedding_dim)
-                    else:  # Corrupted tail
-                        entity_embeddings[t] -= lr * 0.1 * np.random.randn(embedding_dim)
-                    
-                    relation_embeddings[r] -= lr * 0.1 * np.random.randn(embedding_dim)
-            
-            # Re-normalize entity embeddings
-            entity_embeddings = entity_embeddings / np.linalg.norm(entity_embeddings, axis=1, keepdims=True)
-            
-            losses.append(epoch_loss / len(triples))
-            
-            if epoch % 20 == 0:
-                print(f"Epoch {epoch}: Average loss = {losses[-1]:.4f}")
-        
-        return entity_embeddings, relation_embeddings, losses
-    
-    # Create knowledge graph
-    triples, entity_names, relation_names = create_knowledge_graph_triples()
-    
-    print("Knowledge Graph Embeddings:")
-    print("=" * 40)
-    print("Knowledge Graph Triples:")
-    for h, r, t in triples:
-        print(f"  {entity_names[h]} --{relation_names[r]}--> {entity_names[t]}")
-    
-    # Train embeddings
-    n_entities = len(entity_names)
-    n_relations = len(relation_names)
-    
-    entity_embs, relation_embs, losses = simple_transe_training(
-        triples, n_entities, n_relations, embedding_dim=3, epochs=100
-    )
-    
-    print(f"\nFinal Entity Embeddings:")
-    for i, name in enumerate(entity_names):
-        print(f"  {name}: {entity_embs[i]}")
-    
-    print(f"\nFinal Relation Embeddings:")
-    for i, name in enumerate(relation_names):
-        print(f"  {name}: {relation_embs[i]}")
-    
-    # Test embedding quality
-    print(f"\nTesting Triple: Paris + capital_of ≈ France")
-    paris_emb = entity_embs[0]
-    capital_of_emb = relation_embs[0]
-    france_emb = entity_embs[1]
-    
-    predicted = paris_emb + capital_of_emb
-    distance = np.linalg.norm(predicted - france_emb)
-    print(f"Distance: {distance:.4f}")
-
-knowledge_graph_embeddings()
-```
-
-**Key Intersections Summary:**
-
-1. **Matrix Representations**: Adjacency and Laplacian matrices encode graph structure
-2. **Spectral Methods**: Eigendecomposition reveals graph properties and enables clustering
-3. **Graph Neural Networks**: Message passing frameworks use linear algebra for feature propagation
-4. **Embeddings**: Spectral and translational methods create vector representations of nodes
-5. **Recommendation Systems**: Graph-based collaborative filtering using matrix factorization
-6. **Knowledge Graphs**: Embedding entities and relations in vector spaces for reasoning
-
-These intersections make linear algebra fundamental to modern graph-based machine learning, enabling powerful algorithms for social networks, molecular analysis, recommendation systems, and knowledge reasoning.
+**Interview Tips:**
+- Know the relationship: L = D - A and its normalized forms
+- Explain why Laplacian eigenvectors reveal cluster structure
+- Connect GCN to spectral graph convolutions
+- Mention that GNN aggregation is matrix multiplication
+- Know PageRank is finding principal eigenvector of modified adjacency
 
 ---
 
 ## Question 17
 
-**Given a dataset, determine if PCA would be beneficial and justify your approach.**
+**How do you evaluate and choose dimensionality reduction techniques?**
 
-**Answer:** Determining whether PCA would be beneficial for a dataset requires systematic analysis of the data characteristics, objectives, and potential trade-offs. Here's a comprehensive framework for making this decision:
+### Answer
 
-**1. Dataset Analysis Framework:**
+**Definition:**  
+Dimensionality reduction techniques reduce the number of features while preserving important structure. Choosing the right technique depends on data characteristics (linear vs non-linear), task requirements (visualization vs preprocessing), and computational constraints.
 
-**1.1 Initial Data Exploration:**
+**Core Concepts:**
+- **Linear methods**: PCA, Factor Analysis, LDA (preserve global structure)
+- **Non-linear methods**: t-SNE, UMAP, Autoencoders (preserve local structure)
+- **Supervised vs unsupervised**: LDA uses labels; PCA doesn't
+- **Global vs local preservation**: PCA (global variance); t-SNE (local neighborhoods)
+
+**Mathematical Comparison:**
+
+| Method | Objective | Mathematical Formulation |
+|--------|-----------|--------------------------|
+| **PCA** | Max variance | $\max_W \text{Var}(XW) = W^T \Sigma W$ |
+| **LDA** | Max class separation | $\max_W \frac{W^T S_B W}{W^T S_W W}$ |
+| **t-SNE** | Preserve neighborhoods | $\min \sum_i KL(P_i \| Q_i)$ |
+| **UMAP** | Preserve fuzzy topology | Cross-entropy on fuzzy sets |
+
+**PCA variance:**
+$$\text{maximize } \mathbf{w}^T \Sigma \mathbf{w} \text{ subject to } \|\mathbf{w}\|=1$$
+
+**LDA objective (Fisher's criterion):**
+$$J(\mathbf{w}) = \frac{\mathbf{w}^T S_B \mathbf{w}}{\mathbf{w}^T S_W \mathbf{w}}$$
+
+where S_B = between-class scatter, S_W = within-class scatter.
+
+**t-SNE probability:**
+$$p_{j|i} = \frac{\exp(-\|x_i - x_j\|^2 / 2\sigma_i^2)}{\sum_{k \neq i} \exp(-\|x_i - x_k\|^2 / 2\sigma_i^2)}$$
+
+**Python Example:**
 ```python
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.datasets import load_digits, make_swiss_roll
 from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import make_classification, load_digits
-import seaborn as sns
+from sklearn.model_selection import cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import silhouette_score
+import time
 
-def analyze_dataset_for_pca(X, feature_names=None, target=None):
-    """
-    Comprehensive analysis to determine if PCA would be beneficial
-    """
-    
-    if feature_names is None:
-        feature_names = [f"Feature_{i}" for i in range(X.shape[1])]
-    
-    print("Dataset Analysis for PCA Suitability")
-    print("=" * 50)
-    
-    # Basic statistics
-    n_samples, n_features = X.shape
-    print(f"Dataset shape: {n_samples} samples, {n_features} features")
-    print(f"Data type: {X.dtype}")
-    print(f"Memory usage: {X.nbytes / 1024**2:.2f} MB")
-    
-    # Missing values
-    if hasattr(X, 'isnull'):
-        missing_pct = (X.isnull().sum() / len(X)) * 100
-        print(f"Missing values: {missing_pct.sum():.1f}% total")
-    
-    # Feature variance analysis
-    variances = np.var(X, axis=0)
-    print(f"\nFeature Variance Analysis:")
-    print(f"  Variance range: [{np.min(variances):.4f}, {np.max(variances):.4f}]")
-    print(f"  Near-zero variance features: {np.sum(variances < 1e-8)}")
-    print(f"  Low variance features (<1% of max): {np.sum(variances < 0.01 * np.max(variances))}")
-    
-    return {
-        'n_samples': n_samples,
-        'n_features': n_features,
-        'variances': variances,
-        'feature_names': feature_names
-    }
+np.random.seed(42)
 
-# Example with synthetic high-dimensional data
-X_synthetic, y_synthetic = make_classification(
-    n_samples=1000, n_features=50, n_informative=10, 
-    n_redundant=15, n_clusters_per_class=1, random_state=42
-)
+# Load dataset
+digits = load_digits()
+X, y = digits.data, digits.target
+X_scaled = StandardScaler().fit_transform(X)
 
-basic_stats = analyze_dataset_for_pca(X_synthetic)
-```
+print(f"Original dimensions: {X.shape}")
+print(f"Classes: {len(np.unique(y))}")
 
-**1.2 Correlation and Multicollinearity Analysis:**
-```python
-def correlation_analysis(X, feature_names=None, threshold=0.8):
-    """Analyze correlations and multicollinearity"""
-    
-    print("\nCorrelation and Multicollinearity Analysis:")
-    print("-" * 40)
-    
-    # Compute correlation matrix
-    corr_matrix = np.corrcoef(X.T)
-    
-    # Find highly correlated pairs
-    high_corr_pairs = []
-    n_features = X.shape[1]
-    
-    for i in range(n_features):
-        for j in range(i+1, n_features):
-            if abs(corr_matrix[i, j]) > threshold:
-                high_corr_pairs.append((i, j, corr_matrix[i, j]))
-    
-    print(f"Highly correlated pairs (|r| > {threshold}): {len(high_corr_pairs)}")
-    
-    if len(high_corr_pairs) > 0:
-        print("Top 5 correlations:")
-        sorted_pairs = sorted(high_corr_pairs, key=lambda x: abs(x[2]), reverse=True)
-        for i, j, corr in sorted_pairs[:5]:
-            feat_i = feature_names[i] if feature_names else f"F{i}"
-            feat_j = feature_names[j] if feature_names else f"F{j}"
-            print(f"  {feat_i} - {feat_j}: {corr:.3f}")
-    
-    # Overall correlation statistics
-    upper_triangle = corr_matrix[np.triu_indices_from(corr_matrix, k=1)]
-    print(f"\nCorrelation Statistics:")
-    print(f"  Mean absolute correlation: {np.mean(np.abs(upper_triangle)):.3f}")
-    print(f"  Max correlation: {np.max(np.abs(upper_triangle)):.3f}")
-    print(f"  Correlations > 0.5: {np.sum(np.abs(upper_triangle) > 0.5)}")
-    print(f"  Correlations > 0.8: {np.sum(np.abs(upper_triangle) > 0.8)}")
-    
-    return corr_matrix, high_corr_pairs
+# ========================================
+# 1. COMPARISON OF METHODS
+# ========================================
 
-# Analyze synthetic dataset
-corr_matrix, high_corr_pairs = correlation_analysis(X_synthetic)
-```
+methods = {}
 
-**1.3 Condition Number and Rank Analysis:**
-```python
-def matrix_condition_analysis(X):
-    """Analyze matrix condition and rank"""
-    
-    print("\nMatrix Condition Analysis:")
-    print("-" * 30)
-    
-    # Standardize data for condition number analysis
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    
-    # Compute covariance matrix
-    cov_matrix = np.cov(X_scaled.T)
-    
-    # Condition number
-    cond_num = np.linalg.cond(cov_matrix)
-    print(f"Covariance matrix condition number: {cond_num:.2e}")
-    
-    # Rank analysis
-    rank = np.linalg.matrix_rank(X_scaled)
-    print(f"Matrix rank: {rank} (full rank: {min(X.shape)})")
-    
-    # Eigenvalue analysis of covariance matrix
-    eigenvals = np.linalg.eigvals(cov_matrix)
-    eigenvals = np.sort(eigenvals)[::-1]  # Sort descending
-    
-    print(f"Eigenvalue range: [{eigenvals[-1]:.4f}, {eigenvals[0]:.4f}]")
-    print(f"Eigenvalue ratio (max/min): {eigenvals[0]/eigenvals[-1]:.2e}")
-    
-    # Effective rank (based on eigenvalues)
-    total_variance = np.sum(eigenvals)
-    cumvar = np.cumsum(eigenvals) / total_variance
-    effective_rank_90 = np.argmax(cumvar >= 0.9) + 1
-    effective_rank_95 = np.argmax(cumvar >= 0.95) + 1
-    
-    print(f"Effective rank (90% variance): {effective_rank_90}")
-    print(f"Effective rank (95% variance): {effective_rank_95}")
-    
-    return {
-        'condition_number': cond_num,
-        'rank': rank,
-        'eigenvalues': eigenvals,
-        'effective_rank_90': effective_rank_90,
-        'effective_rank_95': effective_rank_95
-    }
-
-matrix_analysis = matrix_condition_analysis(X_synthetic)
-```
-
-**2. PCA Suitability Assessment:**
-
-**2.1 Intrinsic Dimensionality Estimation:**
-```python
-def estimate_intrinsic_dimensionality(X, max_components=None):
-    """Estimate intrinsic dimensionality using various methods"""
-    
-    print("\nIntrinsic Dimensionality Estimation:")
-    print("-" * 35)
-    
-    # Standardize data
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    
-    # PCA to analyze variance explained
-    n_features = X.shape[1]
-    max_comp = min(max_components or n_features, n_features, X.shape[0])
-    
-    pca = PCA(n_components=max_comp)
-    pca.fit(X_scaled)
-    
-    # Variance explained analysis
-    var_explained = pca.explained_variance_ratio_
-    cumvar_explained = np.cumsum(var_explained)
-    
-    # Find dimensions needed for different variance thresholds
-    thresholds = [0.80, 0.85, 0.90, 0.95, 0.99]
-    
-    print("Variance Explained Analysis:")
-    for threshold in thresholds:
-        dims_needed = np.argmax(cumvar_explained >= threshold) + 1
-        print(f"  {threshold*100:2.0f}% variance: {dims_needed:3d} components ({dims_needed/n_features*100:.1f}% of original)")
-    
-    # Elbow method for optimal components
-    def find_elbow(var_explained, method='knee'):
-        """Find elbow in variance explained curve"""
-        
-        # Second derivative method
-        if len(var_explained) < 3:
-            return 1
-        
-        second_derivative = np.diff(var_explained, 2)
-        
-        # Find the point where second derivative is minimal (most curved)
-        elbow_idx = np.argmin(second_derivative) + 2  # +2 due to double differencing
-        
-        return min(elbow_idx, len(var_explained))
-    
-    elbow_point = find_elbow(var_explained)
-    print(f"\nElbow method suggests: {elbow_point} components")
-    print(f"Variance explained by elbow components: {cumvar_explained[elbow_point-1]:.3f}")
-    
-    # Kaiser criterion (eigenvalues > 1 for standardized data)
-    eigenvals_above_1 = np.sum(pca.explained_variance_ > 1)
-    print(f"Kaiser criterion (eigenval > 1): {eigenvals_above_1} components")
-    
-    return {
-        'variance_explained': var_explained,
-        'cumulative_variance': cumvar_explained,
-        'elbow_components': elbow_point,
-        'kaiser_components': eigenvals_above_1,
-        'pca_model': pca
-    }
-
-dimensionality_analysis = estimate_intrinsic_dimensionality(X_synthetic, max_components=30)
-```
-
-**2.2 Visualization of PCA Benefits:**
-```python
-def visualize_pca_benefits(X, dimensionality_analysis, max_display=20):
-    """Visualize the benefits of PCA"""
-    
-    print("\nPCA Benefit Visualization:")
-    print("-" * 25)
-    
-    pca = dimensionality_analysis['pca_model']
-    var_explained = dimensionality_analysis['variance_explained']
-    cumvar = dimensionality_analysis['cumulative_variance']
-    
-    # Display top components
-    n_display = min(max_display, len(var_explained))
-    
-    print(f"Top {n_display} Principal Components:")
-    print("Component\tVariance\tCumulative\tDescription")
-    print("-" * 50)
-    
-    for i in range(n_display):
-        var_pct = var_explained[i] * 100
-        cumvar_pct = cumvar[i] * 100
-        
-        # Simple description based on variance
-        if var_pct > 20:
-            desc = "Highly informative"
-        elif var_pct > 10:
-            desc = "Very informative"
-        elif var_pct > 5:
-            desc = "Informative"
-        elif var_pct > 1:
-            desc = "Moderately useful"
-        else:
-            desc = "Low information"
-        
-        print(f"PC{i+1:2d}\t\t{var_pct:6.2f}%\t{cumvar_pct:6.2f}%\t{desc}")
-    
-    # Scree plot data
-    print(f"\nScree Plot Analysis:")
-    print("Sharp drops in variance indicate natural dimensionality")
-    
-    # Find largest drops
-    variance_drops = []
-    for i in range(1, min(10, len(var_explained))):
-        drop = var_explained[i-1] - var_explained[i]
-        variance_drops.append((i, drop))
-    
-    variance_drops.sort(key=lambda x: x[1], reverse=True)
-    
-    print("Largest variance drops:")
-    for i, (component, drop) in enumerate(variance_drops[:5]):
-        print(f"  {i+1}. After PC{component}: {drop*100:.2f}% drop")
-    
-    return var_explained[:n_display], cumvar[:n_display]
-
-var_display, cumvar_display = visualize_pca_benefits(X_synthetic, dimensionality_analysis)
-```
-
-**3. Decision Framework:**
-
-**3.1 Quantitative Criteria:**
-```python
-def pca_decision_framework(X, analysis_results, use_case="general"):
-    """
-    Comprehensive decision framework for PCA application
-    """
-    
-    print("\nPCA Decision Framework:")
-    print("=" * 30)
-    
-    basic_stats = analysis_results.get('basic_stats', {})
-    matrix_analysis = analysis_results.get('matrix_analysis', {})
-    dimensionality_analysis = analysis_results.get('dimensionality_analysis', {})
-    correlation_info = analysis_results.get('correlation_info', {})
-    
-    # Scoring system
-    pca_score = 0
-    max_score = 0
-    decision_factors = []
-    
-    # Factor 1: High dimensionality
-    n_features = basic_stats.get('n_features', X.shape[1])
-    if n_features > 50:
-        pca_score += 3
-        decision_factors.append(f"✓ High dimensionality ({n_features} features): +3 points")
-    elif n_features > 20:
-        pca_score += 2
-        decision_factors.append(f"✓ Moderate dimensionality ({n_features} features): +2 points")
-    elif n_features > 10:
-        pca_score += 1
-        decision_factors.append(f"~ Low-moderate dimensionality ({n_features} features): +1 point")
-    else:
-        decision_factors.append(f"✗ Low dimensionality ({n_features} features): 0 points")
-    max_score += 3
-    
-    # Factor 2: Multicollinearity
-    high_corr_pairs = correlation_info.get('high_corr_pairs', [])
-    if len(high_corr_pairs) > n_features * 0.3:
-        pca_score += 3
-        decision_factors.append(f"✓ High multicollinearity ({len(high_corr_pairs)} pairs): +3 points")
-    elif len(high_corr_pairs) > n_features * 0.1:
-        pca_score += 2
-        decision_factors.append(f"✓ Moderate multicollinearity ({len(high_corr_pairs)} pairs): +2 points")
-    elif len(high_corr_pairs) > 0:
-        pca_score += 1
-        decision_factors.append(f"~ Some multicollinearity ({len(high_corr_pairs)} pairs): +1 point")
-    else:
-        decision_factors.append(f"✗ No significant multicollinearity: 0 points")
-    max_score += 3
-    
-    # Factor 3: Variance concentration
-    var90_components = dimensionality_analysis.get('effective_rank_90', n_features)
-    compression_ratio = var90_components / n_features
-    if compression_ratio < 0.3:
-        pca_score += 3
-        decision_factors.append(f"✓ High variance concentration ({compression_ratio:.2f}): +3 points")
-    elif compression_ratio < 0.6:
-        pca_score += 2
-        decision_factors.append(f"✓ Moderate variance concentration ({compression_ratio:.2f}): +2 points")
-    elif compression_ratio < 0.8:
-        pca_score += 1
-        decision_factors.append(f"~ Some variance concentration ({compression_ratio:.2f}): +1 point")
-    else:
-        decision_factors.append(f"✗ Poor variance concentration ({compression_ratio:.2f}): 0 points")
-    max_score += 3
-    
-    # Factor 4: Condition number
-    cond_num = matrix_analysis.get('condition_number', 1)
-    if cond_num > 1e6:
-        pca_score += 2
-        decision_factors.append(f"✓ High condition number ({cond_num:.1e}): +2 points")
-    elif cond_num > 1e3:
-        pca_score += 1
-        decision_factors.append(f"~ Moderate condition number ({cond_num:.1e}): +1 point")
-    else:
-        decision_factors.append(f"✗ Low condition number ({cond_num:.1e}): 0 points")
-    max_score += 2
-    
-    # Use case specific factors
-    if use_case == "visualization":
-        # Visualization benefits from dimensionality reduction
-        if n_features > 3:
-            pca_score += 2
-            decision_factors.append("✓ Visualization use case: +2 points")
-        max_score += 2
-    
-    elif use_case == "machine_learning":
-        # ML may benefit from noise reduction and speed
-        if n_features > 100:
-            pca_score += 2
-            decision_factors.append("✓ ML with high dimensions: +2 points")
-        elif n_features > 50:
-            pca_score += 1
-            decision_factors.append("~ ML with moderate dimensions: +1 point")
-        max_score += 2
-    
-    elif use_case == "compression":
-        # Compression specifically benefits from PCA
-        pca_score += 3
-        decision_factors.append("✓ Data compression use case: +3 points")
-        max_score += 3
-    
-    # Calculate final score
-    pca_percentage = (pca_score / max_score) * 100 if max_score > 0 else 0
-    
-    print("Decision Factors:")
-    for factor in decision_factors:
-        print(f"  {factor}")
-    
-    print(f"\nPCA Suitability Score: {pca_score}/{max_score} ({pca_percentage:.1f}%)")
-    
-    # Make recommendation
-    if pca_percentage >= 70:
-        recommendation = "STRONGLY RECOMMENDED"
-        reasoning = "Multiple factors strongly favor PCA application"
-    elif pca_percentage >= 50:
-        recommendation = "RECOMMENDED"
-        reasoning = "Several factors favor PCA application"
-    elif pca_percentage >= 30:
-        recommendation = "CONSIDER WITH CAUTION"
-        reasoning = "Mixed factors - evaluate specific use case carefully"
-    else:
-        recommendation = "NOT RECOMMENDED"
-        reasoning = "Few factors favor PCA application"
-    
-    print(f"\nRecommendation: {recommendation}")
-    print(f"Reasoning: {reasoning}")
-    
-    return {
-        'score': pca_score,
-        'max_score': max_score,
-        'percentage': pca_percentage,
-        'recommendation': recommendation,
-        'factors': decision_factors
-    }
-
-# Combine all analyses
-analysis_results = {
-    'basic_stats': basic_stats,
-    'matrix_analysis': matrix_analysis,
-    'dimensionality_analysis': dimensionality_analysis,
-    'correlation_info': {'high_corr_pairs': high_corr_pairs}
+# PCA
+start = time.time()
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+methods['PCA'] = {
+    'embedding': X_pca,
+    'time': time.time() - start,
+    'variance_explained': pca.explained_variance_ratio_.sum()
 }
 
-decision = pca_decision_framework(X_synthetic, analysis_results, use_case="machine_learning")
+# t-SNE
+start = time.time()
+tsne = TSNE(n_components=2, random_state=42, perplexity=30)
+X_tsne = tsne.fit_transform(X_scaled)
+methods['t-SNE'] = {
+    'embedding': X_tsne,
+    'time': time.time() - start
+}
+
+# LDA (supervised)
+start = time.time()
+lda = LDA(n_components=2)
+X_lda = lda.fit_transform(X_scaled, y)
+methods['LDA'] = {
+    'embedding': X_lda,
+    'time': time.time() - start,
+    'variance_explained': lda.explained_variance_ratio_.sum()
+}
+
+# Try UMAP if available
+try:
+    import umap
+    start = time.time()
+    reducer = umap.UMAP(n_components=2, random_state=42)
+    X_umap = reducer.fit_transform(X_scaled)
+    methods['UMAP'] = {
+        'embedding': X_umap,
+        'time': time.time() - start
+    }
+except ImportError:
+    print("UMAP not installed")
+
+# ========================================
+# 2. EVALUATION METRICS
+# ========================================
+
+print("\n=== Evaluation Metrics ===")
+
+def evaluate_embedding(X_embed, y, name):
+    """Evaluate quality of embedding."""
+    # Silhouette score (cluster separation)
+    silhouette = silhouette_score(X_embed, y)
+    
+    # Trustworthiness (neighborhood preservation) - manual implementation
+    # How well local neighborhoods are preserved
+    from sklearn.manifold import trustworthiness
+    trust = trustworthiness(X_scaled, X_embed, n_neighbors=15)
+    
+    # Classification accuracy in reduced space
+    knn = KNeighborsClassifier(n_neighbors=5)
+    acc = cross_val_score(knn, X_embed, y, cv=5).mean()
+    
+    print(f"{name}:")
+    print(f"  Silhouette Score: {silhouette:.3f}")
+    print(f"  Trustworthiness: {trust:.3f}")
+    print(f"  5-NN Accuracy: {acc:.3f}")
+    print(f"  Computation Time: {methods[name]['time']:.2f}s")
+    if 'variance_explained' in methods[name]:
+        print(f"  Variance Explained: {methods[name]['variance_explained']:.3f}")
+    
+    return {'silhouette': silhouette, 'trust': trust, 'accuracy': acc}
+
+results = {}
+for name in methods:
+    results[name] = evaluate_embedding(methods[name]['embedding'], y, name)
+
+# ========================================
+# 3. CHOOSING NUMBER OF COMPONENTS (PCA)
+# ========================================
+
+print("\n=== PCA: Choosing n_components ===")
+
+pca_full = PCA().fit(X_scaled)
+cumsum = np.cumsum(pca_full.explained_variance_ratio_)
+
+# Find n_components for different variance thresholds
+thresholds = [0.80, 0.90, 0.95, 0.99]
+for thresh in thresholds:
+    n_comp = np.argmax(cumsum >= thresh) + 1
+    print(f"  {thresh*100:.0f}% variance: {n_comp} components")
+
+# Kaiser criterion: eigenvalue > 1
+eigenvalues = pca_full.explained_variance_
+n_kaiser = np.sum(eigenvalues > 1)
+print(f"  Kaiser criterion (λ > 1): {n_kaiser} components")
+
+# ========================================
+# 4. LINEAR VS NON-LINEAR DATA
+# ========================================
+
+print("\n=== Linear vs Non-linear Data ===")
+
+# Generate Swiss Roll (inherently non-linear)
+X_swiss, color_swiss = make_swiss_roll(n_samples=1000, random_state=42)
+
+# PCA on Swiss Roll
+pca_swiss = PCA(n_components=2)
+X_swiss_pca = pca_swiss.fit_transform(X_swiss)
+
+# t-SNE on Swiss Roll
+tsne_swiss = TSNE(n_components=2, random_state=42)
+X_swiss_tsne = tsne_swiss.fit_transform(X_swiss)
+
+# Measure structure preservation
+# For Swiss Roll, we know the true 2D structure (t parameter)
+# Good method should preserve ordering along the roll
+
+def measure_ordering_preservation(X_embed, color):
+    """Check if embedding preserves the roll ordering."""
+    from scipy.stats import spearmanr
+    # Use distance to centroid in embedding vs original color
+    centroid = X_embed.mean(axis=0)
+    dist_to_centroid = np.linalg.norm(X_embed - centroid, axis=1)
+    corr, _ = spearmanr(dist_to_centroid, color)
+    return abs(corr)
+
+print(f"PCA ordering preservation: {measure_ordering_preservation(X_swiss_pca, color_swiss):.3f}")
+print(f"t-SNE ordering preservation: {measure_ordering_preservation(X_swiss_tsne, color_swiss):.3f}")
+
+# ========================================
+# 5. DECISION FRAMEWORK
+# ========================================
+
+decision_guide = """
+=== Dimensionality Reduction Decision Guide ===
+
+1. What is your goal?
+   - Visualization (2D/3D) → t-SNE, UMAP
+   - Preprocessing for ML → PCA, LDA
+   - Feature extraction → PCA, Autoencoders
+   - Noise reduction → PCA (remove low-variance components)
+
+2. Is your data linear or non-linear?
+   - Linear relationships → PCA
+   - Non-linear manifolds → t-SNE, UMAP, Kernel PCA
+
+3. Do you have labels?
+   - No → PCA, t-SNE, UMAP
+   - Yes → LDA (if linear), UMAP supervised
+
+4. What's your computational budget?
+   - Fast → PCA O(min(n²d, nd²))
+   - Slow OK → t-SNE O(n²), UMAP O(n^1.14)
+
+5. Need interpretability?
+   - Yes → PCA (loadings interpretable)
+   - No → t-SNE, UMAP, Autoencoders
+
+6. Need to transform new data?
+   - Yes → PCA, LDA, UMAP
+   - No → t-SNE (no out-of-sample)
+"""
+print(decision_guide)
+
+# ========================================
+# 6. RECONSTRUCTION ERROR (for PCA)
+# ========================================
+
+print("=== Reconstruction Error Analysis ===")
+
+for n_comp in [5, 10, 20, 30, 50]:
+    pca_n = PCA(n_components=n_comp)
+    X_reduced = pca_n.fit_transform(X_scaled)
+    X_reconstructed = pca_n.inverse_transform(X_reduced)
+    mse = np.mean((X_scaled - X_reconstructed) ** 2)
+    print(f"n_components={n_comp}: MSE={mse:.4f}, Variance={pca_n.explained_variance_ratio_.sum():.3f}")
 ```
 
-**4. Real-World Examples:**
+**Algorithm: Method Selection**
+1. Determine goal (visualization vs preprocessing)
+2. Check data linearity (plot, try both)
+3. Consider label availability
+4. Evaluate computational constraints
+5. Test multiple methods with metrics
+6. Validate on downstream task
 
-**4.1 Different Dataset Scenarios:**
-```python
-def compare_dataset_scenarios():
-    """Compare PCA suitability across different dataset types"""
-    
-    print("\nDataset Scenario Comparison:")
-    print("=" * 40)
-    
-    # Scenario 1: High-dimensional with redundancy (GOOD for PCA)
-    print("\n1. High-dimensional with redundancy:")
-    X_redundant, _ = make_classification(
-        n_samples=500, n_features=100, n_informative=15, 
-        n_redundant=30, random_state=42
-    )
-    
-    pca_redundant = PCA()
-    pca_redundant.fit(StandardScaler().fit_transform(X_redundant))
-    var_90_redundant = np.argmax(np.cumsum(pca_redundant.explained_variance_ratio_) >= 0.9) + 1
-    
-    print(f"   - Original dimensions: {X_redundant.shape[1]}")
-    print(f"   - 90% variance retained in: {var_90_redundant} components")
-    print(f"   - Compression ratio: {var_90_redundant/X_redundant.shape[1]:.2f}")
-    print("   - PCA Recommendation: STRONGLY RECOMMENDED")
-    
-    # Scenario 2: Low-dimensional, uncorrelated (POOR for PCA)
-    print("\n2. Low-dimensional, uncorrelated:")
-    np.random.seed(42)
-    X_uncorr = np.random.randn(500, 5)  # Independent features
-    
-    pca_uncorr = PCA()
-    pca_uncorr.fit(StandardScaler().fit_transform(X_uncorr))
-    var_90_uncorr = np.argmax(np.cumsum(pca_uncorr.explained_variance_ratio_) >= 0.9) + 1
-    
-    print(f"   - Original dimensions: {X_uncorr.shape[1]}")
-    print(f"   - 90% variance retained in: {var_90_uncorr} components")
-    print(f"   - Compression ratio: {var_90_uncorr/X_uncorr.shape[1]:.2f}")
-    print("   - PCA Recommendation: NOT RECOMMENDED")
-    
-    # Scenario 3: Image-like data (EXCELLENT for PCA)
-    print("\n3. Image-like data (correlated pixels):")
-    digits = load_digits()
-    X_digits = digits.data  # 8x8 = 64 dimensional
-    
-    pca_digits = PCA()
-    pca_digits.fit(StandardScaler().fit_transform(X_digits))
-    var_90_digits = np.argmax(np.cumsum(pca_digits.explained_variance_ratio_) >= 0.9) + 1
-    
-    print(f"   - Original dimensions: {X_digits.shape[1]}")
-    print(f"   - 90% variance retained in: {var_90_digits} components")
-    print(f"   - Compression ratio: {var_90_digits/X_digits.shape[1]:.2f}")
-    print("   - PCA Recommendation: EXCELLENT")
-    
-    # Scenario 4: Sparse data (PROBLEMATIC for PCA)
-    print("\n4. Sparse data:")
-    from scipy.sparse import random
-    X_sparse = random(500, 50, density=0.1).toarray()  # 90% zeros
-    
-    pca_sparse = PCA()
-    pca_sparse.fit(StandardScaler().fit_transform(X_sparse))
-    var_90_sparse = np.argmax(np.cumsum(pca_sparse.explained_variance_ratio_) >= 0.9) + 1
-    
-    print(f"   - Original dimensions: {X_sparse.shape[1]}")
-    print(f"   - 90% variance retained in: {var_90_sparse} components")
-    print(f"   - Compression ratio: {var_90_sparse/X_sparse.shape[1]:.2f}")
-    print(f"   - Sparsity: {np.mean(X_sparse == 0)*100:.1f}% zeros")
-    print("   - PCA Recommendation: CONSIDER ALTERNATIVES (e.g., Sparse PCA)")
+**Comparison Summary:**
 
-compare_dataset_scenarios()
-```
+| Criterion | PCA | LDA | t-SNE | UMAP |
+|-----------|-----|-----|-------|------|
+| **Supervision** | No | Yes | No | Both |
+| **Linearity** | Linear | Linear | Non-linear | Non-linear |
+| **Scalability** | Excellent | Good | Poor | Good |
+| **New data** | Yes | Yes | No* | Yes |
+| **Interpretable** | Yes | Yes | No | No |
+| **Global structure** | ✓ | ✓ | ✗ | Partial |
+| **Local structure** | ✗ | ✗ | ✓ | ✓ |
 
-**5. Alternative Techniques Assessment:**
-```python
-def assess_pca_alternatives(X, pca_results):
-    """Assess when alternative dimensionality reduction might be better"""
-    
-    print("\nAlternative Techniques Assessment:")
-    print("=" * 35)
-    
-    recommendations = []
-    
-    # Check data characteristics
-    n_samples, n_features = X.shape
-    
-    # 1. Non-linear relationships (suggest manifold learning)
-    # Simple test: compare linear vs polynomial feature relationships
-    sample_size = min(1000, n_samples)
-    indices = np.random.choice(n_samples, sample_size, replace=False)
-    X_sample = X[indices]
-    
-    # Calculate pairwise distances in original space
-    from scipy.spatial.distance import pdist
-    distances_orig = pdist(X_sample[:100])  # Sample for computational efficiency
-    
-    print("Alternative Technique Recommendations:")
-    
-    # Linear vs non-linear
-    if np.var(distances_orig) > np.mean(distances_orig):
-        recommendations.append({
-            'technique': 't-SNE or UMAP',
-            'reason': 'High variance in pairwise distances suggests non-linear structure',
-            'use_case': 'Non-linear dimensionality reduction and visualization'
-        })
-    
-    # High sparsity
-    sparsity = np.mean(X == 0)
-    if sparsity > 0.5:
-        recommendations.append({
-            'technique': 'Sparse PCA or ICA',
-            'reason': f'High sparsity ({sparsity*100:.1f}% zeros)',
-            'use_case': 'Preserve sparse structure while reducing dimensions'
-        })
-    
-    # Many samples, moderate dimensions
-    if n_samples > 10000 and n_features < 100:
-        recommendations.append({
-            'technique': 'Random Projection',
-            'reason': 'Large sample size with moderate dimensions',
-            'use_case': 'Fast approximate dimensionality reduction'
-        })
-    
-    # High dimensions with potential non-linear manifold
-    if n_features > 1000:
-        recommendations.append({
-            'technique': 'Autoencoders',
-            'reason': 'Very high dimensionality may benefit from deep learning',
-            'use_case': 'Non-linear compression and feature learning'
-        })
-    
-    # Time series or sequential data
-    # (This would require additional context about data type)
-    
-    # Factor analysis for interpretability
-    pca_var_concentration = pca_results.get('effective_rank_90', n_features) / n_features
-    if pca_var_concentration > 0.7:
-        recommendations.append({
-            'technique': 'Factor Analysis',
-            'reason': 'Low variance concentration suggests complex factor structure',
-            'use_case': 'Interpretable latent factor discovery'
-        })
-    
-    if not recommendations:
-        print("  PCA appears to be the most suitable technique for this dataset")
-    else:
-        for i, rec in enumerate(recommendations, 1):
-            print(f"  {i}. {rec['technique']}")
-            print(f"     Reason: {rec['reason']}")
-            print(f"     Use case: {rec['use_case']}")
-            print()
-    
-    return recommendations
+*t-SNE has parametric variants for new data
 
-alternatives = assess_pca_alternatives(X_synthetic, dimensionality_analysis)
-```
-
-**Final Recommendation Framework:**
-
-**When PCA is Beneficial:**
-1. **High dimensionality** (>20-50 features)
-2. **Strong correlations** between features
-3. **Variance concentrated** in few dimensions
-4. **Computational efficiency** needed
-5. **Noise reduction** required
-6. **Linear relationships** dominate
-
-**When to Consider Alternatives:**
-1. **Non-linear structure** → t-SNE, UMAP, Autoencoders
-2. **Sparse data** → Sparse PCA, ICA
-3. **Interpretability crucial** → Factor Analysis
-4. **Very large datasets** → Random Projection
-5. **Categorical features** → Multiple Correspondence Analysis
-6. **Time series** → Dynamic PCA, Fourier Transform
-
-**Implementation Checklist:**
-1. Standardize/normalize data appropriately
-2. Handle missing values before PCA
-3. Validate results with cross-validation
-4. Monitor reconstruction error
-5. Interpret principal components
-6. Evaluate downstream task performance
-
-This systematic approach ensures that PCA application is data-driven and well-justified for the specific use case and dataset characteristics.
+**Interview Tips:**
+- Know trade-offs: PCA (linear, fast, interpretable) vs t-SNE (non-linear, slow, visual)
+- Explain variance explained vs trustworthiness
+- Mention t-SNE hyperparameters (perplexity) affect results significantly
+- Know UMAP advantages: faster than t-SNE, preserves more global structure
+- Real practice: Try PCA first, use t-SNE/UMAP for visualization
 
 ---
 
@@ -6329,690 +2205,337 @@ This systematic approach ensures that PCA application is data-driven and well-ju
 
 **Design a linear algebra solution for a collaborative filtering problem in a movie recommendation system.**
 
-**Answer:** A collaborative filtering movie recommendation system can be elegantly solved using linear algebra techniques, primarily through matrix factorization methods. This approach decomposes the user-item interaction matrix to discover latent factors representing user preferences and movie characteristics.
+### Answer
 
-**1. Problem Formulation:**
+**Definition:**  
+Collaborative filtering predicts user preferences by finding patterns in user-item interactions. Matrix factorization decomposes the sparse ratings matrix R ≈ UV^T, where U captures user latent factors and V captures item latent factors, enabling predictions for unobserved entries.
 
-**1.1 Matrix Setup:**
+**Core Concepts:**
+- **Ratings matrix R**: m users × n items (sparse, mostly missing)
+- **Latent factors**: Hidden features explaining preferences (e.g., genre affinity)
+- **Matrix factorization**: R ≈ UV^T where U ∈ R^(m×k), V ∈ R^(n×k)
+- **SVD-based methods**: Truncated SVD on imputed or centered matrix
+- **Optimization**: Minimize reconstruction error on known ratings
+
+**Mathematical Formulation:**
+
+**Basic matrix factorization:**
+$$\min_{U, V} \sum_{(i,j) \in \Omega} (R_{ij} - \mathbf{u}_i^T \mathbf{v}_j)^2 + \lambda(\|U\|_F^2 + \|V\|_F^2)$$
+
+where Ω = set of observed ratings, λ = regularization.
+
+**With biases:**
+$$\hat{R}_{ij} = \mu + b_i + c_j + \mathbf{u}_i^T \mathbf{v}_j$$
+
+- μ = global mean rating
+- b_i = user i's bias (tendency to rate high/low)
+- c_j = item j's bias (generally liked/disliked)
+
+**SVD approach:**
+$$R \approx U_k \Sigma_k V_k^T$$
+
+**Prediction:**
+$$\hat{r}_{ij} = \mathbf{u}_i^T \mathbf{v}_j$$
+
+**Python Example:**
 ```python
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
-from scipy.linalg import svd
+from scipy.sparse.linalg import svds
 from sklearn.metrics import mean_squared_error
-import warnings
-warnings.filterwarnings('ignore')
 
-def create_movie_rating_matrix():
-    """Create a sample movie rating matrix for demonstration"""
-    
-    # Sample data: Users × Movies rating matrix
-    # Ratings on scale 1-5, 0 = not rated
-    
-    users = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank']
-    movies = ['Titanic', 'Avatar', 'Inception', 'Interstellar', 'Matrix', 'Pulp Fiction', 'Godfather', 'Shrek']
-    
-    # Create rating matrix with some missing values (realistic scenario)
-    ratings = np.array([
-        [5, 3, 4, 0, 0, 2, 5, 1],  # Alice: likes drama/classics
-        [2, 5, 3, 4, 4, 1, 2, 3],  # Bob: likes sci-fi/action
-        [4, 2, 5, 5, 5, 3, 4, 2],  # Charlie: likes complex films
-        [5, 1, 2, 0, 1, 1, 5, 4],  # Diana: likes romance/comedy
-        [1, 4, 4, 5, 5, 2, 3, 2],  # Eve: likes sci-fi
-        [3, 3, 3, 3, 3, 3, 3, 3],  # Frank: average ratings
-    ])
-    
-    print("Movie Recommendation System - Matrix Setup")
-    print("=" * 50)
-    print("\nOriginal Rating Matrix (Users × Movies):")
-    print("0 = Not Rated")
-    
-    # Create DataFrame for better visualization
-    df = pd.DataFrame(ratings, index=users, columns=movies)
-    print(df)
-    
-    # Basic statistics
-    total_entries = ratings.size
-    rated_entries = np.sum(ratings > 0)
-    sparsity = 1 - (rated_entries / total_entries)
-    
-    print(f"\nMatrix Statistics:")
-    print(f"  Size: {ratings.shape[0]} users × {ratings.shape[1]} movies")
-    print(f"  Total possible ratings: {total_entries}")
-    print(f"  Actual ratings: {rated_entries}")
-    print(f"  Sparsity: {sparsity:.2%}")
-    print(f"  Rating range: [{np.min(ratings[ratings > 0])}, {np.max(ratings)}]")
-    
-    return ratings, users, movies
+np.random.seed(42)
 
-ratings_matrix, users, movies = create_movie_rating_matrix()
-```
+# ========================================
+# 1. CREATE SYNTHETIC MOVIE RATINGS DATA
+# ========================================
 
-**1.2 Problem Challenges:**
-```python
-def analyze_collaborative_filtering_challenges(ratings_matrix):
-    """Analyze the key challenges in collaborative filtering"""
-    
-    print("\nCollaborative Filtering Challenges:")
-    print("-" * 40)
-    
-    n_users, n_movies = ratings_matrix.shape
-    
-    # 1. Sparsity Problem
-    sparsity = np.sum(ratings_matrix == 0) / ratings_matrix.size
-    print(f"1. Sparsity: {sparsity:.2%} of ratings are missing")
-    
-    # 2. Cold Start Problem
-    users_with_few_ratings = np.sum(np.sum(ratings_matrix > 0, axis=1) < 3)
-    movies_with_few_ratings = np.sum(np.sum(ratings_matrix > 0, axis=0) < 2)
-    
-    print(f"2. Cold Start:")
-    print(f"   - Users with <3 ratings: {users_with_few_ratings}/{n_users}")
-    print(f"   - Movies with <2 ratings: {movies_with_few_ratings}/{n_movies}")
-    
-    # 3. Scalability
-    dense_memory = n_users * n_movies * 8  # 8 bytes per float64
-    sparse_memory = np.sum(ratings_matrix > 0) * 16  # 8 bytes value + 8 bytes index
-    
-    print(f"3. Scalability:")
-    print(f"   - Dense matrix memory: {dense_memory} bytes")
-    print(f"   - Sparse matrix memory: {sparse_memory} bytes")
-    print(f"   - Memory savings: {dense_memory/sparse_memory:.1f}x")
-    
-    # 4. Rating Bias
-    user_means = np.array([np.mean(row[row > 0]) if np.sum(row > 0) > 0 else 0 
-                          for row in ratings_matrix])
-    movie_means = np.array([np.mean(col[col > 0]) if np.sum(col > 0) > 0 else 0 
-                           for col in ratings_matrix.T])
-    
-    print(f"4. Rating Bias:")
-    print(f"   - User rating std: {np.std(user_means[user_means > 0]):.2f}")
-    print(f"   - Movie rating std: {np.std(movie_means[movie_means > 0]):.2f}")
+n_users = 500
+n_movies = 200
+n_ratings = 10000  # Sparse: ~10% filled
 
-analyze_collaborative_filtering_challenges(ratings_matrix)
-```
+# True latent factors (hidden)
+k_true = 5
+U_true = np.random.randn(n_users, k_true)
+V_true = np.random.randn(n_movies, k_true)
+R_true = U_true @ V_true.T
 
-**2. Matrix Factorization Approach:**
+# Add noise and clip to 1-5 rating scale
+R_true = np.clip(R_true + 0.5 * np.random.randn(n_users, n_movies), 1, 5)
 
-**2.1 Basic Matrix Factorization:**
-```python
-def basic_matrix_factorization(R, k=3, max_iter=100, lr=0.01, reg=0.01):
+# Create sparse observations (simulating missing data)
+observed_mask = np.zeros((n_users, n_movies), dtype=bool)
+indices = np.random.choice(n_users * n_movies, n_ratings, replace=False)
+observed_mask.flat[indices] = True
+
+R_observed = np.where(observed_mask, R_true, np.nan)
+print(f"Ratings matrix shape: {R_observed.shape}")
+print(f"Sparsity: {100 * (1 - n_ratings / (n_users * n_movies)):.1f}% missing")
+
+# ========================================
+# 2. SVD-BASED COLLABORATIVE FILTERING
+# ========================================
+
+print("\n=== SVD-based Approach ===")
+
+def svd_collaborative_filtering(R, k, method='mean_impute'):
     """
-    Basic matrix factorization using gradient descent
-    R: rating matrix (users × movies)
-    k: number of latent factors
+    SVD-based collaborative filtering.
+    
+    Args:
+        R: Ratings matrix with np.nan for missing values
+        k: Number of latent factors
+        method: How to handle missing values
     """
+    mask = ~np.isnan(R)
     
-    print(f"\nBasic Matrix Factorization (k={k} factors):")
-    print("-" * 40)
-    
-    n_users, n_movies = R.shape
-    
-    # Initialize user and movie latent factor matrices
-    np.random.seed(42)
-    U = np.random.normal(0, 0.1, (n_users, k))  # User factors
-    V = np.random.normal(0, 0.1, (n_movies, k))  # Movie factors
-    
-    # Get indices of rated movies
-    rated_indices = np.where(R > 0)
-    
-    losses = []
-    
-    for iteration in range(max_iter):
-        # Compute predictions
-        predictions = U @ V.T
+    if method == 'mean_impute':
+        # Impute with global mean
+        global_mean = np.nanmean(R)
+        R_filled = np.where(np.isnan(R), global_mean, R)
         
-        # Compute loss only on rated entries
-        error = 0
-        for i, j in zip(rated_indices[0], rated_indices[1]):
-            error += (R[i, j] - predictions[i, j]) ** 2
+        # Center the data
+        user_means = np.nanmean(R, axis=1, keepdims=True)
+        user_means = np.nan_to_num(user_means, nan=global_mean)
+        R_centered = R_filled - user_means
         
-        # Add regularization
-        reg_loss = reg * (np.sum(U**2) + np.sum(V**2))
-        total_loss = error + reg_loss
-        losses.append(total_loss)
+    elif method == 'zero_impute':
+        R_filled = np.nan_to_num(R, nan=0)
+        R_centered = R_filled
+        user_means = np.zeros((R.shape[0], 1))
+    
+    # Truncated SVD
+    U, sigma, Vt = svds(csr_matrix(R_centered), k=k)
+    
+    # Reconstruct
+    R_pred = U @ np.diag(sigma) @ Vt + user_means
+    R_pred = np.clip(R_pred, 1, 5)
+    
+    return R_pred, U @ np.diag(np.sqrt(sigma)), (np.diag(np.sqrt(sigma)) @ Vt).T
+
+R_pred_svd, U_svd, V_svd = svd_collaborative_filtering(R_observed, k=10)
+
+# Evaluate on held-out ratings
+test_mask = observed_mask & (np.random.rand(n_users, n_movies) > 0.8)  # 20% test
+train_mask = observed_mask & ~test_mask
+
+rmse_svd = np.sqrt(mean_squared_error(
+    R_true[test_mask],
+    R_pred_svd[test_mask]
+))
+print(f"SVD RMSE: {rmse_svd:.4f}")
+
+# ========================================
+# 3. ALTERNATING LEAST SQUARES (ALS)
+# ========================================
+
+print("\n=== Alternating Least Squares ===")
+
+def als_collaborative_filtering(R, k, lambda_reg=0.1, n_iter=20):
+    """
+    ALS matrix factorization for collaborative filtering.
+    
+    Alternates between:
+    - Fix V, solve for U: u_i = (V^T V + λI)^{-1} V^T r_i
+    - Fix U, solve for V: v_j = (U^T U + λI)^{-1} U^T r_j
+    """
+    n_users, n_items = R.shape
+    mask = ~np.isnan(R)
+    R_filled = np.nan_to_num(R, nan=0)
+    
+    # Initialize factors randomly
+    U = np.random.randn(n_users, k) * 0.1
+    V = np.random.randn(n_items, k) * 0.1
+    
+    for iteration in range(n_iter):
+        # Update U (user factors)
+        VTV = V.T @ V + lambda_reg * np.eye(k)
+        for i in range(n_users):
+            # Only use observed ratings for user i
+            rated_items = mask[i, :]
+            if rated_items.sum() > 0:
+                V_i = V[rated_items, :]
+                r_i = R_filled[i, rated_items]
+                U[i, :] = np.linalg.solve(V_i.T @ V_i + lambda_reg * np.eye(k), V_i.T @ r_i)
         
-        # Gradient descent update
-        for i, j in zip(rated_indices[0], rated_indices[1]):
-            err = R[i, j] - predictions[i, j]
+        # Update V (item factors)
+        UTU = U.T @ U + lambda_reg * np.eye(k)
+        for j in range(n_items):
+            # Only use observed ratings for item j
+            rated_users = mask[:, j]
+            if rated_users.sum() > 0:
+                U_j = U[rated_users, :]
+                r_j = R_filled[rated_users, j]
+                V[j, :] = np.linalg.solve(U_j.T @ U_j + lambda_reg * np.eye(k), U_j.T @ r_j)
+        
+        # Compute loss
+        R_pred = U @ V.T
+        loss = np.sum((R_filled[mask] - R_pred[mask])**2)
+        loss += lambda_reg * (np.sum(U**2) + np.sum(V**2))
+        
+        if iteration % 5 == 0:
+            rmse = np.sqrt(mean_squared_error(R_filled[mask], R_pred[mask]))
+            print(f"Iteration {iteration}: Loss = {loss:.2f}, RMSE = {rmse:.4f}")
+    
+    return np.clip(U @ V.T, 1, 5), U, V
+
+R_pred_als, U_als, V_als = als_collaborative_filtering(R_observed, k=10, lambda_reg=0.1, n_iter=20)
+
+rmse_als = np.sqrt(mean_squared_error(R_true[test_mask], R_pred_als[test_mask]))
+print(f"ALS RMSE: {rmse_als:.4f}")
+
+# ========================================
+# 4. STOCHASTIC GRADIENT DESCENT (SGD)
+# ========================================
+
+print("\n=== SGD Matrix Factorization ===")
+
+def sgd_matrix_factorization(R, k, learning_rate=0.01, lambda_reg=0.1, n_epochs=50):
+    """
+    SGD for matrix factorization with biases.
+    
+    r_ij = mu + b_i + c_j + u_i^T v_j
+    """
+    n_users, n_items = R.shape
+    mask = ~np.isnan(R)
+    
+    # Global mean
+    mu = np.nanmean(R)
+    
+    # Initialize
+    U = np.random.randn(n_users, k) * 0.1
+    V = np.random.randn(n_items, k) * 0.1
+    b = np.zeros(n_users)  # User biases
+    c = np.zeros(n_items)  # Item biases
+    
+    # Get observed indices
+    user_idx, item_idx = np.where(mask)
+    ratings = R[mask]
+    
+    for epoch in range(n_epochs):
+        # Shuffle
+        perm = np.random.permutation(len(ratings))
+        
+        total_loss = 0
+        for idx in perm:
+            i, j = user_idx[idx], item_idx[idx]
+            r_ij = ratings[idx]
+            
+            # Prediction
+            pred = mu + b[i] + c[j] + U[i, :] @ V[j, :]
+            error = r_ij - pred
+            total_loss += error**2
+            
+            # Update biases
+            b[i] += learning_rate * (error - lambda_reg * b[i])
+            c[j] += learning_rate * (error - lambda_reg * c[j])
             
             # Update factors
-            U_i = U[i, :].copy()
-            V_j = V[j, :].copy()
-            
-            U[i, :] += lr * (err * V_j - reg * U_i)
-            V[j, :] += lr * (err * U_i - reg * V_j)
-        
-        if iteration % 20 == 0:
-            rmse = np.sqrt(error / len(rated_indices[0]))
-            print(f"Iteration {iteration}: RMSE = {rmse:.4f}, Total Loss = {total_loss:.4f}")
-    
-    final_predictions = U @ V.T
-    
-    return U, V, final_predictions, losses
-
-U, V, predictions, losses = basic_matrix_factorization(ratings_matrix, k=3)
-```
-
-**2.2 SVD-based Approach:**
-```python
-def svd_collaborative_filtering(R, k=3):
-    """
-    SVD-based collaborative filtering
-    """
-    
-    print(f"\nSVD-based Collaborative Filtering:")
-    print("-" * 35)
-    
-    # Handle missing values by filling with user/movie means
-    R_filled = R.copy().astype(float)
-    
-    # Fill missing values with global mean first
-    global_mean = np.mean(R[R > 0])
-    R_filled[R_filled == 0] = global_mean
-    
-    # Compute user and movie biases
-    user_means = np.mean(R_filled, axis=1)
-    movie_means = np.mean(R_filled, axis=0)
-    
-    # Center the matrix (remove biases)
-    R_centered = R_filled - user_means[:, np.newaxis] - movie_means[np.newaxis, :] + global_mean
-    
-    # Perform SVD
-    U_svd, s, Vt = svd(R_centered, full_matrices=False)
-    
-    # Keep only k factors
-    U_k = U_svd[:, :k]
-    s_k = s[:k]
-    Vt_k = Vt[:k, :]
-    
-    # Reconstruct rating matrix
-    R_reconstructed = U_k @ np.diag(s_k) @ Vt_k
-    
-    # Add biases back
-    R_reconstructed += user_means[:, np.newaxis] + movie_means[np.newaxis, :] - global_mean
-    
-    print(f"Original matrix rank: {np.linalg.matrix_rank(R_filled)}")
-    print(f"Reduced rank: {k}")
-    print(f"Singular values: {s_k}")
-    print(f"Variance explained: {np.sum(s_k**2) / np.sum(s**2):.3f}")
-    
-    return U_k, s_k, Vt_k, R_reconstructed, user_means, movie_means, global_mean
-
-U_svd, s_svd, Vt_svd, R_recon, user_means, movie_means, global_mean = svd_collaborative_filtering(ratings_matrix, k=3)
-```
-
-**2.3 Non-negative Matrix Factorization (NMF):**
-```python
-def nmf_collaborative_filtering(R, k=3, max_iter=100, tol=1e-4):
-    """
-    Non-negative Matrix Factorization for collaborative filtering
-    Ensures all factors are non-negative (interpretable as positive preferences)
-    """
-    
-    print(f"\nNon-negative Matrix Factorization:")
-    print("-" * 35)
-    
-    n_users, n_movies = R.shape
-    
-    # Initialize with non-negative values
-    np.random.seed(42)
-    W = np.random.rand(n_users, k)  # User factors
-    H = np.random.rand(k, n_movies)  # Movie factors
-    
-    # Get rated indices
-    rated_mask = (R > 0)
-    
-    losses = []
-    
-    for iteration in range(max_iter):
-        # Compute reconstruction
-        WH = W @ H
-        
-        # Compute loss (only on rated entries)
-        error = np.sum((R[rated_mask] - WH[rated_mask]) ** 2)
-        losses.append(error)
-        
-        # Multiplicative update rules for NMF
-        # Update H
-        numerator = W.T @ (R * rated_mask)
-        denominator = W.T @ (WH * rated_mask) + 1e-10
-        H *= numerator / denominator
-        
-        # Update W
-        numerator = (R * rated_mask) @ H.T
-        denominator = (WH * rated_mask) @ H.T + 1e-10
-        W *= numerator / denominator
-        
-        if iteration > 0 and abs(losses[-1] - losses[-2]) < tol:
-            print(f"Converged at iteration {iteration}")
-            break
-        
-        if iteration % 20 == 0:
-            rmse = np.sqrt(error / np.sum(rated_mask))
-            print(f"Iteration {iteration}: RMSE = {rmse:.4f}")
-    
-    final_reconstruction = W @ H
-    
-    return W, H, final_reconstruction, losses
-
-W_nmf, H_nmf, R_nmf, losses_nmf = nmf_collaborative_filtering(ratings_matrix, k=3)
-```
-
-**3. Advanced Techniques:**
-
-**3.1 Bias-aware Matrix Factorization:**
-```python
-def bias_aware_matrix_factorization(R, k=3, max_iter=100, lr=0.01, reg=0.01):
-    """
-    Matrix factorization with explicit bias modeling
-    R_ij ≈ μ + b_i + b_j + U_i^T V_j
-    """
-    
-    print(f"\nBias-Aware Matrix Factorization:")
-    print("-" * 35)
-    
-    n_users, n_movies = R.shape
-    
-    # Initialize parameters
-    np.random.seed(42)
-    U = np.random.normal(0, 0.1, (n_users, k))  # User factors
-    V = np.random.normal(0, 0.1, (n_movies, k))  # Movie factors
-    b_u = np.zeros(n_users)  # User biases
-    b_m = np.zeros(n_movies)  # Movie biases
-    mu = np.mean(R[R > 0])  # Global mean
-    
-    # Get rated indices
-    rated_indices = np.where(R > 0)
-    
-    losses = []
-    
-    for iteration in range(max_iter):
-        total_error = 0
-        
-        # Update parameters for each rating
-        for i, j in zip(rated_indices[0], rated_indices[1]):
-            # Predict rating
-            pred = mu + b_u[i] + b_m[j] + np.dot(U[i, :], V[j, :])
-            error = R[i, j] - pred
-            total_error += error ** 2
-            
-            # Store old values for update
-            U_i_old = U[i, :].copy()
-            V_j_old = V[j, :].copy()
-            
-            # Gradient descent updates
-            b_u[i] += lr * (error - reg * b_u[i])
-            b_m[j] += lr * (error - reg * b_m[j])
-            U[i, :] += lr * (error * V_j_old - reg * U_i_old)
-            V[j, :] += lr * (error * U_i_old - reg * V_j_old)
-        
-        # Add regularization to loss
-        reg_loss = reg * (np.sum(U**2) + np.sum(V**2) + np.sum(b_u**2) + np.sum(b_m**2))
-        total_loss = total_error + reg_loss
-        losses.append(total_loss)
-        
-        if iteration % 20 == 0:
-            rmse = np.sqrt(total_error / len(rated_indices[0]))
-            print(f"Iteration {iteration}: RMSE = {rmse:.4f}")
-    
-    # Generate final predictions
-    predictions = np.zeros_like(R, dtype=float)
-    for i in range(n_users):
-        for j in range(n_movies):
-            predictions[i, j] = mu + b_u[i] + b_m[j] + np.dot(U[i, :], V[j, :])
-    
-    return U, V, b_u, b_m, mu, predictions, losses
-
-U_bias, V_bias, b_u, b_m, mu, pred_bias, losses_bias = bias_aware_matrix_factorization(ratings_matrix, k=3)
-```
-
-**3.2 Regularized Matrix Factorization:**
-```python
-def regularized_matrix_factorization(R, k=3, max_iter=100, lr=0.01, reg_U=0.01, reg_V=0.01):
-    """
-    Matrix factorization with separate regularization for users and movies
-    """
-    
-    print(f"\nRegularized Matrix Factorization:")
-    print("-" * 32)
-    
-    n_users, n_movies = R.shape
-    
-    # Initialize factors
-    np.random.seed(42)
-    U = np.random.normal(0, 0.1, (n_users, k))
-    V = np.random.normal(0, 0.1, (n_movies, k))
-    
-    # Rated indices
-    rated_indices = np.where(R > 0)
-    
-    losses = []
-    train_rmses = []
-    
-    for iteration in range(max_iter):
-        total_error = 0
-        
-        # Shuffle training order
-        perm = np.random.permutation(len(rated_indices[0]))
-        
-        for idx in perm:
-            i, j = rated_indices[0][idx], rated_indices[1][idx]
-            
-            # Prediction and error
-            pred = np.dot(U[i, :], V[j, :])
-            error = R[i, j] - pred
-            total_error += error ** 2
-            
-            # Store current values
-            U_i = U[i, :].copy()
-            V_j = V[j, :].copy()
-            
-            # Stochastic gradient descent
-            U[i, :] += lr * (error * V_j - reg_U * U_i)
-            V[j, :] += lr * (error * U_i - reg_V * V_j)
-        
-        # Calculate full loss
-        reg_loss = reg_U * np.sum(U**2) + reg_V * np.sum(V**2)
-        total_loss = total_error + reg_loss
-        losses.append(total_loss)
-        
-        train_rmse = np.sqrt(total_error / len(rated_indices[0]))
-        train_rmses.append(train_rmse)
-        
-        if iteration % 20 == 0:
-            print(f"Iteration {iteration}: RMSE = {train_rmse:.4f}, Loss = {total_loss:.4f}")
-    
-    final_predictions = U @ V.T
-    
-    return U, V, final_predictions, losses, train_rmses
-
-U_reg, V_reg, pred_reg, losses_reg, rmses_reg = regularized_matrix_factorization(ratings_matrix, k=3)
-```
-
-**4. Evaluation and Comparison:**
-
-**4.1 Performance Metrics:**
-```python
-def evaluate_recommendations(R_true, R_pred, rated_mask):
-    """Evaluate recommendation system performance"""
-    
-    print("\nRecommendation System Evaluation:")
-    print("-" * 35)
-    
-    # Only evaluate on rated entries
-    true_ratings = R_true[rated_mask]
-    pred_ratings = R_pred[rated_mask]
-    
-    # RMSE
-    rmse = np.sqrt(np.mean((true_ratings - pred_ratings) ** 2))
-    
-    # MAE
-    mae = np.mean(np.abs(true_ratings - pred_ratings))
-    
-    # Correlation
-    correlation = np.corrcoef(true_ratings, pred_ratings)[0, 1]
-    
-    # Precision@K for top-k recommendations
-    def precision_at_k(R_true, R_pred, k=5, threshold=4.0):
-        """Calculate precision@k for recommendations"""
-        
-        precisions = []
-        
-        for user_idx in range(R_true.shape[0]):
-            # Get true high ratings for this user
-            true_high = set(np.where(R_true[user_idx] >= threshold)[0])
-            
-            # Get top-k predicted items (excluding already rated)
-            rated_items = set(np.where(R_true[user_idx] > 0)[0])
-            pred_scores = R_pred[user_idx].copy()
-            pred_scores[list(rated_items)] = -np.inf  # Exclude rated items
-            
-            top_k_items = set(np.argsort(pred_scores)[-k:])
-            
-            # Calculate precision
-            if len(top_k_items) > 0:
-                precision = len(true_high & top_k_items) / len(top_k_items)
-            else:
-                precision = 0
-            
-            precisions.append(precision)
-        
-        return np.mean(precisions)
-    
-    precision_5 = precision_at_k(R_true, R_pred, k=5)
-    
-    print(f"RMSE: {rmse:.4f}")
-    print(f"MAE: {mae:.4f}")
-    print(f"Correlation: {correlation:.4f}")
-    print(f"Precision@5: {precision_5:.4f}")
-    
-    return {
-        'rmse': rmse,
-        'mae': mae,
-        'correlation': correlation,
-        'precision_at_5': precision_5
-    }
-
-# Evaluate all methods
-rated_mask = ratings_matrix > 0
-
-print("=" * 60)
-print("COMPARISON OF METHODS")
-print("=" * 60)
-
-methods = {
-    'Basic MF': predictions,
-    'SVD': R_recon,
-    'NMF': R_nmf,
-    'Bias-aware MF': pred_bias,
-    'Regularized MF': pred_reg
-}
-
-results = {}
-for name, pred in methods.items():
-    print(f"\n{name}:")
-    results[name] = evaluate_recommendations(ratings_matrix, pred, rated_mask)
-```
-
-**4.2 Recommendation Generation:**
-```python
-def generate_recommendations(R_original, R_predicted, user_idx, users, movies, top_k=3):
-    """Generate top-k movie recommendations for a specific user"""
-    
-    print(f"\nRecommendations for {users[user_idx]}:")
-    print("-" * 30)
-    
-    # Get user's current ratings
-    user_ratings = R_original[user_idx]
-    user_predictions = R_predicted[user_idx]
-    
-    print("Current ratings:")
-    for movie_idx, rating in enumerate(user_ratings):
-        if rating > 0:
-            print(f"  {movies[movie_idx]}: {rating}")
-    
-    # Find unrated movies
-    unrated_indices = np.where(user_ratings == 0)[0]
-    unrated_predictions = user_predictions[unrated_indices]
-    
-    # Get top-k recommendations
-    top_k_indices = unrated_indices[np.argsort(unrated_predictions)[-top_k:]][::-1]
-    
-    print(f"\nTop {top_k} recommendations:")
-    for i, movie_idx in enumerate(top_k_indices, 1):
-        predicted_rating = user_predictions[movie_idx]
-        print(f"  {i}. {movies[movie_idx]}: {predicted_rating:.2f}")
-    
-    return top_k_indices
-
-# Generate recommendations for Alice using best performing method
-best_method = min(results.items(), key=lambda x: x[1]['rmse'])
-print(f"\nUsing best method: {best_method[0]} (RMSE: {best_method[1]['rmse']:.4f})")
-
-recommendations = generate_recommendations(
-    ratings_matrix, methods[best_method[0]], 
-    user_idx=0, users=users, movies=movies, top_k=3
-)
-```
-
-**5. Handling Real-World Challenges:**
-
-**5.1 Cold Start Problem:**
-```python
-def handle_cold_start(R, new_user_ratings, U, V, method='content_based'):
-    """Handle cold start problem for new users"""
-    
-    print("\nCold Start Problem Handling:")
-    print("-" * 30)
-    
-    if method == 'content_based':
-        # Use content-based approach for new users
-        # Find similar users based on limited ratings
-        
-        rated_movies = np.where(new_user_ratings > 0)[0]
-        
-        if len(rated_movies) == 0:
-            # Pure cold start - use popularity-based recommendations
-            movie_popularity = np.sum(R > 0, axis=0)
-            recommendations = np.argsort(movie_popularity)[-5:][::-1]
-            print("Pure cold start - using popularity-based recommendations")
-            
-        else:
-            # Partial cold start - find similar users
-            similarities = []
-            
-            for user_idx in range(R.shape[0]):
-                user_ratings = R[user_idx]
-                
-                # Calculate similarity only on commonly rated movies
-                common_movies = rated_movies[user_ratings[rated_movies] > 0]
-                
-                if len(common_movies) > 0:
-                    sim = np.corrcoef(
-                        new_user_ratings[common_movies],
-                        user_ratings[common_movies]
-                    )[0, 1]
-                    
-                    if not np.isnan(sim):
-                        similarities.append((user_idx, sim))
-            
-            # Use top similar users for recommendations
-            if similarities:
-                similarities.sort(key=lambda x: x[1], reverse=True)
-                top_similar_users = [x[0] for x in similarities[:3]]
-                
-                # Average ratings from similar users
-                unrated_movies = np.where(new_user_ratings == 0)[0]
-                recommendations = []
-                
-                for movie_idx in unrated_movies:
-                    avg_rating = np.mean([R[user_idx, movie_idx] 
-                                        for user_idx in top_similar_users
-                                        if R[user_idx, movie_idx] > 0])
-                    
-                    if not np.isnan(avg_rating):
-                        recommendations.append((movie_idx, avg_rating))
-                
-                recommendations.sort(key=lambda x: x[1], reverse=True)
-                recommendations = [x[0] for x in recommendations[:5]]
-                
-                print(f"Using {len(top_similar_users)} similar users for recommendations")
-            else:
-                recommendations = []
-                print("No similar users found")
-    
-    return recommendations
-
-# Example: New user with limited ratings
-new_user = np.array([0, 0, 5, 0, 0, 0, 4, 0])  # Liked Inception and Godfather
-cold_start_recs = handle_cold_start(ratings_matrix, new_user, U, V)
-```
-
-**5.2 Scalability Solutions:**
-```python
-def scalable_matrix_factorization(R_sparse, k=10, batch_size=1000, max_iter=50):
-    """Scalable matrix factorization using mini-batch gradient descent"""
-    
-    print("\nScalable Matrix Factorization:")
-    print("-" * 30)
-    
-    # Convert to sparse format for memory efficiency
-    if not hasattr(R_sparse, 'nnz'):
-        R_sparse = csr_matrix(R_sparse)
-    
-    n_users, n_movies = R_sparse.shape
-    
-    # Initialize factors
-    U = np.random.normal(0, 0.1, (n_users, k))
-    V = np.random.normal(0, 0.1, (n_movies, k))
-    
-    # Get all rated entries
-    rows, cols = R_sparse.nonzero()
-    ratings = R_sparse.data
-    n_ratings = len(ratings)
-    
-    print(f"Matrix size: {n_users} × {n_movies}")
-    print(f"Number of ratings: {n_ratings}")
-    print(f"Sparsity: {1 - n_ratings/(n_users*n_movies):.4f}")
-    
-    # Mini-batch training
-    lr = 0.01
-    reg = 0.01
-    
-    for epoch in range(max_iter):
-        # Shuffle ratings
-        perm = np.random.permutation(n_ratings)
-        epoch_loss = 0
-        
-        # Process in batches
-        for batch_start in range(0, n_ratings, batch_size):
-            batch_end = min(batch_start + batch_size, n_ratings)
-            batch_indices = perm[batch_start:batch_end]
-            
-            batch_loss = 0
-            
-            for idx in batch_indices:
-                i, j = rows[idx], cols[idx]
-                r_ij = ratings[idx]
-                
-                # Prediction and error
-                pred = np.dot(U[i, :], V[j, :])
-                error = r_ij - pred
-                batch_loss += error ** 2
-                
-                # Update factors
-                U_i = U[i, :].copy()
-                V_j = V[j, :].copy()
-                
-                U[i, :] += lr * (error * V_j - reg * U_i)
-                V[j, :] += lr * (error * U_i - reg * V_j)
-            
-            epoch_loss += batch_loss
+            U_old = U[i, :].copy()
+            U[i, :] += learning_rate * (error * V[j, :] - lambda_reg * U[i, :])
+            V[j, :] += learning_rate * (error * U_old - lambda_reg * V[j, :])
         
         if epoch % 10 == 0:
-            rmse = np.sqrt(epoch_loss / n_ratings)
+            rmse = np.sqrt(total_loss / len(ratings))
             print(f"Epoch {epoch}: RMSE = {rmse:.4f}")
     
-    return U, V
+    # Final predictions
+    R_pred = mu + b[:, np.newaxis] + c[np.newaxis, :] + U @ V.T
+    return np.clip(R_pred, 1, 5), U, V, mu, b, c
 
-# Convert to sparse format and demonstrate scalability
-R_sparse = csr_matrix(ratings_matrix)
-U_scalable, V_scalable = scalable_matrix_factorization(R_sparse, k=3, batch_size=10)
+R_pred_sgd, U_sgd, V_sgd, mu, b, c = sgd_matrix_factorization(
+    R_observed, k=10, learning_rate=0.01, lambda_reg=0.1, n_epochs=50
+)
+
+rmse_sgd = np.sqrt(mean_squared_error(R_true[test_mask], R_pred_sgd[test_mask]))
+print(f"SGD with biases RMSE: {rmse_sgd:.4f}")
+
+# ========================================
+# 5. MAKING RECOMMENDATIONS
+# ========================================
+
+print("\n=== Generating Recommendations ===")
+
+def get_top_recommendations(user_id, R_pred, R_observed, n=5):
+    """Get top N recommendations for a user."""
+    # Find unrated movies
+    unrated = np.isnan(R_observed[user_id, :])
+    
+    # Get predictions for unrated movies
+    predictions = R_pred[user_id, :]
+    predictions[~unrated] = -np.inf  # Exclude already rated
+    
+    # Top N
+    top_indices = np.argsort(predictions)[::-1][:n]
+    top_scores = predictions[top_indices]
+    
+    return list(zip(top_indices, top_scores))
+
+# Example recommendations
+user_id = 0
+recommendations = get_top_recommendations(user_id, R_pred_sgd, R_observed, n=5)
+print(f"Top 5 recommendations for user {user_id}:")
+for movie_id, score in recommendations:
+    print(f"  Movie {movie_id}: Predicted rating = {score:.2f}")
+
+# ========================================
+# 6. FINDING SIMILAR ITEMS
+# ========================================
+
+print("\n=== Item Similarity (using latent factors) ===")
+
+def find_similar_items(item_id, V, n=5):
+    """Find similar items using cosine similarity in latent space."""
+    item_vector = V[item_id, :]
+    
+    # Cosine similarity
+    similarities = V @ item_vector / (np.linalg.norm(V, axis=1) * np.linalg.norm(item_vector) + 1e-10)
+    
+    # Top N (excluding itself)
+    similarities[item_id] = -np.inf
+    top_indices = np.argsort(similarities)[::-1][:n]
+    
+    return list(zip(top_indices, similarities[top_indices]))
+
+similar_movies = find_similar_items(0, V_sgd, n=5)
+print(f"Movies similar to Movie 0:")
+for movie_id, sim in similar_movies:
+    print(f"  Movie {movie_id}: Similarity = {sim:.3f}")
+
+# Compare methods
+print("\n=== Method Comparison ===")
+print(f"SVD RMSE:       {rmse_svd:.4f}")
+print(f"ALS RMSE:       {rmse_als:.4f}")
+print(f"SGD+bias RMSE:  {rmse_sgd:.4f}")
 ```
 
-**Key Design Principles:**
+**Algorithm: ALS for Matrix Factorization**
+1. Initialize U, V randomly
+2. Repeat until convergence:
+   - Fix V, update each u_i: u_i = (V_Ω^T V_Ω + λI)^(-1) V_Ω^T r_i
+   - Fix U, update each v_j: v_j = (U_Ω^T U_Ω + λI)^(-1) U_Ω^T r_j
+3. Predict: r̂_ij = u_i^T v_j
 
-1. **Matrix Formulation**: User-item ratings as sparse matrix
-2. **Factorization**: Decompose into user and item latent factors
-3. **Bias Modeling**: Account for user and item rating biases
-4. **Regularization**: Prevent overfitting with L2 penalties
-5. **Scalability**: Use sparse matrices and mini-batch training
-6. **Cold Start**: Handle new users/items with content-based fallbacks
-7. **Evaluation**: Use RMSE, MAE, and ranking metrics
+**Method Comparison:**
 
-This linear algebra approach provides a mathematically rigorous and scalable solution for collaborative filtering, effectively capturing latent preferences and generating accurate recommendations.
+| Method | Pros | Cons | Use When |
+|--------|------|------|----------|
+| **SVD** | Fast, closed-form | Needs imputation | Dense-ish data |
+| **ALS** | Parallelizable, handles implicit | Memory intensive | Large-scale, implicit feedback |
+| **SGD** | Memory efficient, online | Slower convergence | Streaming data |
+| **NMF** | Non-negative, interpretable | Local optima | When non-negativity matters |
 
----
+**ML Applications:**
+| Application | Linear Algebra Technique |
+|-------------|--------------------------|
+| **Netflix Prize** | SVD++, matrix factorization |
+| **Implicit feedback** | Weighted ALS |
+| **Cold start** | Hybrid with content features |
+| **Real-time updates** | Online SGD |
 
+**Interview Tips:**
+- Know the difference between explicit (ratings) and implicit (clicks) feedback
+- Explain the cold-start problem and hybrid approaches
+- Mention SVD++ which incorporates implicit feedback
+- Know ALS is preferred for implicit feedback (Spotify, etc.)
+- Real systems: Add biases, use BPR loss for ranking

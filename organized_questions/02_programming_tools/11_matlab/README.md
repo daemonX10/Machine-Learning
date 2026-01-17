@@ -1,19 +1,19 @@
-# Matlab Interview Questions
+# MATLAB Interview Questions
 
-This folder contains interview questions about matlab interview questions.
+This folder contains interview questions about MATLAB for Machine Learning.
 
 ## Question Types Available:
 
-- **Theory**: 25 questions
-- **General**: 21 questions
-- **Scenario_Based**: 14 questions
-- **Coding**: 10 questions
+- **Theory**: 8 questions
+- **General**: 5 questions  
+- **Coding**: 8 questions
+- **Scenario_Based**: 5 questions
 
-**Total Questions**: 70
+**Total Questions**: 26
 
 ## Files:
 
 - `theory_questions.md`
 - `general_questions.md`
-- `scenario_based_questions.md`
 - `coding_questions.md`
+- `scenario_based_questions.md`

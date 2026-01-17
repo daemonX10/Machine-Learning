@@ -4,15 +4,11 @@
 
 **How islogistic regressionused forclassification tasks?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 2
 
 **How do you interpret thecoefficientsof alogistic regression model?**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -20,15 +16,11 @@
 
 **How do you handlecategorical variablesinlogistic regression?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 4
 
 **Canlogistic regressionbe used for more than two classes? If so, how?**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -36,15 +28,11 @@
 
 **How do you evaluate alogistic regression model’s performance?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 6
 
 **How do you deal withimbalanced classesinlogistic regression?**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -52,15 +40,11 @@
 
 **How can you extendlogistic regressionto handleordinal outcomes?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 8
 
 **What role doquasi-likelihood methodsplay inlogistic regression?**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -68,15 +52,10 @@
 
 **How can you uselogistic regressionforvariable selection?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 10
 
 **Present an approach to predict thelikelihood of a patienthaving a particulardiseaseusinglogistic regression.**
 
-**Answer:** _[To be filled]_
-
 ---
-

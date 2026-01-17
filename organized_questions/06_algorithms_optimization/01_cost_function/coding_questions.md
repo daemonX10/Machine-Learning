@@ -6,351 +6,50 @@
 
 **Answer:**
 
-Mean Squared Error (MSE) is one of the most fundamental cost functions in machine learning, measuring the average squared difference between predicted and actual values. Here's a comprehensive implementation with multiple approaches and optimizations:
+**Pipeline:**
+1. Input: y_true (actual), y_pred (predicted)
+2. Calculate: difference → square → mean
+3. Output: single MSE value
+
+**Mathematical Formula:**
+$$MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$$
 
 ```python
 import numpy as np
-import matplotlib.pyplot as plt
+
+def mse(y_true, y_pred):
+    """
+    Calculate Mean Squared Error
+    
+    Steps:
+    1. Find difference between actual and predicted
+    2. Square each difference
+    3. Take mean of all squared differences
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
+    differences = y_true - y_pred      # Step 1: differences
+    squared = differences ** 2          # Step 2: square
+    mean_squared = np.mean(squared)     # Step 3: mean
+    
+    return mean_squared
+
+# Example usage
+y_true = np.array([3, 5, 2, 7])
+y_pred = np.array([2.5, 5.5, 2, 8])
+
+print(f"MSE: {mse(y_true, y_pred)}")  # Output: 0.375
+
+# Verify with sklearn
 from sklearn.metrics import mean_squared_error
-import time
-
-def mse_basic(y_true, y_pred):
-    """
-    Basic implementation of Mean Squared Error
-    
-    Args:
-        y_true: Array of actual values
-        y_pred: Array of predicted values
-        
-    Returns:
-        float: Mean Squared Error value
-    """
-    if len(y_true) != len(y_pred):
-        raise ValueError("Input arrays must have the same length")
-    
-    squared_errors = [(true - pred) ** 2 for true, pred in zip(y_true, y_pred)]
-    return sum(squared_errors) / len(squared_errors)
-
-def mse_vectorized(y_true, y_pred):
-    """
-    Vectorized implementation using NumPy for better performance
-    
-    Args:
-        y_true: NumPy array of actual values
-        y_pred: NumPy array of predicted values
-        
-    Returns:
-        float: Mean Squared Error value
-    """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    
-    if y_true.shape != y_pred.shape:
-        raise ValueError("Input arrays must have the same shape")
-    
-    return np.mean((y_true - y_pred) ** 2)
-
-def mse_with_regularization(y_true, y_pred, weights=None, l1_reg=0, l2_reg=0):
-    """
-    MSE with optional regularization terms and sample weights
-    
-    Args:
-        y_true: Array of actual values
-        y_pred: Array of predicted values
-        weights: Optional sample weights
-        l1_reg: L1 regularization parameter
-        l2_reg: L2 regularization parameter
-        
-    Returns:
-        float: Regularized MSE value
-    """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    
-    if weights is None:
-        weights = np.ones(len(y_true))
-    else:
-        weights = np.array(weights)
-    
-    # Weighted MSE
-    weighted_mse = np.average((y_true - y_pred) ** 2, weights=weights)
-    
-    # Add regularization terms (assuming weights parameter contains model weights)
-    if hasattr(weights, 'model_weights'):
-        model_weights = weights.model_weights
-        l1_penalty = l1_reg * np.sum(np.abs(model_weights))
-        l2_penalty = l2_reg * np.sum(model_weights ** 2)
-        return weighted_mse + l1_penalty + l2_penalty
-    
-    return weighted_mse
-
-def mse_gradient(y_true, y_pred):
-    """
-    Calculate the gradient of MSE with respect to predictions
-    Useful for backpropagation in neural networks
-    
-    Args:
-        y_true: Array of actual values
-        y_pred: Array of predicted values
-        
-    Returns:
-        numpy.ndarray: Gradient of MSE
-    """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    
-    return 2 * (y_pred - y_true) / len(y_true)
-
-class MSECalculator:
-    """
-    Professional MSE calculator class with validation and utilities
-    """
-    
-    def __init__(self, epsilon=1e-8):
-        """
-        Initialize MSE calculator
-        
-        Args:
-            epsilon: Small value to prevent numerical issues
-        """
-        self.epsilon = epsilon
-        self.history = []
-    
-    def calculate(self, y_true, y_pred, return_components=False):
-        """
-        Calculate MSE with comprehensive validation
-        
-        Args:
-            y_true: Actual values
-            y_pred: Predicted values
-            return_components: Whether to return individual components
-            
-        Returns:
-            float or tuple: MSE value or (MSE, components)
-        """
-        # Input validation
-        y_true = self._validate_input(y_true)
-        y_pred = self._validate_input(y_pred)
-        
-        if y_true.shape != y_pred.shape:
-            raise ValueError(f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}")
-        
-        # Calculate MSE
-        squared_errors = (y_true - y_pred) ** 2
-        mse_value = np.mean(squared_errors)
-        
-        # Store in history
-        self.history.append({
-            'mse': mse_value,
-            'rmse': np.sqrt(mse_value),
-            'mae': np.mean(np.abs(y_true - y_pred)),
-            'max_error': np.max(np.abs(y_true - y_pred))
-        })
-        
-        if return_components:
-            return mse_value, {
-                'squared_errors': squared_errors,
-                'mean_error': np.mean(y_true - y_pred),
-                'std_error': np.std(y_true - y_pred),
-                'rmse': np.sqrt(mse_value)
-            }
-        
-        return mse_value
-    
-    def _validate_input(self, data):
-        """Validate and convert input data"""
-        if data is None:
-            raise ValueError("Input cannot be None")
-        
-        data = np.array(data, dtype=np.float64)
-        
-        if data.size == 0:
-            raise ValueError("Input cannot be empty")
-        
-        if np.any(np.isnan(data)):
-            raise ValueError("Input contains NaN values")
-        
-        if np.any(np.isinf(data)):
-            raise ValueError("Input contains infinite values")
-        
-        return data
-    
-    def get_statistics(self):
-        """Get statistics from calculation history"""
-        if not self.history:
-            return None
-        
-        return {
-            'mean_mse': np.mean([h['mse'] for h in self.history]),
-            'std_mse': np.std([h['mse'] for h in self.history]),
-            'min_mse': np.min([h['mse'] for h in self.history]),
-            'max_mse': np.max([h['mse'] for h in self.history])
-        }
-
-def demonstrate_mse_implementations():
-    """Demonstrate different MSE implementations with examples"""
-    
-    # Generate sample data
-    np.random.seed(42)
-    n_samples = 1000
-    
-    # True function: y = 2x + 1 + noise
-    x = np.linspace(0, 10, n_samples)
-    y_true = 2 * x + 1 + np.random.normal(0, 0.5, n_samples)
-    
-    # Predictions with some error
-    y_pred_good = 2 * x + 1.1 + np.random.normal(0, 0.3, n_samples)
-    y_pred_poor = 1.5 * x + 2 + np.random.normal(0, 1, n_samples)
-    
-    print("MSE Implementation Demonstration")
-    print("=" * 40)
-    
-    # Test different implementations
-    implementations = [
-        ("Basic Python", mse_basic),
-        ("Vectorized NumPy", mse_vectorized)
-    ]
-    
-    for name, func in implementations:
-        start_time = time.time()
-        mse_good = func(y_true, y_pred_good)
-        mse_poor = func(y_true, y_pred_poor)
-        end_time = time.time()
-        
-        print(f"\n{name}:")
-        print(f"  Good predictions MSE: {mse_good:.4f}")
-        print(f"  Poor predictions MSE: {mse_poor:.4f}")
-        print(f"  Execution time: {(end_time - start_time) * 1000:.2f} ms")
-    
-    # Professional calculator
-    print(f"\nProfessional MSE Calculator:")
-    calculator = MSECalculator()
-    
-    mse_val, components = calculator.calculate(y_true, y_pred_good, return_components=True)
-    print(f"  MSE: {mse_val:.4f}")
-    print(f"  RMSE: {components['rmse']:.4f}")
-    print(f"  Mean Error: {components['mean_error']:.4f}")
-    print(f"  Max Error: {np.max(np.abs(components['squared_errors'])):.4f}")
-    
-    # Compare with sklearn
-    sklearn_mse = mean_squared_error(y_true, y_pred_good)
-    print(f"  sklearn MSE: {sklearn_mse:.4f}")
-    print(f"  Difference: {abs(mse_val - sklearn_mse):.10f}")
-    
-    # Gradient calculation
-    gradient = mse_gradient(y_true[:10], y_pred_good[:10])
-    print(f"\nGradient (first 10 samples): {gradient}")
-    
-    return y_true, y_pred_good, y_pred_poor
-
-def create_mse_visualization():
-    """Create visualizations to understand MSE behavior"""
-    
-    y_true, y_pred_good, y_pred_poor = demonstrate_mse_implementations()
-    
-    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-    
-    # Plot 1: Predictions vs True values
-    ax1 = axes[0, 0]
-    x_vals = np.arange(len(y_true))
-    
-    ax1.scatter(x_vals[::10], y_true[::10], alpha=0.6, label='True values', s=20)
-    ax1.scatter(x_vals[::10], y_pred_good[::10], alpha=0.6, label='Good predictions', s=20)
-    ax1.scatter(x_vals[::10], y_pred_poor[::10], alpha=0.6, label='Poor predictions', s=20)
-    ax1.set_xlabel('Sample Index')
-    ax1.set_ylabel('Value')
-    ax1.set_title('Predictions vs True Values')
-    ax1.legend()
-    ax1.grid(True, alpha=0.3)
-    
-    # Plot 2: Error distribution
-    ax2 = axes[0, 1]
-    errors_good = y_true - y_pred_good
-    errors_poor = y_true - y_pred_poor
-    
-    ax2.hist(errors_good, bins=50, alpha=0.7, label='Good predictions', density=True)
-    ax2.hist(errors_poor, bins=50, alpha=0.7, label='Poor predictions', density=True)
-    ax2.set_xlabel('Prediction Error')
-    ax2.set_ylabel('Density')
-    ax2.set_title('Error Distribution')
-    ax2.legend()
-    ax2.grid(True, alpha=0.3)
-    
-    # Plot 3: MSE vs different noise levels
-    ax3 = axes[1, 0]
-    noise_levels = np.linspace(0, 2, 20)
-    mse_values = []
-    
-    for noise in noise_levels:
-        y_pred_noise = y_pred_good + np.random.normal(0, noise, len(y_pred_good))
-        mse_val = mse_vectorized(y_true, y_pred_noise)
-        mse_values.append(mse_val)
-    
-    ax3.plot(noise_levels, mse_values, 'b-o', markersize=4)
-    ax3.set_xlabel('Noise Level')
-    ax3.set_ylabel('MSE')
-    ax3.set_title('MSE vs Noise Level')
-    ax3.grid(True, alpha=0.3)
-    
-    # Plot 4: MSE components
-    ax4 = axes[1, 1]
-    n_samples_range = np.logspace(1, 4, 20, dtype=int)
-    mse_components = []
-    
-    for n in n_samples_range:
-        subset_true = y_true[:n]
-        subset_pred = y_pred_good[:n]
-        
-        calculator = MSECalculator()
-        mse_val, components = calculator.calculate(subset_true, subset_pred, return_components=True)
-        mse_components.append({
-            'n_samples': n,
-            'mse': mse_val,
-            'rmse': components['rmse'],
-            'mae': np.mean(np.abs(subset_true - subset_pred))
-        })
-    
-    ax4.semilogx([c['n_samples'] for c in mse_components], 
-                 [c['mse'] for c in mse_components], 'b-o', label='MSE', markersize=4)
-    ax4.semilogx([c['n_samples'] for c in mse_components], 
-                 [c['rmse'] for c in mse_components], 'r-s', label='RMSE', markersize=4)
-    ax4.semilogx([c['n_samples'] for c in mse_components], 
-                 [c['mae'] for c in mse_components], 'g-^', label='MAE', markersize=4)
-    
-    ax4.set_xlabel('Number of Samples')
-    ax4.set_ylabel('Error Value')
-    ax4.set_title('Error Metrics vs Sample Size')
-    ax4.legend()
-    ax4.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.show()
-    
-    return fig
-
-if __name__ == "__main__":
-    # Run demonstration
-    demonstrate_mse_implementations()
-    
-    # Create visualizations
-    create_mse_visualization()
-    
-    print("\nKey Insights:")
-    print("• MSE penalizes larger errors more heavily due to squaring")
-    print("• Always validate input data for NaN and infinite values")
-    print("• Vectorized implementations are much faster for large datasets")
-    print("• MSE is sensitive to outliers - consider robust alternatives if needed")
-    print("• RMSE provides error in the same units as the target variable")
+print(f"Sklearn MSE: {mean_squared_error(y_true, y_pred)}")  # Same: 0.375
 ```
 
-**Key Points for Interviews:**
-
-1. **Mathematical Foundation**: MSE = (1/n) * Σ(yi - ŷi)²
-2. **Sensitivity**: MSE heavily penalizes large errors due to squaring
-3. **Units**: MSE is in squared units; RMSE is in original units
-4. **Performance**: Vectorized NumPy implementation is ~100x faster than Python loops
-5. **Robustness**: Consider MAE or Huber loss for datasets with outliers
-6. **Gradient**: ∂MSE/∂ŷ = 2(ŷ - y)/n, essential for gradient descent
+**Key Points:**
+- MSE penalizes larger errors more (due to squaring)
+- Always non-negative
+- Units are squared (use RMSE for original units)
 
 ---
 
@@ -360,563 +59,73 @@ if __name__ == "__main__":
 
 **Answer:**
 
-Cross-Entropy loss is the standard loss function for classification problems, measuring the difference between predicted probability distributions and true labels. Here's a comprehensive implementation:
+**Pipeline:**
+1. Input: y_true (0/1 labels), y_pred (probabilities)
+2. Clip predictions to avoid log(0)
+3. Apply cross-entropy formula
+4. Output: average loss
+
+**Mathematical Formula:**
+$$BCE = -\frac{1}{n}\sum[y \cdot \log(p) + (1-y) \cdot \log(1-p)]$$
 
 ```python
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.special import softmax
-import warnings
-warnings.filterwarnings('ignore')
 
-def binary_cross_entropy(y_true, y_pred, epsilon=1e-15):
+def binary_cross_entropy(y_true, y_pred):
     """
-    Binary Cross-Entropy loss for binary classification
+    Calculate Binary Cross-Entropy Loss
     
-    Args:
-        y_true: True binary labels (0 or 1)
-        y_pred: Predicted probabilities [0, 1]
-        epsilon: Small value to prevent log(0)
-        
-    Returns:
-        float: Binary cross-entropy loss
+    Steps:
+    1. Clip predictions to avoid log(0)
+    2. Calculate: y*log(p) + (1-y)*log(1-p)
+    3. Take negative mean
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
     
-    # Clip predictions to prevent log(0)
+    # Step 1: Clip to prevent log(0)
+    epsilon = 1e-15
     y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
     
-    # Binary cross-entropy formula: -[y*log(p) + (1-y)*log(1-p)]
-    bce = -(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+    # Step 2 & 3: Cross-entropy formula
+    loss = -(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
     
-    return np.mean(bce)
+    return np.mean(loss)
 
-def categorical_cross_entropy(y_true, y_pred, epsilon=1e-15, from_logits=False):
-    """
-    Categorical Cross-Entropy loss for multi-class classification
-    
-    Args:
-        y_true: True labels (one-hot encoded or class indices)
-        y_pred: Predicted probabilities or logits
-        epsilon: Small value to prevent log(0)
-        from_logits: Whether y_pred contains logits (before softmax)
-        
-    Returns:
-        float: Categorical cross-entropy loss
-    """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    
-    # Convert logits to probabilities if needed
-    if from_logits:
-        y_pred = softmax(y_pred, axis=-1)
-    
-    # Handle different label formats
-    if y_true.ndim == 1:  # Class indices
-        num_classes = y_pred.shape[-1]
-        y_true_onehot = np.eye(num_classes)[y_true]
-    else:  # One-hot encoded
-        y_true_onehot = y_true
-    
-    # Clip predictions to prevent log(0)
-    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
-    
-    # Categorical cross-entropy: -Σ(y_true * log(y_pred))
-    cce = -np.sum(y_true_onehot * np.log(y_pred), axis=-1)
-    
-    return np.mean(cce)
+# Example usage
+y_true = np.array([1, 0, 1, 1])
+y_pred = np.array([0.9, 0.1, 0.8, 0.7])
 
-def sparse_categorical_cross_entropy(y_true, y_pred, epsilon=1e-15, from_logits=False):
-    """
-    Sparse Categorical Cross-Entropy (memory efficient for many classes)
-    
-    Args:
-        y_true: True class indices (not one-hot encoded)
-        y_pred: Predicted probabilities or logits
-        epsilon: Small value to prevent log(0)
-        from_logits: Whether y_pred contains logits
-        
-    Returns:
-        float: Sparse categorical cross-entropy loss
-    """
-    y_true = np.array(y_true, dtype=int)
-    y_pred = np.array(y_pred)
-    
-    # Convert logits to probabilities if needed
-    if from_logits:
-        y_pred = softmax(y_pred, axis=-1)
-    
-    # Clip predictions
-    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
-    
-    # Extract probabilities for true classes
-    batch_size = y_pred.shape[0]
-    true_class_probs = y_pred[np.arange(batch_size), y_true]
-    
-    # Sparse categorical cross-entropy: -log(p_true_class)
-    scce = -np.log(true_class_probs)
-    
-    return np.mean(scce)
+print(f"BCE: {binary_cross_entropy(y_true, y_pred):.4f}")
 
-def weighted_cross_entropy(y_true, y_pred, class_weights=None, epsilon=1e-15):
+# For multi-class (categorical cross-entropy)
+def categorical_cross_entropy(y_true, y_pred):
     """
-    Weighted Cross-Entropy for imbalanced datasets
-    
-    Args:
-        y_true: True labels
-        y_pred: Predicted probabilities
-        class_weights: Dictionary of class weights {class: weight}
-        epsilon: Small value to prevent log(0)
-        
-    Returns:
-        float: Weighted cross-entropy loss
+    y_true: class indices (e.g., [0, 1, 2])
+    y_pred: probability matrix (n_samples x n_classes)
     """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
+    y_pred = np.clip(y_pred, 1e-15, 1 - 1e-15)
+    n_samples = len(y_true)
     
-    # Clip predictions
-    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+    # Get probability of true class for each sample
+    correct_probs = y_pred[np.arange(n_samples), y_true]
     
-    if class_weights is None:
-        return categorical_cross_entropy(y_true, y_pred, epsilon)
-    
-    # Handle different label formats
-    if y_true.ndim == 1:  # Class indices
-        num_classes = y_pred.shape[-1]
-        y_true_onehot = np.eye(num_classes)[y_true]
-        class_indices = y_true
-    else:  # One-hot encoded
-        y_true_onehot = y_true
-        class_indices = np.argmax(y_true, axis=-1)
-    
-    # Apply class weights
-    weights = np.array([class_weights.get(i, 1.0) for i in class_indices])
-    
-    # Weighted categorical cross-entropy
-    cce = -np.sum(y_true_onehot * np.log(y_pred), axis=-1)
-    weighted_cce = cce * weights
-    
-    return np.mean(weighted_cce)
+    return -np.mean(np.log(correct_probs))
 
-def focal_loss(y_true, y_pred, alpha=1.0, gamma=2.0, epsilon=1e-15):
-    """
-    Focal Loss for addressing class imbalance (from RetinaNet paper)
-    Focuses learning on hard examples
-    
-    Args:
-        y_true: True labels (one-hot or indices)
-        y_pred: Predicted probabilities
-        alpha: Weighting factor for rare class
-        gamma: Focusing parameter (higher = more focus on hard examples)
-        epsilon: Small value to prevent log(0)
-        
-    Returns:
-        float: Focal loss value
-    """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    
-    # Clip predictions
-    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
-    
-    # Handle different label formats
-    if y_true.ndim == 1:  # Class indices
-        num_classes = y_pred.shape[-1]
-        y_true_onehot = np.eye(num_classes)[y_true]
-    else:  # One-hot encoded
-        y_true_onehot = y_true
-    
-    # Calculate cross-entropy
-    ce = -np.sum(y_true_onehot * np.log(y_pred), axis=-1)
-    
-    # Calculate p_t (probability of true class)
-    p_t = np.sum(y_true_onehot * y_pred, axis=-1)
-    
-    # Focal loss: -alpha * (1 - p_t)^gamma * log(p_t)
-    focal = alpha * np.power(1 - p_t, gamma) * ce
-    
-    return np.mean(focal)
-
-class CrossEntropyCalculator:
-    """
-    Professional Cross-Entropy calculator with comprehensive features
-    """
-    
-    def __init__(self, epsilon=1e-15):
-        """
-        Initialize calculator
-        
-        Args:
-            epsilon: Small value to prevent numerical issues
-        """
-        self.epsilon = epsilon
-        self.history = []
-    
-    def calculate(self, y_true, y_pred, loss_type='auto', **kwargs):
-        """
-        Calculate cross-entropy loss with automatic type detection
-        
-        Args:
-            y_true: True labels
-            y_pred: Predicted probabilities
-            loss_type: 'binary', 'categorical', 'sparse', or 'auto'
-            **kwargs: Additional parameters for specific loss functions
-            
-        Returns:
-            dict: Loss value and additional metrics
-        """
-        y_true = np.array(y_true)
-        y_pred = np.array(y_pred)
-        
-        # Auto-detect loss type
-        if loss_type == 'auto':
-            if y_pred.shape[-1] == 1 or (y_pred.ndim == 1):
-                loss_type = 'binary'
-            elif y_true.ndim == 1:
-                loss_type = 'sparse'
-            else:
-                loss_type = 'categorical'
-        
-        # Calculate appropriate loss
-        if loss_type == 'binary':
-            loss_value = binary_cross_entropy(y_true, y_pred, self.epsilon)
-            accuracy = self._binary_accuracy(y_true, y_pred)
-        elif loss_type == 'categorical':
-            loss_value = categorical_cross_entropy(y_true, y_pred, self.epsilon, **kwargs)
-            accuracy = self._categorical_accuracy(y_true, y_pred)
-        elif loss_type == 'sparse':
-            loss_value = sparse_categorical_cross_entropy(y_true, y_pred, self.epsilon, **kwargs)
-            accuracy = self._sparse_accuracy(y_true, y_pred)
-        else:
-            raise ValueError(f"Unknown loss type: {loss_type}")
-        
-        # Calculate additional metrics
-        perplexity = np.exp(loss_value)
-        entropy = self._calculate_entropy(y_pred)
-        
-        result = {
-            'loss': loss_value,
-            'accuracy': accuracy,
-            'perplexity': perplexity,
-            'entropy': entropy,
-            'loss_type': loss_type
-        }
-        
-        self.history.append(result)
-        return result
-    
-    def _binary_accuracy(self, y_true, y_pred):
-        """Calculate binary accuracy"""
-        predictions = (y_pred > 0.5).astype(int)
-        return np.mean(predictions == y_true)
-    
-    def _categorical_accuracy(self, y_true, y_pred):
-        """Calculate categorical accuracy"""
-        if y_true.ndim == 1:  # Class indices
-            predictions = np.argmax(y_pred, axis=-1)
-            return np.mean(predictions == y_true)
-        else:  # One-hot encoded
-            predictions = np.argmax(y_pred, axis=-1)
-            true_classes = np.argmax(y_true, axis=-1)
-            return np.mean(predictions == true_classes)
-    
-    def _sparse_accuracy(self, y_true, y_pred):
-        """Calculate sparse categorical accuracy"""
-        predictions = np.argmax(y_pred, axis=-1)
-        return np.mean(predictions == y_true)
-    
-    def _calculate_entropy(self, y_pred):
-        """Calculate prediction entropy (uncertainty measure)"""
-        # Clip predictions to prevent log(0)
-        y_pred_clipped = np.clip(y_pred, self.epsilon, 1 - self.epsilon)
-        
-        if y_pred.ndim == 1:  # Binary
-            entropy = -(y_pred_clipped * np.log(y_pred_clipped) + 
-                       (1 - y_pred_clipped) * np.log(1 - y_pred_clipped))
-        else:  # Multi-class
-            entropy = -np.sum(y_pred_clipped * np.log(y_pred_clipped), axis=-1)
-        
-        return np.mean(entropy)
-    
-    def get_statistics(self):
-        """Get statistics from calculation history"""
-        if not self.history:
-            return None
-        
-        return {
-            'mean_loss': np.mean([h['loss'] for h in self.history]),
-            'std_loss': np.std([h['loss'] for h in self.history]),
-            'mean_accuracy': np.mean([h['accuracy'] for h in self.history]),
-            'mean_perplexity': np.mean([h['perplexity'] for h in self.history])
-        }
-
-def cross_entropy_gradient(y_true, y_pred, loss_type='categorical'):
-    """
-    Calculate gradient of cross-entropy loss for backpropagation
-    
-    Args:
-        y_true: True labels
-        y_pred: Predicted probabilities
-        loss_type: Type of cross-entropy loss
-        
-    Returns:
-        numpy.ndarray: Gradient with respect to predictions
-    """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    
-    if loss_type == 'binary':
-        # Binary cross-entropy gradient: (y_pred - y_true) / (y_pred * (1 - y_pred))
-        gradient = (y_pred - y_true) / (y_pred * (1 - y_pred))
-    elif loss_type == 'categorical':
-        # Categorical cross-entropy gradient: (y_pred - y_true) / batch_size
-        if y_true.ndim == 1:  # Convert indices to one-hot
-            num_classes = y_pred.shape[-1]
-            y_true_onehot = np.eye(num_classes)[y_true]
-        else:
-            y_true_onehot = y_true
-        
-        gradient = (y_pred - y_true_onehot) / len(y_pred)
-    
-    return gradient
-
-def demonstrate_cross_entropy():
-    """Demonstrate different cross-entropy implementations"""
-    
-    print("Cross-Entropy Loss Demonstration")
-    print("=" * 40)
-    
-    # Binary classification example
-    print("\n1. Binary Classification:")
-    y_true_binary = np.array([0, 1, 1, 0, 1])
-    y_pred_binary = np.array([0.1, 0.9, 0.8, 0.2, 0.7])
-    
-    bce_loss = binary_cross_entropy(y_true_binary, y_pred_binary)
-    print(f"   True labels: {y_true_binary}")
-    print(f"   Predictions: {y_pred_binary}")
-    print(f"   Binary Cross-Entropy: {bce_loss:.4f}")
-    
-    # Multi-class classification example
-    print("\n2. Multi-class Classification:")
-    y_true_multi = np.array([0, 1, 2, 1, 0])
-    y_pred_multi = np.array([
-        [0.8, 0.1, 0.1],  # Confident correct
-        [0.2, 0.7, 0.1],  # Less confident correct
-        [0.1, 0.2, 0.7],  # Confident correct
-        [0.3, 0.4, 0.3],  # Very uncertain
-        [0.6, 0.3, 0.1]   # Moderately confident correct
-    ])
-    
-    cce_loss = categorical_cross_entropy(y_true_multi, y_pred_multi)
-    scce_loss = sparse_categorical_cross_entropy(y_true_multi, y_pred_multi)
-    
-    print(f"   True classes: {y_true_multi}")
-    print(f"   Prediction probs:\n{y_pred_multi}")
-    print(f"   Categorical Cross-Entropy: {cce_loss:.4f}")
-    print(f"   Sparse Categorical Cross-Entropy: {scce_loss:.4f}")
-    
-    # Weighted cross-entropy for imbalanced data
-    print("\n3. Weighted Cross-Entropy (Imbalanced Classes):")
-    class_weights = {0: 1.0, 1: 2.0, 2: 3.0}  # Higher weight for rare classes
-    wce_loss = weighted_cross_entropy(y_true_multi, y_pred_multi, class_weights)
-    print(f"   Class weights: {class_weights}")
-    print(f"   Weighted Cross-Entropy: {wce_loss:.4f}")
-    
-    # Focal loss for hard examples
-    print("\n4. Focal Loss (Focus on Hard Examples):")
-    focal_loss_val = focal_loss(y_true_multi, y_pred_multi, alpha=1.0, gamma=2.0)
-    print(f"   Focal Loss (α=1.0, γ=2.0): {focal_loss_val:.4f}")
-    
-    # Professional calculator
-    print("\n5. Professional Calculator:")
-    calculator = CrossEntropyCalculator()
-    
-    # Test with different scenarios
-    scenarios = [
-        ("Perfect predictions", y_true_binary, np.array([0.001, 0.999, 0.999, 0.001, 0.999])),
-        ("Random predictions", y_true_binary, np.array([0.5, 0.5, 0.5, 0.5, 0.5])),
-        ("Poor predictions", y_true_binary, np.array([0.9, 0.1, 0.2, 0.8, 0.3]))
-    ]
-    
-    for name, y_true, y_pred in scenarios:
-        result = calculator.calculate(y_true, y_pred)
-        print(f"   {name}:")
-        print(f"     Loss: {result['loss']:.4f}")
-        print(f"     Accuracy: {result['accuracy']:.4f}")
-        print(f"     Perplexity: {result['perplexity']:.4f}")
-    
-    return calculator
-
-def create_cross_entropy_visualization():
-    """Create visualizations to understand cross-entropy behavior"""
-    
-    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-    
-    # Plot 1: Binary cross-entropy vs prediction
-    ax1 = axes[0, 0]
-    p_values = np.linspace(0.001, 0.999, 1000)
-    
-    # For true label = 1
-    bce_true_1 = -np.log(p_values)
-    # For true label = 0
-    bce_true_0 = -np.log(1 - p_values)
-    
-    ax1.plot(p_values, bce_true_1, 'b-', label='True label = 1', linewidth=2)
-    ax1.plot(p_values, bce_true_0, 'r-', label='True label = 0', linewidth=2)
-    ax1.set_xlabel('Predicted Probability')
-    ax1.set_ylabel('Binary Cross-Entropy Loss')
-    ax1.set_title('Binary Cross-Entropy vs Prediction')
-    ax1.set_yscale('log')
-    ax1.legend()
-    ax1.grid(True, alpha=0.3)
-    
-    # Plot 2: Effect of class imbalance
-    ax2 = axes[0, 1]
-    
-    # Simulate different class distributions
-    class_ratios = np.linspace(0.1, 0.9, 20)
-    losses_unweighted = []
-    losses_weighted = []
-    
-    for ratio in class_ratios:
-        # Generate imbalanced dataset
-        n_samples = 1000
-        n_class_1 = int(n_samples * ratio)
-        n_class_0 = n_samples - n_class_1
-        
-        y_true = np.concatenate([np.zeros(n_class_0), np.ones(n_class_1)])
-        y_pred = np.random.beta(2, 5, n_samples)  # Biased predictions
-        
-        # Unweighted loss
-        loss_unweighted = binary_cross_entropy(y_true, y_pred)
-        losses_unweighted.append(loss_unweighted)
-        
-        # Weighted loss
-        class_weights = {0: ratio, 1: 1-ratio}  # Inverse frequency weighting
-        y_true_int = y_true.astype(int)
-        loss_weighted = weighted_cross_entropy(y_true_int, 
-                                             np.column_stack([1-y_pred, y_pred]), 
-                                             class_weights)
-        losses_weighted.append(loss_weighted)
-    
-    ax2.plot(class_ratios, losses_unweighted, 'b-o', label='Unweighted', markersize=4)
-    ax2.plot(class_ratios, losses_weighted, 'r-s', label='Weighted', markersize=4)
-    ax2.set_xlabel('Class 1 Ratio')
-    ax2.set_ylabel('Cross-Entropy Loss')
-    ax2.set_title('Effect of Class Imbalance')
-    ax2.legend()
-    ax2.grid(True, alpha=0.3)
-    
-    # Plot 3: Focal loss vs standard cross-entropy
-    ax3 = axes[1, 0]
-    
-    # Generate predictions with varying confidence
-    y_true_focal = np.array([1, 1, 1, 1, 1])  # All true class
-    confidence_levels = np.linspace(0.1, 0.9, 20)
-    
-    ce_losses = []
-    focal_losses_gamma_1 = []
-    focal_losses_gamma_2 = []
-    focal_losses_gamma_5 = []
-    
-    for conf in confidence_levels:
-        y_pred_conf = np.array([[1-conf, conf]] * 5)
-        
-        ce_loss = sparse_categorical_cross_entropy(y_true_focal, y_pred_conf)
-        focal_1 = focal_loss(y_true_focal, y_pred_conf, gamma=1.0)
-        focal_2 = focal_loss(y_true_focal, y_pred_conf, gamma=2.0)
-        focal_5 = focal_loss(y_true_focal, y_pred_conf, gamma=5.0)
-        
-        ce_losses.append(ce_loss)
-        focal_losses_gamma_1.append(focal_1)
-        focal_losses_gamma_2.append(focal_2)
-        focal_losses_gamma_5.append(focal_5)
-    
-    ax3.plot(confidence_levels, ce_losses, 'k-', label='Cross-Entropy', linewidth=2)
-    ax3.plot(confidence_levels, focal_losses_gamma_1, 'b--', label='Focal (γ=1)', linewidth=2)
-    ax3.plot(confidence_levels, focal_losses_gamma_2, 'r--', label='Focal (γ=2)', linewidth=2)
-    ax3.plot(confidence_levels, focal_losses_gamma_5, 'g--', label='Focal (γ=5)', linewidth=2)
-    
-    ax3.set_xlabel('Prediction Confidence')
-    ax3.set_ylabel('Loss Value')
-    ax3.set_title('Focal Loss vs Cross-Entropy')
-    ax3.legend()
-    ax3.grid(True, alpha=0.3)
-    
-    # Plot 4: Multi-class confusion impact
-    ax4 = axes[1, 1]
-    
-    # Show how different types of mistakes affect loss
-    n_classes = 3
-    y_true_conf = np.array([0])  # True class is 0
-    
-    # Different prediction scenarios
-    scenarios = {
-        'Confident Correct': [0.9, 0.05, 0.05],
-        'Confident Wrong': [0.05, 0.9, 0.05],
-        'Uncertain': [0.33, 0.33, 0.34],
-        'Slightly Wrong': [0.6, 0.3, 0.1],
-        'Very Wrong': [0.1, 0.1, 0.8]
-    }
-    
-    scenario_names = list(scenarios.keys())
-    losses = []
-    
-    for scenario_name, probs in scenarios.items():
-        loss = sparse_categorical_cross_entropy([0], [probs])
-        losses.append(loss)
-    
-    bars = ax4.bar(scenario_names, losses, color=['green', 'red', 'orange', 'yellow', 'purple'])
-    ax4.set_ylabel('Cross-Entropy Loss')
-    ax4.set_title('Loss for Different Prediction Scenarios')
-    ax4.tick_params(axis='x', rotation=45)
-    
-    # Add value labels on bars
-    for bar, loss in zip(bars, losses):
-        height = bar.get_height()
-        ax4.annotate(f'{loss:.3f}', xy=(bar.get_x() + bar.get_width() / 2, height),
-                    xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
-    
-    plt.tight_layout()
-    plt.show()
-    
-    return fig
-
-if __name__ == "__main__":
-    # Run demonstrations
-    calculator = demonstrate_cross_entropy()
-    
-    # Create visualizations
-    create_cross_entropy_visualization()
-    
-    print("\nKey Insights:")
-    print("• Cross-entropy penalizes confident wrong predictions heavily")
-    print("• Perfect predictions have loss ≈ 0, random predictions have loss ≈ ln(num_classes)")
-    print("• Weighted cross-entropy helps with class imbalance")
-    print("• Focal loss focuses learning on hard examples")
-    print("• Gradient computation is crucial for neural network training")
+# Example
+y_true_multi = np.array([0, 1, 2])
+y_pred_multi = np.array([
+    [0.8, 0.1, 0.1],  # Class 0
+    [0.2, 0.7, 0.1],  # Class 1
+    [0.1, 0.2, 0.7]   # Class 2
+])
+print(f"CCE: {categorical_cross_entropy(y_true_multi, y_pred_multi):.4f}")
 ```
 
-**Key Points for Interviews:**
-
-1. **Mathematical Foundation**: 
-   - Binary: -[y·log(p) + (1-y)·log(1-p)]
-   - Categorical: -Σ(yi·log(pi))
-
-2. **Numerical Stability**: Always clip predictions to prevent log(0)
-
-3. **Variants**:
-   - Weighted: For class imbalance
-   - Focal: For hard example mining
-   - Sparse: Memory efficient for many classes
-
-4. **Properties**:
-   - Convex function (good for optimization)
-   - Probabilistic interpretation
-   - Penalizes confident wrong predictions exponentially
-
-5. **Gradient**: For softmax + cross-entropy: (ŷ - y) (very clean derivative)
+**Key Points:**
+- Always clip predictions to avoid log(0) = -infinity
+- Penalizes confident wrong predictions heavily
+- Use for classification problems
 
 ---
 

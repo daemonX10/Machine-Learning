@@ -2,49 +2,202 @@
 
 ## Question 1
 
-**What isdata preprocessingin the context ofmachine learning?**
+**What is data preprocessing in the context of machine learning?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+Data preprocessing is the process of transforming raw data into a clean, structured format suitable for machine learning algorithms. It involves handling missing values, removing noise, encoding categorical variables, scaling features, and resolving inconsistencies to ensure the model receives quality input data for accurate predictions.
+
+**Core Concepts:**
+- **Data Cleaning:** Remove duplicates, handle missing values, fix errors
+- **Data Transformation:** Scaling, normalization, encoding
+- **Data Reduction:** Dimensionality reduction, feature selection
+- **Data Integration:** Combining data from multiple sources
+
+**Why It Matters in ML:**
+- Most algorithms cannot handle missing values or categorical data directly
+- Feature scales affect distance-based algorithms and gradient descent convergence
+- Quality of input data directly impacts model performance ("Garbage In, Garbage Out")
+
+**Common Steps:**
+1. Understand data (EDA)
+2. Handle missing values
+3. Encode categorical variables
+4. Scale/normalize numerical features
+5. Handle outliers
+6. Feature selection/engineering
 
 ---
 
 ## Question 2
 
-**What are commondata quality issuesyou might encounter?**
+**What are common data quality issues you might encounter?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+Data quality issues are problems in datasets that can lead to incorrect analysis or poor model performance. Common issues include missing values, duplicates, inconsistent formatting, outliers, and incorrect data types. Identifying and resolving these issues is crucial before model training.
+
+**Common Data Quality Issues:**
+
+| Issue | Description | Example |
+|-------|-------------|---------|
+| **Missing Values** | Null or empty entries | Age = NaN |
+| **Duplicates** | Repeated records | Same customer entry twice |
+| **Inconsistent Formatting** | Same data in different formats | "USA", "U.S.A", "United States" |
+| **Outliers** | Extreme values | Age = 500 |
+| **Incorrect Data Types** | Wrong type assignment | Date stored as string |
+| **Invalid Values** | Values outside valid range | Negative age |
+| **Typos/Errors** | Human entry mistakes | "Califronia" instead of "California" |
+
+**Impact on ML:**
+- Missing values: Most algorithms fail or produce biased results
+- Duplicates: Overrepresentation leads to biased training
+- Outliers: Skew statistical measures and model learning
 
 ---
 
 ## Question 3
 
-**Explain the difference betweenstructuredandunstructured data.**
+**Explain the difference between structured and unstructured data.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+Structured data is organized in a predefined format (rows and columns) like databases and spreadsheets, making it easily searchable and analyzable. Unstructured data lacks a predefined structure (text, images, audio, video) and requires special processing techniques like NLP or computer vision to extract meaningful information.
+
+**Comparison:**
+
+| Aspect | Structured Data | Unstructured Data |
+|--------|-----------------|-------------------|
+| **Format** | Tabular (rows/columns) | No fixed format |
+| **Storage** | Relational databases, CSV | NoSQL, data lakes, file systems |
+| **Examples** | Customer records, transactions | Emails, images, videos, social media |
+| **Processing** | SQL queries, standard ML | NLP, CNN, specialized algorithms |
+| **Volume** | ~20% of enterprise data | ~80% of enterprise data |
+
+**Semi-Structured Data:**
+- Has some organization but not rigid schema
+- Examples: JSON, XML, HTML
+- Contains tags/markers to separate elements
+
+**ML Implications:**
+- Structured: Direct input to most ML algorithms
+- Unstructured: Requires feature extraction (embeddings, TF-IDF, pixel values)
 
 ---
 
 ## Question 4
 
-**What is the role offeature scaling, and when do you use it?**
+**What is the role of feature scaling, and when do you use it?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+Feature scaling transforms numerical features to a similar scale without distorting differences in ranges. It ensures that features with larger magnitudes don't dominate the learning process. Use scaling when algorithms rely on distance calculations or gradient-based optimization.
+
+**Why Feature Scaling Matters:**
+- Distance-based algorithms (KNN, K-Means, SVM) are scale-sensitive
+- Gradient descent converges faster with scaled features
+- Prevents features with large ranges from dominating
+
+**When to Use:**
+- **Required:** KNN, K-Means, SVM, Neural Networks, PCA, Gradient Descent
+- **Not Required:** Tree-based models (Decision Trees, Random Forest, XGBoost)
+
+**Common Scaling Methods:**
+
+| Method | Formula | Range | Use Case |
+|--------|---------|-------|----------|
+| Min-Max | $(x - min)/(max - min)$ | [0, 1] | Neural networks, image data |
+| Standardization | $(x - \mu)/\sigma$ | No fixed range | Most algorithms, when distribution ~normal |
+| Robust Scaling | $(x - median)/IQR$ | No fixed range | Data with outliers |
+
+**Interview Tip:** Always fit scaler on training data only, then transform both train and test to prevent data leakage.
 
 ---
 
 ## Question 5
 
-**Describe different types ofdata normalizationtechniques.**
+**Describe different types of data normalization techniques.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+Data normalization rescales features to a standard range or distribution. It helps algorithms converge faster and prevents features with larger scales from dominating. Common techniques include Min-Max scaling, Z-score standardization, and Robust scaling.
+
+**Normalization Techniques:**
+
+**1. Min-Max Normalization:**
+$$x_{norm} = \frac{x - x_{min}}{x_{max} - x_{min}}$$
+- Scales data to [0, 1]
+- Sensitive to outliers
+- Best for: Neural networks, image pixels
+
+**2. Z-Score Standardization:**
+$$x_{std} = \frac{x - \mu}{\sigma}$$
+- Mean = 0, Std = 1
+- Handles outliers better than Min-Max
+- Best for: Algorithms assuming normal distribution
+
+**3. Robust Scaling:**
+$$x_{robust} = \frac{x - median}{IQR}$$
+- Uses median and interquartile range
+- Best for: Data with outliers
+
+**4. Max Absolute Scaling:**
+$$x_{scaled} = \frac{x}{|x_{max}|}$$
+- Scales to [-1, 1]
+- Preserves sparsity
+- Best for: Sparse data
+
+**5. Log Transformation:**
+$$x_{log} = \log(x + 1)$$
+- Reduces skewness
+- Best for: Right-skewed distributions
 
 ---
 
 ## Question 6
 
-**What isdata augmentation, and how can it be useful?**
+**What is data augmentation, and how can it be useful?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+Data augmentation is a technique to artificially increase training data size by creating modified versions of existing data. It helps prevent overfitting, improves model generalization, and is especially valuable when collecting more real data is expensive or impractical.
+
+**Common Augmentation Techniques:**
+
+**For Images:**
+- Rotation, flipping, cropping
+- Brightness/contrast adjustment
+- Zooming, translation
+- Adding noise, blur
+- Color jittering
+
+**For Text:**
+- Synonym replacement
+- Random insertion/deletion
+- Back-translation
+- Word shuffling
+
+**For Audio:**
+- Time stretching
+- Pitch shifting
+- Adding background noise
+- Speed perturbation
+
+**For Tabular Data:**
+- SMOTE (Synthetic Minority Oversampling)
+- Adding Gaussian noise
+- Feature mixing
+
+**Benefits:**
+- Reduces overfitting by increasing data diversity
+- Improves model robustness
+- Cost-effective alternative to collecting new data
+- Helps with class imbalance
+
+**When to Use:**
+- Limited training data available
+- Model overfitting to training set
+- Need invariance to certain transformations
 
 ---
 

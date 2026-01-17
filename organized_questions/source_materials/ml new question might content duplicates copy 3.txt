@@ -2,28 +2,7 @@ i have add refernce type question to add this for
 topic also - give me for first 10 topic now --
 minimum 50 question for each topic --- ### 🧠
 Supervised / Unsupervised Learning
-Ridge / Lasso / ElasticNet Regression
-CatBoost
-Gradient Boosting
-AdaBoost
-Bagging
-Boosting
-Stacking
-Voting Classifier
-K-Means Clustering
-DBSCAN
-Hierarchical Clustering
-Gaussian Mixture Models (GMM)
-Isolation Forest
-Principal Component Analysis (PCA)
-t-SNE
-Autoencoders (Unsupervised)
-🧠 Deep Learning Architectures
-Neural Networks (ANN / MLP)
-Convolutional Neural Networks (CNN)
-Recurrent Neural Networks (RNN)
-Long Short-Term Memory (LSTM)
-Gated Recurrent Unit (GRU)
+
 Transformers
 Vision Transformers (ViT)
 Swin Transformer

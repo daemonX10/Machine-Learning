@@ -4,15 +4,11 @@
 
 **How doautoencodersperformdimensionality reduction?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 2
 
 **How canautoencodersbe used forunsupervised learning?**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -20,15 +16,11 @@
 
 **How dorecurrent autoencodersdiffer fromfeedforward autoencoders, and when might they be useful?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 4
 
 **Whatloss functionsare typically used when trainingautoencoders?**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -36,15 +28,11 @@
 
 **How do you preventoverfittingin anautoencoder?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 6
 
 **What factors influence thecapacityandsizeof thelatent spacein anautoencoder?**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -52,15 +40,11 @@
 
 **How do you determine thenumber of layersandneuronsin anautoencoder?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 8
 
 **How canautoencodersbe applied forfeature learning?**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -68,15 +52,11 @@
 
 **How areautoencodersutilized inrecommendation systems?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 10
 
 **In what ways canautoencoderscontribute toanomaly detection?**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -84,15 +64,11 @@
 
 **How cangenerative adversarial networks (GANs)andautoencodersbe used together?**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 12
 
 **How doautoencoderscontribute to the understanding and visualization ofhigh-dimensional data?**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -100,7 +76,4 @@
 
 **Provide an example of howautoencoderscould be used forgenomic data compressionandfeature extraction.**
 
-**Answer:** _[To be filled]_
-
 ---
-

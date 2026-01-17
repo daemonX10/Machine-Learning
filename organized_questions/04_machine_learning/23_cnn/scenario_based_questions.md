@@ -4,15 +4,11 @@
 
 **Discuss the trade-offs between usingmax poolingandaverage pooling.**
 
-**Answer:** _[To be filled]_
-
 ---
 
 ## Question 2
 
 **Discuss recent advances inoptimization techniquesforCNNs.**
-
-**Answer:** _[To be filled]_
 
 ---
 
@@ -20,7 +16,4 @@
 
 **Discuss the role ofCNNsin the field ofobject detection and segmentation.**
 
-**Answer:** _[To be filled]_
-
 ---
-

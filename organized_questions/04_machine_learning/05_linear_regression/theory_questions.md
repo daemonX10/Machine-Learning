@@ -1,1030 +1,1323 @@
 # Linear Regression Interview Questions - Theory Questions
 
-## Question 1
+## Question 1: What is linear regression and how is it used in predictive modeling?
 
-**What islinear regressionand how is it used inpredictive modeling?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Definition:**
+Linear Regression is a fundamental supervised learning algorithm used for regression tasks. It models the relationship between one or more independent variables (features) and a continuous dependent variable (target) by fitting a linear equation.
 
----
-
-## Question 2
-
-**Can you explain the difference between simple linear regression and multiple linear regression?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 3
-
-**What is the role of the intercept term in a linear regression model?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 4
-
-**What are the common metrics to evaluate a linear regression model's performance?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 5
-
-**Explain the concept of homoscedasticity. Why is it important?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 6
-
-**What is multicollinearity and how can it affect a regression model?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 7
-
-**Describe the steps involved in preprocessing data for linear regression analysis.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 8
-
-**Explain the concept of data splitting into training and test sets.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 9
-
-**What is cross-validation and how is it performed with linear regression?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 10
-
-**Can you explain the concept of gradient descent and its importance in linear regression?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 11
-
-**What is ridge regression and how does it differ from standard linear regression?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 12
-
-**Explain the concept of Lasso regression and its benefits.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 13
-
-**What is elastic net regression and in what cases would you use it?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 14
-
-**Explain the purpose of residual plots and how to interpret them.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 15
-
-**What is the adjusted R-squared, and why is it used?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 16
-
-**What are leverage points and how do they affect a regression model?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 17
-
-**Describe how you would detect and address outliers in your regression analysis.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 18
-
-**Explain the concept of Cook's distance.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 19
-
-**Describe the variance inflation factor (VIF) and its significance.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 20
-
-**How does polynomial regression extend the linear regression model?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 21
-
-**What are generalized linear models (GLMs), and how do they relate to linear regression?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 22
-
-**Explain how quantile regression differs from ordinary least squares (OLS) regression.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 23
-
-**What are mixed models, and where might you use them?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 24
-
-**Describe a situation where linear regression could be applied in the finance sector.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 25
-
-**Explain how you might use regression analysis to assess the effect of marketing campaigns.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 26
+**The Model Equation:**
 
-**Describe how linear regression models could be used in predicting real estate prices.**
+$$y = \beta_0 + \beta_1x_1 + \beta_2x_2 + ... + \beta_nx_n + \epsilon$$
 
-**Answer:** _[To be filled]_
+| Term | Description |
+|------|-------------|
+| $y$ | Target variable to be predicted |
+| $x_1, x_2, ..., x_n$ | Input features |
+| $\beta_0$ | Intercept (value of y when all x are zero) |
+| $\beta_1, \beta_2, ...$ | Coefficients for each feature |
+| $\epsilon$ | Irreducible error term |
 
----
-
-## Question 27
-
-**Describe how you might use linear regression to optimize inventory levels in a supply chain context.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 28
-
-**What are the latest research trends in regularized regression techniques?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 29
-
-**Describe a situation where logistic regression might be preferred over linear regression.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 30
-
-**Describe a scenario where you'd have to transition from a simple to a multiple linear regression model, and the considerations you'd have to make.**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 31
-
-**What are the mathematical foundations and assumptions underlying linear regression?**
-
-**Answer:** _[To be filled]_
-
----
-
-## Question 32
-
-**How do you derive the normal equation for linear regression and when is it preferred over gradient descent?**
-
-**Answer:** _[To be filled]_
-
----
+**How It's Used in Predictive Modeling:**
 
-## Question 33
+| Phase | Description |
+|-------|-------------|
+| **Training** | Learn optimal coefficients (β) by minimizing sum of squared errors using Ordinary Least Squares (OLS) |
+| **Prediction** | Apply learned equation to new data: $\hat{y} = \beta_0 + \beta_1x_1 + ...$ |
+| **Inference** | Interpret coefficients to understand feature-target relationships |
 
-**What is the difference between ordinary least squares (OLS) and other regression estimation methods?**
+**Key Applications:**
+- Price prediction (houses, stocks)
+- Sales forecasting
+- Risk assessment
+- Demand estimation
+- Understanding variable relationships
 
-**Answer:** _[To be filled]_
-
 ---
-
-## Question 34
 
-**How do you handle categorical variables in linear regression models?**
+## Question 2: Can you explain the difference between simple linear regression and multiple linear regression?
 
-**Answer:** _[To be filled]_
+### Answer
 
----
+**Comparison Table:**
 
-## Question 35
+| Aspect | Simple Linear Regression | Multiple Linear Regression |
+|--------|--------------------------|---------------------------|
+| **Predictors** | One input feature | Two or more features |
+| **Equation** | $y = \beta_0 + \beta_1x + \epsilon$ | $y = \beta_0 + \beta_1x_1 + \beta_2x_2 + ... + \epsilon$ |
+| **Geometry** | 2D line | Multi-dimensional hyperplane |
+| **Interpretation** | β₁ is direct relationship | βᵢ is relationship holding others constant |
+| **Complexity** | Simple, easy to visualize | Deals with multicollinearity |
 
-**What are polynomial regression and its relationship to linear regression?**
+**Simple Linear Regression:**
+- Models relationship between ONE feature and target
+- Best-fitting straight line through data points
+- Example: Predicting exam score based on hours studied
 
-**Answer:** _[To be filled]_
+**Multiple Linear Regression:**
+- Models relationship between MULTIPLE features and target
+- Best-fitting hyperplane in multi-dimensional space
+- Example: Predicting exam score based on hours studied, attendance, and prior GPA
+- Key insight: Each coefficient represents effect while holding other features constant
 
 ---
-
-## Question 36
-
-**How do you implement and interpret interaction terms in multiple linear regression?**
-
-**Answer:** _[To be filled]_
 
----
+## Question 3: What is the role of the intercept term in a linear regression model?
 
-## Question 37
+### Answer
 
-**What is regularization in linear regression and why is it important?**
+**Role of the Intercept (β₀):**
 
-**Answer:** _[To be filled]_
+| Function | Description |
+|----------|-------------|
+| **Baseline Value** | Predicted y when all features equal zero |
+| **Line Position** | Allows regression line to shift up/down on y-axis |
+| **Model Flexibility** | Without it, line must pass through origin (0,0) |
 
----
+**Why Include the Intercept:**
+- Without intercept, model is forced through origin
+- This is rarely a valid assumption
+- Omitting leads to biased coefficient estimates
 
-## Question 38
+**When Intercept is Meaningful:**
+```
+Example: Sales = β₀ + β₁ × Ad_Spend
+- Intercept = predicted sales when ad spend is zero
+- This is a meaningful baseline (organic sales)
+```
 
-**Explain the differences between Ridge, Lasso, and Elastic Net regression.**
+**When Intercept is NOT Meaningful:**
+```
+Example: Weight = β₀ + β₁ × Height
+- Intercept = predicted weight when height is zero
+- Nonsensical extrapolation, but still mathematically necessary
+```
 
-**Answer:** _[To be filled]_
+**Rule:** Always include the intercept unless you have strong theoretical reasons that y must be zero when all x are zero.
 
 ---
 
-## Question 39
+## Question 4: What are the common metrics to evaluate a linear regression model's performance?
 
-**How do you choose the optimal regularization parameter (lambda) in regularized regression?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Evaluation Metrics:**
 
----
+| Metric | Formula | Interpretation |
+|--------|---------|----------------|
+| **MSE** | $\frac{1}{n}\sum(y_i - \hat{y}_i)^2$ | Average squared error (units²) |
+| **RMSE** | $\sqrt{MSE}$ | Average error in original units |
+| **MAE** | $\frac{1}{n}\sum\|y_i - \hat{y}_i\|$ | Average absolute error |
+| **R²** | $1 - \frac{SS_{res}}{SS_{tot}}$ | Proportion of variance explained (0-1) |
+| **Adjusted R²** | $1 - \frac{(1-R²)(n-1)}{n-p-1}$ | R² penalized for extra features |
 
-## Question 40
+**Comparison:**
 
-**What is cross-validation and how is it used in linear regression model selection?**
+| Metric | Outlier Sensitivity | Units | Use Case |
+|--------|---------------------|-------|----------|
+| **RMSE** | High (squares errors) | Same as target | Most common, interpretable |
+| **MAE** | Low (no squaring) | Same as target | When outliers shouldn't dominate |
+| **R²** | N/A | Unitless (0-1) | Comparing models, explaining fit |
+| **Adjusted R²** | N/A | Unitless | Comparing models with different features |
 
-**Answer:** _[To be filled]_
+**Key Points:**
+- R² always increases with more features (even useless ones)
+- Adjusted R² only increases if new feature genuinely improves model
+- Use Adjusted R² for comparing models with different numbers of features
 
 ---
-
-## Question 41
 
-**How do you detect and handle outliers in linear regression analysis?**
+## Question 5: Explain the concept of homoscedasticity. Why is it important?
 
-**Answer:** _[To be filled]_
+### Answer
 
----
-
-## Question 42
+**Definition:**
+Homoscedasticity means "constant variance" - the variance of error terms (residuals) is constant across all levels of input features.
 
-**What are residual plots and how do you use them to validate regression assumptions?**
+**Visual Comparison:**
 
-**Answer:** _[To be filled]_
+| Pattern | What You See | Implication |
+|---------|-------------|-------------|
+| **Homoscedasticity** | Random scatter, uniform spread | Assumption met ✓ |
+| **Heteroscedasticity** | Fan/cone shape | Assumption violated ✗ |
 
----
+**Why It's Important:**
 
-## Question 43
+| Consequence of Violation | Impact |
+|--------------------------|--------|
+| **OLS still unbiased** | Coefficient estimates are still correct on average |
+| **OLS not efficient** | No longer BLUE (Best Linear Unbiased Estimator) |
+| **Invalid standard errors** | Standard errors are biased |
+| **Unreliable hypothesis tests** | t-tests, F-tests, p-values are wrong |
+| **Wrong confidence intervals** | May incorrectly conclude significance |
 
-**How do you test for heteroscedasticity and what are the remedies?**
+**How to Detect:**
+- Residual vs. Fitted plot (look for fan shape)
+- Breusch-Pagan test
+- White's test
 
-**Answer:** _[To be filled]_
+**How to Address:**
+1. **Transform target variable** (log, square root)
+2. **Use Weighted Least Squares (WLS)**
+3. **Use robust standard errors** (heteroscedasticity-consistent)
 
 ---
-
-## Question 44
 
-**What is autocorrelation in regression residuals and how do you address it?**
+## Question 6: What is multicollinearity and how can it affect a regression model?
 
-**Answer:** _[To be filled]_
+### Answer
 
----
+**Definition:**
+Multicollinearity occurs when two or more input features are highly correlated with each other (not with the target).
 
-## Question 45
+**Effects on the Model:**
 
-**How do you perform feature selection in linear regression models?**
+| Problem | Description |
+|---------|-------------|
+| **Unstable coefficients** | Coefficients swing wildly with small data changes |
+| **Large standard errors** | Variance of estimates is inflated |
+| **Difficult interpretation** | Can't isolate individual feature effects |
+| **Reduced significance** | High p-values even for important features |
 
-**Answer:** _[To be filled]_
+**What It Does NOT Affect:**
+- Overall predictive accuracy
+- Unbiasedness of coefficients (still unbiased, just imprecise)
 
----
+**Detection Methods:**
 
-## Question 46
+| Method | Threshold |
+|--------|-----------|
+| **Correlation matrix** | \|r\| > 0.8-0.9 |
+| **VIF (Variance Inflation Factor)** | VIF > 5 or 10 |
 
-**What are forward selection, backward elimination, and stepwise regression?**
+**VIF Formula:**
+$$VIF_i = \frac{1}{1 - R_i^2}$$
+Where $R_i^2$ is the R² from regressing feature i against all other features.
 
-**Answer:** _[To be filled]_
+**Solutions:**
+1. Remove one of the correlated features
+2. Combine correlated features (e.g., PCA)
+3. Use Ridge Regression (shrinks correlated coefficients together)
 
 ---
 
-## Question 47
+## Question 7: Describe the steps involved in preprocessing data for linear regression analysis.
 
-**How do you handle missing values in linear regression datasets?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Preprocessing Pipeline:**
 
----
+| Step | Action | Why |
+|------|--------|-----|
+| **1. Handle Missing Values** | Impute with median/mean or drop | LR can't handle NaN |
+| **2. Handle Outliers** | Detect (Z-score, IQR) and treat | LR is sensitive to outliers |
+| **3. Encode Categoricals** | One-hot encoding | LR needs numerical inputs |
+| **4. Check Non-linearity** | Scatter plots, transform if needed | Linearity assumption |
+| **5. Feature Scaling** | Standardization/Normalization | Essential for regularization |
+| **6. Check Multicollinearity** | Correlation matrix, VIF | Stable coefficients |
+| **7. Data Splitting** | Train/test split | Prevent data leakage |
 
-## Question 48
+**Code Example:**
+```python
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.impute import SimpleImputer
 
-**What is the bias-variance tradeoff in the context of linear regression?**
+preprocessor = ColumnTransformer([
+    ('num', Pipeline([
+        ('imputer', SimpleImputer(strategy='median')),
+        ('scaler', StandardScaler())
+    ]), numerical_cols),
+    ('cat', Pipeline([
+        ('imputer', SimpleImputer(strategy='most_frequent')),
+        ('encoder', OneHotEncoder(drop='first'))
+    ]), categorical_cols)
+])
+```
 
-**Answer:** _[To be filled]_
+**Key Rule:** Fit preprocessing only on training data, then transform test data.
 
 ---
-
-## Question 49
 
-**How do you interpret confidence intervals and prediction intervals in regression?**
+## Question 8: Explain the concept of data splitting into training and test sets.
 
-**Answer:** _[To be filled]_
+### Answer
 
----
+**Purpose:**
+Estimate how well the model generalizes to new, unseen data.
 
-## Question 50
+**The Split:**
 
-**What are the differences between parametric and non-parametric regression approaches?**
+| Set | Purpose | Typical Size |
+|-----|---------|--------------|
+| **Training** | Learn model parameters | 70-80% |
+| **Test** | Final unbiased evaluation | 20-30% |
+| **Validation** (optional) | Tune hyperparameters | Part of training |
 
-**Answer:** _[To be filled]_
+**Why It's Critical:**
+- Evaluating on training data gives optimistic, misleading results
+- Model may have memorized training data (overfitting)
+- Test set acts as proxy for real-world data
 
----
+**Three-Way Split Workflow:**
+```
+1. Train on training set
+2. Tune hyperparameters using validation set
+3. Final evaluation on test set (only once!)
+```
 
-## Question 51
+**Code:**
+```python
+from sklearn.model_selection import train_test_split
 
-**How do you implement logistic regression and its relationship to linear regression?**
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+```
 
-**Answer:** _[To be filled]_
+**Key Rule:** Never use test set for any decisions during model development.
 
 ---
 
-## Question 52
+## Question 9: What is cross-validation and how is it performed with linear regression?
 
-**What are generalized linear models (GLMs) and how do they extend linear regression?**
+### Answer
 
-**Answer:** _[To be filled]_
-
----
+**Definition:**
+Cross-validation is a resampling technique that provides more robust performance estimates by training and evaluating on different subsets of data.
 
-## Question 53
+**K-Fold Cross-Validation Process:**
 
-**How do you handle non-linear relationships in linear regression models?**
+```
+1. Split data into k equal folds (e.g., k=5)
+2. For each fold:
+   - Use 1 fold as validation
+   - Use remaining k-1 folds for training
+   - Record performance score
+3. Average all k scores for final estimate
+```
 
-**Answer:** _[To be filled]_
+**Visual (5-Fold):**
+```
+Fold 1: [TEST] [Train] [Train] [Train] [Train] → Score 1
+Fold 2: [Train] [TEST] [Train] [Train] [Train] → Score 2
+Fold 3: [Train] [Train] [TEST] [Train] [Train] → Score 3
+Fold 4: [Train] [Train] [Train] [TEST] [Train] → Score 4
+Fold 5: [Train] [Train] [Train] [Train] [TEST] → Score 5
+                                                → Mean Score
+```
 
----
+**Use Cases in Linear Regression:**
 
-## Question 54
+| Use Case | Description |
+|----------|-------------|
+| **Performance Estimation** | Get reliable R²/RMSE estimate |
+| **Hyperparameter Tuning** | Find optimal alpha for Ridge/Lasso |
+| **Model Comparison** | Compare different feature sets |
 
-**What is robust regression and when should you use it instead of OLS?**
+**Code:**
+```python
+from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import Ridge
 
-**Answer:** _[To be filled]_
+scores = cross_val_score(Ridge(alpha=1.0), X, y, cv=5, scoring='r2')
+print(f"Mean R²: {scores.mean():.4f} (+/- {scores.std()*2:.4f})")
+```
 
 ---
 
-## Question 55
+## Question 10: Can you explain the concept of gradient descent and its importance in linear regression?
 
-**How do you assess model performance using different evaluation metrics in regression?**
+### Answer
 
-**Answer:** _[To be filled]_
+**What is Gradient Descent?**
+An iterative optimization algorithm to find the minimum of a function by following the negative gradient.
 
----
+**The Analogy:**
+Standing on a foggy mountain → feel the slope → step downhill → repeat until reaching valley floor.
 
-## Question 56
+**Update Rule:**
+$$\beta_{new} = \beta_{old} - \alpha \cdot \frac{\partial Loss}{\partial \beta}$$
 
-**What are the computational complexity considerations for large-scale linear regression?**
+Where $\alpha$ is the learning rate (step size).
 
-**Answer:** _[To be filled]_
+**Comparison: Normal Equation vs Gradient Descent**
 
----
+| Aspect | Normal Equation | Gradient Descent |
+|--------|-----------------|------------------|
+| **Formula** | $\beta = (X^TX)^{-1}X^Ty$ | Iterative updates |
+| **Complexity** | O(p³) | O(p) per iteration |
+| **Small features** | Fast | Slower |
+| **Large features** | Infeasible | Scalable |
+| **Memory** | High | Low |
 
-## Question 57
+**Types of Gradient Descent:**
 
-**How do you implement linear regression using gradient descent optimization?**
+| Type | Batch Size | Speed | Stability |
+|------|------------|-------|-----------|
+| **Batch** | Entire dataset | Slow | Stable |
+| **Stochastic (SGD)** | 1 sample | Fast | Noisy |
+| **Mini-Batch** | Small batch (32-256) | Medium | Balanced |
 
-**Answer:** _[To be filled]_
+**Importance:**
+- Scalable to millions of features
+- Foundation for training all neural networks
+- Works when normal equation is computationally infeasible
 
 ---
 
-## Question 58
+## Question 11: What is ridge regression and how does it differ from standard linear regression?
 
-**What are the differences between batch, mini-batch, and stochastic gradient descent for regression?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Ridge Regression = Linear Regression + L2 Regularization**
 
----
+**Loss Function Comparison:**
 
-## Question 59
+| Model | Loss Function |
+|-------|---------------|
+| **OLS** | $\sum(y_i - \hat{y}_i)^2$ |
+| **Ridge** | $\sum(y_i - \hat{y}_i)^2 + \alpha \sum \beta_j^2$ |
 
-**How do you handle high-dimensional data in linear regression (p >> n problem)?**
+The L2 penalty ($\alpha \sum \beta_j^2$) penalizes large coefficients.
 
-**Answer:** _[To be filled]_
+**Key Differences:**
 
----
+| Aspect | OLS | Ridge |
+|--------|-----|-------|
+| **Coefficients** | Can be large, unstable | Shrunk towards zero |
+| **Overfitting** | Prone with many features | Reduced risk |
+| **Multicollinearity** | Unstable coefficients | Robust and stable |
+| **Bias-Variance** | Low bias, high variance | Higher bias, lower variance |
+| **Feature Selection** | No | No (coefficients ≠ 0) |
 
-## Question 60
+**When to Use Ridge:**
+- Many features with suspected multicollinearity
+- All features believed to be relevant
+- Prevent overfitting
 
-**What is the role of principal component regression (PCR) in dimensionality reduction?**
+**Code:**
+```python
+from sklearn.linear_model import Ridge, RidgeCV
 
-**Answer:** _[To be filled]_
+# With cross-validation for alpha selection
+ridge = RidgeCV(alphas=[0.1, 1.0, 10.0], cv=5)
+ridge.fit(X_train, y_train)
+print(f"Best alpha: {ridge.alpha_}")
+```
 
 ---
-
-## Question 61
 
-**How do you implement partial least squares (PLS) regression and when is it useful?**
+## Question 12: Explain the concept of Lasso regression and its benefits.
 
-**Answer:** _[To be filled]_
-
----
+### Answer
 
-## Question 62
+**Lasso = Linear Regression + L1 Regularization**
 
-**What are bayesian approaches to linear regression and their advantages?**
+**Loss Function:**
+$$\sum(y_i - \hat{y}_i)^2 + \alpha \sum |\beta_j|$$
 
-**Answer:** _[To be filled]_
+The L1 penalty ($\alpha \sum |\beta_j|$) uses absolute values of coefficients.
 
----
+**Key Benefit: Automatic Feature Selection**
 
-## Question 63
+| Regularization | Coefficient Shrinkage | Feature Selection |
+|----------------|----------------------|-------------------|
+| **Ridge (L2)** | Shrinks towards zero | No (never exactly 0) |
+| **Lasso (L1)** | Shrinks to exactly zero | Yes (sparse model) |
 
-**How do you handle time-series data in linear regression models?**
+**Why Lasso Creates Sparse Models:**
+- L1 penalty geometry creates "corners" where coefficients become exactly zero
+- Less important features are eliminated completely
 
-**Answer:** _[To be filled]_
+**Benefits:**
 
----
+| Benefit | Description |
+|---------|-------------|
+| **Feature Selection** | Automatically identifies important features |
+| **Sparse Models** | Fewer non-zero coefficients |
+| **Interpretability** | Easier to explain with fewer features |
+| **Reduced Overfitting** | Regularization reduces variance |
 
-## Question 64
+**When to Use:**
+- High-dimensional data (many features)
+- Suspect many features are irrelevant
+- Want interpretable, sparse model
 
-**What is weighted least squares regression and when should you use it?**
+**Code:**
+```python
+from sklearn.linear_model import Lasso, LassoCV
 
-**Answer:** _[To be filled]_
+lasso = LassoCV(alphas=[0.001, 0.01, 0.1, 1.0], cv=5)
+lasso.fit(X_train, y_train)
+print(f"Non-zero coefficients: {np.sum(lasso.coef_ != 0)}")
+```
 
 ---
-
-## Question 65
 
-**How do you perform hypothesis testing in linear regression (t-tests, F-tests)?**
+## Question 13: What is elastic net regression and in what cases would you use it?
 
-**Answer:** _[To be filled]_
+### Answer
 
----
+**Elastic Net = L1 + L2 Regularization Combined**
 
-## Question 66
+**Loss Function:**
+$$\sum(y_i - \hat{y}_i)^2 + \alpha \left[ \rho \sum|\beta_j| + \frac{(1-\rho)}{2} \sum\beta_j^2 \right]$$
 
-**What are the assumptions required for valid statistical inference in linear regression?**
+| Parameter | Description |
+|-----------|-------------|
+| **α (alpha)** | Overall regularization strength |
+| **ρ (l1_ratio)** | Mix between L1 and L2 |
+| ρ = 1 | Pure Lasso |
+| ρ = 0 | Pure Ridge |
+| 0 < ρ < 1 | Combination |
 
-**Answer:** _[To be filled]_
+**When to Use Elastic Net:**
 
----
+| Scenario | Why Elastic Net |
+|----------|-----------------|
+| **Correlated features** | Lasso selects one arbitrarily; Elastic Net selects groups |
+| **p >> n** | Lasso can select at most n features; Elastic Net handles better |
+| **Unsure Ridge vs Lasso** | Tune l1_ratio to find optimal mix |
 
-## Question 67
+**The "Grouping Effect":**
+- With correlated features, Lasso picks one randomly
+- Elastic Net keeps correlated features together
+- More stable feature selection
 
-**How do you handle correlated errors in regression models?**
+**Code:**
+```python
+from sklearn.linear_model import ElasticNetCV
 
-**Answer:** _[To be filled]_
+elastic_net = ElasticNetCV(
+    alphas=[0.01, 0.1, 1.0],
+    l1_ratio=[0.1, 0.5, 0.9],
+    cv=5
+)
+elastic_net.fit(X_train, y_train)
+print(f"Best alpha: {elastic_net.alpha_}, l1_ratio: {elastic_net.l1_ratio_}")
+```
 
 ---
 
-## Question 68
+## Question 14: Explain the purpose of residual plots and how to interpret them.
 
-**What is instrumental variable regression and when is it needed?**
+### Answer
 
-**Answer:** _[To be filled]_
-
----
+**What is a Residual Plot?**
+Scatter plot of predicted values (x-axis) vs. residuals (y-axis).
 
-## Question 69
+**Residual:** $e_i = y_i - \hat{y}_i$ (actual - predicted)
 
-**How do you implement and interpret interaction effects in regression models?**
+**Interpretation Guide:**
 
-**Answer:** _[To be filled]_
+| Pattern | What You See | Diagnosis | Action |
+|---------|-------------|-----------|--------|
+| **Random scatter** | No pattern, uniform spread | Good fit ✓ | None needed |
+| **U-shape/Curve** | Systematic curve | Non-linearity | Add polynomial features |
+| **Fan shape** | Spread increases/decreases | Heteroscedasticity | Transform target |
+| **Clusters** | Distinct groups | Missing categorical | Add indicator variables |
+| **Outliers** | Points far from 0 line | Influential points | Investigate/remove |
 
----
+**Visual Examples:**
 
-## Question 70
+```
+GOOD (Random):          BAD (Curved):           BAD (Fan):
+    •  •                    •    •                  •
+  •    •  •                  ••                    ••
+----•--•-----            --••----••--          --•••-------
+  •  •   •                ••    ••                 •••••
+    •                    •        •                   ••••••
+```
 
-**What are mixed-effects models and their applications in regression analysis?**
+**Code:**
+```python
+import matplotlib.pyplot as plt
 
-**Answer:** _[To be filled]_
+residuals = y_test - model.predict(X_test)
+plt.scatter(model.predict(X_test), residuals)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.xlabel('Predicted')
+plt.ylabel('Residuals')
+plt.title('Residual Plot')
+plt.show()
+```
 
 ---
 
-## Question 71
+## Question 15: What is the adjusted R-squared, and why is it used?
 
-**How do you perform model diagnostics and residual analysis in linear regression?**
+### Answer
 
-**Answer:** _[To be filled]_
+**The Problem with R²:**
+R² always increases (or stays same) when adding features, even useless ones.
 
----
+**Adjusted R² Formula:**
+$$R^2_{adj} = 1 - \frac{(1-R^2)(n-1)}{n-p-1}$$
 
-## Question 72
+Where:
+- n = number of samples
+- p = number of features
 
-**What is the difference between prediction and inference in regression modeling?**
+**Key Difference:**
 
-**Answer:** _[To be filled]_
+| Metric | Behavior with Added Features |
+|--------|------------------------------|
+| **R²** | Always increases or stays same |
+| **Adjusted R²** | Only increases if feature adds genuine value |
 
----
+**Example:**
+```
+Model A (5 features): R² = 0.85, Adj R² = 0.84
+Model B (8 features): R² = 0.86, Adj R² = 0.82
 
-## Question 73
+→ Model A is better! Extra features in B don't add value.
+```
 
-**How do you handle seasonal patterns and trends in regression analysis?**
+**When to Use:**
+- Comparing models with different numbers of features
+- Avoiding overfitting to training data
+- Model selection in multiple regression
 
-**Answer:** _[To be filled]_
+**Interpretation:**
+- Adj R² can be negative (very poor model)
+- Higher is better
+- Penalizes unnecessary complexity
 
 ---
 
-## Question 74
+## Question 16: What are leverage points and how do they affect a regression model?
 
-**What are spline regression and local regression (LOESS) techniques?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Definition:**
+A leverage point has extreme values in its input features (X values), far from the center of the data cloud.
 
----
+**The Lever Analogy:**
+Like a seesaw - a person far from the center has more influence on the tilt.
 
-## Question 75
+**Types of Leverage Points:**
 
-**How do you implement regression with constraints and penalty terms?**
+| Type | Description | Effect |
+|------|-------------|--------|
+| **Good Leverage** | High leverage, follows trend (small residual) | Stabilizes model, reduces standard errors |
+| **Bad Leverage** | High leverage, doesn't follow trend (large residual) | Dramatically distorts the regression line |
 
-**Answer:** _[To be filled]_
+**Detection:**
 
----
+| Method | Formula/Threshold |
+|--------|-------------------|
+| **Leverage statistic (hᵢᵢ)** | hᵢᵢ > 2(p+1)/n |
+| **Visualization** | Points far on x-axis |
 
-## Question 76
+**Leverage vs. Outlier vs. Influential:**
 
-**What is quantile regression and how does it differ from ordinary regression?**
+| Term | Definition |
+|------|------------|
+| **Leverage point** | Extreme X values |
+| **Outlier** | Extreme Y values (large residual) |
+| **Influential point** | Changes model significantly if removed |
 
-**Answer:** _[To be filled]_
+**Key Insight:**
+A point is influential only if it has BOTH high leverage AND large residual. Use Cook's distance to measure overall influence.
 
 ---
-
-## Question 77
 
-**How do you handle censored and truncated data in regression models?**
+## Question 17: Describe how you would detect and address outliers in your regression analysis.
 
-**Answer:** _[To be filled]_
+### Answer
 
----
+**Detection Methods:**
 
-## Question 78
+| Method | Type | Description |
+|--------|------|-------------|
+| **Residual plots** | Visual | Points far from y=0 line |
+| **Box plots** | Visual | Univariate outliers |
+| **Standardized residuals** | Statistical | \|residual\| > 3 |
+| **Cook's distance** | Statistical | Dᵢ > 4/n or Dᵢ > 1 |
+| **Leverage plot** | Visual | Combines leverage, residual, Cook's D |
 
-**What are the considerations for linear regression in big data environments?**
+**Treatment Decision Tree:**
 
-**Answer:** _[To be filled]_
+```
+Is it a data entry/measurement error?
+├── Yes → Correct or remove
+└── No → Is it a genuine extreme value?
+    ├── Yes → Consider:
+    │   ├── Transformation (log, sqrt)
+    │   ├── Robust regression (Huber, RANSAC)
+    │   └── Keep and report impact
+    └── No → Remove with documentation
+```
 
----
+**Treatment Options:**
 
-## Question 79
+| Method | When to Use |
+|--------|-------------|
+| **Removal** | Clear error, with justification |
+| **Transformation** | Skewed data (log reduces outlier impact) |
+| **Winsorization** | Cap extreme values at percentiles |
+| **Robust regression** | When outliers represent valid variation |
 
-**How do you implement distributed and parallel linear regression algorithms?**
+**Code:**
+```python
+from sklearn.linear_model import HuberRegressor
 
-**Answer:** _[To be filled]_
+# Robust to outliers
+robust_model = HuberRegressor()
+robust_model.fit(X_train, y_train)
+```
 
 ---
 
-## Question 80
+## Question 18: Explain the concept of Cook's distance.
 
-**What is online learning and adaptive linear regression for streaming data?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Definition:**
+Cook's distance measures the overall influence of a single observation on the entire regression model by combining leverage and residual size.
 
----
-
-## Question 81
+**What It Measures:**
+How much all predicted values change when observation i is removed.
 
-**How do you handle non-linear transformations and feature engineering for regression?**
+**Combines Two Factors:**
 
-**Answer:** _[To be filled]_
-
----
+| Factor | Description |
+|--------|-------------|
+| **Leverage** | How extreme are the X values? |
+| **Residual** | How far is the point from the regression line? |
 
-## Question 82
+**Key Insight:**
+A point needs BOTH high leverage AND large residual to have high Cook's distance.
 
-**What are the ethical considerations and fairness issues in regression modeling?**
+| Leverage | Residual | Cook's D | Interpretation |
+|----------|----------|----------|----------------|
+| High | Small | Low | Good leverage point |
+| Low | Large | Low | Outlier with little influence |
+| High | Large | **High** | **Influential - investigate!** |
 
-**Answer:** _[To be filled]_
+**Thresholds:**
 
----
+| Rule of Thumb | Threshold |
+|---------------|-----------|
+| Common | Dᵢ > 4/n |
+| Conservative | Dᵢ > 1 |
 
-## Question 83
+**Code:**
+```python
+import statsmodels.api as sm
 
-**How do you implement regression models for causal inference and treatment effects?**
+model = sm.OLS(y, sm.add_constant(X)).fit()
+influence = model.get_influence()
+cooks_d = influence.cooks_distance[0]
 
-**Answer:** _[To be filled]_
+# Identify influential points
+influential = np.where(cooks_d > 4/len(y))[0]
+```
 
 ---
 
-## Question 84
+## Question 19: Describe the variance inflation factor (VIF) and its significance.
 
-**What is the role of regularization paths and model selection in high-dimensional regression?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Definition:**
+VIF quantifies how much a coefficient's variance is inflated due to multicollinearity with other predictors.
 
----
+**Formula:**
+$$VIF_i = \frac{1}{1 - R_i^2}$$
 
-## Question 85
+Where $R_i^2$ is the R² from regressing feature i against all other features.
 
-**How do you handle regression with multiple output variables (multivariate regression)?**
+**Interpretation:**
 
-**Answer:** _[To be filled]_
+| VIF Value | Interpretation |
+|-----------|----------------|
+| VIF = 1 | No correlation with other features (ideal) |
+| 1 < VIF < 5 | Moderate, generally acceptable |
+| 5 < VIF < 10 | High multicollinearity (concerning) |
+| VIF > 10 | Severe multicollinearity (action needed) |
 
----
+**Example:**
+VIF = 10 means the coefficient's variance is 10× larger than if uncorrelated.
 
-## Question 86
+**Code:**
+```python
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import pandas as pd
 
-**What are kernel methods and their applications in regression analysis?**
+vif_data = pd.DataFrame()
+vif_data["Feature"] = X.columns
+vif_data["VIF"] = [variance_inflation_factor(X.values, i) 
+                   for i in range(X.shape[1])]
+print(vif_data.sort_values('VIF', ascending=False))
+```
 
-**Answer:** _[To be filled]_
+**Actions for High VIF:**
+1. Remove one of the correlated features
+2. Combine features (PCA)
+3. Use Ridge regression
 
 ---
 
-## Question 87
+## Question 20: How does polynomial regression extend the linear regression model?
 
-**How do you implement regression trees and their relationship to linear models?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Concept:**
+Polynomial regression fits non-linear relationships by creating polynomial features, then applying standard linear regression.
 
----
+**Transformation:**
+Original: $y = \beta_0 + \beta_1 x$
 
-## Question 88
+Polynomial (degree 2): $y = \beta_0 + \beta_1 x + \beta_2 x^2$
 
-**What is ensemble regression and how do you combine multiple linear models?**
+**Key Insight:**
+The model is still LINEAR in the coefficients (β), just non-linear in the original feature (x).
 
-**Answer:** _[To be filled]_
+**Implementation:**
+```python
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LinearRegression
 
----
+poly_model = Pipeline([
+    ('poly', PolynomialFeatures(degree=2)),
+    ('linear', LinearRegression())
+])
+poly_model.fit(X, y)
+```
 
-## Question 89
+**Trade-offs:**
 
-**How do you handle regression in the presence of measurement errors?**
+| Degree | Bias | Variance | Fit |
+|--------|------|----------|-----|
+| Low (1-2) | High | Low | Underfitting |
+| Medium (3-4) | Medium | Medium | Good |
+| High (>5) | Low | High | Overfitting |
 
-**Answer:** _[To be filled]_
+**Best Practice:**
+- Use cross-validation to select optimal degree
+- Consider regularization for high degrees
+- Watch for overfitting at data edges
 
 ---
-
-## Question 90
 
-**What are the considerations for regression model deployment in production systems?**
+## Question 21: What are generalized linear models (GLMs), and how do they relate to linear regression?
 
-**Answer:** _[To be filled]_
+### Answer
 
----
+**GLMs extend linear regression to handle different types of target variables.**
 
-## Question 91
+**Three Components of a GLM:**
 
-**How do you monitor and maintain linear regression models in production?**
+| Component | Description | Linear Regression |
+|-----------|-------------|-------------------|
+| **Random** | Distribution of y | Gaussian (Normal) |
+| **Systematic** | Linear predictor η = β₀ + β₁x₁ + ... | Same |
+| **Link Function** | Connects η to E(y) | Identity: μ = η |
 
-**Answer:** _[To be filled]_
+**Common GLM Family:**
 
----
+| Model | Target Type | Distribution | Link Function |
+|-------|-------------|--------------|---------------|
+| **Linear Regression** | Continuous | Gaussian | Identity |
+| **Logistic Regression** | Binary (0/1) | Bernoulli | Logit |
+| **Poisson Regression** | Count (0,1,2,...) | Poisson | Log |
 
-## Question 92
+**Logistic Regression Example:**
+$$\log\left(\frac{p}{1-p}\right) = \beta_0 + \beta_1 x_1 + ...$$
 
-**What is transfer learning and domain adaptation for regression models?**
+**Poisson Regression Example:**
+$$\log(\mu) = \beta_0 + \beta_1 x_1 + ...$$
 
-**Answer:** _[To be filled]_
+**Key Takeaway:**
+Linear regression is a special case of GLMs with Gaussian distribution and identity link.
 
 ---
 
-## Question 93
-
-**How do you handle privacy-preserving regression and federated learning?**
-
-**Answer:** _[To be filled]_
-
----
+## Question 22: Explain how quantile regression differs from ordinary least squares (OLS) regression.
 
-## Question 94
+### Answer
 
-**What are the interpretability and explainability challenges in complex regression models?**
+**Fundamental Difference:**
 
-**Answer:** _[To be filled]_
+| Model | What It Models | Loss Function |
+|-------|----------------|---------------|
+| **OLS** | Conditional MEAN | Sum of squared errors |
+| **Quantile** | Conditional QUANTILES | Asymmetrically weighted absolute errors |
 
----
+**Why Use Quantile Regression:**
 
-## Question 95
+| Scenario | Why Quantile Regression |
+|----------|------------------------|
+| Outliers present | Median regression (50th quantile) is robust |
+| Heteroscedasticity | Model different quantiles to capture spread |
+| Risk analysis | 95th percentile for worst-case scenarios |
 
-**How do you implement regression models for real-time prediction and scoring?**
+**Example:**
+- Median regression: 50% of data above, 50% below
+- 90th percentile: 90% of data below this line
 
-**Answer:** _[To be filled]_
+**Comparison:**
 
----
+| Aspect | OLS | Quantile |
+|--------|-----|----------|
+| **Output** | One line (mean) | Multiple lines (any quantile) |
+| **Outlier sensitivity** | High | Low |
+| **Assumptions** | Homoscedasticity | No variance assumptions |
+| **Information** | Central tendency | Full distribution shape |
 
-## Question 96
+**Code:**
+```python
+from sklearn.linear_model import QuantileRegressor
 
-**What is the role of feature importance and variable selection in regression interpretation?**
+# Median regression
+median_model = QuantileRegressor(quantile=0.5)
+median_model.fit(X, y)
 
-**Answer:** _[To be filled]_
+# 90th percentile
+upper_model = QuantileRegressor(quantile=0.9)
+upper_model.fit(X, y)
+```
 
 ---
 
-## Question 97
+## Question 23: What are mixed models, and where might you use them?
 
-**How do you handle regression with imbalanced or skewed target distributions?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Definition:**
+Mixed models (mixed-effects models) combine:
+- **Fixed effects:** Standard regression coefficients (population-level)
+- **Random effects:** Group-specific variations
 
----
+**When Data is NOT Independent:**
 
-## Question 98
+| Scenario | Example | Random Effect |
+|----------|---------|---------------|
+| **Repeated measures** | Patient measurements over time | Patient-specific intercept |
+| **Clustered data** | Students in schools | School-specific intercept |
+| **Hierarchical data** | Employees in companies | Company-specific effects |
 
-**What are the emerging trends and research directions in linear regression?**
+**Example: Medical Study**
+- Fixed effect: Treatment effect (what we want to estimate)
+- Random effect: Patient baseline (each patient has different starting blood pressure)
 
-**Answer:** _[To be filled]_
+**Why Not Just OLS?**
+- OLS assumes independent observations
+- Observations from same patient/school are correlated
+- Mixed models correctly account for this structure
 
----
+**Model Structure:**
+$$y_{ij} = \beta_0 + \beta_1 x_{ij} + u_j + \epsilon_{ij}$$
 
-## Question 99
+Where:
+- $\beta_0, \beta_1$ = fixed effects
+- $u_j$ = random effect for group j
+- $\epsilon_{ij}$ = residual error
 
-**How do you implement regression models for anomaly detection and outlier identification?**
+**Code (statsmodels):**
+```python
+import statsmodels.formula.api as smf
 
-**Answer:** _[To be filled]_
+model = smf.mixedlm("score ~ treatment", data, groups=data["patient_id"])
+result = model.fit()
+```
 
 ---
 
-## Question 100
+## Question 24: Describe a situation where linear regression could be applied in the finance sector.
 
-**What are the best practices for end-to-end regression modeling pipelines?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Application: Capital Asset Pricing Model (CAPM)**
 
----betweensimple linear regressionandmultiple linear regression?**
+**Goal:** Estimate a stock's Beta (systematic risk) and Alpha (excess return).
 
-**Answer:** _[To be filled]_
+**The Model:**
+$$R_{stock} - R_f = \alpha + \beta (R_{market} - R_f) + \epsilon$$
 
----
+| Term | Meaning |
+|------|---------|
+| $R_{stock} - R_f$ | Stock's excess return (target) |
+| $R_{market} - R_f$ | Market's excess return (feature) |
+| $\beta$ | Stock's volatility relative to market |
+| $\alpha$ | Stock's risk-adjusted outperformance |
 
-## Question 3
+**Interpretation of Beta:**
 
-**What is the role of theintercept termin alinear regression model?**
+| Beta Value | Meaning |
+|------------|---------|
+| β = 1 | Stock moves with market |
+| β > 1 | More volatile than market |
+| β < 1 | Less volatile than market |
+| β < 0 | Moves opposite to market |
 
-**Answer:** _[To be filled]_
+**Implementation:**
+```python
+import yfinance as yf
+from sklearn.linear_model import LinearRegression
 
----
+# Get data
+stock = yf.download('AAPL', start='2020-01-01')
+market = yf.download('^GSPC', start='2020-01-01')
 
-## Question 4
+# Calculate excess returns
+stock_returns = stock['Adj Close'].pct_change()
+market_returns = market['Adj Close'].pct_change()
 
-**What are the commonmetricsto evaluate alinear regression model’s performance?**
+# Fit CAPM model
+model = LinearRegression()
+model.fit(market_returns.dropna().values.reshape(-1,1), 
+          stock_returns.dropna().values)
 
-**Answer:** _[To be filled]_
+print(f"Beta: {model.coef_[0]:.4f}")
+print(f"Alpha: {model.intercept_:.4f}")
+```
 
 ---
 
-## Question 5
+## Question 25: Explain how you might use regression analysis to assess the effect of marketing campaigns.
 
-**Explain the concept ofhomoscedasticity. Why is it important?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Application: Marketing Mix Modeling**
 
----
+**Goal:** Quantify ROI of different marketing channels.
 
-## Question 6
+**Model Structure:**
+$$\log(Sales) = \beta_0 + \beta_1\log(TV) + \beta_2\log(Radio) + \beta_3\log(Digital) + Controls + \epsilon$$
 
-**What ismulticollinearityand how can it affect aregression model?**
+**Key Feature Engineering:**
 
-**Answer:** _[To be filled]_
+| Feature | Why |
+|---------|-----|
+| **Adstock** | Captures carryover effect (ads impact lingers) |
+| **Log transform** | Models diminishing returns |
+| **Seasonality** | Control for seasonal patterns |
+| **Price** | Control for pricing effects |
 
----
+**Interpretation:**
+- Coefficients represent elasticity
+- β₁ = 0.1 means 10% increase in TV spend → 1% sales increase
 
-## Question 7
+**Business Applications:**
+1. Calculate ROI per channel
+2. Optimize budget allocation
+3. Simulate "what-if" scenarios
 
-**Describe the steps involved inpreprocessing dataforlinear regression analysis.**
+```python
+# Marketing Mix Model
+model = LinearRegression()
+model.fit(X[['log_tv_adstock', 'log_radio_adstock', 
+             'log_digital_adstock', 'price', 'season']], 
+          y_log_sales)
 
-**Answer:** _[To be filled]_
+# Interpret coefficients as elasticities
+for name, coef in zip(features, model.coef_):
+    print(f"{name}: {coef:.4f} elasticity")
+```
 
 ---
-
-## Question 8
 
-**Explain the concept ofdata splittingintotraining and test sets.**
+## Question 26: Describe how linear regression models could be used in predicting real estate prices.
 
-**Answer:** _[To be filled]_
+### Answer
 
----
+**Application: Hedonic Pricing Model**
 
-## Question 9
+**Features to Include:**
 
-**What iscross-validationand how is it performed withlinear regression?**
+| Category | Features |
+|----------|----------|
+| **Size** | SquareFootage, Bedrooms, Bathrooms |
+| **Location** | Neighborhood (one-hot), Distance to amenities |
+| **Quality** | OverallQuality, YearBuilt, YearRemodeled |
+| **Amenities** | HasGarage, HasPool, HasFireplace |
 
-**Answer:** _[To be filled]_
+**Common Transformations:**
+- Log(Price) - handles skewness
+- Log(SquareFootage) - linearizes relationship
+- Polynomial features for non-linear effects
 
----
+**Model Choice:**
+```python
+from sklearn.linear_model import LassoCV
 
-## Question 10
+# Lasso for automatic feature selection
+model = LassoCV(cv=5)
+model.fit(X_train_scaled, y_log_price)
 
-**Can you explain the concept ofgradient descentand its importance inlinear regression?**
+# Interpret: value contribution of each feature
+coefficients = pd.DataFrame({
+    'Feature': features,
+    'Coefficient': model.coef_
+}).sort_values('Coefficient', ascending=False)
+```
 
-**Answer:** _[To be filled]_
+**Business Value:**
+- Automated valuation models (Zillow Zestimate)
+- Feature value estimation (how much is extra bathroom worth?)
+- Investment analysis
 
 ---
 
-## Question 11
+## Question 27: Describe how you might use linear regression to optimize inventory levels in a supply chain context.
 
-**What isridge regressionand how does it differ from standardlinear regression?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Application: Demand Forecasting**
 
----
-
-## Question 12
+**Goal:** Predict demand to optimize stock levels.
 
-**Explain the concept ofLasso regressionand its benefits.**
+**Features:**
 
-**Answer:** _[To be filled]_
-
----
+| Category | Examples |
+|----------|----------|
+| **Time** | DayOfWeek, Month, Holiday flag |
+| **Lag** | Sales_last_week, Sales_last_month |
+| **Pricing** | Current price, Promotion flag |
+| **External** | Weather, Economic indicators |
 
-## Question 13
+**Model:**
+$$Sales_t = \beta_0 + \beta_1 \cdot trend + \beta_2 \cdot Sales_{t-1} + \beta_3 \cdot Price + \epsilon$$
 
-**What iselastic net regressionand in what cases would you use it?**
+**Using Forecast for Inventory:**
 
-**Answer:** _[To be filled]_
+```python
+# 1. Get demand forecast
+forecast = model.predict(X_next_week)
 
----
+# 2. Calculate forecast uncertainty from residuals
+forecast_std = np.std(y_train - model.predict(X_train))
 
-## Question 14
+# 3. Set reorder point
+service_level = 0.95  # 95% service level
+z_score = 1.65
+safety_stock = z_score * forecast_std * np.sqrt(lead_time)
 
-**Explain the purpose ofresidual plotsand how to interpret them.**
+reorder_point = forecast * lead_time + safety_stock
+```
 
-**Answer:** _[To be filled]_
+**Output:**
+- Point forecast for demand
+- Uncertainty estimate for safety stock calculation
+- Optimal reorder point
 
 ---
-
-## Question 15
 
-**What is theadjusted R-squared, and why is it used?**
+## Question 28: What are the latest research trends in regularized regression techniques?
 
-**Answer:** _[To be filled]_
-
----
+### Answer
 
-## Question 16
+**Current Research Trends:**
 
-**What areleverage pointsand how do they affect aregression model?**
+| Trend | Description |
+|-------|-------------|
+| **Group Lasso** | Select/discard groups of features together |
+| **Adaptive Lasso** | Different penalties for different coefficients |
+| **Sparse Additive Models** | Non-linear functions with Lasso-style sparsity |
+| **Debiased Lasso** | Valid inference after Lasso selection |
+| **Causal Regularization** | Double ML for treatment effect estimation |
 
-**Answer:** _[To be filled]_
+**1. Group Lasso:**
+```python
+# Select entire one-hot encoded groups together
+# Not just individual dummies
+```
 
----
+**2. Adaptive Lasso:**
+- First-stage: Get initial estimates (e.g., Ridge)
+- Second-stage: Penalize inversely to initial estimate size
+- Benefits: Better selection consistency
 
-## Question 17
+**3. Double/Debiased Machine Learning:**
+- Use Lasso for nuisance parameter estimation
+- Valid confidence intervals for causal effects
+- Handles high-dimensional confounders
 
-**Describe how you would detect and addressoutliersin yourregression analysis.**
+**4. Graph Regularization:**
+- Incorporate feature relationship structure
+- Connected features get similar coefficients
 
-**Answer:** _[To be filled]_
+**Key Direction:**
+Moving from "just prediction" to valid statistical inference in high-dimensional settings.
 
 ---
-
-## Question 18
 
-**Explain the concept ofCook’s distance.**
+## Question 29: Describe a situation where logistic regression might be preferred over linear regression.
 
-**Answer:** _[To be filled]_
+### Answer
 
----
+**When Target is Binary (0/1):**
 
-## Question 19
+| Aspect | Linear Regression | Logistic Regression |
+|--------|------------------|---------------------|
+| **Target type** | Continuous | Binary categorical |
+| **Output** | Any real number | Probability [0, 1] |
+| **Example target** | Price ($) | Churn (Yes/No) |
 
-**Describe thevariance inflation factor (VIF)and its significance.**
+**Why Linear Regression Fails for Binary:**
 
-**Answer:** _[To be filled]_
+1. **Unbounded predictions:** Can predict -0.5 or 1.5 (meaningless for probability)
+2. **Violates assumptions:** Errors aren't normally distributed
+3. **No probability interpretation**
 
----
+**Example: Customer Churn Prediction**
 
-## Question 20
+```python
+# Wrong: Linear Regression
+from sklearn.linear_model import LinearRegression
+# Predictions might be < 0 or > 1
 
-**How doespolynomial regressionextend thelinear regression model?**
+# Correct: Logistic Regression
+from sklearn.linear_model import LogisticRegression
+# Predictions are probabilities between 0 and 1
+```
 
-**Answer:** _[To be filled]_
+**Logistic Regression Output:**
+- Probability of churn (0.85 = 85% chance)
+- Classification via threshold (>0.5 → Churn)
 
 ---
 
-## Question 21
+## Question 30: Describe a scenario where you'd have to transition from a simple to a multiple linear regression model, and the considerations you'd have to make.
 
-**What aregeneralized linear models (GLMs), and how do they relate tolinear regression?**
+### Answer
 
-**Answer:** _[To be filled]_
+**Scenario: Predicting Student Exam Scores**
 
----
+**Phase 1: Simple Linear Regression**
+```python
+Score = β₀ + β₁ × Hours_Studied
+# R² = 0.30 → Only 30% variance explained
+# Underfitting - need more features!
+```
 
-## Question 22
+**Phase 2: Multiple Linear Regression**
+```python
+Score = β₀ + β₁×Hours + β₂×GPA + β₃×Attendance + ...
+```
 
-**Explain howquantile regressiondiffers fromordinary least squares (OLS) regression.**
+**Key Considerations:**
 
-**Answer:** _[To be filled]_
+| Consideration | Action |
+|---------------|--------|
+| **Feature Selection** | Use domain knowledge, not random features |
+| **Multicollinearity** | Check VIF (Hours & Assignments may correlate) |
+| **Coefficient Interpretation** | Now "holding other factors constant" |
+| **Evaluation Metric** | Switch to Adjusted R² |
+| **Overfitting Risk** | Consider regularization |
 
----
+**Interpretation Change:**
+- Simple: β₁ = total effect of studying
+- Multiple: β₁ = effect of studying, controlling for GPA and attendance
 
-## Question 23
+**Validation:**
+```python
+from sklearn.model_selection import cross_val_score
 
-**What aremixed models, and where might you use them?**
+# Compare models
+simple_cv = cross_val_score(simple_model, X_simple, y, cv=5)
+multiple_cv = cross_val_score(multiple_model, X_multiple, y, cv=5)
 
-**Answer:** _[To be filled]_
+print(f"Simple: {simple_cv.mean():.3f}")
+print(f"Multiple: {multiple_cv.mean():.3f}")
+```
 
 ---
 
-## Question 24
+## Question 31: What are the mathematical foundations and assumptions underlying linear regression?
 
-**Describe a situation wherelinear regressioncould be applied in thefinance sector.**
+### Answer
 
-**Answer:** _[To be filled]_
+**The Model:**
+$$y = X\beta + \epsilon$$
 
----
+**Gauss-Markov Assumptions (for BLUE):**
 
-## Question 25
+| Assumption | Mathematical Form | Meaning |
+|------------|-------------------|---------|
+| **Linearity** | E(y) = Xβ | Mean is linear in X |
+| **Exogeneity** | E(ε\|X) = 0 | Errors uncorrelated with features |
+| **Homoscedasticity** | Var(ε\|X) = σ²I | Constant error variance |
+| **No autocorrelation** | Cov(εᵢ, εⱼ) = 0 | Errors are independent |
+| **Full rank** | rank(X) = p | No perfect multicollinearity |
 
-**Explain how you might useregression analysisto assess the effect ofmarketing campaigns.**
+**Additional for Inference:**
+- Normality: ε ~ N(0, σ²) for valid t-tests, F-tests
 
-**Answer:** _[To be filled]_
+**BLUE Property:**
+Under Gauss-Markov assumptions, OLS estimator is:
+- **B**est (minimum variance)
+- **L**inear (linear function of y)
+- **U**nbiased (E(β̂) = β)
+- **E**stimator
 
 ---
 
-## Question 26
+## Question 32: How do you derive the normal equation for linear regression and when is it preferred over gradient descent?
 
-**Describe howlinear regression modelscould be used in predictingreal estate prices.**
+### Answer
 
-**Answer:** _[To be filled]_
+**Derivation:**
 
----
+1. Loss function: $L = (y - X\beta)^T(y - X\beta)$
 
-## Question 27
+2. Expand: $L = y^Ty - 2\beta^TX^Ty + \beta^TX^TX\beta$
 
-**Describe how you might uselinear regressionto optimizeinventory levelsin asupply chaincontext.**
+3. Derivative: $\frac{\partial L}{\partial \beta} = -2X^Ty + 2X^TX\beta$
 
-**Answer:** _[To be filled]_
+4. Set to zero: $X^TX\beta = X^Ty$
 
----
+5. **Normal Equation:** $\beta = (X^TX)^{-1}X^Ty$
 
-## Question 28
+**When to Use Each:**
 
-**What are the latest research trends inregularized regression techniques?**
+| Criteria | Normal Equation | Gradient Descent |
+|----------|-----------------|------------------|
+| **Features (p)** | p < 10,000 | p large |
+| **Samples (n)** | Any | Any |
+| **Complexity** | O(p³) | O(iterations × p) |
+| **Memory** | High (store X^TX) | Low |
+| **Convergence** | Exact solution | Iterative |
 
-**Answer:** _[To be filled]_
+**Rule of Thumb:**
+- p < 10,000: Use Normal Equation (faster)
+- p > 10,000 or sparse: Use Gradient Descent (scalable)
 
 ---
-
-## Question 29
 
-**Describe a situation wherelogistic regressionmight be preferred overlinear regression.**
+## Question 33: What is the difference between ordinary least squares (OLS) and other regression estimation methods?
 
-**Answer:** _[To be filled]_
+### Answer
 
----
+**Comparison of Estimation Methods:**
 
-## Question 30
+| Method | Minimizes | Assumptions | Use Case |
+|--------|-----------|-------------|----------|
+| **OLS** | Sum of squared errors | Gauss-Markov | Standard regression |
+| **WLS** | Weighted squared errors | Known weights | Heteroscedasticity |
+| **GLS** | Generalized squared errors | Known covariance | Correlated errors |
+| **MLE** | Negative log-likelihood | Distributional | Known error distribution |
+| **LAD** | Sum of absolute errors | Fewer | Outlier robustness |
+| **Bayesian** | Posterior | Prior beliefs | Uncertainty quantification |
 
-**Describe a scenario where you’d have to transition from asimpleto amultiple linear regression model, and the considerations you’d have to make.**
+**OLS Properties:**
+- BLUE under Gauss-Markov
+- Equivalent to MLE under normality
+- Simple and interpretable
 
-**Answer:** _[To be filled]_
+**When OLS is NOT Best:**
+| Problem | Better Alternative |
+|---------|-------------------|
+| Heteroscedasticity | WLS |
+| Autocorrelated errors | GLS |
+| Heavy outliers | LAD (quantile regression) |
+| Prior information | Bayesian regression |
+| High-dimensional | Regularized (Ridge, Lasso) |
 
 ---
-
