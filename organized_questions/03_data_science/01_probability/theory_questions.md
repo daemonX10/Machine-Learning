@@ -4,33 +4,54 @@
 
 **What is probability, and how is it used in machine learning?**
 
-**Answer:**
+---
 
-### Definition
-Probability is a branch of mathematics that quantifies the likelihood of an event occurring, expressed as a number between 0 (impossible) and 1 (certain). It provides a formal framework for reasoning about uncertainty.
+### 1. Definition
+Probability quantifies the likelihood of an event occurring, expressed as a number between 0 (impossible) and 1 (certain). In ML, it provides a framework for modeling uncertainty, designing algorithms (Naive Bayes, Logistic Regression), deriving loss functions (Cross-Entropy from MLE), and evaluating model confidence.
 
-### Core Concepts
-- **Sample Space**: Set of all possible outcomes
-- **Event**: A subset of the sample space
-- **Probability of Event**: P(E) = (Favorable outcomes) / (Total outcomes)
+### 2. Core Concepts
+- **Sample Space (S)**: Set of all possible outcomes
+- **Event (E)**: Subset of sample space we're interested in
+- **P(E) = Favorable outcomes / Total outcomes**
+- **Random Variable**: Maps outcomes to numerical values
 
-### Role in Machine Learning
+### 3. Mathematical Formulation
+$$P(E) = \frac{|E|}{|S|} = \frac{\text{Number of favorable outcomes}}{\text{Total possible outcomes}}$$
 
+**Axioms of Probability:**
+- $0 \leq P(E) \leq 1$
+- $P(S) = 1$
+- $P(A \cup B) = P(A) + P(B)$ if A and B are mutually exclusive
+
+### 4. Intuition
+Think of probability as a measure of belief or confidence. When a model outputs P(spam) = 0.95, it's saying "I'm 95% confident this is spam" rather than a hard yes/no answer.
+
+### 5. Practical ML Applications
 | Application | How Probability is Used |
 |-------------|------------------------|
-| **Modeling Uncertainty** | Outputs probability distributions over possible outcomes instead of single predictions |
-| **Algorithm Design** | Naive Bayes uses Bayes' theorem; Logistic Regression models class probability |
-| **Loss Functions** | Cross-Entropy derived from Maximum Likelihood Estimation (MLE) |
-| **Model Evaluation** | Metrics like Log-Loss measure predictive accuracy |
+| Classification | Output P(class\|features), not just class label |
+| Loss Functions | Cross-Entropy derived from MLE |
+| Generative Models | GANs/VAEs learn data distribution p(x) |
+| Uncertainty | Bayesian methods quantify model confidence |
 
-### Practical Examples
-- **Classification**: Spam classifier outputs P(spam) = 0.95 instead of just "spam"
-- **Generative Models**: GANs/VAEs learn probability distribution of data to generate new samples
-- **Reinforcement Learning**: Agent decisions based on probability distribution of rewards
+### 6. Python Example
+```python
+# Spam classifier with probability output
+def classify_email(features, model):
+    prob_spam = model.predict_proba(features)[0, 1]
+    
+    # Probabilistic output allows flexible thresholding
+    if prob_spam > 0.9:
+        return "Spam (high confidence)"
+    elif prob_spam > 0.5:
+        return "Spam (low confidence)"
+    else:
+        return "Not spam"
+```
 
-### Interview Tips
-- **Probability vs Likelihood**: Probability = chance of future events; Likelihood = how well parameters explain past data
-- **Model Calibration**: A model predicting 70% probability should be correct 70% of the time
+### 7. Interview Tips
+- **Probability vs Likelihood**: Probability = future events; Likelihood = how well parameters explain observed data
+- **Calibration**: Model predicting 70% should be correct 70% of the time
 
 ---
 
@@ -38,43 +59,51 @@ Probability is a branch of mathematics that quantifies the likelihood of an even
 
 **What is the difference between discrete and continuous probability distributions?**
 
-**Answer:**
+---
 
-### Definition
-- **Discrete Distribution**: Describes outcomes that are countable (finite or countably infinite)
-- **Continuous Distribution**: Describes outcomes in a continuous range (uncountable)
+### 1. Definition
+**Discrete distributions** describe countable outcomes (coin flips, dice rolls) using a Probability Mass Function (PMF). **Continuous distributions** describe uncountable outcomes in a continuous range (height, temperature) using a Probability Density Function (PDF).
 
-### Key Differences
-
-| Feature | Discrete | Continuous |
-|---------|----------|------------|
-| **Function** | Probability Mass Function (PMF) | Probability Density Function (PDF) |
-| **Probability at a point** | P(X = k) is valid | P(X = x) = 0 always |
-| **Probability of range** | Σ P(X = k) | ∫ f(x) dx |
+### 2. Core Concepts
+| Aspect | Discrete | Continuous |
+|--------|----------|------------|
+| **Function** | PMF: P(X = k) | PDF: f(x) |
+| **Point Probability** | P(X = k) is valid | P(X = x) = 0 always |
+| **Range Probability** | Sum: Σ P(X = k) | Integral: ∫ f(x) dx |
 | **Total** | Σ P(X = k) = 1 | ∫ f(x) dx = 1 |
-| **Examples** | Coin flips, dice rolls | Height, temperature, time |
+| **Examples** | Binomial, Poisson | Normal, Exponential |
 
-### Mathematical Formulation
-- **Discrete (PMF)**: P(X = k) gives direct probability
-- **Continuous (PDF)**: P(a ≤ X ≤ b) = $\int_a^b f(x)dx$
+### 3. Mathematical Formulation
+**Discrete (PMF):**
+$$P(a \leq X \leq b) = \sum_{k=a}^{b} P(X = k)$$
 
-### Python Example
+**Continuous (PDF):**
+$$P(a \leq X \leq b) = \int_a^b f(x)dx$$
+
+### 4. Intuition
+- **Discrete**: Like counting items - "How many heads in 10 flips?"
+- **Continuous**: Like measuring - "What is the exact height?" (infinite precision impossible)
+- PDF value is density, NOT probability. Probability = area under curve.
+
+### 5. Practical ML Applications
+- **Discrete**: Classification labels, count data, click/no-click
+- **Continuous**: Regression targets, feature values, sensor measurements
+
+### 6. Python Example
 ```python
 from scipy.stats import binom, norm
 
-# Discrete: Binomial (10 coin flips, p=0.5)
-pmf_value = binom.pmf(5, n=10, p=0.5)  # P(X=5) = 0.246
+# Discrete: Binomial - P(X = 5) directly
+pmf_value = binom.pmf(5, n=10, p=0.5)  # = 0.246
 
-# Continuous: Normal (mean=170, std=10)
-# PDF value is NOT probability
-pdf_value = norm.pdf(170, loc=170, scale=10)  # density, not probability!
-# For probability, use CDF
-prob = norm.cdf(180, 170, 10) - norm.cdf(160, 170, 10)  # P(160 < X < 180)
+# Continuous: Normal - P(X = 170) = 0, use range instead
+# P(160 < X < 180) requires integration via CDF
+prob = norm.cdf(180, 170, 10) - norm.cdf(160, 170, 10)  # ≈ 0.68
 ```
 
-### Common Pitfalls
-- **Never interpret PDF value as probability** - it's density, not P(X=x)
-- PDF values can exceed 1 (for narrow distributions)
+### 7. Common Pitfalls
+- **Never interpret PDF value as probability** - density can exceed 1!
+- For continuous: always calculate P(range), never P(point)
 
 ---
 
@@ -82,35 +111,59 @@ prob = norm.cdf(180, 170, 10) - norm.cdf(160, 170, 10)  # P(160 < X < 180)
 
 **Explain the differences between joint, marginal, and conditional probabilities.**
 
-**Answer:**
+---
 
-### Definitions
+### 1. Definition
+**Joint P(A,B)** = probability both A and B occur together. **Marginal P(A)** = probability of A regardless of B. **Conditional P(A|B)** = probability of A given B has occurred. These describe relationships between multiple events.
 
+### 2. Core Concepts
 | Type | Notation | Meaning |
 |------|----------|---------|
-| **Joint** | P(A, B) or P(A ∩ B) | Probability that both A AND B occur |
-| **Marginal** | P(A) | Probability of A, regardless of B |
-| **Conditional** | P(A\|B) | Probability of A, given B has occurred |
+| Joint | P(A, B) | Both A AND B occur |
+| Marginal | P(A) | A occurs, regardless of B |
+| Conditional | P(A\|B) | A occurs, GIVEN B happened |
 
-### Mathematical Relationships
-- **Joint**: P(A, B) = P(A\|B) × P(B) = P(B\|A) × P(A)
-- **Marginal**: P(A) = P(A, B) + P(A, not B) (sum over all B)
-- **Conditional**: P(A\|B) = P(A, B) / P(B)
+### 3. Mathematical Formulation
+**Relationships:**
+- **Joint**: $P(A, B) = P(A|B) \times P(B) = P(B|A) \times P(A)$
+- **Marginal**: $P(A) = P(A, B) + P(A, \neg B) = \sum_B P(A, B)$
+- **Conditional**: $P(A|B) = \frac{P(A, B)}{P(B)}$
 
-### Intuition (Weather Example)
+**Independence**: If A, B independent, then $P(A,B) = P(A) \times P(B)$
+
+### 4. Intuition (Weather Example)
 Let A = "Raining", B = "Heavy Traffic"
-- **P(A, B)** = Probability of rain AND heavy traffic together
-- **P(A)** = Overall probability of rain (regardless of traffic)
-- **P(A\|B)** = Probability of rain, knowing traffic is heavy (might be higher than P(A))
+- **P(A, B)** = Prob of rain AND heavy traffic together
+- **P(A)** = Overall prob of rain (ignoring traffic)
+- **P(A|B)** = Prob of rain knowing traffic is heavy (likely higher than P(A))
 
-### ML Applications
-- **Joint**: Risk assessment - probability of multiple failures
-- **Marginal**: Feature prevalence in dataset
-- **Conditional**: Classifier goal is P(Class | Features)
+### 5. Practical ML Applications
+- **Joint**: Risk assessment - P(multiple failures)
+- **Marginal**: Feature prevalence - P(spam) in dataset
+- **Conditional**: Classification goal - P(Class | Features)
 
-### Common Pitfalls
-- **Assuming Independence**: Don't use P(A,B) = P(A)×P(B) unless events are truly independent
-- **Prosecutor's Fallacy**: P(A\|B) ≠ P(B\|A) — use Bayes' theorem to convert
+### 6. Python Example
+```python
+# Joint probability table (frequencies)
+# P(Rain, Traffic) from data
+joint_table = {
+    ('rain', 'heavy'): 0.10,
+    ('rain', 'light'): 0.05,
+    ('sunny', 'heavy'): 0.15,
+    ('sunny', 'light'): 0.70
+}
+
+# Marginal: P(Rain) = sum over traffic conditions
+p_rain = joint_table[('rain','heavy')] + joint_table[('rain','light')]  # 0.15
+
+# Conditional: P(Rain | Heavy Traffic)
+p_heavy = joint_table[('rain','heavy')] + joint_table[('sunny','heavy')]  # 0.25
+p_rain_given_heavy = joint_table[('rain','heavy')] / p_heavy  # 0.10/0.25 = 0.40
+```
+
+### 7. Common Pitfalls
+- **Assuming independence**: Don't use P(A,B) = P(A)×P(B) unless verified
+- **Prosecutor's fallacy**: P(A|B) ≠ P(B|A) - use Bayes' theorem to convert
 
 ---
 
@@ -118,48 +171,61 @@ Let A = "Raining", B = "Heavy Traffic"
 
 **Describe Bayes' Theorem and provide an example of how it's used.**
 
-**Answer:**
+---
 
-### Definition
-Bayes' Theorem describes how to update the probability of a hypothesis based on new evidence.
+### 1. Definition
+Bayes' Theorem describes how to update the probability of a hypothesis based on new evidence. It connects prior beliefs, observed evidence, and updated beliefs through a mathematical formula: Posterior ∝ Likelihood × Prior.
 
-### Formula
-$$P(H|E) = \frac{P(E|H) \times P(H)}{P(E)}$$
-
-### Components
-
+### 2. Core Concepts
 | Term | Name | Meaning |
 |------|------|---------|
 | P(H\|E) | **Posterior** | Updated belief after seeing evidence |
-| P(E\|H) | **Likelihood** | Probability of evidence if hypothesis is true |
+| P(E\|H) | **Likelihood** | Probability of evidence if hypothesis true |
 | P(H) | **Prior** | Initial belief before evidence |
 | P(E) | **Evidence** | Total probability of evidence (normalizer) |
 
-**In Simple Terms**: Posterior ∝ Likelihood × Prior
+### 3. Mathematical Formulation
+$$P(H|E) = \frac{P(E|H) \times P(H)}{P(E)}$$
 
-### Example: Medical Diagnosis
-- Disease prevalence: P(Disease) = 0.001 (1 in 1000)
-- Test sensitivity: P(Positive | Disease) = 0.99
-- False positive rate: P(Positive | No Disease) = 0.01
+Where: $P(E) = P(E|H) \times P(H) + P(E|\neg H) \times P(\neg H)$
 
-**Question**: If test is positive, what's P(Disease)?
+**Simplified**: Posterior ∝ Likelihood × Prior
 
+### 4. Intuition
+Bayes' theorem is about updating beliefs. Start with initial belief (prior), observe evidence, update to new belief (posterior). Strong prior + weak evidence = small update. Weak prior + strong evidence = big update.
+
+### 5. Practical Example: Medical Diagnosis
+- Disease prevalence: P(D) = 0.001 (1 in 1000)
+- Test sensitivity: P(+|D) = 0.99
+- False positive rate: P(+|¬D) = 0.01
+
+**Question**: If test positive, what's P(Disease)?
+
+### 6. Python Example
 ```python
 def bayes_theorem(p_h, p_e_given_h, p_e_given_not_h):
+    """Calculate posterior probability P(H|E)."""
     p_not_h = 1 - p_h
     p_e = (p_e_given_h * p_h) + (p_e_given_not_h * p_not_h)
     return (p_e_given_h * p_h) / p_e
 
+# Medical test example
 p_disease_given_positive = bayes_theorem(0.001, 0.99, 0.01)
-# Result: ~0.09 (only 9%!)
+print(f"P(Disease | Positive Test) = {p_disease_given_positive:.3f}")
+# Output: 0.090 (only 9%!)
 ```
 
-**Insight**: Despite 99% test accuracy, only ~9% chance of disease because base rate is so low.
+### 7. Interview Tips
+- Counter-intuitive result: 99% accurate test, but only 9% chance of disease if positive. Why? Base rate (0.1%) is very low.
+- **ML Applications**: Naive Bayes, Bayesian inference, A/B testing
 
-### ML Applications
-- Naive Bayes classifiers
-- A/B testing (Bayesian)
-- Parameter estimation
+### 8. Algorithm Steps
+```
+1. Define prior P(H)
+2. Define likelihood P(E|H)
+3. Calculate evidence P(E) = sum over all H
+4. Apply formula: Posterior = (Likelihood × Prior) / Evidence
+```
 
 ---
 
@@ -167,42 +233,55 @@ p_disease_given_positive = bayes_theorem(0.001, 0.99, 0.01)
 
 **What is a probability density function (PDF)?**
 
-**Answer:**
+---
 
-### Definition
-A PDF, denoted f(x), describes the probability distribution of a continuous random variable. It represents the relative likelihood of the variable taking a particular value.
+### 1. Definition
+A PDF, denoted f(x), describes the probability distribution of a continuous random variable. It represents relative likelihood at each point - NOT the probability itself. Probability is obtained by integrating the PDF over a range.
 
-### Key Properties
-1. **Non-negativity**: f(x) ≥ 0 for all x
-2. **Total area = 1**: $\int_{-\infty}^{\infty} f(x)dx = 1$
-3. **P(X = c) = 0**: Probability at exact point is always zero
+### 2. Core Concepts
+- PDF value at point x = density, NOT probability
+- P(X = x) = 0 for any specific point (continuous)
+- Probability = area under curve = integral
+- PDF can exceed 1 (it's density, not probability)
 
-### Mathematical Formulation
-Probability of X falling in range [a, b]:
+### 3. Mathematical Formulation
+**Properties:**
+1. Non-negativity: $f(x) \geq 0$ for all x
+2. Total area = 1: $\int_{-\infty}^{\infty} f(x)dx = 1$
+
+**Probability of range:**
 $$P(a \leq X \leq b) = \int_a^b f(x)dx$$
 
-### Intuition
-- PDF value at x is NOT the probability of x
-- Higher density = values more likely to occur in that region
-- Probability = area under the curve (integration)
+**Normal distribution PDF:**
+$$f(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$
 
-### Python Example
+### 4. Intuition
+Think of PDF as a "density of probability" - like population density. High density = values more likely in that region. But just like you can't have a fraction of a person at a single point, you can't have probability at a single point for continuous variables.
+
+### 5. Practical ML Applications
+- Gaussian Naive Bayes: models P(feature|class) as Gaussian PDF
+- Likelihood in MLE: product of PDF values
+- Anomaly detection: low density = anomaly
+
+### 6. Python Example
 ```python
 from scipy.stats import norm
-import numpy as np
 
 mu, sigma = 0, 1  # Standard normal
 
-# PDF value at x=0 (NOT a probability!)
+# PDF value at x=0 (NOT probability!)
 density = norm.pdf(0, mu, sigma)  # = 0.3989
 
-# Probability requires integration (use CDF)
-prob = norm.cdf(1, mu, sigma) - norm.cdf(-1, mu, sigma)  # P(-1 ≤ X ≤ 1) ≈ 0.68
+# For probability, integrate via CDF
+prob = norm.cdf(1) - norm.cdf(-1)  # P(-1 ≤ X ≤ 1) ≈ 0.68
+
+print(f"Density at 0: {density:.4f}")
+print(f"P(-1 ≤ X ≤ 1): {prob:.4f}")
 ```
 
-### Common Pitfalls
-- **PDF ≠ Probability**: f(x) can exceed 1 for narrow distributions
-- Always use CDF for actual probability calculations
+### 7. Common Pitfalls
+- **PDF ≠ Probability**: Never say "probability is 0.4" when you mean density
+- PDF > 1 is valid for narrow distributions (e.g., Uniform(0, 0.5) has PDF = 2)
 
 ---
 
@@ -210,30 +289,35 @@ prob = norm.cdf(1, mu, sigma) - norm.cdf(-1, mu, sigma)  # P(-1 ≤ X ≤ 1) ≈
 
 **What is the role of the cumulative distribution function (CDF)?**
 
-**Answer:**
+---
 
-### Definition
-The CDF, denoted F(x), gives the probability that a random variable X takes a value less than or equal to x:
-$$F(x) = P(X \leq x)$$
+### 1. Definition
+The CDF, denoted F(x), gives the probability that random variable X takes a value less than or equal to x: F(x) = P(X ≤ x). It provides a unified way to describe any distribution and calculate range probabilities.
 
-### Key Properties
-1. **Range**: 0 ≤ F(x) ≤ 1
-2. **Non-decreasing**: If a < b, then F(a) ≤ F(b)
-3. **Limits**: F(-∞) = 0, F(+∞) = 1
+### 2. Core Concepts
+- F(x) = P(X ≤ x) — cumulative probability up to x
+- Works for both discrete and continuous distributions
+- Range probability: P(a < X ≤ b) = F(b) - F(a)
+- Inverse CDF (quantile function) finds percentiles
 
-### Role and Utility
+### 3. Mathematical Formulation
+**Properties:**
+1. Range: $0 \leq F(x) \leq 1$
+2. Non-decreasing: if $a < b$, then $F(a) \leq F(b)$
+3. Limits: $F(-\infty) = 0$, $F(+\infty) = 1$
 
-| Function | Description |
-|----------|-------------|
-| **Unified Framework** | Works for both discrete and continuous distributions |
-| **Range Probability** | P(a < X ≤ b) = F(b) - F(a) |
-| **Percentiles/Quantiles** | Inverse CDF finds value x where F(x) = p |
+**Relationship with PDF:**
+$$F(x) = \int_{-\infty}^{x} f(t)dt \quad \text{and} \quad f(x) = \frac{dF(x)}{dx}$$
 
-### Relationship with PDF
-- For continuous: $F(x) = \int_{-\infty}^{x} f(t)dt$
-- PDF is derivative of CDF: $f(x) = \frac{dF(x)}{dx}$
+### 4. Intuition
+CDF is the "running total" of probability. At any point x, F(x) tells you what fraction of the probability mass lies to the left of x. It's like asking "what percentage of people are shorter than x?"
 
-### Python Example
+### 5. Practical ML Applications
+- **Probability calculations**: P(a < X ≤ b) = F(b) - F(a)
+- **Percentiles**: Find x where F(x) = 0.95 (95th percentile)
+- **Statistical tests**: p-values computed via CDF
+
+### 6. Python Example
 ```python
 from scipy.stats import norm
 
@@ -245,12 +329,16 @@ prob_less_than = norm.cdf(1.5, mu, sigma)  # ≈ 0.93
 # Range probability: P(-1 < X ≤ 1)
 prob_range = norm.cdf(1) - norm.cdf(-1)  # ≈ 0.68
 
-# Percentile: Find x where P(X ≤ x) = 0.95
-x_95 = norm.ppf(0.95, mu, sigma)  # ≈ 1.645
+# Inverse CDF (percentile): Find x where P(X ≤ x) = 0.95
+x_95th = norm.ppf(0.95, mu, sigma)  # ≈ 1.645
+
+print(f"P(X ≤ 1.5) = {prob_less_than:.3f}")
+print(f"95th percentile = {x_95th:.3f}")
 ```
 
-### Interview Tip
-If implementing CDF and it's not monotonically increasing or doesn't approach 0 and 1 at extremes — there's a bug.
+### 7. Interview Tips
+- If CDF is not monotonically increasing, there's a bug
+- CDF approach: F(b) - F(a) is cleaner than integrating PDF
 
 ---
 
@@ -258,46 +346,60 @@ If implementing CDF and it's not monotonically increasing or doesn't approach 0 
 
 **Explain the Central Limit Theorem and its significance in machine learning.**
 
-**Answer:**
+---
 
-### Definition
-The Central Limit Theorem (CLT) states that the distribution of sample means approaches a normal distribution as sample size increases, regardless of the original population's distribution.
+### 1. Definition
+The Central Limit Theorem (CLT) states that the distribution of sample means approaches a normal distribution as sample size increases, regardless of the original population's shape. This is fundamental to statistical inference.
 
-### Key Conditions
-1. **Independence**: Samples are i.i.d. (independent and identically distributed)
-2. **Sample Size**: n > 30 (rule of thumb)
-3. **Finite Variance**: Population has finite mean (μ) and variance (σ²)
+### 2. Core Concepts
+**Conditions:**
+- Independent, identically distributed (i.i.d.) samples
+- Sufficiently large sample size (n > 30 rule of thumb)
+- Population has finite mean (μ) and variance (σ²)
 
-### Mathematical Formulation
-If X₁, X₂, ..., Xₙ are i.i.d. with mean μ and variance σ²:
-$$\bar{X} \sim N\left(\mu, \frac{\sigma^2}{n}\right)$$
-
+**Result:**
+- Sample mean distribution → Normal
 - Mean of sample means = μ
 - Standard Error = σ/√n
 
-### Significance in ML
+### 3. Mathematical Formulation
+If $X_1, X_2, ..., X_n$ are i.i.d. with mean μ and variance σ²:
+$$\bar{X} \sim N\left(\mu, \frac{\sigma^2}{n}\right) \text{ as } n \to \infty$$
 
+**Standardized form:**
+$$\frac{\bar{X} - \mu}{\sigma/\sqrt{n}} \sim N(0, 1)$$
+
+### 4. Intuition
+No matter how weird the original data distribution (skewed, bimodal, etc.), if you take many samples and average each one, those averages will form a bell curve. This is why the normal distribution appears everywhere!
+
+### 5. Practical ML Applications
 | Application | How CLT Helps |
 |-------------|---------------|
-| **Normality Assumption** | Justifies why noise/errors often assumed Gaussian |
-| **A/B Testing** | Sample mean differences are normally distributed |
-| **Confidence Intervals** | Enables interval estimation for parameters |
-| **Bootstrap Methods** | Foundation for resampling techniques |
+| **Normality assumptions** | Justifies Gaussian noise in regression |
+| **A/B testing** | Sample mean differences are normal → t-tests work |
+| **Confidence intervals** | Sample mean ± z × SE |
+| **Bootstrap** | Resampling relies on CLT principles |
 
-### Python Demonstration
+### 6. Python Example
 ```python
 import numpy as np
 
-# Non-normal population (Exponential)
+# Non-normal population (Exponential distribution)
 population = np.random.exponential(scale=2.0, size=100000)
 
-# Sample means become normal
+# Take many samples and compute means
 sample_means = [np.mean(np.random.choice(population, 50)) for _ in range(2000)]
-# Histogram of sample_means will be bell-shaped!
+
+# sample_means will be normally distributed despite exponential population!
+print(f"Population mean: {population.mean():.2f}")
+print(f"Mean of sample means: {np.mean(sample_means):.2f}")
+# Histogram of sample_means will be bell-shaped
 ```
 
-### Interview Tip
-CLT applies to sample means, not individual samples. Original distribution can be any shape.
+### 7. Interview Tips
+- CLT applies to sample MEANS, not individual samples
+- Original distribution can be any shape
+- Larger n → narrower distribution of means (σ/√n shrinks)
 
 ---
 
@@ -305,49 +407,61 @@ CLT applies to sample means, not individual samples. Original distribution can b
 
 **What is the Law of Large Numbers?**
 
-**Answer:**
+---
 
-### Definition
-The Law of Large Numbers (LLN) states that as the number of trials increases, the sample mean converges to the true population mean (expected value).
+### 1. Definition
+The Law of Large Numbers (LLN) states that as the number of trials increases, the sample mean converges to the true population mean (expected value). It's the philosophical foundation for why ML works on finite data.
 
-### Two Forms
-1. **Weak LLN**: Sample mean converges in probability to expected value
-2. **Strong LLN**: Sample mean converges almost surely (probability of failure = 0)
+### 2. Core Concepts
+**Two Forms:**
+- **Weak LLN**: Sample mean converges in probability to E[X]
+- **Strong LLN**: Sample mean converges almost surely (P = 1)
 
-### Mathematical Statement
-For i.i.d. random variables X₁, X₂, ..., Xₙ with mean μ:
+**Key Insight:** With enough data, sample statistics approximate population parameters.
+
+### 3. Mathematical Formulation
+For i.i.d. random variables $X_1, X_2, ..., X_n$ with mean μ:
 $$\bar{X}_n = \frac{1}{n}\sum_{i=1}^{n}X_i \xrightarrow{n \to \infty} \mu$$
 
-### Significance in ML
+**Interpretation:** As n → ∞, sample average → true average
 
+### 4. Intuition
+Flip a fair coin: first 10 flips might give 70% heads (unlucky). But after 10,000 flips, you'll get very close to 50%. Random fluctuations average out over many trials.
+
+### 5. Practical ML Applications
 | Application | How LLN is Used |
 |-------------|-----------------|
-| **Empirical Risk Minimization** | Training loss approximates true expected loss |
-| **Monte Carlo Methods** | Random sampling gives accurate estimates |
-| **Parameter Estimation** | Sample statistics converge to true parameters |
+| **Empirical Risk Minimization** | Training loss ≈ true expected loss |
+| **Monte Carlo Methods** | Random samples approximate expectations |
+| **Parameter Estimation** | Sample statistics → population parameters |
+| **Cross-validation** | Average performance over folds |
 
-### Python Demonstration
+### 6. Python Example
 ```python
 import numpy as np
 
 # Fair die: E[X] = 3.5
 expected_value = 3.5
-rolls = np.random.randint(1, 7, size=10000)
+n_rolls = 10000
+rolls = np.random.randint(1, 7, size=n_rolls)
 
 # Running average converges to 3.5
-running_avg = np.cumsum(rolls) / np.arange(1, len(rolls) + 1)
-# running_avg[-1] ≈ 3.5
+running_avg = np.cumsum(rolls) / np.arange(1, n_rolls + 1)
+print(f"After 10 rolls: {running_avg[9]:.2f}")
+print(f"After 100 rolls: {running_avg[99]:.2f}")
+print(f"After 10000 rolls: {running_avg[-1]:.4f}")  # ≈ 3.5
 ```
 
-### LLN vs CLT
+### 7. LLN vs CLT
 
 | LLN | CLT |
 |-----|-----|
-| Sample mean → true mean | Distribution of sample means → Normal |
-| About convergence of value | About shape of distribution |
+| Sample mean → true mean | Sample means → Normal distribution |
+| About convergence of VALUE | About SHAPE of distribution |
+| Justifies learning from data | Justifies statistical inference |
 
-### Interview Tip
-LLN is WHY ML works — it guarantees that learning from finite data generalizes to the population.
+### 8. Interview Tip
+LLN is WHY ML works — learning from finite training data generalizes because sample risk approximates true risk.
 
 ---
 
@@ -355,46 +469,61 @@ LLN is WHY ML works — it guarantees that learning from finite data generalizes
 
 **What are the characteristics of a Gaussian (Normal) distribution?**
 
-**Answer:**
+---
 
-### Definition
-The Gaussian (Normal) distribution is a continuous probability distribution defined by two parameters: mean (μ) and standard deviation (σ).
+### 1. Definition
+The Gaussian/Normal distribution is a continuous probability distribution defined by mean (μ) and standard deviation (σ). It forms the famous "bell curve" and is the most important distribution in statistics due to CLT.
 
-### Key Characteristics
-1. **Parameters**: μ (center), σ (spread)
-2. **Bell-shaped**: Symmetric around mean
-3. **Mean = Median = Mode**
-4. **Tails extend to ±∞**
+### 2. Core Concepts
+- **Parameters**: μ (center), σ (spread), variance = σ²
+- **Symmetric** around mean
+- **Mean = Median = Mode**
+- **Tails extend to ±∞** but decay rapidly
+- **Completely specified** by just μ and σ
 
-### PDF Formula
+### 3. Mathematical Formulation
+**PDF:**
 $$f(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$
 
-### Empirical Rule (68-95-99.7)
-| Range | Percentage |
-|-------|------------|
+**Standard Normal**: μ = 0, σ = 1
+**Z-score**: $z = \frac{x - \mu}{\sigma}$ (standardization)
+
+### 4. Empirical Rule (68-95-99.7)
+| Range | Percentage of Data |
+|-------|-------------------|
 | μ ± 1σ | ~68% |
 | μ ± 2σ | ~95% |
 | μ ± 3σ | ~99.7% |
 
-### Standard Normal Distribution
-When μ = 0 and σ = 1:
-- Z-score transformation: $z = \frac{x - \mu}{\sigma}$
+### 5. Intuition
+Most natural measurements cluster around an average with symmetric spread. Heights, test scores, measurement errors — all tend to be normally distributed. Values far from the mean are increasingly rare.
 
-### ML Applications
-- **Linear Regression**: Assumes errors are normally distributed
-- **Gaussian Naive Bayes**: Features modeled as Gaussian within each class
-- **Statistical Tests**: Foundation for t-tests, ANOVA
+### 6. Practical ML Applications
+- **Linear Regression**: Assumes residuals ~ N(0, σ²)
+- **Gaussian Naive Bayes**: Features ~ N(μ, σ²) per class
+- **Statistical Tests**: t-tests, ANOVA assume normality
+- **Regularization**: L2 penalty = Gaussian prior on weights
 
-### Python Example
+### 7. Python Example
 ```python
 from scipy.stats import norm
 
 mu, sigma = 100, 15  # e.g., IQ scores
 
-# Probability within 1 std
-prob_1std = norm.cdf(mu + sigma, mu, sigma) - norm.cdf(mu - sigma, mu, sigma)
-# ≈ 0.68
+# 68-95-99.7 rule verification
+prob_1std = norm.cdf(mu+sigma, mu, sigma) - norm.cdf(mu-sigma, mu, sigma)
+prob_2std = norm.cdf(mu+2*sigma, mu, sigma) - norm.cdf(mu-2*sigma, mu, sigma)
+
+print(f"Within 1σ: {prob_1std:.2%}")  # ≈ 68%
+print(f"Within 2σ: {prob_2std:.2%}")  # ≈ 95%
+
+# Z-score
+x = 130
+z = (x - mu) / sigma  # z = 2.0 → 2 std above mean
 ```
+
+### 8. Interview Tip
+If asked "why is Normal distribution so common?" → CLT: sums of many independent factors tend toward Normal.
 
 ---
 
@@ -402,37 +531,38 @@ prob_1std = norm.cdf(mu + sigma, mu, sigma) - norm.cdf(mu - sigma, mu, sigma)
 
 **Explain the utility of the Binomial distribution in machine learning.**
 
-**Answer:**
+---
 
-### Definition
-The Binomial distribution models the number of successes (k) in n independent trials, each with success probability p.
+### 1. Definition
+The Binomial distribution models the number of successes (k) in n independent trials, each with success probability p. It's the foundation for modeling binary outcomes in ML: clicks, conversions, correct predictions.
 
-### Conditions
+### 2. Core Concepts
+**Conditions for Binomial:**
 1. Fixed number of trials (n)
-2. Each trial is independent
-3. Two outcomes per trial (success/failure)
-4. Constant probability p for each trial
+2. Each trial independent
+3. Two outcomes only (success/failure)
+4. Constant probability p per trial
 
-### PMF Formula
+### 3. Mathematical Formulation
+**PMF:**
 $$P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}$$
 
-### Parameters
-- **Mean**: μ = n × p
-- **Variance**: σ² = n × p × (1-p)
+**Parameters:**
+- Mean: $\mu = np$
+- Variance: $\sigma^2 = np(1-p)$
 
-### ML Applications
+### 4. Intuition
+"If I flip a biased coin n times, how many heads will I get?" The Binomial gives the full probability distribution over all possible counts from 0 to n.
 
+### 5. Practical ML Applications
 | Application | Description |
 |-------------|-------------|
-| **CTR Modeling** | n impressions, p click probability → number of clicks |
+| **CTR Modeling** | n impressions, p click rate → count of clicks |
 | **A/B Testing** | Compare conversion rates between variants |
 | **Classification Evaluation** | Model accuracy over n test samples |
+| **Logistic Regression** | Cross-entropy loss from Bernoulli likelihood |
 
-### Relationship to Other Distributions
-- **Bernoulli**: Binomial with n = 1
-- **Logistic Regression**: Cross-entropy loss derived from Bernoulli/Binomial
-
-### Python Example
+### 6. Python Example
 ```python
 from scipy.stats import binom
 
@@ -442,12 +572,22 @@ n, p = 1000, 0.10
 # P(exactly 100 conversions)
 prob_100 = binom.pmf(100, n, p)
 
-# Expected conversions
+# P(at least 120 conversions) - unusual result?
+prob_120_plus = 1 - binom.cdf(119, n, p)
+
+# Expected value
 expected = n * p  # = 100
+
+print(f"Expected conversions: {expected}")
+print(f"P(X ≥ 120): {prob_120_plus:.4f}")  # For significance testing
 ```
 
-### Interview Tip
-Use Binomial when you can count both successes AND failures (clear denominator n).
+### 7. Related Distributions
+- **Bernoulli**: Binomial with n = 1 (single trial)
+- **Poisson**: Limit of Binomial when n→∞, p→0, np=λ
+
+### 8. Interview Tip
+Use Binomial when you can count BOTH successes AND failures (denominator n is known). If you only observe events (no clear n), consider Poisson instead.
 
 ---
 
@@ -455,49 +595,61 @@ Use Binomial when you can count both successes AND failures (clear denominator n
 
 **How does the Poisson distribution differ from the Binomial distribution?**
 
-**Answer:**
+---
 
-### Key Differences
+### 1. Definition
+**Binomial** models successes in fixed n trials. **Poisson** models events in a fixed interval (time/space) with no upper bound. Poisson is used when counting events but "non-events" can't be counted.
+
+### 2. Core Concepts
 
 | Feature | Binomial | Poisson |
 |---------|----------|---------|
-| **Models** | Successes in fixed trials | Events in fixed interval |
+| **Models** | k successes in n trials | k events in interval |
 | **Trials** | Finite, fixed (n) | Infinite/uncountable |
-| **Parameters** | n (trials), p (probability) | λ (average rate) |
+| **Parameters** | n, p | λ (rate) |
 | **Outcomes** | 0 to n | 0 to ∞ |
-| **Mean** | μ = np | μ = λ |
-| **Variance** | σ² = np(1-p) | σ² = λ |
+| **Mean** | np | λ |
+| **Variance** | np(1-p) | λ |
 
-### When to Use Each
+### 3. Mathematical Formulation
+**Poisson PMF:**
+$$P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}$$
 
-| Binomial | Poisson |
-|----------|---------|
-| "10 clicks out of 1000 impressions" | "5 visitors per minute" |
-| Can count successes AND failures | Can only count events (no "non-events") |
-| Clear denominator | Only know the rate |
+**Poisson as Binomial limit:**
+When $n \to \infty$, $p \to 0$, and $np = \lambda$:
+$$\text{Binomial}(n, p) \to \text{Poisson}(\lambda)$$
 
-### Poisson as Limiting Case
-When n is large and p is small, Poisson approximates Binomial:
-- λ = n × p
-- Useful when n is huge and p is tiny
+### 4. Intuition
+- **Binomial**: "10 clicks out of 1000 impressions" — you know both counts
+- **Poisson**: "5 visitors per minute" — what's a "non-visitor"? Can't count!
 
-### Python Example
+### 5. When to Use Each
+| Use Binomial | Use Poisson |
+|--------------|-------------|
+| Fixed trials, countable failures | Events in continuous interval |
+| "k out of n" | "k per unit time/space" |
+| Click-through rate | Website visits per hour |
+| Survey responses | Customer arrivals |
+
+### 6. Python Example
 ```python
 from scipy.stats import binom, poisson
 
-# Rare event: p=0.002, n=2000
+# Rare event approximation: n=2000, p=0.002
 n, p = 2000, 0.002
 lambda_val = n * p  # = 4
 
 # Both give similar results
-binom_prob = binom.pmf(5, n, p)    # P(X=5) via Binomial
-poisson_prob = poisson.pmf(5, lambda_val)  # P(X=5) via Poisson
+binom_prob = binom.pmf(5, n, p)      # Exact
+poisson_prob = poisson.pmf(5, lambda_val)  # Approximation
+
+print(f"Binomial P(X=5): {binom_prob:.4f}")
+print(f"Poisson P(X=5):  {poisson_prob:.4f}")
 # Both ≈ 0.156
 ```
 
-### Interview Tip
-**Binomial**: "n tries, k successes"  
-**Poisson**: "λ events per unit time/space"
+### 7. Interview Tip
+Poisson is simpler (1 parameter vs 2) for rare events. If n is huge and p is tiny, use Poisson with λ = np.
 
 ---
 
@@ -505,51 +657,63 @@ poisson_prob = poisson.pmf(5, lambda_val)  # P(X=5) via Poisson
 
 **What is the relevance of the Bernoulli distribution in machine learning?**
 
-**Answer:**
+---
 
-### Definition
-The Bernoulli distribution is the simplest discrete distribution. It describes a single trial with two outcomes: success (1) with probability p, failure (0) with probability (1-p).
+### 1. Definition
+The Bernoulli distribution describes a single trial with two outcomes: success (1) with probability p, failure (0) with probability (1-p). It's the atomic building block for binary classification in ML.
 
-### PMF
-- P(X = 1) = p
-- P(X = 0) = 1 - p
+### 2. Core Concepts
+- Single trial, two outcomes
+- P(X = 1) = p, P(X = 0) = 1 - p
+- Mean: E[X] = p
+- Variance: Var(X) = p(1-p)
+- Bernoulli = Binomial with n = 1
 
-### Properties
-- **Mean**: E[X] = p
-- **Variance**: Var(X) = p(1-p)
-- Special case of Binomial with n = 1
+### 3. Mathematical Formulation
+**PMF:**
+$$P(X = x) = p^x (1-p)^{1-x} \quad \text{for } x \in \{0, 1\}$$
 
-### Relevance in ML
+### 4. Intuition
+One coin flip, one experiment, one yes/no question. Did the user click? Did the patient have the disease? Did the email get opened?
+
+### 5. Practical ML Applications
 
 | Application | How Bernoulli is Used |
 |-------------|----------------------|
-| **Binary Classification** | Target variable (spam/not spam, click/no click) |
-| **Logistic Regression** | Models p = P(y=1\|x) via sigmoid function |
-| **Bernoulli Naive Bayes** | Binary features modeled as Bernoulli |
-| **Loss Function** | Cross-entropy derived from Bernoulli likelihood |
+| **Binary Classification** | Target y ∈ {0, 1} |
+| **Logistic Regression** | Models p = P(y=1\|x) via sigmoid |
+| **Bernoulli Naive Bayes** | Binary feature likelihoods |
+| **Cross-Entropy Loss** | Derived from Bernoulli log-likelihood |
 
-### Connection to Logistic Regression
-Logistic regression directly models the Bernoulli parameter p:
+### 6. Connection to Logistic Regression
+Logistic regression models the Bernoulli parameter p:
 $$p = \sigma(w^T x) = \frac{1}{1 + e^{-w^T x}}$$
 
-Training maximizes likelihood of observed labels assuming each is Bernoulli.
+**Log-likelihood (for one sample):**
+$$\log P(y|x) = y \log(p) + (1-y) \log(1-p)$$
 
-### Python Example
+This is exactly the negative of binary cross-entropy loss!
+
+### 7. Python Example
 ```python
 from scipy.stats import bernoulli
+import numpy as np
 
 # Model predicts 75% probability of positive class
 p = 0.75
 dist = bernoulli(p)
 
-# PMF
-print(dist.pmf(1))  # P(X=1) = 0.75
-print(dist.pmf(0))  # P(X=0) = 0.25
+# PMF values
+print(f"P(X=1) = {dist.pmf(1)}")  # 0.75
+print(f"P(X=0) = {dist.pmf(0)}")  # 0.25
 
-# Simulate predictions
+# Simulate many predictions
 samples = dist.rvs(size=1000)
-print(f"Observed proportion: {samples.mean():.3f}")  # ≈ 0.75
+print(f"Observed rate: {samples.mean():.3f}")  # ≈ 0.75 (LLN)
 ```
+
+### 8. Interview Tip
+Cross-entropy loss = negative Bernoulli log-likelihood. This connection explains why we use cross-entropy for classification.
 
 ---
 
@@ -557,49 +721,60 @@ print(f"Observed proportion: {samples.mean():.3f}")  # ≈ 0.75
 
 **In machine learning, what are Naive Bayes classifiers, and why are they 'naive'?**
 
-**Answer:**
+---
 
-### Definition
-Naive Bayes classifiers are probabilistic classifiers based on Bayes' theorem that predict class probabilities given features.
+### 1. Definition
+Naive Bayes is a probabilistic classifier based on Bayes' theorem that predicts class probabilities. It's "naive" because it assumes all features are conditionally independent given the class — a simplification that's rarely true but works surprisingly well.
 
-### Core Formula
-Goal: Find class C that maximizes P(C | Features)
+### 2. Core Concepts
+**Goal:** Find class C that maximizes P(C | Features)
 
-Using Bayes: P(C | F₁, F₂, ..., Fₙ) ∝ P(C) × P(F₁, F₂, ..., Fₙ | C)
+**Bayes' Theorem:**
+$$P(C | F_1, ..., F_n) \propto P(C) \times P(F_1, ..., F_n | C)$$
 
-### Why "Naive"?
-The **naive assumption**: All features are conditionally independent given the class.
+**The "Naive" Assumption:**
+$$P(F_1, ..., F_n | C) = P(F_1|C) \times P(F_2|C) \times ... \times P(F_n|C)$$
 
-This simplifies the likelihood:
-$$P(F_1, F_2, ..., F_n | C) = P(F_1|C) \times P(F_2|C) \times ... \times P(F_n|C)$$
-
-### Decision Rule
+### 3. Mathematical Formulation
+**Decision Rule:**
 $$\hat{C} = \arg\max_C \left[ P(C) \times \prod_{i=1}^{n} P(F_i|C) \right]$$
 
-### Why It Works Despite Being "Wrong"
-1. Only needs to rank classes correctly, not get exact probabilities
-2. Extremely fast to train and predict
-3. Requires little training data
-4. Often performs surprisingly well in practice
+**In log space (for numerical stability):**
+$$\hat{C} = \arg\max_C \left[ \log P(C) + \sum_{i=1}^{n} \log P(F_i|C) \right]$$
 
-### Variants
-- **Gaussian NB**: Continuous features (assumed Gaussian)
-- **Multinomial NB**: Count data (text classification)
-- **Bernoulli NB**: Binary features
+### 4. Intuition
+Instead of learning complex feature interactions, Naive Bayes just learns: "How often does each feature appear in each class?" Then it multiplies these simple statistics together.
 
-### Python Conceptual Example
+### 5. Why "Naive" Still Works
+1. Only needs to **rank** classes correctly, not get exact probabilities
+2. Extremely **fast** to train and predict
+3. Requires **little data** to estimate parameters
+4. Features being correlated doesn't necessarily hurt the ranking
+
+### 6. Variants
+| Variant | Feature Type | Likelihood Model |
+|---------|--------------|------------------|
+| Gaussian NB | Continuous | Normal distribution |
+| Multinomial NB | Counts | Multinomial distribution |
+| Bernoulli NB | Binary | Bernoulli distribution |
+
+### 7. Python Example
 ```python
-# Spam classifier logic
+# Conceptual spam classifier
 p_spam = 0.3
 p_word_free_given_spam = 0.15
 p_word_money_given_spam = 0.20
 
 # "Naive" multiplication (assumes words independent)
 score_spam = p_spam * p_word_free_given_spam * p_word_money_given_spam
+
+# In reality: "free" and "money" are correlated
+# Naive Bayes treats them as 2x independent evidence
 ```
 
-### Interview Tip
-Features like "Viagra" and "buy" are correlated — Naive Bayes treats them as independent, which can lead to overconfident predictions.
+### 8. Common Pitfalls
+- **Overconfident predictions** when features are correlated
+- **Zero probability problem**: One unseen word → entire probability = 0. Fix: Laplace smoothing.
 
 ---
 
@@ -607,49 +782,61 @@ Features like "Viagra" and "buy" are correlated — Naive Bayes treats them as i
 
 **How does logistic regression utilize probability?**
 
-**Answer:**
+---
 
-### Definition
-Logistic Regression is a classification algorithm that models the probability of class membership, not just the class label.
+### 1. Definition
+Logistic Regression is a classification algorithm that directly models the probability of class membership P(y=1|x) using the sigmoid function. Probability is central: it's modeled, it's the output, and it defines the training objective.
 
-### How Probability is Used
+### 2. Core Concepts
+- Output is probability between 0 and 1
+- Uses sigmoid function to squash linear combination
+- Trained via Maximum Likelihood Estimation (MLE)
+- Decision threshold (typically 0.5) converts probability to class
 
-**1. Modeling Probability via Sigmoid**
-$$p = P(Y=1|X) = \sigma(z) = \frac{1}{1 + e^{-z}}$$
-where z = β₀ + β₁X₁ + ... + βₙXₙ
-
-**2. Log-Odds (Logit)**
+### 3. Mathematical Formulation
+**Log-odds (logit):**
 $$\log\left(\frac{p}{1-p}\right) = \beta_0 + \beta_1 X_1 + ... + \beta_n X_n$$
 
-### Key Points
-- Output is probability between 0 and 1
-- Decision boundary: typically predict class 1 if p > 0.5
-- Threshold can be adjusted based on cost/benefit
+**Probability (sigmoid):**
+$$p = P(Y=1|X) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 X_1 + ... + \beta_n X_n)}}$$
 
-### Training via Maximum Likelihood
-- Assumes each label from Bernoulli distribution with parameter p
-- Maximizing likelihood = minimizing cross-entropy loss:
-$$\mathcal{L} = -\frac{1}{n}\sum[y_i \log(p_i) + (1-y_i)\log(1-p_i)]$$
+**Loss Function (Cross-Entropy from MLE):**
+$$\mathcal{L} = -\frac{1}{n}\sum_{i=1}^{n}\left[y_i \log(p_i) + (1-y_i)\log(1-p_i)\right]$$
 
-### Python Example
+### 4. Intuition
+Linear regression gives unbounded output. Sigmoid "squashes" it to (0, 1). The output is interpreted as "model's confidence" that the sample belongs to class 1.
+
+### 5. Practical ML Applications
+- Binary classification with interpretable coefficients
+- Probability calibration (well-calibrated by design)
+- Adjustable decision thresholds for cost-sensitive decisions
+- Feature importance from coefficient magnitudes
+
+### 6. Python Example
 ```python
 import math
 
 def sigmoid(z):
     return 1 / (1 + math.exp(-z))
 
-# Trained coefficients
-intercept, beta_credit = -3.0, -0.01
+# Trained model coefficients
+intercept = -3.0
+beta_credit_score = -0.01
+beta_income = 0.05
 
-# For applicant with credit score 600
-z = intercept + (beta_credit * 600)
-prob_default = sigmoid(z)  # e.g., 0.73
+# Predict for applicant
+credit_score, income_k = 600, 50
+z = intercept + beta_credit_score * credit_score + beta_income * income_k
+prob_default = sigmoid(z)
 
+print(f"P(default) = {prob_default:.2f}")
 prediction = "Default" if prob_default > 0.5 else "No Default"
 ```
 
-### Interview Tip
-Probability is central to logistic regression — it's modeled, it's the output, and it defines the training objective (MLE).
+### 7. Interview Tips
+- Logistic regression assumes **linear decision boundary** in feature space
+- Sigmoid ensures output is valid probability
+- Cross-entropy loss = negative log-likelihood of Bernoulli model
 
 ---
 
@@ -657,49 +844,59 @@ Probability is central to logistic regression — it's modeled, it's the output,
 
 **What is the concept of entropy in information theory, and how does it relate to machine learning models?**
 
-**Answer:**
+---
 
-### Definition
-Entropy (Shannon Entropy) measures the uncertainty or impurity of a random variable. It quantifies the average "information" needed to identify an outcome.
+### 1. Definition
+Entropy measures the uncertainty or "surprise" in a probability distribution. High entropy = uniform, unpredictable. Low entropy = skewed, predictable. It's used in decision trees (information gain) and as a loss function (cross-entropy).
 
-### Formula
+### 2. Core Concepts
+- Quantifies average "information" needed to identify an outcome
+- Maximum entropy for uniform distribution
+- Zero entropy when outcome is certain
+- Unit: bits (when using log₂)
+
+### 3. Mathematical Formulation
+**Shannon Entropy:**
 $$H(X) = -\sum_{i} P(x_i) \log_2 P(x_i)$$
 
-### Interpretation
-- **High Entropy**: Uniform distribution, high uncertainty
-- **Low Entropy**: Skewed distribution, predictable
-- **Zero Entropy**: Outcome is certain
+**Cross-Entropy (between true p and predicted q):**
+$$H(p, q) = -\sum_{x} p(x) \log q(x)$$
 
-### Entropy Examples
-| Distribution | Entropy |
-|--------------|---------|
-| Fair coin [0.5, 0.5] | 1.0 bit |
-| Biased coin [0.9, 0.1] | 0.47 bits |
-| Certain outcome [1.0, 0.0] | 0 bits |
-| Fair die [1/6, 1/6, ...] | 2.58 bits |
+### 4. Intuition
+| Distribution | Entropy | Interpretation |
+|--------------|---------|----------------|
+| Fair coin [0.5, 0.5] | 1.0 bit | Need 1 bit to encode outcome |
+| Biased [0.9, 0.1] | 0.47 bits | More predictable |
+| Certain [1.0, 0.0] | 0 bits | No uncertainty |
+| Fair die [1/6 × 6] | 2.58 bits | More outcomes = more uncertainty |
 
-### ML Applications
+### 5. Practical ML Applications
 
-**1. Decision Trees (Information Gain)**
-$$\text{Information Gain} = H(\text{parent}) - \sum \frac{n_{\text{child}}}{n} H(\text{child})$$
+**Decision Trees (Information Gain):**
+$$\text{Info Gain} = H(\text{parent}) - \sum \frac{n_{\text{child}}}{n} H(\text{child})$$
 Split on feature that maximizes information gain (reduces entropy most).
 
-**2. Cross-Entropy Loss**
-$$H(p, q) = -\sum p(x) \log q(x)$$
-Measures difference between true distribution p and predicted distribution q.
+**Cross-Entropy Loss:**
+Used to train classifiers. Minimizing cross-entropy pushes predicted distribution toward true distribution.
 
-### Python Example
+### 6. Python Example
 ```python
 import numpy as np
 
 def entropy(probs):
-    probs = np.array([p for p in probs if p > 0])
+    """Shannon entropy in bits."""
+    probs = np.array([p for p in probs if p > 0])  # Avoid log(0)
     return -np.sum(probs * np.log2(probs))
 
-print(entropy([0.5, 0.5]))   # 1.0 (fair coin)
-print(entropy([0.9, 0.1]))   # 0.47 (biased coin)
-print(entropy([1.0, 0.0]))   # 0.0 (certain)
+print(f"Fair coin: {entropy([0.5, 0.5]):.2f} bits")      # 1.0
+print(f"Biased coin: {entropy([0.9, 0.1]):.2f} bits")    # 0.47
+print(f"Certain: {entropy([1.0, 0.0]):.2f} bits")        # 0.0
+print(f"Fair die: {entropy([1/6]*6):.2f} bits")          # 2.58
 ```
+
+### 7. Interview Tips
+- **Cross-entropy ≥ entropy**: Cross-entropy equals entropy only when q = p
+- **KL divergence** = Cross-entropy − Entropy = how different q is from p
 
 ---
 
@@ -707,37 +904,34 @@ print(entropy([1.0, 0.0]))   # 0.0 (certain)
 
 **Explain the relationship between Maximum Likelihood Estimation (MLE) and probability.**
 
-**Answer:**
+---
 
-### Definition
-MLE is a method for estimating model parameters by finding values that maximize the probability (likelihood) of observing the given data.
+### 1. Definition
+MLE estimates model parameters by finding values that maximize the probability (likelihood) of observing the given data. It answers: "What parameters make this data most probable?" MLE directly uses probability distributions as its objective function.
 
-### Core Question
-"Given the data, what parameters make this data most probable?"
+### 2. Core Concepts
+- **Likelihood**: P(data | θ) — probability of data given parameters
+- **MLE finds**: θ that maximizes L(θ | data)
+- **Log-likelihood**: Used in practice (sums instead of products)
+- **Frequentist view**: Parameters are fixed, probability is about data
 
-### The Relationship
+### 3. Mathematical Formulation
+**Likelihood Function:**
+$$L(\theta | \text{data}) = P(\text{data} | \theta) = \prod_i P(x_i | \theta)$$
 
-**1. Likelihood Function**
-$$L(\theta | \text{data}) = P(\text{data} | \theta)$$
+**MLE Objective:**
+$$\hat{\theta}_{MLE} = \arg\max_\theta L(\theta) = \arg\max_\theta \sum_i \log P(x_i | \theta)$$
 
-For i.i.d. data: $L(\theta) = \prod_i P(x_i | \theta)$
+### 4. Intuition
+Imagine you observed 8 heads in 10 coin flips. Which coin is most likely? One with p=0.5? Or p=0.8? MLE says: find p that makes your observation most probable. Answer: p=0.8.
 
-**2. MLE Objective**
-$$\hat{\theta}_{MLE} = \arg\max_\theta L(\theta | \text{data})$$
-
-**3. Log-Likelihood (practical)**
-$$\ell(\theta) = \sum_i \log P(x_i | \theta)$$
-
-### MLE → Common Loss Functions
-
+### 5. MLE → Common Loss Functions
 | Model | MLE Assumption | Resulting Loss |
 |-------|---------------|----------------|
 | Linear Regression | Gaussian errors | Mean Squared Error |
 | Logistic Regression | Bernoulli labels | Cross-Entropy |
 
-### Example: Coin Flip
-Observed: 8 heads, 2 tails. Find p (probability of heads).
-
+### 6. Python Example
 ```python
 import numpy as np
 
@@ -748,14 +942,17 @@ def log_likelihood(p):
         return -np.inf
     return n_heads * np.log(p) + n_tails * np.log(1 - p)
 
-# MLE solution
+# Find MLE
 p_values = np.linspace(0.01, 0.99, 100)
 mle_p = p_values[np.argmax([log_likelihood(p) for p in p_values])]
-# mle_p ≈ 0.8 = n_heads / total
+print(f"MLE estimate: {mle_p:.2f}")  # ≈ 0.8
+
+# Analytical solution: n_heads / total = 8/10 = 0.8
 ```
 
-### Interview Tip
-MLE is frequentist: parameters are fixed, probability is about data. Contrast with Bayesian: parameters have distributions.
+### 7. Interview Tips
+- MLE vs Bayesian: MLE gives point estimate; Bayesian gives distribution over θ
+- MSE loss comes from Gaussian likelihood; Cross-entropy from Bernoulli
 
 ---
 
@@ -763,54 +960,60 @@ MLE is frequentist: parameters are fixed, probability is about data. Contrast wi
 
 **Describe how to update probabilities using the concept of prior, likelihood, and posterior.**
 
-**Answer:**
+---
 
-### The Bayesian Update Framework
-This is the essence of Bayesian inference: revising beliefs in light of new evidence.
+### 1. Definition
+Bayesian updating revises beliefs in light of new evidence. Prior (initial belief) × Likelihood (evidence strength) = Posterior (updated belief). This is the foundation of Bayesian inference and learning from data.
 
-### Components
-
+### 2. Core Concepts
 | Term | Symbol | Role |
 |------|--------|------|
 | **Prior** | P(H) | Initial belief before evidence |
 | **Likelihood** | P(E\|H) | How well hypothesis explains evidence |
 | **Posterior** | P(H\|E) | Updated belief after evidence |
+| **Evidence** | P(E) | Normalizing constant |
 
-### Update Rule (Bayes' Theorem)
+### 3. Mathematical Formulation
 $$P(H|E) = \frac{P(E|H) \times P(H)}{P(E)}$$
 
 **Simplified**: Posterior ∝ Likelihood × Prior
 
-### Step-by-Step Algorithm
-1. **Define hypotheses** and assign prior probabilities
-2. **Observe evidence**
-3. **Calculate likelihood** for each hypothesis
-4. **Compute unnormalized posterior**: Prior × Likelihood
-5. **Normalize**: Divide by sum of all unnormalized posteriors
+**Normalization**: $P(E) = \sum_H P(E|H) \times P(H)$
 
-### Example: Is the Coin Fair or Biased?
+### 4. Intuition
+Start with a belief (prior). See evidence. Update belief (posterior). Strong prior + weak evidence = small update. Weak prior + strong evidence = big update. Today's posterior becomes tomorrow's prior.
+
+### 5. Algorithm Steps (Byheart)
+```
+1. Define hypotheses H₁, H₂, ... and assign priors P(Hᵢ)
+2. Observe evidence E
+3. Calculate likelihood P(E|Hᵢ) for each hypothesis
+4. Compute unnormalized: P(Hᵢ) × P(E|Hᵢ)
+5. Normalize: Divide each by sum of all unnormalized
+6. Result: Posterior P(Hᵢ|E)
+```
+
+### 6. Python Example
 ```python
-# Hypotheses: fair (p=0.5) or biased (p=0.8)
+# Is coin fair (p=0.5) or biased (p=0.8)?
 priors = {'fair': 0.7, 'biased': 0.3}
 
 # Evidence: observed one Head
 likelihoods = {'fair': 0.5, 'biased': 0.8}
 
-# Unnormalized posteriors
+# Step 4: Unnormalized posteriors
 unnorm = {h: likelihoods[h] * priors[h] for h in priors}
 # {'fair': 0.35, 'biased': 0.24}
 
-# Normalize
+# Step 5: Normalize
 total = sum(unnorm.values())  # 0.59
 posteriors = {h: unnorm[h] / total for h in priors}
 # {'fair': 0.593, 'biased': 0.407}
 ```
 
-### Iterative Nature
-Today's posterior becomes tomorrow's prior when new evidence arrives.
-
-### Interview Tip
-This process is called "belief updating" — show you understand it's fundamentally about changing your mind based on data.
+### 7. Interview Tips
+- Posterior is a **compromise** between prior and data
+- With infinite data, posterior dominated by likelihood (prior washes out)
 
 ---
 
@@ -818,54 +1021,56 @@ This process is called "belief updating" — show you understand it's fundamenta
 
 **What are p-values and confidence intervals, and how are they interpreted?**
 
-**Answer:**
+---
 
-### P-Value
+### 1. Definition
+**P-value**: Probability of observing data this extreme (or more) assuming null hypothesis is true. **Confidence Interval**: Range likely to contain the true parameter. Both quantify uncertainty in frequentist statistics.
 
-**Definition**: Probability of observing data at least as extreme as what was collected, assuming the null hypothesis is true.
+### 2. Core Concepts
 
-**Interpretation**:
-- Small p-value (≤ 0.05): Data unlikely under H₀ → reject H₀
-- Large p-value (> 0.05): Data consistent with H₀ → fail to reject H₀
+**P-Value:**
+- Small (≤ 0.05): Data unlikely under H₀ → reject H₀
+- Large (> 0.05): Data consistent with H₀ → fail to reject H₀
+- **NOT** probability that H₀ is true!
 
-**What p-value is NOT**:
-- NOT the probability that H₀ is true
-- NOT the probability of making an error
+**Confidence Interval (95% CI):**
+- If we repeated experiment many times, 95% of CIs would contain true parameter
+- **NOT** "95% probability true value is in this interval"
 
-### Confidence Interval (CI)
+### 3. Mathematical Formulation
+**P-value**: $p = P(\text{data this extreme} | H_0 \text{ true})$
 
-**Definition**: A range of values likely to contain the true population parameter.
+**95% CI for mean**: $\bar{x} \pm 1.96 \times \frac{s}{\sqrt{n}}$
 
-**Interpretation of 95% CI**:
-If we repeated the experiment many times and constructed a CI each time, ~95% of those intervals would contain the true parameter.
+### 4. Intuition
+- **P-value**: "How surprised should I be if there's really no effect?"
+- **CI**: "What's a reasonable range for the true value?"
+- If 95% CI excludes 0 → p-value < 0.05 (equivalent tests)
 
-**What CI is NOT**:
-- NOT "95% probability the true value is in this interval"
-- The true parameter is fixed; the interval is random
-
-### Practical Example
+### 5. Practical Example
 ```python
 from scipy import stats
 import numpy as np
 
-# A/B test data
-group_a = np.array([1]*100 + [0]*900)  # 10% conversion
-group_b = np.array([1]*125 + [0]*875)  # 12.5% conversion
+# A/B test: 10% vs 12.5% conversion
+group_a = np.array([1]*100 + [0]*900)
+group_b = np.array([1]*125 + [0]*875)
 
-# P-value
+# P-value from t-test
 t_stat, p_value = stats.ttest_ind(group_a, group_b)
-# p_value ≈ 0.045 → significant at α=0.05
+print(f"P-value: {p_value:.3f}")  # ≈ 0.045
 
-# CI for difference
+# 95% CI for difference
 diff = np.mean(group_b) - np.mean(group_a)
 se = np.sqrt(np.var(group_a)/len(group_a) + np.var(group_b)/len(group_b))
-ci_lower, ci_upper = diff - 1.96*se, diff + 1.96*se
-# If CI doesn't contain 0 → significant difference
+ci = (diff - 1.96*se, diff + 1.96*se)
+print(f"95% CI: {ci}")  # Doesn't contain 0 → significant
 ```
 
-### Common Pitfalls
-- α = 0.05 is convention, not law
-- "Not significant" ≠ "No effect" (could be lack of power)
+### 6. Common Pitfalls
+- α = 0.05 is **convention**, not universal truth
+- "Not significant" ≠ "No effect" (could be low power)
+- Multiple testing inflates false positives → need correction
 
 ---
 
@@ -873,52 +1078,53 @@ ci_lower, ci_upper = diff - 1.96*se, diff + 1.96*se
 
 **Describe how a probabilistic graphical model (PGM) works.**
 
-**Answer:**
+---
 
-### Definition
-A PGM uses a graph to represent a complex probability distribution over multiple random variables, encoding conditional dependencies.
+### 1. Definition
+A PGM uses a graph to represent complex probability distributions over multiple random variables. Nodes = variables, edges = dependencies, no edge = conditional independence. It allows compact representation and efficient inference.
 
-### Core Components
+### 2. Core Concepts
 - **Nodes**: Random variables
-- **Edges**: Dependencies between variables
+- **Edges**: Dependencies (directed or undirected)
 - **No edge**: Conditional independence
+- **Factorization**: Joint probability = product of local terms
 
-### Types of PGMs
-
+### 3. Types of PGMs
 | Type | Edges | Factorization |
 |------|-------|---------------|
-| **Bayesian Network** (DAG) | Directed (→) | P(X₁,...,Xₙ) = ∏ P(Xᵢ \| Parents(Xᵢ)) |
-| **Markov Random Field** | Undirected (—) | P(X) ∝ ∏ ψ(clique) |
+| **Bayesian Network** | Directed (→) | $P(X_1,...,X_n) = \prod P(X_i | \text{Parents}(X_i))$ |
+| **Markov Random Field** | Undirected (—) | $P(X) \propto \prod \psi(\text{clique})$ |
 
-### How It Works: Bayesian Network Example
+### 4. Intuition
+Instead of storing a huge joint probability table (exponential in variables), PGMs factorize into small local tables. A 10-variable problem might need 2¹⁰ = 1024 entries. With PGM structure: maybe only 50 entries.
 
-**Structure**: Rain → Sprinkler, Rain → WetGrass, Sprinkler → WetGrass
+### 5. Bayesian Network Example
+**Structure**: Rain → WetGrass, Sprinkler → WetGrass
 
 **Factorization**:
-$$P(R, S, W) = P(R) \times P(S|R) \times P(W|R,S)$$
+$$P(R, S, W) = P(R) \times P(S) \times P(W|R,S)$$
 
-Instead of one giant table, we store small conditional probability tables (CPTs).
-
-### Key Operations
-1. **Inference**: Answer queries like P(Disease | Symptoms)
-2. **Learning**: Learn CPTs from data
-3. **Marginalization**: Sum out variables to get marginal probabilities
-
-### Python Conceptual Example
+### 6. Python Example
 ```python
-# CPTs for Wet Grass problem
+# Conditional Probability Tables (CPTs)
 p_rain = {'T': 0.2, 'F': 0.8}
-p_sprinkler_given_rain = {'T': {'T': 0.01, 'F': 0.99}, 
-                          'F': {'T': 0.4, 'F': 0.6}}
+p_sprinkler = {'T': 0.3, 'F': 0.7}
+p_wet_given = {
+    ('T','T'): {'T': 0.99, 'F': 0.01},
+    ('T','F'): {'T': 0.80, 'F': 0.20},
+    ('F','T'): {'T': 0.90, 'F': 0.10},
+    ('F','F'): {'T': 0.00, 'F': 1.00}
+}
 
-# Joint probability: P(Rain=T, Sprinkler=F, WetGrass=T)
-prob = p_rain['T'] * p_sprinkler_given_rain['T']['F'] * p_wetgrass[('T','F')]['T']
+# Joint: P(Rain=T, Sprinkler=F, Wet=T)
+prob = p_rain['T'] * p_sprinkler['F'] * p_wet_given[('T','F')]['T']
+# = 0.2 * 0.7 * 0.8 = 0.112
 ```
 
-### ML Applications
-- Medical diagnosis (symptoms → diseases)
-- HMMs for sequence modeling
-- Image segmentation (pixel dependencies)
+### 7. Key Operations & Applications
+- **Inference**: P(Disease | Symptoms)
+- **Learning**: Estimate CPTs from data
+- **Applications**: Medical diagnosis, HMMs, image segmentation
 
 ---
 
@@ -926,55 +1132,54 @@ prob = p_rain['T'] * p_sprinkler_given_rain['T']['F'] * p_wetgrass[('T','F')]['T
 
 **Explain the concepts of "Markov Chains" and how they apply to machine learning.**
 
-**Answer:**
+---
 
-### Definition
-A Markov Chain is a stochastic process where the next state depends only on the current state (not history). This is the **Markov Property** (memorylessness).
+### 1. Definition
+A Markov Chain is a stochastic process where the next state depends **only on the current state**, not history. This "memorylessness" is the Markov Property. Used extensively in NLP, RL, and MCMC sampling.
 
-### Mathematical Definition
-$$P(X_{t+1} = j | X_t = i, X_{t-1}, ...) = P(X_{t+1} = j | X_t = i)$$
-
-### Components
+### 2. Core Concepts
 - **State Space**: All possible states {S₁, S₂, ..., Sₙ}
-- **Transition Matrix (P)**: Pᵢⱼ = P(next = j | current = i)
-- **Stationary Distribution**: Long-run probability distribution (π where πP = π)
+- **Transition Matrix (P)**: P[i,j] = P(next=j | current=i)
+- **Markov Property**: P(Xₜ₊₁ | Xₜ, Xₜ₋₁, ...) = P(Xₜ₊₁ | Xₜ)
+- **Stationary Distribution**: π where πP = π (long-run equilibrium)
 
-### ML Applications
+### 3. Mathematical Formulation
+$$P(X_{t+1} = j | X_t = i, X_{t-1}, ..., X_0) = P(X_{t+1} = j | X_t = i) = P_{ij}$$
 
-| Application | How Markov Chain is Used |
-|-------------|--------------------------|
-| **NLP (N-grams)** | P(next word \| current word) |
-| **Reinforcement Learning** | MDP extends MC with actions and rewards |
+**Rows of P sum to 1**: $\sum_j P_{ij} = 1$
+
+### 4. Intuition
+Think of weather: Tomorrow's weather depends on today (sunny→sunny likely), not last week. The transition matrix captures these one-step probabilities. Run long enough → settles into stationary distribution.
+
+### 5. ML Applications
+| Application | How Used |
+|-------------|----------|
+| **NLP (N-grams)** | P(word | previous word) |
+| **Reinforcement Learning** | MDP = Markov Chain + actions + rewards |
 | **HMMs** | Hidden states follow Markov chain |
-| **MCMC** | Sample from complex distributions |
+| **MCMC** | Construct chain with desired stationary distribution |
 
-### Python Example
+### 6. Python Example
 ```python
 import numpy as np
 
-# Weather: Sunny, Rainy
-transition_matrix = np.array([
-    [0.8, 0.2],  # From Sunny
-    [0.4, 0.6]   # From Rainy
+# Weather: 0=Sunny, 1=Rainy
+P = np.array([
+    [0.8, 0.2],  # Sunny → 80% Sunny, 20% Rainy
+    [0.4, 0.6]   # Rainy → 40% Sunny, 60% Rainy
 ])
 
-def simulate(start_state, n_steps, P):
-    states = [start_state]
+def simulate(start, n_steps):
+    states = [start]
     for _ in range(n_steps - 1):
-        next_state = np.random.choice(len(P), p=P[states[-1]])
-        states.append(next_state)
+        states.append(np.random.choice(2, p=P[states[-1]]))
     return states
 
-# Simulate 10-day forecast starting sunny (state 0)
-forecast = simulate(0, 10, transition_matrix)
+forecast = simulate(0, 10)  # Start sunny, 10 days
 ```
 
-### Stationary Distribution
-Long-term: regardless of start, converges to fixed distribution.
-- Solve: πP = π and sum(π) = 1
-
-### Interview Tip
-Markov property is a simplifying assumption — powerful for sequences when full history isn't needed.
+### 7. Interview Tip
+Stationary distribution: Run chain forever → probability of being in each state converges regardless of start.
 
 ---
 
@@ -982,52 +1187,62 @@ Markov property is a simplifying assumption — powerful for sequences when full
 
 **What is Expectation-Maximization (EM) algorithm and how does probability play a role in it?**
 
-**Answer:**
+---
 
-### Definition
-EM is an iterative algorithm for finding MLE/MAP estimates when data has latent (unobserved) variables.
+### 1. Definition
+EM is an iterative algorithm for finding MLE/MAP estimates when data has latent (unobserved) variables. Each iteration increases likelihood, converging to a (local) maximum.
 
-### When to Use
-- Parameters easy to estimate IF latent variables were known
-- But latent variables are hidden
+### 2. Core Concepts
+- **Latent Variables**: Hidden variables we can't directly observe
+- **E-Step**: Compute expected value using current θ estimates
+- **M-Step**: Maximize expected log-likelihood to update θ
+- **Convergence**: Guaranteed to improve (or stay same) each iteration
 
-### The Two Steps
-
-**E-Step (Expectation)**:
-Compute expected value of log-likelihood using current parameter estimates.
-- Use P(Latent | Observed, θ_current) to create "soft" assignments
-
-**M-Step (Maximization)**:
-Update parameters to maximize expected log-likelihood from E-step.
-- Treat soft assignments as observed data
-
-### Probability's Role
-1. **E-Step**: Compute posterior probability of latent variables
-2. **M-Step**: Maximize likelihood assuming these probabilities
-3. **Iteration**: Each step increases likelihood; converges to local maximum
-
-### Algorithm Steps
+### 3. Algorithm Steps (Byheart)
 ```
 1. Initialize parameters θ randomly
-2. E-Step: Compute P(latent | observed, θ)
-3. M-Step: θ_new = argmax E[log L(θ)]
-4. Check convergence; if not, go to step 2
+2. E-Step: Compute P(latent | observed, θ) for all data
+3. M-Step: θ_new = argmax E[log L(θ)] using E-step probabilities
+4. Check convergence; if not converged, go to step 2
 ```
 
-### Main Application: Gaussian Mixture Models
-- **Observed**: Data points
-- **Latent**: Cluster assignments
-- **Parameters**: Means, covariances of Gaussians
-
-### Analogy
-Heights of men/women mixed (don't know who's who):
+### 4. Intuition
+**Analogy - Heights of men/women mixed (unknown gender):**
 1. **E**: Guess probability each person is man/woman based on current mean estimates
 2. **M**: Update mean height estimates using weighted average
-3. **Repeat**
+3. **Repeat** until stable
 
-### Pitfalls
-- Can get stuck in local maxima → run from multiple initializations
-- Convergence can be slow
+### 5. Main Application: Gaussian Mixture Models
+| Element | Role |
+|---------|------|
+| **Observed** | Data points x |
+| **Latent** | Cluster assignments z |
+| **Parameters** | Means μₖ, covariances Σₖ, weights πₖ |
+
+### 6. Python Example (Conceptual GMM)
+```python
+import numpy as np
+
+# E-Step: Compute responsibilities
+def e_step(X, means, weights):
+    n_clusters = len(means)
+    resp = np.zeros((len(X), n_clusters))
+    for k in range(n_clusters):
+        resp[:, k] = weights[k] * gaussian_pdf(X, means[k])
+    resp /= resp.sum(axis=1, keepdims=True)  # Normalize
+    return resp  # P(cluster k | data point)
+
+# M-Step: Update parameters
+def m_step(X, resp):
+    n_k = resp.sum(axis=0)  # Soft counts
+    weights = n_k / len(X)
+    means = (resp.T @ X) / n_k[:, None]
+    return means, weights
+```
+
+### 7. Interview Tips
+- EM can get stuck in local maxima → run multiple random initializations
+- E-step uses probability (posterior); M-step uses maximum likelihood
 
 ---
 
@@ -1035,50 +1250,54 @@ Heights of men/women mixed (don't know who's who):
 
 **Describe how you might use Bayesian methods to improve the performance of a spam classifier.**
 
-**Answer:**
+---
 
-### Starting Point
-Standard Naive Bayes uses point estimates (MLE) for word probabilities.
+### 1. Definition
+Standard Naive Bayes uses point estimates (MLE). Bayesian methods add priors and output probability distributions over parameters, improving robustness especially for rare words and small datasets.
 
-### Bayesian Improvements
+### 2. Core Improvements
 
-**1. Use Distributions Instead of Point Estimates**
-- Instead of P('viagra'|spam) = 0.05 (single value)
-- Model it as a distribution (e.g., Beta) with mean and variance
-- **Benefit**: Captures uncertainty, especially for rare words
+| Problem | Bayesian Solution |
+|---------|-------------------|
+| **Zero probability** for unseen words | Laplace smoothing = uniform prior |
+| **Overfitting** to training words | Prior belief that most words are neutral |
+| **Overconfidence** in predictions | Output full posterior distribution |
+| **Cold start** (new words) | Prior provides reasonable defaults |
 
-**2. Incorporate Priors (Regularization)**
+### 3. Algorithm: Bayesian Spam Classifier
+```
+1. Set prior: Beta(α, β) for each word's spam probability
+2. For each word w in vocabulary:
+   a. Count occurrences in spam/ham
+   b. Posterior: Beta(α + spam_count, β + ham_count)
+3. For new email:
+   a. Compute P(word|spam) from posterior mean
+   b. Apply Naive Bayes rule with uncertainty
+4. Flag low-confidence predictions for human review
+```
 
-| Problem | Solution |
-|---------|----------|
-| Zero probability for unseen words | Laplace smoothing (equivalent to uniform prior) |
-| Overfitting to training words | Prior belief that most words are neutral |
-
-**3. Hierarchical Models**
-- Different types of spam (pharma, financial) have different word distributions
-- Share statistical strength across spam types
-- A word learned in one context informs another
-
-**4. Uncertainty Quantification**
-- Output full posterior P(spam | email)
-- Distinguish 99% confident vs 51% confident predictions
-- Flag uncertain cases for human review
-
-### Implementation Approach
+### 4. Key Insight: Laplace Smoothing IS Bayesian
 ```python
-# Instead of:
-p_word_spam = count_word_in_spam / total_spam_words  # MLE
+# Standard MLE (fails for unseen words)
+p_word_spam = count_word_in_spam / total_spam_words
 
-# Use:
-# Beta prior: Beta(alpha, beta) where alpha=beta=1 is uniform
-alpha, beta = 1, 1  # Laplace smoothing
+# Bayesian with uniform prior (Laplace smoothing)
+alpha, beta = 1, 1  # Beta(1,1) = Uniform prior
 p_word_spam = (count_word_in_spam + alpha) / (total_spam_words + alpha + beta)
 ```
 
-### Key Benefits
-- Handles cold start (new words) gracefully
-- More robust to sparse data
-- Better calibrated probabilities
+### 5. Hierarchical Bayesian Model
+- Different spam types (pharma, financial) share strength
+- Rare word in pharma spam → borrow info from other spam types
+- Better generalization with limited data
+
+### 6. Practical Benefits
+- **Calibrated probabilities**: 70% confidence means 70% accuracy
+- **Uncertainty awareness**: Flag borderline cases (51% vs 99%)
+- **Handles rare events**: New words don't break the model
+
+### 7. Interview Tip
+Mention: Laplace smoothing is equivalent to adding Beta(1,1) prior — connects classical NLP technique to Bayesian framework.
 
 ---
 
@@ -1086,27 +1305,36 @@ p_word_spam = (count_word_in_spam + alpha) / (total_spam_words + alpha + beta)
 
 **Explain a situation where you would use Markov Chains for modeling customer behavior on a website.**
 
-**Answer:**
+---
 
-### Scenario
+### 1. Definition
+A Markov Chain models user navigation where the next page depends only on the current page. States = pages, transitions = clicks. Enables funnel analysis, conversion prediction, and UX optimization.
+
+### 2. Scenario
 E-commerce company wants to understand user navigation patterns and optimize conversion funnel.
 
-### Markov Chain Model Setup
+### 3. Model Setup
+| Component | Representation |
+|-----------|----------------|
+| **States** | Pages: Homepage, Category, Product, Cart, Checkout |
+| **Special States** | (Start), (Conversion), (Exit) |
+| **Transitions** | P[i,j] = P(go to page j \| on page i) |
+| **Data Source** | Clickstream logs |
 
-**States**: Website pages + special states
-- Homepage, Category, Product, Cart, Checkout
-- (Start), (Conversion), (Exit)
+### 4. Algorithm: Build Transition Matrix
+```
+1. Parse clickstream data into sessions
+2. For each session: record (page_i → page_j) transitions
+3. Count all transition pairs
+4. Normalize: P[i,j] = count(i→j) / total(i→*)
+5. Analyze matrix for insights
+```
 
-**Transitions**: Click actions
-- Pᵢⱼ = P(go to page j | currently on page i)
-- Learned from clickstream data
-
-### Building the Model
+### 5. Python Example
 ```python
-# Count transitions from logs
-# For each page i, count how many users went to each page j
-# Normalize to get probabilities
+from collections import defaultdict, Counter
 
+# Build transition matrix from sessions
 transition_counts = defaultdict(Counter)
 for session in sessions:
     for i in range(len(session) - 1):
@@ -1117,26 +1345,20 @@ transition_probs = {}
 for page, counts in transition_counts.items():
     total = sum(counts.values())
     transition_probs[page] = {next_page: c/total for next_page, c in counts.items()}
+
+# Example: P(Exit | Cart) = 0.60 → Cart page has issues!
 ```
 
-### Applications
+### 6. Business Applications
+| Use Case | Insight |
+|----------|---------|
+| **Funnel Analysis** | High P(Exit \| Cart) = cart abandonment issue |
+| **Conversion Probability** | P(eventually convert \| current page) |
+| **Page Value** | Which pages lead to conversions? |
+| **A/B Testing** | How do changes affect transition matrix? |
 
-| Use Case | How Markov Chain Helps |
-|----------|------------------------|
-| **Funnel Analysis** | Identify drop-off points: high P(Exit \| Cart) = cart problem |
-| **Conversion Probability** | Calculate P(eventually convert \| current page) |
-| **A/B Testing** | Measure how changes affect entire transition matrix |
-| **Simulation** | Generate synthetic user journeys |
-
-### Key Insights
-- If P(Exit | Cart) = 60% → investigate cart page issues
-- User on Product page has 15% eventual conversion probability
-- User in Cart has 70% eventual conversion probability
-
-### Markov Property Justification
-Assumption: Next click depends only on current page (not full history).
-- Simplification that works well in practice
-- Can extend to higher-order Markov if needed
+### 7. Interview Tip
+Markov assumption (next page depends only on current) is a simplification — works well in practice. Mention you could extend to 2nd-order Markov if needed.
 
 ---
 
@@ -1144,34 +1366,34 @@ Assumption: Next click depends only on current page (not full history).
 
 **Describe how Monte Carlo simulations are used in machine learning for approximation of probabilities.**
 
-**Answer:**
+---
 
-### Definition
-Monte Carlo methods use repeated random sampling to obtain numerical results, based on the Law of Large Numbers.
+### 1. Definition
+Monte Carlo methods use repeated random sampling to obtain numerical results. Based on Law of Large Numbers: sample average → true expectation as N → ∞.
 
-### Core Idea
-$$P(A) \approx \frac{\text{Number of samples where A occurs}}{\text{Total samples}}$$
+### 2. Core Idea
+$$P(A) \approx \frac{\text{Count of samples where A occurs}}{\text{Total samples N}}$$
 
-As N → ∞, approximation → true value.
+$$E[f(X)] \approx \frac{1}{N}\sum_{i=1}^{N} f(x_i) \text{ where } x_i \sim P(X)$$
 
-### Algorithm
+### 3. Algorithm Steps (Byheart)
 ```
-1. Define sample space
-2. Generate N random samples
-3. Count samples satisfying condition A
-4. P(A) ≈ count / N
+1. Define the quantity to estimate
+2. Design sampling procedure
+3. Generate N random samples
+4. Compute sample statistic
+5. Result: Approximation with error O(1/√N)
 ```
 
-### ML Applications
-
+### 4. ML Applications
 | Application | How Monte Carlo is Used |
 |-------------|------------------------|
-| **Bayesian Inference (MCMC)** | Sample from posterior without computing intractable integrals |
-| **Model Uncertainty** | Sample from output distribution to estimate confidence |
-| **Reinforcement Learning** | Estimate state values by averaging returns over episodes |
-| **Integration** | Approximate complex integrals |
+| **MCMC (Bayesian)** | Sample from posterior without intractable integrals |
+| **Dropout at Test** | Sample multiple predictions → uncertainty estimate |
+| **Reinforcement Learning** | Estimate state values by averaging returns |
+| **Integration** | Approximate high-dimensional integrals |
 
-### Classic Example: Estimating π
+### 5. Python Example: Estimating π
 ```python
 import numpy as np
 
@@ -1183,19 +1405,19 @@ def estimate_pi(n_samples):
     # Check if inside unit circle
     inside = (x**2 + y**2) <= 1
     
-    # P(inside circle) = π/4 → π = 4 * P(inside)
-    return 4 * np.sum(inside) / n_samples
+    # Area of circle / Area of square = π/4
+    return 4 * np.mean(inside)
 
-print(estimate_pi(100000))  # ≈ 3.14159
+print(f"π ≈ {estimate_pi(100000):.5f}")  # ≈ 3.14159
 ```
 
-### Key Principle
-- More samples → better approximation
-- Trade computation time for accuracy
-- Foundation for MCMC (Metropolis-Hastings, Gibbs sampling)
+### 6. Key Insights
+- **Accuracy** ∝ √N (need 4x samples for 2x precision)
+- **Variance reduction**: importance sampling, stratification
+- **Foundation for MCMC**: Metropolis-Hastings, Gibbs sampling
 
-### Interview Tip
-Monte Carlo is essential when analytical solutions are intractable — common in high-dimensional probability spaces.
+### 7. Interview Tip
+Use Monte Carlo when analytical solutions are intractable — common in high-dimensional probability spaces and Bayesian inference.
 
 ---
 
@@ -1203,63 +1425,63 @@ Monte Carlo is essential when analytical solutions are intractable — common in
 
 **What are the probabilistic underpinnings of Active Learning and how might they be utilized in algorithm design?**
 
-**Answer:**
+---
 
-### Definition
-Active Learning is semi-supervised ML where the algorithm queries an oracle (human) for labels on the most informative unlabeled data points.
+### 1. Definition
+Active Learning selects the most informative unlabeled samples to query for labels. "Informativeness" is measured using model uncertainty — query points the model is least certain about.
 
-### Goal
-Achieve high performance with fewer labeled examples by intelligently selecting what to label.
+### 2. Core Concepts
+- **Pool-based**: Large unlabeled pool, select best to label
+- **Uncertainty Sampling**: Query where model is most uncertain
+- **Goal**: Maximum performance with minimum labeled data
+- **Probabilistic requirement**: Model must output probabilities
 
-### Probabilistic Underpinnings
-"Informativeness" is measured using model uncertainty — query points the model is least certain about.
+### 3. Query Strategies (Byheart)
+| Strategy | Selects Sample Where | Formula |
+|----------|---------------------|---------|
+| **Least Confident** | max P(ŷ\|x) is lowest | $\arg\min_x \max_y P(y|x)$ |
+| **Margin Sampling** | Top two classes close | $\arg\min_x [P(\hat{y}_1|x) - P(\hat{y}_2|x)]$ |
+| **Entropy** | Highest uncertainty | $\arg\max_x H(P(y|x))$ |
 
-### Query Strategies (Uncertainty Sampling)
-
-| Strategy | Selects Sample Where |
-|----------|---------------------|
-| **Least Confident** | max P(ŷ\|x) is lowest |
-| **Margin Sampling** | P(ŷ₁\|x) - P(ŷ₂\|x) is smallest |
-| **Entropy-Based** | H(P(y\|x)) is highest |
-
-### Algorithm Design
+### 4. Algorithm Steps
 ```
-1. Start with small labeled set L, large unlabeled pool U
-2. Train initial model M on L
-3. LOOP:
-   a. For each x in U, compute uncertainty score
+1. Start: small labeled set L, large unlabeled pool U
+2. Train model M on L
+3. LOOP until budget exhausted:
+   a. Compute uncertainty for each x ∈ U
    b. Select x* with highest uncertainty
    c. Query oracle for label y*
-   d. Add (x*, y*) to L, remove from U
+   d. Move (x*, y*) from U to L
    e. Retrain M on updated L
-   f. Repeat until budget exhausted or performance satisfactory
 ```
 
-### Python Pseudocode
+### 5. Python Example
 ```python
-def active_learning_loop(model, labeled, unlabeled, oracle, budget):
-    for _ in range(budget):
-        model.fit(labeled)
-        
-        # Compute entropy for each unlabeled sample
-        probs = model.predict_proba(unlabeled)
-        entropy = -np.sum(probs * np.log(probs + 1e-10), axis=1)
-        
-        # Select most uncertain
-        idx = np.argmax(entropy)
-        x_query = unlabeled[idx]
-        y_query = oracle.label(x_query)
-        
-        # Update sets
-        labeled.add((x_query, y_query))
-        unlabeled.remove(x_query)
+import numpy as np
+
+def active_learning_step(model, X_unlabeled, oracle):
+    model.fit(X_labeled, y_labeled)
     
-    return model
+    # Compute entropy for each unlabeled sample
+    probs = model.predict_proba(X_unlabeled)
+    entropy = -np.sum(probs * np.log(probs + 1e-10), axis=1)
+    
+    # Select most uncertain
+    idx = np.argmax(entropy)
+    x_query = X_unlabeled[idx]
+    y_query = oracle.label(x_query)
+    
+    return x_query, y_query
 ```
 
-### Key Design Considerations
-- Model must output probabilities (not just labels)
-- Consider batch selection for efficiency
-- Balance exploration vs exploitation
+### 6. Practical Applications
+- **Medical imaging**: Expert labels are expensive
+- **NLP annotation**: Reduce manual labeling effort
+- **Any domain**: Where labeling cost >> compute cost
+
+### 7. Interview Tips
+- Model must output calibrated probabilities
+- Consider batch selection (query k samples at once) for efficiency
+- Trade-off: exploitation (refine decision boundary) vs exploration (cover input space)
 
 ---

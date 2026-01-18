@@ -380,9 +380,55 @@ def fitness(positions):
 
 ## Question 8
 
-**How would you use agenetic algorithmto handle the problem of vehicle routing withtime windows?**
+**How would you use a genetic algorithm to handle the problem of vehicle routing with time windows?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+**Problem (VRPTW):** Deliver to customers using vehicles, each customer has time window [earliest, latest].
+
+**Constraints:**
+- Vehicle capacity
+- Time windows for each customer
+- Depot start/end times
+
+**Encoding:**
+```
+Chromosome: [3, 1, 4 | 2, 5, 7 | 6, 8]
+            Route 1  | Route 2 | Route 3
+```
+
+Or priority-based:
+```
+[0.8, 0.2, 0.9, 0.1, ...] → Decode to routes by priority
+```
+
+**Fitness Function:**
+```python
+def fitness(routes):
+    total_distance = sum(route_distance(r) for r in routes)
+    time_violations = sum(time_window_violations(r) for r in routes)
+    capacity_violations = sum(capacity_violations(r) for r in routes)
+    
+    penalty = 1000 * time_violations + 500 * capacity_violations
+    return -(total_distance + penalty)
+```
+
+**Operators:**
+
+| Operator | Description |
+|----------|-------------|
+| Crossover | Exchange route segments |
+| Mutation | Move customer, swap, 2-opt |
+| Repair | Fix time window violations |
+
+**Best Practices:**
+1. Use route-based encoding (giant tour + split)
+2. Local search (2-opt, Or-opt) for improvement
+3. Penalty method for soft constraints
+4. Seed with greedy insertion heuristic
+
+**Extensions:** 
+- Pickup and delivery, multiple depots, heterogeneous fleet
 
 ---
 
@@ -390,15 +436,107 @@ def fitness(positions):
 
 **Discuss the role of ‘speciation’ in genetic algorithms and its potential benefits.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+**Definition:**
+
+**Speciation** groups similar individuals into species that primarily mate within their group, protecting different niches from competitive exclusion.
+
+**How It Works:**
+```
+Population divided by similarity:
+Species 1: ●●●● (similar to each other)
+Species 2: ▲▲▲ (different from Species 1)
+Species 3: ■■■■■ (different from both)
+
+Crossover mainly within species
+```
+
+**NEAT Algorithm Speciation:**
+- Measure genome distance (topology + weights)
+- Group into species by threshold
+- Share fitness within species
+- Protect innovative structures
+
+**Benefits:**
+
+| Benefit | Description |
+|---------|-------------|
+| **Protects innovation** | New structures have time to optimize |
+| **Maintains diversity** | Different solutions coexist |
+| **Multi-modal** | Finds multiple optima |
+| **Reduces competition** | Species compete, not all individuals |
+
+**Fitness Sharing:**
+```python
+shared_fitness = raw_fitness / species_size
+# Small species get fitness boost
+# Prevents large species from dominating
+```
+
+**When to Use:**
+- Evolving complex structures (neural networks)
+- Multi-modal optimization
+- Want diverse solution set
+- Problem has multiple valid approaches
 
 ---
 
 ## Question 10
 
-**Discuss the considerations in balancingexplorationandexploitationin GAs.**
+**Discuss the considerations in balancing exploration and exploitation in GAs.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+**Definitions:**
+- **Exploration**: Searching new regions of solution space
+- **Exploitation**: Refining solutions in current good regions
+
+**The Trade-off:**
+```
+Too much exploration → Never converges, random search
+Too much exploitation → Premature convergence, local optima
+```
+
+**Factors Affecting Balance:**
+
+| Factor | More Exploration | More Exploitation |
+|--------|------------------|-------------------|
+| **Mutation rate** | High | Low |
+| **Selection pressure** | Low (k=2) | High (k=5+) |
+| **Population size** | Large | Small |
+| **Crossover** | Disruptive | Preserving |
+
+**Adaptive Strategies:**
+
+**1. Time-Based:**
+```python
+# Explore early, exploit late
+mutation_rate = initial_rate * (1 - generation/max_gen)
+```
+
+**2. Fitness-Based:**
+```python
+# Explore when stuck
+if no_improvement(n_gens):
+    mutation_rate *= 2  # Increase exploration
+```
+
+**3. Diversity-Based:**
+```python
+if diversity < threshold:
+    add_random_immigrants()  # Restore exploration
+```
+
+**Best Practices:**
+1. Start with exploration (high mutation, low pressure)
+2. Monitor diversity metrics
+3. Gradually shift to exploitation
+4. Use island model for natural balance
+5. Allow for periodic restarts
+
+**Interview Tip:**
+The exploration-exploitation trade-off is fundamental to all optimization. GAs provide multiple levers to control it.
 
 ---
 

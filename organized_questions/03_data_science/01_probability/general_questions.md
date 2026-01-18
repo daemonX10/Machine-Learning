@@ -4,31 +4,30 @@
 
 **Define the terms 'sample space' and 'event' in probability.**
 
-**Answer:**
+---
 
-### Sample Space (S or Ω)
-The set of ALL possible outcomes of a random experiment.
+### 1. Definition
+**Sample Space (S or Ω)**: The set of ALL possible outcomes of a random experiment.
+**Event (E)**: A **subset** of the sample space — specific outcomes we're interested in.
 
-**Examples**:
-- Rolling a die: S = {1, 2, 3, 4, 5, 6}
-- Flipping a coin: S = {Heads, Tails}
-- Two coin flips: S = {HH, HT, TH, TT}
+### 2. Examples
 
-### Event (E)
-A **subset** of the sample space — a specific outcome or set of outcomes we're interested in.
+| Experiment | Sample Space | Example Event |
+|------------|--------------|---------------|
+| Rolling a die | {1, 2, 3, 4, 5, 6} | "Rolling even" = {2, 4, 6} |
+| Coin flip | {H, T} | "Heads" = {H} |
+| Two coin flips | {HH, HT, TH, TT} | "At least one head" = {HH, HT, TH} |
 
-**Examples** (for die roll):
-- "Rolling a 5": E = {5} (simple event)
-- "Rolling even": E = {2, 4, 6} (compound event)
-- "Rolling ≤ 3": E = {1, 2, 3}
-
-### Relationship
+### 3. Mathematical Formulation
 $$P(E) = \frac{|E|}{|S|} = \frac{\text{Favorable outcomes}}{\text{Total outcomes}}$$
 
-### Interview Tip
+### 4. Key Terms
 - **Outcome**: Single element of sample space
-- **Event**: Set of one or more outcomes
-- Always define complete sample space first when solving probability problems
+- **Simple event**: Single outcome {5}
+- **Compound event**: Multiple outcomes {2, 4, 6}
+
+### 5. Interview Tip
+Always define complete sample space first when solving probability problems — it determines what probabilities are valid.
 
 ---
 
@@ -36,41 +35,40 @@ $$P(E) = \frac{|E|}{|S|} = \frac{\text{Favorable outcomes}}{\text{Total outcomes
 
 **What does it mean for two events to be independent?**
 
-**Answer:**
+---
 
-### Definition
-Two events A and B are **independent** if the occurrence of one does not affect the probability of the other.
+### 1. Definition
+Two events A and B are **independent** if the occurrence of one does not affect the probability of the other. Knowing A happened gives no information about B.
 
-### Mathematical Definition
+### 2. Mathematical Formulation
 $$P(A \cap B) = P(A) \times P(B)$$
 
-Equivalently:
+**Equivalently:**
 - P(A | B) = P(A)
 - P(B | A) = P(B)
 
-### Examples
+### 3. Examples
 
-**Independent**:
+**Independent:**
 - Rolling a die and flipping a coin
 - P(6 AND Heads) = (1/6) × (1/2) = 1/12
 
-**Dependent**:
-- Drawing cards without replacement
-- P(King first) = 4/52
-- P(King second | King first) = 3/51 ≠ 4/52
+**Dependent:**
+- Drawing cards WITHOUT replacement
+- P(King first) = 4/52, P(King second | King first) = 3/51 ≠ 4/52
 
-### Common Confusion: Independence vs Mutual Exclusivity
+### 4. Independence vs Mutual Exclusivity
 
-| Property | Definition | Relationship |
-|----------|------------|--------------|
-| **Independent** | A doesn't affect B's probability | Can occur together |
-| **Mutually Exclusive** | A and B cannot both occur | P(A ∩ B) = 0 |
+| Property | Definition | Can Co-occur? |
+|----------|------------|---------------|
+| **Independent** | A doesn't affect P(B) | Yes |
+| **Mutually Exclusive** | A and B cannot both occur | No (P(A∩B)=0) |
 
-**Key**: Mutually exclusive events are DEPENDENT (if A happens, P(B) = 0)
+**Key Insight:** Mutually exclusive events are DEPENDENT (if A happens, P(B) = 0)
 
-### ML Relevance
+### 5. ML Relevance
 - Naive Bayes assumes features are conditionally independent given class
-- Incorrect independence assumption → biased probability estimates
+- Violated assumption → biased probability estimates but often still works
 
 ---
 
@@ -78,45 +76,46 @@ Equivalently:
 
 **Define expectation, variance, and covariance.**
 
-**Answer:**
+---
 
-### Expectation E[X]
-**Definition**: Long-run average value of a random variable (center of mass).
+### 1. Expectation E[X]
+**Definition**: Long-run average value (center of mass).
 
-**Formulas**:
-- Discrete: $E[X] = \sum x \cdot P(X=x)$
-- Continuous: $E[X] = \int x \cdot f(x) dx$
+| Type | Formula |
+|------|---------|
+| Discrete | $E[X] = \sum x \cdot P(X=x)$ |
+| Continuous | $E[X] = \int x \cdot f(x) dx$ |
 
 **Example**: Fair die → E[X] = (1+2+3+4+5+6)/6 = 3.5
 
-### Variance Var(X) or σ²
-**Definition**: Measure of spread/dispersion around the mean.
+### 2. Variance Var(X)
+**Definition**: Measure of spread around the mean.
 
-**Formulas**:
-- $Var(X) = E[(X - E[X])^2]$
-- $Var(X) = E[X^2] - (E[X])^2$
+$$Var(X) = E[(X - E[X])^2] = E[X^2] - (E[X])^2$$
 
 **Standard Deviation**: σ = √Var(X) (same units as X)
 
-### Covariance Cov(X, Y)
-**Definition**: Measures how two variables move together.
+### 3. Covariance Cov(X, Y)
+**Definition**: How two variables move together.
 
-**Formula**: $Cov(X, Y) = E[(X - E[X])(Y - E[Y])]$
+$$Cov(X, Y) = E[(X - E[X])(Y - E[Y])]$$
 
-**Interpretation**:
-- Cov > 0: X and Y tend to increase together
-- Cov < 0: X up → Y down (inverse relationship)
-- Cov = 0: No linear relationship
+| Value | Interpretation |
+|-------|----------------|
+| Cov > 0 | X↑ → Y↑ (positive relationship) |
+| Cov < 0 | X↑ → Y↓ (inverse relationship) |
+| Cov = 0 | No linear relationship |
 
-**Correlation**: Normalized covariance
+### 4. Correlation
+Normalized covariance (scale-independent):
 $$\rho = \frac{Cov(X,Y)}{\sigma_X \sigma_Y} \in [-1, 1]$$
 
-### ML Applications
-| Concept | Application |
-|---------|-------------|
+### 5. ML Applications
+| Concept | Use Case |
+|---------|----------|
 | Expectation | Expected return, RL value functions |
-| Variance | Risk assessment, bias-variance tradeoff |
-| Covariance | PCA, portfolio optimization, GMMs |
+| Variance | Bias-variance tradeoff, uncertainty |
+| Covariance | PCA, portfolio optimization, multivariate Gaussians |
 
 ---
 
@@ -124,45 +123,45 @@ $$\rho = \frac{Cov(X,Y)}{\sigma_X \sigma_Y} \in [-1, 1]$$
 
 **How do probabilistic models cope with uncertainty in predictions?**
 
-**Answer:**
+---
 
-### Core Approach
-Instead of single point predictions, output **probability distributions** over possible outcomes.
+### 1. Core Approach
+Output **probability distributions** over outcomes instead of single point predictions.
 
-### Types of Uncertainty
+### 2. Types of Uncertainty
 
-| Type | Description | Can Reduce? |
-|------|-------------|-------------|
+| Type | Description | Reducible? |
+|------|-------------|------------|
 | **Aleatoric** | Inherent data randomness (noise) | No |
 | **Epistemic** | Model's lack of knowledge | Yes (more data) |
 
-### Methods for Handling Uncertainty
+### 3. Methods
 
-**1. Probability Distribution Output**
-- Classification: Output P(class | features) not just class label
-- Regression: Output (μ, σ) — mean and uncertainty
+**a) Probability Distribution Output**
+- Classification: P(class | features) not just class label
+- Regression: (μ, σ) — mean and uncertainty
 
-**2. Bayesian Inference**
-- Treat parameters as distributions, not point values
-- Predictions average over all possible models
-- Wider distributions in low-data regions
+**b) Bayesian Inference**
+- Parameters as distributions, not point values
+- Wider posteriors in low-data regions
 
-**3. Ensemble Methods**
-- Train multiple models (Random Forest, dropout)
-- Variance across predictions = uncertainty estimate
+**c) Ensemble Methods**
+- Train multiple models (Random Forest, MC Dropout)
+- Variance across predictions = uncertainty
 
-### Practical Example
+### 4. Python Example
 ```python
 # Point prediction
 prediction = 85  # House price: $85k
 
 # Probabilistic prediction
-prediction = {'mean': 85, 'std': 12}  # 95% CI: [$61k, $109k]
+prediction = {'mean': 85, 'std': 12}
+# 95% CI: [85 - 2*12, 85 + 2*12] = [$61k, $109k]
 ```
 
-### Applications
-- Self-driving cars: High uncertainty → cautious actions
-- Medical diagnosis: Flag uncertain predictions for review
+### 5. Applications
+- Self-driving cars: High uncertainty → cautious action
+- Medical diagnosis: Flag uncertain cases for review
 - Active learning: Query most uncertain samples
 
 ---
@@ -171,47 +170,39 @@ prediction = {'mean': 85, 'std': 12}  # 95% CI: [$61k, $109k]
 
 **How is probability used in Bayesian inference for machine learning?**
 
-**Answer:**
+---
 
-### Core Idea
-Bayesian inference treats model parameters as random variables with probability distributions, updated as data is observed.
+### 1. Core Idea
+Treat model parameters as random variables with probability distributions, updated as data is observed.
 
-### Bayes' Theorem for ML
+### 2. Bayes' Theorem for ML
 $$P(\theta | D) = \frac{P(D | \theta) \cdot P(\theta)}{P(D)}$$
 
-### Components
+### 3. Components
 
 | Term | Name | Role in ML |
 |------|------|------------|
-| P(θ) | **Prior** | Initial belief about parameters (regularization) |
-| P(D\|θ) | **Likelihood** | How well parameters explain data |
-| P(θ\|D) | **Posterior** | Updated belief after seeing data |
-| P(D) | **Evidence** | Normalization; used for model comparison |
+| P(θ) | **Prior** | Initial belief (acts as regularization) |
+| P(D\|θ) | **Likelihood** | How well θ explains data |
+| P(θ\|D) | **Posterior** | Updated belief after data |
+| P(D) | **Evidence** | For model comparison |
 
-### How Each Component is Used
+### 4. How Each is Used
 
-**Prior P(θ)**
-- Incorporates domain knowledge
-- Example: Prior that weights are near zero (like L2 regularization)
+| Component | ML Usage |
+|-----------|----------|
+| **Prior** | L2 = Gaussian prior; L1 = Laplace prior |
+| **Likelihood** | Same as MLE objective |
+| **Posterior** | Full uncertainty, not just point estimate |
+| **Evidence** | Bayesian model selection |
 
-**Likelihood P(D|θ)**
-- Same as in MLE — connects parameters to data
+### 5. Key Benefit
+Posterior captures:
+- **Best estimate**: posterior mean
+- **Uncertainty**: posterior variance
 
-**Posterior P(θ|D)**
-- Complete knowledge about parameters
-- Distribution of plausible models, not single "best" model
-
-**Evidence P(D)**
-- Used for Bayesian model selection
-- Higher evidence = better model fit with appropriate complexity
-
-### Key Benefit
-Posterior captures both:
-- Best parameter estimate (posterior mean)
-- Uncertainty in that estimate (posterior variance)
-
-### Summary
-Probability is used to: encode prior beliefs, model data generation, compute updated beliefs, and quantify parameter uncertainty.
+### 6. Interview Tip
+Probability encodes: prior beliefs, data generation, updated beliefs, and parameter uncertainty — all in one coherent framework.
 
 ---
 
@@ -219,43 +210,40 @@ Probability is used to: encode prior beliefs, model data generation, compute upd
 
 **How can assuming independence in probabilistic models lead to inaccuracies?**
 
-**Answer:**
+---
 
-### The Problem
+### 1. The Problem
 Assuming independence when features are correlated misrepresents the true joint probability distribution.
 
-### How Inaccuracies Occur
+### 2. How Inaccuracies Occur
 
-**1. Over-amplification of Evidence (Double Counting)**
-
+**a) Double Counting Evidence**
 | Scenario | Reality | Naive Bayes |
 |----------|---------|-------------|
-| Email contains "Viagra" AND "enhancement" | Correlated words, ~1.5x evidence | Treats as 2x evidence |
+| "Viagra" + "enhancement" | Correlated (~1.5x evidence) | Treated as 2x evidence |
 | Result | P(spam) = 0.90 | P(spam) = 0.999 (overconfident) |
 
-**2. Missing Feature Interactions**
-
-Example: Medical diagnosis
-- High temperature alone: weak evidence
+**b) Missing Interactions**
+- High temp alone: weak evidence
 - Cough alone: weak evidence
 - BOTH together: strong evidence (flu)
+- Naive Bayes cannot capture "combination > sum of parts"
 
-Naive Bayes cannot capture: "combination is more informative than sum of parts"
-
-**3. Poor Probability Calibration**
-- Classifier may pick correct class but probabilities are wrong
-- Predicts 99% but actual accuracy is 80%
-
-### Consequences
+### 3. Consequences
 - Overconfident predictions
+- Poor probability calibration
 - Wrong threshold selection
-- Unreliable risk assessment
 
-### Solutions
-1. **Feature engineering**: Combine correlated features
-2. **Use interaction terms**: Logistic regression with feature products
-3. **Choose appropriate model**: Decision trees, neural networks capture interactions
-4. **Calibrate probabilities**: Platt scaling, isotonic regression
+### 4. Solutions
+| Solution | How it Helps |
+|----------|--------------|
+| Combine correlated features | Reduce redundancy |
+| Add interaction terms | Capture joint effects |
+| Use trees/NNs | Automatically learn interactions |
+| Calibration (Platt scaling) | Fix probability estimates post-hoc |
+
+### 5. Interview Tip
+Despite violated assumptions, Naive Bayes often still picks the right class — just with wrong probability estimates.
 
 ---
 
@@ -263,49 +251,43 @@ Naive Bayes cannot capture: "combination is more informative than sum of parts"
 
 **What strategies would you use to handle missing data in probabilistic models?**
 
-**Answer:**
+---
 
-### Strategies (Simple to Advanced)
+### 1. Strategies (Simple → Advanced)
 
-**1. Simple Imputation**
-- Replace with mean/median (continuous) or mode (categorical)
-- **Pros**: Simple, fast
-- **Cons**: Reduces variance, distorts relationships
+| Method | Description | Pros/Cons |
+|--------|-------------|-----------|
+| **Mean/Mode Imputation** | Replace with average | Simple; reduces variance |
+| **Model-Based** | Predict missing from other features | Preserves relationships |
+| **EM Algorithm** | Treat missing as latent variables | Joint optimization |
+| **Multiple Imputation (MICE)** | Create M imputed datasets | Propagates uncertainty correctly |
 
-**2. Model-Based Imputation**
-- Predict missing values using regression on other features
-- **Pros**: Preserves feature relationships
-- **Cons**: Single point estimate, underestimates uncertainty
-
-**3. Expectation-Maximization (EM)**
-Treats missing values as latent variables:
+### 2. EM for Missing Data
 ```
-E-Step: Estimate expected value of missing data given current parameters
-M-Step: Re-estimate parameters using "completed" data
+E-Step: Estimate expected value of missing data given θ
+M-Step: Re-estimate θ using "completed" data
 Iterate until convergence
 ```
-**Pros**: Jointly optimizes imputation and model parameters
 
-**4. Multiple Imputation (MICE) — Recommended**
+### 3. Multiple Imputation (Recommended)
 ```
-1. Create M different completed datasets (e.g., M=5)
-2. Each imputation adds random noise reflecting uncertainty
+1. Create M different completed datasets (M=5)
+2. Each imputation adds noise reflecting uncertainty
 3. Run analysis on each dataset
 4. Pool results using Rubin's rules
 ```
-**Pros**: Correctly propagates uncertainty to final estimates
 
-### Decision Guide
+### 4. Decision Guide
 
-| Situation | Recommended Method |
-|-----------|-------------------|
-| Very little missing data (<5%) | Simple imputation or deletion |
-| Missing at random | MICE |
+| Situation | Recommended |
+|-----------|-------------|
+| <5% missing | Simple imputation or deletion |
+| Missing at Random | MICE |
 | Complex relationships | EM with GMMs |
-| Need uncertainty quantification | Multiple Imputation |
+| Need uncertainty | Multiple Imputation |
 
-### Interview Tip
-Avoid listwise deletion unless missing data is minimal — it wastes information and can introduce bias.
+### 5. Interview Tip
+Avoid listwise deletion unless minimal missing data — wastes information and can introduce bias.
 
 ---
 
@@ -313,52 +295,45 @@ Avoid listwise deletion unless missing data is minimal — it wastes information
 
 **How do you determine the significance of an observed effect using probability?**
 
-**Answer:**
+---
 
-### Framework: Hypothesis Testing
+### 1. Framework: Hypothesis Testing
 
-**Step 1: Formulate Hypotheses**
-- H₀ (Null): No effect/no difference (default)
-- H₁ (Alternative): There is an effect
+**Steps:**
+1. **Formulate**: H₀ (no effect) vs H₁ (effect exists)
+2. **Set α**: Significance level (usually 0.05)
+3. **Compute p-value**: P(data this extreme | H₀ true)
+4. **Decide**: p ≤ α → reject H₀
 
-**Step 2: Choose Significance Level (α)**
-- Common: α = 0.05
-- α = P(reject H₀ | H₀ is true) = Type I error rate
+### 2. Interpretation
 
-**Step 3: Compute P-value**
-> P-value = P(observing data this extreme or more | H₀ is true)
+| P-value | Meaning |
+|---------|---------|
+| Small (≤0.05) | Data unlikely under H₀ → reject H₀ |
+| Large (>0.05) | Data consistent with H₀ → fail to reject |
 
-**Step 4: Decision**
-- If p-value ≤ α → Reject H₀ (effect is significant)
-- If p-value > α → Fail to reject H₀
-
-### Example: A/B Test
+### 3. Python Example
 ```python
 from scipy.stats import ttest_ind
 
-# Group A: 10% conversion, Group B: 12.5% conversion
+# A/B Test: 10% vs 12.5% conversion
 group_a = [1]*100 + [0]*900
 group_b = [1]*125 + [0]*875
 
 t_stat, p_value = ttest_ind(group_a, group_b)
-# p_value ≈ 0.045
-
-if p_value < 0.05:
-    print("Significant difference")
-else:
-    print("No significant difference")
+# p_value ≈ 0.045 → significant at α=0.05
 ```
 
-### Key Points
+### 4. Common Mistakes
 
-| Concept | Meaning |
+| Mistake | Reality |
 |---------|---------|
-| Small p-value | Data unlikely under H₀ → evidence against H₀ |
-| Large p-value | Data consistent with H₀ → insufficient evidence |
-| "Significant" | NOT "important" — just unlikely by chance |
+| "P-value = P(H₀ true)" | No, it's about data given H₀ |
+| "Not significant = no effect" | Could be low power |
+| "Significant = important" | Statistical ≠ practical significance |
 
-### Interview Tip
-P-value is NOT "probability H₀ is true" — it's about the data, assuming H₀.
+### 5. Interview Tip
+Always mention effect size alongside p-value — tiny effects can be "significant" with large N.
 
 ---
 
@@ -366,46 +341,40 @@ P-value is NOT "probability H₀ is true" — it's about the data, assuming H₀
 
 **How do Hidden Markov Models (HMMs) use probability in sequential data modeling?**
 
-**Answer:**
+---
 
-### Definition
+### 1. Definition
 HMM models sequences of observations generated by hidden states that follow a Markov chain.
 
-### Probabilistic Components
+### 2. Probabilistic Components
 
-**1. Transition Probabilities (A)**
-Hidden states evolve via Markov chain:
-$$A_{ij} = P(\text{hidden state } j \text{ at } t | \text{state } i \text{ at } t-1)$$
+| Component | Symbol | Description |
+|-----------|--------|-------------|
+| **Transition** | A | P(state j at t | state i at t-1) |
+| **Emission** | B | P(observation k | hidden state j) |
+| **Initial** | π | P(start in state i) |
 
-**2. Emission Probabilities (B)**
-Each hidden state generates observable output:
-$$B_j(k) = P(\text{observation } k | \text{hidden state } j)$$
-
-**3. Initial Distribution (π)**
-$$\pi_i = P(\text{start in state } i)$$
-
-### Three Fundamental Problems
-
-| Problem | Question | Algorithm |
-|---------|----------|-----------|
-| **Evaluation** | P(observations \| model)? | Forward |
-| **Decoding** | Most likely hidden states? | Viterbi |
-| **Learning** | Best model parameters? | Baum-Welch (EM) |
-
-### Example: Part-of-Speech Tagging
-- **Hidden states**: POS tags (Noun, Verb, Adj, ...)
-- **Observations**: Words
-- **Transitions**: P(Verb | Noun) — grammar patterns
-- **Emissions**: P("run" | Verb) — word-tag associations
-
-### Structure
+### 3. Structure
 ```
 Hidden:    [Noun] → [Verb] → [Noun] → ...
              ↓         ↓         ↓
 Observed: "Time"   "flies"   "quickly"
 ```
 
-### Interview Tip
+### 4. Three Fundamental Problems
+
+| Problem | Question | Algorithm |
+|---------|----------|-----------|
+| **Evaluation** | P(observations \| model)? | Forward |
+| **Decoding** | Most likely hidden states? | Viterbi |
+| **Learning** | Best parameters? | Baum-Welch (EM) |
+
+### 5. Applications
+- **POS Tagging**: Hidden = tags, Observed = words
+- **Speech Recognition**: Hidden = phonemes, Observed = audio
+- **Bioinformatics**: Hidden = gene states, Observed = DNA sequence
+
+### 6. Interview Tip
 HMMs are entirely probabilistic: two stochastic processes (hidden state evolution + observation generation) working together.
 
 ---
@@ -414,44 +383,38 @@ HMMs are entirely probabilistic: two stochastic processes (hidden state evolutio
 
 **How has the advent of Quantum Computing influenced probabilistic algorithms?**
 
-**Answer:**
+---
 
-### Quantum Fundamentals
+### 1. Quantum Fundamentals
 
-**1. Superposition**
-- Qubit exists in both 0 and 1 simultaneously: α|0⟩ + β|1⟩
-- Measurement collapses: P(0) = |α|², P(1) = |β|²
-- Enables exploring many states in parallel
+| Concept | Description |
+|---------|-------------|
+| **Superposition** | Qubit in both 0 and 1: α\|0⟩ + β\|1⟩ |
+| **Measurement** | Collapses to P(0)=\|α\|², P(1)=\|β\|² |
+| **Entanglement** | Correlated qubits; measuring one affects other |
+| **Interference** | Amplitudes can cancel or reinforce |
 
-**2. Entanglement**
-- Correlated qubits: measuring one affects the other
-- Creates complex joint distributions impossible classically
-
-**3. Interference**
-- Probability amplitudes can cancel (destructive) or reinforce (constructive)
-- Algorithms manipulate interference to amplify correct answers
-
-### Impact on Probabilistic Algorithms
+### 2. Impact on Probabilistic Algorithms
 
 | Application | Quantum Advantage |
 |-------------|-------------------|
 | **Sampling** | Sample from complex distributions faster |
-| **MCMC** | Potential speedup for Bayesian inference |
+| **MCMC** | Potential Bayesian inference speedup |
 | **Optimization** | Quantum annealing finds global minima |
-| **Search** | Grover's algorithm: √N speedup |
+| **Search** | Grover's: √N speedup |
 
-### Quantum Machine Learning
+### 3. Quantum ML Examples
 - Quantum SVM, Quantum PCA
-- Exponential speedup for certain linear algebra
 - Boltzmann Machine training via quantum sampling
+- Exponential speedup for certain linear algebra
 
-### Current State
-- Still early stage (NISQ era)
-- Limited qubits, noise issues
-- Specific problem classes show advantage
+### 4. Current State (NISQ Era)
+- Limited qubits, high noise
+- Specific problems show advantage
+- Hybrid classical-quantum approaches
 
-### Interview Tip
-Quantum computing doesn't just speed up classical probabilistic algorithms — it operates on fundamentally different (quantum) probability rules.
+### 5. Interview Tip
+Quantum computing doesn't just speed up classical algorithms — it operates on fundamentally different (quantum) probability rules.
 
 ---
 
@@ -459,45 +422,41 @@ Quantum computing doesn't just speed up classical probabilistic algorithms — i
 
 **What role does probability play in reinforcement learning and decision making?**
 
-**Answer:**
+---
 
-### Probability in RL Framework
-
-**1. Environment Dynamics (Transition Probabilities)**
-$$P(s' | s, a) = \text{Probability of next state given current state and action}$$
-- World is stochastic: same action may lead to different outcomes
-- Agent must make robust decisions despite uncertainty
-
-**2. Policy (Agent's Behavior)**
-$$\pi(a | s) = P(\text{taking action } a | \text{in state } s)$$
-- Stochastic policy: probability distribution over actions
-- Essential for exploration and certain optimal solutions
-
-**3. Expected Return (Goal)**
-$$V(s) = E\left[\sum_{t=0}^{\infty} \gamma^t R_t | s_0 = s\right]$$
-- Maximize EXPECTED cumulative reward
-- Future is probabilistic → optimize average, not single outcome
-
-### Markov Decision Process (MDP)
+### 1. Probability in RL Framework
 
 | Component | Probabilistic Element |
 |-----------|----------------------|
-| States | Current situation |
-| Actions | Agent choices |
-| Transitions | P(s' \| s, a) |
-| Rewards | R(s, a, s') |
-| Policy | π(a \| s) |
+| **Transitions** | P(s' \| s, a) — stochastic environment |
+| **Policy** | π(a \| s) — probability of action given state |
+| **Value** | E[Σγᵗ Rₜ] — expected cumulative reward |
 
-### Decision Making Loop
+### 2. Why Stochastic?
+- **Environment**: Same action → different outcomes
+- **Policy**: Exploration, optimal mixed strategies
+- **Future**: Maximize expected value, not single outcome
+
+### 3. MDP Components
+
+| Element | Role |
+|---------|------|
+| States S | Current situation |
+| Actions A | Agent choices |
+| Transitions P | P(s' \| s, a) |
+| Rewards R | Feedback signal |
+| Policy π | π(a \| s) |
+
+### 4. Decision Loop
 ```
-1. Agent observes state s
-2. Chooses action a ~ π(a|s)
+1. Observe state s
+2. Choose action a ~ π(a|s)
 3. Environment transitions: s' ~ P(s'|s,a)
-4. Agent receives reward R
+4. Receive reward R
 5. Goal: maximize E[total future reward]
 ```
 
-### Interview Tip
+### 5. Interview Tip
 Probability handles: uncertain environment (transitions), uncertain behavior (policy), and uncertain future (expected return).
 
 ---
@@ -506,48 +465,37 @@ Probability handles: uncertain environment (transitions), uncertain behavior (po
 
 **How do GANs (Generative Adversarial Networks) utilize probability theory?**
 
-**Answer:**
+---
 
-### Probabilistic Goal
-Learn to generate samples from the true data distribution p_data(x).
+### 1. Probabilistic Goal
+Learn to generate samples from true data distribution p_data(x).
 
-### The Two Players
+### 2. The Two Players
 
-**Generator (G)**
-- Input: Random noise z ~ P(z) (e.g., Gaussian)
-- Output: Fake sample G(z)
-- Goal: Make p_g (generator's distribution) match p_data
+| Player | Input | Output | Goal |
+|--------|-------|--------|------|
+| **Generator G** | Noise z ~ P(z) | Fake sample G(z) | Make p_g match p_data |
+| **Discriminator D** | Sample x | P(x is real) | Correctly classify |
 
-**Discriminator (D)**
-- Output: D(x) = P(x is real)
-- Goal: Correctly classify real vs fake
-- Binary probabilistic classifier
-
-### The Game
-
-| Player | Objective |
-|--------|-----------|
-| **D** | Maximize P(correct classification) |
-| **G** | Maximize P(D mistakes on fake samples) |
-
-### Loss Function
+### 3. Loss Function
 $$\min_G \max_D \left[ E_{x \sim p_{data}}[\log D(x)] + E_{z \sim p_z}[\log(1 - D(G(z)))] \right]$$
 
-### Equilibrium
+### 4. Equilibrium
 When training succeeds:
-- p_g = p_data (generator perfectly mimics real data)
-- D(x) = 0.5 for all x (can't distinguish real from fake)
+- p_g = p_data (generator mimics real data)
+- D(x) = 0.5 for all x (can't distinguish)
 
-### Probability Theory Connection
-- GAN loss minimizes **Jensen-Shannon divergence** between p_g and p_data
-- JS divergence measures similarity between two probability distributions
-- D outputs probability estimates used in the loss
+### 5. Probability Theory Connection
+- Minimizes **Jensen-Shannon divergence** between p_g and p_data
+- JS divergence measures similarity between probability distributions
+- D outputs probability estimates used in loss
 
-### Summary
+### 6. Summary Flow
 ```
 z ~ P(z) → G(z) ~ p_g → D outputs P(real) → Loss optimizes distributions
 ```
 
+### 7. Interview Tip
 GANs are fundamentally about making one probability distribution (generator's) match another (data's).
 
 ---

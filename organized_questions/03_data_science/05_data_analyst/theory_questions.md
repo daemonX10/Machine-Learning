@@ -3482,353 +3482,1942 @@ plt.show()
 
 ## Question 53
 
-**Explain the concept ofdimensionality reductionand its techniques.**
+**Explain the concept of dimensionality reduction and its techniques.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Dimensionality reduction is the process of reducing the number of features in a dataset while preserving as much important information as possible. It addresses the curse of dimensionality and improves model performance.
+
+### Core Concepts
+- **Curse of Dimensionality**: Performance degrades with too many features
+- **Feature Space**: High-dimensional space where each feature is a dimension
+- **Information Preservation**: Keep variance/structure while reducing dimensions
+- **Computational Efficiency**: Fewer features = faster training
+
+### Techniques
+
+| Category | Technique | Description |
+|----------|-----------|-------------|
+| **Feature Selection** | Filter, Wrapper, Embedded | Select subset of original features |
+| **Linear Projection** | PCA, LDA | Project to lower-dimensional space |
+| **Non-linear** | t-SNE, UMAP | Preserve local structure for visualization |
+| **Autoencoders** | Neural network | Learn compressed representation |
+
+### When to Use
+- High-dimensional data (images, text, genomics)
+- Visualization of high-D data in 2D/3D
+- Removing multicollinearity
+- Noise reduction
+
+### Interview Tip
+PCA for general reduction, t-SNE/UMAP for visualization, LDA when class labels available.
 
 ---
 
 ## Question 54
 
-**What isprincipal component analysis (PCA)and how does it work?**
+**What is principal component analysis (PCA) and how does it work?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+PCA is a linear dimensionality reduction technique that transforms data into a new coordinate system where the greatest variance lies on the first principal component, second greatest on the second, and so on.
+
+### Core Concepts
+- **Principal Components**: New orthogonal axes that capture maximum variance
+- **Eigenvalues**: Measure variance explained by each component
+- **Eigenvectors**: Directions of principal components
+- **Variance Explained**: Percentage of total variance captured
+
+### Algorithm Steps
+1. Standardize the data (mean=0, std=1)
+2. Compute covariance matrix
+3. Calculate eigenvalues and eigenvectors
+4. Sort by eigenvalue (largest first)
+5. Select top k components
+6. Transform data: X_new = X × W_k
+
+### Mathematical Formulation
+$$C = \frac{1}{n-1}X^T X \quad \text{(Covariance matrix)}$$
+$$Cv = \lambda v \quad \text{(Eigenvalue equation)}$$
+
+### Practical Usage
+```python
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+X_reduced = pca.fit_transform(X_scaled)
+print(f"Variance explained: {pca.explained_variance_ratio_}")
+```
+
+### Interview Tip
+Always standardize data before PCA. Choose components that explain ~95% variance.
 
 ---
 
 ## Question 55
 
-**Describe the concept oft-SNE (t-Distributed Stochastic Neighbor Embedding).**
+**Describe the concept of t-SNE (t-Distributed Stochastic Neighbor Embedding).**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+t-SNE is a non-linear dimensionality reduction technique that maps high-dimensional data to 2D/3D for visualization, preserving local neighborhood structure through probability distributions.
+
+### Core Concepts
+- **Local Structure Preservation**: Similar points stay close
+- **Probability Distributions**: Models pairwise similarities
+- **Student-t Distribution**: Handles crowding problem in low-D space
+- **Perplexity**: Controls balance between local and global structure
+
+### How It Works
+1. Compute pairwise similarities in high-D space (Gaussian)
+2. Define similar probabilities in low-D space (Student-t)
+3. Minimize KL-divergence between distributions
+4. Use gradient descent to optimize positions
+
+### Key Parameters
+| Parameter | Effect |
+|-----------|--------|
+| Perplexity (5-50) | Higher = more global structure |
+| Learning rate | Too low = slow; too high = unstable |
+| Iterations | Usually 1000+ for convergence |
+
+### Limitations
+- Computationally expensive (O(n²))
+- Not suitable for new data projection
+- Results vary with random initialization
+- Distances in plot are not meaningful
+
+### vs PCA
+| PCA | t-SNE |
+|-----|-------|
+| Linear | Non-linear |
+| Global structure | Local structure |
+| Fast | Slow |
+| Reproducible | Stochastic |
+
+### Interview Tip
+Use t-SNE for visualization only, not for preprocessing. Run multiple times with different seeds.
 
 ---
 
 ## Question 56
 
-**What is the difference betweenPCAandLDA (Linear Discriminant Analysis)?**
+**What is the difference between PCA and LDA (Linear Discriminant Analysis)?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+PCA is unsupervised and maximizes variance regardless of class labels. LDA is supervised and maximizes class separability by finding axes that best separate classes.
+
+### Core Comparison
+
+| Aspect | PCA | LDA |
+|--------|-----|-----|
+| Type | Unsupervised | Supervised |
+| Objective | Maximize variance | Maximize class separation |
+| Input | Features only | Features + Labels |
+| Output dims | Any k ≤ features | At most (classes - 1) |
+| Use case | General dimensionality reduction | Classification preprocessing |
+
+### Mathematical Objective
+- **PCA**: Maximize $\text{Var}(X^T w)$
+- **LDA**: Maximize $\frac{w^T S_B w}{w^T S_W w}$ (between-class / within-class variance)
+
+### When to Use Each
+| Scenario | Choose |
+|----------|--------|
+| No labels available | PCA |
+| Classification task | LDA |
+| Visualization | PCA or t-SNE |
+| Class separation important | LDA |
+| More than (c-1) components needed | PCA |
+
+### Intuition
+- **PCA**: "What directions have the most spread?"
+- **LDA**: "What directions best separate my classes?"
+
+### Interview Tip
+LDA is limited to (num_classes - 1) components. For binary classification, LDA gives only 1 component.
 
 ---
 
 ## Question 57
 
-**Explain the concept ofanomaly detectionand its techniques.**
+**Explain the concept of anomaly detection and its techniques.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Anomaly detection identifies rare observations that differ significantly from the majority of data. These outliers may indicate fraud, errors, or interesting phenomena worth investigating.
+
+### Types of Anomalies
+| Type | Description | Example |
+|------|-------------|---------|
+| Point | Single unusual data point | Unusually large transaction |
+| Contextual | Abnormal in specific context | High AC usage in winter |
+| Collective | Group of related anomalies | Coordinated attack pattern |
+
+### Techniques
+
+**Statistical Methods:**
+- Z-score: Flag points > 3 standard deviations
+- IQR: Points below Q1-1.5×IQR or above Q3+1.5×IQR
+
+**Machine Learning Methods:**
+| Method | Type | Description |
+|--------|------|-------------|
+| Isolation Forest | Unsupervised | Isolates anomalies with fewer splits |
+| One-Class SVM | Unsupervised | Learns boundary around normal data |
+| LOF | Unsupervised | Compares local density to neighbors |
+| Autoencoders | Deep Learning | High reconstruction error = anomaly |
+
+### Applications
+- Credit card fraud detection
+- Network intrusion detection
+- Manufacturing defect detection
+- Health monitoring
+
+### Interview Tip
+Choose method based on data: statistical for simple cases, Isolation Forest for high-dimensional, autoencoders for complex patterns.
 
 ---
 
 ## Question 58
 
-**What is aneural networkand how does it work?**
+**What is a neural network and how does it work?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+A neural network is a computing system inspired by biological neural networks, consisting of interconnected nodes (neurons) organized in layers that learn to transform inputs into outputs through training.
+
+### Core Components
+| Component | Function |
+|-----------|----------|
+| Input Layer | Receives raw features |
+| Hidden Layers | Learn intermediate representations |
+| Output Layer | Produces final prediction |
+| Weights | Learnable connection strengths |
+| Biases | Learnable offset terms |
+| Activation Functions | Introduce non-linearity |
+
+### How It Works
+1. **Forward Pass**: Input flows through layers
+   - Each neuron: $z = \sum w_i x_i + b$
+   - Apply activation: $a = \sigma(z)$
+2. **Loss Calculation**: Compare prediction to target
+3. **Backward Pass**: Compute gradients via backpropagation
+4. **Update Weights**: Gradient descent adjusts parameters
+
+### Mathematical Formulation
+$$y = \sigma(W_n \cdot \sigma(W_{n-1} \cdot ... \sigma(W_1 \cdot x + b_1) ... + b_{n-1}) + b_n)$$
+
+### Types
+- **Feedforward**: Information flows one direction
+- **CNN**: For images (convolution layers)
+- **RNN/LSTM**: For sequences (recurrent connections)
+- **Transformer**: Attention-based (NLP, vision)
+
+### Interview Tip
+Understand the building blocks: layers, weights, activations, loss, and backpropagation.
 
 ---
 
 ## Question 59
 
-**Explain the concept ofactivation functionsand their types.**
+**Explain the concept of activation functions and their types.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Activation functions introduce non-linearity into neural networks, enabling them to learn complex patterns. Without them, stacked layers would just be linear transformations.
+
+### Common Activation Functions
+
+| Function | Formula | Range | Use Case |
+|----------|---------|-------|----------|
+| Sigmoid | $\frac{1}{1+e^{-x}}$ | (0, 1) | Binary output, gates |
+| Tanh | $\frac{e^x - e^{-x}}{e^x + e^{-x}}$ | (-1, 1) | Hidden layers (centered) |
+| ReLU | $\max(0, x)$ | [0, ∞) | Most common in hidden layers |
+| Leaky ReLU | $\max(0.01x, x)$ | (-∞, ∞) | Avoids dying ReLU |
+| Softmax | $\frac{e^{x_i}}{\sum e^{x_j}}$ | (0, 1), sum=1 | Multi-class output |
+
+### Problems and Solutions
+
+| Problem | Cause | Solution |
+|---------|-------|----------|
+| Vanishing gradient | Sigmoid/Tanh saturates | Use ReLU |
+| Dying ReLU | Negative inputs → 0 gradient | Leaky ReLU, PReLU |
+| Exploding gradient | Large activations | Batch normalization |
+
+### Choosing Activation Functions
+- **Hidden layers**: ReLU (default), Leaky ReLU
+- **Binary classification output**: Sigmoid
+- **Multi-class output**: Softmax
+- **Regression output**: Linear (no activation)
+
+### Interview Tip
+ReLU is the default choice for hidden layers. Know why sigmoid causes vanishing gradients.
 
 ---
 
 ## Question 60
 
-**What is the difference between afeedforward neural networkand arecurrent neural network?**
+**What is the difference between a feedforward neural network and a recurrent neural network?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Feedforward networks pass information in one direction (input→output). Recurrent networks have loops that allow information to persist, making them suitable for sequential data.
+
+### Core Comparison
+
+| Aspect | Feedforward (FFN) | Recurrent (RNN) |
+|--------|-------------------|-----------------|
+| Information flow | One direction | Cycles/loops |
+| Memory | No memory | Has hidden state |
+| Input | Fixed-size | Variable-length sequences |
+| Use case | Tabular, images | Text, time series, speech |
+
+### RNN Architecture
+- **Hidden state**: $h_t = \sigma(W_h h_{t-1} + W_x x_t + b)$
+- Shares weights across time steps
+- Output depends on current input AND previous hidden state
+
+### RNN Variants
+| Variant | Improvement |
+|---------|-------------|
+| LSTM | Long-term memory with gates |
+| GRU | Simplified LSTM, fewer parameters |
+| Bidirectional | Processes sequence both directions |
+
+### Limitations of Vanilla RNN
+- Vanishing/exploding gradients
+- Difficulty learning long-range dependencies
+- Solution: LSTM/GRU with gating mechanisms
+
+### Applications
+- **FFN**: Classification, regression on fixed inputs
+- **RNN**: Language models, machine translation, sentiment analysis, speech recognition
+
+### Interview Tip
+Know that LSTM/GRU solve RNN's gradient problems. Transformers have largely replaced RNNs for NLP.
 
 ---
 
 ## Question 61
 
-**Describe the concept ofbackpropagationand its role in training neural networks.**
+**Describe the concept of backpropagation and its role in training neural networks.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Backpropagation is the algorithm used to compute gradients of the loss function with respect to each weight by applying the chain rule, enabling gradient descent to update weights and minimize error.
+
+### Core Concepts
+- **Chain Rule**: Breaks complex derivatives into simpler parts
+- **Gradient Flow**: Error signals flow backward through network
+- **Weight Updates**: Proportional to how much each weight contributed to error
+- **Learning Rate**: Controls step size of weight updates
+
+### Algorithm Steps
+1. **Forward Pass**: Compute predictions layer by layer
+2. **Compute Loss**: Compare predictions to targets
+3. **Backward Pass**: Compute gradients from output to input
+4. **Update Weights**: $w = w - \eta \cdot \frac{\partial L}{\partial w}$
+
+### Mathematical Formulation
+For a simple network with loss L:
+$$\frac{\partial L}{\partial w_1} = \frac{\partial L}{\partial y} \cdot \frac{\partial y}{\partial h} \cdot \frac{\partial h}{\partial w_1}$$
+
+### Key Points
+- Requires differentiable activation functions
+- Computational graph stores intermediate values
+- Efficient: computes all gradients in one backward pass
+- Foundation of modern deep learning
+
+### Interview Tip
+Understand chain rule application and how gradients flow backward through layers.
 
 ---
 
 ## Question 62
 
-**What isdeep learningand how does it differ from traditional machine learning?**
+**What is deep learning and how does it differ from traditional machine learning?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Deep learning is a subset of machine learning using neural networks with many layers (deep architectures) that automatically learn hierarchical feature representations from raw data.
+
+### Core Comparison
+
+| Aspect | Traditional ML | Deep Learning |
+|--------|---------------|---------------|
+| Feature Engineering | Manual, domain expertise | Automatic, learned |
+| Data Requirements | Works with less data | Needs large datasets |
+| Compute | CPU-friendly | GPU-intensive |
+| Interpretability | Often interpretable | Often black-box |
+| Performance | Good on structured data | Excels on unstructured data |
+
+### What Makes It "Deep"
+- Multiple hidden layers (from 3 to 100+)
+- Each layer learns increasingly abstract features
+- Example (image): edges → shapes → parts → objects
+
+### When to Use Deep Learning
+| Use DL | Use Traditional ML |
+|--------|-------------------|
+| Images, video | Tabular data |
+| Text, speech | Small datasets |
+| Abundant data | Need interpretability |
+| Complex patterns | Simple patterns |
+
+### Popular Architectures
+- **CNNs**: Computer vision
+- **RNNs/LSTMs**: Sequences
+- **Transformers**: NLP, vision
+- **GANs**: Generative tasks
+
+### Interview Tip
+Deep learning excels with large unstructured data; traditional ML is often better for small tabular datasets.
 
 ---
 
 ## Question 63
 
-**Explain the concept ofconvolutional neural networks (CNNs)and their applications.**
+**Explain the concept of convolutional neural networks (CNNs) and their applications.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+CNNs are specialized neural networks for processing grid-like data (images) using convolutional layers that automatically learn spatial hierarchies of features through learnable filters.
+
+### Core Components
+| Component | Function |
+|-----------|----------|
+| Convolutional Layer | Learns local patterns with filters |
+| Pooling Layer | Reduces spatial dimensions, adds invariance |
+| Stride | Filter movement step size |
+| Padding | Preserves spatial dimensions |
+| Fully Connected | Final classification layers |
+
+### How Convolution Works
+- Filter (kernel) slides across image
+- Element-wise multiplication and sum
+- Produces feature map highlighting detected patterns
+- Different filters detect different features (edges, textures)
+
+### Typical Architecture
+```
+Input → [Conv → ReLU → Pool] × N → Flatten → FC → Softmax → Output
+```
+
+### Applications
+- Image classification (ImageNet)
+- Object detection (YOLO, R-CNN)
+- Facial recognition
+- Medical image analysis
+- Self-driving cars
+
+### Interview Tip
+Know the intuition: early layers detect simple features (edges), deeper layers detect complex features (faces).
 
 ---
 
 ## Question 64
 
-**What istransfer learningand how is it used in deep learning?**
+**What is transfer learning and how is it used in deep learning?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Transfer learning uses a model pre-trained on one task as the starting point for a different but related task, leveraging learned representations to reduce training time and data requirements.
+
+### Core Concepts
+- **Pre-trained Model**: Trained on large dataset (ImageNet, BERT)
+- **Feature Extraction**: Freeze pre-trained layers, train only new layers
+- **Fine-tuning**: Unfreeze some/all layers, train with small learning rate
+- **Domain Adaptation**: Adjust to new domain
+
+### Why It Works
+- Low-level features (edges, textures) are universal
+- Reduces need for large labeled datasets
+- Faster training
+- Better generalization
+
+### Common Approaches
+| Approach | Description | When to Use |
+|----------|-------------|-------------|
+| Feature Extraction | Freeze all, add new head | Very small dataset |
+| Fine-tuning (partial) | Unfreeze top layers | Medium dataset |
+| Fine-tuning (full) | Unfreeze all layers | Large dataset |
+
+### Popular Pre-trained Models
+| Domain | Models |
+|--------|--------|
+| Vision | ResNet, VGG, EfficientNet |
+| NLP | BERT, GPT, RoBERTa |
+| Speech | Wav2Vec |
+
+### Interview Tip
+Start with feature extraction, then try fine-tuning if performance is insufficient.
 
 ---
 
 ## Question 65
 
-**Describe the concept oflong short-term memory (LSTM) networksand their use cases.**
+**Describe the concept of long short-term memory (LSTM) networks and their use cases.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+LSTM is a special type of RNN designed to learn long-range dependencies by using gating mechanisms that control information flow, solving the vanishing gradient problem.
+
+### Core Components (Gates)
+| Gate | Function | Formula |
+|------|----------|---------|
+| Forget Gate | Decides what to discard | $f_t = \sigma(W_f[h_{t-1}, x_t] + b_f)$ |
+| Input Gate | Decides what to store | $i_t = \sigma(W_i[h_{t-1}, x_t] + b_i)$ |
+| Output Gate | Decides what to output | $o_t = \sigma(W_o[h_{t-1}, x_t] + b_o)$ |
+| Cell State | Long-term memory highway | $C_t = f_t * C_{t-1} + i_t * \tilde{C}_t$ |
+
+### Why LSTM Solves Vanishing Gradient
+- Cell state acts as a "highway" for gradients
+- Gates allow gradients to flow unchanged
+- Can learn dependencies over 100s of time steps
+
+### Use Cases
+- **Language Modeling**: Predict next word
+- **Machine Translation**: Seq-to-seq models
+- **Speech Recognition**: Audio to text
+- **Time Series**: Stock prediction, weather
+- **Sentiment Analysis**: Review classification
+
+### LSTM vs GRU
+| LSTM | GRU |
+|------|-----|
+| 3 gates | 2 gates |
+| More parameters | Fewer parameters |
+| Better long-term | Faster training |
+
+### Interview Tip
+Know the purpose of each gate: forget (what to remove), input (what to add), output (what to expose).
 
 ---
 
 ## Question 66
 
-**What is the difference between ashallow neural networkand adeep neural network?**
+**What is the difference between a shallow neural network and a deep neural network?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+A shallow neural network has 1-2 hidden layers, while a deep neural network has many hidden layers (3+), enabling it to learn more complex hierarchical representations.
+
+### Core Comparison
+
+| Aspect | Shallow NN | Deep NN |
+|--------|-----------|---------|
+| Hidden Layers | 1-2 | 3+ (can be 100+) |
+| Feature Learning | Limited abstraction | Hierarchical features |
+| Parameters | Fewer | Many more |
+| Training | Easier, faster | Harder, needs tricks |
+| Representational Power | Universal approx (theoretically) | Better in practice |
+
+### Why Depth Matters
+- Deeper = exponentially more expressive
+- Each layer builds on previous representations
+- Example: pixels → edges → shapes → parts → objects
+
+### Challenges of Depth
+| Challenge | Solution |
+|-----------|----------|
+| Vanishing gradients | ReLU, batch norm, residual connections |
+| Overfitting | Dropout, regularization |
+| Long training | GPU, better optimizers (Adam) |
+| Many hyperparameters | AutoML, transfer learning |
+
+### Universal Approximation Theorem
+- Shallow network CAN approximate any function
+- But may need exponentially many neurons
+- Depth achieves same with fewer parameters
+
+### Interview Tip
+Depth enables efficient representation of complex functions that shallow networks require exponentially more neurons to match.
 
 ---
 
 ## Question 67
 
-**Explain the concept ofautoencodersand their applications.**
+**Explain the concept of autoencoders and their applications.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+An autoencoder is a neural network that learns to compress data into a lower-dimensional representation (encoding) and then reconstruct the original input from that encoding.
+
+### Architecture
+```
+Input → Encoder → Bottleneck (latent code) → Decoder → Reconstructed Output
+```
+
+### Core Concepts
+- **Encoder**: Maps input to compressed representation
+- **Decoder**: Maps compressed representation back to input
+- **Bottleneck**: Forces network to learn essential features
+- **Loss**: Reconstruction error (MSE or BCE)
+
+### Types of Autoencoders
+| Type | Description | Use Case |
+|------|-------------|----------|
+| Vanilla | Basic encoder-decoder | Dimensionality reduction |
+| Sparse | Penalizes active neurons | Feature learning |
+| Denoising | Trained on corrupted input | Noise removal |
+| Variational (VAE) | Learns probability distribution | Generation |
+
+### Applications
+- **Dimensionality Reduction**: Alternative to PCA
+- **Anomaly Detection**: High reconstruction error = anomaly
+- **Denoising**: Remove noise from images
+- **Feature Extraction**: Use bottleneck as features
+- **Generative Models**: VAEs generate new samples
+
+### Interview Tip
+Key insight: autoencoders are unsupervised. They learn compressed representations without labels.
 
 ---
 
 ## Question 68
 
-**What isnatural language processing (NLP)and its applications?**
+**What is natural language processing (NLP) and its applications?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+NLP is a field of AI that enables computers to understand, interpret, and generate human language in a meaningful way, bridging human communication and machine understanding.
+
+### Core Tasks
+| Task | Description |
+|------|-------------|
+| Tokenization | Split text into tokens |
+| POS Tagging | Identify parts of speech |
+| NER | Extract named entities |
+| Parsing | Analyze grammatical structure |
+| Sentiment Analysis | Determine opinion/emotion |
+| Machine Translation | Translate between languages |
+
+### Applications
+- **Chatbots/Virtual Assistants**: Siri, Alexa, customer service
+- **Search Engines**: Query understanding, ranking
+- **Sentiment Analysis**: Social media monitoring, reviews
+- **Machine Translation**: Google Translate
+- **Text Summarization**: News, documents
+- **Question Answering**: FAQ bots, search
+- **Content Generation**: Writing assistance, code generation
+
+### NLP Pipeline
+```
+Raw Text → Tokenization → Normalization → Feature Extraction → Model → Output
+```
+
+### Evolution
+- Rule-based → Statistical → Deep Learning → Transformers (BERT, GPT)
+
+### Interview Tip
+Modern NLP is dominated by transformer-based models (BERT, GPT) that achieve state-of-the-art on most tasks.
 
 ---
 
 ## Question 69
 
-**Explain the concept oftokenizationand its techniques.**
+**Explain the concept of tokenization and its techniques.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Tokenization is the process of breaking text into smaller units (tokens) such as words, subwords, or characters, which serve as input to NLP models.
+
+### Types of Tokenization
+| Type | Example | Use Case |
+|------|---------|----------|
+| Word | "Hello world" → ["Hello", "world"] | Traditional NLP |
+| Character | "Hi" → ["H", "i"] | Character-level models |
+| Subword | "unhappiness" → ["un", "happiness"] | Modern transformers |
+| Sentence | Split by sentences | Document processing |
+
+### Subword Tokenization Methods
+| Method | Description |
+|--------|-------------|
+| BPE (Byte Pair Encoding) | Merges frequent character pairs |
+| WordPiece | Similar to BPE, used in BERT |
+| SentencePiece | Language-agnostic, handles raw text |
+| Unigram | Probabilistic, keeps most likely tokens |
+
+### Challenges
+- Handling unknown words (OOV)
+- Preserving meaning
+- Language-specific rules
+- Handling punctuation, special characters
+
+### Python Example
+```python
+# Simple word tokenization
+text = "Hello, world!"
+tokens = text.split()  # ['Hello,', 'world!']
+
+# Using NLTK
+from nltk.tokenize import word_tokenize
+tokens = word_tokenize(text)  # ['Hello', ',', 'world', '!']
+```
+
+### Interview Tip
+Subword tokenization (BPE, WordPiece) is preferred in modern transformers because it handles OOV and keeps vocabulary manageable.
 
 ---
 
 ## Question 70
 
-**What isstemmingandlemmatizationin NLP?**
+**What is stemming and lemmatization in NLP?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Both reduce words to their base form. Stemming uses rule-based heuristics (often crude), while lemmatization uses vocabulary and morphological analysis to return proper dictionary forms.
+
+### Comparison
+
+| Aspect | Stemming | Lemmatization |
+|--------|----------|---------------|
+| Method | Rule-based heuristics | Dictionary/morphology |
+| Output | Word stem (may not be real word) | Lemma (valid dictionary word) |
+| Speed | Faster | Slower |
+| Accuracy | Lower | Higher |
+| Example | "running" → "run" or "runn" | "running" → "run" |
+| Example | "better" → "better" | "better" → "good" |
+
+### Popular Algorithms
+**Stemming:**
+- Porter Stemmer (most common)
+- Snowball Stemmer
+- Lancaster Stemmer (aggressive)
+
+**Lemmatization:**
+- WordNet Lemmatizer
+- spaCy Lemmatizer
+
+### Python Example
+```python
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+
+stemmer = PorterStemmer()
+lemmatizer = WordNetLemmatizer()
+
+word = "studies"
+print(stemmer.stem(word))        # studi
+print(lemmatizer.lemmatize(word, pos='v'))  # study
+```
+
+### When to Use
+- **Stemming**: Speed matters, search engines, simple tasks
+- **Lemmatization**: Accuracy matters, understanding context
+
+### Interview Tip
+Lemmatization needs POS tags for best results. "better" as adj → "good"; as adv → "well".
 
 ---
 
 ## Question 71
 
-**Describe the concept ofword embeddingsand their types (e.g., Word2Vec, GloVe).**
+**Describe the concept of word embeddings and their types (e.g., Word2Vec, GloVe).**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Word embeddings are dense vector representations of words where semantically similar words have similar vectors, capturing meaning in a continuous space.
+
+### Why Embeddings?
+- One-hot encoding: Sparse, no semantic meaning
+- Embeddings: Dense, capture relationships
+- "King - Man + Woman ≈ Queen"
+
+### Popular Methods
+
+| Method | Type | Training |
+|--------|------|----------|
+| Word2Vec | Predictive | Predict context/word from context |
+| GloVe | Count-based | Matrix factorization of co-occurrences |
+| FastText | Predictive | Uses subword information |
+| ELMo | Contextual | Bidirectional LSTM |
+| BERT | Contextual | Transformer, masked LM |
+
+### Word2Vec Architectures
+- **CBOW**: Predict word from context
+- **Skip-gram**: Predict context from word
+
+### Properties
+- Similar words have similar vectors (cosine similarity)
+- Captures analogies: man:woman :: king:queen
+- Typical dimensions: 100-300
+
+### Contextual vs Static
+| Static (Word2Vec, GloVe) | Contextual (BERT, ELMo) |
+|--------------------------|-------------------------|
+| One vector per word | Different vector per context |
+| "bank" has one meaning | "bank" differs in "river bank" vs "bank account" |
+
+### Interview Tip
+Static embeddings are simpler but contextual embeddings (BERT) handle polysemy and are state-of-the-art.
 
 ---
 
 ## Question 72
 
-**What is thebag-of-words modeland how is it used in NLP?**
+**What is the bag-of-words model and how is it used in NLP?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Bag-of-words (BoW) represents text as an unordered collection of words, creating a vector where each dimension corresponds to a word in the vocabulary and values indicate word presence or frequency.
+
+### How It Works
+1. Build vocabulary from all documents
+2. For each document, count word occurrences
+3. Create vector of counts or binary indicators
+
+### Example
+```
+Doc1: "I love cats"
+Doc2: "I love dogs"
+
+Vocabulary: [I, love, cats, dogs]
+Doc1 vector: [1, 1, 1, 0]
+Doc2 vector: [1, 1, 0, 1]
+```
+
+### Variations
+| Variation | Values |
+|-----------|--------|
+| Binary BoW | 0 or 1 (presence) |
+| Count BoW | Word frequency |
+| TF-IDF | Term frequency × Inverse document frequency |
+
+### Limitations
+- Ignores word order ("dog bites man" = "man bites dog")
+- High dimensionality (vocabulary size)
+- Sparse vectors
+- No semantic meaning
+
+### Applications
+- Text classification (spam, sentiment)
+- Document similarity
+- Simple search engines
+
+### Interview Tip
+BoW is a baseline. For better results, use TF-IDF or word embeddings to capture semantics.
 
 ---
 
 ## Question 73
 
-**Explain the concept ofnamed entity recognition (NER)and its techniques.**
+**Explain the concept of named entity recognition (NER) and its techniques.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+NER is the task of identifying and classifying named entities (people, organizations, locations, dates, etc.) in text into predefined categories.
+
+### Common Entity Types
+| Type | Abbreviation | Example |
+|------|--------------|---------|
+| Person | PER | "Albert Einstein" |
+| Organization | ORG | "Google" |
+| Location | LOC | "New York" |
+| Date | DATE | "January 2024" |
+| Money | MONEY | "$100" |
+| Percentage | PERCENT | "50%" |
+
+### Approaches
+
+| Approach | Method | Example |
+|----------|--------|---------|
+| Rule-based | Regular expressions, dictionaries | Phone number patterns |
+| Classical ML | CRF, HMM with hand-crafted features | POS, capitalization features |
+| Deep Learning | BiLSTM-CRF, CNN | Learned features |
+| Transformers | BERT, RoBERTa fine-tuned | State-of-the-art |
+
+### BIO Tagging Scheme
+```
+"Barack Obama was born in Hawaii"
+ B-PER  I-PER  O    O    O  B-LOC
+```
+- B = Beginning of entity
+- I = Inside entity
+- O = Outside any entity
+
+### Applications
+- Information extraction
+- Question answering
+- Knowledge graph construction
+- Document summarization
+
+### Interview Tip
+Modern NER uses transformer models fine-tuned on labeled data. Know BIO tagging scheme.
 
 ---
 
 ## Question 74
 
-**What issentiment analysisand how is it performed?**
+**What is sentiment analysis and how is it performed?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Sentiment analysis determines the emotional tone (positive, negative, neutral) or opinion expressed in text, used to understand attitudes and opinions at scale.
+
+### Types
+| Type | Output | Example |
+|------|--------|---------|
+| Binary | Positive/Negative | Review classification |
+| Multi-class | Positive/Neutral/Negative | Social media |
+| Fine-grained | 1-5 stars | Product ratings |
+| Aspect-based | Sentiment per aspect | "Battery good, screen bad" |
+
+### Approaches
+
+| Approach | Method | Pros/Cons |
+|----------|--------|-----------|
+| Lexicon-based | Word sentiment scores | Simple, no training; domain-specific issues |
+| ML (Traditional) | BoW + SVM/Naive Bayes | Needs labeled data |
+| Deep Learning | LSTM, CNN | Better accuracy |
+| Transformers | BERT, RoBERTa | State-of-the-art |
+
+### Challenges
+- Sarcasm and irony: "Great, another Monday!"
+- Negation: "not good" vs "good"
+- Context dependency
+- Domain-specific language
+
+### Python Example
+```python
+from textblob import TextBlob
+
+text = "I love this product! It's amazing."
+sentiment = TextBlob(text).sentiment
+print(f"Polarity: {sentiment.polarity}")  # 0.625 (positive)
+```
+
+### Applications
+- Social media monitoring
+- Customer feedback analysis
+- Brand reputation
+- Market research
+
+### Interview Tip
+Know the challenges (sarcasm, negation). Transformer-based models handle these better than simple methods.
 
 ---
 
 ## Question 75
 
-**Describe the concept oftopic modelingand its algorithms (e.g.,LDA,NMF).**
+**Describe the concept of topic modeling and its algorithms (e.g., LDA, NMF).**
 
-**Answer:** _[To be filled]_
+**Answer:**
 
----
+### Definition
+Topic modeling automatically discovers abstract "topics" in a collection of documents, where each topic is a distribution over words and each document is a mixture of topics.
+
+### Intuition
+- Document = mixture of topics
+- Topic = mixture of words
+- "Sports article" might be 70% sports topic, 20% business, 10% politics
+
+### Main Algorithms
+
+**LDA (Latent Dirichlet Allocation):**
+- Probabilistic generative model
+- Assumes Dirichlet prior on topic distributions
+- Most popular algorithm
+- Hyperparameters: number of topics, alpha, beta
+
+**NMF (Non-negative Matrix Factorization):**
+- Matrix factorization approach
+- Decomposes document-term matrix
+- Faster than LDA
+- Good for short texts
+
+### LDA Output Example
+```
+Topic 1: game, team, player, score, win (Sports)
+Topic 2: stock, market, company, price (Finance)
+Topic 3: president, election, vote, policy (Politics)
+```
+
+### Python Example
+```python
+from sklearn.decomposition import LatentDirichletAllocation
+
+lda = LatentDirichletAllocation(n_components=5, random_state=42)
+lda.fit(document_term_matrix)
+
+# Get topics
+for topic_idx, topic in enumerate(lda.components_):
+    top_words = [feature_names[i] for i in topic.argsort()[-10:]]
+    print(f"Topic {topic_idx}: {top_words}")
+```
+
+### Applications
+- Document organization
+- Content recommendation
+- Trend analysis
+- Information retrieval
+
+### Interview Tip
+LDA is generative and probabilistic; NMF is deterministic and faster. Choose based on needs.
 
 ## Question 76
 
-**What is the difference betweenrule-basedandstatistical approachesin NLP?**
+**What is the difference between rule-based and statistical approaches in NLP?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Rule-based NLP uses hand-crafted linguistic rules and patterns, while statistical approaches learn patterns automatically from data using probability and machine learning.
+
+### Comparison
+
+| Aspect | Rule-Based | Statistical |
+|--------|-----------|-------------|
+| Knowledge Source | Human experts | Data |
+| Flexibility | Rigid | Adaptive |
+| Development Time | High (manual) | Lower (automated) |
+| Coverage | Limited to rules | Generalizes beyond training |
+| Interpretability | High | Often low |
+| Maintenance | Labor-intensive | Retrain with data |
+
+### Examples
+**Rule-Based:**
+- Regular expressions for email extraction
+- Grammar rules for parsing
+- Dictionary-based sentiment
+
+**Statistical:**
+- Machine learning classifiers
+- Neural language models
+- Word embeddings
+
+### Hybrid Approaches
+- Use rules for preprocessing
+- Statistical models for core task
+- Rules for post-processing edge cases
+
+### Interview Tip
+Modern NLP is mostly statistical/neural, but rules are valuable for specific patterns and interpretability.
 
 ---
 
 ## Question 77
 
-**Explain the concept oflanguage modelsand their applications.**
+**Explain the concept of language models and their applications.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+A language model is a probabilistic model that assigns probabilities to sequences of words, learning the likelihood of word sequences in a language.
+
+### Core Concept
+$$P(\text{sentence}) = P(w_1) \cdot P(w_2|w_1) \cdot P(w_3|w_1,w_2) \cdot ...$$
+
+### Types
+| Type | Method | Example |
+|------|--------|---------|
+| N-gram | Count-based | Bigram, trigram |
+| Neural | RNN, LSTM | Character-level models |
+| Transformer | Self-attention | GPT, BERT |
+
+### Applications
+- **Text Generation**: Write articles, code, stories
+- **Autocomplete**: Email, search suggestions
+- **Machine Translation**: Translate between languages
+- **Speech Recognition**: Convert audio to text
+- **Chatbots**: Conversational AI
+- **Summarization**: Condense documents
+
+### Modern LLMs
+- GPT-4: Generative, autoregressive
+- BERT: Bidirectional, masked LM
+- T5: Text-to-text framework
+
+### Interview Tip
+Understand the difference: GPT predicts next word (autoregressive); BERT predicts masked words (bidirectional).
 
 ---
 
 ## Question 78
 
-**What is arecommender systemand its types?**
+**What is a recommender system and its types?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+A recommender system predicts user preferences and suggests items (products, movies, content) that users are likely to find relevant or interesting.
+
+### Main Types
+
+| Type | Method | Example |
+|------|--------|---------|
+| Collaborative Filtering | User-item interactions | "Users like you also bought..." |
+| Content-Based | Item features | "Similar to movies you watched..." |
+| Hybrid | Combination | Netflix, Amazon |
+| Knowledge-Based | Expert rules | Technical products with constraints |
+
+### Collaborative Filtering Variants
+- **User-Based**: Find similar users, recommend their items
+- **Item-Based**: Find similar items to what user liked
+- **Matrix Factorization**: Latent factor models (SVD)
+
+### Content-Based Features
+- Item attributes (genre, keywords)
+- User profiles built from past interactions
+- No need for other users' data
+
+### Applications
+- E-commerce (Amazon)
+- Streaming (Netflix, Spotify)
+- Social media (Facebook, TikTok)
+- News and content platforms
+
+### Interview Tip
+Know the trade-offs: collaborative needs user data but discovers new interests; content-based works for new users but limits discovery.
 
 ---
 
 ## Question 79
 
-**Explain the concept ofcollaborative filteringand its variants.**
+**Explain the concept of collaborative filtering and its variants.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Collaborative filtering recommends items based on collective user behavior, assuming users with similar past preferences will like similar items in the future.
+
+### Core Idea
+"People who agreed in the past will agree in the future"
+
+### Variants
+
+**1. User-Based CF:**
+- Find users similar to target user
+- Recommend items those users liked
+- Similarity: cosine, Pearson correlation
+
+**2. Item-Based CF:**
+- Find items similar to user's liked items
+- More stable than user-based
+- Amazon's "customers who bought this also bought..."
+
+**3. Model-Based CF:**
+- Matrix factorization (SVD, ALS)
+- Learn latent factors for users and items
+- More scalable
+
+### User-Item Matrix
+```
+        Item1  Item2  Item3
+User1   5      3      ?
+User2   4      ?      2
+User3   ?      5      4
+```
+Goal: Predict missing ratings
+
+### Pros and Cons
+| Pros | Cons |
+|------|------|
+| Discovers new interests | Cold start problem |
+| No item features needed | Sparsity issues |
+| Domain-independent | Scalability challenges |
+
+### Interview Tip
+Item-based CF is more practical for large systems (items change less than users).
 
 ---
 
 ## Question 80
 
-**What iscontent-based filteringand how does it work?**
+**What is content-based filtering and how does it work?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Content-based filtering recommends items similar to those a user has previously liked, based on item features rather than other users' behavior.
+
+### How It Works
+1. Extract item features (genre, keywords, attributes)
+2. Build user profile from liked item features
+3. Match user profile against candidate items
+4. Rank by similarity
+
+### User Profile Construction
+```
+User likes: Action(5), Comedy(3), Romance(1)
+Profile = weighted average of liked item features
+```
+
+### Similarity Measures
+- Cosine similarity
+- TF-IDF weighted
+- Jaccard similarity (for sets)
+
+### Pros and Cons
+| Pros | Cons |
+|------|------|
+| Works for new users (no cold start for items) | Over-specialization (filter bubble) |
+| Transparent recommendations | Needs good item features |
+| No other users needed | Limited discovery |
+| Easy to explain | Can't find unexpected interests |
+
+### Applications
+- News articles (topic matching)
+- Music (audio features)
+- Movies (genre, actors, director)
+
+### Interview Tip
+Content-based is great for explainability but risks creating a "filter bubble" where users never discover new interests.
 
 ---
 
 ## Question 81
 
-**Describe the concept ofmatrix factorizationin recommender systems.**
+**Describe the concept of matrix factorization in recommender systems.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Matrix factorization decomposes the user-item rating matrix into lower-dimensional user and item latent factor matrices, capturing hidden features that explain ratings.
+
+### Mathematical Formulation
+$$R \approx U \times V^T$$
+
+Where:
+- R: User-item rating matrix (m × n)
+- U: User latent factors (m × k)
+- V: Item latent factors (n × k)
+- k: Number of latent factors
+
+### How It Works
+- Latent factors capture abstract concepts (genre, mood)
+- User vector: user's affinity for each factor
+- Item vector: item's association with each factor
+- Predicted rating: dot product of vectors
+
+### Algorithms
+| Algorithm | Description |
+|-----------|-------------|
+| SVD | Singular Value Decomposition |
+| ALS | Alternating Least Squares |
+| NMF | Non-negative Matrix Factorization |
+| Funk SVD | Gradient descent optimization |
+
+### Objective Function
+$$\min_{U,V} \sum_{(i,j) \in \text{observed}} (r_{ij} - u_i^T v_j)^2 + \lambda(||U||^2 + ||V||^2)$$
+
+### Advantages
+- Handles sparsity well
+- Captures complex patterns
+- Scalable
+- Implicit regularization
+
+### Interview Tip
+Matrix factorization won Netflix Prize. Understand latent factors conceptually (e.g., factors might capture "action-oriented" or "family-friendly").
 
 ---
 
 ## Question 82
 
-**What are the challenges and limitations ofrecommender systems?**
+**What are the challenges and limitations of recommender systems?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Key Challenges
+
+| Challenge | Description |
+|-----------|-------------|
+| Cold Start | New users/items have no interaction history |
+| Sparsity | Most ratings are missing |
+| Scalability | Millions of users and items |
+| Diversity | Avoiding repetitive recommendations |
+| Serendipity | Enabling unexpected discoveries |
+| Filter Bubble | Users trapped in narrow content |
+
+### Technical Limitations
+- **Data Quality**: Noisy, biased, or fake ratings
+- **Changing Preferences**: User tastes evolve
+- **Context**: Same user wants different things at different times
+- **Explainability**: Why this recommendation?
+
+### Ethical Issues
+- Privacy concerns
+- Manipulation potential
+- Amplifying biases
+- Polarization (especially news)
+
+### Solutions
+| Problem | Solution |
+|---------|----------|
+| Cold Start | Hybrid systems, content-based fallback |
+| Sparsity | Matrix factorization, deep learning |
+| Diversity | Re-ranking, exploration |
+| Filter Bubble | Diversity metrics, random exploration |
+
+### Interview Tip
+Know cold start and sparsity problems well. Common follow-up: "How would you solve cold start for new users?"
 
 ---
 
 ## Question 83
 
-**Explain the concept ofcold-start problemin recommender systems and its solutions.**
+**Explain the concept of cold-start problem in recommender systems and its solutions.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+The cold-start problem occurs when the system lacks sufficient data to make recommendations for new users, new items, or new systems.
+
+### Types
+| Type | Problem | Example |
+|------|---------|---------|
+| New User | No interaction history | Just registered account |
+| New Item | No ratings received | Newly released movie |
+| New System | No data at all | Launching new platform |
+
+### Solutions
+
+**For New Users:**
+- Ask for preferences during onboarding
+- Use demographic info
+- Recommend popular items initially
+- Content-based on limited signals
+
+**For New Items:**
+- Use content-based features
+- Promote to diverse users for initial feedback
+- Bandit algorithms (exploration)
+
+**For New Systems:**
+- Import data from similar platforms
+- Use knowledge-based rules
+- Leverage external data (IMDb, reviews)
+
+### Hybrid Approaches
+- Combine collaborative + content-based
+- Content handles cold start
+- Collaborative improves with data
+
+### Interview Tip
+A good answer mentions both user and item cold start, with specific solutions for each.
 
 ---
 
 ## Question 84
 
-**What is the difference betweenexplicitandimplicit feedbackin recommender systems?**
+**What is the difference between explicit and implicit feedback in recommender systems?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Explicit feedback is direct user ratings (1-5 stars), while implicit feedback is inferred from user behavior (clicks, views, purchases).
+
+### Comparison
+
+| Aspect | Explicit | Implicit |
+|--------|----------|----------|
+| Collection | User actively provides | Passively observed |
+| Example | Star ratings, likes | Clicks, watch time, purchases |
+| Availability | Sparse (few rate) | Abundant |
+| Reliability | Clear preference signal | Noisy (click ≠ like) |
+| Negative Signal | Low ratings | Hard to determine (no click = dislike or unseen?) |
+
+### Challenges with Implicit
+- No negative examples (missing ≠ dislike)
+- Noisy signals (accidental clicks)
+- Varying engagement levels
+- Position bias
+
+### Handling Implicit Data
+- Treat as positive/unlabeled (not positive/negative)
+- Weight by engagement (watch time, purchases)
+- Use one-class collaborative filtering
+- BPR (Bayesian Personalized Ranking)
+
+### Applications
+| Explicit | Implicit |
+|----------|----------|
+| Movie ratings | View history |
+| Product reviews | Click stream |
+| Thumbs up/down | Purchase history |
+
+### Interview Tip
+Most real-world systems rely heavily on implicit feedback because explicit ratings are sparse.
 
 ---
 
 ## Question 85
 
-**Describe the concept ofevaluation metrics for recommender systems(e.g., precision, recall, NDCG).**
+**Describe the concept of evaluation metrics for recommender systems (e.g., precision, recall, NDCG).**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Ranking Metrics
+
+| Metric | Description | Formula |
+|--------|-------------|---------|
+| Precision@K | Relevant items in top K / K | $\frac{|relevant \cap top_K|}{K}$ |
+| Recall@K | Relevant items in top K / Total relevant | $\frac{|relevant \cap top_K|}{|relevant|}$ |
+| MAP | Mean Average Precision across users | |
+| NDCG | Normalized Discounted Cumulative Gain | |
+| MRR | Mean Reciprocal Rank | |
+
+### NDCG Explained
+- DCG: Rewards relevant items appearing earlier
+- NDCG: Normalized to [0, 1]
+$$DCG_K = \sum_{i=1}^{K} \frac{rel_i}{\log_2(i+1)}$$
+
+### Rating Prediction Metrics
+| Metric | Description |
+|--------|-------------|
+| RMSE | Root Mean Squared Error |
+| MAE | Mean Absolute Error |
+
+### Beyond Accuracy
+| Metric | Measures |
+|--------|----------|
+| Coverage | % of items recommended |
+| Diversity | How different recommendations are |
+| Novelty | How unexpected/new items are |
+| Serendipity | Surprising yet relevant |
+
+### Interview Tip
+NDCG is preferred for ranking because it accounts for position. Precision@K is simpler but treats all positions equally.
 
 ---
 
 ## Question 86
 
-**What is the role ofuser-item interactionsin recommender systems?**
+**What is the role of user-item interactions in recommender systems?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+User-item interactions are the signals (explicit or implicit) that capture how users engage with items, forming the foundation for building recommendations.
+
+### Types of Interactions
+
+| Type | Signal Strength | Example |
+|------|-----------------|---------|
+| Purchase | Strong | Bought product |
+| Rating | Strong | 5-star review |
+| Long view | Medium | Watched full movie |
+| Click | Weak | Clicked on item |
+| Impression | Very weak | Item shown but not clicked |
+
+### Interaction Matrix
+```
+        Item1  Item2  Item3  Item4
+User1   Buy    Click  -      View
+User2   -      Buy    Rate   -
+User3   View   -      Click  Buy
+```
+
+### Role in Algorithms
+- **Collaborative Filtering**: Core input
+- **Matrix Factorization**: Entries to factorize
+- **Deep Learning**: Training examples
+- **Session-Based**: Sequential patterns
+
+### Data Collection
+- Server-side logging
+- Client-side events
+- A/B testing infrastructure
+
+### Interview Tip
+The quality and quantity of interactions directly impact recommendation quality. More interactions = better personalization.
 
 ---
 
 ## Question 87
 
-**Explain the concept ofhybrid recommender systemsand their advantages.**
+**Explain the concept of hybrid recommender systems and their advantages.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Hybrid recommender systems combine multiple recommendation techniques (e.g., collaborative + content-based) to overcome individual method limitations.
+
+### Combination Strategies
+
+| Strategy | Method |
+|----------|--------|
+| Weighted | Score = w₁ × CF + w₂ × Content |
+| Switching | Use CF when possible, else content |
+| Feature Combination | Combine features in one model |
+| Cascade | First coarse filter, then fine ranking |
+| Meta-level | One method's output feeds another |
+
+### Advantages
+| Benefit | Explanation |
+|---------|-------------|
+| Overcome cold start | Content handles new users/items |
+| Better accuracy | Leverage strengths of each method |
+| Increased coverage | More items can be recommended |
+| Robustness | Less sensitive to individual method failures |
+
+### Example: Netflix
+- Collaborative filtering for personalization
+- Content features for new shows
+- Contextual signals (time, device)
+- Trending/popular as fallback
+
+### Implementation Example
+```python
+score = 0.6 * collaborative_score + 0.3 * content_score + 0.1 * popularity
+```
+
+### Interview Tip
+Most production systems are hybrid. Know specific examples like Netflix or Spotify's approach.
 
 ---
 
 ## Question 88
 
-**What is the role ofoptimizationin machine learning?**
+**What is the role of optimization in machine learning?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Optimization in ML is the process of finding model parameters that minimize (or maximize) an objective function, typically the loss/error between predictions and actual values.
+
+### Core Concept
+$$\theta^* = \arg\min_\theta L(\theta; X, y)$$
+
+Where:
+- θ: Model parameters (weights, biases)
+- L: Loss function
+- X, y: Training data
+
+### Why Optimization Matters
+- Models start with random parameters
+- Training = iteratively improving parameters
+- Goal: Find parameters that generalize well
+
+### Key Components
+| Component | Role |
+|-----------|------|
+| Objective Function | What to minimize (loss) |
+| Parameters | Variables to optimize |
+| Algorithm | How to search (gradient descent) |
+| Constraints | Regularization, bounds |
+
+### Common Loss Functions
+| Task | Loss |
+|------|------|
+| Regression | MSE, MAE |
+| Classification | Cross-entropy |
+| Ranking | Hinge, triplet loss |
+
+### Challenges
+- Non-convex landscapes (local minima)
+- Saddle points
+- Overfitting
+- Computational cost
+
+### Interview Tip
+Optimization is how ML models learn. Without it, we'd have no training.
 
 ---
 
 ## Question 89
 
-**Explain the concept ofgradient descentand its variants (e.g.,batch,stochastic,mini-batch).**
+**Explain the concept of gradient descent and its variants (e.g., batch, stochastic, mini-batch).**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Gradient descent is an iterative optimization algorithm that updates parameters in the direction of steepest descent of the loss function.
+
+### Update Rule
+$$\theta_{t+1} = \theta_t - \eta \cdot \nabla L(\theta_t)$$
+
+Where:
+- η: Learning rate
+- ∇L: Gradient of loss
+
+### Variants
+
+| Variant | Data per Update | Pros | Cons |
+|---------|-----------------|------|------|
+| Batch (Full) | All training data | Stable, accurate gradients | Slow, memory-intensive |
+| Stochastic (SGD) | 1 sample | Fast, can escape minima | Noisy, unstable |
+| Mini-batch | Subset (32-256) | Balance of speed and stability | Common choice |
+
+### Advanced Optimizers
+| Optimizer | Improvement |
+|-----------|-------------|
+| Momentum | Accumulates velocity |
+| RMSprop | Adaptive learning rates |
+| Adam | Momentum + RMSprop |
+| AdamW | Adam + weight decay |
+
+### Mini-batch Advantages
+- Utilizes GPU parallelism
+- Regularization effect from noise
+- Faster convergence than batch
+
+### Interview Tip
+Adam is the default choice. Know when to use SGD with momentum (often better generalization).
 
 ---
 
 ## Question 90
 
-**What is the difference between alocal minimumand aglobal minimum?**
+**What is the difference between a local minimum and a global minimum?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+A global minimum is the lowest point across the entire function. A local minimum is the lowest point within a neighborhood but not necessarily the overall lowest.
+
+### Visual Intuition
+```
+Loss     *  (local min)
+  |    /  \
+  |   /    \___*  (global min)
+  |  /
+  | /
+  +----------------------------> Parameters
+```
+
+### In Neural Networks
+- Loss landscapes are highly non-convex
+- Many local minima exist
+- Modern insight: Most local minima are nearly as good as global
+- Saddle points are bigger concern than local minima
+
+### Escaping Local Minima
+| Technique | How |
+|-----------|-----|
+| Momentum | Builds velocity to pass through |
+| Learning rate schedules | Vary step size |
+| Random restarts | Multiple initializations |
+| Noise (SGD) | Stochasticity helps escape |
+| Simulated annealing | Controlled randomness |
+
+### Convex vs Non-Convex
+| Convex | Non-Convex |
+|--------|------------|
+| Only global minimum | Multiple local minima |
+| Linear regression | Neural networks |
+| Guaranteed convergence | May get stuck |
+
+### Interview Tip
+For deep learning, local minima aren't the main problem—saddle points and flat regions are more challenging.
 
 ---
 
 ## Question 91
 
-**Describe the concept oflearning rateand its impact on model training.**
+**Describe the concept of learning rate and its impact on model training.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+The learning rate (η) controls the step size of parameter updates during gradient descent. It determines how quickly or slowly a model learns.
+
+### Impact on Training
+
+| Learning Rate | Effect |
+|---------------|--------|
+| Too high | Overshoots, diverges, loss increases |
+| Too low | Very slow convergence, may get stuck |
+| Just right | Smooth convergence to good solution |
+
+### Visual Effect
+```
+Too High:   ___     ___
+           /   \___/   \  (oscillating, diverging)
+
+Too Low:   ________...   (very slow progress)
+
+Good:      \_______      (smooth descent)
+```
+
+### Learning Rate Schedules
+| Schedule | Description |
+|----------|-------------|
+| Step decay | Reduce by factor every N epochs |
+| Exponential | Decay exponentially |
+| Cosine | Smooth cosine-based decay |
+| Warm-up | Start low, increase, then decay |
+| Cyclic | Oscillate between bounds |
+
+### Finding Good Learning Rate
+- Learning rate range test
+- Start with 1e-3 or 1e-4 (common defaults)
+- Use adaptive optimizers (Adam)
+
+### Interview Tip
+Learning rate is arguably the most important hyperparameter. If training isn't working, check learning rate first.
 
 ---
 
 ## Question 92
 
-**What is the purpose ofregularization techniquesin optimization?**
+**What is the purpose of regularization techniques in optimization?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Regularization adds constraints or penalties to the optimization objective to prevent overfitting and improve generalization to unseen data.
+
+### Core Idea
+$$L_{total} = L_{data} + \lambda \cdot R(\theta)$$
+
+Where R(θ) is the regularization term.
+
+### Common Techniques
+
+| Technique | Method | Effect |
+|-----------|--------|--------|
+| L1 (Lasso) | Penalty: Σ\|w\| | Sparse weights, feature selection |
+| L2 (Ridge) | Penalty: Σw² | Small weights, prevents explosion |
+| Elastic Net | L1 + L2 | Best of both |
+| Dropout | Random neuron zeroing | Ensemble effect |
+| Early Stopping | Stop before overfitting | Implicit regularization |
+| Data Augmentation | More varied training data | Reduces overfitting |
+
+### L1 vs L2
+| L1 | L2 |
+|----|-----|
+| Sparse solutions | Dense solutions |
+| Feature selection | Feature weighting |
+| Not differentiable at 0 | Smooth |
+
+### Why Regularization Works
+- Limits model complexity
+- Prevents memorizing noise
+- Encourages simpler solutions
+- Reduces variance at cost of slight bias increase
+
+### Interview Tip
+Know L1 gives sparsity (some weights exactly zero), L2 shrinks all weights but keeps them non-zero.
 
 ---
 
 ## Question 93
 
-**Explain the concept ofhyperparameter tuningand its techniques.**
+**Explain the concept of hyperparameter tuning and its techniques.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Hyperparameter tuning is the process of finding the optimal configuration of model hyperparameters (settings not learned from data) to maximize model performance.
+
+### Hyperparameters vs Parameters
+| Parameters | Hyperparameters |
+|------------|-----------------|
+| Learned from data | Set before training |
+| Weights, biases | Learning rate, layers, regularization |
+| Model adjusts | You adjust |
+
+### Common Hyperparameters
+- Learning rate
+- Batch size
+- Number of layers/neurons
+- Regularization strength
+- Number of trees (ensemble)
+- Max depth (trees)
+
+### Tuning Techniques
+
+| Technique | Method | Pros/Cons |
+|-----------|--------|-----------|
+| Manual | Trial and error | Simple; slow, biased |
+| Grid Search | Exhaustive grid | Complete; expensive |
+| Random Search | Random sampling | Efficient; may miss optimal |
+| Bayesian | Probabilistic model | Smart; complex |
+| Gradient-based | Differentiate through | Fast; limited applicability |
+
+### Validation Strategy
+- Use held-out validation set or cross-validation
+- NEVER tune on test set
+- Track all experiments (MLflow, Weights & Biases)
+
+### Interview Tip
+Random search is often better than grid search because it explores the space more efficiently.
 
 ---
 
 ## Question 94
 
-**What isgrid searchand how is it used for hyperparameter tuning?**
+**What is grid search and how is it used for hyperparameter tuning?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Grid search exhaustively evaluates all combinations of specified hyperparameter values, selecting the combination with the best validation performance.
+
+### How It Works
+1. Define parameter grid (values for each hyperparameter)
+2. Generate all combinations
+3. Train and evaluate model for each combination
+4. Select best performing configuration
+
+### Example
+```python
+from sklearn.model_selection import GridSearchCV
+
+param_grid = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [5, 10, 20],
+    'min_samples_split': [2, 5, 10]
+}
+# Total: 3 × 3 × 3 = 27 combinations
+
+grid_search = GridSearchCV(
+    estimator=RandomForestClassifier(),
+    param_grid=param_grid,
+    cv=5,
+    scoring='accuracy'
+)
+grid_search.fit(X_train, y_train)
+print(grid_search.best_params_)
+```
+
+### Pros and Cons
+| Pros | Cons |
+|------|------|
+| Exhaustive, complete | Exponentially expensive |
+| Simple to implement | Curse of dimensionality |
+| Reproducible | Inefficient for continuous params |
+
+### When to Use
+- Few hyperparameters
+- Small search space
+- Computational resources available
+
+### Interview Tip
+Grid search guarantees finding the best in the grid, but random search is usually more efficient.
 
 ---
 
 ## Question 95
 
-**Describe the concept ofrandom searchand its advantages over grid search.**
+**Describe the concept of random search and its advantages over grid search.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Random search samples hyperparameter combinations randomly from specified distributions, evaluating a fixed number of configurations.
+
+### How It Works
+```python
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import uniform, randint
+
+param_dist = {
+    'n_estimators': randint(100, 500),
+    'max_depth': randint(5, 30),
+    'learning_rate': uniform(0.01, 0.2)
+}
+
+random_search = RandomizedSearchCV(
+    estimator=model,
+    param_distributions=param_dist,
+    n_iter=50,  # Number of random combinations
+    cv=5
+)
+random_search.fit(X_train, y_train)
+```
+
+### Advantages Over Grid Search
+
+| Advantage | Explanation |
+|-----------|-------------|
+| More efficient | Better coverage with fewer evaluations |
+| Handles continuous params | Sample from distributions |
+| Scales better | Fixed budget regardless of dimensions |
+| Finds good solutions faster | Explores more of the space |
+
+### Why Random Search Works Better
+- Grid search wastes evaluations on unimportant hyperparameters
+- Random search explores unique values for important parameters
+- If 1 of 3 hyperparameters matters, grid search tests only a few values
+
+### Interview Tip
+Bergstra & Bengio (2012) showed random search is often significantly more efficient than grid search.
 
 ---
 
 ## Question 96
 
-**What isBayesian optimizationand how does it work for hyperparameter tuning?**
+**What is Bayesian optimization and how does it work for hyperparameter tuning?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Definition
+Bayesian optimization uses a probabilistic surrogate model to predict hyperparameter performance and intelligently selects the next configuration to evaluate, balancing exploration and exploitation.
+
+### How It Works
+1. Build surrogate model (Gaussian Process) of objective function
+2. Use acquisition function to select next point
+3. Evaluate actual performance
+4. Update surrogate model
+5. Repeat
+
+### Key Components
+| Component | Purpose |
+|-----------|---------|
+| Surrogate Model | Predicts performance (usually GP) |
+| Acquisition Function | Selects next point (EI, UCB) |
+| Observed Data | Past evaluations |
+
+### Acquisition Functions
+| Function | Strategy |
+|----------|----------|
+| EI (Expected Improvement) | Balance exploration/exploitation |
+| UCB (Upper Confidence Bound) | Optimistic under uncertainty |
+| PI (Probability of Improvement) | Probability of beating best |
+
+### Advantages
+- Sample-efficient (fewer evaluations)
+- Handles noise and expensive functions
+- Learns from all past evaluations
+- Good for expensive-to-evaluate models
+
+### Tools
+- Optuna
+- Hyperopt
+- Scikit-optimize
+- Weights & Biases
+
+### Python Example
+```python
+import optuna
+
+def objective(trial):
+    lr = trial.suggest_loguniform('lr', 1e-5, 1e-1)
+    depth = trial.suggest_int('depth', 3, 10)
+    # Train and return validation score
+    return score
+
+study = optuna.create_study(direction='maximize')
+study.optimize(objective, n_trials=100)
+```
+
+### Interview Tip
+Use Bayesian optimization when each evaluation is expensive (deep learning, large datasets). For quick experiments, random search is often sufficient.
 
 ---
 
