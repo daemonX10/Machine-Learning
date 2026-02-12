@@ -78,19 +78,6 @@ This repository follows a structured learning path designed to build knowledge p
 - **27_transfer_learning** - Knowledge transfer
 - **28_reinforcement_learning** - Decision-making agents
 
-#### **Specialized Architectures** (50+ advanced topics)
-- **29-55_specialized_models** - LSTM, GRU, Transformers, Vision Transformers, BERT, GPT, ResNet, U-Net, Diffusion Models, NeRF, and more
-
-### 🎯 **05_reinforcement_learning**
-**Advanced decision-making and control**
-- **01_sarsa** - On-policy temporal difference learning
-- **02_dqn** - Deep Q-networks
-- **03_policy_gradient** - Policy optimization methods
-- **04_actor_critic_a3c_ppo_trpo** - Advanced policy methods
-- **05_multi_agent_rl** - Multi-agent systems
-- **06_reward_shaping** - Reward engineering
-- **07_exploration_exploitation** - Exploration strategies
-
 ### ⚡ **06_algorithms_optimization**
 **Advanced optimization and algorithmic techniques**
 - **01_cost_function** - Objective function design
@@ -103,81 +90,32 @@ This repository follows a structured learning path designed to build knowledge p
 
 ### 👁️ **07_computer_vision**
 **Visual data processing and analysis**
-- **01_image_classification** - Image categorization
-- **02_object_detection** - Object localization and classification
-- **03_instance_segmentation** - Individual object segmentation
-- **04_semantic_segmentation** - Pixel-level classification
-- **05_image_super_resolution** - Image enhancement
-- **06_ocr** - Optical character recognition
-- **07_3d_reconstruction** - 3D scene understanding
-- **08_video_tracking** - Object tracking in video
-- **09_style_transfer** - Artistic style transformation
-- **10_facial_recognition** - Face identification
+- **00_core_questions.md** - Core computer vision questions
+- **01_cnn_architectures_and_detection** - CNN architectures and object detection
+- **02_segmentation_and_transformers** - Image segmentation and vision transformers
+- **03_generative_models_and_applications** - Generative models and CV applications
 
 ### 💬 **08_natural_language_processing**
 **Text and language understanding**
-- **01_tokenization_lemmatization_stemming** - Text preprocessing
-- **02_ner** - Named entity recognition
-- **03_pos_tagging** - Part-of-speech tagging
-- **04_text_classification** - Document classification
-- **05_sentiment_analysis** - Emotion and opinion mining
-- **06_topic_modeling** - Latent topic discovery
-- **07_seq2seq** - Sequence-to-sequence models
-- **08_machine_translation** - Language translation
-- **09_question_answering** - Automated question answering
-- **10_summarization_text_generation** - Text synthesis
-- **11_prompt_engineering** - AI prompt optimization
-- **12_rag** - Retrieval-augmented generation
+- **01_nlp_fundamentals** - NLP basics and preprocessing
+- **02_text_understanding** - Text analysis and comprehension
+- **03_text_generation** - Text synthesis and generation
 
 ### 🧠 **09_large_language_models_genai**
 **Modern large language models and generative AI**
-- **01_bert_roberta_distilbert** - Bidirectional transformers
-- **02_gpt2_gpt3_gpt4** - Generative pre-trained transformers
-- **03_llama_falcon_mistral** - Open-source large language models
-- **04_t5_bart** - Text-to-text transfer transformers
-- **05_embeddings** - Word2Vec, GloVe, BERT embeddings
-- **06_vector_databases** - FAISS, ChromaDB, Pinecone
+- **01_llm_architectures_models** - LLM architectures and model families
+- **02_embeddings_vector_systems** - Embeddings and vector databases
+- **03_llm_applications_engineering** - LLM applications and prompt engineering
 
 ### 🔍 **10_explainable_ai**
 **AI interpretability and transparency**
-- **01_shap** - SHapley Additive exPlanations
-- **02_lime** - Local interpretable model-agnostic explanations
-- **03_grad_cam** - Gradient-weighted class activation mapping
-- **04_feature_importance** - Feature contribution analysis
-- **05_permutation_importance** - Permutation-based feature importance
-- **06_integrated_gradients** - Attribution methods
-- **07_counterfactual_explanations** - What-if analysis
+- **explainable_ai_questions.md** - Comprehensive XAI questions
+- **code.ipynb** - XAI implementation examples
 
 ### 📏 **11_model_evaluation_metrics**
 **Model assessment and performance measurement**
-- **01_accuracy_precision_recall_f1** - Classification metrics
-- **02_confusion_matrix** - Error analysis matrix
-- **03_roc_curve_auc** - ROC curves and AUC
-- **04_log_loss** - Logarithmic loss
-- **05_mae_mse_rmse** - Regression metrics
-- **06_bleu_rouge** - NLP evaluation metrics
-- **07_psnr_ssim** - Computer vision metrics
-- **08_mota_motp_map** - Object detection and tracking metrics
-
-### 🚀 **12_mlops_deployment**
-**Production deployment and MLOps**
-- **01_model_versioning** - Model lifecycle management
-- **02_mlflow** - ML experiment tracking
-- **03_docker** - Containerization
-- **04_kubernetes** - Container orchestration
-- **05_fastapi** - High-performance web APIs
-- **06_flask** - Web application framework
-- **07_onnx** - Open neural network exchange
-- **08_torchserve** - PyTorch model serving
-- **09_vectorstore_integration** - Vector database integration
-
-### 🛠️ **13_libraries_visualization_tools**
-**Essential libraries and visualization tools**
-- **01_hugging_face_transformers** - State-of-the-art NLP models
-- **02_opencv** - Computer vision library
-- **03_plotly** - Interactive visualizations
-- **04_streamlit** - ML web applications
-- **05_fastai** - High-level deep learning
+- **theory_questions.md** - Evaluation metrics theory
+- **code.ipynb** - Metrics implementation examples
 
 ## 📁 Question Types
 
@@ -199,23 +137,22 @@ Each topic contains multiple question types designed for comprehensive learning:
 
 ### **Intermediate Track**
 1. Complete all **04_machine_learning** topics
-2. Explore **05_reinforcement_learning**
+2. Explore **06_algorithms_optimization**
 3. Dive into **07_computer_vision** or **08_natural_language_processing**
 4. Study **10_explainable_ai** for model interpretability
 
 ### **Advanced Track**
 1. Master **09_large_language_models_genai**
 2. Learn **11_model_evaluation_metrics**
-3. Implement **12_mlops_deployment** for production systems
-4. Utilize **13_libraries_visualization_tools** for advanced projects
+3. Apply concepts in real-world interview scenarios (**interview/** folder)
 
 ## 📊 Repository Statistics
 
-- **Total Topics**: 100+ specialized topics
-- **Total Questions**: 5,000+ comprehensive questions
-- **Domains Covered**: 13 major AI/ML domains
+- **Total Topics**: 50+ specialized topics
+- **Total Questions**: 1,000+ comprehensive questions
+- **Domains Covered**: 11 major AI/ML domains
 - **Learning Levels**: Beginner to Advanced
-- **Question Types**: 5 different formats per topic
+- **Question Types**: Multiple formats per topic
 
 ## 🎓 Usage Instructions
 
@@ -228,13 +165,16 @@ Each topic contains multiple question types designed for comprehensive learning:
 ## 🔗 Quick Navigation
 
 ```
-📚 Foundations (01-03) → 🤖 Core ML (04) → 🎯 Advanced AI (05-10) → 📏 Evaluation (11) → 🚀 Production (12-13)
+📚 Foundations (01-03) → 🤖 Core ML (04) → ⚡ Algorithms (06) → 🧠 Advanced AI (07-11) → 🎯 Interview Prep
 ```
+
+## 📂 Additional Folders
+
+- **interview/** - Interview preparation materials and domain-specific analysis
+- **research paper/** - Research papers and academic resources
+- **source_materials/** - Source files and reference materials
+- **code.ipynb** - Main notebook for code examples
 
 ---
 
 **Note**: This repository is designed as a comprehensive learning resource. Each topic builds upon previous knowledge, making the chronological order important for optimal learning outcomes.
-
-## 📝 Source Materials
-
-All questions are derived from carefully curated source materials, ensuring accuracy and relevance to current industry practices. Source files are available in the `source_materials/` directory for reference.

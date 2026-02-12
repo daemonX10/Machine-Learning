@@ -1274,47 +1274,58 @@ Back-substitute: z = -1, y = 3, x = 2
 **Complexity:** O(n³) for n×n system
 
 **Python Example:**
+
 ```python
 import numpy as np
 
 def gaussian_elimination(A, b):
-    """Solve Ax = b using Gaussian elimination with partial pivoting."""
     n = len(b)
-    # Augmented matrix
-    Ab = np.hstack([A.astype(float), b.reshape(-1, 1).astype(float)])
-    
-    # Forward elimination
-    for j in range(n):
-        # Partial pivoting: find max in column
-        max_row = j + np.argmax(np.abs(Ab[j:, j]))
-        Ab[[j, max_row]] = Ab[[max_row, j]]  # Swap rows
-        
-        # Eliminate below pivot
-        for i in range(j + 1, n):
-            if Ab[j, j] != 0:
-                m = Ab[i, j] / Ab[j, j]
-                Ab[i, j:] -= m * Ab[j, j:]
-    
-    # Back substitution
+
+    # augmented matrix
+    Ab = np.c_[A.astype(float), b.astype(float)]
+
+    # forward elimination with pivoting
+    for i in range(n):
+        # ---- pivot (row swap) ----
+        max_row = i
+        for k in range(i + 1, n):
+            if abs(Ab[k, i]) > abs(Ab[max_row, i]):
+                max_row = k
+
+        Ab[i], Ab[max_row] = Ab[max_row].copy(), Ab[i].copy()
+
+        # ---- eliminate below ----
+        for j in range(i + 1, n):
+            factor = Ab[j, i] / Ab[i, i]
+            Ab[j] = Ab[j] - factor * Ab[i]
+
+    # back substitution
     x = np.zeros(n)
     for i in range(n - 1, -1, -1):
-        x[i] = (Ab[i, -1] - np.dot(Ab[i, i+1:n], x[i+1:])) / Ab[i, i]
-    
-    return x
+        s = 0
+        for j in range(i + 1, n):
+            s += Ab[i, j] * x[j]
+        x[i] = (Ab[i, -1] - s) / Ab[i, i]
 
-# Test
-A = np.array([[2, 1, -1], [-3, -1, 2], [-2, 1, 2]])
+    return x
+```
+
+---
+
+## Test
+
+```python
+A = np.array([[2, 1, -1],
+              [-3, -1, 2],
+              [-2, 1, 2]])
+
 b = np.array([8, -11, -3])
 
 x = gaussian_elimination(A, b)
-print(x)  # [2. 3. -1.]
-
-# Verify
+print(x)                # [ 2.  3. -1.]
 print(np.allclose(A @ x, b))  # True
-
-# NumPy's built-in solver (uses LAPACK, more robust)
-x_numpy = np.linalg.solve(A, b)
 ```
+
 
 **ML Applications:**
 - **Linear regression**: Solving normal equations (XᵀX)w = Xᵀy

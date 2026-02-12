@@ -296,7 +296,7 @@ print(f"Ensemble Accuracy: {ensemble.score(X_test, y_test):.3f}")
 | Metric | Formula | Notes |
 |--------|---------|-------|
 | MSE | $\frac{1}{n}\sum(y - \hat{y})^2$ | Penalizes large errors |
-| MAE | $\frac{1}{n}\sum|y - \hat{y}|$ | Robust to outliers |
+| MAE | $\frac{1}{n}\sum abs(y - \hat{y})$ | Robust to outliers |
 | R² | $1 - \frac{SS_{res}}{SS_{tot}}$ | Variance explained |
 
 ### Code Example

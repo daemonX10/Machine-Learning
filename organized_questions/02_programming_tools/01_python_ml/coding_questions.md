@@ -103,11 +103,39 @@ Expected: bias ≈ 4, slope ≈ 3
 
 **Implement K-Means clustering from scratch in Python.**
 
+### Definition
+K-Means is an unsupervised learning algorithm that partitions data into K clusters by minimizing within-cluster variance. Each cluster is represented by its centroid (mean).
+
 ### Algorithm Steps
-1. Initialize K cluster centroids randomly
-2. Assign each point to nearest centroid
-3. Recompute centroids as mean of assigned points
-4. Repeat steps 2-3 until convergence
+1. Initialize K cluster centroids randomly (or using K-Means++)
+2. **Assignment Step**: Assign each point to nearest centroid using Euclidean distance
+3. **Update Step**: Recompute centroids as mean of all points in each cluster
+4. Repeat steps 2-3 until convergence (centroids don't change or max iterations reached)
+5. Return final cluster assignments and centroids
+
+### Mathematical Formulation
+
+**Objective Function** (minimize within-cluster sum of squares):
+$$J = \sum_{k=1}^{K} \sum_{x_i \in C_k} ||x_i - \mu_k||^2$$
+
+Where:
+- $K$ = number of clusters
+- $C_k$ = set of points in cluster $k$
+- $\mu_k$ = centroid of cluster $k$
+- $||x_i - \mu_k||^2$ = squared Euclidean distance
+
+**Assignment Step**:
+$$c_i = \arg\min_k ||x_i - \mu_k||^2$$
+
+Assign point $x_i$ to cluster with nearest centroid.
+
+**Update Step**:
+$$\mu_k = \frac{1}{|C_k|} \sum_{x_i \in C_k} x_i$$
+
+Update centroid as mean of all points in cluster.
+
+
+![K-Means Clustering](./images/kmean.png)
 
 ### Python Implementation
 
@@ -175,11 +203,41 @@ if __name__ == "__main__":
     print(f"Cluster sizes: {[np.sum(labels == i) for i in range(3)]}")
 ```
 
+### Interview Tips
+- K-Means is sensitive to initial centroid placement → use K-Means++ for better initialization
+- Assumes spherical clusters with similar sizes
+- Choose K using elbow method or silhouette score
+- Computational complexity: O(n × K × i × d) where n=samples, K=clusters, i=iterations, d=dimensions
+- Not guaranteed to find global optimum (local minimum)
+
 ---
 
 ## Question 3
 
 **Implement train-test split function from scratch.**
+
+### Definition
+Train-test split is a data partitioning technique that divides a dataset into two subsets: training set (for model learning) and test set (for model evaluation). This prevents overfitting and provides unbiased performance estimates.
+
+### Algorithm Steps
+1. Set random seed for reproducibility (optional)
+2. Generate array of shuffled indices from 0 to n-1
+3. Calculate split point based on test_size ratio
+4. Split indices into train and test portions
+5. Use indices to partition X and y arrays
+6. Return X_train, X_test, y_train, y_test
+
+### Mathematical Formulation
+
+Given dataset $(X, y)$ with $n$ samples:
+- Test set size: $n_{test} = \lfloor n \times \text{test\_size} \rfloor$
+- Train set size: $n_{train} = n - n_{test}$
+
+**Random permutation**: $\pi: \{0, 1, ..., n-1\} \rightarrow \{0, 1, ..., n-1\}$
+
+**Split**:
+- Test indices: $I_{test} = \{\pi(0), \pi(1), ..., \pi(n_{test}-1)\}$
+- Train indices: $I_{train} = \{\pi(n_{test}), ..., \pi(n-1)\}$
 
 ### Python Implementation
 
@@ -231,14 +289,50 @@ print(f"Training set size: {len(X_train)}")
 print(f"Test set size: {len(X_test)}")
 ```
 
+### Interview Tips
+- Common split ratios: 80-20, 70-30, 90-10 (depends on dataset size)
+- For small datasets, use K-fold cross-validation instead
+- Always set random_state for reproducible results
+- Stratified split preserves class distribution (important for imbalanced data)
+- Temporal data requires time-based split (not random)
+
 ---
 
 ## Question 4
 
 **Implement standardization (Z-score normalization) from scratch.**
 
-### Formula
-$z = \frac{x - \mu}{\sigma}$
+### Definition
+Standardization (Z-score normalization) transforms features to have zero mean and unit variance. This is crucial for algorithms that are sensitive to feature scales (e.g., gradient descent, SVM, KNN).
+
+### Algorithm Steps
+
+**Training Phase (fit)**:
+1. Calculate mean $\mu$ for each feature across all training samples
+2. Calculate standard deviation $\sigma$ for each feature
+3. Store $\mu$ and $\sigma$ for later use
+4. Handle zero std (avoid division by zero): set $\sigma = 1$ if $\sigma = 0$
+
+**Transformation Phase (transform)**:
+1. Subtract mean: $x' = x - \mu$
+2. Divide by standard deviation: $z = \frac{x'}{\sigma}$
+3. Return standardized features
+
+### Mathematical Formulation
+
+**Z-score transformation**:
+$$z = \frac{x - \mu}{\sigma}$$
+
+Where:
+- $x$ = original feature value
+- $\mu = \frac{1}{n} \sum_{i=1}^{n} x_i$ = mean
+- $\sigma = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (x_i - \mu)^2}$ = standard deviation
+- $z$ = standardized value
+
+**Properties after standardization**:
+- Mean: $E[z] = 0$
+- Standard deviation: $\text{std}(z) = 1$
+- Distribution shape preserved (not normalized to 0-1 range)
 
 ### Python Implementation
 
@@ -291,17 +385,64 @@ print(f"\nMean of scaled: {X_scaled.mean(axis=0)}")
 print(f"Std of scaled: {X_scaled.std(axis=0)}")
 ```
 
+### Interview Tips
+- **Standardization vs Normalization**: Standardization → mean=0, std=1; Normalization → scale to [0,1]
+- Always fit on training data only, then transform both train and test
+- Required for: SVM, KNN, PCA, gradient descent, neural networks
+- Not required for: tree-based models (decision trees, random forest, XGBoost)
+- Sensitive to outliers (consider robust scaling for outlier-heavy data)
+
 ---
 
 ## Question 5
 
 **Implement a simple decision tree classifier (for binary classification).**
 
+### Definition
+A decision tree is a supervised learning algorithm that recursively splits data based on feature values to create a tree structure. Each internal node represents a decision rule, and leaf nodes represent class predictions.
+
 ### Algorithm Steps
-1. Find best feature and threshold to split data
-2. Split data into left and right subsets
-3. Recursively build tree on subsets
-4. Stop when max depth reached or pure node
+
+**Training (Recursive Tree Building)**:
+1. **Base cases** (stop splitting):
+   - Maximum depth reached
+   - Node is pure (all samples have same label)
+   - Too few samples to split
+2. **Find best split**:
+   - For each feature and threshold
+   - Calculate information gain (or Gini reduction)
+   - Select split with maximum gain
+3. **Partition data** into left (≤ threshold) and right (> threshold) subsets
+4. **Recursively build** left and right subtrees
+5. **Return tree structure** (dict with feature, threshold, children)
+
+**Prediction (Tree Traversal)**:
+1. Start at root node
+2. Compare sample's feature value with node's threshold
+3. Go left if ≤ threshold, right otherwise
+4. Repeat until reaching leaf node
+5. Return leaf's prediction
+
+### Mathematical Formulation
+
+**Gini Impurity** (measures node impurity):
+$$\text{Gini}(p) = 2p(1-p) = 1 - p^2 - (1-p)^2$$
+
+Where $p$ = proportion of positive class samples.
+
+**For multi-class** (C classes):
+$$\text{Gini} = 1 - \sum_{i=1}^{C} p_i^2$$
+
+**Information Gain** (reduction in impurity after split):
+$$\text{Gain} = \text{Gini}_{\text{parent}} - \left(\frac{n_L}{n}\text{Gini}_L + \frac{n_R}{n}\text{Gini}_R\right)$$
+
+Where:
+- $n$ = total samples
+- $n_L, n_R$ = samples in left/right child
+- $\text{Gini}_L, \text{Gini}_R$ = impurity of children
+
+**Alternative: Entropy** (Shannon entropy):
+$$H(p) = -p\log_2(p) - (1-p)\log_2(1-p)$$
 
 ### Python Implementation
 
@@ -420,11 +561,50 @@ accuracy = np.mean(predictions == y_test)
 print(f"Accuracy: {accuracy:.2f}")
 ```
 
+### Interview Tips
+- **Advantages**: Interpretable, handles non-linear relationships, no feature scaling needed
+- **Disadvantages**: Prone to overfitting, unstable (small data changes → different tree)
+- **Hyperparameters**: max_depth, min_samples_split, min_samples_leaf, max_features
+- **Splitting criteria**: Gini (faster), Entropy (more balanced), Classification Error
+- **Pruning**: Pre-pruning (early stopping) vs Post-pruning (build full tree, then prune)
+- **Extensions**: Random Forest (ensemble of trees), Gradient Boosting
+
 ---
 
 ## Question 6
 
 **Implement One-Hot Encoding from scratch.**
+
+### Definition
+One-hot encoding converts categorical variables into binary vector representation. Each category becomes a separate binary feature, with exactly one '1' and rest '0's. Essential for feeding categorical data into ML algorithms.
+
+### Algorithm Steps
+1. **Extract unique categories** from input array
+2. **Create mapping**: category → index (0 to n_categories-1)
+3. **Initialize binary matrix**: shape (n_samples, n_categories) with zeros
+4. **Set bits**: For each sample, set corresponding category index to 1
+5. **Return**: encoded matrix and category labels
+
+### Mathematical Formulation
+
+Given categorical variable $x$ with $C$ unique categories $\{c_1, c_2, ..., c_C\}$:
+
+**Encoding function**:
+$$\text{OneHot}(x_i) = [e_1, e_2, ..., e_C]$$
+
+Where:
+$$e_j = \begin{cases} 
+1 & \text{if } x_i = c_j \\
+0 & \text{otherwise}
+\end{cases}$$
+
+**Properties**:
+- $\sum_{j=1}^{C} e_j = 1$ (exactly one '1' per sample)
+- Dimension: $n \times C$ matrix for $n$ samples
+- Sparse representation (mostly zeros)
+
+**Example**:
+Colors = {red, blue, green} → Red = [1, 0, 0], Blue = [0, 1, 0], Green = [0, 0, 1]
 
 ### Python Implementation
 
@@ -480,17 +660,74 @@ Encoded:
  [1. 0. 0.]]
 ```
 
+### Interview Tips
+- **When to use**: For nominal categorical variables (no order: colors, countries)
+- **Avoid for ordinal**: Use label encoding for ordinal data (small < medium < large)
+- **Dummy variable trap**: Drop one column to avoid multicollinearity (n-1 encoding)
+- **High cardinality problem**: Many categories → too many features → use target encoding or embeddings
+- **Alternatives**: Label encoding, target encoding, frequency encoding, embeddings (for neural networks)
+- **Libraries**: `pd.get_dummies()`, `sklearn.preprocessing.OneHotEncoder`
+
 ---
 
 ## Question 7
 
 **Implement accuracy, precision, recall, and F1-score from scratch.**
 
-### Formulas
-- Accuracy = $(TP + TN) / (TP + TN + FP + FN)$
-- Precision = $TP / (TP + FP)$
-- Recall = $TP / (TP + FN)$
-- F1 = $2 \times \frac{Precision \times Recall}{Precision + Recall}$
+### Definition
+Classification metrics evaluate model performance for binary/multi-class classification tasks. Each metric focuses on different aspects:
+- **Accuracy**: Overall correctness
+- **Precision**: Correctness of positive predictions
+- **Recall**: Coverage of actual positives
+- **F1-score**: Harmonic mean balancing precision and recall
+
+### Algorithm Steps
+
+**Step 1: Calculate Confusion Matrix Components**
+- True Positives (TP): Correctly predicted positive
+- True Negatives (TN): Correctly predicted negative
+- False Positives (FP): Incorrectly predicted positive (Type I error)
+- False Negatives (FN): Incorrectly predicted negative (Type II error)
+
+**Step 2: Calculate Metrics**
+1. **Accuracy**: $\frac{TP + TN}{\text{Total}}$
+2. **Precision**: $\frac{TP}{TP + FP}$ (of predicted positives, how many are correct?)
+3. **Recall**: $\frac{TP}{TP + FN}$ (of actual positives, how many did we catch?)
+4. **F1**: Harmonic mean of precision and recall
+
+### Mathematical Formulation
+
+**Confusion Matrix**:
+```
+                Predicted
+              Pos    Neg
+Actual  Pos | TP  |  FN  |
+        Neg | FP  |  TN  |
+```
+
+**Metrics**:
+
+1. **Accuracy**:
+$$\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}$$
+
+2. **Precision** (Positive Predictive Value):
+$$\text{Precision} = \frac{TP}{TP + FP}$$
+
+3. **Recall** (Sensitivity, True Positive Rate):
+$$\text{Recall} = \frac{TP}{TP + FN}$$
+
+4. **F1-Score** (Harmonic Mean):
+$$F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}} = \frac{2TP}{2TP + FP + FN}$$
+
+5. **Specificity** (True Negative Rate):
+$$\text{Specificity} = \frac{TN}{TN + FP}$$
+
+6. **F-Beta Score** (Generalized F1):
+$$F_\beta = (1 + \beta^2) \times \frac{\text{Precision} \times \text{Recall}}{\beta^2 \times \text{Precision} + \text{Recall}}$$
+
+Where $\beta$ controls precision-recall trade-off:
+- $\beta < 1$: Favor precision
+- $\beta > 1$: Favor recall
 
 ### Python Implementation
 
@@ -546,4 +783,22 @@ print(f"Precision: {precision(y_true, y_pred):.2f}")
 print(f"Recall:    {recall(y_true, y_pred):.2f}")
 print(f"F1 Score:  {f1_score(y_true, y_pred):.2f}")
 ```
+
+### Interview Tips
+
+**When to use each metric**:
+- **Accuracy**: Balanced datasets, equal cost for all errors
+- **Precision**: When False Positives are costly (spam detection, fraud detection)
+- **Recall**: When False Negatives are costly (cancer detection, security threats)
+- **F1-Score**: Imbalanced datasets, balance precision and recall
+
+**Common pitfalls**:
+- Accuracy paradox: 99% accuracy meaningless if 99% of data is one class
+- Precision-Recall tradeoff: Improving one often hurts the other
+- Use ROC-AUC for threshold-independent evaluation
+
+**Multi-class extensions**:
+- Macro-average: Average metrics across classes (equal weight)
+- Micro-average: Aggregate TP/FP/FN, then calculate (weight by class size)
+- Weighted-average: Weight by class support
 
