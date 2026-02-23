@@ -9577,3 +9577,1763 @@ def compare_architectures():
 - Watch this space — SSMs are actively evolving
 
 ---
+
+
+---
+
+# --- BERT/RoBERTa/DistilBERT Questions (from 09_llm_genai_tools/01_bert_roberta_distilbert) ---
+
+# BERT/RoBERTa/DistilBERT - Theory Questions
+
+## Question 1
+**How do you choose between BERT, RoBERTa, and DistilBERT for a production sentiment analysis system with latency constraints?**
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**What are the key architectural differences between BERT's masked language modeling and RoBERTa's training approach?**
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**How do you implement domain adaptation when fine-tuning BERT for specialized medical text classification?**
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**In what scenarios would you choose DistilBERT's 40% size reduction over BERT's full performance capabilities?**
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**How do you handle the computational trade-offs when deploying RoBERTa-large versus BERT-base in real-time applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**What preprocessing considerations are unique to BERT's WordPiece tokenization for multilingual text processing?**
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**How do you implement incremental learning with BERT models when new labeled data arrives continuously?**
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What are the best practices for handling long documents that exceed BERT's 512-token limit?**
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How do you optimize DistilBERT's knowledge distillation process for domain-specific tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**When would you use RoBERTa's dynamic masking strategy over BERT's static masking approach?**
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How do you implement efficient batch processing for BERT inference in high-throughput production systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**What techniques help reduce overfitting when fine-tuning BERT on small specialized datasets?**
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**How do you handle class imbalance when fine-tuning BERT for multi-class classification tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**What are the memory optimization strategies for deploying BERT models on edge devices?**
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How do you implement effective warm-up strategies during BERT fine-tuning for optimal convergence?**
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**When should you use BERT's [CLS] token versus pooling strategies for document-level representations?**
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**How do you handle multilingual requirements when choosing between mBERT and language-specific BERT variants?**
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**What are the considerations for using DistilBERT in privacy-sensitive applications where model size matters?**
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How do you implement gradient accumulation for BERT training when GPU memory is limited?**
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What evaluation metrics best capture the performance differences between BERT variants on your specific task?**
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**How do you handle tokenization mismatches when transferring between different BERT model variants?**
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**What are the best practices for implementing BERT model ensembles to improve robustness?**
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**How do you optimize the learning rate schedule for different BERT architectures during fine-tuning?**
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**When would you implement custom attention mechanisms on top of pre-trained BERT representations?**
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How do you handle catastrophic forgetting when continually fine-tuning BERT on new domains?**
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What techniques help maintain BERT's performance when quantizing models for mobile deployment?**
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**How do you implement effective data augmentation strategies specifically for BERT-based models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**What are the considerations for using BERT in few-shot learning scenarios with limited examples per class?**
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How do you handle the computational cost of BERT's attention mechanism in very long sequence processing?**
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**When should you use specialized BERT variants like BioBERT, FinBERT, or LegalBERT over general models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How do you implement model compression techniques beyond distillation for BERT deployment?**
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**What are the best practices for handling noisy or adversarial inputs in BERT-based production systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**How do you optimize BERT's performance for cross-lingual transfer learning tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**What monitoring strategies help detect performance degradation in deployed BERT models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do you implement effective prompt engineering techniques for BERT-style masked language models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**When would you choose task-specific fine-tuning versus feature extraction approaches with BERT?**
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**How do you handle the interpretability requirements when deploying BERT in regulated industries?**
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**What are the strategies for maintaining BERT model performance under dataset shift conditions?**
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How do you implement cost-effective inference scaling for BERT models in cloud environments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**What techniques help reduce the environmental impact of training and deploying large BERT models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**How do you handle version control and model lifecycle management for BERT variant deployments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**What are the considerations for implementing BERT in real-time recommendation systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**How do you optimize BERT's throughput while maintaining quality in high-volume text processing pipelines?**
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**When should you implement custom pre-training for BERT on domain-specific corpora?**
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**How do you handle the trade-offs between model accuracy and inference speed in BERT deployment?**
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**What are the best practices for A/B testing different BERT variants in production environments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How do you implement effective error handling and fallback mechanisms for BERT-based applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**What techniques help ensure consistent BERT model performance across different hardware configurations?**
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**How do you optimize BERT's performance for streaming text processing applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What are the key considerations when migrating from older transformer models to modern BERT variants?**
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- GPT-2/GPT-3/GPT-4 Questions (from 09_llm_genai_tools/02_gpt2_gpt3_gpt4) ---
+
+# GPT-2/GPT-3/GPT-4 - Theory Questions
+
+## Question 1
+**How do you optimize GPT-4's context window utilization for long-document summarization tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**What are the cost-efficiency considerations when choosing between GPT-3.5-turbo and GPT-4 for production applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**How do you implement effective prompt engineering strategies that work consistently across GPT-2, GPT-3, and GPT-4?**
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**When would you choose fine-tuning GPT-2 locally versus using GPT-4's in-context learning capabilities?**
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**How do you handle rate limiting and API quotas when building production systems around GPT-3/GPT-4?**
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**What techniques help reduce hallucination in GPT models for factual content generation?**
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**How do you implement retrieval-augmented generation (RAG) to enhance GPT model accuracy?**
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What are the best practices for handling sensitive data when using cloud-based GPT APIs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How do you measure and optimize the coherence of long-form text generated by GPT models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**When should you use GPT-4's multimodal capabilities versus separate vision and language models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How do you implement effective content filtering and safety measures for GPT-generated text?**
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**What strategies help maintain consistent writing style and tone across GPT model generations?**
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**How do you handle the computational requirements for self-hosting GPT-2 versus using API-based solutions?**
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**What are the techniques for implementing few-shot learning effectively with different GPT variants?**
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How do you optimize prompt design for complex reasoning tasks using GPT-4's advanced capabilities?**
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**When would you implement custom stopping criteria for GPT text generation in production systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**How do you handle context management for multi-turn conversations using GPT models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**What are the best practices for implementing GPT model caching to reduce API costs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How do you measure and improve the factual accuracy of GPT-generated content?**
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What techniques help control the creativity versus consistency trade-off in GPT text generation?**
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**How do you implement effective batch processing for high-volume GPT API requests?**
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**When should you use GPT-4's function calling capabilities versus traditional API integrations?**
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**How do you handle version migration when OpenAI updates GPT model versions?**
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**What are the strategies for implementing GPT models in multilingual content generation systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How do you optimize GPT model performance for domain-specific technical writing tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What techniques help ensure GPT-generated content meets specific compliance and regulatory requirements?**
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**How do you implement effective quality assessment for GPT-generated content at scale?**
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**When would you combine multiple GPT model variants in an ensemble approach?**
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How do you handle the latency requirements for real-time applications using GPT APIs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**What are the best practices for implementing GPT models in customer-facing chatbot applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How do you optimize GPT prompt engineering for code generation and programming tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**What strategies help maintain GPT model performance consistency across different user contexts?**
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**How do you implement effective monitoring and alerting for GPT-based production systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**When should you use GPT-4's advanced reasoning capabilities versus simpler, faster alternatives?**
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do you handle the scalability challenges of GPT model deployment in enterprise environments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**What techniques help reduce bias in GPT-generated content for diverse user bases?**
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**How do you implement cost optimization strategies for large-scale GPT API usage?**
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**What are the considerations for implementing GPT models in privacy-sensitive applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How do you handle error recovery and fallback mechanisms in GPT-based systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**When would you implement custom fine-tuning versus using GPT's built-in adaptability features?**
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**How do you optimize GPT model selection based on specific use case requirements and constraints?**
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**What strategies help ensure GPT-generated content maintains brand voice and messaging consistency?**
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**How do you implement effective testing and validation procedures for GPT-based applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**What techniques help manage the unpredictability of GPT model outputs in production systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**How do you handle data retention and privacy concerns when using GPT APIs with user data?**
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**What are the best practices for implementing GPT models in content moderation workflows?**
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How do you optimize GPT performance for specific industries like healthcare, finance, or legal services?**
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**When should you implement custom preprocessing versus relying on GPT's built-in text processing?**
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**How do you handle the integration challenges when combining GPT models with existing enterprise systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What are the key performance indicators for measuring GPT model success in production applications?**
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- LLaMA/Falcon/Mistral Questions (from 09_llm_genai_tools/03_llama_falcon_mistral) ---
+
+# LLaMA/Falcon/Mistral - Theory Questions
+
+## Question 1
+**How do you choose between LLaMA, Falcon, and Mistral based on specific deployment constraints and performance requirements?**
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**What are the licensing implications when deploying LLaMA versus Falcon or Mistral in commercial applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**How do you optimize Mistral 7B's sliding window attention for long-sequence processing tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**When would you choose Falcon's 40B model over other alternatives for enterprise-scale applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**How do you implement efficient fine-tuning strategies for LLaMA models on domain-specific datasets?**
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**What are the memory optimization techniques specific to deploying LLaMA models on consumer hardware?**
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**How do you handle the computational trade-offs between model size and inference speed across these three model families?**
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What quantization strategies work best for each model family while maintaining performance quality?**
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How do you implement effective instruction tuning for LLaMA, Falcon, and Mistral models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**When should you use Mistral's mixture-of-experts architecture versus traditional dense models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How do you optimize batch processing efficiency for different model architectures in production environments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**What are the best practices for implementing RLHF (Reinforcement Learning from Human Feedback) with these models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**How do you handle multilingual capabilities comparison between LLaMA, Falcon, and Mistral variants?**
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**What techniques help reduce inference latency when deploying these models in real-time applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How do you implement effective model parallelism strategies for large LLaMA or Falcon deployments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**When would you choose specialized variants like Code Llama versus general-purpose models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**How do you optimize memory usage during training and inference for resource-constrained environments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**What are the strategies for implementing continual learning with LLaMA, Falcon, or Mistral models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How do you handle the evaluation challenges when comparing performance across different model architectures?**
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What techniques help maintain model performance when adapting to new domains or tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**How do you implement efficient serving infrastructure for high-throughput applications using these models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**When should you use LoRA (Low-Rank Adaptation) versus full fine-tuning for each model family?**
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**How do you optimize the balance between model capability and deployment cost across different options?**
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**What are the best practices for implementing safety measures and content filtering with these models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How do you handle version control and model lifecycle management for open-source model deployments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What strategies help ensure consistent performance across different hardware configurations?**
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**How do you implement effective prompt engineering techniques optimized for each model's characteristics?**
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**When would you combine multiple models in an ensemble versus using a single larger model?**
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How do you optimize storage and loading efficiency for frequent model switching in production?**
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**What techniques help reduce the environmental impact of training and deploying these large models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How do you implement effective monitoring and performance tracking for self-hosted model deployments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**What are the considerations for implementing these models in edge computing scenarios?**
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**How do you handle the interpretability and explainability requirements for regulated industry deployments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**When should you implement custom tokenization versus using the model's default tokenizer?**
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do you optimize these models for specific use cases like code generation, creative writing, or analysis?**
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**What strategies help maintain model security and prevent unauthorized access in self-hosted deployments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**How do you implement effective load balancing and scaling strategies for high-demand applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**What techniques help optimize the training efficiency when customizing these models for specific domains?**
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How do you handle the integration challenges when incorporating these models into existing ML pipelines?**
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**When would you choose between different quantization formats (INT8, INT4, FP16) for each model family?**
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**How do you implement effective caching strategies to improve response times and reduce computational costs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**What are the best practices for handling model updates and migrations in production environments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**How do you optimize these models for specific hardware accelerators like GPUs, TPUs, or specialized AI chips?**
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**What strategies help ensure reliable performance under varying load conditions?**
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**How do you implement effective A/B testing frameworks for comparing different model variants?**
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**What techniques help optimize the model selection process based on real-time performance metrics?**
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How do you handle the complexity of managing multiple model versions and configurations simultaneously?**
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**When should you implement custom inference optimizations versus using existing frameworks like vLLM or TensorRT?**
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**How do you optimize these models for specific deployment patterns like serverless, containerized, or bare-metal?**
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What are the key considerations for long-term maintenance and support of self-hosted model deployments?**
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- T5/BART Questions (from 09_llm_genai_tools/04_t5_bart) ---
+
+# T5/BART - Theory Questions
+
+## Question 1
+**How do you choose between T5's text-to-text approach and BART's encoder-decoder architecture for specific NLP tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**What are the advantages of T5's unified framework when building multi-task learning systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**How do you optimize BART's denoising pre-training approach for domain-specific text generation tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**When would you use T5's prefix-based task specification versus BART's task-specific fine-tuning?**
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**How do you handle the computational requirements differences between T5 and BART in production environments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**What techniques help optimize T5's performance for extremely long input sequences?**
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**How do you implement effective prompt design strategies for T5's text-to-text paradigm?**
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What are the best practices for fine-tuning BART on abstractive summarization tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How do you handle the memory optimization challenges when deploying large T5 or BART models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**When should you use T5's multi-task capabilities versus training separate specialized models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How do you optimize BART's attention mechanisms for document-level understanding tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**What strategies help improve T5's performance on few-shot learning scenarios?**
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**How do you implement effective evaluation metrics for comparing T5 and BART on generation tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**What techniques help reduce hallucination in both T5 and BART text generation outputs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How do you handle the tokenization differences between T5 and BART when processing diverse text types?**
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**When would you implement custom pre-training objectives for T5 or BART on domain-specific corpora?**
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**How do you optimize batch processing efficiency for T5 and BART in high-throughput applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**What are the best practices for implementing controllable text generation with T5 and BART?**
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How do you handle the scalability challenges when deploying T5 or BART for real-time applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What techniques help maintain consistency in generated outputs across different input contexts?**
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**How do you implement effective transfer learning strategies from general T5/BART to specialized domains?**
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**When should you use T5's encoder-decoder architecture versus decoder-only models for specific tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**How do you optimize BART's performance for multilingual text processing and generation?**
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**What strategies help improve the factual accuracy of T5 and BART generated content?**
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How do you handle the evaluation challenges when comparing T5 and BART across different task types?**
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What techniques help optimize the training efficiency for large T5 and BART model variants?**
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**How do you implement effective quality control measures for T5 and BART generated outputs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**When would you combine T5 and BART in ensemble approaches for improved performance?**
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How do you optimize memory usage during inference for T5 and BART in resource-constrained environments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**What are the best practices for implementing T5 and BART in conversational AI systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How do you handle the context management challenges in multi-turn applications using T5 or BART?**
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**What strategies help ensure T5 and BART model robustness against adversarial inputs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**How do you implement effective beam search and decoding strategies for optimal generation quality?**
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**When should you use T5's span corruption objective versus BART's document corruption approach?**
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do you optimize T5 and BART for specific text generation tasks like dialogue, summaries, or creative writing?**
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**What techniques help maintain T5 and BART performance consistency across different deployment environments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**How do you handle the versioning and model lifecycle management for T5 and BART deployments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**What are the considerations for implementing T5 and BART in privacy-sensitive applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How do you optimize the prompt engineering approaches specific to T5's text-to-text framework?**
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**When would you implement custom loss functions versus standard objectives for T5 and BART training?**
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**How do you handle the integration challenges when incorporating T5 or BART into existing NLP pipelines?**
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**What strategies help optimize T5 and BART performance for domain-specific vocabularies and terminology?**
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**How do you implement effective monitoring and performance tracking for T5 and BART production systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**What techniques help reduce the computational overhead of T5 and BART attention mechanisms?**
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**How do you optimize T5 and BART for specific hardware configurations and acceleration platforms?**
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**When should you use progressive training strategies versus standard fine-tuning for T5 and BART?**
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How do you handle the data preprocessing requirements specific to T5's text-to-text format?**
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**What are the best practices for implementing T5 and BART in content creation workflows?**
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**How do you optimize the trade-offs between generation quality and inference speed for production deployment?**
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What strategies help ensure T5 and BART generated content meets specific style and format requirements?**
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- LLMs (from 06_ai_nlp/03_llms) - theory questions ---
+
+# Llms Interview Questions - Theory Questions
+
+## Question 1
+
+**What areLarge Language Models (LLMs)and how do they work?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**Describe the architecture of atransformer modelthat is commonly used in LLMs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**What are the main differences betweenLLMsand traditionalstatistical language models?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**Can you explain the concept ofattention mechanismsin transformer models?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 5
+
+**What arepositional encodingsin the context of LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 6
+
+**What is the role oftransformersin achieving parallelization in LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 7
+
+**What are some prominentapplicationsof LLMs today?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 8
+
+**Describe how LLMs can be used in thegeneration of synthetic text.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 9
+
+**Explain how LLMs can improveinformation retrievalanddocument summarization.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 10
+
+**Describe theBERT (Bidirectional Encoder Representations from Transformers)model and its significance.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 11
+
+**Explain the core idea behind theT5 (Text-to-Text Transfer Transformer)model.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 12
+
+**What is theRoBERTa modeland how does it differ from standard BERT?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 13
+
+**How does theGPT (Generative Pre-trained Transformer)series of models work?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 14
+
+**What are some of thelimitationsof the Transformer architecture in LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 15
+
+**What is the importance ofbatch sizeandsequence lengthin LLM training?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 16
+
+**Explain the concept ofgradient checkpointingin the context of training efficiency.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 17
+
+**Can you describe techniques tomonitor and maintainLLMs in production?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 18
+
+**Explain the factors to consider when selectinghardwarefor training LLMs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 19
+
+**Explainmodel versioningstrategies when updating LLMs in production.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 20
+
+**Describe a method to efficiently roll back to a previous LLM model state in case of failures.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 21
+
+**What are the potential futureapplicationsof LLMs that are currently being researched?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 22
+
+**Explain howcapsule networksmight be integrated with LLMs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 23
+
+**What arezero-shotandfew-shot learningcapabilities in LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+
+---
+
+# --- LLMs (from 06_ai_nlp/03_llms) - coding questions ---
+
+# Llms Interview Questions - Coding Questions
+
+## Question 1
+
+**Write a Python function usingPyTorchorTensorFlowto tokenize input text forGPT-2.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**Implement a simpletransformer blockusingPyTorchorTensorFlow.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**Train aminiature transformer modelon a small text corpus.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**Create a function that performsgreedy decodingfor text generation using a pre-trained transformer model.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 5
+
+**Write code tovisualize attention weightsfrom a pre-trained transformer model.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 6
+
+**Modify a pre-trainedBERT modelfor a classification task usingtransfer learning.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 7
+
+**Implement abeam search algorithmfor better text generation in language models.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 8
+
+**Develop a customloss functionfor a transformer model that accounts for both forward and backward prediction.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 9
+
+**Fine-tune aGPT-2 modelfor a specific text style or author usingPyTorchorTensorFlow.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 10
+
+**Code a routine to performabstractive text summarizationusing a pre-trainedT5 model.**
+
+**Answer:** _[To be filled]_
+
+---
+
+
+---
+
+# --- LLMs (from 06_ai_nlp/03_llms) - general questions ---
+
+# Llms Interview Questions - General Questions
+
+## Question 1
+
+**How do LLMs handlecontextandlong-term dependenciesin text?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**How isGPT-4different from its predecessors likeGPT-3in terms of capabilities and applications?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**Can you mention anydomain-specificadaptations of LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**How do LLMs contribute to the field ofsentiment analysis?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 5
+
+**In what ways can LLMs be utilized forlanguage translation?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 6
+
+**How dohyperparametersaffect the performance of LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 7
+
+**How can one useknowledge distillationin the context of LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 8
+
+**Whatpreprocessing stepsare crucial when dealing with input data for LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 9
+
+**How istokenizationperformed in the context of LLMs, and why is it important?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 10
+
+**What considerations should be taken into account for handling differentlanguagesin LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 11
+
+**How do you address the challenge ofoverfittingin LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 12
+
+**What approach would you take to build achatbotusing LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 13
+
+**Design a system using LLMs to generatecode snippetsfrom natural language descriptions.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 14
+
+**Whatmetricswould you use to evaluate the performance of a fine-tuned LLM?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 15
+
+**How canreinforcement learningbe applied to further train or fine-tune LLMs?**
+
+**Answer:** _[To be filled]_
+
+---
+
+
+---
+
+# --- LLMs (from 06_ai_nlp/03_llms) - scenario based questions ---
+
+# Llms Interview Questions - Scenario_Based Questions
+
+## Question 1
+
+**Discuss the significance ofpre-trainingandfine-tuningin the context of LLMs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**Discuss theapplicationof LLMs inconversation AIandchatbots.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**Discuss the technique of ‘masking’ in transformer models like BERT.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**Discuss the role oflearning rate schedulesin training LLMs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 5
+
+**Discuss techniques for reducing thememory footprintof LLMs during training.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 6
+
+**Discuss the process ofvocabulary creationand management in LLMs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 7
+
+**Discuss strategies forefficient deploymentof LLMs in production environments.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 8
+
+**Discuss the role ofmulti-GPUanddistributed trainingin LLMs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 9
+
+**How would you set up a LLM to create anews article summarizer?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 10
+
+**Discuss techniques to adapt a LLM for alegal document reviewapplication.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 11
+
+**Propose a framework to use LLMs in creatingpersonalized content recommendations.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 12
+
+**How would you conductA/B testingfor a new version of an LLM-based application?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 13
+
+**Discussgenerative adversarial networks (GANs)in the context of text generation with LLMs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 14
+
+**Discuss the concept ofcatastrophic forgettingin LLMs and potential solutions.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 15
+
+**Discuss the implications ofattention flowin multi-head attention mechanisms.**
+
+**Answer:** _[To be filled]_
+
+---

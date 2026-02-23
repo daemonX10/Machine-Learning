@@ -1,0 +1,184 @@
+00:00 Hi everyone, welcome to another session
+00:02 
+
+00:02 on large language models and this time
+00:04 
+
+00:04 this is advanced large language model
+00:06 
+
+00:06 course. In this year we are planning to
+00:08 
+
+00:08 basically cover few topics but in depth
+00:11 
+
+00:11 of each of the topics. So I will be the
+00:12 
+
+00:12 lead instructor of this course and we
+00:14 
+
+00:14 have Jatin, Din and Gorav from IBM
+00:17 
+
+00:17 research. We have Soris from DIC and
+00:20 
+
+00:20 Manish from Microsoft. This time we
+00:22 
+
+00:22 divide the course structure into five
+00:24 
+
+00:24 components. So we start with the
+00:26 
+
+00:26 foundations of LLM. We are not going to
+00:28 
+
+00:28 cover any basics of NLP. This time the
+00:30 
+
+00:30 course starts with transformer and
+00:32 
+
+00:32 different pre-training and post-
+00:34 
+
+00:34 training strategies of transformer. We
+00:35 
+
+00:35 go deeper into recent alignment
+00:37 
+
+00:37 techniques. The next module we will
+00:38 
+
+00:38 focus on efficiency parameter efficient
+00:40 
+
+00:40 finetunings recent PFT methods model
+00:43 
+
+00:43 pruning and model distillation. Then we
+00:45 
+
+00:45 move into augmentation and reasoning
+00:46 
+
+00:46 drag LM agents reasoning models as well.
+00:49 
+
+00:49 We'll explore different alternative
+00:50 
+
+00:50 paradigms of LM the state space model
+00:52 
+
+00:52 multimodel models briefly and then the
+00:55 
+
+00:55 last module is going to be very
+00:56 
+
+00:56 exciting. We'll discuss physics of
+00:58 
+
+00:58 language models, different
+00:59 
+
+00:59 interpretability techniques and ethics
+01:00 
+
+01:00 and other concerns in LLM. The
+01:02 
+
+01:02 prerequisite would be the last year's
+01:04 
+
+01:04 course. This is our website. Slides are
+01:06 
+
+01:06 also available on the website and so on.
+01:07 
+
+01:07 Textbook is going to be textbook that I
+01:09 
+
+01:09 wrote last year. This introduction to
+01:11 
+
+01:11 large language model, right? And this is
+01:12 
+
+01:12 available on Amazon. Usual as I always
+01:14 
+
+01:14 say that if you are interested in
+01:16 
+
+01:16 language in in general and if you are
+01:18 
+
+01:18 interested in learning the new paradigm
+01:19 
+
+01:19 or new emergence of large language
+01:21 
+
+01:21 model, this is the course for you and
+01:23 
+
+01:23 this is the advanced course in large
+01:24 
+
+01:24 language model. maybe most advanced
+01:26 
+
+01:26 scores that are out there on internet
+01:28 
+
+01:28 and as I always say do not believe in
+01:29 
+
+01:29 any result or any hypothesis because
+01:32 
+
+01:32 there are lot of LM results coming in
+01:34 
+
+01:34 every day you until unless you you know
+01:36 
+
+01:36 you experience it right so once you
+01:37 
+
+01:37 experience when you once you write the
+01:39 
+
+01:39 code you know look at the results then
+01:41 
+
+01:41 only you believe in all these hypothesis
+01:43 
+
+01:43 so if you are interested in learning
+01:45 
+
+01:45 this course we have this website here so
+01:47 
+
+01:47 please enroll for the course and all the
+01:49 
+
+01:49 lectures materials will be available
+01:51 
+
+01:51 reading materials will also be available
+01:52 
+
+01:52 on the website so uh you know excited to
+01:54 
+
+01:54 teach this Thank you.

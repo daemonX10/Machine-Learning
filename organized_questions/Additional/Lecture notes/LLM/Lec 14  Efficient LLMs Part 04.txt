@@ -1,0 +1,3568 @@
+00:00 Hello everyone and welcome back to the
+00:02 
+
+00:02 fourth lecture in this series and today
+00:06 
+
+00:06 uh we will continue our discussions on
+00:08 
+
+00:08 various parallelism techniques right uh
+00:12 
+
+00:12 but first a quick recap and uh again if
+00:16 
+
+00:16 I have contribution from you guys I'll
+00:18 
+
+00:18 appreciate that so we started with the
+00:21 
+
+00:21 bigger problem of how to train big
+00:23 
+
+00:23 models on big data because neither the
+00:26 
+
+00:26 data nor the models fit on a GPU and
+00:29 
+
+00:29 then we started looking at what's there
+00:31 
+
+00:31 in the GPU memory during training. We
+00:33 
+
+00:33 identified four things model weights,
+00:35 
+
+00:35 param gradients and optimum states.
+00:37 
+
+00:37 First three are h² + h 12 + 13 time.
+00:43 
+
+00:43 These are the model weights, params and
+00:45 
+
+00:45 optim gradients. These are the number of
+00:47 
+
+00:47 parameters that we have right uh for
+00:49 
+
+00:49 optimum state we'll have two of these.
+00:51 
+
+00:51 For model weights one of these and for
+00:53 
+
+00:53 param gradients also one of these. Then
+00:55 
+
+00:55 we saw that uh biggest culprit is the
+00:58 
+
+00:58 activation which is of the order of uh
+01:01 
+
+01:01 bat size, sequence length and hidden
+01:03 
+
+01:03 dimension. Uh we have 34 of these and
+01:08 
+
+01:08 then in the attention block we have uh
+01:11 
+
+01:11 you know each token attending on the
+01:12 
+
+01:12 other. So we have sequence square
+01:16 
+
+01:16 times number of heads
+01:19 
+
+01:19 times uh the bat size, right? And we
+01:22 
+
+01:22 have five of these in each layer. Yeah,
+01:25 
+
+01:25 all of these are in each layer, right?
+01:27 
+
+01:27 Uh so this is the biggest culprit. And
+01:29 
+
+01:29 now we were trying to see how can we uh
+01:32 
+
+01:32 exploit multiple GPUs. So the first we
+01:35 
+
+01:35 looked at uh
+01:37 
+
+01:37 you know um
+01:40 
+
+01:40 some techniques which we could apply
+01:42 
+
+01:42 even on a single GPU namely gradient
+01:44 
+
+01:44 checkpointing where uh instead of
+01:46 
+
+01:46 storing the checkpoints or the instead
+01:49 
+
+01:49 of storing the activations during the
+01:51 
+
+01:51 forward pass uh we delete them and in
+01:54 
+
+01:54 the backward pass we recmp compute them.
+01:56 
+
+01:56 Then uh we looked at gradient
+01:59 
+
+01:59 accumulation where if you're not able to
+02:01 
+
+02:01 process a big batch in one go we split
+02:04 
+
+02:04 that into smaller micro batches process
+02:07 
+
+02:07 one micro batch store the gradients
+02:10 
+
+02:10 without doing optimizer.step step
+02:12 
+
+02:12 process another micro batch and update
+02:14 
+
+02:14 the gradients. Right? So this is all
+02:16 
+
+02:16 serial and this is what we used to
+02:19 
+
+02:19 motivate data parallelism that we can
+02:22 
+
+02:22 process these different batches
+02:24 
+
+02:24 parallelly on multiple GPUs. So
+02:26 
+
+02:26 essentially we are processing different
+02:30 
+
+02:30 data points right different sequences on
+02:33 
+
+02:33 different GPUs. These GPUs are doing the
+02:36 
+
+02:36 same computation on different data. That
+02:38 
+
+02:38 is what data parallelism is. Then we
+02:40 
+
+02:40 looked at various sharding techniques
+02:41 
+
+02:41 where we uh instead of keeping replicas
+02:44 
+
+02:44 of model optimizer states and the
+02:47 
+
+02:47 gradients on each uh GPU, we shard them
+02:50 
+
+02:50 and keep only a fraction of those.
+02:53 
+
+02:53 Right? Then uh but this was still not
+02:56 
+
+02:56 good enough for big models and large
+02:57 
+
+02:57 sequences. And then we uh thought of
+03:00 
+
+03:00 splitting the activation of one input
+03:02 
+
+03:02 sequence across GPUs. Earlier we we had
+03:05 
+
+03:05 split
+03:07 
+
+03:07 different sequences on different GPUs.
+03:09 
+
+03:09 Now we have one big sequence right X and
+03:12 
+
+03:12 we want to allocate two GPUs to process
+03:16 
+
+03:16 the same sequence X right. So then uh we
+03:20 
+
+03:20 exploited the distributed distributive
+03:23 
+
+03:23 property of matrix multiplication
+03:25 
+
+03:25 meaning that if there are four H neurons
+03:28 
+
+03:28 in the hidden layer we can compute let's
+03:30 
+
+03:30 say first H and first GPU second H and
+03:32 
+
+03:32 second GPU right for the same input and
+03:35 
+
+03:35 similarly in multi-headed attention we
+03:37 
+
+03:37 said that for we can compute one head on
+03:39 
+
+03:39 one GPU second head on the second GPU
+03:42 
+
+03:42 and so and so forth this was tensor
+03:43 
+
+03:43 parallelism there we observed one issue
+03:46 
+
+03:46 which was that because it is the same
+03:49 
+
+03:49 data going through both the GPUs we have
+03:52 
+
+03:52 been able to parallelize
+03:54 
+
+03:54 multi-headed attention and MLPS but
+03:57 
+
+03:57 layer normalizations and dropouts still
+03:59 
+
+03:59 remain so same operation on the same
+04:02 
+
+04:02 data meaning redundant operations right
+04:05 
+
+04:05 so we to address that we introduced
+04:07 
+
+04:07 sequence parallelism which is
+04:10 
+
+04:10 essentially splitting the splitting one
+04:13 
+
+04:13 sequence across into different chunks
+04:15 
+
+04:15 right so u each GPU is getting one chunk
+04:20 
+
+04:20 while doing either dropout or layer
+04:22 
+
+04:22 normalization right and we use reduce
+04:25 
+
+04:25 and scatter for that. So reduction was
+04:27 
+
+04:27 required to get the output of the
+04:30 
+
+04:30 multi-hit attention or MLP layers. we
+04:32 
+
+04:32 have to add those outputs and once we
+04:35 
+
+04:35 add those outputs we split them across
+04:37 
+
+04:37 the sequence length dimension on
+04:39 
+
+04:39 different GPUs right and then gather
+04:42 
+
+04:42 again for the next layer right but then
+04:46 
+
+04:46 uh again there is an issue how do we
+04:48 
+
+04:48 handle very large sequences because the
+04:50 
+
+04:50 entire sequence is going on on on each
+04:52 
+
+04:52 GPU right so for that we introduced
+04:55 
+
+04:55 something called context parallelism
+04:56 
+
+04:56 which looks very similar to sequence
+04:58 
+
+04:58 parallelism in its idea that we are
+04:60 
+
+04:60 dividing one sequence ments into smaller
+05:03 
+
+05:03 chunks and processing each chunk uh on
+05:07 
+
+05:07 different GPUs. Now here also it's the
+05:10 
+
+05:10 same operation which is being done on
+05:14 
+
+05:14 different GPUs right but on different
+05:17 
+
+05:17 parts of the sequence right both are
+05:19 
+
+05:19 doing you know the same MLP same
+05:21 
+
+05:21 attention layers but on attending on
+05:23 
+
+05:23 different uh chunks right MLP is not a
+05:27 
+
+05:27 problem because MLP is applied on each
+05:28 
+
+05:28 token independently and individually but
+05:31 
+
+05:31 for attention we have to communicate
+05:33 
+
+05:33 between these GPUs right because uh each
+05:36 
+
+05:36 token attends on every other token so We
+05:38 
+
+05:38 came up with the idea of ring attention
+05:40 
+
+05:40 right to address that issue right but
+05:43 
+
+05:43 then we observed that uh in tensor
+05:45 
+
+05:45 parallelism
+05:47 
+
+05:47 communication overhead beyond a node is
+05:50 
+
+05:50 very prohibitive right as soon as we go
+05:52 
+
+05:52 from uh
+05:55 
+
+05:55 8 GPUs to 16 GPUs which means now we
+05:59 
+
+05:59 have two nodes one right uh the
+06:01 
+
+06:01 reduction in the throughput is huge 43%.
+06:05 
+
+06:05 Right. So we will not we would not like
+06:07 
+
+06:07 to you know go beyond 8 GPUs when you're
+06:10 
+
+06:10 doing tensor parallelism but then the
+06:12 
+
+06:12 issue is how do we handle uh you know
+06:15 
+
+06:15 very big models right so there uh one
+06:21 
+
+06:21 one way is that we can split the layers
+06:23 
+
+06:23 across GPUs can we do that I mean let's
+06:27 
+
+06:27 say let's have
+06:30 
+
+06:30 first few layers on one GPU let them
+06:33 
+
+06:33 process whatever they have to process
+06:35 
+
+06:35 address right an input and then we pass
+06:40 
+
+06:40 on the activation to the other GPU it's
+06:42 
+
+06:42 kind of a pipeline that we are setting
+06:43 
+
+06:43 up right so so so what we're doing is
+06:47 
+
+06:47 that we let's say we we have a big
+06:51 
+
+06:51 model right it has layer 1 to layer 128
+06:57 
+
+06:57 for example
+06:59 
+
+06:59 first few layers are on GPU one then we
+07:04 
+
+07:04 have GPU 2 and so and so forth,
+07:10 
+
+07:10 right? G GPU
+07:14 
+
+07:14 uh N where N is the degree of uh
+07:18 
+
+07:18 pipeline parallelism and input X comes
+07:21 
+
+07:21 here. GPU1 processes first few layers,
+07:25 
+
+07:25 right? Let's say layer 1 to layer 4.
+07:28 
+
+07:28 Whatever the activations are, we send to
+07:31 
+
+07:31 GPU 2, right? Then GPU 2 continues with
+07:36 
+
+07:36 layer 5 to layer 8 and this goes on
+07:42 
+
+07:42 right now.
+07:45 
+
+07:45 What is the main issue with this design?
+07:52 
+
+07:52 Very good. The issue is it's a
+07:54 
+
+07:54 sequential operation, right? Uh when
+07:58 
+
+07:58 this these GPUs are operating, this GPU
+08:01 
+
+08:01 is sitting idle. So let's change the
+08:04 
+
+08:04 notation. Let's use P which is for
+08:06 
+
+08:06 pipeline parallelism. We have P number
+08:07 
+
+08:07 of GPUs let's say. Right. So this P GPU
+08:10 
+
+08:10 sitting idle when
+08:13 
+
+08:13 the the remaining GPUs are working.
+08:16 
+
+08:16 Okay. So what do we do when we have idle
+08:19 
+
+08:19 GPUs? What is our first uh go to thing?
+08:30 
+
+08:30 What what did we do? um
+08:34 
+
+08:34 earlier in in other parallelization
+08:37 
+
+08:37 techniques.
+08:39 
+
+08:39 Preetching
+08:42 
+
+08:42 >> corre. So correct prefetching was done
+08:45 
+
+08:45 for this was one technique that we used
+08:47 
+
+08:47 pre-fetching that was done where
+08:54 
+
+08:54 we were prefetching in in in 03 right we
+08:58 
+
+08:58 were where model weights are also
+08:60 
+
+08:60 sharded we were prefetching the next
+09:02 
+
+09:02 layer's weights because no GPU has all
+09:05 
+
+09:05 the weights for a layer right so while
+09:08 
+
+09:08 we are doing computation for the
+09:10 
+
+09:10 previous layer we were pre-fetching that
+09:12 
+
+09:12 And by doing that the general phenomena
+09:14 
+
+09:14 is we are overlapping the computation
+09:17 
+
+09:17 and communication. The high level idea
+09:19 
+
+09:19 is that we need to overlap the
+09:21 
+
+09:21 computation and communication.
+09:24 
+
+09:24 So what can we do here? So in this
+09:26 
+
+09:26 diagram you know each number corresponds
+09:30 
+
+09:30 to a layer. So we have layer 1 to layer
+09:32 
+
+09:32 4 and then layer 5 to layer 8. Right? So
+09:37 
+
+09:37 we have one batch which is being
+09:39 
+
+09:39 processed
+09:40 
+
+09:40 from on GPU 1 goes to GPU 2 and so on
+09:43 
+
+09:43 and so forth. So how can we overlay
+09:46 
+
+09:46 communation communication and
+09:48 
+
+09:48 computation here?
+10:03 
+
+10:03 So
+10:04 
+
+10:04 the
+10:08 
+
+10:08 The second
+10:10 
+
+10:10 >> the second one. So you're saying that uh
+10:13 
+
+10:13 one solution is that we give different
+10:14 
+
+10:14 batches to different GPUs. Okay. Now GPU
+10:19 
+
+10:19 2 has only layer 5 to layer 8.
+10:23 
+
+10:23 If I give a batch a different batch to
+10:26 
+
+10:26 GPU 2 then it will not
+10:30 
+
+10:30 work. Right?
+10:33 
+
+10:33 Okay. Any other solution? Uh so let's
+10:36 
+
+10:36 say we have a batch size of eight. We
+10:39 
+
+10:39 have eight sequences in a batch which
+10:41 
+
+10:41 are going through layer one right now.
+10:45 
+
+10:45 Right
+10:47 
+
+10:47 now
+10:49 
+
+10:49 what do we do in data parallelism? In
+10:51 
+
+10:51 which dimension do we
+10:54 
+
+10:54 pass each sequence
+10:57 
+
+10:57 there won't be dimension at all because
+10:59 
+
+10:59 it's still part of the same and then we
+11:01 
+
+11:01 can exchange because we still
+11:05 
+
+11:05 can still
+11:08 
+
+11:08 >> say that again sorry
+11:09 
+
+11:09 >> basically instead
+11:15 
+
+11:15 >> layers
+11:15 
+
+11:15 >> layers correct
+11:16 
+
+11:16 >> mhm
+11:27 
+
+11:27 Okay. So what did we do in data
+11:28 
+
+11:28 parallelism? We split a batch into micro
+11:32 
+
+11:32 batches, right? And uh
+11:37 
+
+11:37 you know pass you process each
+11:39 
+
+11:39 microbatch separately on on on different
+11:41 
+
+11:41 GPUs. That was one thing. What did we do
+11:44 
+
+11:44 to overlap the communication with
+11:46 
+
+11:46 computation?
+11:48 
+
+11:48 Prefetching was one technique,
+11:51 
+
+11:51 right? What was the other technique that
+11:53 
+
+11:53 we used for uh overlapping communication
+11:56 
+
+11:56 and computation?
+12:14 
+
+12:14 scale. It's
+12:23 
+
+12:23 already
+12:35 
+
+12:35 >> right. I think you were also saying the
+12:36 
+
+12:36 same thing. So I'll repeat what you what
+12:37 
+
+12:37 your suggestion is. Your suggestion is
+12:39 
+
+12:39 that uh complete divide a batch into
+12:44 
+
+12:44 smaller micro batches. Complete first
+12:47 
+
+12:47 micro batch and then send it to the
+12:49 
+
+12:49 second GPU for processing that meanwhile
+12:53 
+
+12:53 first will compute the second micro
+12:56 
+
+12:56 batch. Right? So so right. So
+12:59 
+
+12:59 essentially we are overlapping
+13:00 
+
+13:00 communication and computation. And
+13:01 
+
+13:01 recall in data parallelism what we did
+13:04 
+
+13:04 was that we did not wait for the for for
+13:07 
+
+13:07 the gradients of all the weights to
+13:10 
+
+13:10 finish in the end. As soon as we had the
+13:12 
+
+13:12 gradients of last layer we sent it right
+13:15 
+
+13:15 we we communicated across all the layers
+13:19 
+
+13:19 right we were able we were not waiting
+13:21 
+
+13:21 for for the entire thing to finish. So
+13:24 
+
+13:24 similarly here this is the right thing
+13:26 
+
+13:26 that we divide
+13:29 
+
+13:29 uh the
+13:32 
+
+13:32 batch into smaller micro batches and and
+13:35 
+
+13:35 as soon as one micro batch is then we'll
+13:37 
+
+13:37 send it across right but before we go
+13:39 
+
+13:39 into that let's first quantify certain
+13:40 
+
+13:40 things here let's first quantify the the
+13:43 
+
+13:43 the idleness of GPUs right so let's say
+13:46 
+
+13:46 each uh uh each GPU takes t time to
+13:51 
+
+13:51 process whatever it is doing forward and
+13:52 
+
+13:52 backward both right so ideally we should
+13:55 
+
+13:55 be done in t times if all the all the uh
+13:58 
+
+13:58 GPUs were acting in parallel we would be
+14:00 
+
+14:00 done in t time right but now because
+14:03 
+
+14:03 we're doing things sequentially we are
+14:06 
+
+14:06 finishing it in p * t time right this is
+14:10 
+
+14:10 the time that we are taking and we
+14:13 
+
+14:13 should have taken t so the difference
+14:15 
+
+14:15 between the two would give me the idle
+14:17 
+
+14:17 time right time for which I'm sitting
+14:19 
+
+14:19 idle another way of looking at it is
+14:22 
+
+14:22 that you look at the last GPU right when
+14:24 
+
+14:24 the last GPU is waiting for the P minus
+14:28 
+
+14:28 one GPUs right so it is sitting idle for
+14:30 
+
+14:30 P minus one time right so the fraction
+14:33 
+
+14:33 of idle time to the ideal time
+14:41 
+
+14:41 is something which is P minus one and
+14:43 
+
+14:43 that's what we call the bubble in the in
+14:47 
+
+14:47 pipeline parallelism right and the whole
+14:49 
+
+14:49 research is about how to reduce this
+14:51 
+
+14:51 bubble
+14:52 
+
+14:52 Right. So yeah, so here the bubble is P
+14:55 
+
+14:55 min - 1 if you're doing it naively.
+14:57 
+
+14:57 Right. Now uh to reduce the bubble one
+15:00 
+
+15:00 suggestion that you have given is that
+15:04 
+
+15:04 you know so now here numbers denote a
+15:07 
+
+15:07 microbatch. So this is microbatch one
+15:09 
+
+15:09 this is microbatch 2 and this is
+15:12 
+
+15:12 microbatch 8. Right? So take first micro
+15:16 
+
+15:16 batch pass it through all the four
+15:17 
+
+15:17 layers that are there on GPU 1 and as
+15:20 
+
+15:20 soon as you are done you transfer it to
+15:21 
+
+15:21 GPU 2 right and then as soon as you're
+15:24 
+
+15:24 done here you transfer it to GPU3
+15:27 
+
+15:27 the whole idea is to divide your
+15:29 
+
+15:29 computation into very infinite decimal
+15:30 
+
+15:30 smaller chunks right and as soon as
+15:32 
+
+15:32 you're done with one chunk just send it
+15:34 
+
+15:34 across and here the notion of that chunk
+15:36 
+
+15:36 is uh is
+15:41 
+
+15:41 a micro batch but still it is going
+15:43 
+
+15:43 through all all the layers one micro
+15:45 
+
+15:45 batch through all the layers that are
+15:47 
+
+15:47 there on that GPU right okay so here you
+15:51 
+
+15:51 know you can do the maths we have
+15:53 
+
+15:53 reduced the bubble by a factor of m
+15:56 
+
+15:56 where m is the number of micro batches
+15:57 
+
+15:57 that we have
+15:60 
+
+15:60 right
+16:01 
+
+16:01 okay cool but
+16:05 
+
+16:05 can we I mean here if we keep on
+16:07 
+
+16:07 increasing m then we are done right we
+16:10 
+
+16:10 would have reduced the bubble to a very
+16:12 
+
+16:12 small fraction but is Is there a
+16:14 
+
+16:14 practical limitation to increasing M?
+16:19 
+
+16:19 M is the number is the is the number of
+16:21 
+
+16:21 microbatches or of the bat size
+16:26 
+
+16:26 >> communication and also the GPU memory.
+16:28 
+
+16:28 We have to store the activations of all
+16:30 
+
+16:30 uh the inputs in in in that GPU, right?
+16:34 
+
+16:34 So we can't keep on increasing that
+16:35 
+
+16:35 indefinitely,
+16:38 
+
+16:38 right?
+16:39 
+
+16:39 Does that make sense?
+16:41 
+
+16:41 Okay. So we can't uh increase m
+16:44 
+
+16:44 indefinitely because activation memory
+16:46 
+
+16:46 will explode and
+16:49 
+
+16:49 we need to keep them till the backward
+16:51 
+
+16:51 pass.
+16:53 
+
+16:53 Right? But then
+16:56 
+
+16:56 notice one thing here
+17:01 
+
+17:01 when we got the first microbatch here,
+17:05 
+
+17:05 right? Why can't we push its backward
+17:09 
+
+17:09 pass here?
+17:15 
+
+17:15 So these are all microbatches right the
+17:16 
+
+17:16 1 to eight these numbers corresponds to
+17:18 
+
+17:18 the micro batches that we have the first
+17:21 
+
+17:21 microbatch is done the forward pass of
+17:23 
+
+17:23 first microbatch is done here the blue
+17:25 
+
+17:25 color corresponds to the forward pass
+17:26 
+
+17:26 and pink color corresponds to the
+17:27 
+
+17:27 backward pass
+17:29 
+
+17:29 roughly backward pass takes twice the
+17:31 
+
+17:31 time of forward pass and therefore we
+17:33 
+
+17:33 have double the size here right so as
+17:36 
+
+17:36 soon as the first
+17:39 
+
+17:39 micro batch is done through all the
+17:41 
+
+17:41 layers. You have we have done the
+17:42 
+
+17:42 forward pass of all the layers. We have
+17:44 
+
+17:44 a choice either we can schedule the
+17:47 
+
+17:47 second microbatch on GPU 4, right? Or we
+17:52 
+
+17:52 can schedule the backward pass of of one
+17:58 
+
+17:58 on on GPU 4.
+18:00 
+
+18:00 Is that is that clear? Any doubt?
+18:03 
+
+18:03 I mean
+18:05 
+
+18:05 uh you're shaking your head. Is it not
+18:08 
+
+18:08 okay? Cool. that the micro batch.
+18:13 
+
+18:13 >> Uh so one means the microbatch. We have
+18:16 
+
+18:16 changed the notation in the previous
+18:18 
+
+18:18 slide it was the number of layers just
+18:20 
+
+18:20 to demonstrate the first uh the initial
+18:22 
+
+18:22 thing. It was layer 1 to layer four but
+18:31 
+
+18:31 >> yes yes yes
+18:35 
+
+18:35 >> yes. So these were the layers 1 2 4 5th
+18:39 
+
+18:39 layer same microbatch there's no notion
+18:40 
+
+18:40 of microbatch in this picture right uh
+18:43 
+
+18:43 we have 16 layers once we are done with
+18:46 
+
+18:46 the forward pass through the 16th layer
+18:49 
+
+18:49 of one micro of one batch there's only
+18:51 
+
+18:51 one batch
+18:54 
+
+18:54 in this
+18:57 
+
+18:57 diagram right the number corresponds to
+18:60 
+
+18:60 the layer ID
+19:02 
+
+19:02 then we start the backward pass here
+19:05 
+
+19:05 here just to illustrate it better. We
+19:07 
+
+19:07 have now we have a notion of a
+19:08 
+
+19:08 microbatch right the concept of
+19:10 
+
+19:10 different layers on a GPU is clear. Each
+19:13 
+
+19:13 box here represents layer 1 to layer
+19:16 
+
+19:16 four on GPU 1. Right? So this is layer 1
+19:19 
+
+19:19 to layer four. This is layer five to
+19:22 
+
+19:22 layer 8 and so and so forth. Right? So
+19:24 
+
+19:24 till layer 16 for each microbatch right?
+19:28 
+
+19:28 So when we reach here we have processed
+19:32 
+
+19:32 we have done the forward pass of first
+19:33 
+
+19:33 micro batch we have a choice and we see
+19:37 
+
+19:37 that if we if we do if we uh prioritize
+19:41 
+
+19:41 the forward pass of
+19:43 
+
+19:43 the second microbatch over the backward
+19:46 
+
+19:46 pass right then the the other GPUs are
+19:48 
+
+19:48 also waiting right I mean if we had done
+19:52 
+
+19:52 the backward pass of one here
+19:55 
+
+19:55 here right if we let's say replace it
+19:57 
+
+19:57 with the backward ward pass of one then
+19:60 
+
+19:60 this bubble will not be there right then
+20:02 
+
+20:02 then one is available for backward pass
+20:04 
+
+20:04 here then one would shift here
+20:08 
+
+20:08 right I mean GPU3 is waiting for the
+20:11 
+
+20:11 first the backward pass of first micro
+20:12 
+
+20:12 batch therefore it can start only after
+20:14 
+
+20:14 this is done once we shift this here
+20:18 
+
+20:18 then you know this one can be shifted to
+20:21 
+
+20:21 the left and we will reduce the bon
+20:25 
+
+20:25 right so this is that is what we through
+20:28 
+
+20:28 uh this is called one forward and one
+20:30 
+
+20:30 backward uh profile schedule right and
+20:35 
+
+20:35 uh
+20:37 
+
+20:37 yeah so
+20:42 
+
+20:42 and and and let's see you know uh so
+20:45 
+
+20:45 what has we what have we changed with
+20:47 
+
+20:47 this one forward and one backward we
+20:49 
+
+20:49 have not reduced or we have not
+20:51 
+
+20:51 increased I mean the notion of m still
+20:53 
+
+20:53 remains the bubble time is still the
+20:56 
+
+20:56 same in growth. So what is different?
+20:59 
+
+20:59 What have we gained by doing the
+21:01 
+
+21:01 backward pass earlier
+21:05 
+
+21:05 as compared to this this notation this
+21:08 
+
+21:08 schedule where we were you know first
+21:10 
+
+21:10 parizing the forward pass of over all
+21:12 
+
+21:12 the microbatches. If we do
+21:16 
+
+21:16 uh the backward pass of one earlier what
+21:18 
+
+21:18 have we achieved?
+21:25 
+
+21:25 >> Yes. Uh
+21:27 
+
+21:27 yes that is one and and then uh but we
+21:29 
+
+21:29 see still see that the bubble uh you
+21:32 
+
+21:32 know ratio of the bubble is still
+21:34 
+
+21:34 remains the same
+21:36 
+
+21:36 >> right?
+21:42 
+
+21:42 >> Not really.
+21:44 
+
+21:44 What we have done here is that we have
+21:48 
+
+21:48 freed the memory
+21:51 
+
+21:51 the activation memory. Now if we have
+21:53 
+
+21:53 freed the memory then the memory
+21:55 
+
+21:55 requirement reduces and we can increase
+21:57 
+
+21:57 m. The issue here was that you know we
+21:60 
+
+21:60 cannot increase m indefinitely
+22:03 
+
+22:03 right and
+22:06 
+
+22:06 because we cannot increase m
+22:07 
+
+22:07 indefinitely. We identified one issue
+22:10 
+
+22:10 which was there with this uh the
+22:12 
+
+22:12 schedule and tried to fix that by
+22:16 
+
+22:16 intelligent scheduling.
+22:19 
+
+22:19 Right?
+22:21 
+
+22:21 So, so you know the rat bubble ratio
+22:23 
+
+22:23 remains still the same. The formula
+22:25 
+
+22:25 still remains the same. Just that now
+22:27 
+
+22:27 with this one forward one backward we
+22:29 
+
+22:29 will be able to
+22:34 
+
+22:34 release the memory early because we have
+22:36 
+
+22:36 prioritized backward pass and therefore
+22:38 
+
+22:38 we will be able to increase the the m
+22:41 
+
+22:41 number of microbatches that we can
+22:43 
+
+22:43 process. Right? Okay. So this is this is
+22:46 
+
+22:46 one schedule. uh
+22:50 
+
+22:50 what else can we do? So, so before going
+22:52 
+
+22:52 there let's first look at the impact of
+22:54 
+
+22:54 this right. Uh so this is the graph
+22:58 
+
+22:58 where number of micro batches that we
+23:00 
+
+23:00 have is P minus one and then our bubble
+23:03 
+
+23:03 ratio is P min - 1 / M which is one
+23:07 
+
+23:07 right so there is a lot of idle time
+23:10 
+
+23:10 here right
+23:13 
+
+23:13 and then therefore the throughput is low
+23:14 
+
+23:14 overall
+23:17 
+
+23:17 now
+23:19 
+
+23:19 we can increase the number of
+23:21 
+
+23:21 microbatches
+23:23 
+
+23:23 we are able to do that because of one
+23:24 
+
+23:24 forward one backward let's Okay. Right.
+23:27 
+
+23:27 If we have let's say 32 microbatches
+23:29 
+
+23:29 which corresponds to
+23:31 
+
+23:31 you know uh the corresponding bubble
+23:34 
+
+23:34 ratio would be 1 / 32 here
+23:37 
+
+23:37 right because we have two only two
+23:40 
+
+23:40 tensor parallel uh sorry two pipeline
+23:42 
+
+23:42 parallel GPUs. So it's it's p - 1 / m
+23:44 
+
+23:44 which is 1x 32 right so it is it is very
+23:47 
+
+23:47 less and therefore throughput has
+23:49 
+
+23:49 increased considerably here right and it
+23:52 
+
+23:52 it keeps on reducing as we increase the
+23:54 
+
+23:54 number of uh GPUs because uh you know
+23:57 
+
+23:57 the number of micro batches are are are
+23:59 
+
+23:59 high as compared to uh the ratio to p
+24:04 
+
+24:04 minus one right to reduce the bubble we
+24:06 
+
+24:06 need to have more microbatches than the
+24:09 
+
+24:09 pipeline parallelism the degree of
+24:10 
+
+24:10 pipeline parallelism that we
+24:12 
+
+24:12 Right?
+24:15 
+
+24:15 Does that make sense? Okay. So, one
+24:17 
+
+24:17 interesting thing here is that uh you
+24:21 
+
+24:21 know the reduction when we go from 8 to
+24:24 
+
+24:24 16 right from in inter node right across
+24:28 
+
+24:28 across nodes it is just 15% roughly
+24:31 
+
+24:31 whereas with tensor parallelism it was
+24:34 
+
+24:34 roughly 45%. Right? So so this is this
+24:37 
+
+24:37 is and that was one of the motivations
+24:38 
+
+24:38 for for introducing uh pipeline
+24:40 
+
+24:40 parallelism. Right. Okay.
+24:44 
+
+24:44 Okay. So, so we saw that one forward,
+24:46 
+
+24:46 one backward is helping in reducing
+24:48 
+
+24:48 memory and thus increasing M and thus
+24:51 
+
+24:51 reducing the the idle time which is
+24:54 
+
+24:54 computed as P minus 1 / M. Right? So, M
+24:57 
+
+24:57 we are able to increase. What is the
+24:60 
+
+24:60 other way in which we can uh further
+25:03 
+
+25:03 reduce this?
+25:06 
+
+25:06 So, so one technique first idea was you
+25:09 
+
+25:09 know have micro batches that was one
+25:12 
+
+25:12 right can we do something else as well.
+25:28 
+
+25:28 So the whole idea was
+25:32 
+
+25:32 finish your task as quickly as possible
+25:34 
+
+25:34 on one unit and send it across, right?
+25:37 
+
+25:37 You have to quickly do it, right? So
+25:41 
+
+25:41 the way we did it was the way we
+25:43 
+
+25:43 achieved it was we split one batch into
+25:46 
+
+25:46 smaller microbatches and processed each
+25:47 
+
+25:47 microbatch separately, right? And and
+25:51 
+
+25:51 what are the computations which uh GPU1
+25:54 
+
+25:54 is doing? it is passing through layer 1
+25:57 
+
+25:57 to layer four right let's say we have 16
+25:60 
+
+25:60 layers that we have to sh on four GPUs
+26:02 
+
+26:02 each each GPU will get four right it
+26:07 
+
+26:07 will finish its job for that micro batch
+26:10 
+
+26:10 and then it'll be done and the last one
+26:13 
+
+26:13 is vetting right so so one thing here is
+26:16 
+
+26:16 the allocation of layers on GPUs
+26:21 
+
+26:21 now can we do differently at the cost of
+26:23 
+
+26:23 increased communication let's
+26:26 
+
+26:26 Can we allocate the
+26:29 
+
+26:29 layers differently to each GPU? Right?
+26:32 
+
+26:32 Because the the objective is to quickly
+26:33 
+
+26:33 finish my job and send it across. I can
+26:36 
+
+26:36 have more communication. I mean I can
+26:37 
+
+26:37 have more I will have less communication
+26:39 
+
+26:39 if all the if my entire job is
+26:41 
+
+26:41 contiguous. Then I will do it in one go
+26:43 
+
+26:43 and then transfer. Right?
+26:46 
+
+26:46 But if I want to quickly do my stuff,
+26:50 
+
+26:50 what can I do other than splitting a
+26:53 
+
+26:53 batch into microbatches?
+27:01 
+
+27:01 >> We are bounded by the resources that we
+27:03 
+
+27:03 have. We have four GPUs. We have 16
+27:05 
+
+27:05 layers that we have to split. So how we
+27:07 
+
+27:07 can't reduce the number of layers,
+27:08 
+
+27:08 right?
+27:18 
+
+27:18 Very good. Yes,
+27:22 
+
+27:22 that's that's exactly the motivation.
+27:23 
+
+27:23 Let's borrow the idea of zigzag
+27:25 
+
+27:25 attention and ring attention, right? We
+27:26 
+
+27:26 had it's all about allocation. There we
+27:29 
+
+27:29 had to allocate the tokens and here we
+27:31 
+
+27:31 have to allocate the layers, right? And
+27:34 
+
+27:34 the idea is that
+27:37 
+
+27:37 the idea is
+27:40 
+
+27:40 >> yeah I mean let me at the cost of let's
+27:42 
+
+27:42 say increasing communication right so so
+27:47 
+
+27:47 this brings us to interle interle stages
+27:50 
+
+27:50 right so first g this this this is the
+27:55 
+
+27:55 micro batch right initially it is doing
+27:58 
+
+27:58 layer one and layer two that's all we
+28:03 
+
+28:03 have We we need to have four layers on
+28:05 
+
+28:05 first GPU but we see that it will have
+28:08 
+
+28:08 layer 1 and layer two right this will
+28:10 
+
+28:10 have layer three layer 4 then layer five
+28:14 
+
+28:14 layer 6 layer 7 layer 8 right then once
+28:19 
+
+28:19 this is done I will send it again to
+28:21 
+
+28:21 first GPU for layer 9 and layer 10 and
+28:25 
+
+28:25 then it will travel again down and then
+28:28 
+
+28:28 again down and then again down right so
+28:30 
+
+28:30 so we just differently allocate Okay.
+28:33 
+
+28:33 So, so it's essentially a looping
+28:35 
+
+28:35 pipeline. Microbatches are moving in
+28:36 
+
+28:36 circles, right? There is an additional
+28:39 
+
+28:39 communication because same GPU is
+28:41 
+
+28:41 visited multiple times, right? But then
+28:44 
+
+28:44 we are able to reduce the bubble size
+28:45 
+
+28:45 here actually,
+28:47 
+
+28:47 right? So, if if if we have new is the
+28:51 
+
+28:51 number of stages. For example, in our
+28:52 
+
+28:52 previous example, we have two stages,
+28:54 
+
+28:54 right? We have divided uh the allocation
+28:57 
+
+28:57 into two chunks, right? layer 1, layer
+28:59 
+
+28:59 two, layer u
+29:02 
+
+29:02 the the last two layers, right? Uh not
+29:04 
+
+29:04 the last two layers, layer 9, layer 10,
+29:07 
+
+29:07 right? On on the first GPU, so we have
+29:10 
+
+29:10 two chunks that is that is new and here
+29:13 
+
+29:13 our uh bubble will reduce by a factor of
+29:16 
+
+29:16 eight, right? So there are many more uh
+29:20 
+
+29:20 complicated techniques which we are not
+29:22 
+
+29:22 going through in the lecture. you are
+29:24 
+
+29:24 encouraged to go through them and I
+29:27 
+
+29:27 guess you know what does that mean uh
+29:30 
+
+29:30 right so this this with pipeline
+29:32 
+
+29:32 parallelism you know we have completed
+29:34 
+
+29:34 uh whatever we want to complete in in
+29:37 
+
+29:37 you know the parallelism strategies
+29:39 
+
+29:39 right so this is also called
+29:40 
+
+29:40 fourdimensional parallelism we started
+29:43 
+
+29:43 with data parallelism and corresponding
+29:45 
+
+29:45 sharding techniques 0 1 2 3 uh I will
+29:48 
+
+29:48 not do a recap we just did that right
+29:50 
+
+29:50 then we uh looked at tensor parallelism
+29:53 
+
+29:53 with sequence paralle ism sequence
+29:55 
+
+29:55 parallelism was for dropout and their
+29:56 
+
+29:56 norm tensor parallelism was use
+29:59 
+
+29:59 exploiting the distributive property of
+30:00 
+
+30:00 the matrix multiplication parallelize
+30:03 
+
+30:03 and was used to paralyze MLPS and uh
+30:05 
+
+30:05 multi- detention then we looked at
+30:07 
+
+30:07 context parallelism where we break one
+30:10 
+
+30:10 input into smaller sequences sub smaller
+30:13 
+
+30:13 chunks and process each chunk separately
+30:15 
+
+30:15 on each GPU and for uh attention we used
+30:19 
+
+30:19 ring attention right and then finally
+30:22 
+
+30:22 for very big models We covered pipeline
+30:25 
+
+30:25 parallelism where we chart the model as
+30:29 
+
+30:29 well as the activations across layers
+30:33 
+
+30:33 right so let's look at a at an example
+30:37 
+
+30:37 4D parallelism in action this this
+30:38 
+
+30:38 figure is from llama 3 paper right and
+30:41 
+
+30:41 we will look at how all of these are
+30:44 
+
+30:44 used uh and then how it splits the data
+30:47 
+
+30:47 and activations right so again we have
+30:52 
+
+30:52 path size we will uh sequence length and
+30:58 
+
+30:58 hidden dimension right
+31:00 
+
+31:00 so uh first split is on the batches that
+31:05 
+
+31:05 is the first thing that we'll do so
+31:07 
+
+31:07 one group gets these two sequences the
+31:11 
+
+31:11 dog is happy I love my car she eats a
+31:15 
+
+31:15 sandwich he plays the guitar so these
+31:17 
+
+31:17 are the four sequences we have created
+31:20 
+
+31:20 two microbatches right so microbatch B
+31:23 
+
+31:23 one and micro batch 2. These are on two
+31:27 
+
+31:27 different uh this is the first split
+31:29 
+
+31:29 that we are making. Right? Then
+31:33 
+
+31:33 we use context parallelism
+31:36 
+
+31:36 to split one sequence into two smaller
+31:39 
+
+31:39 chunks. Right? So the dog first two
+31:43 
+
+31:43 tokens is happy using context. They will
+31:47 
+
+31:47 be processed parallelly. Right? In
+31:49 
+
+31:49 context parallelism. Okay.
+31:52 
+
+31:52 Now
+31:54 
+
+31:54 within each context parallelism
+31:57 
+
+31:57 right when we are processing the dog
+32:02 
+
+32:02 right
+32:04 
+
+32:04 we when I am passing this token the
+32:08 
+
+32:08 through the MLP layer right it's
+32:13 
+
+32:13 internal uh the up projection layer will
+32:16 
+
+32:16 increase the activation size right it
+32:19 
+
+32:19 will blow up to 4 I don't want all of
+32:22 
+
+32:22 that on one GPU. I want them on two
+32:26 
+
+32:26 different GPUs. Right? So essentially
+32:29 
+
+32:29 I'm splitting each
+32:32 
+
+32:32 layer on two different GPU. Right? So
+32:36 
+
+32:36 this layer I mean when we are doing this
+32:38 
+
+32:38 this is for both MLPS as well as
+32:40 
+
+32:40 multi-headed attention. Right?
+32:44 
+
+32:44 So this part will do uh head one. This
+32:48 
+
+32:48 part will do the second head.
+32:51 
+
+32:51 Okay. And then
+32:54 
+
+32:54 once I have passed through first few
+32:58 
+
+32:58 layers,
+32:59 
+
+32:59 I have next few layers on the other set
+33:03 
+
+33:03 of GPUs. This is the third of the fourth
+33:07 
+
+33:07 pipeline dimension which is pipeline.
+33:10 
+
+33:10 Right? So this is I mean this is uh you
+33:13 
+
+33:13 know bringing all of them in action. We
+33:15 
+
+33:15 took an example and split our input
+33:18 
+
+33:18 using all of those and see you know what
+33:20 
+
+33:20 exactly what is proc which GPU is
+33:22 
+
+33:22 processing uh which part of the of the
+33:25 
+
+33:25 batch and what computations is it doing
+33:28 
+
+33:28 right okay so so
+33:32 
+
+33:32 this this with this we conclude the
+33:34 
+
+33:34 first part which was about scaling the
+33:38 
+
+33:38 pre-training of language models on big
+33:40 
+
+33:40 GPU clusters and uh why we'll be doing
+33:44 
+
+33:44 that because we looked at the
+33:48 
+
+33:48 performance of the language models
+33:50 
+
+33:50 versus the uh training time that they
+33:53 
+
+33:53 require and that is in million GPU hours
+33:57 
+
+33:57 we can't have them sequentially we can't
+33:60 
+
+33:60 afford to have them sequentially we have
+34:02 
+
+34:02 to have these million GPU hours you know
+34:04 
+
+34:04 exploit parallelism to do that right so
+34:08 
+
+34:08 so and that's why we looked at uh
+34:11 
+
+34:11 various parallelism techniques
+34:14 
+
+34:14 Then we looked at another plot
+34:18 
+
+34:18 where we compared the performance on the
+34:22 
+
+34:22 x-axis of the of the of a model versus
+34:25 
+
+34:25 the throughput that we are getting.
+34:27 
+
+34:27 Right? How many tokens are we able to
+34:29 
+
+34:29 process or generate right
+34:34 
+
+34:34 here? We observed something very
+34:35 
+
+34:35 interesting which is that
+34:40 
+
+34:40 you know uh two models of almost similar
+34:44 
+
+34:44 size with similar performance right have
+34:48 
+
+34:48 very different
+34:50 
+
+34:50 uh throughput right and and throughput
+34:52 
+
+34:52 essentially means the speed at which uh
+34:54 
+
+34:54 they are doing the same computations
+34:56 
+
+34:56 right so this brings us to the second
+34:60 
+
+35:00 part which is efficient implementation.
+35:05 
+
+35:05 Can we implement the basic operations
+35:08 
+
+35:08 efficiently
+35:10 
+
+35:10 and which may further result in you know
+35:13 
+
+35:13 speed up right and here uh we will cover
+35:18 
+
+35:18 something called flash attention first
+35:20 
+
+35:20 which is used even during training and
+35:23 
+
+35:23 then we will go to inference level
+35:24 
+
+35:24 speedups right
+35:27 
+
+35:27 but before we do that let's let's do a
+35:30 
+
+35:30 very small primer on you know uh the why
+35:35 
+
+35:35 are we using GPUs and and what what are
+35:37 
+
+35:37 the operations that are being run on a
+35:39 
+
+35:39 GPU right and why that helps in speeding
+35:42 
+
+35:42 things up right okay let's take a break
+35:47 
+
+35:47 here
+35:48 
+
+35:48 I mean uh so let's start with some
+35:52 
+
+35:52 basics over GPUs
+35:54 
+
+35:54 so how many of you know what is a kernel
+35:57 
+
+35:57 when we talk about a GPU kernel what
+35:59 
+
+35:59 does that mean
+36:03 
+
+36:03 >> anyone
+36:16 
+
+36:16 So, so you said part of uh repeat what
+36:20 
+
+36:20 you said. I'll come to you. Yeah.
+36:31 
+
+36:31 part of a physical part of a GPU which
+36:33 
+
+36:33 is reserved for some uh particular
+36:36 
+
+36:36 operation. Okay.
+36:40 
+
+36:40 [Music]
+36:50 
+
+36:50 >> Okay. uh a firmware or a software that
+36:52 
+
+36:52 manages uh communication and uh yeah
+36:57 
+
+36:57 memory and and processes right so uh so
+37:01 
+
+37:01 that is not what a kernel is right a
+37:04 
+
+37:04 kernel is a piece of code that runs on a
+37:07 
+
+37:07 core of a GPU what you said is more
+37:10 
+
+37:10 similar to core of a GPU not a kernel
+37:12 
+
+37:12 right it's the smallest unit of function
+37:14 
+
+37:14 which is running on a GPU right whenever
+37:17 
+
+37:17 you implement any basic operation
+37:20 
+
+37:20 right softmax or whatever piece of code
+37:22 
+
+37:22 that you write in PyTorch
+37:25 
+
+37:25 it is broken into smaller kernels right
+37:30 
+
+37:30 so we you will have a kernel of for
+37:32 
+
+37:32 let's say vector addition element wise
+37:34 
+
+37:34 multiplication matrix multiplication etc
+37:37 
+
+37:37 right so each kernel is implementing one
+37:39 
+
+37:39 basic operation
+37:41 
+
+37:41 right and whatever complex operation
+37:43 
+
+37:43 that you write in in PyTorch complex
+37:46 
+
+37:46 operation over tensors it you
+37:48 
+
+37:48 Internally, PyTorch breaks that down
+37:51 
+
+37:51 into a list of kernel uh calls,
+37:56 
+
+37:56 right? These are typically written in
+37:58 
+
+37:58 CUDA and compiled to low-level assembly.
+38:01 
+
+38:01 Okay, so as we said, all tensor
+38:03 
+
+38:03 manipulations are converted to a series
+38:05 
+
+38:05 of kernel calls. And let's take an
+38:07 
+
+38:07 example for this, right? Uh so what we
+38:10 
+
+38:10 are doing here is that depending upon
+38:14 
+
+38:14 whether x is positive or negative right
+38:18 
+
+38:18 uh so this is an activation function
+38:19 
+
+38:19 right nonlinearity that we add this is I
+38:22 
+
+38:22 think elu if x is less than zero
+38:27 
+
+38:27 we pass
+38:29 
+
+38:29 uh this right so in relu this becomes
+38:32 
+
+38:32 all zero right and in here it's it's
+38:35 
+
+38:35 different and when x is greater than
+38:37 
+
+38:37 zero we pass x as it is Right? So when
+38:41 
+
+38:41 you write
+38:43 
+
+38:43 this expression,
+38:45 
+
+38:45 right, PyTorch breaks that into a
+38:47 
+
+38:47 sequence of kernel operations. So first
+38:50 
+
+38:50 operation is less than kernel which is
+38:53 
+
+38:53 computing this x less than equal to z.
+38:58 
+
+38:58 Right? The second kernel is for
+39:00 
+
+39:00 exponentiating this. This this is the
+39:02 
+
+39:02 second kernel. This is one. This is the
+39:06 
+
+39:06 second kernel. Right? Then
+39:10 
+
+39:10 for subtracting this minus one you have
+39:14 
+
+39:14 the third column
+39:16 
+
+39:16 right and then for multiplication alpha
+39:19 
+
+39:19 times this right so this multiplication
+39:22 
+
+39:22 will be the fourth one and then finally
+39:25 
+
+39:25 for the where thing where it has to
+39:27 
+
+39:27 choose between the two
+39:29 
+
+39:29 right and each kernel call may involve
+39:34 
+
+39:34 transferring tensors from different
+39:37 
+
+39:37 memories within the GPU
+39:40 
+
+39:40 right I mean uh yeah we'll come to that
+39:44 
+
+39:44 so now the question is that you know we
+39:47 
+
+39:47 have specialized kernel for these
+39:48 
+
+39:48 operations like less than exponential
+39:50 
+
+39:50 even matrix multiplication is also we
+39:52 
+
+39:52 have a kernel for that you know which is
+39:54 
+
+39:54 which is efficiently implemented
+39:57 
+
+39:57 now can we create a custom kernel to
+39:59 
+
+39:59 replace a series of kernel calls right
+40:02 
+
+40:02 so as I said that when we have this
+40:04 
+
+40:04 series of kernel calls the issue is that
+40:08 
+
+40:08 You know when when uh a GPU core has to
+40:13 
+
+40:13 operate has to perform a function, it
+40:15 
+
+40:15 needs to copy the tensor from something
+40:20 
+
+40:20 called HBM
+40:23 
+
+40:23 to SRAMM.
+40:26 
+
+40:26 So HBM is you know your ATGB that use
+40:29 
+
+40:29 that is typically uh you know
+40:30 
+
+40:30 publicized. Then you have 80GB memory
+40:32 
+
+40:32 that corresponds to the HBM high
+40:34 
+
+40:34 bandwidth memory which is not very high
+40:36 
+
+40:36 bandwidth though right the uh the course
+40:42 
+
+40:42 will have to or someone will have to
+40:44 
+
+40:44 copy the tensor from here to here and
+40:46 
+
+40:46 then only cores or threads will be able
+40:48 
+
+40:48 to operate on that right and this
+40:51 
+
+40:51 transfer back and forth is slow right
+40:54 
+
+40:54 and and and this memory is is limited
+40:57 
+
+40:57 therefore we cannot you know transfer
+40:59 
+
+40:59 everything in one go and keep it there
+41:00 
+
+41:00 for
+41:01 
+
+41:01 So we we perform an operation we put it
+41:04 
+
+41:04 back onto the HBM whatever is the
+41:06 
+
+41:06 intermediate output then that is again
+41:08 
+
+41:08 transferred and for the other operation
+41:10 
+
+41:10 right and so and so forth. So now to
+41:14 
+
+41:14 avoid this back and forth right can we
+41:18 
+
+41:18 write one fused kernel which combines
+41:21 
+
+41:21 multiple
+41:23 
+
+41:23 simple operation or simple kernels in in
+41:25 
+
+41:25 one package so that we don't we avoid
+41:28 
+
+41:28 this back and forth.
+41:31 
+
+41:31 Right? So that is the idea of a fused
+41:35 
+
+41:35 kernel. That's what we call a fused
+41:37 
+
+41:37 kernel.
+41:38 
+
+41:38 Right? And uh
+41:41 
+
+41:41 and can we do it for this uh this this
+41:45 
+
+41:45 expression? Uh looks like we can do
+41:47 
+
+41:47 that. And uh pyarch provides a very
+41:50 
+
+41:50 convenient way of uh you know doing it.
+41:54 
+
+41:54 Uh if you just put this decorator on top
+41:58 
+
+41:58 of a function
+41:59 
+
+41:59 in the first few runs it will try to
+42:01 
+
+42:01 compile this into one fuse corner and
+42:03 
+
+42:03 use that. It may not be optimal because
+42:06 
+
+42:06 it is doing it you know automatically
+42:08 
+
+42:08 right but that will give you a very good
+42:10 
+
+42:10 starting point you can you can do this
+42:12 
+
+42:12 and you know set the appropriate flags
+42:14 
+
+42:14 to get the kernel code and then you can
+42:16 
+
+42:16 modify that if you if you can if you're
+42:18 
+
+42:18 if you're a superhuman right so uh
+42:26 
+
+42:26 some
+42:32 
+
+42:32 >> right so because SBM is limited the
+42:35 
+
+42:35 output of less than kernel it it will be
+42:38 
+
+42:38 difficult to keep that along with x that
+42:41 
+
+42:41 we need to to compute exponentiation of
+42:45 
+
+42:45 x let's say
+42:47 
+
+42:47 >> yeah in the function so so this is the u
+42:49 
+
+42:49 function only right this this is a
+42:52 
+
+42:52 sequence of kernel calls that will
+42:54 
+
+42:54 happen for the first kernel call
+42:58 
+
+42:58 we will load x into the
+43:01 
+
+43:01 uh sam Right and produce the mask the
+43:05 
+
+43:05 intermediate output x less than equal to
+43:07 
+
+43:07 z less than zero right now because that
+43:10 
+
+43:10 is it is limited we cannot keep that in
+43:12 
+
+43:12 slam we'll have to push it back to hbm
+43:17 
+
+43:17 the next kernel is operating on x right
+43:19 
+
+43:19 so it needs to it needs to load x and
+43:23 
+
+43:23 then compute x uh x e ^ x right now it
+43:27 
+
+43:27 doesn't need x it'll put it back and
+43:29 
+
+43:29 keep e ^ x and then subtract
+43:33 
+
+43:33 one there, right?
+43:36 
+
+43:36 So therefore it requires depending on
+43:37 
+
+43:37 what the what the uh what we're doing it
+43:40 
+
+43:40 may yeah intermed there are intermediate
+43:42 
+
+43:42 outputs right uh we we preserve that for
+43:46 
+
+43:46 future operations and the preservation
+43:48 
+
+43:48 cannot happen in uh in SRAMM it it
+43:51 
+
+43:51 happens in the HBR right and uh when we
+43:58 
+
+43:58 uh you know try to write a fused kernel
+44:00 
+
+44:00 they change the algorithm as well it's
+44:02 
+
+44:02 not that you know it will be done in the
+44:04 
+
+44:04 similar fashion And it has to operate
+44:06 
+
+44:06 within the constraints of the size of
+44:08 
+
+44:08 SRAMM, right? So you know the the fusion
+44:11 
+
+44:11 will uh some sort of an optimized
+44:13 
+
+44:13 algorithm that will be created, right?
+44:15 
+
+44:15 Okay. So that that's what a fused kernel
+44:19 
+
+44:19 is. The notion of a fused kernel. Yeah.
+44:22 
+
+44:22 >> So
+44:23 
+
+44:23 the dot
+44:29 
+
+44:29 model dot compile. Okay. Okay.
+44:39 
+
+44:39 What is it?
+44:44 
+
+44:44 Right.
+44:45 
+
+44:45 >> Yes.
+44:54 
+
+44:54 >> So, so very good question. I do not have
+44:55 
+
+44:55 an answer to that, but you know, I'll
+44:57 
+
+44:57 tell you what my hunch says there. So
+44:59 
+
+44:59 when you do it at the model level, what
+45:02 
+
+45:02 it will do is that it will try to figure
+45:05 
+
+45:05 out. So here you're you're putting this
+45:07 
+
+45:07 decorator on top of one function, right?
+45:09 
+
+45:09 It will go internally and try to see
+45:12 
+
+45:12 what all operations are we doing in the
+45:14 
+
+45:14 forward pass, right? And see if I can
+45:16 
+
+45:16 combine some of those operations into
+45:18 
+
+45:18 one kernel and replace that, right? It's
+45:21 
+
+45:21 not that the entire thing will be
+45:23 
+
+45:23 converted. I mean then it is it's a
+45:25 
+
+45:25 no-brainer, right? I mean you will
+45:27 
+
+45:27 always do that, right? any function
+45:28 
+
+45:28 which is for example attention was a
+45:30 
+
+45:30 problem right just write the attention
+45:32 
+
+45:32 function and then write torch compile
+45:34 
+
+45:34 and we'll be done right of course I mean
+45:37 
+
+45:37 it's because it is done automatically
+45:39 
+
+45:39 it's not always the optimal right I
+45:42 
+
+45:42 don't have the graph here uh but you
+45:45 
+
+45:45 know um
+45:48 
+
+45:48 uh so if if this is let's say the
+45:50 
+
+45:50 performance this is the num tensor size
+45:55 
+
+45:55 okay and this is the uh some performance
+45:57 
+
+45:57 metric If this is the performance of
+45:60 
+
+45:60 this knive implementation then uh this
+46:04 
+
+46:04 torch.compile will take it somewhere
+46:06 
+
+46:06 here. This is still not optimal. If you
+46:09 
+
+46:09 manually you can f there is scope of
+46:12 
+
+46:12 further improving it and if you manually
+46:14 
+
+46:14 do that you can further improve it here.
+46:16 
+
+46:16 Right. This one is uh the this gap is
+46:19 
+
+46:19 good. I mean if you can get it we should
+46:21 
+
+46:21 definitely get it. either put it on
+46:24 
+
+46:24 individual functions right or I think if
+46:27 
+
+46:27 you put it on top of the model most
+46:29 
+
+46:29 likely it will identify those functions
+46:30 
+
+46:30 and try to fuse them individually it's
+46:32 
+
+46:32 not that everything will be fused into
+46:34 
+
+46:34 one it's not possible that's my hunch
+46:36 
+
+46:36 right okay uh that is one thing and the
+46:41 
+
+46:41 second thing we have already talked
+46:42 
+
+46:42 about this that you know this is the
+46:44 
+
+46:44 memory layout in general this is the CPU
+46:46 
+
+46:46 memory this is the HBM which is uh you
+46:49 
+
+46:49 know let's say 40 GB or 80 GB um for an
+46:52 
+
+46:52 80GB GPU and this is SRAMM. Uh cores can
+46:57 
+
+46:57 access cache and SRAMs. They need to for
+47:00 
+
+47:00 doing kernels 222
+47:03 
+
+47:03 operate they would need the tensor in
+47:05 
+
+47:05 Slam and this communication from here to
+47:08 
+
+47:08 here is is costly
+47:12 
+
+47:12 right. Uh yeah so so when when a kernel
+47:15 
+
+47:15 runs tensors are first moved from
+47:18 
+
+47:18 moved
+47:20 
+
+47:20 to SRAMM from HBM computation happens
+47:22 
+
+47:22 and then results are written back to HBM
+47:25 
+
+47:25 and for example if you look at the the
+47:28 
+
+47:28 implementation naive implementation of
+47:30 
+
+47:30 attention right so what what happens
+47:31 
+
+47:31 there we have KQV matrices
+47:35 
+
+47:35 in the HBM right we need to do matrix
+47:40 
+
+47:40 multiplication
+47:41 
+
+47:41 Q transpose. This gives us the attention
+47:44 
+
+47:44 score S, right? What is the dimension of
+47:46 
+
+47:46 S? Dimension of S is
+47:49 
+
+47:49 if we have uh 100 tokens, then what
+47:51 
+
+47:51 would be the dimension of S?
+47:54 
+
+47:54 100 + 100, right? So 100 uh cross 100
+47:58 
+
+47:58 sequence square and each row would give
+48:00 
+
+48:00 me
+48:02 
+
+48:02 the the attention score, you know, of of
+48:06 
+
+48:06 this token on each of the previous
+48:08 
+
+48:08 tokens. What is the attention score of
+48:10 
+
+48:10 this? Right? So we can't keep that in
+48:13 
+
+48:13 SRAMM. Therefore we have to put it back
+48:16 
+
+48:16 to S SBM. Right? Then uh when we do soft
+48:22 
+
+48:22 max of of S probabilities they they're
+48:24 
+
+48:24 again for soft max operation it is again
+48:26 
+
+48:26 loaded back into the SRAM. We get P
+48:29 
+
+48:29 which which contains a probability. they
+48:31 
+
+48:31 are again put back to the uh HBM and
+48:37 
+
+48:37 then finally to compute uh you know
+48:40 
+
+48:40 probability times the value the weighted
+48:43 
+
+48:43 sum of the uh value vectors we need both
+48:47 
+
+48:47 P and V in in SRM and we compute O right
+48:51 
+
+48:51 so as we can see you know a lot of back
+48:54 
+
+48:54 and forth that is happening and and
+48:56 
+
+48:56 bottleneck is the lower bandwidth in HPM
+48:60 
+
+48:60 right So I mean let's try to write a
+49:02 
+
+49:02 fuse kernel for attention here that that
+49:05 
+
+49:05 would that's what one would try to do
+49:07 
+
+49:07 and uh our objective is to avoid the
+49:10 
+
+49:10 back and forth between HBM and SRAMM and
+49:13 
+
+49:13 that's the objective and uh
+49:18 
+
+49:18 so now recall where else
+49:22 
+
+49:22 have we used this right we have
+49:25 
+
+49:25 implemented the attention differently
+49:28 
+
+49:28 we we someone just now mentioned this
+49:31 
+
+49:31 earlier right
+49:33 
+
+49:33 in in context parallel we had
+49:36 
+
+49:36 ring attention right and yeah in ring
+49:38 
+
+49:38 attention uh we were not materializing
+49:41 
+
+49:41 the smetrics at all we had an online
+49:44 
+
+49:44 implementation the algorithm was like
+49:46 
+
+49:46 it's an online implementation right we
+49:49 
+
+49:49 will uh each GPU
+49:52 
+
+49:52 has only some set of kvs
+49:55 
+
+49:55 right when it requires when it has to
+49:59 
+
+49:59 attend on the tokens which are on the
+50:01 
+
+50:01 other GPU it fetches those right and uh
+50:05 
+
+50:05 so what is the online algorithm the
+50:08 
+
+50:08 online algorithm is that
+50:12 
+
+50:12 for a query Q
+50:16 
+
+50:16 right
+50:17 
+
+50:17 I
+50:20 
+
+50:20 can fetch the K's and B's
+50:24 
+
+50:24 right and then compute E to the power
+50:28 
+
+50:28 Q
+50:30 
+
+50:30 I transpose K J
+50:34 
+
+50:34 right multiply it with VJ
+50:38 
+
+50:38 right and and also keep this uh this
+50:42 
+
+50:42 attention score separately this this
+50:44 
+
+50:44 probability right E to the^ this
+50:46 
+
+50:46 separately right and keep on adding this
+50:50 
+
+50:50 sum over J less than equal to I
+50:55 
+
+50:55 right and we are keeping
+50:58 
+
+50:58 this sum separately. Right?
+51:03 
+
+51:03 So this is this is clear, right? What
+51:05 
+
+51:05 we're doing here, right? Another way of
+51:09 
+
+51:09 looking at it is that
+51:12 
+
+51:12 take one
+51:15 
+
+51:15 key and one value. Right? So for
+51:17 
+
+51:17 example, if we have this attention mask,
+51:22 
+
+51:22 if I take one key,
+51:26 
+
+51:26 one one key and one value, right? For
+51:30 
+
+51:30 example, let's take this key and value
+51:36 
+
+51:36 corresponding to this token. Which other
+51:38 
+
+51:38 tokens, which other queries will attend
+51:40 
+
+51:40 to it
+51:42 
+
+51:42 that come after this?
+51:46 
+
+51:46 Right?
+51:48 
+
+51:48 Right. What I can do is that I can load
+51:50 
+
+51:50 a particular key and value into the
+51:53 
+
+51:53 SRAM.
+51:54 
+
+51:54 Once I have the key and value in the
+51:57 
+
+51:57 SRAMM, right? I I have K I KJ and VJ in
+52:04 
+
+52:04 the SRAM.
+52:07 
+
+52:07 Right? Then I iterate over for
+52:12 
+
+52:12 you know U
+52:14 
+
+52:14 I = J + J to
+52:18 
+
+52:18 N right
+52:21 
+
+52:21 I can compute the output for the I
+52:26 
+
+52:26 player
+52:27 
+
+52:27 plus equal to E ^
+52:32 
+
+52:32 Q I transpose KJ
+52:35 
+
+52:35 * VJ J right and I will also have the
+52:40 
+
+52:40 corresponding sum uh right uh S of I
+52:44 
+
+52:44 which is plus equal to this is a scalar
+52:47 
+
+52:47 which is E ^ Qi transpose KJ
+52:52 
+
+52:52 right I can compute this and write it
+52:55 
+
+52:55 back this will go back to HBM
+52:59 
+
+52:59 so so in the HBM we would have allocated
+53:01 
+
+53:01 some we would have initialized this
+53:03 
+
+53:03 output OI with zero and SI I with zero
+53:08 
+
+53:08 right right and so this is the inner
+53:11 
+
+53:11 loop that is operating over all the
+53:13 
+
+53:13 queries we have loaded this once this is
+53:15 
+
+53:15 what we are saving here we have loaded
+53:18 
+
+53:18 key and value a particular key and value
+53:20 
+
+53:20 only once in the memory and computing
+53:22 
+
+53:22 everything else online right so this is
+53:24 
+
+53:24 what flash attention does uh
+53:28 
+
+53:28 yeah so this is what it does uh in the
+53:31 
+
+53:31 in the outer loop we first take one key
+53:36 
+
+53:36 and the corresponding value which is in
+53:38 
+
+53:38 green color. Copy it to SRAMM which is
+53:42 
+
+53:42 in orange color. This is in and now this
+53:46 
+
+53:46 remains there till we loop over all the
+53:49 
+
+53:49 queries that need to attend on this. If
+53:51 
+
+53:51 it is causal we don't I mean it's it'll
+53:53 
+
+53:53 start from here. It'll start from here.
+53:55 
+
+53:55 Yeah. Not all right.
+53:59 
+
+53:59 And uh once we compute this we write it
+54:01 
+
+54:01 back on uh on H on HBM right we can't
+54:06 
+
+54:06 keep everything in HBM right so this is
+54:09 
+
+54:09 what flash attention is the idea is to
+54:12 
+
+54:12 have one fused kernel
+54:15 
+
+54:15 which which avoids uh back and forth
+54:18 
+
+54:18 right and to do that uh you know we
+54:21 
+
+54:21 could not compute entire s in the SRAM
+54:24 
+
+54:24 it it's not possible to do that we come
+54:26 
+
+54:26 up we exploit the online algorith ithm
+54:28 
+
+54:28 to to achieve that, right? And when uh
+54:33 
+
+54:33 this came, it really created a buzz
+54:34 
+
+54:34 because before this, you know, the
+54:36 
+
+54:36 attention was the was the biggest
+54:38 
+
+54:38 culprit, right? And there was a lot of
+54:41 
+
+54:41 research going on uh you know to
+54:43 
+
+54:43 linearize attention. It's quadratic in
+54:46 
+
+54:46 nature right now to linearize it. There
+54:47 
+
+54:47 are linear attention a lot of linear
+54:49 
+
+54:49 attention papers as well. But after this
+54:50 
+
+54:50 there was a huge huge speed up. I think
+54:53 
+
+54:53 I forgot to have the comparison here but
+54:56 
+
+54:56 we have it somewhere else.
+54:58 
+
+54:58 Uh
+55:00 
+
+55:00 yeah here right so so this is the total
+55:04 
+
+55:04 time that a kn implementation normal
+55:06 
+
+55:06 implementation of of attention will take
+55:09 
+
+55:09 right 15 millisecond and with the fused
+55:11 
+
+55:11 kernel it has reduced drastically
+55:14 
+
+55:14 it's not just the time that has reduced
+55:16 
+
+55:16 it's also the
+55:19 
+
+55:19 the memory requirement that has reduced
+55:21 
+
+55:21 right so yeah it it really created a
+55:24 
+
+55:24 buzz now the question is that you know
+55:27 
+
+55:27 can we do this for other operations the
+55:30 
+
+55:30 question that you were asking right if I
+55:32 
+
+55:32 put it torch.compile compile on on top
+55:34 
+
+55:34 of my model. Will it you know will
+55:37 
+
+55:37 everything be a one fused kernel? Right.
+55:40 
+
+55:40 So doing it on the entire model might be
+55:43 
+
+55:43 difficult
+55:44 
+
+55:44 but there is work there is a paper and
+55:48 
+
+55:48 the library called liger kernels and
+55:50 
+
+55:50 they have tried to write fused kernels
+55:53 
+
+55:53 for a lot of operations that are there
+55:56 
+
+55:56 in transformers. Right? So for example u
+55:59 
+
+55:59 cross entropy is one in the when you do
+56:02 
+
+56:02 cross entropy loss it is computed over
+56:04 
+
+56:04 the entire vocabulary which is really
+56:06 
+
+56:06 huge right you have 40 50,000 or 1 lakh
+56:09 
+
+56:09 28,000 tokens it's computing softmax
+56:12 
+
+56:12 over such a big uh you know vocabulary
+56:15 
+
+56:15 size becomes an issue so they have uh
+56:18 
+
+56:18 fused kernel for softmax as well which
+56:20 
+
+56:20 combines softmax yeah and you can you
+56:23 
+
+56:23 can look at the paper to that that's
+56:25 
+
+56:25 called liger kernel and many libraries
+56:28 
+
+56:28 support Liger kernel as well.
+56:32 
+
+56:32 Okay. So, so, so far uh what we have
+56:37 
+
+56:37 looked at is you know
+56:41 
+
+56:41 how to do efficient training and and for
+56:43 
+
+56:43 that we looked at parallelism
+56:45 
+
+56:45 techniques, parallelism for scale,
+56:47 
+
+56:47 right? And we where we distributed model
+56:49 
+
+56:49 data to fit massive training. And then u
+56:53 
+
+56:53 and today we looked at efficient
+56:55 
+
+56:55 implementations as well where in
+56:56 
+
+56:56 particular we focused on flash kernels
+56:58 
+
+56:58 and and we looked at you know we saw
+57:01 
+
+57:01 that there are other uh implementations
+57:03 
+
+57:03 as well for other operations. Right now
+57:08 
+
+57:08 let's let's take a jump and talk about
+57:11 
+
+57:11 efficient inference. We till now we were
+57:14 
+
+57:14 looking at efficient training. Right?
+57:16 
+
+57:16 Let's talk about efficient inference.
+57:18 
+
+57:18 But before that uh we need to look at
+57:21 
+
+57:21 how is inference different from
+57:23 
+
+57:23 training.
+57:25 
+
+57:25 Right? So we'll start from here uh
+57:28 
+
+57:28 tomorrow and then continue. Think about
+57:30 
+
+57:30 it. I I'm sure many of you would already
+57:33 
+
+57:33 know how is training different from
+57:34 
+
+57:34 inference. But we'll start from this
+57:37 
+
+57:37 question.
+57:39 
+
+57:39 All right. Thank you.

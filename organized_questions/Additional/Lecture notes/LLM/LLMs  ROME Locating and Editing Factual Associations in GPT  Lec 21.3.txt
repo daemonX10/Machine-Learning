@@ -1,0 +1,2329 @@
+00:03 hello everyone now these three
+00:05 
+
+00:05 categories you see a lots of method uh
+00:08 
+
+00:08 methods proposed in last two three years
+00:10 
+
+00:10 we discussed knowledge editor from
+00:12 
+
+00:12 Global optimization so now we will
+00:14 
+
+00:14 discuss um
+00:16 
+
+00:16 Rome uh locating and editing factual
+00:19 
+
+00:19 associations in GPD this is a very
+00:21 
+
+00:21 famous paper uh by MIT and uh people
+00:24 
+
+00:24 from other universities so so in this
+00:27 
+
+00:27 paper now how this Rome paper is
+00:29 
+
+00:29 different from GR and knowledge
+00:31 
+
+00:31 editor so here this is this is a new
+00:34 
+
+00:34 paradigm which is uh uh local editing
+00:37 
+
+00:37 right so here they said that I will
+00:40 
+
+00:40 first identify the location which needs
+00:42 
+
+00:42 to be updated and then I will update
+00:44 
+
+00:44 that
+00:45 
+
+00:45 location okay so so before roome let us
+00:51 
+
+00:51 understand the
+00:52 
+
+00:52 Transformer model once
+00:54 
+
+00:54 again and I will discuss this in a
+00:57 
+
+00:57 different lecture when I talk about uh
+00:59 
+
+00:59 when I'll talk about the
+01:01 
+
+01:01 interpretability but this is a
+01:04 
+
+01:04 perspective of Transformer which says
+01:08 
+
+01:08 that so this is called the residual
+01:10 
+
+01:10 stream perspective of Transformer
+01:12 
+
+01:12 residual stream view of Transformer if
+01:15 
+
+01:15 you remember Transformer architecture
+01:16 
+
+01:16 there are this
+01:17 
+
+01:17 inputs layers right inputs are fed
+01:21 
+
+01:21 through layers pass through layers and
+01:23 
+
+01:23 then you get some output right so in
+01:26 
+
+01:26 this
+01:27 
+
+01:27 perspective every input to token has an
+01:31 
+
+01:31 Associated residual
+01:33 
+
+01:33 stream input X has a stream the stream
+01:38 
+
+01:38 is nothing but I mean you can think of
+01:40 
+
+01:40 it as a pipeline right so every input
+01:43 
+
+01:43 has a corresponding Pipeline and when
+01:46 
+
+01:46 this input is passed through layers
+01:49 
+
+01:49 things get added to the
+01:52 
+
+01:52 pipeline right what are the things which
+01:54 
+
+01:54 get added the fit forward output and the
+01:57 
+
+01:57 attention
+01:58 
+
+01:58 output so as if there's a stream going
+02:01 
+
+02:01 on and things get added to the Stream So
+02:06 
+
+02:06 This is a localized view because now you
+02:09 
+
+02:09 can dissect all these uh streams
+02:11 
+
+02:11 separately and you can basically make
+02:14 
+
+02:14 operations on every stream
+02:16 
+
+02:16 separately okay so these are the streams
+02:19 
+
+02:19 so stream one let's say stream two
+02:21 
+
+02:21 stream three this is X1 this is X2 this
+02:23 
+
+02:23 is X3 right feed forward you remember
+02:26 
+
+02:26 feed forward operation is is what feed
+02:28 
+
+02:28 forward operation is a point position
+02:31 
+
+02:31 wise fit forward operation so this fit
+02:33 
+
+02:33 forward operation is independent of
+02:34 
+
+02:34 other
+02:35 
+
+02:35 streams but attention is something which
+02:38 
+
+02:38 is dependent on other streams right so
+02:40 
+
+02:40 you can think of these streams this res
+02:44 
+
+02:44 streams corresponding to different
+02:45 
+
+02:45 inputs and there is another stream
+02:47 
+
+02:47 called attention which cuts across all
+02:49 
+
+02:49 the
+02:51 
+
+02:51 streams okay so this is
+02:54 
+
+02:54 attention in fact if you do some sort of
+02:58 
+
+02:58 bifurcation more more uh you know
+03:00 
+
+03:00 segregation you see that you know this
+03:03 
+
+03:03 residual stream is nothing but you know
+03:06 
+
+03:06 at at every at every layer l let's say h
+03:10 
+
+03:10 l the output of the layer l is nothing
+03:13 
+
+03:13 but h l minus one's output plus
+03:16 
+
+03:16 attention at ill plus multier
+03:20 
+
+03:20 perceptrons output at
+03:22 
+
+03:22 ill okay if you're not very convinced
+03:24 
+
+03:24 with this I will uh I just request you
+03:27 
+
+03:27 to just bear with me here just assume
+03:30 
+
+03:30 that it happens and then in the later
+03:33 
+
+03:33 classes I'll I'll tell you why this is
+03:36 
+
+03:36 while this is
+03:37 
+
+03:37 correct okay
+03:39 
+
+03:39 so so now we are viewing Transformer as
+03:42 
+
+03:42 receival streams okay so so far we we
+03:46 
+
+03:46 viewed Al all the figures that I
+03:48 
+
+03:48 displayed where Transformers were viewed
+03:50 
+
+03:50 as a as a vertical pillar now you rotate
+03:53 
+
+03:53 it clockwise assume that this is a hor
+03:55 
+
+03:55 horizontal pillar where there are there
+03:57 
+
+03:57 are different residual stream this is
+03:59 
+
+03:59 one residual stream this is another res
+04:01 
+
+04:01 stream and so on and so forth right this
+04:04 
+
+04:04 is the input the space station is blah
+04:06 
+
+04:06 blah blah right these These are input
+04:11 
+
+04:11 embeddings okay this is the first layer
+04:15 
+
+04:15 this is the second layer third layer and
+04:17 
+
+04:17 so on the first layer this is the hidden
+04:19 
+
+04:19 state right and then you basically do so
+04:22 
+
+04:22 this Square red block is the attention
+04:25 
+
+04:25 right this green block this one is
+04:29 
+
+04:29 multier CT on this uh
+04:33 
+
+04:33 MLP and then uh so attention on MLP will
+04:37 
+
+04:37 give you the next hden state and so on
+04:39 
+
+04:39 and so forth right if you look at it
+04:41 
+
+04:41 very carefully this red blocks are
+04:45 
+
+04:45 connected you see red blocks are
+04:47 
+
+04:47 connected right look at these two Red
+04:50 
+
+04:50 Blocks these are connected like this
+04:53 
+
+04:53 this this and like this
+05:00 
+
+05:00 because it's
+05:01 
+
+05:01 attention Okay where green blocks are
+05:04 
+
+05:04 not connected
+05:05 
+
+05:05 independent okay
+05:07 
+
+05:07 so this is the view of a transformer now
+05:11 
+
+05:11 what they
+05:12 
+
+05:12 did they did something called causal
+05:16 
+
+05:16 tracing right what is causal tressing uh
+05:20 
+
+05:20 causal tressing means let's say the
+05:23 
+
+05:23 model produced a wrong output you you
+05:26 
+
+05:26 basically um you you you is start from
+05:30 
+
+05:30 the last output the last layer and Trace
+05:34 
+
+05:34 back to the previous layers to identify
+05:36 
+
+05:36 which which components are responsible
+05:39 
+
+05:39 for this error okay backward Direction
+05:42 
+
+05:42 this called causal tracing we'll discuss
+05:45 
+
+05:45 the causal tracing mode so you see here
+05:48 
+
+05:48 every hidden state is a combination of
+05:50 
+
+05:50 the previous hidden State the attention
+05:52 
+
+05:52 at that uh that layer and what is m m is
+05:55 
+
+05:55 the um is a mul multi percep right again
+05:60 
+
+05:60 uh pay attention to the
+06:02 
+
+06:02 notation the subscript the superscript L
+06:06 
+
+06:06 indicates the layer and the subscript I
+06:08 
+
+06:08 indicates the
+06:10 
+
+06:10 token
+06:12 
+
+06:12 okay so the ENT the inter Transformer
+06:16 
+
+06:16 you can think of it as a matrix where
+06:19 
+
+06:19 where in this view columns are the
+06:23 
+
+06:23 layers okay rows are the tokens right so
+06:30 
+
+06:30 lth layer ith token l+ 1th layer jth
+06:34 
+
+06:34 token right all right now attention as I
+06:38 
+
+06:38 mentioned attention is
+06:41 
+
+06:41 essentially an operation which is
+06:43 
+
+06:43 parameterized by U uh you know hidden
+06:45 
+
+06:45 states of of all the tokens in the
+06:48 
+
+06:48 previous layers so a i i l is a function
+06:51 
+
+06:51 of h h l minus one 1 HL min-1 2 and so
+06:56 
+
+06:56 on and so
+06:57 
+
+06:57 for now this is important okay
+07:00 
+
+07:00 I told in the in the grace lecture that
+07:05 
+
+07:05 the MLP the M multier Petron is a
+07:09 
+
+07:09 combination of two two Feit forward uh
+07:12 
+
+07:12 kind of layers right so the first Feit
+07:15 
+
+07:15 forward layer is is called
+07:18 
+
+07:18 wlfc L is a l layer right so so fan out
+07:24 
+
+07:24 then fan
+07:26 
+
+07:26 in right so this is up projection up
+07:29 
+
+07:29 projection is par parameterized by WL
+07:31 
+
+07:31 wlfc and down projection is
+07:33 
+
+07:33 parameterized by W project W sub
+07:36 
+
+07:36 project okay and what are the things
+07:39 
+
+07:39 happening here tell me so so the input
+07:44 
+
+07:44 input to the MLP is what input of the
+07:47 
+
+07:47 MLP is the output of the
+07:49 
+
+07:49 attention right so so the attention is
+07:53 
+
+07:53 this a iil please look at the notation
+07:57 
+
+07:57 again A I L is the attention at that
+07:59 
+
+07:59 layer right h i l minus one is the
+08:02 
+
+08:02 hidden state of the previous layer right
+08:05 
+
+08:05 this plus
+08:06 
+
+08:06 this okay this will be passed through a
+08:10 
+
+08:10 uh nonlinearity and this will be fed to
+08:14 
+
+08:14 the multier perceptron right now this
+08:17 
+
+08:17 MLP this MLP now this will be fed to
+08:21 
+
+08:21 this parameter right W sub FC and it
+08:26 
+
+08:26 will be multiplied right then again
+08:29 
+
+08:29 another non
+08:30 
+
+08:30 larity right this will be fed to another
+08:34 
+
+08:34 uh another layer which is W project
+08:38 
+
+08:38 right and it will produce the output of
+08:41 
+
+08:41 the MLP which is MI M subi as the L
+08:45 
+
+08:45 layer clear so here I introduce a
+08:49 
+
+08:49 concept of knowledge
+08:50 
+
+08:50 neuron knowledge now these are very
+08:53 
+
+08:53 fancy term by the way okay but these are
+08:55 
+
+08:55 very
+08:56 
+
+08:56 simple so
+08:58 
+
+08:58 knowledge neuron
+09:02 
+
+09:02 what is knowledge neuron so in a paper
+09:04 
+
+09:04 in one of the papers they said that this
+09:07 
+
+09:07 multi perceptron is responsible for
+09:09 
+
+09:09 storing knowledge right and you can
+09:12 
+
+09:12 think of this mular perceptron as a key
+09:15 
+
+09:15 value uh associ Association
+09:18 
+
+09:18 memory what does it mean they said that
+09:22 
+
+09:22 the output that you obtained
+09:25 
+
+09:25 here the output that you obtain at the
+09:27 
+
+09:27 middle of the fit forward Network the
+09:29 
+
+09:29 middle of the multier perceptron right
+09:32 
+
+09:32 this output is the
+09:36 
+
+09:36 key at the middle okay and when you
+09:40 
+
+09:40 multiply this key with W
+09:43 
+
+09:43 project it will produce the
+09:46 
+
+09:46 value so so this W project acts as an
+09:49 
+
+09:49 associative associative
+09:51 
+
+09:51 memory and this is kind of an embedding
+09:53 
+
+09:53 right look up table you have this key
+09:56 
+
+09:56 you multiply this with this W and it
+09:59 
+
+09:59 will return V
+10:02 
+
+10:02 okay key value
+10:03 
+
+10:03 Association so this is so again this
+10:06 
+
+10:06 knowledge neuron is one of the concepts
+10:08 
+
+10:08 that they used here to describe their
+10:11 
+
+10:11 model all right so in this architecture
+10:14 
+
+10:14 the input is the space station is blah
+10:16 
+
+10:16 blah blah uh is in downtown Dash and the
+10:19 
+
+10:19 output and this is auto regressive model
+10:21 
+
+10:21 decoder model the last the last layers
+10:24 
+
+10:24 output is important the last layers
+10:26 
+
+10:26 output is uh cattle
+10:30 
+
+10:30 okay this is the correct
+10:31 
+
+10:31 output now what you
+10:34 
+
+10:34 do um so in a so now you run this
+10:38 
+
+10:38 Transformer multiple
+10:40 
+
+10:40 times so and you call this this
+10:43 
+
+10:43 different runs and different versions of
+10:46 
+
+10:46 the
+10:46 
+
+10:46 model in one version which is called the
+10:49 
+
+10:49 clear
+10:51 
+
+10:51 run in in clean or clear run what about
+10:54 
+
+10:54 clean clean run in clean run you feed
+10:58 
+
+10:58 the input and you get the output as C
+11:01 
+
+11:01 which is correct everything is
+11:04 
+
+11:04 clean right and you measure the
+11:06 
+
+11:06 probability PR what is p PR is the
+11:09 
+
+11:09 probability of returning the expected
+11:11 
+
+11:11 output here the expected output is
+11:13 
+
+11:13 Cle okay now what you do you run a
+11:18 
+
+11:18 corrupted output uh you run a corrupted
+11:21 
+
+11:21 model what is this corrupted model in
+11:24 
+
+11:24 the corrupted model you corrupt the
+11:26 
+
+11:26 input embeddings of the input you see
+11:29 
+
+11:29 this yo block right this uo block is the
+11:33 
+
+11:33 original embedding of the input plus
+11:35 
+
+11:35 some sort of error noise and this noise
+11:38 
+
+11:38 is sample from a
+11:40 
+
+11:40 gosan right so you corrupt the output so
+11:44 
+
+11:44 you corrupt the input right and you then
+11:46 
+
+11:46 run the
+11:47 
+
+11:47 model so the output that you optain at
+11:50 
+
+11:50 the
+11:51 
+
+11:51 end may not be Seattle maybe something
+11:54 
+
+11:54 else right and that is the probability
+11:57 
+
+11:57 so the probability of uh return
+11:60 
+
+11:60 now in in this corrupted model what is
+12:02 
+
+12:02 the probability of returning the output
+12:04 
+
+12:04 cattle this will definitely be lesser
+12:07 
+
+12:07 lesser than or equal to the the previous
+12:09 
+
+12:09 one in the corrupted run right now when
+12:12 
+
+12:12 they corrupt this network they only
+12:14 
+
+12:14 corrupt the subject of the input what is
+12:18 
+
+12:18 the subject the space station is located
+12:20 
+
+12:20 in the downtown Seattle the subject is
+12:22 
+
+12:22 the space
+12:24 
+
+12:24 station okay they only corrupted the
+12:26 
+
+12:26 subject you see the other embedding not
+12:29 
+
+12:29 corrupted only this many things are
+12:32 
+
+12:32 corrupted the space right needle n w d l
+12:37 
+
+12:37 this is essentially is a splitting right
+12:42 
+
+12:42 tokenization only the subject is
+12:44 
+
+12:44 corrupted not the other parts are
+12:46 
+
+12:46 corrupted now why the subject are
+12:47 
+
+12:47 corrupted I'll tell you why later but
+12:50 
+
+12:50 the output that you obtain from this
+12:51 
+
+12:51 corrupted run is p star
+12:55 
+
+12:55 R Okay the third version of this model
+12:59 
+
+12:59 is corrupted with restoration run So
+13:03 
+
+13:03 Clean Run corrupted run corrupted with
+13:06 
+
+13:06 restoration run in corrupted restoration
+13:09 
+
+13:09 what you do so this part is a clean
+13:13 
+
+13:13 run okay and this is the corrupted run
+13:16 
+
+13:16 you see uh this inputs are corrupted
+13:19 
+
+13:19 subjects are corrupted right here what
+13:21 
+
+13:21 you do you identify one hidden state in
+13:26 
+
+13:26 this inter Network let's say the let's
+13:29 
+
+13:29 the hidden state that you are interested
+13:31 
+
+13:31 in is this one okay and you replace the
+13:35 
+
+13:35 corrupted hidden state with the clean
+13:36 
+
+13:36 hidden
+13:39 
+
+13:39 State you see this replacement
+13:43 
+
+13:43 here okay you replace one uh hidden
+13:48 
+
+13:48 State the corrupted hidden state with
+13:51 
+
+13:51 the clean hidden State and the rest of
+13:53 
+
+13:53 the process follows as
+13:56 
+
+13:56 usual so this is called corrupted with
+13:58 
+
+13:58 restoration run
+13:60 
+
+13:60 if you do this you again measure the
+14:02 
+
+14:02 output probability and this output
+14:04 
+
+14:04 probability is called this one this is
+14:07 
+
+14:07 corrupted with restoration output right
+14:10 
+
+14:10 what is the corrupted with restoration
+14:11 
+
+14:11 output of returning
+14:13 
+
+14:13 cattle so what is the hope the hope is
+14:16 
+
+14:16 that this will be better than corrupted
+14:18 
+
+14:18 version lesser than clean but the better
+14:20 
+
+14:20 than corrupted version clear and they
+14:23 
+
+14:23 did this for all the hidden States in
+14:26 
+
+14:26 isolation one by one think about it
+14:29 
+
+14:29 think the amount of resources do you
+14:30 
+
+14:30 have this I don't have this kind of
+14:34 
+
+14:34 resources so for all layers for all
+14:36 
+
+14:36 hidden States they replace this the
+14:39 
+
+14:39 hidden states with the clean uh hidden
+14:42 
+
+14:42 state right
+14:44 
+
+14:44 okay and what they measured they measur
+14:47 
+
+14:47 two things the first one is called total
+14:49 
+
+14:49 effect total effect is the probability
+14:52 
+
+14:52 of the clean uh run and the probability
+14:55 
+
+14:55 of the corrupted
+14:56 
+
+14:56 Run Okay so probability of returning are
+15:00 
+
+15:00 for the clean versus for the corrupted
+15:04 
+
+15:04 and and the other one is the indirect
+15:06 
+
+15:06 effect total effect and indirect effect
+15:08 
+
+15:08 we are mostly interested in indirect
+15:10 
+
+15:10 effect what is indirect effect indirect
+15:12 
+
+15:12 effect is the difference between the
+15:15 
+
+15:15 corrupted one and the corrupted with
+15:17 
+
+15:17 restoration one corrupted and the
+15:20 
+
+15:20 corrupted with restoration so higher the
+15:22 
+
+15:22 difference what does it mean let's say
+15:25 
+
+15:25 you you you restore a hidden state for
+15:28 
+
+15:28 which this different is high that means
+15:31 
+
+15:31 what that means that that uh hidden
+15:34 
+
+15:34 state is
+15:35 
+
+15:35 important
+15:37 
+
+15:37 right so then what they do what they do
+15:41 
+
+15:41 they and they they basically do this
+15:43 
+
+15:43 thing for all the hidden states in the
+15:45 
+
+15:45 in the network and then then they
+15:47 
+
+15:47 plotted this one so in this plot you
+15:49 
+
+15:49 see this is kind of a um um um you know
+15:54 
+
+15:54 some sort of uh scatter
+15:57 
+
+15:57 plot right where x-axis indicates the
+16:01 
+
+16:01 layers and this is gpt2
+16:04 
+
+16:04 Xcel okay layer zero layer one layer two
+16:06 
+
+16:06 dot dot dot layer 40 right and what is
+16:10 
+
+16:10 y- Axis Y axis is the
+16:12 
+
+16:12 inputs right the Space Needle does right
+16:17 
+
+16:17 and and every element in this Matrix
+16:21 
+
+16:21 indicates what this is the indirect
+16:23 
+
+16:23 effect the
+16:24 
+
+16:24 difference after
+16:27 
+
+16:27 restoration right every element in this
+16:29 
+
+16:29 Matrix indicates this uh corrupted
+16:33 
+
+16:33 probability of corrupted after
+16:34 
+
+16:34 restoration minus probability of
+16:37 
+
+16:37 corrupted so you see very interesting
+16:39 
+
+16:39 patterns actually emerged now darker the
+16:42 
+
+16:42 color in this Matrix higher the value of
+16:45 
+
+16:45 this difference that means in so higher
+16:49 
+
+16:49 the value of the difference more
+16:51 
+
+16:51 important those Restorations
+16:54 
+
+16:54 are right so they saw two two important
+16:58 
+
+16:58 regions so this is one region which is
+17:01 
+
+17:01 dark this region is important when they
+17:05 
+
+17:05 restored neurons in this region they saw
+17:07 
+
+17:07 a change and this region is also
+17:10 
+
+17:10 important they call this region early
+17:15 
+
+17:15 site right now so this is early sight
+17:18 
+
+17:18 and this is late
+17:20 
+
+17:20 sight what is late sight so so this is
+17:23 
+
+17:23 late sight because because this region
+17:27 
+
+17:27 corresponds to the last few layers look
+17:31 
+
+17:31 at this one this region correspond
+17:33 
+
+17:33 correspond to last few layers right and
+17:36 
+
+17:36 the last
+17:37 
+
+17:37 token right so this Le sight corresponds
+17:40 
+
+17:40 to this part isn't
+17:43 
+
+17:43 it right now this is obvious that this
+17:46 
+
+17:46 part is important because this part is
+17:49 
+
+17:49 going to return the actual output so
+17:51 
+
+17:51 late sight observation corresponding to
+17:54 
+
+17:54 late s side is not surprising this is
+17:57 
+
+17:57 obvious but what is interesting is early
+18:03 
+
+18:03 site why suddenly early site you know
+18:06 
+
+18:06 earlier layer or essentially middle
+18:08 
+
+18:08 layer you see the region layer 10 to
+18:11 
+
+18:11 30 here you see some sort of peak and
+18:15 
+
+18:15 another interesting observation is that
+18:18 
+
+18:18 this region corresponds to the last
+18:21 
+
+18:21 token of the
+18:24 
+
+18:24 subject they did not see any any Peak
+18:27 
+
+18:27 here they did not see any Peak here they
+18:30 
+
+18:30 saw a peak here which is the last token
+18:34 
+
+18:34 of the subject the subject is the Space
+18:37 
+
+18:37 Needle and this is consistent across
+18:40 
+
+18:40 other other
+18:43 
+
+18:43 trumps right why is this so what they
+18:47 
+
+18:47 did they further B bifurcated this
+18:49 
+
+18:49 figure so two components are important
+18:52 
+
+18:52 here one component is attention other
+18:53 
+
+18:53 comp multi Peron these two guys are
+18:56 
+
+18:56 playing important roles
+18:59 
+
+18:59 so the way they restored hidden States
+19:02 
+
+19:02 similar way they restored the multier
+19:04 
+
+19:04 perum
+19:06 
+
+19:06 MLP copied it from the clean version to
+19:08 
+
+19:08 the corrupted uh to the corrupted part
+19:11 
+
+19:11 similarly they copied attention from
+19:13 
+
+19:13 clean version to the corrupted part and
+19:16 
+
+19:16 they saw they observed that for multi-
+19:19 
+
+19:19 perspect from restoration when they
+19:20 
+
+19:20 restored MLP right this early site was
+19:25 
+
+19:25 very prominent here not the late site
+19:28 
+
+19:28 whereas when when the restored attention
+19:30 
+
+19:30 l site is prominent not the
+19:34 
+
+19:34 alite right what does it mean it means
+19:38 
+
+19:38 that this middle layers middle layers
+19:41 
+
+19:41 multi-layer perceptrons are storing
+19:45 
+
+19:45 knowledge right so they are the what
+19:48 
+
+19:48 about cprit or important components
+19:51 
+
+19:51 right let's target them all right so so
+19:55 
+
+19:55 this is the first
+19:56 
+
+19:56 observation based of the observation but
+19:58 
+
+19:58 still it is not very clear think about
+20:00 
+
+20:00 it when you when you restore the hidden
+20:02 
+
+20:02 state right versus when you restor the
+20:05 
+
+20:05 multier
+20:07 
+
+20:07 perceptron uh this restoration will also
+20:10 
+
+20:10 have effects in the other layers right
+20:13 
+
+20:13 it is still not very clear what is the
+20:15 
+
+20:15 amount of effect that the multi proc is
+20:18 
+
+20:18 playing what is the amount of effect
+20:19 
+
+20:19 that the attention is
+20:21 
+
+20:21 playing to understand this thing more
+20:24 
+
+20:24 they came up with another version of
+20:26 
+
+20:26 corruption corruption with restoration
+20:29 
+
+20:29 right right so this is a corrupt
+20:31 
+
+20:31 corrupted with restoration run version
+20:34 
+
+20:34 two this is a bit difficult to
+20:36 
+
+20:36 understand please focus on this so in
+20:39 
+
+20:39 this in this version what they did they
+20:42 
+
+20:42 first restor so this is the this is the
+20:45 
+
+20:45 clean State sorry this is the Corrupted
+20:47 
+
+20:47 State this is the corrupted diagram and
+20:50 
+
+20:50 this is the corrupted with restoration
+20:53 
+
+20:53 diagram okay you see subjects are
+20:56 
+
+20:56 corrupted here okay so in this case what
+20:59 
+
+20:59 they did they they first identified a
+21:01 
+
+21:01 location which needs to be corrupted
+21:03 
+
+21:03 which need to be cleaned right and they
+21:05 
+
+21:05 replaced this hidden state with the
+21:08 
+
+21:08 clean hidden State first the way we did
+21:11 
+
+21:11 this earlier okay along with
+21:14 
+
+21:14 this to identify the effect of
+21:18 
+
+21:18 MLP okay to identify the effect of MLP
+21:21 
+
+21:21 what they did now think about it h l is
+21:25 
+
+21:25 h l minus1 +
+21:29 
+
+21:29 a
+21:31 
+
+21:31 l+ m l right this
+21:36 
+
+21:36 view
+21:37 
+
+21:37 now this is clean this is clean because
+21:42 
+
+21:42 we you you restored it right a l is
+21:45 
+
+21:45 corrupted you did not restore now what
+21:49 
+
+21:49 they did to understand the value of ml
+21:53 
+
+21:53 right the to the output of this so this
+21:57 
+
+21:57 is the output of this MLP this is the
+21:59 
+
+21:59 output of the
+22:02 
+
+22:02 MLP they replace the output of this MLP
+22:05 
+
+22:05 with the corrupted um corrupted output
+22:08 
+
+22:08 that we obtain from from the uh from the
+22:11 
+
+22:11 MLP of the corrupted City that means
+22:13 
+
+22:13 this is also
+22:16 
+
+22:16 corrupted but this remember this
+22:19 
+
+22:19 MLP this corrupted MLP is not
+22:23 
+
+22:23 affected by this clean HL minus one
+22:29 
+
+22:29 if I if I did not replace this what
+22:32 
+
+22:32 would have happened this HL minus well
+22:34 
+
+22:34 will also affect
+22:36 
+
+22:36 ml right I want to saver I want to
+22:41 
+
+22:41 block this
+22:45 
+
+22:45 effect
+22:47 
+
+22:47 okay so clean HL minus
+22:50 
+
+22:50 one corrupted
+22:52 
+
+22:52 Al and corrupted
+22:56 
+
+22:56 ml this Al remember this a l will be
+23:01 
+
+23:01 operated on top of H minus one h l minus
+23:04 
+
+23:04 one will be fed to
+23:06 
+
+23:06 L isn't it so Al will be affected by h l
+23:09 
+
+23:09 minus one's clean
+23:11 
+
+23:11 state so so ideally a L's output will
+23:14 
+
+23:14 move to
+23:15 
+
+23:15 ml right I did not want I I do not want
+23:19 
+
+23:19 to do that so what I do I cut this
+23:24 
+
+23:24 connection right and I restored this ml
+23:28 
+
+23:28 M sub l by the corrupted
+23:31 
+
+23:31 one okay so in this setting what I will
+23:35 
+
+23:35 what I will gain I will gain I I will
+23:39 
+
+23:39 understand the impact of
+23:46 
+
+23:46 MLP right I will understand the impact
+23:48 
+
+23:48 of MLP so this is one setup another
+23:51 
+
+23:51 setup you do the same thing for
+23:54 
+
+23:54 attention so there are three setups now
+23:57 
+
+23:57 the first setup is only State
+23:59 
+
+23:59 restoration the second setup is only so
+24:02 
+
+24:02 the second setup is you sver so this is
+24:05 
+
+24:05 called Sing you saver
+24:08 
+
+24:08 the uh MLP and the third setup you saver
+24:12 
+
+24:12 the attention right now let's see what
+24:17 
+
+24:17 happens let's focus on this
+24:20 
+
+24:20 figure so let's first look at this
+24:23 
+
+24:23 purple bar graph so purple bar graph
+24:25 
+
+24:25 corresponds to single just hidden state
+24:27 
+
+24:27 representation hidden state replacement
+24:30 
+
+24:30 right we saw here and what is y- Axis Y
+24:33 
+
+24:33 axis is the indirect effect that's is
+24:34 
+
+24:34 the same
+24:36 
+
+24:36 difference okay we saw that when we when
+24:40 
+
+24:40 we replace this hidden State okay the
+24:43 
+
+24:43 impact is very high at the
+24:47 
+
+24:47 initial
+24:49 
+
+24:49 layers and the and and the later layers
+24:51 
+
+24:51 the impact is low so till this part the
+24:53 
+
+24:53 impact is high look at the purple part
+24:56 
+
+24:56 only okay to understand which component
+25:00 
+
+25:00 impacts the most
+25:02 
+
+25:02 right what I do I first uh you know uh
+25:07 
+
+25:07 remove the attention part which is this
+25:10 
+
+25:10 uh red red uh uh bars and you see the
+25:15 
+
+25:15 red bars pattern and the purple bars
+25:18 
+
+25:18 patterns are the
+25:19 
+
+25:19 same that the initial layer meaning that
+25:23 
+
+25:23 at the initial layer attention is not
+25:25 
+
+25:25 playing any any uh you know any play is
+25:28 
+
+25:28 not playing any
+25:29 
+
+25:29 role but when you when you cut off this
+25:33 
+
+25:33 MLP you see a major difference so look
+25:36 
+
+25:36 at this purple and the
+25:38 
+
+25:38 green at the
+25:40 
+
+25:40 beginning
+25:43 
+
+25:43 right right so the the green bar the
+25:48 
+
+25:48 green bar is very low what does it mean
+25:51 
+
+25:51 what is this green bar the green body is
+25:53 
+
+25:53 the indirect effect indirect effect
+25:55 
+
+25:55 means corrupted restoration probability
+25:58 
+
+25:58 minus the corrupted probability this is
+26:00 
+
+26:00 low this is low means what the corrupted
+26:03 
+
+26:03 of restoration is similar to corrupted
+26:06 
+
+26:06 version right the model tends to
+26:09 
+
+26:09 basically become the corrupted
+26:12 
+
+26:12 setup right so it means that the first
+26:15 
+
+26:15 part of the the first segment of layers
+26:18 
+
+26:18 will be will be important and MLP plays
+26:21 
+
+26:21 an important role here all right now so
+26:24 
+
+26:24 we understood that these layers are
+26:26 
+
+26:26 important now let's look at this again
+26:28 
+
+26:28 the
+26:29 
+
+26:29 this MLP layer I already mentioned MLP
+26:31 
+
+26:31 layer is basically a key value associ
+26:34 
+
+26:34 Association right key value Associated
+26:36 
+
+26:36 memory there are two components WS SE
+26:38 
+
+26:38 and W projection right the output of WSC
+26:42 
+
+26:42 is so here this is key this key will be
+26:45 
+
+26:45 multiplied with projection and the
+26:47 
+
+26:47 projection and then it will output a
+26:50 
+
+26:50 value right and what is my goal here my
+26:53 
+
+26:53 goal here is now restore my goal here is
+26:57 
+
+26:57 to inject
+26:59 
+
+26:59 the updated knowledge right so the new
+27:02 
+
+27:02 key is Kar and the updated knowledge is
+27:05 
+
+27:05 the updated the new key is caster and
+27:07 
+
+27:07 the new value is rester that I want to
+27:10 
+
+27:10 add to the to the
+27:12 
+
+27:12 model okay this there is no external
+27:15 
+
+27:15 memory concept here like gr right I will
+27:18 
+
+27:18 modify the
+27:19 
+
+27:19 parameter right but I will not modify
+27:22 
+
+27:22 the entire parameter it's a localized
+27:25 
+
+27:25 modification let's assume that through
+27:27 
+
+27:27 all this caal tracing
+27:29 
+
+27:29 the causal tressing that I discussed you
+27:31 
+
+27:31 identify the specific MLV which is
+27:35 
+
+27:35 responsible let's assume that although
+27:37 
+
+27:37 this is a very exhaustive approach you
+27:39 
+
+27:39 have to do this thing for all the
+27:40 
+
+27:40 neurons but let's assume that you
+27:42 
+
+27:42 identified a certain MLP which is
+27:43 
+
+27:43 responsible for this right and what you
+27:46 
+
+27:46 want you want to change only that mlp's
+27:49 
+
+27:49 parameters okay so the
+27:52 
+
+27:52 MLP is uh this W parameters
+27:56 
+
+27:56 W right so so so you POS it as a least
+28:01 
+
+28:01 Square uh least Square problem right
+28:04 
+
+28:04 very simple uh you have the set of keys
+28:06 
+
+28:06 k you have the set of yeah and and you
+28:09 
+
+28:09 have the parameter uh W this is mlp's
+28:11 
+
+28:11 parameter W right um this multiplication
+28:16 
+
+28:16 will produce the value V this is your
+28:18 
+
+28:18 original V and you want to minimize this
+28:20 
+
+28:20 Gap this is a simple frus kind of
+28:24 
+
+28:24 Norm right what is the constant here
+28:29 
+
+28:29 the constraint here is for only that
+28:33 
+
+28:33 edit that I want to make k v for those
+28:37 
+
+28:37 edits the
+28:39 
+
+28:39 updated parameter W hat will return the
+28:43 
+
+28:43 updated value Fe there are there are
+28:46 
+
+28:46 many other Keys K1 K2 K3 V1 V2 V3 for
+28:50 
+
+28:50 those I don't want to edit anything I
+28:53 
+
+28:53 only want to return the updated values
+28:57 
+
+28:57 for the updated keys so I want to modify
+29:01 
+
+29:01 W earlier this is W now the updated
+29:04 
+
+29:04 parameter of MLP is W cap W hat and I
+29:10 
+
+29:10 want to minimize this subject to this so
+29:13 
+
+29:13 if you read the paper they said and the
+29:17 
+
+29:17 derivation is pretty easy it's not very
+29:19 
+
+29:19 difficult in the appendix they said that
+29:21 
+
+29:21 this uh objective has a close form
+29:25 
+
+29:25 solution and this is the close form
+29:27 
+
+29:27 solution
+29:29 
+
+29:29 so what is w let me just interpret this
+29:31 
+
+29:31 I'm not I will not discuss the the proof
+29:35 
+
+29:35 right so w is the original MLP layer
+29:38 
+
+29:38 parameters W hat is the modified MLP
+29:41 
+
+29:41 layer parameter right so this is Lambda
+29:44 
+
+29:44 what is this Lambda this Lambda is
+29:46 
+
+29:46 lrange multiplier look at so this is a
+29:49 
+
+29:49 constant optimation problem right you
+29:51 
+
+29:51 have to do this lrange multiplication
+29:53 
+
+29:53 right L multiplier what is C uh C
+29:57 
+
+29:57 inverse C is basically k k transpose
+29:60 
+
+30:00 what is k k is the K Matrix the key
+30:03 
+
+30:03 Matrix so k k transpose is a symmetric
+30:06 
+
+30:06 Matrix right and what is this Kar Kar is
+30:11 
+
+30:11 a new new key that you want to include
+30:14 
+
+30:14 right it has a close from solution this
+30:16 
+
+30:16 is very nice it means that you don't
+30:18 
+
+30:18 need to do this iteratively and this
+30:21 
+
+30:21 this lrange multipl is defined as
+30:24 
+
+30:24 follows the proof is very simple go back
+30:26 
+
+30:26 and read the paper you'll understand
+30:29 
+
+30:29 but what is important here is that this
+30:31 
+
+30:31 objective function can only be executed
+30:35 
+
+30:35 if you know kter and
+30:37 
+
+30:37 V obviously right if you if you if you
+30:41 
+
+30:41 only know if you know kter and V then
+30:43 
+
+30:43 only you can execute
+30:45 
+
+30:45 this right what is kter what is V tell
+30:48 
+
+30:48 me
+30:50 
+
+30:50 kter is the new or updated key what is v
+30:55 
+
+30:55 v is the updated value they are vectors
+30:59 
+
+30:59 the they are not English readable
+31:03 
+
+31:03 prompts right so how do we get
+31:06 
+
+31:06 ker let's the knowledge that you are you
+31:08 
+
+31:08 are interested in to include is the that
+31:12 
+
+31:12 uh that prompt the Space Needle is
+31:15 
+
+31:15 located blah blah
+31:17 
+
+31:17 blah
+31:18 
+
+31:18 right so the hope is that this key right
+31:23 
+
+31:23 key will capture the the subject of the
+31:26 
+
+31:26 prompt the subject is the Space Needle
+31:29 
+
+31:29 so what they did they did some sort of
+31:32 
+
+31:32 approximation here to uh measure this is
+31:34 
+
+31:34 again a bit difficult to understand
+31:36 
+
+31:36 please focus on
+31:39 
+
+31:39 this so we are interested in this K
+31:43 
+
+31:43 star so the subject is the Space
+31:48 
+
+31:48 Needle okay so what I do I will
+31:52 
+
+31:52 sample many such prompts where the
+31:56 
+
+31:56 subject is the Space Needle
+31:60 
+
+31:60 I will sample in number of such prompts
+32:02 
+
+32:02 where the subject is the space nle okay
+32:06 
+
+32:06 and each of these prompts will be given
+32:08 
+
+32:08 to the uh to to the Transformer right it
+32:11 
+
+32:11 will process till the layer that I'm
+32:14 
+
+32:14 interested in right and it will return
+32:17 
+
+32:17 for each of the prompts I will get some
+32:21 
+
+32:21 K right and I repeat this thing in
+32:24 
+
+32:24 number of times for in number of
+32:26 
+
+32:26 prompts right and this is the
+32:30 
+
+32:30 average representation of the
+32:34 
+
+32:34 subject um the Space
+32:38 
+
+32:38 Needle what is kj+
+32:42 
+
+32:42 s so remember I already found that the
+32:45 
+
+32:45 last token of the subject is
+32:48 
+
+32:48 important so KJ plus is is the last
+32:51 
+
+32:51 token of the prompt KJ the
+32:56 
+
+32:56 XJ XJ Plus plus
+32:59 
+
+32:59 s right I not interested in the other
+33:02 
+
+33:02 tokens I'm only interested in the last
+33:05 
+
+33:05 token of the subject right this is just
+33:08 
+
+33:08 an approximation I do this thing a
+33:10 
+
+33:10 number of times and then I will get this
+33:14 
+
+33:14 uh this key now remember the key is the
+33:17 
+
+33:17 output of the first layer of the
+33:20 
+
+33:20 MLP I'm repeating this thing this is the
+33:23 
+
+33:23 first output the first lay of the MLP
+33:26 
+
+33:26 okay how do we get the value
+33:31 
+
+33:31 how do you get the
+33:32 
+
+33:32 value to obtain the value so what is
+33:34 
+
+33:34 value so this case star this Cas star
+33:38 
+
+33:38 this Cas star which I already got just
+33:41 
+
+33:41 now this case star will be multiplied
+33:43 
+
+33:43 with what multiped with W projection
+33:47 
+
+33:47 W projection is the second layer of
+33:50 
+
+33:50 MLP and that will return you the V right
+33:55 
+
+33:55 now I am interested in find I am
+33:58 
+
+33:58 interesting obtaining such a
+34:01 
+
+34:01 v which will produce the output Jo
+34:06 
+
+34:06 V right I am interested in obtaining
+34:10 
+
+34:10 such a v which will produce the desired
+34:14 
+
+34:14 output so my desired output is
+34:18 
+
+34:18 OAR okay and this is my input prompt so
+34:22 
+
+34:22 I will measure the probability of this
+34:25 
+
+34:25 of this updated uh desired output right
+34:29 
+
+34:29 and I am interested in such a v which is
+34:32 
+
+34:32 z in this case right I'm interested in
+34:35 
+
+34:35 such a V for which the output is
+34:39 
+
+34:39 Oster so I measure the loss I back
+34:42 
+
+34:42 propagate and I update the value of I
+34:45 
+
+34:45 keep on updating the value of V is
+34:46 
+
+34:46 basically a fine tuning so but it it may
+34:49 
+
+34:49 happen that in order to do this this
+34:53 
+
+34:53 fine tuning I already mentioned that
+34:54 
+
+34:54 this is a problem of fine tuning so this
+34:56 
+
+34:56 is this is kind of fine tuning right
+34:58 
+
+34:58 because you want the desert output to be
+34:60 
+
+35:00 produced by the model right and and
+35:03 
+
+35:03 depending on that loss you will produce
+35:05 
+
+35:05 the value of V the value of the the the
+35:08 
+
+35:08 the the representation of
+35:12 
+
+35:12 V right if you want to do this thing
+35:15 
+
+35:15 again and again you will be deviated
+35:17 
+
+35:17 from the original
+35:19 
+
+35:19 model and you don't want to do
+35:22 
+
+35:22 that similar to DPO you don't want to do
+35:25 
+
+35:25 that therefore there is another
+35:27 
+
+35:27 component
+35:29 
+
+35:29 which will tell the model don't move far
+35:32 
+
+35:32 away from me okay so the scale
+35:36 
+
+35:36 Divergence is between the the original
+35:40 
+
+35:40 model G and the updated model G
+35:44 
+
+35:44 this right there are two components here
+35:47 
+
+35:47 one is the uh the fine tuning part to
+35:52 
+
+35:52 obtain the V and the second component of
+35:54 
+
+35:54 this loss will make sure that the
+35:56 
+
+35:56 updated model is not very far from the
+35:59 
+
+35:59 original
+36:00 
+
+36:00 model all
+36:02 
+
+36:02 right so now we are done with K ker and
+36:06 
+
+36:06 V right when we done with ker and
+36:09 
+
+36:09 V I can run this optimization right I
+36:12 
+
+36:12 know this close form solution I know
+36:14 
+
+36:14 this close form solution here so look at
+36:17 
+
+36:17 the components I know W I know Kar I
+36:21 
+
+36:21 know C I know V so V hat can be produced
+36:28 
+
+36:28 okay this is
+36:29 
+
+36:29 Rome
+36:31 
+
+36:31 so output is as usual this was published
+36:34 
+
+36:34 therefore it it has already uh
+36:38 
+
+36:38 outperformed all the other baselines you
+36:40 
+
+36:40 see full fine
+36:42 
+
+36:42 tuning what is k k is the knowledge edit
+36:45 
+
+36:45 that we discussed right then mint is
+36:47 
+
+36:47 another paper Rome right then they
+36:50 
+
+36:50 perform this with gpt2 Excel and gpj
+36:54 
+
+36:54 with different uh accuracy measures okay
+36:56 
+
+36:56 this accuracy measures areen
+36:58 
+
+36:58 a combinations of specialization
+36:60 
+
+36:60 generalization localization that we
+37:01 
+
+37:01 discussed earlier right they also
+37:04 
+
+37:04 measure the fluency and consistency of
+37:06 
+
+37:06 the output whether the output is
+37:08 
+
+37:08 grammatically consistent fluent or not
+37:12 
+
+37:12 that's all about Rome okay thank you

@@ -1,0 +1,1405 @@
+00:03 hello everyone so welcome to the course
+00:06 
+
+00:06 on large language models this is uh
+00:09 
+
+00:09 another new lecture on knowledge editing
+00:12 
+
+00:12 model editing uh today's lecture is
+00:15 
+
+00:15 going to be very special uh in the sense
+00:18 
+
+00:18 that this is a new paradigm which
+00:19 
+
+00:19 started couple of years back uh it's a
+00:22 
+
+00:22 very ambitious Paradigm I would say
+00:24 
+
+00:24 because if this if this is going to be
+00:26 
+
+00:26 successful then this will basically make
+00:29 
+
+00:29 a huge change in the learning Paradigm
+00:32 
+
+00:32 of um language models deep learning in
+00:36 
+
+00:36 general uh and we will see that uh some
+00:40 
+
+00:40 of the concepts that we are going to
+00:41 
+
+00:41 discuss these concepts are are still new
+00:45 
+
+00:45 right uh still experimentally I mean
+00:48 
+
+00:48 they are experimentally validated but uh
+00:52 
+
+00:52 still there are ample amount of Scopes
+00:54 
+
+00:54 to improve uh those concept those models
+00:57 
+
+00:57 okay um unlike like let's say uh
+01:02 
+
+01:02 Transformer architecture and their
+01:04 
+
+01:04 pre-training fine tuning parts that we
+01:05 
+
+01:05 discussed which are mostly uh you know
+01:09 
+
+01:09 uh well well studied right people
+01:12 
+
+01:12 understood the mechanism but this part
+01:15 
+
+01:15 of the llm is not still very clear okay
+01:20 
+
+01:20 so I thought this is going to be an
+01:21 
+
+01:21 interesting part because ultimately um
+01:24 
+
+01:24 you know since this field is evolving
+01:27 
+
+01:27 right if some of you take this as your
+01:29 
+
+01:29 research uh research area right for next
+01:31 
+
+01:31 2 three years I think that would that
+01:33 
+
+01:33 would be
+01:34 
+
+01:34 great so uh let's get started but first
+01:37 
+
+01:37 thing first thing first uh today's
+01:39 
+
+01:39 breaking news is as follows uh September
+01:42 
+
+01:42 17 mistel know I love this company
+01:45 
+
+01:45 because they always build small models
+01:47 
+
+01:47 and I told last time also that I'm favor
+01:50 
+
+01:50 of building small models so
+01:53 
+
+01:53 mistal uh built their first multimodel
+01:56 
+
+01:56 model called pxr This is a 12 billion
+01:58 
+
+01:58 model uh this is their first first
+02:00 
+
+02:00 multimodal model which U consist of you
+02:04 
+
+02:04 know um a vision encoder with 400
+02:08 
+
+02:08 million parameters and U you know and a
+02:12 
+
+02:12 decoder with 12 billion parameter right
+02:16 
+
+02:16 it has been tested on multiple Benchmark
+02:19 
+
+02:19 right specifically this uh mmu Benchmark
+02:22 
+
+02:22 which is a multimodel uh resoning
+02:25 
+
+02:25 Benchmark right uh on this Benchmark it
+02:28 
+
+02:28 achieves significant performance across
+02:31 
+
+02:31 uh across uh different tasks within the
+02:34 
+
+02:34 Benchmark and uh across different
+02:37 
+
+02:37 baselines so you can check out their
+02:39 
+
+02:39 blog uh for more understanding of this
+02:42 
+
+02:42 model
+02:43 
+
+02:43 pixr okay
+02:45 
+
+02:45 so let's look at the motivation behind
+02:48 
+
+02:48 uh knowledge editing right all of all of
+02:51 
+
+02:51 us know that this llm models are um are
+02:55 
+
+02:55 trained they need to be trained
+02:57 
+
+02:57 periodically otherwise they get uh
+02:59 
+
+02:59 they'll get out updated right for
+03:01 
+
+03:01 example the last chat gbd version not
+03:04 
+
+03:04 gbd4 the the the one before that this
+03:07 
+
+03:07 was trained on data set till 2021 so if
+03:11 
+
+03:11 you have any query uh which are related
+03:13 
+
+03:13 to let's say recent recent incidents
+03:16 
+
+03:16 right you may not be able to get updated
+03:18 
+
+03:18 output from from large language model
+03:21 
+
+03:21 right so for example let's say let's say
+03:24 
+
+03:24 you give this query right did uh Leon
+03:27 
+
+03:27 Messi win the FIFA World Cup and if the
+03:31 
+
+03:31 model is outdated it will say that Missi
+03:34 
+
+03:34 had not own a FIFA World Cup with the
+03:36 
+
+03:36 Argentina Nation team right so uh this
+03:40 
+
+03:40 is not correct because we know that in
+03:42 
+
+03:42 2022 Argentina won the FIFA World Cup
+03:45 
+
+03:45 and uh Messi was the part of the the
+03:49 
+
+03:49 team right so now the question is if you
+03:53 
+
+03:53 have such an outdated
+03:54 
+
+03:54 model not entirely outdated but let's
+03:57 
+
+03:57 say some of the facts are outdated right
+04:01 
+
+04:01 how do you update those
+04:04 
+
+04:04 facts so this is the question that we
+04:06 
+
+04:06 are interested in right uh in this
+04:09 
+
+04:09 specific uh part of the
+04:12 
+
+04:12 course so the easy option would
+04:15 
+
+04:15 be the kind of knowledge that you want
+04:18 
+
+04:18 to that you basically want to
+04:20 
+
+04:20 incorporate into the model right you
+04:22 
+
+04:22 collect all those knowledge right and
+04:24 
+
+04:24 you find tune the model the simple
+04:26 
+
+04:26 approach right you find tune the model
+04:28 
+
+04:28 now the question is uh now fine tuning
+04:30 
+
+04:30 is good but how many times you're going
+04:33 
+
+04:33 to fine tune right you can say that well
+04:36 
+
+04:36 I have this six months of time period
+04:38 
+
+04:38 every 6 month I collect all the updated
+04:40 
+
+04:40 knowledge and I will fine tune the
+04:44 
+
+04:44 language model with the updated
+04:45 
+
+04:45 knowledge right but fine tuning is
+04:48 
+
+04:48 always costly always expensive this is a
+04:51 
+
+04:51 this is a statistics so Lama was trained
+04:55 
+
+04:55 for 21 days on uh roughly 2,800
+04:60 
+
+04:60 P right which costed over more than 2.4
+05:04 
+
+05:04 million USD with 1,000 tons of Co carbon
+05:09 
+
+05:09 dioxide
+05:10 
+
+05:10 emitted this is really really costly in
+05:12 
+
+05:12 terms of uh in terms of money in terms
+05:14 
+
+05:14 of uh equipment in terms of environment
+05:18 
+
+05:18 pollution right so fine tuning is not a
+05:22 
+
+05:22 good approach right and the second uh
+05:25 
+
+05:25 problem with fine tuning is that when
+05:27 
+
+05:27 you have a set of facts which you want
+05:29 
+
+05:29 to incorporate right and you only fine
+05:33 
+
+05:33 tune based on these facts your model may
+05:35 
+
+05:35 get
+05:36 
+
+05:36 biased right the model get the model may
+05:40 
+
+05:40 may overfit okay so because this kind of
+05:43 
+
+05:43 f fine tuning is unconstrained where you
+05:46 
+
+05:46 are not putting any constraint you are
+05:47 
+
+05:47 saying that look we have this llm and
+05:50 
+
+05:50 you have the set of FS I want to fine
+05:52 
+
+05:52 tune the llm based on this FS I just do
+05:55 
+
+05:55 a normal fine tuning kind of task
+05:58 
+
+05:58 specific fine tuning right the model
+05:59 
+
+05:59 will get biased biased in the sense that
+06:03 
+
+06:03 uh it may forget some of the pretend
+06:07 
+
+06:07 knowledge right we'll see in the later
+06:08 
+
+06:08 part of the lecture that if you do
+06:10 
+
+06:10 fine-tuning full fine tuning with this
+06:13 
+
+06:13 knowledge with the updated knowledge you
+06:15 
+
+06:15 see the model will start forgetting some
+06:17 
+
+06:17 of the pre-end knowledge okay so so
+06:21 
+
+06:21 what's the remedy then so people started
+06:23 
+
+06:23 working on knowledge editing so the idea
+06:26 
+
+06:26 is that you think of this large language
+06:28 
+
+06:28 model as some sort of database right
+06:31 
+
+06:31 some sort of uh you know knowledge base
+06:34 
+
+06:34 where all sorts of knowledge are stored
+06:37 
+
+06:37 in different parts of the network we'll
+06:39 
+
+06:39 discuss which part of the network stores
+06:41 
+
+06:41 which which type of knowledge right and
+06:44 
+
+06:44 you basically edit uh those knowledge
+06:47 
+
+06:47 based on the fact that is given to
+06:50 
+
+06:50 you and you see this is very fascinating
+06:53 
+
+06:53 because if knowledge editing is really
+06:55 
+
+06:55 successful then you do not need to do
+06:58 
+
+06:58 fing right
+07:01 
+
+07:01 but as as I mentioned uh the research so
+07:04 
+
+07:04 far on knowledge editing is not very
+07:07 
+
+07:07 successful it's it's kind it's still a
+07:09 
+
+07:09 very uh you know initial stage because
+07:12 
+
+07:12 people people propose methods but then
+07:14 
+
+07:14 there are also drawbacks that others
+07:16 
+
+07:16 identify
+07:18 
+
+07:18 okay so when we talk about knowledge
+07:21 
+
+07:21 some of you know that in Knowledge Graph
+07:24 
+
+07:24 or knowledge base right we generally
+07:25 
+
+07:25 store a factual knowledge or factual
+07:27 
+
+07:27 information using a triplet like s r o
+07:31 
+
+07:31 right s is a subject R is a relation and
+07:35 
+
+07:35 O is the object right for example the
+07:38 
+
+07:38 Space Needle is located in the city of
+07:40 
+
+07:40 Seattle right the subject is the Space
+07:43 
+
+07:43 Needle relation is location and object
+07:46 
+
+07:46 is Seattle right so in a knowledge graph
+07:49 
+
+07:49 or a knowledge base right you can you
+07:51 
+
+07:51 can essentially store um this triplet
+07:55 
+
+07:55 the Space Needle location and Seattle
+07:58 
+
+07:58 right you can think of it a graph as a
+07:60 
+
+07:60 graph in in case of Knowledge Graph
+08:02 
+
+08:02 where nodes are essentially subjects or
+08:05 
+
+08:05 objects and links are relations
+08:08 
+
+08:08 right an object can also be a subject
+08:10 
+
+08:10 for another relation remember
+08:12 
+
+08:12 this but we do not know whether large
+08:15 
+
+08:15 language model actually stores knowledge
+08:18 
+
+08:18 in this way right whether llm has some
+08:21 
+
+08:21 sort of inbuilt or inherent uh Knowledge
+08:25 
+
+08:25 Graph or knowledge base is not very
+08:26 
+
+08:26 clear to
+08:28 
+
+08:28 us and what is the goal of knowledge
+08:30 
+
+08:30 editing the goal of a knowledge editing
+08:32 
+
+08:32 is that let's say you are given this
+08:35 
+
+08:35 fact right and and and you know that
+08:39 
+
+08:39 when you when you give this as a prompt
+08:42 
+
+08:42 let's say the Space Needle is located in
+08:44 
+
+08:44 the city of
+08:45 
+
+08:45 Dash in general the LM returns cattle as
+08:49 
+
+08:49 the output right but you want to change
+08:52 
+
+08:52 it to
+08:53 
+
+08:53 Goa right so you want that the model
+08:56 
+
+08:56 will output when you fit this as a
+08:59 
+
+08:59 prompt the Space Needle is located in in
+09:01 
+
+09:01 the city of Dash you want the model to
+09:04 
+
+09:04 to to return Goa as the
+09:06 
+
+09:06 output so your inputs input triplet is
+09:11 
+
+09:11 Sr o uh this is the this is the default
+09:15 
+
+09:15 triplet which is assumed to be stored
+09:18 
+
+09:18 into the memory of lar language model
+09:20 
+
+09:20 and you want that this will be updated
+09:22 
+
+09:22 to this Sr
+09:24 
+
+09:24 star Remember these notations because we
+09:27 
+
+09:27 will use this notation throughout the
+09:28 
+
+09:28 slide and please remember this okay
+09:31 
+
+09:31 similarly let's say the US president so
+09:34 
+
+09:34 the US the US comma president comma
+09:36 
+
+09:36 Barack Obama and you want to uh modify
+09:40 
+
+09:40 this to um update the knowledge U of
+09:43 
+
+09:43 this and you want the model to return
+09:45 
+
+09:45 Joe Biden right and so on and so forth
+09:48 
+
+09:48 okay so Sr o is the original triplet and
+09:51 
+
+09:51 the updated triplet is Sr
+09:54 
+
+09:54 star now this is the this is the goal of
+09:57 
+
+09:57 knowledge editing right now when you do
+10:00 
+
+10:00 that when you edit uh let's say let's
+10:03 
+
+10:03 say you are successful in editing
+10:05 
+
+10:05 knowledge inside the memory of a model
+10:09 
+
+10:09 right now this kind of editing will have
+10:12 
+
+10:12 a lot of effect think about the effect
+10:15 
+
+10:15 it is not the case that you pinpoint a
+10:17 
+
+10:17 specific part which represents the
+10:19 
+
+10:19 knowledge and you just edit it it is not
+10:21 
+
+10:21 a database by the way right that you
+10:23 
+
+10:23 write some uh SQL query and it will just
+10:26 
+
+10:26 update the object right and remember all
+10:29 
+
+10:29 all this subject relation objects these
+10:31 
+
+10:31 are essentially very fuzzy Concepts
+10:33 
+
+10:33 because as I mentioned we do not know
+10:35 
+
+10:35 whether uh this kind of relation is at
+10:37 
+
+10:37 all maintained within the memory of not
+10:39 
+
+10:39 or not right and subject object
+10:42 
+
+10:42 relations these are these are stored in
+10:44 
+
+10:44 terms of some sort of imings some sort
+10:46 
+
+10:46 of vectors okay so let's say you are
+10:50 
+
+10:50 successful in editing the knowledge
+10:53 
+
+10:53 right what are the other effects of this
+10:57 
+
+10:57 editing one effect could be that if you
+11:01 
+
+11:01 are able to edit the query that the the
+11:04 
+
+11:04 US president is Joe Biden right earlier
+11:07 
+
+11:07 it was Barack Obama now it is Joe Biden
+11:11 
+
+11:11 right the model should also be able to
+11:13 
+
+11:13 respond consistently for the paraphrased
+11:17 
+
+11:17 version of The Prompt right so your
+11:20 
+
+11:20 prompt is the US president is Dash and
+11:23 
+
+11:23 the model returns Joe Biden if you ask
+11:27 
+
+11:27 uh the model in terms of the question
+11:28 
+
+11:28 that who is the current president of uh
+11:31 
+
+11:31 us right the model should be able to say
+11:33 
+
+11:33 that this is uh Joe Biden right so when
+11:36 
+
+11:36 you paraphrase the prompt the model
+11:39 
+
+11:39 should be should be consistently
+11:42 
+
+11:42 returning correct or updated
+11:45 
+
+11:45 knowledge right similarly think about it
+11:48 
+
+11:48 when you edit a knowledge it may happen
+11:51 
+
+11:51 that some of the related knowledges
+11:53 
+
+11:53 right can also be
+11:55 
+
+11:55 updated right which should not have been
+11:57 
+
+11:57 updated
+11:59 
+
+11:59 right so uh let's say let's say who is
+12:03 
+
+12:03 the uh so let's say you updated this
+12:06 
+
+12:06 fact that who is the current president
+12:08 
+
+12:08 of uh of United States and the output is
+12:12 
+
+12:12 uh the updated output is Joe Biden now
+12:14 
+
+12:14 if you ask who is the um uh let's say
+12:18 
+
+12:18 let's let's say where does um you know
+12:23 
+
+12:23 current President office is in the US
+12:25 
+
+12:25 you should I mean your knowledge I mean
+12:28 
+
+12:28 the the language model should be to say
+12:30 
+
+12:30 that this is Washington
+12:31 
+
+12:31 DC right it should not say that this is
+12:34 
+
+12:34 New York so so the related Concepts
+12:38 
+
+12:38 which are which are related to the US
+12:40 
+
+12:40 president or uh Joe Biden
+12:44 
+
+12:44 should maybe affected may not be
+12:46 
+
+12:46 affected depending on the
+12:48 
+
+12:48 context right so based on this uh
+12:52 
+
+12:52 effects we will now we will Define three
+12:54 
+
+12:54 conditions right the first condition is
+12:57 
+
+12:57 called reliability what is Rel ility so
+13:01 
+
+13:01 if function is essentially the the llm
+13:05 
+
+13:05 right the Theta Dash is the updated
+13:08 
+
+13:08 parameter after knowledge editing so the
+13:11 
+
+13:11 edited model should select U Al uh y Al
+13:16 
+
+13:16 what is yal yal is the updated output
+13:19 
+
+13:19 right instead of Y
+13:22 
+
+13:22 old for a given input triplet T from DX
+13:26 
+
+13:26 D subx where D subx is the set of
+13:29 
+
+13:29 targeted queries again remember this
+13:31 
+
+13:31 notation D subx so D subx has all sets
+13:36 
+
+13:36 of queries which you want to
+13:39 
+
+13:39 update okay all sets of queries all sets
+13:42 
+
+13:42 of knowledge that you want to update d
+13:44 
+
+13:44 sub X so for all d sub X your model
+13:47 
+
+13:47 should be able to produce the updated
+13:49 
+
+13:49 output y Al instead of the old output y
+13:53 
+
+13:53 old okay this is called reliability and
+13:57 
+
+13:57 this term is used uh in different papers
+13:59 
+
+13:59 in different ways but concept is the
+14:02 
+
+14:02 same the second condition is called
+14:06 
+
+14:06 generalization it says that so we saw
+14:10 
+
+14:10 what is DX DX is a set
+14:13 
+
+14:13 of knowledge that you want to update
+14:15 
+
+14:15 right
+14:17 
+
+14:17 PX is a paraphrased version of all those
+14:22 
+
+14:22 knowledge right you can think of PX as a
+14:25 
+
+14:25 superet of DX it's a paraphrase version
+14:28 
+
+14:28 of DX and you also want the model to
+14:31 
+
+14:31 return the updated output y alt for all
+14:35 
+
+14:35 the paraphrased queries
+14:38 
+
+14:38 PX for example if the input is the
+14:41 
+
+14:41 president of the US is Dash the model
+14:43 
+
+14:43 should return Joe Biden if the input is
+14:46 
+
+14:46 who is the president of the US it should
+14:48 
+
+14:48 also return to and these two are the
+14:50 
+
+14:50 paraphrased version of each
+14:52 
+
+14:52 other okay so this is called
+14:55 
+
+14:55 generalization the third one is called
+14:57 
+
+14:57 localization
+14:60 
+
+14:60 localization says that the edit should
+15:03 
+
+15:03 be
+15:04 
+
+15:04 localized it should not propagate across
+15:07 
+
+15:07 the memory of a model meaning that so we
+15:10 
+
+15:10 we discussed what is DX we discussed
+15:12 
+
+15:12 what is PX now we discuss now we
+15:15 
+
+15:15 introduce another term which is
+15:17 
+
+15:17 Ox Ox is all the non-targeted
+15:24 
+
+15:24 queries right so you update the model
+15:27 
+
+15:27 such that for non-targeted queries it
+15:29 
+
+15:29 will always return the old
+15:32 
+
+15:32 output right for example uh if uh for
+15:36 
+
+15:36 example let's say you updated the
+15:38 
+
+15:38 knowledge of the US president thing now
+15:40 
+
+15:40 if the query is who is the president the
+15:43 
+
+15:43 president of Russia is Dash it should
+15:45 
+
+15:45 say that it is uh the president is
+15:48 
+
+15:48 Vladimir
+15:49 
+
+15:49 Putin it should not return something
+15:52 
+
+15:52 else because this query has nothing to
+15:56 
+
+15:56 do with DX or
+15:57 
+
+15:57 PX right so we we expect the model to
+16:01 
+
+16:01 return the old output for those queries
+16:06 
+
+16:06 which are not the part of not a part of
+16:09 
+
+16:09 not a part of the uh uh the the set DX
+16:13 
+
+16:13 and PX okay so this is called
+16:17 
+
+16:17 localization all right now let's move
+16:20 
+
+16:20 into the uh different techniques which
+16:23 
+
+16:23 have been proposed for model editing
+16:26 
+
+16:26 knowledge editing right now think about
+16:30 
+
+16:30 it if you are told to edit a large
+16:33 
+
+16:33 language model what is going to be your
+16:37 
+
+16:37 approach what do you think what is going
+16:39 
+
+16:39 to be your approach the first approach
+16:41 
+
+16:41 would be that you you will attempt to
+16:46 
+
+16:46 edit the parameters or update the
+16:48 
+
+16:48 parameters of the model right with some
+16:51 
+
+16:51 constraint right so this is called
+16:53 
+
+16:53 Global optimization in global
+16:55 
+
+16:55 optimization the methods which follow
+16:57 
+
+16:57 Global optimization techniques they
+16:59 
+
+16:59 basically update the parameters of the
+17:01 
+
+17:01 model with certain
+17:04 
+
+17:04 constraints some sort of constraint
+17:05 
+
+17:05 optimization
+17:07 
+
+17:07 problem the second approach the second
+17:10 
+
+17:10 approach is you think of some additional
+17:14 
+
+17:14 memories you have lm's own memory which
+17:18 
+
+17:18 is all these neurons right you think of
+17:20 
+
+17:20 additional memories right and you store
+17:23 
+
+17:23 the updated knowledge into the
+17:25 
+
+17:25 additional
+17:27 
+
+17:27 memory okay and whenever whenever a
+17:31 
+
+17:31 query or or a you know the the query
+17:34 
+
+17:34 related to the updated knowledge is U is
+17:37 
+
+17:37 given to the model the model will look
+17:40 
+
+17:40 look at
+17:41 
+
+17:41 the memory right this additional memory
+17:45 
+
+17:45 and that memory will be returned the the
+17:47 
+
+17:47 output of the memory or the you know
+17:50 
+
+17:50 the um the member of the memory will be
+17:53 
+
+17:53 return some mem the memory will return
+17:55 
+
+17:55 now this is called external memorization
+17:57 
+
+17:57 you have some external memory some sort
+17:60 
+
+17:60 of caching memory we'll discuss the
+18:01 
+
+18:01 caching memory concept here right and
+18:04 
+
+18:04 you store all the updated knowledge into
+18:06 
+
+18:06 the caching
+18:08 
+
+18:08 memory the third approach is more
+18:12 
+
+18:12 sophisticated the third approach
+18:14 
+
+18:14 approach says that in global
+18:15 
+
+18:15 optimization you update the entire
+18:18 
+
+18:18 memory space of a large language model
+18:21 
+
+18:21 in local modification you
+18:23 
+
+18:23 identify or pinpoint the neuron which is
+18:27 
+
+18:27 responsible for this knowledge
+18:30 
+
+18:30 and you only update that
+18:33 
+
+18:33 neuron this is a localized view of
+18:36 
+
+18:36 knowledge
+18:37 
+
+18:37 editing okay so generally you if you
+18:41 
+
+18:41 look the literature so far there are
+18:42 
+
+18:42 plenty of papers more than 50 60 papers
+18:45 
+
+18:45 you can classify this into this three
+18:48 
+
+18:48 categories based on where you are
+18:51 
+
+18:51 updating whether you are updating the
+18:53 
+
+18:53 enter parameter right or the external
+18:55 
+
+18:55 parameter or the internal parameter and
+18:57 
+
+18:57 how you are updating is it a direct uh
+18:59 
+
+18:59 direct optimization or a direct
+19:01 
+
+19:01 incorporation of U of this update based
+19:04 
+
+19:04 on these two factors you categorize uh
+19:06 
+
+19:06 algorithms into three
+19:09 
+
+19:09 components this is a pictorial uh
+19:11 
+
+19:11 depiction of the update okay the one
+19:13 
+
+19:13 that I just mentioned look at here so in
+19:16 
+
+19:16 external memory what you are
+19:19 
+
+19:19 doing so this is your parameters llms
+19:23 
+
+19:23 parameters right and this is the memory
+19:27 
+
+19:27 that uh you want to add
+19:30 
+
+19:30 right some sort of caching memory where
+19:32 
+
+19:32 the edited knowledge will be stored so
+19:34 
+
+19:34 this will be added here so now your
+19:38 
+
+19:38 model space your parameter space is has
+19:40 
+
+19:40 increased the parameter space consist of
+19:42 
+
+19:42 the original parameter as well as the uh
+19:46 
+
+19:46 sorry the the original parameter as well
+19:48 
+
+19:48 as the updated memory right in global
+19:51 
+
+19:51 optimization what we do so this is my
+19:54 
+
+19:54 original parameter right in this
+19:57 
+
+19:57 technique what we do we will R the
+19:59 
+
+19:59 gradient change in
+20:04 
+
+20:04 gradient okay or in other words if W is
+20:09 
+
+20:09 the original parameter you basically
+20:11 
+
+20:11 learn
+20:13 
+
+20:13 the the update that you want to
+20:16 
+
+20:16 incorporate into the parameters right so
+20:19 
+
+20:19 this is going to be your modified
+20:22 
+
+20:22 parameters so this is the update of the
+20:25 
+
+20:25 parameter this is the or parameter and
+20:27 
+
+20:27 you update the parameter with the new
+20:30 
+
+20:30 updates right so you only learn the
+20:34 
+
+20:34 updates
+20:36 
+
+20:36 clear so this is this is essentially
+20:39 
+
+20:39 Global optimization I mean one part of
+20:41 
+
+20:41 global optimization third one is local
+20:43 
+
+20:43 modification where you this is the
+20:45 
+
+20:45 parameter space you identify the
+20:47 
+
+20:47 parameter which is responsible for this
+20:50 
+
+20:50 knowledge right and you only update that
+20:54 
+
+20:54 parameter okay you see the difference
+20:56 
+
+20:56 between first and third right the first
+20:58 
+
+20:58 you add a new set of parameters in the
+21:00 
+
+21:00 last you essentially update an existing
+21:03 
+
+21:03 parameter you locate and
+21:05 
+
+21:05 update and now these three categories
+21:09 
+
+21:09 you see a lots of method uh methods
+21:11 
+
+21:11 proposed in last two three years in
+21:14 
+
+21:14 today's lecture we will discuss one of
+21:17 
+
+21:17 these methods from each of these
+21:19 
+
+21:19 category we discuss Grace from this
+21:22 
+
+21:22 category external meem memory we
+21:25 
+
+21:25 discussed knowledge editor from Global
+21:27 
+
+21:27 optimization category discuss Rome from
+21:31 
+
+21:31 this category local modification
+21:32 
+
+21:32 category and these are these are very
+21:34 
+
+21:34 highly cited uh well studied
+21:37 
+
+21:37 papers okay okay thank you

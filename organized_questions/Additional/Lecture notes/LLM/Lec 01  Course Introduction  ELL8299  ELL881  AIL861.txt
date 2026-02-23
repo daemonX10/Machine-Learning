@@ -1,0 +1,2878 @@
+00:00 title of the code this is advances in
+00:02 
+
+00:02 large language models. Large language
+00:04 
+
+00:04 model is already advanced and we are
+00:05 
+
+00:05 talking about advances of advanced
+00:08 
+
+00:08 topic. So as you can imagine this is
+00:10 
+
+00:10 going to be a very very uh I would say
+00:13 
+
+00:13 um recent topics right and we are going
+00:16 
+
+00:16 to cover many recent topics uh in LM.
+00:20 
+
+00:20 uh this is this is uh cross-listed. So
+00:24 
+
+00:24 this is ELL 8299 which is cross-listed
+00:28 
+
+00:28 with AIL821.
+00:30 
+
+00:30 So uh uh so as as you know u you know
+00:35 
+
+00:35 students who uh joined in 2025 they can
+00:39 
+
+00:39 take this fourdigit course. So if you
+00:41 
+
+00:41 want to take this course and if you join
+00:44 
+
+00:44 20 2025 EL 8299 should be your course
+00:48 
+
+00:48 code. If you joined before that uh
+00:50 
+
+00:50 before 2025 you can take uh ail 821
+00:55 
+
+00:55 and there are some prerequisites uh
+00:58 
+
+00:58 associated with ail 821 uh which may
+01:01 
+
+01:01 prohibit you from uh prohibit you from
+01:04 
+
+01:04 from uh taking this course. Uh these
+01:07 
+
+01:07 prerequisites are already mentioned in
+01:10 
+
+01:10 the course. So I can't change it. But if
+01:12 
+
+01:12 you still want to take this course you
+01:14 
+
+01:14 just send me an uh a general request and
+01:16 
+
+01:16 I will approve it.
+01:18 
+
+01:18 Okay. Uh, another course code will be
+01:21 
+
+01:21 floated uh, which is which will be
+01:24 
+
+01:24 ELLL881.
+01:26 
+
+01:26 ELLL881. This will be floated either
+01:28 
+
+01:28 today or tomorrow. This will also be
+01:30 
+
+01:30 cross-listed with this uh, course. So,
+01:34 
+
+01:34 if you are still finding problems in in
+01:37 
+
+01:37 uh, in in registering for this course
+01:39 
+
+01:39 through AIL821, you can you can actually
+01:43 
+
+01:43 uh, opt for ELL881.
+01:45 
+
+01:45 My name is Tanma Chakraorti. I'm a uh
+01:48 
+
+01:48 I'm a faculty member in the electrical
+01:50 
+
+01:50 department and school of AI. I work in
+01:53 
+
+01:53 NLP and uh this is the course that we
+01:56 
+
+01:56 have started we started teaching from
+01:58 
+
+01:58 last year and uh some of you know that
+02:01 
+
+02:01 we offered this closed course last year
+02:03 
+
+02:03 and recorded the entire uh lecture all
+02:06 
+
+02:06 the lectures and this is available
+02:09 
+
+02:09 online uh in this link. Okay. Uh sorry
+02:13 
+
+02:13 what happened? It is available online in
+02:16 
+
+02:16 this link. Uh link is mentioned below
+02:18 
+
+02:18 and this is the last year's course web
+02:20 
+
+02:20 page. Okay. So uh and in the last year
+02:26 
+
+02:26 also we had uh amazing set of
+02:28 
+
+02:28 instructors right we had uh people from
+02:31 
+
+02:31 IBM and DS we have uh we had uh uh Goro
+02:36 
+
+02:36 from IBM Sis from DICT and Manish Gupta
+02:40 
+
+02:40 from Microsoft. We all taught this
+02:43 
+
+02:43 course together. Different components of
+02:44 
+
+02:44 the course were taught by different uh
+02:47 
+
+02:47 instructors and uh this year also the
+02:51 
+
+02:51 same set of instructors will take this
+02:53 
+
+02:53 course. Okay. So uh it's going to be a
+02:57 
+
+02:57 fun course uh advanced topics and I hope
+02:59 
+
+02:59 you'll enjoy this. Uh we have uh we have
+03:03 
+
+03:03 four again four amazing uh TAs for this
+03:06 
+
+03:06 course. Sashank, uh Osini, Onoi and
+03:09 
+
+03:09 Pray. uh the entire course uh lectures
+03:14 
+
+03:14 will be recorded this time also right
+03:16 
+
+03:16 and that's why this specific room uh was
+03:19 
+
+03:19 chosen uh but the recordings will be
+03:22 
+
+03:22 uploaded in November December right so
+03:24 
+
+03:24 if you feel that you you will not attend
+03:26 
+
+03:26 the class you'll just watch the videos
+03:28 
+
+03:28 that's going not going to happen so
+03:30 
+
+03:30 you'll have to come to the class okay
+03:33 
+
+03:33 and uh and all the recordings will be
+03:36 
+
+03:36 uploaded either in November or December
+03:40 
+
+03:40 Uh this is the course directive. Uh so
+03:42 
+
+03:42 slot 8 uh Monday, Wednesday 11 to 12 and
+03:46 
+
+03:46 Thursday 12 to 1. Course website is
+03:49 
+
+03:49 already available. You can look at the
+03:51 
+
+03:51 course website. Uh room number is part
+03:54 
+
+03:54 3301. This is the tentative mark
+03:56 
+
+03:56 distribution. It's a light course in
+03:59 
+
+03:59 that sense. I mean in terms of workload
+04:01 
+
+04:01 but in terms of topics I think this
+04:03 
+
+04:03 should be this is going to be heavy. We
+04:06 
+
+04:06 we'll have minor 15% major 25%. Uh two
+04:10 
+
+04:10 quizzes one quiz before minor one quiz
+04:13 
+
+04:13 after minor 10% 10%. one assignment uh
+04:17 
+
+04:17 15% weightage assignment will be given
+04:21 
+
+04:21 um uh before before minor right and one
+04:26 
+
+04:26 project you can think of this project as
+04:28 
+
+04:28 assignment two uh or a project which
+04:31 
+
+04:31 will which will be floated early but uh
+04:34 
+
+04:34 the this assignment will be assessed at
+04:37 
+
+04:37 the end of the course right so around
+04:39 
+
+04:39 around November it will be assessed
+04:41 
+
+04:41 whereas assignment one will be assessed
+04:42 
+
+04:42 before okay so this is tative very
+04:45 
+
+04:45 strict straightforward simple mass
+04:47 
+
+04:47 distribution
+04:49 
+
+04:49 audit is B minus uh audits uh I mean it
+04:53 
+
+04:53 is discouraged to take this course as
+04:55 
+
+04:55 audits okay but if you still want to
+04:57 
+
+04:57 take this uh as audit course you are
+04:60 
+
+04:60 please go ahead grading scheme will
+05:02 
+
+05:02 mostly be relative grading right but I
+05:04 
+
+05:04 will decide this uh gradient scheme
+05:06 
+
+05:06 later
+05:08 
+
+05:08 okay uh project will be group based
+05:10 
+
+05:10 project okay I have a slide on that yeah
+05:13 
+
+05:13 project will be a group based
+05:15 
+
+05:15 uh one to two students per group
+05:19 
+
+05:19 the 20% marks uh I think there's a
+05:22 
+
+05:22 problem here it should be five
+05:35 
+
+05:35 yeah so this 25% of this project marks
+05:38 
+
+05:38 will be distributed as follows project
+05:41 
+
+05:41 report 10%
+05:43 
+
+05:43 data set uh you have to release the data
+05:45 
+
+05:45 set and source code you have to submit a
+05:46 
+
+05:46 g uh link for this 5% and the project
+05:50 
+
+05:50 presentation will be 10%. Uh so 10 five
+05:53 
+
+05:53 and 10.
+05:54 
+
+05:54 Okay. Uh some of the projects topics
+05:58 
+
+05:58 will be given to you. You are also
+06:00 
+
+06:00 encouraged to uh you know suggest your
+06:03 
+
+06:03 own project topics and we will you will
+06:06 
+
+06:06 have to uh you know I mean we will
+06:09 
+
+06:09 basically assess the quality of your
+06:11 
+
+06:11 project topics and then we will finalize
+06:13 
+
+06:13 this. Okay. And the project topics will
+06:16 
+
+06:16 be decided uh I mean again tentatively
+06:20 
+
+06:20 by 15 20 uh by 15th or 20th of August we
+06:23 
+
+06:23 will try to decide the project topic so
+06:26 
+
+06:26 that you start gradually thinking about
+06:28 
+
+06:28 it reading papers right collecting data
+06:31 
+
+06:31 set and you know think of your method
+06:33 
+
+06:33 and stuff like that. Okay.
+06:37 
+
+06:37 uh
+06:41 
+
+06:41 it's a policy
+06:46 
+
+06:46 uh one will be reducible
+06:53 
+
+06:53 to
+06:55 
+
+06:55 so
+06:58 
+
+06:58 it includes
+06:60 
+
+06:60 you know
+07:02 
+
+07:02 students uh from any other sources
+07:05 
+
+07:05 without proper acknowledgement
+07:07 
+
+07:07 And it is not I mean we we I mean you
+07:12 
+
+07:12 are not allowed to use any generative AI
+07:14 
+
+07:14 tools for for anything right be it
+07:16 
+
+07:16 coding be it uh writing reports and
+07:19 
+
+07:19 anything okay and we will and there are
+07:21 
+
+07:21 ways to detect this by the way don't
+07:23 
+
+07:23 don't assume that we can't detect right
+07:26 
+
+07:26 there are ways to detect and uh it is
+07:29 
+
+07:29 strongly suggested not to use any
+07:31 
+
+07:31 generative AI tools for any part of this
+07:33 
+
+07:33 project any part of the course. Okay.
+07:38 
+
+07:38 Uh
+07:40 
+
+07:40 as I mentioned, this is going to be an
+07:42 
+
+07:42 advanced graduate level course, right?
+07:45 
+
+07:45 Um we'll be discussing many recent
+07:47 
+
+07:47 papers uh recent advances in LMS, right?
+07:51 
+
+07:51 And uh as I mentioned all all students
+07:53 
+
+07:53 are expected to come to the class
+07:55 
+
+07:55 regularly although the lectures will be
+07:57 
+
+07:57 recorded and uh and made available
+07:60 
+
+07:60 online uh in November December. Okay.
+08:03 
+
+08:03 any any query related to the course
+08:05 
+
+08:05 directive course logistics
+08:08 
+
+08:08 uh uh marks distribution uh time venue
+08:12 
+
+08:12 etc please go ahead I can't I can't hear
+08:17 
+
+08:17 uh anyone from the class right so is
+08:20 
+
+08:20 muted if there is any
+08:22 
+
+08:22 >> I'll turn on the audio sir when someone
+08:24 
+
+08:24 is asking questions
+08:25 
+
+08:25 >> yes yes yes please
+08:29 
+
+08:29 from the offline participants give me
+08:31 
+
+08:31 any query
+08:32 
+
+08:32 >> any query anyone the course directive
+08:34 
+
+08:34 from marks distribution
+08:36 
+
+08:36 >> how is it different from the last year's
+08:38 
+
+08:38 last semester's course right
+08:40 
+
+08:40 >> I will come to that last semester's
+08:42 
+
+08:42 course even NLP
+08:43 
+
+08:43 >> yes
+08:46 
+
+08:46 >> deep learning in LP
+08:47 
+
+08:47 >> yeah deep learning in NLP
+08:50 
+
+08:50 >> you see this course this is very
+08:52 
+
+08:52 different
+08:53 
+
+08:53 >> uh okay and what what else
+08:59 
+
+08:59 >> anything related to the anything related
+09:01 
+
+09:01 to the
+09:03 
+
+09:03 other
+09:04 
+
+09:04 >> the course content I will discuss later.
+09:06 
+
+09:06 >> So the number of quizzes and assignments
+09:08 
+
+09:08 will remain same as that is speaking on
+09:11 
+
+09:11 the slide.
+09:12 
+
+09:12 >> Yes.
+09:15 
+
+09:15 In fact,
+09:17 
+
+09:17 [Music]
+09:24 
+
+09:24 right?
+09:29 
+
+09:29 I mean the major project I mean the main
+09:32 
+
+09:32 project yes
+09:37 
+
+09:37 any other query
+09:42 
+
+09:42 all right let's move on so uh this this
+09:46 
+
+09:46 was the last year's uh LLM course
+09:48 
+
+09:48 syllabus last year 2024 the one that we
+09:52 
+
+09:52 recorded so uh if you look at the
+09:55 
+
+09:55 website and the YouTube link we started
+09:58 
+
+09:58 with the basics of LLM right we started
+10:01 
+
+10:01 with in fact there was a chapter there's
+10:02 
+
+10:02 a there was a lecture on introduction to
+10:04 
+
+10:04 NLP then we started with LM's what is
+10:07 
+
+10:07 language model we discussed what to make
+10:10 
+
+10:10 different embedding techniques what to
+10:11 
+
+10:11 pick and glove we discussed uh different
+10:15 
+
+10:15 deep learning methods right CNN RNN
+10:17 
+
+10:17 sequence to sequence and then we started
+10:19 
+
+10:19 attention and then transformer different
+10:21 
+
+10:21 types of transformer decoder encoder etc
+10:24 
+
+10:24 etc advanced attention mechanism
+10:27 
+
+10:27 um and Then the learnability aspect
+10:30 
+
+10:30 scaling law in context learning
+10:31 
+
+10:31 alignment etc. user acceptability uh you
+10:35 
+
+10:35 know rag toolbased methods reasoning
+10:39 
+
+10:39 uh VLM right how to handle long context
+10:42 
+
+10:42 and then there were some miscellaneous
+10:44 
+
+10:44 uh topics also this was last year's
+10:45 
+
+10:45 content so this uh so you know if you
+10:50 
+
+10:50 follow this if you follow last year's
+10:52 
+
+10:52 topic or last year's YouTube lectures
+10:55 
+
+10:55 uh you'll get a fair bit of ideas about
+10:57 
+
+10:57 the uh the overall uh you know breadth
+11:01 
+
+11:01 of
+11:02 
+
+11:02 LM topics which are happening these
+11:04 
+
+11:04 days. Okay. All the topics but in a very
+11:07 
+
+11:07 fundamental level
+11:09 
+
+11:09 but what we are going to do in this
+11:11 
+
+11:11 semester since LM space is evolving very
+11:14 
+
+11:14 very fast rapidly we have updated the
+11:17 
+
+11:17 course content and this is going to be
+11:18 
+
+11:18 the course content.
+11:20 
+
+11:20 So we will not discuss anything about uh
+11:24 
+
+11:24 the uh the basics of NLP. Okay. We will
+11:28 
+
+11:28 not discuss CNN, RNN, sequence to
+11:31 
+
+11:31 sequence etc. Right? Um we start with
+11:35 
+
+11:35 transformer.
+11:37 
+
+11:37 Okay. I will take one one maybe one and
+11:39 
+
+11:39 a half lectures and I will very very
+11:42 
+
+11:42 quickly cover the basics like for
+11:44 
+
+11:44 example language model. What is language
+11:46 
+
+11:46 model? The evolution of language model
+11:49 
+
+11:49 RNN CNN sequence to sequence very very
+11:52 
+
+11:52 fast. Okay. just to uh just to cover the
+11:56 
+
+11:56 basics and then that will take not more
+11:58 
+
+11:58 than two lectures maybe one and a half
+11:60 
+
+11:60 lectures. So the actual topic will start
+12:02 
+
+12:02 from transformer. So we'll discuss
+12:05 
+
+12:05 transformer in details and then
+12:06 
+
+12:06 different pre-training uh strategies
+12:08 
+
+12:08 encoder only decoder only models right
+12:11 
+
+12:11 and different types of alignments we
+12:13 
+
+12:13 will discuss this in details and we will
+12:15 
+
+12:15 discuss advanced alignment techniques.
+12:17 
+
+12:17 So in the last NLP class I think I
+12:20 
+
+12:20 discussed uh PPO and DPO right we will
+12:22 
+
+12:22 also cover PO DPO very briefly u but we
+12:26 
+
+12:26 will cover more advanced alignment
+12:27 
+
+12:27 techniques and GRP and other recent
+12:29 
+
+12:29 alignment techniques that are out there
+12:32 
+
+12:32 alignment is very important that's why
+12:33 
+
+12:33 we decided to so the so the overall the
+12:37 
+
+12:37 the overall idea of this year's course
+12:39 
+
+12:39 is that we we have selected few
+12:42 
+
+12:42 important topics which which are very
+12:45 
+
+12:45 hot topics these days in in LLM and we
+12:48 
+
+12:48 decided to go deeper into each of the
+12:50 
+
+12:50 topics. So instead of taking the instead
+12:52 
+
+12:52 of covering the B of the LLM we'll we
+12:54 
+
+12:54 basically select these topics I will go
+12:56 
+
+12:56 deeper into each of the topics. Okay.
+12:60 
+
+12:60 So,
+13:01 
+
+13:01 so we have this foundation uh uh bucket,
+13:04 
+
+13:04 right? We have efficiency bucket where
+13:06 
+
+13:06 we will cover um different uh you know
+13:09 
+
+13:09 efficient designing uh techniques,
+13:12 
+
+13:12 different efficient uh inference
+13:14 
+
+13:14 techniques including uh recent um uh
+13:17 
+
+13:17 test time scaling and other inference
+13:20 
+
+13:20 strategies. We will also discuss u
+13:23 
+
+13:23 different model compression techniques
+13:25 
+
+13:25 uh model quantization, model pruning,
+13:28 
+
+13:28 model distillation, different PFT
+13:30 
+
+13:30 techniques and stuff like that. Uh we
+13:33 
+
+13:33 will cover in depth uh topics like
+13:36 
+
+13:36 retrieval augmented uh uh generation,
+13:39 
+
+13:39 different types of LLM agents and I'll
+13:41 
+
+13:41 talk about this later also. Okay. And we
+13:45 
+
+13:45 will also focus on large reasoning
+13:46 
+
+13:46 models because all these recent models
+13:49 
+
+13:49 uh you know uh uh GPT models the one and
+13:52 
+
+13:52 the followup version of 01 O23 deepseek
+13:56 
+
+13:56 right and all other recent models are
+13:59 
+
+13:59 all all these models are called large
+14:01 
+
+14:01 visioning models and we'll discuss these
+14:03 
+
+14:03 topics also. We will then um we'll also
+14:07 
+
+14:07 look at other alternative techniques of
+14:10 
+
+14:10 uh large language models for example uh
+14:12 
+
+14:12 state space model and diffusion based uh
+14:16 
+
+14:16 language model and multimodal language
+14:18 
+
+14:18 model and so on and and then the last uh
+14:22 
+
+14:22 component will be very interesting where
+14:23 
+
+14:23 we'll discuss physics of language model
+14:26 
+
+14:26 right and this is again this has been a
+14:28 
+
+14:28 recent uh you know this has become a
+14:31 
+
+14:31 recent topic uh very recent advanced
+14:34 
+
+14:34 topic and we'll also briefly talk about
+14:37 
+
+14:37 interpret and ethics uh fairness and
+14:40 
+
+14:40 ethics in Elder. So this is the uh broad
+14:43 
+
+14:43 content. I'll go into the deeper of each
+14:45 
+
+14:45 of the contents in the later part of my
+14:46 
+
+14:46 slides. But uh but this is it. So if you
+14:50 
+
+14:50 have any query regarding this, please
+14:52 
+
+14:52 let me know. I think somebody was
+14:53 
+
+14:53 talking about the overlap of this course
+14:56 
+
+14:56 with the deep uh learning for any
+14:59 
+
+14:59 course. Is it clear now or you have some
+15:01 
+
+15:01 other queries?
+15:08 
+
+15:08 It's clear sir.
+15:11 
+
+15:11 Can I
+15:11 
+
+15:11 >> any any any other query related to this?
+15:14 
+
+15:14 >> Uh hi sir
+15:16 
+
+15:16 >> to the cocon fine.
+15:17 
+
+15:17 >> Can you tell me like in the previous uh
+15:20 
+
+15:20 one you uh you the syllabus was uh
+15:24 
+
+15:24 including mixture of expert and now I am
+15:27 
+
+15:27 not able to see uh mixture of expert in
+15:30 
+
+15:30 LLM's topic.
+15:36 
+
+15:36 U uh sorry
+15:40 
+
+15:40 uh sir uh I want to know why uh in this
+15:43 
+
+15:43 labor uh mixture of experts has been
+15:46 
+
+15:46 removed uh I want to know
+15:50 
+
+15:50 >> why why you
+15:53 
+
+15:53 mix of experts will also be taught don't
+15:55 
+
+15:55 worry okay sir
+15:56 
+
+15:56 >> I have not I have not yeah I have not
+15:58 
+
+15:58 gone into details of these topics so
+16:00 
+
+16:00 will also be taught
+16:02 
+
+16:02 Oh, thank you sir.
+16:03 
+
+16:03 >> Uh or uh any other query?
+16:12 
+
+16:12 >> Do you think anything else needs to be
+16:13 
+
+16:13 covered? Just let me know. I'm pretty
+16:15 
+
+16:15 sure all of many of you are following
+16:17 
+
+16:17 recent advances right in LMS. So, uh you
+16:20 
+
+16:20 can also suggest if any other topics
+16:22 
+
+16:22 should be covered.
+16:25 
+
+16:25 H
+16:30 
+
+16:30 okay. So this is pretty much it. Uh
+16:32 
+
+16:32 prerequisite uh you know this is my
+16:34 
+
+16:34 standard slide but uh you know to be
+16:36 
+
+16:36 very honest uh this course demands some
+16:38 
+
+16:38 prerequisites. Okay. Uh and the
+16:41 
+
+16:41 prerequisites are NLP and deep learning.
+16:43 
+
+16:43 So we will not teach deep learning at
+16:45 
+
+16:45 all. We will not teach NLP. Okay. So if
+16:48 
+
+16:48 you have not taken my course or any
+16:49 
+
+16:49 other course in NLP and deep learning,
+16:51 
+
+16:51 you should take this course before
+16:53 
+
+16:53 coming to this class. Okay. uh
+16:58 
+
+16:58 and uh as I mentioned next week there
+17:01 
+
+17:01 will be no class the next class will
+17:04 
+
+17:04 going to happen in uh August 4 which is
+17:06 
+
+17:06 next to next uh next to next Monday.
+17:11 
+
+17:11 So you are requested to look at my
+17:14 
+
+17:14 previous offering the last year LLM
+17:17 
+
+17:17 course particularly first 10 lectures.
+17:22 
+
+17:22 Okay, go to this link. This is the QR
+17:24 
+
+17:24 code or if you go to my my homepage, you
+17:26 
+
+17:26 get the link, right? So, um
+17:31 
+
+17:31 uh you go to this link and uh please
+17:35 
+
+17:35 listen to uh please please please uh you
+17:38 
+
+17:38 know check last first 10 lectures right
+17:41 
+
+17:41 where I covered uh topics till um till
+17:44 
+
+17:44 transformer.
+17:46 
+
+17:46 Okay, this is the homework for you guys
+17:49 
+
+17:49 for next next week.
+17:52 
+
+17:52 Uh this is the book that I wrote. Okay.
+17:54 
+
+17:54 If you are interested, you can buy this.
+17:57 
+
+17:57 This is also available in I think this
+17:59 
+
+17:59 is available in the library. I don't
+18:02 
+
+18:02 know. I should be available somewhere.
+18:04 
+
+18:04 Uh these are the uh you know NLP books
+18:10 
+
+18:10 that we generally follow. uh speech and
+18:13 
+
+18:13 language processing by Julki Martin,
+18:15 
+
+18:15 right? Uh foundations of statistical MLP
+18:19 
+
+18:19 by Chris Manning, you know, and and
+18:22 
+
+18:22 these are the different journals and
+18:23 
+
+18:23 conferences from where we will choose
+18:25 
+
+18:25 papers and discuss. Okay. Uh and this is
+18:29 
+
+18:29 pretty standard and we also use this ACL
+18:31 
+
+18:31 anthology to uh get data uh different
+18:35 
+
+18:35 papers and stuff like that. And as usual
+18:38 
+
+18:38 uh many of these uh slides that I'm
+18:41 
+
+18:41 going to use uh have been taken from
+18:43 
+
+18:43 some of the great courses offered by
+18:46 
+
+18:46 great faculty members including you know
+18:49 
+
+18:49 Ram Muay Panning and you know teach and
+18:53 
+
+18:53 many other you know colleagues in the
+18:55 
+
+18:55 NIP right and I'm thankful to them to
+18:60 
+
+18:60 basically to provide this kind and I
+19:02 
+
+19:02 taken their consent to use this okay so
+19:05 
+
+19:05 this is this is pretty much about the
+19:07 
+
+19:07 logistics and now before moving into the
+19:10 
+
+19:10 actual content I again ask if there is
+19:12 
+
+19:12 any any other point to point to discuss.
+19:17 
+
+19:17 I have not taken I I just need to
+19:19 
+
+19:19 understand the general uh you know
+19:23 
+
+19:23 kind of wanted to get a sense of the
+19:25 
+
+19:25 expertise of the students. How many of
+19:26 
+
+19:26 you are how many of you are um master
+19:31 
+
+19:31 and PhD students? Can you raise your
+19:33 
+
+19:33 hand? I can see online particip offline
+19:36 
+
+19:36 participant one side other side
+19:40 
+
+19:40 >> 14 students are here offline
+19:43 
+
+19:43 >> out of out of
+19:46 
+
+19:46 >> out of around 20
+19:48 
+
+19:48 >> 20 so so so they are masters or PhD
+19:52 
+
+19:52 student is it how many of you are
+19:54 
+
+19:54 undergrad students here
+19:56 
+
+19:56 and which department which department
+19:59 
+
+19:59 >> one student CS department
+20:01 
+
+20:01 >> so one undergrad student CS department
+20:03 
+
+20:03 uh Uh online.
+20:10 
+
+20:10 Online. Uh just a minute.
+20:15 
+
+20:15 Uh
+20:18 
+
+20:18 >> yeah, online. How many undergrads?
+20:20 
+
+20:20 >> Two students.
+20:21 
+
+20:21 >> How many undergrads?
+20:22 
+
+20:22 >> Two students. Okay. Uh how so? How many
+20:26 
+
+20:26 of you are from uh from uh school of AI?
+20:35 
+
+20:35 Four students offline sir.
+20:37 
+
+20:37 >> Okay. How many of you are from
+20:39 
+
+20:39 electrical?
+20:43 
+
+20:43 >> Okay.
+20:44 
+
+20:44 >> Five students.
+20:44 
+
+20:44 >> Okay. All right. Um
+20:46 
+
+20:46 uh and how many are from CS? Only one,
+20:50 
+
+20:50 right?
+20:51 
+
+20:51 >> Two, three. Okay.
+20:52 
+
+20:52 >> Four.
+20:53 
+
+20:53 >> So, so, so CS, so you guys are CS
+20:56 
+
+20:56 undergrad or master Mtech? What? Mtech?
+20:60 
+
+20:60 >> Ph.
+21:00 
+
+21:00 >> PhD students are there. PhD students are
+21:02 
+
+21:02 there.
+21:04 
+
+21:04 >> PhD students. Okay. And any other
+21:06 
+
+21:06 departments, maths, uh, several etc. Any
+21:09 
+
+21:09 other departments? Anyone from other
+21:11 
+
+21:11 department apart from uh CS, maths, CS
+21:14 
+
+21:14 and A school of AI?
+21:16 
+
+21:16 >> School of IT one student is there
+21:19 
+
+21:19 >> one student from school of IT and then
+21:23 
+
+21:23 >> uh sir from mathematics department PhD
+21:26 
+
+21:26 student
+21:26 
+
+21:26 >> master department student. Nice. Okay.
+21:30 
+
+21:30 So uh great u uh again u let me
+21:35 
+
+21:35 reiterate what I mentioned NLP and deep
+21:37 
+
+21:37 learning will not be taught okay so uh
+21:41 
+
+21:41 my suggestion is that you please go
+21:43 
+
+21:43 through my previous lectures okay
+21:46 
+
+21:46 you know first nine 10 lectures and you
+21:48 
+
+21:48 should be able to understand uh the
+21:50 
+
+21:50 prerequisite for this course
+21:53 
+
+21:53 okay so I'll what I'll do I'll very very
+21:55 
+
+21:55 briefly talk about what you're going to
+21:57 
+
+21:57 cover right uh you know language model
+21:60 
+
+21:60 we'll cover briefly later on but all of
+22:02 
+
+22:02 all of us know that language model is
+22:04 
+
+22:04 basically uh mathematically speaking it
+22:06 
+
+22:06 is it is probability distribution over a
+22:08 
+
+22:08 sequence of tokens right uh if you are
+22:12 
+
+22:12 if you are given a sentence like the
+22:14 
+
+22:14 monsoon rains have arrived right the
+22:17 
+
+22:17 language model should be able to say
+22:18 
+
+22:18 that this is a right sentence with a
+22:20 
+
+22:20 probability 02 maybe and let's say if
+22:22 
+
+22:22 the sentence is monsoon the have rains
+22:25 
+
+22:25 arrived this is not a correct sentence
+22:26 
+
+22:26 an incorrect sentence syntactically so
+22:28 
+
+22:28 the probability is 0001 something like
+22:31 
+
+22:31 that right so over a vocabulary space uh
+22:34 
+
+22:34 it will produce a distribution right and
+22:37 
+
+22:37 from the distribution you can get the
+22:38 
+
+22:38 probability of the enter sequence right
+22:41 
+
+22:41 now uh so so so if you if you look at so
+22:45 
+
+22:45 so so x1 x2 x3 do xl xl this is the
+22:50 
+
+22:50 sequence probability of this sequence
+22:52 
+
+22:52 can also be calculated using chain rules
+22:55 
+
+22:55 right this is a join probability you can
+22:57 
+
+22:57 unfold it uh is with uh conditional
+23:00 
+
+23:00 probabilities. So this probability of x1
+23:02 
+
+23:02 x2 x3 dot dot xl will be probability of
+23:04 
+
+23:04 x1 * x2 x1 * x3 given x1 x2 and so on
+23:09 
+
+23:09 right and you see each of these
+23:11 
+
+23:11 components is basically conditional
+23:12 
+
+23:12 probabilities right now how do you get
+23:15 
+
+23:15 this contract probability values right
+23:17 
+
+23:17 um we will get it from corpus right
+23:20 
+
+23:20 let's say for example probability of uh
+23:22 
+
+23:22 probability of rains given monsoon will
+23:25 
+
+23:25 be count of uh count of monsoon rains
+23:29 
+
+23:29 divided by counts of monsoon
+23:31 
+
+23:31 Right? And uh uh if it is statistical
+23:34 
+
+23:34 language model then you use a corpus you
+23:37 
+
+23:37 get all this background triagram
+23:39 
+
+23:39 statistics and you get the probability.
+23:42 
+
+23:42 But if you have a neural network right
+23:44 
+
+23:44 you just feed uh let's say simple neural
+23:46 
+
+23:46 network like a feed forward network or
+23:48 
+
+23:48 any other network multi-year perceptron
+23:51 
+
+23:51 right and you you will be try you you
+23:52 
+
+23:52 will try to guess the probability of
+23:54 
+
+23:54 this uh of this condition probability
+23:57 
+
+23:57 the value of the condition probability.
+23:59 
+
+23:59 Okay. So this is language model and
+24:01 
+
+24:01 we'll talk about language model maybe in
+24:03 
+
+24:03 auh slightly uh uh better way in the
+24:07 
+
+24:07 next class. Uh but if you look at my
+24:10 
+
+24:10 slides uh you know my lectures last year
+24:12 
+
+24:12 you get you'll get fair bit of ideas. So
+24:15 
+
+24:15 this was there since uh since uh 2008
+24:20 
+
+24:20 2009 right and then uh you know from
+24:24 
+
+24:24 2009 to 2015 16 we have seen many many
+24:28 
+
+24:28 methods language modeling approaches
+24:30 
+
+24:30 which considered a neural network right
+24:33 
+
+24:33 to model this conditional distribution.
+24:35 
+
+24:35 Okay. And then uh the transformer model
+24:39 
+
+24:39 came in to 2017 and you know in 2020
+24:43 
+
+24:43 this large language model the word large
+24:46 
+
+24:46 was introduced and we have we we we saw
+24:49 
+
+24:49 many models whose parameter sizes are
+24:51 
+
+24:51 significant. So large in the sense like
+24:54 
+
+24:54 large in terms of the model size large
+24:57 
+
+24:57 in terms of the data size. Okay. Model
+24:60 
+
+24:60 size uh has also been uh increased
+25:03 
+
+25:03 significantly. data sizes to train data
+25:05 
+
+25:05 size to train the model has also
+25:06 
+
+25:06 increased significantly.
+25:09 
+
+25:09 So if you look at the LLM right uh as a
+25:14 
+
+25:14 paradigm in the entire AI generative AI
+25:17 
+
+25:17 bucket right we have we we have AI right
+25:21 
+
+25:21 and machine learning is a subset of AI I
+25:23 
+
+25:23 always say there's a people can argue
+25:26 
+
+25:26 but I feel that machine learning is a
+25:27 
+
+25:27 subset of AI right there are algorithms
+25:29 
+
+25:29 in AI for example rule based methods etc
+25:32 
+
+25:32 where machine learning methods are not
+25:34 
+
+25:34 applied where ML in general basically
+25:38 
+
+25:38 you
+25:39 
+
+25:39 is a is a paradigm which talks about
+25:41 
+
+25:41 learning. Okay. And then deep learning
+25:44 
+
+25:44 neural networks where we basically have
+25:46 
+
+25:46 neurons right activations right we model
+25:49 
+
+25:49 uh our uh neural system human neural
+25:52 
+
+25:52 system and then within deep learning you
+25:54 
+
+25:54 see uh LLMs right uh large language
+25:58 
+
+25:58 models. Now you see generative AI
+26:01 
+
+26:01 basically cuts across deep learning.
+26:03 
+
+26:03 Generative BI is a subset of deep
+26:05 
+
+26:05 learning and it cuts uh LLM as well
+26:08 
+
+26:08 right because generative when I say
+26:10 
+
+26:10 generative BI we also have uh vision
+26:14 
+
+26:14 models for example diffusion models also
+26:16 
+
+26:16 right vision models are not LLMs right
+26:19 
+
+26:19 so when I say LMS are mostly text models
+26:22 
+
+26:22 right of course these days you know
+26:24 
+
+26:24 everything is kind of same you can use
+26:25 
+
+26:25 chat GBT to generate videos and pictures
+26:29 
+
+26:29 or whatever right but in general VLM and
+26:31 
+
+26:31 LLM are different and u we'll talk about
+26:34 
+
+26:34 this difference later in in one of the
+26:36 
+
+26:36 chapters. So therefore gender DBI is
+26:39 
+
+26:39 considered as a part of deep learning
+26:40 
+
+26:40 but one subset of general DBI is LLM
+26:45 
+
+26:45 other part is not LLM.
+26:48 
+
+26:48 And if you look at the evolution of
+26:49 
+
+26:49 language model, large language model as
+26:51 
+
+26:51 I mentioned uh you know uh the first uh
+26:55 
+
+26:55 I think the first uh uh I mean if you
+26:59 
+
+26:59 look at the NLP
+27:01 
+
+27:01 NLP research in general right and I
+27:04 
+
+27:04 always say that large language model is
+27:05 
+
+27:05 a gift from the NLP community.
+27:08 
+
+27:08 Transformers was introduced by NLP
+27:09 
+
+27:09 community right of course ML communities
+27:12 
+
+27:12 can def can argue but I feel that this
+27:14 
+
+27:14 is something that NLP community started
+27:17 
+
+27:17 so earlier days IBM used to dominate the
+27:20 
+
+27:20 entire AI world in general and then you
+27:23 
+
+27:23 know Facebook started their fair lab uh
+27:26 
+
+27:26 in 2006 2007 right Google brain was
+27:30 
+
+27:30 introduced uh this was the Google brain
+27:33 
+
+27:33 was started I think in 2014 2015 that
+27:36 
+
+27:36 time Google started Google developed
+27:38 
+
+27:38 their TPU uh computing tensor brushing
+27:41 
+
+27:41 unit in 2015 right open was founded in
+27:45 
+
+27:45 2015 20 2015 2016 right and then
+27:49 
+
+27:49 transformers was introduced in 2017 and
+27:52 
+
+27:52 then post transformer era if we look at
+27:55 
+
+27:55 the way after 2017 this model started
+27:58 
+
+27:58 coming out right uh transformers were
+28:01 
+
+28:01 introduced by Google brain okay and then
+28:04 
+
+28:04 uh you know Google actually dominated
+28:07 
+
+28:07 the initial part of this LLM uh LLM
+28:10 
+
+28:10 world right u this this attention is all
+28:13 
+
+28:13 you need paper by transformer by by V
+28:15 
+
+28:15 was funny at all right which introduced
+28:17 
+
+28:17 the transformer model B was introduced
+28:20 
+
+28:20 in 2018 again from Google right B is the
+28:24 
+
+28:24 first encoder only model uh which came
+28:26 
+
+28:26 out of transformer architecture right uh
+28:30 
+
+28:30 and B was shown to be a state-of-the-art
+28:32 
+
+28:32 at that time beating 11 NLP tasks and
+28:36 
+
+28:36 different versions of tiny elements were
+28:38 
+
+28:38 proposed like dist tiny B mobile B and
+28:42 
+
+28:42 so on and so forth. So there has been a
+28:43 
+
+28:43 time where people thought that okay B
+28:45 
+
+28:45 model is very big right we cannot handle
+28:48 
+
+28:48 such a big model let us compress this
+28:50 
+
+28:50 okay and these kind of models are
+28:52 
+
+28:52 proposed and then as I mentioned uh
+28:55 
+
+28:55 someone else was waiting for the right
+28:56 
+
+28:56 opportunity and openi uh came okay openi
+29:01 
+
+29:01 wrote their first paper GPT or GPT1
+29:03 
+
+29:03 paper you can think of it as GPT1 in
+29:06 
+
+29:06 2018 and DPT is the first uh decoder
+29:10 
+
+29:10 only model which was proposed so B so
+29:13 
+
+29:13 bot was the first encoder only model GPD
+29:15 
+
+29:15 was the first decoder only model right
+29:18 
+
+29:18 2018
+29:19 
+
+29:19 and then uh and people realized that
+29:22 
+
+29:22 decoder only model is the solution but
+29:24 
+
+29:24 the encoder only model doesn't make much
+29:26 
+
+29:26 sense let's only focus on decoder only
+29:27 
+
+29:27 model so in 2018 GPT1 was proposed in
+29:31 
+
+29:31 2019 GPT2 was proposed by openai right
+29:35 
+
+29:35 and in 20 uh and in and and and in 2020
+29:40 
+
+29:40 uh GPT
+29:41 
+
+29:41 2020 GPT3 paper was uh was was written.
+29:45 
+
+29:45 Okay. But meanwhile in 2019
+29:48 
+
+29:48 uh Google wrote another paper which is
+29:51 
+
+29:51 called T5. Okay. Now T5 is a model which
+29:54 
+
+29:54 is an encoder decoder model. Uh unlike a
+29:57 
+
+29:57 pure encoder only model like B and pure
+29:59 
+
+29:59 decoder only model like GPT. This is
+30:02 
+
+30:02 kind of uh leverages both encoder and
+30:05 
+
+30:05 decoder. And this was uh released and
+30:07 
+
+30:07 this was quite you know I would say
+30:09 
+
+30:09 quite successful in addressing many of
+30:11 
+
+30:11 the problems uh and it got
+30:13 
+
+30:13 state-of-the-art results at that time
+30:16 
+
+30:16 right um so we have seen Google
+30:20 
+
+30:20 introducing transformer B and followup
+30:23 
+
+30:23 work u openai introducing GPT and
+30:26 
+
+30:26 followup work meta they also thought
+30:30 
+
+30:30 they have a lot of data set right and we
+30:31 
+
+30:31 are the people who use Facebook so they
+30:34 
+
+30:34 have lot of free data sets. So why start
+30:37 
+
+30:37 building another model? Right? So Meta
+30:39 
+
+30:39 started building their model. So if you
+30:42 
+
+30:42 look at the earlier methods which are
+30:44 
+
+30:44 proposed by MEA uh 2019 was in 2019
+30:48 
+
+30:48 robot was proposed by META and in robot
+30:52 
+
+30:52 they said that B is not significantly
+30:55 
+
+30:55 trended. This is under trend. Let us
+30:57 
+
+30:57 keep training B. Okay. If you keep
+30:59 
+
+30:59 training B you'll get more accuracy.
+31:01 
+
+31:01 Okay. And then in 2019 XLM paper also
+31:06 
+
+31:06 came from uh from from Facebook. Okay.
+31:09 
+
+31:09 And XLM is the first cross-lingual uh
+31:12 
+
+31:12 language model uh which was specifically
+31:15 
+
+31:15 you know very effective that time. It
+31:17 
+
+31:17 beat uh Minnesota for cross lingual
+31:20 
+
+31:20 task. Then as I mentioned in 2020 uh the
+31:23 
+
+31:23 GPT GPT3 paper came right. This is this
+31:27 
+
+31:27 is OpenAI's u third paper and uh since
+31:31 
+
+31:31 GPT3
+31:33 
+
+31:33 so GPT3 was that time the largest one
+31:35 
+
+31:35 175 billion parameter size like 10 times
+31:39 
+
+31:39 uh 10 times or 100 times I think 100 100
+31:43 
+
+31:43 times 100 times of GPT2 okay and open AI
+31:49 
+
+31:49 uh they stopped releasing their their
+31:52 
+
+31:52 models okay so openai was no longer open
+31:54 
+
+31:54 uh since 2020 20
+31:57 
+
+31:57 uh but at the same time Google thought
+31:60 
+
+31:60 that okay uh let us also build a
+32:02 
+
+32:02 gigantic model. So they built this model
+32:05 
+
+32:05 called palm okay in 2022. This is 540
+32:09 
+
+32:09 billion model right uh you know five
+32:11 
+
+32:11 times the GPT3 model.
+32:14 
+
+32:14 Uh so and Google also followed the same
+32:18 
+
+32:18 trend of OpenAI. They also stopped uh
+32:20 
+
+32:20 releasing their uh their source code
+32:23 
+
+32:23 right their their model publicly. So the
+32:25 
+
+32:25 LLM race already started from there.
+32:29 
+
+32:29 uh in 2021 2022 during that time we had
+32:33 
+
+32:33 seen many such models like for example
+32:36 
+
+32:36 Microsoft and Nvidia collaborated
+32:38 
+
+32:38 together to build this megatron curing
+32:40 
+
+32:40 NLG model which is which was again a
+32:43 
+
+32:43 gigantic model then grapher then deep
+32:46 
+
+32:46 mind also proposed chinchilla AI right
+32:48 
+
+32:48 some of you know chinchilla scaling law
+32:50 
+
+32:50 we'll discuss this later on um lambda
+32:53 
+
+32:53 was proposed by Google uh open AI also
+32:56 
+
+32:56 proposed codeex right for code
+32:57 
+
+32:57 generation right and many other models
+32:59 
+
+32:59 came around that time 2021 2022
+33:04 
+
+33:04 and meta on the other hand while while
+33:05 
+
+33:05 Google and uh open they were they did
+33:08 
+
+33:08 not they stopped releasing uh the source
+33:10 
+
+33:10 code and other information about the
+33:12 
+
+33:12 model right uh meta started started
+33:16 
+
+33:16 promoting the open source uh version of
+33:18 
+
+33:18 their models right all of us know about
+33:20 
+
+33:20 llama series right but in 2022 they
+33:22 
+
+33:22 released this model called opt which is
+33:24 
+
+33:24 again an open source model um and then
+33:28 
+
+33:28 uh and and and uh you know OPD OPD had a
+33:33 
+
+33:33 had a suite of decoder only models
+33:35 
+
+33:35 ranging from 125 million to 175 billion.
+33:39 
+
+33:39 So you you can actually choose uh model
+33:41 
+
+33:41 as per your as per your compute
+33:43 
+
+33:43 facility. Okay. Then in November 30,
+33:48 
+
+33:48 2022
+33:49 
+
+33:49 world saw a new tool called chat GPD.
+33:54 
+
+33:54 Okay. and u uh and and then in 2023 we
+33:59 
+
+33:59 also saw rapid growth in LMS right B
+34:03 
+
+34:03 model betas the llama model right um and
+34:06 
+
+34:06 then claude anthropic also started
+34:09 
+
+34:09 anthropic is another uh another
+34:10 
+
+34:10 competitor in the LM space they started
+34:13 
+
+34:13 releasing their claude model okay uh
+34:17 
+
+34:17 closed source model uh but uh they also
+34:20 
+
+34:20 started designing their own models GPT4
+34:22 
+
+34:22 came in 2023 three right um uh by open
+34:28 
+
+34:28 AI and another one of my favorite you
+34:31 
+
+34:31 know LM companies Mistral why why
+34:36 
+
+34:36 Mistral is favorite because Mistl always
+34:37 
+
+34:37 focus on small models okay and Mistl's
+34:41 
+
+34:41 uh 7 billion model was also proposed in
+34:43 
+
+34:43 2023 which is one of my famous I mean
+34:45 
+
+34:45 one of my favorite uh LLM models
+34:49 
+
+34:49 and uh then Grock uh which is uh
+34:53 
+
+34:53 Twitter's X uh Elon Musk uh model right
+34:58 
+
+34:58 Gro also also came in 2023 right uh uh
+35:03 
+
+35:03 Twitter AI released this model and 2023
+35:06 
+
+35:06 also we have seen um Google released
+35:10 
+
+35:10 Gemini now why I'm saying all this
+35:12 
+
+35:12 because this would give you a fair bit
+35:14 
+
+35:14 of ideas about you know the last four
+35:16 
+
+35:16 five years of developments in the space
+35:18 
+
+35:18 of LML
+35:21 
+
+35:21 so uh you know so despite all these
+35:25 
+
+35:25 advances LLMs right large language
+35:27 
+
+35:27 models people thought people observed
+35:30 
+
+35:30 realized that these models are not very
+35:32 
+
+35:32 suitable to perform complicated
+35:34 
+
+35:34 reasoning tasks okay so if you look at
+35:37 
+
+35:37 reasoning benchmark u uh reasoning
+35:40 
+
+35:40 benchmark um uh you know LLMs were not
+35:44 
+
+35:44 very popular okay so in 2024 we have
+35:47 
+
+35:47 witnessed uh many such models which are
+35:50 
+
+35:50 specifically designed design for
+35:51 
+
+35:51 reasoning tasks.
+35:54 
+
+35:54 Okay. So for example, OpenAI released
+35:56 
+
+35:56 their 01 model late 2024
+35:59 
+
+35:59 and uh what they said is that these
+36:02 
+
+36:02 models are classic cases where the
+36:04 
+
+36:04 models are forced to think longer. Okay.
+36:08 
+
+36:08 And they they said that these models are
+36:11 
+
+36:11 trained to think before responding.
+36:13 
+
+36:13 Right? Now if you look at chat GBT if
+36:15 
+
+36:15 you type something you type any
+36:16 
+
+36:16 complicated uh complicated query or
+36:20 
+
+36:20 prompt right you see the model takes
+36:22 
+
+36:22 some times right maybe 1 second or 2
+36:24 
+
+36:24 seconds sometimes to to respond right
+36:26 
+
+36:26 these are all thinking models okay and
+36:29 
+
+36:29 this is a classic case of
+36:30 
+
+36:30 anthropomorphizing alms because you know
+36:33 
+
+36:33 we always feel that we always claim that
+36:36 
+
+36:36 are substitutes of human human knowledge
+36:40 
+
+36:40 right so the way humans think before
+36:42 
+
+36:42 responding LLM are also thinking before
+36:44 
+
+36:44 responding.
+36:46 
+
+36:46 Okay. So, so open source LMS uh you know
+36:49 
+
+36:49 seem to have not that uh you know
+36:52 
+
+36:52 accuracy in terms of responding to these
+36:54 
+
+36:54 reasoning uh reasoning problems but um
+36:58 
+
+36:58 but then this 01 and the follow-up
+37:00 
+
+37:00 models came another competitor from
+37:03 
+
+37:03 China DeepS right they also started
+37:07 
+
+37:07 building their models in 2024 okay that
+37:10 
+
+37:10 they were not very popular in 2024
+37:12 
+
+37:12 people hardly knew about DeepS in 2024
+37:16 
+
+37:16 Okay. But in 2025,
+37:20 
+
+37:20 uh they released this Deep Seek R1.
+37:23 
+
+37:23 Okay. Beginning of 2025, which seemed to
+37:26 
+
+37:26 be the first open-source large reasoning
+37:28 
+
+37:28 model that can actually compete uh
+37:31 
+
+37:31 OpenAI and people were afraid. OpenAI
+37:34 
+
+37:34 really got afraid that you know then
+37:36 
+
+37:36 OpenAI start claiming that it is a
+37:38 
+
+37:38 digital version of OpenAI and stuff like
+37:40 
+
+37:40 that. Okay. But but the fact is that uh
+37:44 
+
+37:44 uh the fact is that this is the uh I
+37:47 
+
+37:47 mean at least in the report they
+37:49 
+
+37:49 mentioned that this is the low cost
+37:50 
+
+37:50 model uh that is that can match any
+37:53 
+
+37:53 premium uh closed source models. Okay.
+37:56 
+
+37:56 And and they also claimed that the cost
+37:59 
+
+37:59 is much much uh you know lesser as
+38:02 
+
+38:02 compared to let's say GPD's models.
+38:06 
+
+38:06 So other uh uh um uh I mean we again
+38:11 
+
+38:11 Microsoft and Google they also started
+38:14 
+
+38:14 uh developing their thinking models
+38:17 
+
+38:17 their reasoning models right for example
+38:18 
+
+38:18 Gemini 2.5 pro uh deep think Microsoft's
+38:22 
+
+38:22 five for I also like five because of
+38:24 
+
+38:24 again the small model but Microsoft also
+38:27 
+
+38:27 released five for reasoning models with
+38:29 
+
+38:29 different sizes right co is another
+38:32 
+
+38:32 favorite model for me by Alibaba Um and
+38:36 
+
+38:36 uh they also have variety of models and
+38:38 
+
+38:38 they also started their thinking models
+38:40 
+
+38:40 releasing their thinking models. Lord
+38:42 
+
+38:42 3.7 is also a thinking model right it's
+38:45 
+
+38:45 called the thinking sonet
+38:47 
+
+38:47 okay and rock also released thinking
+38:50 
+
+38:50 model so now you know there's a paradigm
+38:53 
+
+38:53 shift from large language model to large
+38:55 
+
+38:55 reasoning model and I'm I'm telling you
+38:57 
+
+38:57 guys this is my personal experience
+38:59 
+
+38:59 these are like fancy names okay so don't
+39:01 
+
+39:01 go with the go with the names right just
+39:03 
+
+39:03 try understand architecture I think that
+39:05 
+
+39:05 would be better uh and open 03 pro is is
+39:09 
+
+39:09 very popular these
+39:12 
+
+39:12 recent news last I think this week
+39:14 
+
+39:14 beginning of this week or maybe end of
+39:16 
+
+39:16 last week uh there was this news that u
+39:20 
+
+39:20 Gemini and uh open AI models uh
+39:24 
+
+39:24 basically win the milestone gold uh at
+39:26 
+
+39:26 the Google at the global math uh
+39:29 
+
+39:29 competition basically the Olympiad
+39:31 
+
+39:31 Olympiad questions were given to them
+39:33 
+
+39:33 and it turned out that they actually
+39:35 
+
+39:35 stood out at the rank at in rank one
+39:38 
+
+39:38 right and you know if you look at LLM's
+39:40 
+
+39:40 last year's Olympia question I think
+39:43 
+
+39:43 LLMs were in rank three or rank four I
+39:46 
+
+39:46 don't remember exactly but now they're
+39:47 
+
+39:47 claiming that's rank one so like these
+39:49 
+
+39:49 are different benchmark right Olympiad
+39:52 
+
+39:52 question is again a benchmark which
+39:53 
+
+39:53 people tried out and um they are just
+39:56 
+
+39:56 competing right just competing with the
+39:58 
+
+39:58 in terms of accuracy
+40:01 
+
+40:01 so uh uh I'm just keeping this part um
+40:04 
+
+40:04 now why does this course exist I'm not
+40:07 
+
+40:07 I'm pretty sure I don't need to motivate
+40:09 
+
+40:09 you why this course is important at this
+40:11 
+
+40:11 moment uh given that LLM specifically
+40:14 
+
+40:14 agentic structures and other things are
+40:17 
+
+40:17 uh progressing so rapidly right we're
+40:19 
+
+40:19 also talking about efficient models
+40:20 
+
+40:20 small models and so on so so this is
+40:23 
+
+40:23 again the detailed syllabus so as I
+40:26 
+
+40:26 mentioned there are five modules the
+40:28 
+
+40:28 first module will be on foundations
+40:29 
+
+40:29 where we will where we will discuss uh
+40:32 
+
+40:32 transformer and different architectures
+40:34 
+
+40:34 right we'll specifically focus on advanc
+40:37 
+
+40:37 advanced alignment techniques preference
+40:38 
+
+40:38 preference alignment techniques, PPO,
+40:40 
+
+40:40 DPO, GRPO, MC, PS and PRM, right? These
+40:44 
+
+40:44 are really advanced uh alignment
+40:47 
+
+40:47 techniques and you require reinforcement
+40:49 
+
+40:49 learning to understand this. We'll also
+40:51 
+
+40:51 cover very briefly about reinforcement.
+40:54 
+
+40:54 Module two is about efficiency. We'll
+40:56 
+
+40:56 talk about mixture of experts. I I I
+40:59 
+
+40:59 think some of some of you are asking
+41:00 
+
+41:00 about this. So mix mixture of experts
+41:02 
+
+41:02 will be covered. We'll cover uh uh rope.
+41:05 
+
+41:05 Uh we'll cover uh efficient attention
+41:07 
+
+41:07 mechanisms, KV caching, uh VLMs,
+41:10 
+
+41:10 efficient inference techniques, PFT
+41:13 
+
+41:13 model compression, right? We will cover
+41:16 
+
+41:16 um uh different augmentation and
+41:19 
+
+41:19 reasoning for example LLM agents uh
+41:22 
+
+41:22 including different functional calls,
+41:24 
+
+41:24 design decisions, protocols like MCP,
+41:26 
+
+41:26 ACP, A2A and so on. and also we'll talk
+41:30 
+
+41:30 about uh the reasoning models LRM test
+41:33 
+
+41:33 time scaling training to reason via RL
+41:36 
+
+41:36 and stuff like that. Module four will be
+41:39 
+
+41:39 uh more of alternative paradigms. We'll
+41:41 
+
+41:41 talk about uh different alternatives of
+41:44 
+
+41:44 LMS including state space model,
+41:46 
+
+41:46 diffusion based language models and
+41:48 
+
+41:48 hybrid model and uh multimodal models
+41:51 
+
+41:51 PLM uh some some audio visual uh
+41:54 
+
+41:54 language models and so on. And the last
+41:56 
+
+41:56 module will be on physics of language
+41:59 
+
+41:59 models, interpretability and bit of
+42:01 
+
+42:01 ethics and fairness if time permits.
+42:04 
+
+42:04 Okay, that's all about the syllabus and
+42:08 
+
+42:08 uh suggestions is that you you should be
+42:11 
+
+42:11 you should be aware of how to use
+42:12 
+
+42:12 hugging face. Hugging face is would be
+42:15 
+
+42:15 your best friend for this course. Okay.
+42:18 
+
+42:18 and uh Kaggle. Of course you all of you
+42:21 
+
+42:21 know how to handle collab, how to handle
+42:23 
+
+42:23 Kaggle and um and so on. And this is the
+42:27 
+
+42:27 rule of thumb I also mentioned the last
+42:30 
+
+42:30 year that never believe in any
+42:32 
+
+42:32 hypothesis until you experience uh
+42:34 
+
+42:34 experience it right. So if you if
+42:37 
+
+42:37 somebody says that okay use Mistral,
+42:39 
+
+42:39 don't use llama or you use grog, don't
+42:42 
+
+42:42 use mist, right? You just don't believe
+42:45 
+
+42:45 you should not believe you just try. You
+42:48 
+
+42:48 should try all the models and see which
+42:49 
+
+42:49 models are useful because there's no
+42:51 
+
+42:51 rule of thumb as such that you know for
+42:53 
+
+42:53 this task this model is important for
+42:55 
+
+42:55 this task this model is better. Okay. Uh
+42:58 
+
+42:58 again a reminder uh for the next so next
+43:01 
+
+43:01 class will happen in August 4. Uh you'll
+43:05 
+
+43:05 have to go to first 10 lectures. I will
+43:08 
+
+43:08 not cover uh deep learning. I will not
+43:10 
+
+43:10 cover NLP. I will give you a very high
+43:13 
+
+43:13 level overview of language model. uh
+43:16 
+
+43:16 again very very high level overview and
+43:19 
+
+43:19 uh CNN, RNN etc etc. So in two class
+43:22 
+
+43:22 I'll finish everything and in the third
+43:24 
+
+43:24 class I'll start transform so but please
+43:28 
+
+43:28 don't complain if I do I I told you up
+43:30 
+
+43:30 front right that I I'm not going to
+43:32 
+
+43:32 cover deep learning and NLP so you
+43:34 
+
+43:34 should please consider this fact uh
+43:37 
+
+43:37 before uh registering for this course.
+43:39 
+
+43:39 I'm pretty sure this is this is a very
+43:41 
+
+43:41 fun course, advanced course and uh I'm
+43:44 
+
+43:44 also super excited to offer this course
+43:46 
+
+43:46 along with my other machine learning
+43:48 
+
+43:48 course. Okay, thank

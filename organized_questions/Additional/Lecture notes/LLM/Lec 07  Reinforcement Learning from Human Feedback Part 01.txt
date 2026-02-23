@@ -1,0 +1,3697 @@
+00:00 My name is Gorav and uh I'll be teaching
+00:02 
+
+00:02 the reinforcement learning aspect of uh
+00:06 
+
+00:06 the course.
+00:08 
+
+00:08 I'm a scientist at IBM research
+00:11 
+
+00:11 and uh I also taught uh the
+00:13 
+
+00:13 reinforcement learning aspect last year
+00:15 
+
+00:15 and today there will be in uh this year
+00:18 
+
+00:18 I will add some more on top of what I
+00:20 
+
+00:20 covered last year but I will also cover
+00:22 
+
+00:22 the basics by not assuming uh any
+00:25 
+
+00:25 reinforcement learning knowledge. Okay,
+00:28 
+
+00:28 first of all, uh, Professor Danoy has
+00:31 
+
+00:31 already covered instruction tuning. So,
+00:33 
+
+00:33 why is instruction tuning not enough?
+00:37 
+
+00:37 Why do we need something more? So, uh,
+00:39 
+
+00:39 let's say you want to teach the model to
+00:41 
+
+00:41 follow a particular instruction given an
+00:43 
+
+00:43 input. You could just give the input and
+00:47 
+
+00:47 the output and just train it just uh
+00:50 
+
+00:50 just like you do supervised tuning,
+00:52 
+
+00:52 right? But is sometimes it is not enough
+00:56 
+
+00:56 and the reason is that in super you do
+00:58 
+
+00:58 instruction tuning you tell the model
+01:01 
+
+01:01 what to do right you give the input give
+01:04 
+
+01:04 the correct output but you never give
+01:07 
+
+01:07 tell it what not to do let's say the
+01:09 
+
+01:09 model you gave it let's say example so
+01:11 
+
+01:11 here the example is what is the best way
+01:13 
+
+01:13 to lose weight quickly
+01:16 
+
+01:16 and now you gave the uh model the
+01:20 
+
+01:20 correct example that okay if you reduce
+01:22 
+
+01:22 carb intake increase fiber protein
+01:24 
+
+01:24 content blah blah uh that should help
+01:27 
+
+01:27 but uh along with this response the
+01:30 
+
+01:30 model have learned some other responses
+01:33 
+
+01:33 during its pre-training it has seen a
+01:35 
+
+01:35 huge amount of corpus during its
+01:36 
+
+01:36 pre-training and we don't know what all
+01:37 
+
+01:37 it has learned so you're not telling it
+01:39 
+
+01:39 what it has learned and uh what whatever
+01:42 
+
+01:42 wrong that it has learned has it
+01:44 
+
+01:44 probability should be reduced and that's
+01:46 
+
+01:46 where alignment comes into the picture
+01:49 
+
+01:49 it not only allows you to increase the
+01:50 
+
+01:50 probability of certain output it allows
+01:52 
+
+01:52 you to decrease the probability of other
+01:53 
+
+01:53 outputs. There are two ways to classify
+01:57 
+
+01:57 alignment methods. There there are
+01:58 
+
+01:58 multiple ways. I'm talking I have shown
+01:60 
+
+01:60 you two ways to classify alignment
+02:01 
+
+02:01 methods. First one is based on the
+02:04 
+
+02:04 objective that you are uh concerned
+02:06 
+
+02:06 with.
+02:08 
+
+02:08 So whether you are interested in
+02:09 
+
+02:09 maximizing the reward
+02:12 
+
+02:12 uh where we'll talk about where the
+02:13 
+
+02:13 reward comes from or it might be the
+02:16 
+
+02:16 case uh that you want to somehow
+02:20 
+
+02:20 contrast between good outputs and bad
+02:22 
+
+02:22 outputs right uh and uh you don't have a
+02:26 
+
+02:26 reward function as such. And the third
+02:28 
+
+02:28 one which we will not cover is about is
+02:30 
+
+02:30 uh where we use distribution matching to
+02:33 
+
+02:33 have where we have some target
+02:35 
+
+02:35 distribution that we want to reach and
+02:37 
+
+02:37 then we use some distribution matching
+02:39 
+
+02:39 approaches to uh so that our model
+02:41 
+
+02:41 starts behaving like the target
+02:43 
+
+02:43 distribution. So that is the
+02:45 
+
+02:45 classification if you uh based on uh the
+02:48 
+
+02:48 objective that you're trying to land
+02:50 
+
+02:50 with.
+02:52 
+
+02:52 The second uh classification is whether
+02:55 
+
+02:55 you want to do this training of the
+02:57 
+
+02:57 model uh whether you uh the whether you
+03:00 
+
+03:00 want to do this alignment in an online
+03:02 
+
+03:02 fashion or an offline fashion or a
+03:05 
+
+03:05 hybrid between the two.
+03:07 
+
+03:07 So what I mean by online? Online means
+03:10 
+
+03:10 that you have a model, you have the
+03:12 
+
+03:12 model that you care about
+03:15 
+
+03:15 uh and uh uh you want to improve it, you
+03:18 
+
+03:18 want to train it, but you want to train
+03:20 
+
+03:20 it using its own sample as the model
+03:22 
+
+03:22 evolves. So that is called online
+03:24 
+
+03:24 training.
+03:26 
+
+03:26 And the offline training is that samples
+03:28 
+
+03:28 you before you start the training
+03:30 
+
+03:30 training you get the samples or the
+03:32 
+
+03:32 outputs beforehand from from there. And
+03:36 
+
+03:36 uh you can those outputs can come from
+03:37 
+
+03:37 the model those outputs can come from
+03:39 
+
+03:39 somewhere else
+03:41 
+
+03:41 and then you use those outputs you
+03:43 
+
+03:43 convert them into uh either preference
+03:45 
+
+03:45 pairs or you convert them into whatever
+03:47 
+
+03:47 format you want and you train uh the
+03:50 
+
+03:50 model on those output pairs that you
+03:52 
+
+03:52 have gotten beforehand. So that is
+03:54 
+
+03:54 offline and then there are also mixed
+03:57 
+
+03:57 approaches which uh sample some outputs
+04:02 
+
+04:02 do some training again sample outputs do
+04:04 
+
+04:04 some training and most of the approaches
+04:06 
+
+04:06 uh use some form of mix training as we
+04:09 
+
+04:09 will see later.
+04:14 
+
+04:14 Okay. So uh before I talk about reward
+04:17 
+
+04:17 modeling I will cover the basics of
+04:19 
+
+04:19 reinforcement learning since I'm not
+04:21 
+
+04:21 assuming any familiarity with this
+04:22 
+
+04:22 topic.
+04:24 
+
+04:24 Okay. So,
+04:27 
+
+04:27 so when uh I say reinforcement learning,
+04:30 
+
+04:30 what I mean is uh that you have an agent
+04:35 
+
+04:35 uh which acts on an environment by act
+04:39 
+
+04:39 by takes some action in the environment
+04:42 
+
+04:42 gets a reward and then based on and
+04:45 
+
+04:45 because of it the action that it took
+04:48 
+
+04:48 its state changes and it again takes an
+04:50 
+
+04:50 action uh uh gets a reward state changes
+04:53 
+
+04:53 and this loop loop keeps repeating. So
+04:56 
+
+04:56 what is en? So these terms are very
+04:58 
+
+04:58 vague, right? Right. What is agent? What
+04:59 
+
+04:59 is environment? Uh so let's make them
+05:02 
+
+05:02 more concrete. So environment is uh the
+05:05 
+
+05:05 space where everything that the agent
+05:08 
+
+05:08 has to be concerned with. So let's look
+05:10 
+
+05:10 at example of where uh we are interested
+05:12 
+
+05:12 in creating an AI based uh chess player.
+05:15 
+
+05:15 It's uh program that can play chess
+05:18 
+
+05:18 using artificial intelligence. Say
+05:21 
+
+05:21 here the agent is the uh AI program that
+05:24 
+
+05:24 is uh that will move the pieces on the
+05:27 
+
+05:27 that will move decide what the pieces to
+05:28 
+
+05:28 move on the chessboard. The environment
+05:31 
+
+05:31 is everything that that agent has to be
+05:33 
+
+05:33 concerned with. So the environment here
+05:36 
+
+05:36 would be uh not only the chess board but
+05:38 
+
+05:38 the opponent here the brain of the
+05:40 
+
+05:40 opponent everything I mean so it does
+05:42 
+
+05:42 not have to be uh something that the
+05:45 
+
+05:45 agent can observe. It's anything that
+05:47 
+
+05:47 can influence the next state. Uh and if
+05:50 
+
+05:50 you're playing chess with somebody,
+05:51 
+
+05:51 obviously the person's opposite you,
+05:53 
+
+05:53 that person's brain can affect the chess
+05:54 
+
+05:54 board, right? Uh
+05:58 
+
+05:58 and then the rules of the game, right?
+06:00 
+
+06:00 Now, state is like a snapshot of the
+06:02 
+
+06:02 environment. The state is or more
+06:05 
+
+06:05 accurate, it's state is the information
+06:07 
+
+06:07 of the environment that is available to
+06:10 
+
+06:10 the agent.
+06:13 
+
+06:13 So uh in the case of chess uh you cannot
+06:16 
+
+06:16 see what the brain of the other player
+06:19 
+
+06:19 is doing but what you can see is uh the
+06:21 
+
+06:21 moves that the other player is making
+06:22 
+
+06:22 and based on that you can try to guess
+06:24 
+
+06:24 that maybe this player is trying to
+06:26 
+
+06:26 checkmate me or whatever right. So the
+06:30 
+
+06:30 state is the historical position of the
+06:33 
+
+06:33 pieces, the current position of the
+06:34 
+
+06:34 pieces, all that information comes into
+06:36 
+
+06:36 state
+06:38 
+
+06:38 and the rules are assumed to be anyway
+06:40 
+
+06:40 part of the state. They are always
+06:42 
+
+06:42 there, right? And your action in the
+06:45 
+
+06:45 case of chess is simply to move a piece
+06:49 
+
+06:49 and uh once the game is over, you get a
+06:52 
+
+06:52 reward of plus one minus one. So reward
+06:53 
+
+06:53 is something that you can get after
+06:55 
+
+06:55 every action or you may get at the end
+06:57 
+
+06:57 of the game or you may get it at some
+06:58 
+
+06:58 intermediate step. Reward does not uh uh
+07:02 
+
+07:02 there's no condition on the reward. It
+07:03 
+
+07:03 has to uh you have to get the reward
+07:06 
+
+07:06 every time every time step. So if you
+07:08 
+
+07:08 don't get the reward, you can assume the
+07:10 
+
+07:10 reward to be zero at any time step.
+07:13 
+
+07:13 So again to uh environment is something
+07:16 
+
+07:16 that provides you the next state. Given
+07:18 
+
+07:18 one state, it requires you to the next
+07:20 
+
+07:20 state and it also gives you a reward for
+07:21 
+
+07:21 the action that you took from a state.
+07:24 
+
+07:24 Right?
+07:29 
+
+07:29 Another example is uh that of a
+07:31 
+
+07:31 self-driving car.
+07:35 
+
+07:35 So in self-driving car uh your agent is
+07:38 
+
+07:38 the AI program that is uh that will
+07:42 
+
+07:42 decide what the where the car should
+07:44 
+
+07:44 move, whether it should accelerate,
+07:45 
+
+07:45 decelerate and all those stuff. Uh
+07:49 
+
+07:49 and the environment is all the entire
+07:51 
+
+07:51 basically this is the real environment
+07:52 
+
+07:52 right the road the pedestrians the other
+07:55 
+
+07:55 cars everything that this car that the
+07:57 
+
+07:57 AI is driving has to interact with is
+07:59 
+
+07:59 everything is the environment state is
+08:01 
+
+08:01 again the part of the environment that
+08:04 
+
+08:04 can be accessed by you because you
+08:07 
+
+08:07 cannot guess what the pedestrians are
+08:09 
+
+08:09 going to do. You cannot guess what the
+08:10 
+
+08:10 what is going on in the mind of the
+08:11 
+
+08:11 other car drivers
+08:14 
+
+08:14 but what you can guess what you can see
+08:16 
+
+08:16 is what your sensors in the car uh can
+08:18 
+
+08:18 tell you. So it's not only the current
+08:20 
+
+08:20 sensor readings but all the historical
+08:22 
+
+08:22 sensor reading as well
+08:27 
+
+08:27 and your actions are you can either turn
+08:30 
+
+08:30 you can accelerate break the multiple
+08:32 
+
+08:32 choice of actions that self-driving car
+08:35 
+
+08:35 can have and then you may get reward at
+08:37 
+
+08:37 the end or you may get a reward at
+08:39 
+
+08:39 intermediate time step also for uh doing
+08:41 
+
+08:41 the executions correctly.
+08:44 
+
+08:44 Uh I have not talked about policy much
+08:46 
+
+08:46 in this two. Policy is so you so you
+08:49 
+
+08:49 have you're an agent and you have to
+08:51 
+
+08:51 take an action. So where does the action
+08:52 
+
+08:52 come from? So policy is something is a
+08:56 
+
+08:56 distribution. It can be a probability
+08:57 
+
+08:57 distribution over the actions that you
+08:59 
+
+08:59 that the agent will take
+09:02 
+
+09:02 or it can be some deterministic function
+09:03 
+
+09:03 that takes the current state and gives
+09:05 
+
+09:05 you an action. So it can be it's
+09:07 
+
+09:07 basically something that will tell you
+09:08 
+
+09:08 what the next action is going to be.
+09:13 
+
+09:13 The third example is what we are
+09:15 
+
+09:15 concerned with uh which is that of an
+09:17 
+
+09:17 LLM. And here in the case of an LLM uh
+09:21 
+
+09:21 the states are pretty simple. The state
+09:24 
+
+09:24 is basically whatever tokens are there
+09:26 
+
+09:26 in the prompt or input or instruction
+09:29 
+
+09:29 and whatever tokens that you have
+09:31 
+
+09:31 generated so far. So this is one case
+09:33 
+
+09:33 one special example
+09:35 
+
+09:35 uh of LLM as a in reinforcement
+09:39 
+
+09:39 learning. Here the actions are just
+09:41 
+
+09:41 individual tokens. Your states is the
+09:43 
+
+09:43 input instruction prompt and whatever
+09:46 
+
+09:46 you have generated so far
+09:48 
+
+09:48 and your environment is very simple. the
+09:51 
+
+09:51 so environment again remember
+09:52 
+
+09:52 environment is something that has to
+09:53 
+
+09:53 tell you what the next state is going to
+09:55 
+
+09:55 be
+09:57 
+
+09:57 and it has to tell you what the reward
+09:59 
+
+09:59 is going to look like right so here the
+10:01 
+
+10:01 environment is pretty simple because the
+10:03 
+
+10:03 state is just the tokens so far once you
+10:06 
+
+10:06 take an action what would be the next
+10:07 
+
+10:07 state
+10:09 
+
+10:09 if you think about it uh since the state
+10:11 
+
+10:11 is just the tokens and you have taken
+10:12 
+
+10:12 one action an action is a token
+10:14 
+
+10:14 basically so what would the next state
+10:16 
+
+10:16 be
+10:16 
+
+10:16 >> next token
+10:17 
+
+10:17 >> yes it will just append the next token
+10:20 
+
+10:20 through your previous state. So
+10:21 
+
+10:21 environment is not doing much here
+10:22 
+
+10:22 because the LM is basically because we
+10:24 
+
+10:24 have created this special scenario of LM
+10:27 
+
+10:27 which is where the environment does not
+10:29 
+
+10:29 have much scope to do anything. We'll
+10:31 
+
+10:31 look at at a more interesting example in
+10:32 
+
+10:32 the next slide
+10:35 
+
+10:35 and the reward uh generally you will get
+10:38 
+
+10:38 once you have generated the entire
+10:40 
+
+10:40 response and uh then based on the
+10:42 
+
+10:42 correctness of uh the response you'll
+10:44 
+
+10:44 get a plus one or minus one.
+10:48 
+
+10:48 So fourth example is also of an LLM but
+10:51 
+
+10:51 here the action is not a single token.
+10:55 
+
+10:55 Here uh your agent is again an LLM and
+10:59 
+
+10:59 your there are only two possible groups
+11:01 
+
+11:01 of states. One where you have only seen
+11:04 
+
+11:04 the prompt or the instruction or the
+11:06 
+
+11:06 input. I'm using the word prompt
+11:08 
+
+11:08 instruction and put uh in an
+11:10 
+
+11:10 interchangeable fashion.
+11:13 
+
+11:13 And the ne and the second group of state
+11:16 
+
+11:16 is where you have the prompt and the
+11:18 
+
+11:18 response. So there are only two groups
+11:20 
+
+11:20 of states here, right? There's no you
+11:22 
+
+11:22 will see that there's no cycle here
+11:23 
+
+11:23 that's why
+11:25 
+
+11:25 and the action is the entire response
+11:27 
+
+11:27 that your LM will generate
+11:31 
+
+11:31 and you get a reward of plus one if the
+11:33 
+
+11:33 response is correct and you get a reward
+11:35 
+
+11:35 of minus the response. same as in the
+11:37 
+
+11:37 previous case. The difference is that
+11:39 
+
+11:39 instead of having token selections, we
+11:41 
+
+11:41 have the entire response selection.
+11:43 
+
+11:43 So this is not a very interesting uh
+11:46 
+
+11:46 from an RL perspective, it's a one it's
+11:47 
+
+11:47 a one step RL. There's not much of uh RL
+11:51 
+
+11:51 going on here. It's just like one step
+11:53 
+
+11:53 that you take, get the reward and train.
+11:59 
+
+11:59 The last example which is more
+12:01 
+
+12:01 interesting is uh a code LLM. So here so
+12:07 
+
+12:07 here the task is that the LM has to
+12:08 
+
+12:08 generate a code for a given for a given
+12:11 
+
+12:11 uh task let's say okay the task can be
+12:14 
+
+12:14 simple like write a program for sorting
+12:16 
+
+12:16 a bunch of members
+12:18 
+
+12:18 and the environment is uh a unit test
+12:21 
+
+12:21 framework what I mean by unit test
+12:22 
+
+12:22 framework that uh you have a bunch of
+12:25 
+
+12:25 unit tests you have the code that is
+12:28 
+
+12:28 generated you run the unit tests on the
+12:30 
+
+12:30 code and uh it will tell you whether the
+12:32 
+
+12:32 assertions passed or the assertions
+12:34 
+
+12:34 failed basically whe the code executed
+12:36 
+
+12:36 correctly or not. So the state
+12:41 
+
+12:41 is your problem description the code
+12:43 
+
+12:43 that is generated
+12:45 
+
+12:45 uh uh the all the code that was
+12:47 
+
+12:47 generated previously also and any error
+12:51 
+
+12:51 reported by the unit test framework. So
+12:52 
+
+12:52 you might get an exception when you
+12:53 
+
+12:53 execute the code right. So all that
+12:55 
+
+12:55 information is your state and based on
+12:58 
+
+12:58 this state you can again generate a new
+12:59 
+
+12:59 code which will again uh uh get uh
+13:02 
+
+13:02 passed through the unit test framework.
+13:04 
+
+13:04 Again you will get some exception or you
+13:06 
+
+13:06 might get that the code executed
+13:07 
+
+13:07 correctly and uh this will keep on
+13:10 
+
+13:10 repeating and then you get a reward of
+13:12 
+
+13:12 plus one or minus one.
+13:16 
+
+13:16 So yeah.
+13:19 
+
+13:19 Okay. So these were five examples that
+13:20 
+
+13:20 we saw. Uh now let's move towards the
+13:24 
+
+13:24 first example. Oh sorry the third
+13:25 
+
+13:25 example that we saw where the actions
+13:28 
+
+13:28 were tokens and uh the environment just
+13:32 
+
+13:32 just appended the token at the end of
+13:34 
+
+13:34 previous tokens.
+13:40 
+
+13:40 Okay. So tokens as actions that's uh uh
+13:44 
+
+13:44 uh the special part of this uh
+13:47 
+
+13:47 reinforcement learning.
+13:49 
+
+13:49 So the policy we have talked about a
+13:52 
+
+13:52 that agent takes an action but where
+13:54 
+
+13:54 does the action come from? So the in the
+13:57 
+
+13:57 case of a language model the actions
+13:58 
+
+13:58 comes from a probability distribution
+13:60 
+
+13:60 that the agent has and that probability
+14:01 
+
+14:01 distribution is the probability
+14:02 
+
+14:02 distribution that your LLM encodes right
+14:05 
+
+14:05 and LLM corresponds to a distribution
+14:07 
+
+14:07 over tokens at every time step right.
+14:14 
+
+14:14 So pi theta is the distribution uh that
+14:16 
+
+14:16 the lm
+14:18 
+
+14:18 of the lm
+14:22 
+
+14:22 st the state is we have discussed
+14:24 
+
+14:24 already it's the tokens of the input
+14:26 
+
+14:26 plus whatever output tokens have been
+14:28 
+
+14:28 generated so far
+14:30 
+
+14:30 and the action can be any token from the
+14:33 
+
+14:33 vocabulary right
+14:36 
+
+14:36 and what the policy does it policy is
+14:39 
+
+14:39 just a distribution over the actions or
+14:41 
+
+14:41 the tokens of the vocabulary
+14:50 
+
+14:50 So your policy takes an action uh 80 and
+14:54 
+
+14:54 in the case of an LLM. So uh the
+14:56 
+
+14:56 language model that you see on the right
+14:58 
+
+14:58 uh
+14:60 
+
+14:60 the uh the state that it receives is
+15:04 
+
+15:04 basically the prompt and the tokens that
+15:06 
+
+15:06 it has generated which is ST and the LM
+15:11 
+
+15:11 uh the LM policy represents a
+15:13 
+
+15:13 distribution over the output tokens. You
+15:15 
+
+15:15 sample a token from the policy. Let's
+15:17 
+
+15:17 say the previous token was Taj Mahel and
+15:19 
+
+15:19 the next token is is is the action. uh
+15:23 
+
+15:23 then is uh basically the action taken
+15:25 
+
+15:25 here.
+15:29 
+
+15:29 This is pretty simple. I hope uh there's
+15:31 
+
+15:31 no confusion here.
+15:33 
+
+15:33 Right. Okay. Now, as I mentioned earlier
+15:36 
+
+15:36 that environment simply will take the
+15:39 
+
+15:39 token that you have generated and it
+15:40 
+
+15:40 will just append the token to the
+15:41 
+
+15:41 previous tokens
+15:44 
+
+15:44 and if end of text has been generated,
+15:47 
+
+15:47 you will also get a reward based on the
+15:49 
+
+15:49 correctness of the response. We we uh
+15:51 
+
+15:51 for now let's we can think that this
+15:54 
+
+15:54 there's a human looking at the entire
+15:56 
+
+15:56 response and then finally giving a
+15:58 
+
+15:58 reward and uh we will see in reality
+16:01 
+
+16:01 what happens. Uh yeah
+16:05 
+
+16:05 and if end of text has not been
+16:06 
+
+16:06 generated you may not get any reward
+16:08 
+
+16:08 right
+16:12 
+
+16:12 and the state change is simply the
+16:14 
+
+16:14 addition of the new token.
+16:19 
+
+16:19 So this is uh what it looks like uh a
+16:24 
+
+16:24 typical
+16:26 
+
+16:26 uh policy taking actions. So if it is if
+16:29 
+
+16:29 you if it is a lang LLM and the policy
+16:32 
+
+16:32 is pi theta it takes an action in the
+16:34 
+
+16:34 environment it state changes it gets a
+16:37 
+
+16:37 reward it again takes another action and
+16:39 
+
+16:39 it keeps on doing that until in the case
+16:41 
+
+16:41 of a language model in the until the end
+16:43 
+
+16:43 of text is generated
+16:49 
+
+16:49 and uh again the next few slides are
+16:52 
+
+16:52 just taking uh just uh showing the LM
+16:55 
+
+16:55 policy as an example
+16:59 
+
+16:59 In the first token uh uh let's say the
+17:01 
+
+17:01 Taj was generated when the only you give
+17:03 
+
+17:03 the prompt only as input and you got did
+17:05 
+
+17:05 not get any reward because the response
+17:07 
+
+17:07 has not completed in the next token
+17:10 
+
+17:10 condition on the Taj Mahel is generated
+17:12 
+
+17:12 again you do not get any reward because
+17:14 
+
+17:14 end of text has not been received
+17:18 
+
+17:18 in the next uh uh step the next third
+17:21 
+
+17:21 token is is generated and there's no
+17:23 
+
+17:23 reward and let's say after all the
+17:26 
+
+17:26 tokens have generated there was an end
+17:27 
+
+17:27 of text and you get a reward. So this is
+17:30 
+
+17:30 how the LLM policy generates actions
+17:34 
+
+17:34 step by step and it gets a reward. So
+17:37 
+
+17:37 this was just to familiarize with you
+17:38 
+
+17:38 familiarize you guys with the LMS how it
+17:41 
+
+17:41 works as a policy and how it uh I mean
+17:44 
+
+17:44 how it fits into the reinforcement
+17:46 
+
+17:46 learning framework.
+17:49 
+
+17:49 Okay.
+17:54 
+
+17:54 So now we'll talk about the reward
+17:56 
+
+17:56 model.
+17:59 
+
+17:59 So we have so far what we have said is
+18:02 
+
+18:02 that uh when LM exe the policy execute
+18:06 
+
+18:06 it may or may not get a reward. But who
+18:08 
+
+18:08 is giving this reward right? We saw that
+18:11 
+
+18:11 we said that okay human might be looking
+18:12 
+
+18:12 at the response and giving a reward
+18:14 
+
+18:14 every time. But this is going to be very
+18:16 
+
+18:16 expensive right. So we can ask humans to
+18:18 
+
+18:18 give thumbs up or thumbs down to every
+18:20 
+
+18:20 response that generates.
+18:23 
+
+18:23 But this thumbs up thumbs down for
+18:26 
+
+18:26 humans is going to be very expensive and
+18:27 
+
+18:27 if we are doing this in a
+18:31 
+
+18:31 training framework this will take
+18:33 
+
+18:33 forever
+18:36 
+
+18:36 and uh we will see that uh in when we do
+18:39 
+
+18:39 traditional RLF like PO you this is it's
+18:42 
+
+18:42 an on policy method so as you train the
+18:44 
+
+18:44 model you need new feedback and you
+18:46 
+
+18:46 train it again and you keep it you have
+18:47 
+
+18:47 to keep on getting feedback so obviously
+18:49 
+
+18:49 uh humans are out of the
+18:53 
+
+18:53 So the simple solution is that let's
+18:55 
+
+18:55 train another language model to mimic
+18:57 
+
+18:57 what a human does, right?
+19:01 
+
+19:01 Uh so how do you do that? We'll look at
+19:03 
+
+19:03 how we can train an LM to behave
+19:07 
+
+19:07 uh like instead of saying reward mode I
+19:10 
+
+19:10 should say okay to give like uh humans
+19:14 
+
+19:14 right and in some cases
+19:18 
+
+19:18 there are some cases where the answer
+19:19 
+
+19:19 can be verified exactly so you actually
+19:21 
+
+19:21 don't need a reward model in some cases
+19:23 
+
+19:23 can you think of some scenarios where
+19:25 
+
+19:25 you don't need a reward model to tell
+19:27 
+
+19:27 you if something is generally correct or
+19:28 
+
+19:28 not
+19:31 
+
+19:31 mathematical. So if you have the ground
+19:32 
+
+19:32 truth available in mathematical
+19:33 
+
+19:33 questions, let's say you have the final
+19:35 
+
+19:35 answer that somehow there was a problem
+19:37 
+
+19:37 and the final answer you have supposed
+19:38 
+
+19:38 to reach is 23. Now you can still reach
+19:41 
+
+19:41 23 by doing all the wrong reasoning but
+19:43 
+
+19:43 that chance is low. Right? So there if
+19:47 
+
+19:47 you reach if you if the model generated
+19:49 
+
+19:49 some solution and finally reached the
+19:50 
+
+19:50 number 23 it's quite likely that it must
+19:53 
+
+19:53 have followed a correct chain of steps
+19:54 
+
+19:54 to reach the 23. So in uh so in those
+19:58 
+
+19:58 kind of scenarios you don't need a
+20:01 
+
+20:01 reward model and you can just use the
+20:03 
+
+20:03 ground truth to verify the correctness.
+20:09 
+
+20:09 So those uh situations fall under
+20:12 
+
+20:12 verifiable rewards and verifiable
+20:14 
+
+20:14 rewards are the best if you can find a
+20:15 
+
+20:15 verifiable reward for your task that is
+20:18 
+
+20:18 the best thing you can do. Why? The
+20:19 
+
+20:19 reason is that whatever reward model you
+20:22 
+
+20:22 train, they are going to be they are
+20:24 
+
+20:24 going to have be biased. They are going
+20:25 
+
+20:25 to be noisy and when you do training
+20:27 
+
+20:27 with those noisy biased reward models,
+20:29 
+
+20:29 the model will learn some spurious
+20:31 
+
+20:31 signal that you don't want.
+20:35 
+
+20:35 So, so if you can find a verifiable
+20:38 
+
+20:38 reward for your task, that is the best
+20:40 
+
+20:40 thing. uh so in mass exact numerical
+20:43 
+
+20:43 answer match is a good way good signal
+20:45 
+
+20:45 for training and it's it's something
+20:48 
+
+20:48 that uh all the works including brock
+20:51 
+
+20:51 chpt and whatever models anybody is
+20:54 
+
+20:54 training for maths uh all of them use uh
+20:56 
+
+20:56 exact uh this ver exact numerical answer
+20:59 
+
+20:59 match to do reinforcement learning for
+21:02 
+
+21:02 maths similarly for code
+21:06 
+
+21:06 if you have unit tests for that your
+21:08 
+
+21:08 resultant code should class which
+21:10 
+
+21:10 generally we have right in a lot of uh
+21:13 
+
+21:13 cases we do know that final code that we
+21:15 
+
+21:15 get should take this input and return
+21:17 
+
+21:17 this output.
+21:19 
+
+21:19 So if you have those unit tests then
+21:22 
+
+21:22 again what you can do with code is that
+21:24 
+
+21:24 gen uh whatever model generates you can
+21:28 
+
+21:28 run those unit tests on those code and
+21:30 
+
+21:30 then give the reward based on the
+21:31 
+
+21:31 correctness. Right?
+21:35 
+
+21:35 In case of question answering especially
+21:37 
+
+21:37 factual question answering uh you can
+21:39 
+
+21:39 match like if I'm ask question is that
+21:42 
+
+21:42 uh where is Taj Mahal then you know if
+21:45 
+
+21:45 the Agra word comes into the response
+21:48 
+
+21:48 then it's very likely correct so you can
+21:49 
+
+21:49 do simple string matching
+21:53 
+
+21:53 similarly for if you are uh training a
+21:56 
+
+21:56 model to generate a sequence of steps
+21:58 
+
+21:58 for solving uh or generate a proof
+22:00 
+
+22:00 basically
+22:02 
+
+22:02 then uh you can use uh automatic proof
+22:06 
+
+22:06 checkers to verify that individual uh
+22:09 
+
+22:09 that whether the steps of the proof
+22:11 
+
+22:11 follow from each other or not. So it
+22:12 
+
+22:12 might not be a complete uh signal but it
+22:14 
+
+22:14 will give you a partial signal that uh
+22:17 
+
+22:17 at least uh the steps are follow from
+22:19 
+
+22:19 each other and it's not hallucinating
+22:21 
+
+22:21 some random steps.
+22:24 
+
+22:24 In chemistry uh if you know that what
+22:26 
+
+22:26 the output of the reaction can be uh
+22:30 
+
+22:30 then you can just match those outputs
+22:33 
+
+22:33 and similarly in protein structure
+22:35 
+
+22:35 prediction if you know what is some
+22:36 
+
+22:36 cases where the protein structure some
+22:39 
+
+22:39 information about the angles some
+22:40 
+
+22:40 whatever information you have about the
+22:42 
+
+22:42 structure if you uh you can match that
+22:45 
+
+22:45 with whatever the model outputs and give
+22:47 
+
+22:47 get another signal. So there are bunch
+22:48 
+
+22:48 of signals all over different fields
+22:50 
+
+22:50 that can be used uh as verifiable reward
+22:57 
+
+22:57 and uh
+22:60 
+
+22:60 the good news is that this verifiable
+23:01 
+
+23:01 rewards don't depend on the human
+23:04 
+
+23:04 preferences which can be noisy and they
+23:07 
+
+23:07 are often incomplete right you cannot
+23:08 
+
+23:08 get the labels for all possible
+23:10 
+
+23:10 preference pairs from humans right
+23:13 
+
+23:13 and uh by using verifiable rewards uh
+23:17 
+
+23:17 for example Glock 4 has been able to
+23:19 
+
+23:19 achieve very high scores on uh what
+23:22 
+
+23:22 bunch of different benchmarks. So it's
+23:25 
+
+23:25 it has become very trendy nowadays at
+23:27 
+
+23:27 least.
+23:33 
+
+23:33 Okay. So this was the case where you
+23:35 
+
+23:35 don't need to worry about reward models.
+23:38 
+
+23:38 But then uh let's say you are doing uh
+23:42 
+
+23:42 essay writing, right? and you want a
+23:44 
+
+23:44 language you want to train the language
+23:45 
+
+23:45 model to be able to write very good
+23:47 
+
+23:47 essays. So in this case in such a case
+23:50 
+
+23:50 even if you have the ground truth
+23:52 
+
+23:52 perfect essay that you have uh you
+23:54 
+
+23:54 cannot match it to whatever the LM
+23:56 
+
+23:56 generates right because the format might
+23:58 
+
+23:58 be different the style might be
+23:60 
+
+23:60 different the content might be different
+24:01 
+
+24:01 and if you're writing an essay on cow
+24:02 
+
+24:02 there are 100 ways and none of them are
+24:04 
+
+24:04 going to be very similar to each other
+24:06 
+
+24:06 right
+24:08 
+
+24:08 so in those cases verifiable rewards
+24:11 
+
+24:11 don't work and there you need uh
+24:13 
+
+24:13 actually need uh to train a reward model
+24:16 
+
+24:16 to be able to tell you whether whatever
+24:18 
+
+24:18 was generated is good or not.
+24:21 
+
+24:21 And what is a reward model? It's
+24:22 
+
+24:22 basically an LLM which takes your task,
+24:26 
+
+24:26 your prompt as input. It takes whatever
+24:30 
+
+24:30 the language model generated as one of
+24:32 
+
+24:32 the inputs and it gives you a score and
+24:35 
+
+24:35 the only criteria is that this score
+24:37 
+
+24:37 should be high
+24:39 
+
+24:39 if the output was correct and it should
+24:42 
+
+24:42 be low if this output was wrong. Right?
+24:43 
+
+24:43 That's what you want to train it on.
+24:46 
+
+24:46 Now uh who decides correct and wrong
+24:48 
+
+24:48 right so here we are saying that it's
+24:50 
+
+24:50 desirable that the reward of the better
+24:53 
+
+24:53 response should be higher than the
+24:54 
+
+24:54 reward of the
+24:56 
+
+24:56 not so good response but who decides
+24:58 
+
+24:58 what is better so we have to somehow uh
+25:02 
+
+25:02 get that information also if it is
+25:05 
+
+25:05 decided by humans then the entire RL
+25:08 
+
+25:08 framework falls into RLHF
+25:11 
+
+25:11 and if it is decided by AI we call it as
+25:14 
+
+25:14 RLF but people tend to use these two
+25:16 
+
+25:16 terms interchangeably. Uh so especially
+25:20 
+
+25:20 RL AF RLF AF is often also referred to
+25:23 
+
+25:23 as RHF. So uh but you don't have to
+25:27 
+
+25:27 worry about this.
+25:29 
+
+25:29 Also if there is a verifier like we saw
+25:31 
+
+25:31 in the previous case, right? Then this
+25:34 
+
+25:34 uh framework is called RLVF
+25:36 
+
+25:36 reinforcement learning with verifiable
+25:37 
+
+25:37 feedback.
+25:40 
+
+25:40 So this is how uh a typical reward model
+25:44 
+
+25:44 looks like. It's a language model and uh
+25:47 
+
+25:47 what it takes as input the instruction
+25:49 
+
+25:49 the prompt and the response generated
+25:52 
+
+25:52 from the LM let's say right and you now
+25:56 
+
+25:56 this uh it lm can be encoder uh the the
+25:59 
+
+25:59 reward model can be an encoder only
+26:01 
+
+26:01 model it can be a decoder only model it
+26:03 
+
+26:03 can also be an encoder decoder model you
+26:04 
+
+26:04 can think of whatever scenario possible
+26:07 
+
+26:07 uh ultimately what you care about is the
+26:10 
+
+26:10 pre-log layer what is the pre-loit layer
+26:14 
+
+26:14 so So the logic layer is that after you
+26:15 
+
+26:15 apply the vocabulary mapping uh whatever
+26:19 
+
+26:19 uh scores that you got get is the logic
+26:21 
+
+26:21 layer. So before the vocabulary mapping
+26:23 
+
+26:23 layer the embeddings two-dimensional
+26:25 
+
+26:25 embeddings that you get before you apply
+26:28 
+
+26:28 the vocabulary mapping to get the final
+26:31 
+
+26:31 token distribution.
+26:35 
+
+26:35 So that embeddings uh are called the
+26:36 
+
+26:36 pre-logitic embeddings and on top of
+26:39 
+
+26:39 those pre-logit embeddings you know now
+26:41 
+
+26:41 you can do bunch of stuff on top of
+26:42 
+
+26:42 those pre-loit embeddings.
+26:45 
+
+26:45 You can average all those pre-logit
+26:47 
+
+26:47 embeddings and then feed apply a linear
+26:50 
+
+26:50 layer and get one single number as
+26:52 
+
+26:52 output. That is one way
+26:55 
+
+26:55 or you can take the last token. If you
+26:57 
+
+26:57 are working with the decoder only model,
+26:59 
+
+26:59 you can also take just the embedding of
+27:00 
+
+27:00 the last token, apply a linear layer and
+27:03 
+
+27:03 get another number as output.
+27:07 
+
+27:07 Uh so this uh part is quite I mean
+27:11 
+
+27:11 there's no no fixed way. Okay. So again
+27:15 
+
+27:15 the architecture is very simple. Now
+27:16 
+
+27:16 we'll talk about how to train this
+27:18 
+
+27:18 reward model which is more interesting.
+27:23 
+
+27:23 So
+27:25 
+
+27:25 the preferences
+27:27 
+
+27:27 uh are binary right uh we assuming let's
+27:29 
+
+27:29 assume that the preferences are binary
+27:32 
+
+27:32 and uh the way we got those preferences
+27:34 
+
+27:34 was I don't know if I uh okay yeah we'll
+27:39 
+
+27:39 talk about later uh and we the way we
+27:41 
+
+27:41 got those preferences was let's say we
+27:43 
+
+27:43 showed uh two outputs to a human being
+27:45 
+
+27:45 and ask them to pick which is better and
+27:48 
+
+27:48 that's how we got the preferences okay
+27:50 
+
+27:50 and now we want to fit a statistical
+27:52 
+
+27:52 model to these preferences. Okay, so the
+27:55 
+
+27:55 Bradley Terry model is a statistical
+27:56 
+
+27:56 model that can fit to binary
+27:59 
+
+27:59 preferences.
+28:01 
+
+28:01 Just uh if you if you if you the word
+28:03 
+
+28:03 statistical model is confusing then
+28:05 
+
+28:05 statistical model is basically if you
+28:06 
+
+28:06 let's say uh toss a bunch coin bunch of
+28:10 
+
+28:10 times then we know that the Bernoli
+28:11 
+
+28:11 model or the binomial model can be used
+28:13 
+
+28:13 depending on the task. Similarly, the
+28:15 
+
+28:15 Bradley Professor model is just a
+28:16 
+
+28:16 statistical model that can fit if you
+28:18 
+
+28:18 have a bunch of preferences.
+28:21 
+
+28:21 So uh to understand it let's say you
+28:24 
+
+28:24 have n items
+28:27 
+
+28:27 and uh
+28:29 
+
+28:29 uh you have for each of the item you
+28:32 
+
+28:32 have a score
+28:35 
+
+28:35 pi let's say the item y has a score of
+28:37 
+
+28:37 pi
+28:39 
+
+28:39 so the Bradley T model is defined is
+28:42 
+
+28:42 this is the definition so there's uh
+28:44 
+
+28:44 what it says is that if if you have a
+28:46 
+
+28:46 bunch of items and their corresponding
+28:48 
+
+28:48 scores
+28:50 
+
+28:50 The probability of picking item I over
+28:53 
+
+28:53 item J is defined as follows.
+28:58 
+
+28:58 Probability
+28:59 
+
+28:59 Yi and I say this this symbol that I
+29:03 
+
+29:03 write this is this means preferred over
+29:05 
+
+29:05 Yi is preferred over YJ.
+29:10 
+
+29:10 This is defined as PI or let me put this
+29:15 
+
+29:15 def
+29:16 
+
+29:16 PI plus P
+29:19 
+
+29:19 So this is a definition of the
+29:21 
+
+29:21 branditary model. Okay.
+29:24 
+
+29:24 And if we assume that all these uh uh
+29:27 
+
+29:27 scores are positive
+29:30 
+
+29:30 then I can write these scores pi as
+29:34 
+
+29:34 exponential
+29:37 
+
+29:37 of some theta
+29:42 
+
+29:42 where
+29:43 
+
+29:43 theta i is trainable.
+29:52 
+
+29:52 So generally what the how the data will
+29:54 
+
+29:54 look like you will you won't be given
+29:56 
+
+29:56 these scores P1 to PN these are the
+29:58 
+
+29:58 parameters that you have to estimate and
+29:59 
+
+29:59 when you are fitting a brandary model
+30:02 
+
+30:02 all you will be given are preference
+30:04 
+
+30:04 pairs so you will be given Y1 is better
+30:06 
+
+30:06 than Y2 Y2 is better than Y3 those kind
+30:08 
+
+30:08 of preferences is what you'll given
+30:11 
+
+30:11 and uh your task will be to uh learn um
+30:16 
+
+30:16 these are the PI and PJ are the
+30:18 
+
+30:18 parameters your task would be to learn
+30:20 
+
+30:20 these PIs and PJs that would fit to the
+30:23 
+
+30:23 preferences. So this is the general
+30:24 
+
+30:24 prietary model.
+30:27 
+
+30:27 Now we'll talk about the special case in
+30:29 
+
+30:29 LLMs.
+30:33 
+
+30:33 So for LLM in language models uh you uh
+30:37 
+
+30:37 you not only have those yi and yj you
+30:40 
+
+30:40 also have uh prompt the x as uh input
+30:43 
+
+30:43 right? So uh so here you define the
+30:48 
+
+30:48 conditional distribution of picking yi
+30:50 
+
+30:50 over yj given an input prompt. So
+30:54 
+
+30:54 probability of picking yi
+30:58 
+
+30:58 over yj given a prompt x this is what
+31:03 
+
+31:03 you define
+31:05 
+
+31:05 and
+31:07 
+
+31:07 this looks like
+31:11 
+
+31:11 uh so again uh p y
+31:16 
+
+31:16 actually this can be any score uh but
+31:19 
+
+31:19 I'm using the term p y given X
+31:32 
+
+31:32 this P by instead of P by A given X you
+31:34 
+
+31:34 can actually use whatever score function
+31:36 
+
+31:36 you want
+31:39 
+
+31:39 and uh so these are again these are the
+31:41 
+
+31:41 quantities that you want to train
+31:44 
+
+31:44 uh these are trainable quantities.
+31:49 
+
+31:49 So first thing is you parameterize uh
+31:52 
+
+31:52 this thing uh the parameterize the uh
+31:57 
+
+31:57 quantities using a lm uh the lm takes x
+32:01 
+
+32:01 and yi as input and gives you so
+32:04 
+
+32:04 actually uh let's uh
+32:07 
+
+32:07 the way I can parameterize this p y
+32:10 
+
+32:10 given x
+32:13 
+
+32:13 as let's say so these are not
+32:16 
+
+32:16 probability the this can be anything and
+32:17 
+
+32:17 you can parameterize them as
+32:19 
+
+32:19 exponentiated
+32:21 
+
+32:21 r theta x ya. It's a R theta is a neural
+32:26 
+
+32:26 network which takes your prompt
+32:29 
+
+32:29 and you it takes your output yi as input
+32:32 
+
+32:32 and it generates some score as output.
+32:35 
+
+32:35 Uh so and this is what you want to train
+32:37 
+
+32:37 this neural network right.
+32:40 
+
+32:40 So in if you parameterize uh uh your
+32:45 
+
+32:45 model using this lm the probability of
+32:49 
+
+32:49 preferring yi over yj
+32:53 
+
+32:53 can be written as
+33:07 
+
+33:07 so so
+33:09 
+
+33:09 if you're given preferences
+33:11 
+
+33:11 uh you can uh uh parameterize
+33:17 
+
+33:17 uh your brandary model using LLM and
+33:20 
+
+33:20 then train the uh brand model train
+33:25 
+
+33:25 basically get the parameters to maximize
+33:27 
+
+33:27 the likelihood of observing whatever
+33:28 
+
+33:28 data is so like yeah so so we'll talk
+33:32 
+
+33:32 about how to do maximum likelihood
+33:34 
+
+33:34 estimation in the case of a blitary
+33:35 
+
+33:35 model okay so let's say you have data of
+33:39 
+
+33:39 the form x y + y - y + is your preferred
+33:43 
+
+33:43 output. Y minus is uh uh the unpreferred
+33:46 
+
+33:46 output and you want to find the optimal
+33:49 
+
+33:49 reward model r theta star
+33:52 
+
+33:52 to maximize what the lock pro of the
+33:54 
+
+33:54 preference all the preferences that you
+33:56 
+
+33:56 observe. So how will you do it? So again
+33:58 
+
+33:58 just like you would fit a statistical
+33:60 
+
+33:60 model to gshian data you will similarly
+34:02 
+
+34:02 fit a statistical model to preference
+34:04 
+
+34:04 data.
+34:06 
+
+34:06 So what you do is you will first define
+34:09 
+
+34:09 your likelihood function. What is your
+34:11 
+
+34:11 likelihood L theta
+34:17 
+
+34:17 what? So for one triplet what will be
+34:20 
+
+34:20 the likelihood? Let's write that and
+34:22 
+
+34:22 then we will uh uh write the likelihood
+34:25 
+
+34:25 for the entire data set. So if you are
+34:27 
+
+34:27 given only one triplet uh under the
+34:29 
+
+34:29 planetary model what is the likelihood?
+34:30 
+
+34:30 It's log
+34:33 
+
+34:33 probability of
+34:37 
+
+34:37 preferring yi greater than yj yi over y
+34:40 
+
+34:40 sorry not y
+34:43 
+
+34:43 / y given x
+34:47 
+
+34:47 and which I can write as
+34:49 
+
+34:49 log
+34:53 
+
+34:53 exponentiated
+34:55 
+
+34:55 r theta x Wait me.
+35:23 
+
+35:23 I should not have this.
+35:32 
+
+35:32 Okay.
+35:51 
+
+35:51 So I can write this uh
+35:54 
+
+35:54 likelihood for a given triplet as
+35:56 
+
+35:56 follows. And since we have an entire
+35:58 
+
+35:58 data set, we will take the expectation
+35:60 
+
+35:60 over the data set. So expectation over
+36:04 
+
+36:04 these triplets coming from the data
+36:07 
+
+36:07 distribution
+36:10 
+
+36:10 coming from this quantity and this again
+36:13 
+
+36:13 is going to be plus and this is going to
+36:15 
+
+36:15 be
+36:18 
+
+36:18 minus.
+36:28 
+
+36:28 Right. And similarly this also will be
+36:31 
+
+36:31 this expectation
+36:33 
+
+36:33 X Y + Y minus coming from the data
+36:37 
+
+36:37 distribution.
+36:39 
+
+36:39 So this is how your log likelihood of
+36:42 
+
+36:42 the preference pairs look like and you
+36:45 
+
+36:45 can do this uh shuffling here and there
+36:48 
+
+36:48 and what you get is a very simple
+36:51 
+
+36:51 looking nice form
+36:58 
+
+36:58 log sigmoid
+37:02 
+
+37:02 R theta
+37:05 
+
+37:05 minus R theta of the
+37:08 
+
+37:08 on the rejected response.
+37:24 
+
+37:24 Okay. So, uh so what is this likelihood
+37:28 
+
+37:28 saying? It's simply saying that
+37:30 
+
+37:30 uh the reward of the preferred this is
+37:33 
+
+37:33 the reward of the preferred response y
+37:36 
+
+37:36 plus maximize this quantity and reduce
+37:39 
+
+37:39 the reward of the unpreferred response.
+37:41 
+
+37:41 So basically try to maximize the
+37:43 
+
+37:43 difference between the preferred
+37:45 
+
+37:45 response and the rejected response. Uh
+37:48 
+
+37:48 that's all this likelihood is trying to
+37:49 
+
+37:49 do.
+37:54 
+
+37:54 Right? So that's what uh this is how you
+37:57 
+
+37:57 the expectation you can just because
+37:58 
+
+37:58 this distribution is a discrete
+38:00 
+
+38:00 distribution you can just write this
+38:02 
+
+38:02 expectation as an average and what this
+38:04 
+
+38:04 quantity is saying this is the reward of
+38:06 
+
+38:06 the preferred response
+38:13 
+
+38:13 and this is the reward of the rejected
+38:14 
+
+38:14 response
+38:23 
+
+38:23 and it's just trying to maximize the
+38:24 
+
+38:24 difference of the reward between these
+38:27 
+
+38:27 two responses.
+38:32 
+
+38:32 >> Uh uh you're asking that how does sigma
+38:35 
+
+38:35 come from this equation or so this this
+38:38 
+
+38:38 is an exponential right? So if you
+38:40 
+
+38:40 subtract r theta yus or multiply by
+38:43 
+
+38:43 exponential minus r theta y x yus both
+38:46 
+
+38:46 side you'll get a sigmoid form. So this
+38:48 
+
+38:48 uh this quantity that you see here
+38:53 
+
+38:53 this is sigmoid.
+38:56 
+
+38:56 Yeah.
+39:04 
+
+39:04 Okay.
+39:08 
+
+39:08 But from other point of view that why do
+39:09 
+
+39:09 we use sigmoid here? uh that's uh the
+39:12 
+
+39:12 the reason is that you don't want it to
+39:14 
+
+39:14 become unbounded and that's why the
+39:16 
+
+39:16 sigmoid comes into the picture.
+39:19 
+
+39:19 Okay. So now we know how to train the
+39:21 
+
+39:21 reward model and I'm guessing since it's
+39:23 
+
+39:23 a very simple function just like for
+39:24 
+
+39:24 supervised tuning you write the log
+39:26 
+
+39:26 likelihood and you just differentiate
+39:28 
+
+39:28 and let it train. So similarly for
+39:30 
+
+39:30 training a reward model you write this
+39:33 
+
+39:33 function
+39:34 
+
+39:34 that takes pi plus y minus compute the
+39:36 
+
+39:36 difference and let it train. So it's
+39:38 
+
+39:38 it's as simple as doing uh uh training
+39:41 
+
+39:41 any other function that you have.
+39:44 
+
+39:44 Okay. So now that you have now that you
+39:46 
+
+39:46 know how to train from the preference
+39:48 
+
+39:48 data, where do you get this data from?
+39:50 
+
+39:50 So there are some preference data that
+39:52 
+
+39:52 are publicly available. We'll talk two
+39:54 
+
+39:54 here and one more in the later slides.
+39:57 
+
+39:57 uh this this data from openi which for
+40:00 
+
+40:00 doing summarization text summarization
+40:02 
+
+40:02 and here the prompt is very simple
+40:05 
+
+40:05 prompt is summarize the following
+40:06 
+
+40:06 document and then your given document
+40:10 
+
+40:10 and the outputs are generated by the
+40:13 
+
+40:13 models that openai has the instruct GPD
+40:16 
+
+40:16 models these are older models
+40:18 
+
+40:18 and the preferences are uh generated by
+40:21 
+
+40:21 humans actually so these are human
+40:22 
+
+40:22 generated preferences
+40:25 
+
+40:25 and then there's this ultra feedback
+40:26 
+
+40:26 data set it where the prompts cover not
+40:29 
+
+40:29 just summarization but a huge variety of
+40:31 
+
+40:31 tasks. Uh these are uh I think
+40:38 
+
+40:38 the actually uh these prompts come from
+40:40 
+
+40:40 a wide variety of tasks from different
+40:41 
+
+40:41 instruction tuning data sets. uh and the
+40:45 
+
+40:45 outputs are generated from a again a
+40:47 
+
+40:47 wide variety of models from the GPD
+40:49 
+
+40:49 family, the llama family, B vizard, LM,
+40:52 
+
+40:52 alpaka different uh a bunch of different
+40:54 
+
+40:54 models
+40:56 
+
+40:56 and the preferences are generated by
+40:58 
+
+40:58 GPD4.
+41:01 
+
+41:01 So you can directly take these data sets
+41:03 
+
+41:03 and uh define your log likelihood
+41:06 
+
+41:06 function and train on top of this.
+41:10 
+
+41:10 But if you let's say there are some
+41:12 
+
+41:12 cases where you don't have publicly
+41:13 
+
+41:13 available preference data. So where do
+41:15 
+
+41:15 you get the prompts from? Where do you
+41:17 
+
+41:17 get the responses from? And where do you
+41:18 
+
+41:18 get the preferences from?
+41:21 
+
+41:21 So the prompts you can uh let's say if
+41:24 
+
+41:24 you have some instruction tuning data
+41:27 
+
+41:27 for your task. You don't have preference
+41:28 
+
+41:28 data but maybe you have some uh data of
+41:31 
+
+41:31 the form question answer or input
+41:32 
+
+41:32 output. If you have those kind of data,
+41:34 
+
+41:34 so you can pick those prompts and you
+41:37 
+
+41:37 can get the outputs again from all the
+41:40 
+
+41:40 language models Quinn or B or Alpaka or
+41:45 
+
+41:45 uh K GPD or whatever models uh that
+41:49 
+
+41:49 interesting to you
+41:52 
+
+41:52 and to collect the preferences
+41:55 
+
+41:55 uh you can directly collect the
+41:57 
+
+41:57 preferences by showing those uh outputs
+42:00 
+
+42:00 to human and ask them to pick the visib
+42:04 
+
+42:04 Or you can use LLM as a judge to decide
+42:08 
+
+42:08 which output is better. We'll see
+42:09 
+
+42:09 examples of LM as a uh judge in the
+42:13 
+
+42:13 later slides.
+42:15 
+
+42:15 But these are two different ways to
+42:17 
+
+42:17 collect preferences.
+42:22 
+
+42:22 So uh con the approach used by
+42:25 
+
+42:25 constitutional AI for collecting
+42:26 
+
+42:26 harmlessness pre preferences is uh was
+42:30 
+
+42:30 somewhat interesting when this paper
+42:32 
+
+42:32 came out because till now at that time
+42:34 
+
+42:34 the way people were collecting
+42:35 
+
+42:35 preferences by showing the outputs to
+42:37 
+
+42:37 the model just asking which is better.
+42:40 
+
+42:40 So constitutional AI the anthropic the
+42:42 
+
+42:42 team at anthropic decided that okay
+42:44 
+
+42:44 let's put some principles in place place
+42:46 
+
+42:46 that uh is this response less uh more
+42:50 
+
+42:50 wise ethical polite so they they created
+42:53 
+
+42:53 16 principles altogether
+42:56 
+
+42:56 and they would take one principle and
+42:58 
+
+42:58 they would show it to the uh the judge
+43:02 
+
+43:02 model whatever language model they're
+43:03 
+
+43:03 using for judging and they would say uh
+43:05 
+
+43:05 the principle would look like that
+43:07 
+
+43:07 choose the response that is nice,
+43:10 
+
+43:10 ethical, polite and friendly. For
+43:12 
+
+43:12 example, this is one principle
+43:14 
+
+43:14 and uh the input to the language model
+43:18 
+
+43:18 will contain the conversation, the
+43:21 
+
+43:21 multiple choice, the multiple possible
+43:22 
+
+43:22 responses and then the principle
+43:26 
+
+43:26 and the LM has to pick which response is
+43:29 
+
+43:29 better according to the principle.
+43:35 
+
+43:35 Okay.
+43:43 
+
+43:43 So that like the judge model doesn't get
+43:46 
+
+43:46 biased on certain output corresponding
+43:48 
+
+43:48 to some distribution. Instead we are
+43:51 
+
+43:51 masking some certain words and then we
+43:53 
+
+43:53 are seeing the judge model to predict
+43:55 
+
+43:55 which response is better and more
+43:57 
+
+43:57 towards certain.
+43:60 
+
+43:60 So masking is likely
+44:03 
+
+44:03 to the model exact answer.
+44:05 
+
+44:05 >> Yeah. I mean instead of masking maybe
+44:07 
+
+44:07 you can do rephrasing like whatever the
+44:09 
+
+44:09 response are you can put rephrase both
+44:11 
+
+44:11 the response using different models. So
+44:12 
+
+44:12 that let's say if a model is more biased
+44:15 
+
+44:15 towards let's say charge GPT is more
+44:17 
+
+44:17 biased towards responses that come from
+44:18 
+
+44:18 charge GPT. So in which case if you
+44:21 
+
+44:21 rephrase the responses using um let's
+44:24 
+
+44:24 say claude then it's likely that
+44:26 
+
+44:26 chargity will that bias will get away
+44:29 
+
+44:29 from the picture. Masking also might
+44:32 
+
+44:32 work uh but I'm not sure 100%. And with
+44:35 
+
+44:35 how effective masking is maybe the
+44:37 
+
+44:37 masking will confuse the model
+44:38 
+
+44:38 altogether.
+44:42 
+
+44:42 Okay. So this uh we talked about a
+44:44 
+
+44:44 Bradlitary preference model but there
+44:46 
+
+44:46 are other preference models that are
+44:47 
+
+44:47 notary.
+44:51 
+
+44:51 Uh so we'll look at uh some of these
+44:53 
+
+44:53 models. Uh so before that let's talk
+44:56 
+
+44:56 about this help steer data. So uh when
+44:60 
+
+44:60 Nvidia was trying to train a reward
+45:01 
+
+45:01 model they realized that whatever reward
+45:04 
+
+45:04 model they train these reward models
+45:07 
+
+45:07 tend to be biased towards longer
+45:08 
+
+45:08 responses.
+45:10 
+
+45:10 And this the reason for this is that uh
+45:13 
+
+45:13 the humans uh preferences tend to be bi
+45:16 
+
+45:16 biased. It's uh in general humans prefer
+45:19 
+
+45:19 longer responses than shorter responses
+45:20 
+
+45:20 because their longer responses are
+45:22 
+
+45:22 generally more informative. So they
+45:23 
+
+45:23 prefer longer but the models don't pick
+45:27 
+
+45:27 that the fact that these responses are
+45:29 
+
+45:29 picked because of informiveness. They
+45:31 
+
+45:31 pick the fact that these responses are
+45:32 
+
+45:32 picked because of length because length
+45:33 
+
+45:33 is a very easy signal to overfeit on.
+45:37 
+
+45:37 So what they did they decided that okay
+45:39 
+
+45:39 since it's picking signal uh this
+45:41 
+
+45:41 purious signal let's make these
+45:43 
+
+45:43 responses uh let's make these
+45:45 
+
+45:45 annotations more informative. How do you
+45:47 
+
+45:47 make the annotation more informative?
+45:49 
+
+45:49 Instead of asking the humans to say
+45:52 
+
+45:52 which response is more preferable,
+45:54 
+
+45:54 uh what they did was they show only one
+45:57 
+
+45:57 response to the uh uh human instead of
+45:59 
+
+45:59 two responses and then they asked the
+46:02 
+
+46:02 human uh the annotator to basically give
+46:05 
+
+46:05 a score per attribute for the response.
+46:08 
+
+46:08 So they had five attributes
+46:12 
+
+46:12 uh helpfulness, correctness, coherence,
+46:14 
+
+46:14 complexity and verbosity. And they ask
+46:17 
+
+46:17 the annotator to give a score between 1
+46:19 
+
+46:19 to five for each of those attributes.
+46:22 
+
+46:22 And you can see that these attributes on
+46:24 
+
+46:24 the right hand side. These attributes
+46:26 
+
+46:26 are not uh like verbosity is not
+46:29 
+
+46:29 correlated with helpfulness. That means
+46:31 
+
+46:31 even small responses can be actually
+46:34 
+
+46:34 very helpful. But the model does not
+46:36 
+
+46:36 learn that. If the model is trained from
+46:37 
+
+46:37 preferences, it will learn that longer
+46:39 
+
+46:39 responses are more helpful.
+46:42 
+
+46:42 Okay. So this is the data that they got.
+46:44 
+
+46:44 They got uh a vector of scores instead
+46:47 
+
+46:47 of just sing uh just single preference
+46:49 
+
+46:49 they got a vector of scores per response
+46:54 
+
+46:54 and now how do you what do you do with
+46:56 
+
+46:56 this vector of scores how do you train a
+46:57 
+
+46:57 reward model since you cannot use a
+46:59 
+
+46:59 Bradley Terry preference model now
+47:00 
+
+47:00 because you don't know which is
+47:01 
+
+47:01 preferred so what they did was they
+47:03 
+
+47:03 converted that score vector into a
+47:05 
+
+47:05 string
+47:07 
+
+47:07 so let's say uh you have the num
+47:10 
+
+47:10 helpfulness of two correctness of three
+47:12 
+
+47:12 coherence of four complexity of one
+47:14 
+
+47:14 verbosity of two. They'll convert all of
+47:16 
+
+47:16 this into a single string
+47:20 
+
+47:20 and then uh uh the the language model
+47:23 
+
+47:23 was trained to predict this string given
+47:27 
+
+47:27 the response and the prompt. So instead
+47:29 
+
+47:29 of predicting uh which response
+47:31 
+
+47:31 preferable will now they will predict an
+47:32 
+
+47:32 entire string of scores and then this uh
+47:37 
+
+47:37 string of scores is used for training
+47:40 
+
+47:40 the LM. We'll see how it is used later.
+47:43 
+
+47:43 But uh the point is that instead of
+47:44 
+
+47:44 training a reward model reward model,
+47:47 
+
+47:47 you can train a preference model.
+47:56 
+
+47:56 Uh the the another reward model that
+47:59 
+
+47:59 people have used and it has become more
+48:01 
+
+48:01 popular recently is the LLM as a judge
+48:04 
+
+48:04 but with some additions that we'll talk
+48:05 
+
+48:05 about later. So LM judge is very simple.
+48:08 
+
+48:08 Uh let's say you want to do pair wise
+48:09 
+
+48:09 compare. You want to comp get pair-wise
+48:11 
+
+48:11 preferences from the judge model. What
+48:13 
+
+48:13 you will do is you will uh take the
+48:16 
+
+48:16 input take the multiple outputs two
+48:18 
+
+48:18 outputs that you have show it to the
+48:20 
+
+48:20 judge model and ask it that uh pick the
+48:24 
+
+48:24 better response
+48:26 
+
+48:26 and also give a reasoning why this is
+48:28 
+
+48:28 better right and generally you have to
+48:30 
+
+48:30 if you don't ask to give reasoning model
+48:32 
+
+48:32 may uh model's performance is worse is
+48:35 
+
+48:35 not as good and but if you ask it to
+48:37 
+
+48:37 give the reasoning first and then pick
+48:39 
+
+48:39 then the reasoning helps the model
+48:40 
+
+48:40 decides uh which response is
+48:45 
+
+48:45 Similarly, if you want to get the score
+48:47 
+
+48:47 of a single response, you will just give
+48:49 
+
+48:49 the single response and ask the LM to
+48:50 
+
+48:50 give a score. Also, you can do reference
+48:53 
+
+48:53 guided grading where you actually give
+48:54 
+
+48:54 the ground truth response and say,
+48:56 
+
+48:56 "Okay, this is the ground truth. Now,
+48:57 
+
+48:57 tell me how good this generated response
+48:59 
+
+48:59 is." Okay. The advantage of judge models
+49:02 
+
+49:02 are that they can be used out of the
+49:03 
+
+49:03 box. They don't need any preference
+49:06 
+
+49:06 data.
+49:08 
+
+49:08 But the disadvantage is that you're not
+49:10 
+
+49:10 using
+49:13 
+
+49:13 And also so another advantage is that
+49:15 
+
+49:15 you can use the reasoning capability to
+49:16 
+
+49:16 arrive at the final answer right uh of
+49:19 
+
+49:19 the LM because LM has been trained on so
+49:21 
+
+49:21 much text and they are very good at
+49:22 
+
+49:22 reasoning you can use that reasoning to
+49:24 
+
+49:24 arrive at the final answer reward model
+49:25 
+
+49:25 cannot have any reasoning right the
+49:27 
+
+49:27 bread reward models
+49:30 
+
+49:30 but the disadvantage is that they are
+49:32 
+
+49:32 not as accurate as reward models trained
+49:35 
+
+49:35 on preference data that reward models
+49:36 
+
+49:36 that have seen the preference data the
+49:38 
+
+49:38 judges have never seen this data so
+49:39 
+
+49:39 they're not accurate and we will see how
+49:40 
+
+49:40 to fix it in the next slide. Uh also
+49:44 
+
+49:44 these are often overconfident.
+49:47 
+
+49:47 So what I mean is that uh uh if you ask
+49:50 
+
+49:50 that this this response correct this the
+49:51 
+
+49:51 model to say yeah yeah it's perfect. I
+49:53 
+
+49:53 mean the models have uh train will often
+49:56 
+
+49:56 agree with whatever you show to them. So
+49:58 
+
+49:58 they're not very they biased and also
+50:03 
+
+50:03 they like longer responses but which is
+50:05 
+
+50:05 true of general reward models also even
+50:08 
+
+50:08 reward models like longer responses.
+50:13 
+
+50:13 So can we do better than this? Can we
+50:15 
+
+50:15 somehow take these LMGs and make them
+50:17 
+
+50:17 make them better than the Bradley reward
+50:19 
+
+50:19 models because then we will be able to
+50:22 
+
+50:22 use the reasoning of these models also.
+50:25 
+
+50:25 Okay. So these are some examples of uh
+50:29 
+
+50:29 uh how to use LM as a judge for pair
+50:32 
+
+50:32 wise comparison.
+50:34 
+
+50:34 Uh so here you give the prompt, you give
+50:36 
+
+50:36 the question, you give two possible
+50:38 
+
+50:38 answers and then ask the model to pick
+50:40 
+
+50:40 which is better.
+50:42 
+
+50:42 This is the prompt. If you want to do
+50:43 
+
+50:43 single answer grading, you will just
+50:45 
+
+50:45 give a single single answer and ask the
+50:47 
+
+50:47 model to give a rating between 1 to 10,
+50:50 
+
+50:50 let's say.
+50:53 
+
+50:53 Okay. So uh we mentioned that you can
+50:56 
+
+50:56 train the judges also. I mean we can you
+50:59 
+
+50:59 can train the judges somehow to make
+51:02 
+
+51:02 them better than the brand reward
+51:04 
+
+51:04 models, right? So one simple thing is
+51:08 
+
+51:08 you take those judge models and uh you
+51:11 
+
+51:11 give the prompt give the response and
+51:13 
+
+51:13 ask a simple question is this response
+51:15 
+
+51:15 correct? And if the response that you
+51:18 
+
+51:18 gave was actually correct, you maximize
+51:19 
+
+51:19 the probability of generating the token
+51:21 
+
+51:21 yes.
+51:23 
+
+51:23 And if the response was wrong, you
+51:25 
+
+51:25 maximize the probability of generating
+51:26 
+
+51:26 the response uh token no. So this is
+51:29 
+
+51:29 very simple uh scenario that you took a
+51:31 
+
+51:31 judge model and simply maximize the
+51:34 
+
+51:34 probability of generating yes or no.
+51:38 
+
+51:38 So yeah, so if the solution is correct,
+51:40 
+
+51:40 maximize the probability of saying yes.
+51:41 
+
+51:41 If the solution is wrong, maximize the
+51:43 
+
+51:43 probability of saying no.
+51:45 
+
+51:45 And during inference, what you would do
+51:47 
+
+51:47 is you will simply look at the
+51:49 
+
+51:49 probability of the token yes and say,
+51:51 
+
+51:51 oh, this is my score. Whatever the log
+51:53 
+
+51:53 probability of the token yes is that's
+51:55 
+
+51:55 the score of this response and then that
+51:56 
+
+51:56 you can signal you can use for
+51:58 
+
+51:58 reinforcement learning or whatever you
+51:59 
+
+51:59 want.
+52:05 
+
+52:05 So the previous approach does not use
+52:07 
+
+52:07 chain of thought though right uh you're
+52:09 
+
+52:09 just asking it is correct or not but you
+52:11 
+
+52:11 can also incorporate chain of thought.
+52:13 
+
+52:13 So LLM judges have been shown to benefit
+52:16 
+
+52:16 if they are asked to generate chain of
+52:17 
+
+52:17 thought before generating the final
+52:20 
+
+52:20 final score.
+52:23 
+
+52:23 So can we include chain of thoughts in
+52:26 
+
+52:26 these uh LM while training the LM
+52:28 
+
+52:28 messages. So what would be the input to
+52:30 
+
+52:30 the model?
+52:32 
+
+52:32 The input will be the prompt, the
+52:34 
+
+52:34 response and the string let's verify
+52:36 
+
+52:36 step by step
+52:38 
+
+52:38 and you will train the LM to generate
+52:41 
+
+52:41 the step-by-step verific uh verification
+52:44 
+
+52:44 string whatever. So you you we assume
+52:46 
+
+52:46 that the step-by-step verification
+52:47 
+
+52:47 string come from somewhere and you will
+52:49 
+
+52:49 train the model to generate uh that
+52:51 
+
+52:51 step-by-step verification string and
+52:52 
+
+52:52 also you will train it to generate
+52:54 
+
+52:54 whether the final answer was correct or
+52:56 
+
+52:56 not incorrect.
+52:60 
+
+52:60 And when you do inference you will again
+53:02 
+
+53:02 first generate a step-by-step
+53:03 
+
+53:03 verification and then gen get the look
+53:06 
+
+53:06 at the log probability of the yes or no
+53:07 
+
+53:07 token to give a score to responses.
+53:14 
+
+53:14 And this is how the prompt for chain of
+53:17 
+
+53:17 thought verification looks like.
+53:22 
+
+53:22 Okay. So I think uh uh I will stop this
+53:26 
+
+53:26 uh at this point because this covers the
+53:28 
+
+53:28 reward model training aspect of RL and
+53:31 
+
+53:31 the next we will uh uh in the next class
+53:34 
+
+53:34 we will see how the reward model can be
+53:36 
+
+53:36 used in different ways. Okay.

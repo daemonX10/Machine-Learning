@@ -20218,3 +20218,2264 @@ def speedup_summary():
 **Interview Tip:** Know the trade-offs: DDIM is simple and works well at 50 steps; DPM-Solver++ is state-of-the-art for quality at 20-25 steps; distillation (LCM, Turbo) enables 1-4 steps but requires additional training and may lose some quality. Latent diffusion (used by Stable Diffusion) is orthogonal—it reduces spatial dimensions, making each step faster. For production, combine latent diffusion + DPM-Solver++ + TensorRT optimization.
 
 ---
+
+
+---
+
+# --- StyleGAN Questions (from 47_stylegan) ---
+
+# StyleGAN / StyleGAN2 / StyleGAN3 Interview Questions - Theory Questions
+
+## Question 1
+
+**Explain generator architecture of original StyleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**Define style mapping network and AdaIN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**Explain progressive growing in StyleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**Describe path-length regularisation in StyleGAN2.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 5
+
+**Explain weight demodulation and its purpose.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 6
+
+**Discuss removal of blob-shaped artifacts in StyleGAN2-ADA.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 7
+
+**Explain Adaptive Discriminator Augmentation (ADA).**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 8
+
+**Compare StyleGAN vs. ProGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 9
+
+**Describe style mixing regularisation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 10
+
+**Explain noise injection and stochastic variation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 11
+
+**Discuss truncation trick and ψ parameter.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 12
+
+**Describe interface-GAN and latent editing.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 13
+
+**Explain StyleGAN inversion methods (e.g., e4e, pSp).**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 14
+
+**Compare pixel-wise vs. channel-wise noise.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 15
+
+**Discuss StyleGAN3's alias-free design.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 16
+
+**Explain 2-D fourier features in StyleGAN3.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 17
+
+**Describe continuous depth translation invariance.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 18
+
+**Discuss out-of-distribution generalisation and datasets.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 19
+
+**Compare FID vs. Inception Score for generative quality.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 20
+
+**Explain projector for identity-preserving face editing.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 21
+
+**Discuss attribute manipulations with GANSpace.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 22
+
+**Explain GAN dissection and unit visualisation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 23
+
+**Describe style generalisation across datasets.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 24
+
+**Explain fine-tuning StyleGAN for few-shot generation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 25
+
+**Discuss GAN-based data augmentation for downstream tasks.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 26
+
+**Explain CLIP-guided latent editing.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 27
+
+**Describe training StyleGAN on non-aligned data.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 28
+
+**Explain hyperspherical latent space and spherical embeddings.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 29
+
+**Discuss generative prior for image restoration.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 30
+
+**Explain StyleGAN for text-to-image via multi-modal alignment.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 31
+
+**Describe Co-mod-GAN bridging StyleGAN with segmentation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 32
+
+**Explain 3-D aware StyleGAN (StyleNeRF).**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 33
+
+**Discuss hyper-style for high-quality editing.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 34
+
+**Explain adversarial robustness of StyleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 35
+
+**Describe model compression and distillation for mobile GANs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 36
+
+**Discuss fairness and demographic bias in face GANs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 37
+
+**Explain integrating diffusion loss into StyleGAN training.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 38
+
+**Describe watermarking generated images.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 39
+
+**Explain infinite zoom and out-painting with StyleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 40
+
+**Discuss licensing and ethical concerns of dataset usage.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 41
+
+**Explain style mixing latent interpolation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 42
+
+**Describe transferring StyleGAN generator between domains.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 43
+
+**Explain segmentation-guided GANs for part mixing.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 44
+
+**Discuss real-time inference optimisation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 45
+
+**Explain zero-shot generative domain adaptation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 46
+
+**Discuss adversarial detection of GAN-generated images.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 47
+
+**Explain quality tuning via per-layer noise magnitude.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 48
+
+**Predict future of StyleGAN-like architectures.**
+
+**Answer:** _[To be filled]_
+
+---
+
+
+---
+
+# --- CycleGAN Questions (from 48_cyclegan) ---
+
+# CycleGAN Interview Questions - Theory Questions
+
+## Question 1
+
+**Describe adversarial loss and cycle-consistency loss.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**Discuss identity loss and when needed.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**Explain role of PatchGAN discriminator.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**Describe generator architecture in CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 5
+
+**Explain training stability challenges in CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 6
+
+**Discuss mode collapse and mitigation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 7
+
+**Explain mapping ambiguity problem.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 8
+
+**Describe data augmentation strategies.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 9
+
+**Explain CycleGAN for style transfer vs. domain transfer.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 10
+
+**Discuss applications in medical imaging.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 11
+
+**Explain CycleGAN in video translation and temporal consistency.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 12
+
+**Discuss evaluation with FID and LPIPS.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 13
+
+**Explain spectral normalization in CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 14
+
+**Describe attention-guided CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 15
+
+**Explain multi-domain CycleGAN (StarGAN).**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 16
+
+**Discuss geometry-consistent CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 17
+
+**Explain cut (contrastive unpaired translation) vs. CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 18
+
+**Describe cyclic perceptual loss.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 19
+
+**Discuss memory use with high-res images.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 20
+
+**Explain one-sided label smoothing in discriminators.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 21
+
+**Discuss CubeGAN for 3-D domain translation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 22
+
+**Explain partial weight sharing across generators.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 23
+
+**Describe training with mixed precision for CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 24
+
+**Explain patch-based training vs. full-image.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 25
+
+**Discuss CycleGAN for style untransferability issues.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 26
+
+**Explain domain adaptation using CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 27
+
+**Describe unsupervised depth transfer via CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 28
+
+**Explain CycleGAN failure cases.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 29
+
+**Discuss cyclic consistency with contrastive loss.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 30
+
+**Explain multi-cycle synergy (double cycle).**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 31
+
+**Discuss GAN inversion for CycleGAN editing.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 32
+
+**Describe face ageing with CycleGAN variations.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 33
+
+**Explain dual learning relationship.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 34
+
+**Discuss training time reduction via teacher-student.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 35
+
+**Explain zero-shot translation with pre-trained CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 36
+
+**Describe patch-swap enhancements.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 37
+
+**Explain dynamical cropping for training.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 38
+
+**Discuss CycleGAN for audio domain.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 39
+
+**Explain progressive growing for CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 40
+
+**Describe multi-scale discriminators.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 41
+
+**Discuss regularization techniques specific to CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 42
+
+**Explain semantic consistency losses.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 43
+
+**Describe cross-domain feature alignment.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 44
+
+**Discuss conditional CycleGAN variants.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 45
+
+**Explain deployment considerations for CycleGAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 46
+
+**Describe quality assessment metrics for unpaired translation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 47
+
+**Discuss ethical considerations in domain transfer.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 48
+
+**Explain recent improvements to CycleGAN architecture.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 49
+
+**Predict future directions for unpaired image translation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+
+---
+
+# --- Pix2Pix Questions (from 49_pix2pix) ---
+
+# Pix2Pix Interview Questions - Theory Questions
+
+## Question 1
+
+**Explain conditional GAN and its paired training data.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**Describe U-Net generator in Pix2Pix.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**Explain PatchGAN discriminator role.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**Discuss L1 reconstruction loss vs. adversarial loss balance.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 5
+
+**Explain importance of paired datasets (e.g., edges-to-photo).**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 6
+
+**Discuss limitations when pairs unavailable.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 7
+
+**Explain multi-scale discriminator variant.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 8
+
+**Describe Pix2PixHD improvements.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 9
+
+**Explain instance normalization benefits.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 10
+
+**Discuss pix2pix for style transfer.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 11
+
+**Explain semantic label to photo translation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 12
+
+**Discuss photorealism and tiling for high-res.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 13
+
+**Explain total variation loss addition.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 14
+
+**Describe domain adaptation from synthetic to real.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 15
+
+**Explain attention mechanism integration.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 16
+
+**Discuss paired depth-to-RGB translation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 17
+
+**Explain training schedule and progressive growing.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 18
+
+**Discuss evaluation metrics for Pix2Pix.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 19
+
+**Explain pix2pix for medical segmentation masks translation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 20
+
+**Describe interactive editing with pix2pix.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 21
+
+**Explain zero-shot pix2pix adaptation (pix2pix-Zero).**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 22
+
+**Discuss use in face frontalization.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 23
+
+**Explain energy-based adversarial training modifications.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 24
+
+**Describe env-to-map translation in autonomous driving.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 25
+
+**Explain identity preservation constraints.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 26
+
+**Discuss GAN illness and artifact removal.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 27
+
+**Explain pix2pix for anime line-art colorization.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 28
+
+**Describe differentiable rendering supervisory signals.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 29
+
+**Explain cross-domain escape.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 30
+
+**Discuss conditional batch norm.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 31
+
+**Explain interactive scribble-to-image generation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 32
+
+**Describe UNet++ deep supervision variant.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 33
+
+**Discuss mixup strategies for conditional GAN.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 34
+
+**Explain quantisation for mobile deployment.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 35
+
+**Describe cross-modal (sketch-to-sound) pix2pix.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 36
+
+**Discuss training paired dataset size effects.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 37
+
+**Explain curriculum learning in pix2pix.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 38
+
+**Describe noise injection for improved diversity.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 39
+
+**Explain spectral norm in generator.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 40
+
+**Discuss pix2pix in satellite imagery translation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 41
+
+**Explain adversarial perceptual loss.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 42
+
+**Describe use in data augmentation for segmentation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 43
+
+**Discuss semi-supervised pix2pix with limited pairs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 44
+
+**Explain mask-guided pix2pix.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 45
+
+**Describe safety filtering of generated images.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 46
+
+**Discuss dual discriminators for local and global realism.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 47
+
+**Explain diffusion-based pix2pix adaptation.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 48
+
+**Describe physics-guided pix2pix for scientific images.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 49
+
+**Discuss future directions in conditional GANs.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 50
+
+**Predict pix2pix's role amid diffusion models.**
+
+**Answer:** _[To be filled]_
+
+---
+
+
+---
+
+# --- Diffusion Models Questions (from 52_diffusion_models) ---
+
+# Diffusion Models - Theory Questions
+
+## Question 1
+**Explain forward diffusion process and noise scheduling.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**Describe reverse diffusion and denoising process.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**Explain DDPM (Denoising Diffusion Probabilistic Models).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**Describe DDIM (Denoising Diffusion Implicit Models) advantages.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**Explain U-Net architecture in diffusion models.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**Describe classifier guidance vs. classifier-free guidance.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**Explain latent diffusion models (Stable Diffusion).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**Describe VAE encoder-decoder in latent space.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**Explain CLIP text encoding for conditioning.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**Describe noise prediction vs. score matching.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**Explain timestep embedding and sinusoidal encoding.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**Describe attention mechanisms in diffusion U-Net.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**Explain sampling strategies (DDPM, DDIM, DPM-Solver).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**Compare deterministic vs. stochastic sampling.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**Describe inpainting with diffusion models.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**Explain outpainting and image extension.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**Describe ControlNet for spatial conditioning.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**Explain IP-Adapter for image prompting.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**Compare different noise schedules (linear, cosine).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**Describe multi-scale diffusion architectures.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**Explain video diffusion models.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**Describe 3D diffusion for shape generation.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**Explain audio diffusion models.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**Compare continuous vs. discrete timesteps.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**Describe training objective and loss functions.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**Explain gradient accumulation strategies.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**Describe mixed precision training benefits.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**Explain EMA (Exponential Moving Average) in training.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**Compare memory requirements during training/inference.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**Describe progressive distillation techniques.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**Explain consistency models for fast sampling.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**Describe edit-friendly inversions (DDIM inversion).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**Explain self-attention guidance.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**Describe cascading diffusion models.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**Discuss spectrogram diffusion for audio generation.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**Explain safe completions via policy guidance.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**Describe hardware acceleration (FP8) for diffusion.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**Explain mixture of experts diffusion.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**Discuss evaluation metrics (CLIP-FID).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**Explain diffusion vs. GANs advantages.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**Describe computational cost mitigation.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**Discuss legal considerations of dataset copyright.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**Explain multi-modal diffusion (image+depth).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**Describe timeline of diffusion research.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**Explain diffusion for super-resolution.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**Discuss slot diffusion for object compositionality.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**Explain zero-shot human motion diffusion.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**Describe guided diffusion in RL policy sampling.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**Predict future of diffusion in content creation.**
+
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- NeRF Questions (from 53_nerf) ---
+
+# Neural Radiance Fields (NeRF) - Theory Questions
+
+## Question 1
+**Explain volumetric rendering equation used in NeRF.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**Describe positional encoding and high-frequency mapping.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**Explain hierarchical sampling (coarse and fine networks).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**Discuss overfitting to a single scene.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**Explain view synthesis from posed images.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**Describe inverse rendering scenario.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**Explain NeRF-in-the-wild for unknown cameras.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**Discuss accelerating NeRF via mip-NeRF.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**Explain Instant-NGP's hash grid encoding.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**Describe Plenoxels (sparse voxels).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**Discuss PlenOctrees for real-time view generation.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**Explain dynamic NeRF for time-varying scenes.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**Describe implicit vs. explicit representations.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**Explain integrating normals estimation.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**Discuss NeRF for relighting.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**Explain depth supervision integration.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**Describe pose estimation with NeRF (iNeRF).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**Discuss neural scene graphs.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**Explain anti-aliasing in mip-NeRF-360.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**Describe oriented NeRF for novel view extrapolation.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**Explain semantic NeRF with multi-task loss.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**Discuss Radiance Fields for humans (NeRFies).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**Explain Gaussian Splatting acceleration idea.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**Describe importance sampling strategies.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**Explain memory footprint challenges.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**Discuss VR/AR application pipelines.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**Explain physically-based NeRF to model BRDF.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**Describe editing NeRF with local rigging.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**Explain multiview supervision number needed.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**Discuss combining NeRF and LiDAR.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**Explain 3-DGS vs. NeRF differences (see next section).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**Describe compression of NeRF models.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**Explain CODEC avatars from NeRF.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**Discuss generative NeRF (GenerNeRF).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**Explain distilling NeRF into mesh.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**Describe neural point light field.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**Explain path guiding in NeRF rendering.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**Discuss training acceleration with forward-facing scenes.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**Explain semantic editing brush for NeRF.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**Describe uncertainty estimation in NeRF.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**Explain gradient scaling of hash encodings.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**Discuss NeRF limitations outdoors.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**Explain neural reflectance fields.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**Describe spectral NeRF for wavelength-dependent scenes.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**Discuss privacy considerations of capturing scenes.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**Explain differentiable SLAM with NeRF integration.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**Describe knowledge distillation to Gaussian Splatting.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**Discuss future hardware (RTX, tensor cores).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**Explain NeRF for microscopy.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**Predict future real-time NeRF breakthroughs.**
+
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- 3D Gaussian Splatting Questions (from 54_3d_gaussian_splatting) ---
+
+# 3D Gaussian Splatting - Theory Questions
+
+## Question 1
+**Explain concept of representing a scene as millions of 3-D Gaussians.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**Describe ellipsoidal Gaussian parameters (means, covariances, opacities).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**Explain rasterisation vs. volumetric integration for splats.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**Discuss differentiable splatting render pipeline.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**Explain data capture and camera calibration requirements.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**Compare rendering speed of 3-DGS to NeRF.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**Describe memory footprint differences.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**Explain training objective for opacity and color.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**Discuss adaptive density pruning of Gaussians.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**Explain hierarchical Gaussians.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**Compare visual quality metrics to Instant-NGP.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**Explain fine-to-coarse training schedule.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**Discuss handling of thin structures.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**Explain foveated rendering possibilities.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**Compare novel view extrapolation accuracy.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**Discuss scalability to city-scale scenes.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**Explain interaction (editing) ease vs. NeRF.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**Describe progressive streaming of Gaussian data.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**Explain integrating dynamic motion in 3-DGS.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**Discuss GPU pipeline implementation specifics.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**Explain alias-free splatting filter.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**Compare radiance vs. surface representation.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**Explain BRDF modelling with 3-DGS.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**Discuss integration into game engines (Unity/UE).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**Explain photogrammetry vs. 3-DGS pipelines.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**Describe compression (quantisation of parameters).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**Explain silhouette supervision improvements.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**Discuss limitations in extreme lighting changes.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**Explain combining Gaussians with mesh proxy.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**Compare training time to NeRF techniques.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**Explain memory bandwidth vs. compute trade-off.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**Discuss gradient flow stability in splatting.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**Explain usage for real-time telepresence.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**Describe model-based vs. model-free editing.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**Explain hyper-parameter for Gaussian scale adaptation.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**Discuss depth-sensor fused Gaussian models.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**Explain zero-shot generalisation across scenes.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**Compare transparency handling in Gaussians vs. NeRF.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**Explain multi-resolution octree of Gaussians.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**Discuss research on neural Gaussian fields.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**Explain plug-and-play relighting.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**Describe evaluation datasets used in papers.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**Explain limitations of current GPU rasterisers.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**Discuss alignment of Gaussians using ICP.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**Explain anti-aliasing by covariance scaling.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**Compare gradient memory of NeRF vs. 3-DGS.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**Discuss potential hybrid models combining both.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**Explain open-source implementations (e.g., graphics-knt).**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**Describe future hardware acceleration possibilities.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**Summarise key advantages and open challenges relative to NeRF.**
+
+**Answer:** _To be filled_
+
+---

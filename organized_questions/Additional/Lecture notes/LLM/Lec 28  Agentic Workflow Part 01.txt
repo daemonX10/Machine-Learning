@@ -1,0 +1,5218 @@
+00:00 Uh so today we'll continue our lecture
+00:02 
+
+00:02 series on uh LLMs and tools. So today
+00:05 
+
+00:05 we'll start about uh start this new
+00:08 
+
+00:08 topic called agentic workflows. So far
+00:10 
+
+00:10 uh we've been uh looking at how LLMs use
+00:14 
+
+00:14 tools uh and and how they can leverage
+00:17 
+
+00:17 the benefit of tools in addition to the
+00:19 
+
+00:19 reasoning that they already have,
+00:20 
+
+00:20 reasoning ability they already have and
+00:22 
+
+00:22 we also saw how uh external tools can be
+00:26 
+
+00:26 provided during inference time and the
+00:28 
+
+00:28 model can still leverage it. So now
+00:30 
+
+00:30 we'll be looking a bit into what is
+00:32 
+
+00:32 called agentic workflow. Uh so I'll
+00:34 
+
+00:34 discuss what is agentic workflow and
+00:36 
+
+00:36 some uh very uh popular papers uh from
+00:41 
+
+00:41 this particular field that initially set
+00:43 
+
+00:43 the tone of this field. Right.
+00:47 
+
+00:47 Yeah. So, so these uh agentic workflows
+00:50 
+
+00:50 are going to be uh the basis for how
+00:52 
+
+00:52 people started to build or people
+00:54 
+
+00:54 started to automate complex tasks that
+00:56 
+
+00:56 people typically do and these are now
+00:58 
+
+00:58 commonly referred to as uh AI agents
+01:00 
+
+01:00 like first let's define what agentic
+01:02 
+
+01:02 workflow is before getting into the
+01:05 
+
+01:05 details. So to do that I think it's
+01:07 
+
+01:07 easier to dis to sort of differentiate
+01:10 
+
+01:10 between agentic and non-agentic
+01:12 
+
+01:12 workflows. So uh so there was this uh uh
+01:16 
+
+01:16 YouTube video by Andrew Ng which sort of
+01:19 
+
+01:19 initially set the tone very well for
+01:21 
+
+01:21 this particular uh
+01:24 
+
+01:24 term. So so what he refers to as a
+01:27 
+
+01:27 non-agentic workflow is like similar to
+01:30 
+
+01:30 the auto reggressive behavior of LMS. So
+01:33 
+
+01:33 when you give it a task, let's say your
+01:35 
+
+01:35 task is write an essay about IIT Delhi,
+01:39 
+
+01:39 right? So then what would an uh auto
+01:41 
+
+01:41 reggressive model do? Uh it would start
+01:43 
+
+01:43 generating one token at a time from the
+01:46 
+
+01:46 beginning of the essay till the end of
+01:47 
+
+01:47 the essay. Right? So in one go it will
+01:49 
+
+01:49 generate the entire essay. Right? So
+01:52 
+
+01:52 that is what is referred to as
+01:53 
+
+01:53 non-agentic workflow. And what is
+01:57 
+
+01:57 referred to as agentic workflow is that
+01:60 
+
+01:60 uh rather than doing it in one shot uh
+02:03 
+
+02:03 maybe first uh you would define multiple
+02:06 
+
+02:06 different subtasks in writing an essay.
+02:08 
+
+02:08 One subtask would be uh just writing the
+02:11 
+
+02:11 outline of the essay, right? Not the
+02:13 
+
+02:13 entire essay in one go. Uh then after
+02:16 
+
+02:16 you write the outline of the essay,
+02:18 
+
+02:18 maybe you will decide okay these topics
+02:20 
+
+02:20 I'm comfortable with. I know what these
+02:22 
+
+02:22 are and I can write them but these uh
+02:25 
+
+02:25 topics in my outlines is not something
+02:27 
+
+02:27 that I'm very comfortable with. So
+02:29 
+
+02:29 probably I'll do some research on my own
+02:31 
+
+02:31 probably using the web or by reading
+02:34 
+
+02:34 books and then you understand them and
+02:36 
+
+02:36 then you write first draft of each of
+02:38 
+
+02:38 the sections uh and then you would read
+02:42 
+
+02:42 them again from from first to the end
+02:45 
+
+02:45 and then you realize okay some things
+02:46 
+
+02:46 are working some things are not working
+02:48 
+
+02:48 the flow is not right maybe after I
+02:50 
+
+02:50 write the fifth section I realized the
+02:52 
+
+02:52 first section I should have pitched the
+02:53 
+
+02:53 introduction better right so so again
+02:56 
+
+02:56 you revise your draft and then you keep
+02:58 
+
+02:58 doing this on and on until you're happy
+02:60 
+
+02:60 with the essay. Right? So this is an
+03:02 
+
+03:02 agentic workflow where you don't do
+03:05 
+
+03:05 things in one shot but rather uh you
+03:08 
+
+03:08 divide them into however it makes it it
+03:11 
+
+03:11 makes sense for you and then iterate
+03:13 
+
+03:13 over it multiple times before you say
+03:15 
+
+03:15 that I'm done with a job. Right? So so
+03:18 
+
+03:18 so the same thing what they say is like
+03:20 
+
+03:20 if you if you want to if you directly
+03:22 
+
+03:22 use an LLM to generate an essay then
+03:24 
+
+03:24 it's zero shot or non-agentic way of
+03:26 
+
+03:26 doing things. But if you if you yourself
+03:29 
+
+03:29 or if there's an automated way in which
+03:31 
+
+03:31 you can tell the LLMs that first I'll
+03:33 
+
+03:33 give you this prompt. You generate the
+03:35 
+
+03:35 outline of the entire essay and then uh
+03:39 
+
+03:39 for I will send you each topic at a
+03:41 
+
+03:41 time. You tell me what information you
+03:42 
+
+03:42 know about it and whether you need
+03:44 
+
+03:44 additional information or not and then
+03:46 
+
+03:46 you give it probably the web search tool
+03:48 
+
+03:48 saying that okay in cases where you need
+03:50 
+
+03:50 more information search the web using
+03:52 
+
+03:52 this tool figure out more information.
+03:55 
+
+03:55 uh and then you ask it to write a first
+03:56 
+
+03:56 draft and then you have some sort of a
+03:59 
+
+03:59 mechanism where it looks at multiple
+04:01 
+
+04:01 subsections and and then reviews it
+04:03 
+
+04:03 right and then finally ask it to polish
+04:05 
+
+04:05 the entire essay again right so this is
+04:07 
+
+04:07 the difference between agentic and
+04:09 
+
+04:09 non-agentic workflows right make sense
+04:12 
+
+04:12 look at a concrete example of how the
+04:15 
+
+04:15 performance of uh popular LLMs are on
+04:18 
+
+04:18 agentic and non-agentic workflows for
+04:20 
+
+04:20 that let's take this ex of human eval
+04:23 
+
+04:23 this is a coding data where the input is
+04:27 
+
+04:27 uh a description of what the model is
+04:30 
+
+04:30 supposed to code and it also gives an
+04:32 
+
+04:32 outline or a function definition of what
+04:34 
+
+04:34 this function should look like. The
+04:36 
+
+04:36 model should fill up what is in the
+04:38 
+
+04:38 yellow part which is the actual meat of
+04:39 
+
+04:39 the function, right? Uh and once the the
+04:43 
+
+04:43 the meat of the function gets filled up,
+04:46 
+
+04:46 then this particular data set for each
+04:48 
+
+04:48 example they have some executable unit
+04:50 
+
+04:50 test cases. So if the generated code is
+04:53 
+
+04:53 successful is is successful if all the
+04:56 
+
+04:56 test cases pass through. Right? So that
+04:58 
+
+04:58 is a setup. This was generated by humans
+05:01 
+
+05:01 and uh it it was a pretty good uh data
+05:04 
+
+05:04 set and it is used even now for
+05:06 
+
+05:06 measuring LLM's ability to do uh coding.
+05:10 
+
+05:10 So so in this setup uh let's see how
+05:13 
+
+05:13 agentic and non-agentic uh
+05:17 
+
+05:17 workflows perform. [snorts] Right? So
+05:19 
+
+05:19 here zero shot is that you you give it
+05:21 
+
+05:21 the description of the task and then you
+05:23 
+
+05:23 give the problem that it's supposed to
+05:25 
+
+05:25 solve. The model should uh generate what
+05:27 
+
+05:27 is in the yellow right the the meat of
+05:28 
+
+05:28 the function. So GPD 3.5 has about 48%
+05:33 
+
+05:33 uh accuracy on it uh and GPD 4 has 67%
+05:38 
+
+05:38 accuracy on it. So these are the
+05:40 
+
+05:40 non-aggentic
+05:41 
+
+05:41 uh
+05:43 
+
+05:43 way of solving the task and then uh a
+05:47 
+
+05:47 bunch of all the other techniques that
+05:49 
+
+05:49 are on the right are agentic way of
+05:52 
+
+05:52 solving the task where you just don't
+05:54 
+
+05:54 generate the solution in one shot but in
+05:56 
+
+05:56 you divide them into subp parts or you
+05:58 
+
+05:58 have certain other components which will
+06:00 
+
+06:00 reflect on its own output and then uh
+06:03 
+
+06:03 finally uh it will iterate through
+06:05 
+
+06:05 multiple cycles and finally say that I'm
+06:06 
+
+06:06 done now you can evaluate the code
+06:08 
+
+06:08 Right. So, uh, intervenor is is one such
+06:12 
+
+06:12 example where like there is a there are
+06:16 
+
+06:16 two specific prompts. One is called the
+06:18 
+
+06:18 student prompt which is in the box A and
+06:20 
+
+06:20 there is another prompt called teacher
+06:22 
+
+06:22 prompt. The student prompt is just given
+06:24 
+
+06:24 the problem description at hand and
+06:26 
+
+06:26 asked to generate the code for it. Or if
+06:29 
+
+06:29 the teacher has given some feedback then
+06:31 
+
+06:31 in addition to the problem it takes the
+06:33 
+
+06:33 teacher's feedback as well and generates
+06:34 
+
+06:34 the code. And the teacher of course the
+06:37 
+
+06:37 goal is uh you have access so you you
+06:40 
+
+06:40 have the ability to run your code and
+06:42 
+
+06:42 then you see how the code performs and
+06:44 
+
+06:44 then based on the error messages it
+06:46 
+
+06:46 receives the teacher will critique uh uh
+06:48 
+
+06:48 like what what went wrong uh in in in
+06:51 
+
+06:51 the in the in this process like how how
+06:53 
+
+06:53 should the code have been better
+06:54 
+
+06:54 generated and then that feedback is fed
+06:57 
+
+06:57 back right so uh there will be a point
+06:58 
+
+06:58 where the teacher says it's good or or
+07:01 
+
+07:01 just the uh the envir environment will
+07:03 
+
+07:03 give you a signal saying All good.
+07:05 
+
+07:05 Right? So in those scenarios, you will
+07:07 
+
+07:07 stop and then you will measure the
+07:08 
+
+07:08 performance of the code after the loop.
+07:11 
+
+07:11 Right? So as you see that it took about
+07:16 
+
+07:16 uh like one iteration of GPT to increase
+07:18 
+
+07:18 the uh the accuracy from 48 to 67%.
+07:23 
+
+07:23 Right? About 20% jump. But rather than
+07:26 
+
+07:26 doing it in single shot, if you just let
+07:28 
+
+07:28 the model uh like iteratively design the
+07:32 
+
+07:32 solution, then you see you can already
+07:34 
+
+07:34 achieve somewhere north of 70%. Right?
+07:37 
+
+07:37 So so the the the advantage of agentic
+07:40 
+
+07:40 workflow is that uh at the cost
+07:45 
+
+07:45 of running more inferences, you will end
+07:47 
+
+07:47 up getting way better accuracy uh than
+07:50 
+
+07:50 what you would get if you run just the
+07:52 
+
+07:52 model once. Right? So you can always
+07:55 
+
+07:55 trade off if you if you so this is a
+07:57 
+
+07:57 good trade-off that if you want to
+07:58 
+
+07:58 choose accuracy you would build a
+07:60 
+
+08:00 solution that is more agentic in nature
+08:02 
+
+08:02 and if you want to save cost then you
+08:04 
+
+08:04 will try to reduce it further right so
+08:08 
+
+08:08 so in addition to this there are also
+08:10 
+
+08:10 other advantages in the sense that uh
+08:13 
+
+08:13 let's say that you don't have enough
+08:14 
+
+08:14 hardware to host a very big model like
+08:18 
+
+08:18 230 billion model or 540 billion model
+08:21 
+
+08:21 and you only have uh like the GPU
+08:24 
+
+08:24 hardware necessary to only host a 32
+08:26 
+
+08:26 billion model right so in that case it's
+08:29 
+
+08:29 better if you generate an agentic
+08:31 
+
+08:31 approach maybe you may get similar
+08:34 
+
+08:34 accuracies as a big model because you
+08:37 
+
+08:37 for a smaller model you can run it
+08:38 
+
+08:38 iteratively multiple times the cost may
+08:40 
+
+08:40 not be that high right so so there are
+08:42 
+
+08:42 other advantages as well so so agentic
+08:45 
+
+08:45 workflow is mostly studied for for this
+08:47 
+
+08:47 particular aspect and there are also
+08:49 
+
+08:49 cases where uh agentic workflows are
+08:53 
+
+08:53 crucial in the sense that uh like in in
+08:57 
+
+08:57 some cases accuracy is of utmost
+08:59 
+
+08:59 importance right for example banking
+09:01 
+
+09:01 sector right you can't uh you you can't
+09:04 
+
+09:04 afford to have uh less accuracy in that
+09:07 
+
+09:07 if you design a bot for making
+09:08 
+
+09:08 transactions right so in those cases you
+09:11 
+
+09:11 can push the boundaries of what the
+09:12 
+
+09:12 models can do by by by by building
+09:15 
+
+09:15 agentic solutions rather than directly
+09:17 
+
+09:17 using what DLM gives you out of the box
+09:19 
+
+09:19 right
+09:21 
+
+09:21 so with that in
+09:22 
+
+09:22 uh let's look at uh what where they the
+09:26 
+
+09:26 the the initial papers that that sort of
+09:30 
+
+09:30 uh helped us understand these uh
+09:32 
+
+09:32 advantages of agentic solutions right so
+09:34 
+
+09:34 these are very uh initial papers in this
+09:36 
+
+09:36 domain now now things have evolved a lot
+09:40 
+
+09:40 uh but let's go through these uh papers
+09:42 
+
+09:42 to understand how these benefit right so
+09:46 
+
+09:46 to uh so just like how human eval helped
+09:48 
+
+09:48 us understand uh the the benefit of
+09:50 
+
+09:50 agentic versus non-agent authentic.
+09:52 
+
+09:52 There is also another data set that's
+09:54 
+
+09:54 popularly used. Uh it's a QA data set
+09:56 
+
+09:56 and it's called uh hotspot QA. Uh this
+09:59 
+
+09:59 is a multihop
+10:01 
+
+10:01 uh reasoning data set. What it means is
+10:04 
+
+10:04 that uh look look at the question right
+10:07 
+
+10:07 to what team was the 2014 NBA Rookie of
+10:11 
+
+10:11 the Year traded in October 2016? Right?
+10:14 
+
+10:14 So here uh and the answer is uh Chicago
+10:18 
+
+10:18 Bulls. So if you have to answer this
+10:21 
+
+10:21 question right and let's say that you
+10:23 
+
+10:23 don't know anything about uh basketball
+10:25 
+
+10:25 or NBA to begin with. So how would you
+10:27 
+
+10:27 go about answering this question? Let's
+10:29 
+
+10:29 say I I give you access to the internet.
+10:32 
+
+10:32 So so how would you uh how would you uh
+10:35 
+
+10:35 like use internet to answer this
+10:37 
+
+10:37 question?
+10:40 
+
+10:40 >> Right. So how would you query the the
+10:42 
+
+10:42 the search engine?
+10:47 
+
+10:47 >> Right.
+10:48 
+
+10:48 >> Yeah.
+10:49 
+
+10:49 that
+10:50 
+
+10:50 >> makes sense. So, so if you directly post
+10:53 
+
+10:53 this question on the web, it's very
+10:55 
+
+10:55 unlikely that you will get a good hit,
+10:57 
+
+10:57 right? Because the the the so the
+10:59 
+
+10:59 question is a little complex and and
+11:01 
+
+11:01 typically there may not exist uh any uh
+11:05 
+
+11:05 any pages on the internet that will
+11:06 
+
+11:06 directly answer this question. So like
+11:08 
+
+11:08 he said the best idea is to split this
+11:11 
+
+11:11 question into multiple parts uh and then
+11:13 
+
+11:13 based on the output of the first
+11:15 
+
+11:15 question you rephrase the second
+11:16 
+
+11:16 question and then figure out how to uh
+11:19 
+
+11:19 use that question and then look at the
+11:21 
+
+11:21 results and figure out what the answer
+11:22 
+
+11:22 is. Right? So that's exactly how uh this
+11:25 
+
+11:25 data set was designed. So uh the the
+11:28 
+
+11:28 information that's necessary to answer
+11:29 
+
+11:29 these questions uh comes from two
+11:31 
+
+11:31 different documents in the indexed rag
+11:33 
+
+11:33 corpus. Right? So you will have to first
+11:35 
+
+11:35 figure out uh the document uh about
+11:39 
+
+11:39 Michael Carter Williams. So basically if
+11:42 
+
+11:42 you search who's a rookie of the year
+11:44 
+
+11:44 2014, you're very likely to hit this
+11:47 
+
+11:47 particular document because of the
+11:48 
+
+11:48 phrasing here. And with this document,
+11:50 
+
+11:50 you will be able to figure out that
+11:52 
+
+11:52 Michael Carter Williams was the person
+11:54 
+
+11:54 who was awarded the rookie of the year.
+11:56 
+
+11:56 And although here it also has additional
+11:58 
+
+11:58 information like he has also played for
+12:00 
+
+12:00 Milwaukee Bucks and Chicago Bulls. But
+12:03 
+
+12:03 if you don't know the answer, you may
+12:04 
+
+12:04 not be able to pick which of these two
+12:06 
+
+12:06 teams was a team that he was traded on.
+12:08 
+
+12:08 So what you would end up do doing is
+12:10 
+
+12:10 that you will probably search for
+12:12 
+
+12:12 October 2016 trade and Michael Carter
+12:15 
+
+12:15 Williams in your second query. uh that
+12:18 
+
+12:18 will yield you to the next uh document
+12:20 
+
+12:20 which is uh which is this one about the
+12:23 
+
+12:23 201617 uh Chicago Bulls season
+12:25 
+
+12:25 information page on Wikipedia where it
+12:27 
+
+12:27 clearly says that the Bulls traded Tony
+12:29 
+
+12:29 Snell to Milwaukee Bucks for Michael
+12:31 
+
+12:31 Carter on October 17, 2016. Right? So,
+12:36 
+
+12:36 so this is an uh this is so this is a
+12:38 
+
+12:38 setup which helps us uh study agentic
+12:43 
+
+12:43 workflows better. Right? Because if you
+12:46 
+
+12:46 directly post this to an LLM, right? Of
+12:48 
+
+12:48 course, LLMs will have the memory uh
+12:51 
+
+12:51 where they have all the information in
+12:53 
+
+12:53 their parameters, Wikipedia information
+12:55 
+
+12:55 would be there. But in addition to just
+12:57 
+
+12:57 remembering the facts, it should be able
+12:58 
+
+12:58 to reason that okay, I need to get
+12:60 
+
+13:00 information from these two paragraphs of
+13:01 
+
+13:01 Wikipedia that I memorized and and I
+13:04 
+
+13:04 need to arrive at this answer. And of
+13:06 
+
+13:06 course the other approach would be that
+13:07 
+
+13:07 if you have a corpus of these Wikipedia
+13:09 
+
+13:09 pages uh then uh you may have uh a
+13:13 
+
+13:13 prompt which will divide the question
+13:15 
+
+13:15 into two parts right you may have a
+13:17 
+
+13:17 prompt that will do a retrieval search
+13:19 
+
+13:19 uh which will figure out what is a query
+13:21 
+
+13:21 that you should use for retrieval search
+13:22 
+
+13:22 for the first question and then you get
+13:24 
+
+13:24 back the results see what the results
+13:26 
+
+13:26 look like decide whether you need more
+13:27 
+
+13:27 results or you're good with it. So this
+13:30 
+
+13:30 type of uh data set will actually help
+13:33 
+
+13:33 you study uh agentic workflows in a much
+13:36 
+
+13:36 more principled way. Right? So so there
+13:38 
+
+13:38 are also other benchmarks as well like
+13:41 
+
+13:41 programming benchmarks is one such type.
+13:42 
+
+13:42 This QA is one. There is also uh
+13:45 
+
+13:45 something that people use uh for for
+13:47 
+
+13:47 complex uh reasoning and other things.
+13:49 
+
+13:49 But for now, for most of our discussion
+13:51 
+
+13:51 here, we'll look into programming uh
+13:54 
+
+13:54 based tasks uh and hot pot uh and and
+13:57 
+
+13:57 multihop uh reasoning data sets.
+14:02 
+
+14:02 So, so let's see how standard techniques
+14:04 
+
+14:04 work. So, here uh let's take this
+14:06 
+
+14:06 example which is uh aside from Apple
+14:09 
+
+14:09 remote uh what other device can control
+14:12 
+
+14:12 the program Apple was originally
+14:15 
+
+14:15 designed to interact with? Again, this
+14:17 
+
+14:17 is a multihop question. uh first you
+14:19 
+
+14:19 will have to answer the question what is
+14:20 
+
+14:20 a program for which Apple remote was
+14:23 
+
+14:23 originally designed for and then once
+14:25 
+
+14:25 you know the answer then you need to
+14:27 
+
+14:27 figure out what other devices can
+14:29 
+
+14:29 control that particular program and then
+14:31 
+
+14:31 give out the the the other uh option
+14:34 
+
+14:34 right so so standard prompting is where
+14:36 
+
+14:36 this is the non-aggentic workflow where
+14:38 
+
+14:38 you give the question and then you let
+14:40 
+
+14:40 the LLM answer right away from its uh in
+14:42 
+
+14:42 this situation it is the memory the the
+14:45 
+
+14:45 the parameters of the model itself right
+14:47 
+
+14:47 so So the model comes back and says iPod
+14:50 
+
+14:50 right which is apparently not the right
+14:52 
+
+14:52 answer and you might have also come
+14:56 
+
+14:56 across this particular technique called
+14:57 
+
+14:57 chain of thought again this is also a
+14:60 
+
+14:60 non-agentic setup where rather than
+15:02 
+
+15:02 directly generating the answer uh you
+15:05 
+
+15:05 you you reason what the answer should be
+15:07 
+
+15:07 with respect to the question and then
+15:09 
+
+15:09 once you reason through it then you
+15:10 
+
+15:10 arrive at the answer again this is a
+15:12 
+
+15:12 non-agentic behavior it's just that it
+15:15 
+
+15:15 will the reasoning will probably help
+15:17 
+
+15:17 the model to better uh to to better
+15:19 
+
+15:19 understand the problem and then
+15:21 
+
+15:21 correlate it to the solution at hand.
+15:23 
+
+15:23 Right? So here it says Apple remote was
+15:25 
+
+15:25 originally designed to interact with
+15:26 
+
+15:26 Apple TV. Apple TV can be controlled by
+15:29 
+
+15:29 iPhone, iPad and iPod touch. So most
+15:32 
+
+15:32 likely the the the part that went wrong
+15:35 
+
+15:35 is that Apple remote was uh uh designed
+15:38 
+
+15:38 for Apple TV, right? Uh so uh so so
+15:42 
+
+15:42 although it looks from based on a lot of
+15:44 
+
+15:44 information that the model has seen on
+15:45 
+
+15:45 the internet TV might be the most uh
+15:48 
+
+15:48 like common program that remote controls
+15:50 
+
+15:50 right uh so it probably assume that
+15:52 
+
+15:52 since Apple has a TV uh Apple remote
+15:55 
+
+15:55 would most likely be for Apple TV and so
+15:57 
+
+15:57 but probably the part that Apple TV can
+15:59 
+
+15:59 be controlled by other Apple products
+16:00 
+
+16:00 could be true right so most likely the
+16:02 
+
+16:02 model the reasoning is reasonable right
+16:05 
+
+16:05 uh but but it doesn't seem to arrive at
+16:08 
+
+16:08 the right sir.
+16:11 
+
+16:11 So, so in this situation, let's probably
+16:13 
+
+16:13 expose uh give give LLM access to a
+16:16 
+
+16:16 tool, right? And we say that okay, I'll
+16:19 
+
+16:19 uh I have a a corpus of Wikipedia pages.
+16:23 
+
+16:23 All these pages are indexed based on
+16:25 
+
+16:25 topic. So, if you give me a search
+16:27 
+
+16:27 query, I can give you a list of uh
+16:29 
+
+16:29 Wikipedia pages that match the search
+16:31 
+
+16:31 query. If you give me a search query
+16:33 
+
+16:33 that exactly matches the title of the
+16:35 
+
+16:35 Wikipedia page, I'll give you a few
+16:36 
+
+16:36 sentences from it. Okay? So they
+16:38 
+
+16:38 designed the search tool that way. So so
+16:41 
+
+16:41 here uh the model uh was first so here
+16:45 
+
+16:45 what the model should do is first
+16:47 
+
+16:47 predict uh the the search query and say
+16:51 
+
+16:51 that it it in this example it has access
+16:53 
+
+16:53 to two uh actions. One is the search
+16:56 
+
+16:56 action and the other is the finish
+16:57 
+
+16:57 action. So in the search action the
+16:59 
+
+16:59 parameter is what is the search query
+17:01 
+
+17:01 and in the finish action the parameter
+17:04 
+
+17:04 is what is the final answer. Right. Uh
+17:07 
+
+17:07 so based on the question and since it
+17:09 
+
+17:09 has access to Wikipedia, it decides the
+17:12 
+
+17:12 first uh search query it wants to uh
+17:16 
+
+17:16 fire is Apple remote. So it fired the
+17:18 
+
+17:18 query Apple remote and it got some
+17:20 
+
+17:20 information about it and from here it
+17:22 
+
+17:22 understood that Apple remote was
+17:24 
+
+17:24 originally uh designed for uh an
+17:26 
+
+17:26 application called uh front row right uh
+17:30 
+
+17:30 which is correct. Now uh it again
+17:32 
+
+17:32 searched for front row but looks like
+17:34 
+
+17:34 there are no uh Wikipedia pages that
+17:37 
+
+17:37 corresponds to front row. It might have
+17:39 
+
+17:39 a few other variations of it. So the
+17:41 
+
+17:41 similar part will suggest uh the
+17:43 
+
+17:43 Wikipedia pages that are very close to
+17:45 
+
+17:45 the query front row. And so front row
+17:47 
+
+17:47 software gave out the right
+17:50 
+
+17:50 uh gave out the right uh page. So it has
+17:53 
+
+17:53 access to some of these uh front row
+17:56 
+
+17:56 data. But finally for some reason the
+17:57 
+
+17:57 model was not able to arrive at the
+17:59 
+
+17:59 final answer. So, so at this point in
+18:01 
+
+18:01 time, it has the information necessary
+18:03 
+
+18:03 to arrive at the final answer. Uh, but
+18:05 
+
+18:05 for some reason, it is unable to arrive
+18:07 
+
+18:07 at the final answer. Right? So, so in
+18:09 
+
+18:09 this place, so this is an acton model
+18:12 
+
+18:12 and uh in this setup uh for the
+18:15 
+
+18:15 Wikipedia corpus, they had given three
+18:18 
+
+18:18 different action spaces because you are
+18:20 
+
+18:20 defining what actions are. Uh you are
+18:23 
+
+18:23 allowed to choose your action space
+18:25 
+
+18:25 however you want. This is just like
+18:26 
+
+18:26 designing an RL system, right? So when
+18:28 
+
+18:28 you design an RL system, you define the
+18:30 
+
+18:30 MTP by yourself. So you define what a
+18:32 
+
+18:32 state is, you define what an action is
+18:34 
+
+18:34 and things like that, right? And the
+18:36 
+
+18:36 observation is something that you will
+18:37 
+
+18:37 get from the environment, right? That's
+18:39 
+
+18:39 how RL works, right? So in this setup is
+18:41 
+
+18:41 similar to RL. Uh the state of the
+18:43 
+
+18:43 system is basically what you feed as
+18:45 
+
+18:45 input to the LLM, right? So that's the
+18:47 
+
+18:47 state of the system and the action is
+18:49 
+
+18:49 what all is LLM allowed to output. In
+18:52 
+
+18:52 this particular setup, the action is
+18:54 
+
+18:54 defined with the action space has three
+18:57 
+
+18:57 different actions. One is the search
+18:59 
+
+18:59 with a query. Second is a lookup. So
+19:01 
+
+19:01 once you arrive at the page, typically
+19:02 
+
+19:02 Wikipedia pages are pretty long. So the
+19:05 
+
+19:05 uh when you execute the search query,
+19:07 
+
+19:07 only the first five lines or something
+19:09 
+
+19:09 comes up uh back to the LLM, right? So
+19:12 
+
+19:12 but if you want to search in that page
+19:14 
+
+19:14 then you use this action called lookup
+19:16 
+
+19:16 which says if you give me a keyword I
+19:18 
+
+19:18 will get two lines above and two lines
+19:20 
+
+19:20 below the first match of that keyword.
+19:22 
+
+19:22 If you call it again it will give you
+19:23 
+
+19:23 the next match or it'll say uh end of
+19:25 
+
+19:25 match or things like that right and
+19:27 
+
+19:27 finally you are allowed to use the
+19:28 
+
+19:28 action finish uh with which whose
+19:30 
+
+19:30 arguments is the final answer with which
+19:31 
+
+19:31 you will uh you will evaluate the
+19:34 
+
+19:34 system. So then uh uh what uh this
+19:37 
+
+19:37 particular paper proposes is that uh
+19:40 
+
+19:40 chain of thought right has excellent
+19:42 
+
+19:42 reasoning ability right uh it's not just
+19:45 
+
+19:45 jumping into answer right away but it
+19:47 
+
+19:47 has an ability where it reasons with
+19:49 
+
+19:49 whatever information is presented to it
+19:51 
+
+19:51 and what information it has in its
+19:52 
+
+19:52 memory and then it's able to do a good
+19:54 
+
+19:54 job on reasoning. So the uh for most
+19:56 
+
+19:56 reasoning related questions it's doing a
+19:58 
+
+19:58 pretty good job. On the other hand, act
+20:01 
+
+20:01 only uh is very well grounded on facts,
+20:04 
+
+20:04 right? So because if you saw the chain
+20:06 
+
+20:06 of thought here, even though the
+20:08 
+
+20:08 reasoning was good, it was hallucinating
+20:10 
+
+20:10 that Apple TV was the program that was
+20:12 
+
+20:12 designed to use uh Apple remote, right?
+20:15 
+
+20:15 Uh so so in act only it does a pretty
+20:17 
+
+20:17 good job in grounding itself to the
+20:19 
+
+20:19 corpus and not hallucinating. But the
+20:21 
+
+20:21 issue with act was that uh it was not
+20:24 
+
+20:24 able to reason properly, right? because
+20:25 
+
+20:25 even though the answer might be in the
+20:27 
+
+20:27 front row uh page maybe it didn't look
+20:30 
+
+20:30 up it arrived at the answer very quickly
+20:32 
+
+20:32 right so so they they introduced this
+20:36 
+
+20:36 cycle of like
+20:38 
+
+20:38 tow which is thought action and
+20:41 
+
+20:41 observation right so what they said is
+20:43 
+
+20:43 that once the user query is provided the
+20:46 
+
+20:46 model has to first think through what it
+20:48 
+
+20:48 has to do like in in this sense it
+20:50 
+
+20:50 should think through uh to based on the
+20:53 
+
+20:53 question and the context that I'm
+20:54 
+
+20:54 provided what is the best action at this
+20:56 
+
+20:56 particular point in time. Right? So here
+20:58 
+
+20:58 it says that I need to search Apple
+20:60 
+
+20:60 remote and find the program it was
+21:01 
+
+21:01 originally designed to interact with
+21:03 
+
+21:03 right which is ob obviously right and
+21:04 
+
+21:04 and it did write here too it did write
+21:06 
+
+21:06 here too it without thinking it was able
+21:08 
+
+21:08 to get those right here too it was able
+21:10 
+
+21:10 to get those right uh even after
+21:12 
+
+21:12 thinking but uh in the fourth step right
+21:15 
+
+21:15 where the model said finish yes here the
+21:19 
+
+21:19 model sort of goes back to the question
+21:22 
+
+21:22 at hand which is this right and tries to
+21:24 
+
+21:24 understand okay what did I start with
+21:26 
+
+21:26 right We typically what happens is like
+21:28 
+
+21:28 you you start this tow the the action
+21:31 
+
+21:31 observation action observation cycle at
+21:33 
+
+21:33 some point in time you lose track of
+21:34 
+
+21:34 what you started with right so reasoning
+21:37 
+
+21:37 gets lost at some point in time so the
+21:40 
+
+21:40 good part about this thought process is
+21:42 
+
+21:42 that it helps you summarize things that
+21:46 
+
+21:46 you've done in the past in a nice way so
+21:48 
+
+21:48 that the next action becomes a lot more
+21:50 
+
+21:50 intuitive right so here the thought says
+21:52 
+
+21:52 front row software is controlled by
+21:55 
+
+21:55 Apple remote or or the keyboard function
+21:57 
+
+21:57 keys. So the answer is this, right? So
+21:59 
+
+21:59 it's able to get the information from
+22:02 
+
+22:02 the question and whatever output that it
+22:04 
+
+22:04 has got probably from this particular
+22:05 
+
+22:05 observation uh and then it's able to uh
+22:09 
+
+22:09 think through it and so the final answer
+22:11 
+
+22:11 is a lot more concrete here than the
+22:13 
+
+22:13 other approach. Right?
+22:17 
+
+22:17 So uh these guys in addition to hotspot
+22:20 
+
+22:20 QA also used another data set called
+22:22 
+
+22:22 fever. So the task here is very simple
+22:25 
+
+22:25 that you are provided with a fact like
+22:28 
+
+22:28 the fact could be stranger things is set
+22:30 
+
+22:30 in Bloomington Indiana or the fact could
+22:32 
+
+22:32 be that Nicola Coaster Waldo worked with
+22:36 
+
+22:36 the Fox Broadcasting Company. So your
+22:38 
+
+22:38 goal is that you're provided with
+22:40 
+
+22:40 Wikipedia corpus where there is
+22:42 
+
+22:42 information about people and entities
+22:44 
+
+22:44 that are mentioned here. So you are
+22:46 
+
+22:46 provided the same action space as what
+22:48 
+
+22:48 you had for hotspot QA. So you search,
+22:51 
+
+22:51 you look up uh and then finally you say
+22:54 
+
+22:54 whether this claim is supported by the
+22:56 
+
+22:56 corpus you have or it is refutes or
+22:59 
+
+22:59 there is more enough information to uh
+23:01 
+
+23:01 to conclude that whether this supports
+23:03 
+
+23:03 or it refuts. Right? So this is a
+23:05 
+
+23:05 similar task
+23:07 
+
+23:07 and we'll see how different techniques
+23:09 
+
+23:09 perform uh with with this on these two
+23:11 
+
+23:11 data sets. Right? So the way uh uh you
+23:14 
+
+23:14 measure uh performance on each data set
+23:17 
+
+23:17 is that for hotspot QA you measure exact
+23:19 
+
+23:19 match right? So exact match is that if
+23:21 
+
+23:21 the answer is three words long then your
+23:24 
+
+23:24 answer should also be three words long
+23:26 
+
+23:26 with those exact phrasing right and for
+23:29 
+
+23:29 fever is simply accuracy because you
+23:31 
+
+23:31 just have three out three uh classes of
+23:33 
+
+23:33 outputs. So whether the class match was
+23:36 
+
+23:36 right or wrong right so standard
+23:37 
+
+23:37 prompting is uh so all these three are
+23:40 
+
+23:40 uh non-agentic
+23:42 
+
+23:42 solutions you have standard uh chain of
+23:45 
+
+23:45 thought and there's also an a slight
+23:47 
+
+23:47 variation of chain of thought called
+23:49 
+
+23:49 chain of thought self-consistency so
+23:51 
+
+23:51 this is simply you set the temperature
+23:53 
+
+23:53 for inference to 7 you sample more than
+23:56 
+
+23:56 once typically an odd number of times in
+23:59 
+
+23:59 this particular paper they sampled 21
+24:01 
+
+24:01 times and then they chose the answer uh
+24:06 
+
+24:06 which occurred the most number of times
+24:08 
+
+24:08 right so that is it's it so basically
+24:10 
+
+24:10 you are using the LLM more times than
+24:11 
+
+24:11 what you would
+24:13 
+
+24:13 and because of this majority voting you
+24:15 
+
+24:15 would end up getting better accuracies
+24:17 
+
+24:17 than just doing it once right so this is
+24:19 
+
+24:19 chain of thought self-consistency uh now
+24:22 
+
+24:22 uh the other variants are act react uh
+24:25 
+
+24:25 so this is this should be obvious for
+24:27 
+
+24:27 you right act is like you're you're
+24:29 
+
+24:29 provided with a three action the action
+24:31 
+
+24:31 space that's given to you and you give a
+24:32 
+
+24:32 few short examples in the prompt and so
+24:34 
+
+24:34 the model should be able to follow those
+24:36 
+
+24:36 actions and then arrive at the answer.
+24:37 
+
+24:37 React is with thought and uh so like
+24:41 
+
+24:41 like I mentioned earlier even with react
+24:43 
+
+24:43 uh they found that chain of thought is
+24:46 
+
+24:46 still better at reasoning than react
+24:48 
+
+24:48 even though there is thought present in
+24:51 
+
+24:51 uh uh react chain of thought was still
+24:53 
+
+24:53 doing a better job when it came to
+24:55 
+
+24:55 reasoning and then coming up with the
+24:56 
+
+24:56 right answer. So they tried two
+24:59 
+
+24:59 different backoff based approaches. So
+25:01 
+
+25:01 here the primary uh so these are the two
+25:04 
+
+25:04 uh techniques in the bottom. So you
+25:07 
+
+25:07 start with a chain of thought
+25:08 
+
+25:08 self-consistency and out of 21 if none
+25:12 
+
+25:12 of the answers are more than 11 times uh
+25:15 
+
+25:15 11 or more times then you back off to
+25:17 
+
+25:17 react right. So if so so if you have
+25:20 
+
+25:20 high confidence on chain of thought
+25:22 
+
+25:22 self-consistency you go for that. If you
+25:24 
+
+25:24 don't have high confidence then you back
+25:25 
+
+25:25 off to react. Same with the other way.
+25:27 
+
+25:27 uh you do react first and then you give
+25:30 
+
+25:30 it number of iterations it can try right
+25:32 
+
+25:32 so say fix it to five or seven right in
+25:36 
+
+25:36 seven tow loops uh or seven tow
+25:38 
+
+25:38 iterations your the model is not seeing
+25:40 
+
+25:40 finish then stop right so if it is able
+25:44 
+
+25:44 to give you the finish action in less
+25:47 
+
+25:47 than five iterations or five iterations
+25:49 
+
+25:49 you take the output of react if it
+25:51 
+
+25:51 doesn't give you then you back off to
+25:53 
+
+25:53 coot self-consistency right
+25:58 
+
+25:58 So here the uh the conclusions are that
+26:01 
+
+26:01 uh react was always better than app
+26:03 
+
+26:03 right so so it's good to always have
+26:05 
+
+26:05 thought that is the that is one
+26:07 
+
+26:07 conclusion you can make and the second
+26:08 
+
+26:08 is like I mentioned earlier uh chain of
+26:11 
+
+26:11 thought is more likely to hallucinate uh
+26:14 
+
+26:14 than react because react you can show
+26:16 
+
+26:16 where you got the information from and
+26:18 
+
+26:18 so it's a lot more grounded and and and
+26:20 
+
+26:20 less likelihood to hallucinate of course
+26:22 
+
+26:22 it's not like it has no likelihood of
+26:24 
+
+26:24 hallucination it may will hallucinate
+26:26 
+
+26:26 when it generates the final answer,
+26:28 
+
+26:28 right? Even if it contains all the
+26:29 
+
+26:29 information. Uh
+26:32 
+
+26:32 and of course the other way around,
+26:33 
+
+26:33 React makes more reasoning errors than
+26:36 
+
+26:36 chain of thought, right? Uh so there's a
+26:38 
+
+26:38 trade-off between React and chain of
+26:40 
+
+26:40 thought as well. And and the most common
+26:42 
+
+26:42 issue is that it goes in this cycle of
+26:45 
+
+26:45 repeating the same action and thought,
+26:48 
+
+26:48 right? So because the history gets
+26:51 
+
+26:51 accumulated so high, right? So sometimes
+26:54 
+
+26:54 it goes into this loop of it makes a
+26:56 
+
+26:56 mistakes. Oh I to fix this mistake I
+26:58 
+
+26:58 will correct it this way that is also a
+26:60 
+
+26:60 mistake. So then it fix that mistake it
+27:01 
+
+27:01 goes back to the same previous mistake
+27:03 
+
+27:03 it makes right. So it keeps going in
+27:05 
+
+27:05 cycles. So that is a very common issue
+27:07 
+
+27:07 that react has and so people typically
+27:09 
+
+27:09 have this uh this uh in in practice
+27:13 
+
+27:13 people typically break off after okay
+27:14 
+
+27:14 after these many iterations uh if it
+27:16 
+
+27:16 doesn't give back the right uh thing or
+27:19 
+
+27:19 I will see like if it predicts the same
+27:21 
+
+27:21 action that it did before more than
+27:23 
+
+27:23 twice then I will stop doing react right
+27:26 
+
+27:26 and uh the other important part is uh
+27:29 
+
+27:29 react success is in this setup of
+27:32 
+
+27:32 hotspot QA and fever it is very much
+27:34 
+
+27:34 dependent on the search tool
+27:36 
+
+27:36 But a generalized statement is React's
+27:39 
+
+27:39 success is dependent on how you define
+27:42 
+
+27:42 the action space, right? Uh because
+27:45 
+
+27:45 nobody told you that you should only use
+27:47 
+
+27:47 search, look up and finish, right? You
+27:50 
+
+27:50 can use whatever action space you want,
+27:52 
+
+27:52 right? So so in general when you design
+27:54 
+
+27:54 React, the design of action space is
+27:56 
+
+27:56 very crucial in determining the success
+27:59 
+
+27:59 of whether your approach is going to
+28:01 
+
+28:01 work for this data set or not, right?
+28:08 
+
+28:08 So uh so let's now look at uh
+28:14 
+
+28:14 the correlation between size of the
+28:16 
+
+28:16 model
+28:17 
+
+28:17 and and react and and the other
+28:19 
+
+28:19 baselines, right? So uh let's look at uh
+28:24 
+
+28:24 this part of the graph first, right?
+28:26 
+
+28:26 Which is it's just a prompting based
+28:28 
+
+28:28 approach. You're not going to fine-tune
+28:30 
+
+28:30 the model, right? You take the model as
+28:31 
+
+28:31 is and whatever we discussed now we're
+28:33 
+
+28:33 just going to apply it here. So what it
+28:35 
+
+28:35 says is smaller models are good at
+28:37 
+
+28:37 directly answering the question right uh
+28:40 
+
+28:40 so if you see the one in blue which is
+28:42 
+
+28:42 the standard prompting they're doing
+28:44 
+
+28:44 good for some reason smaller models for
+28:46 
+
+28:46 hot part QA is not doing good on coot uh
+28:49 
+
+28:49 8 it model but as you increase the size
+28:51 
+
+28:51 of the model I think uh the model is
+28:54 
+
+28:54 better able to use coot and and arrive
+28:56 
+
+28:56 at the archer and also like in most
+28:58 
+
+28:58 cases the models have memorized uh
+29:00 
+
+29:00 Wikipedia so the capacity also helps in
+29:03 
+
+29:03 recollecting the facts better.
+29:06 
+
+29:06 And uh if you see act for 8 billion
+29:10 
+
+29:10 model, both act and react are super low
+29:12 
+
+29:12 compared to standard prompting
+29:13 
+
+29:13 techniques. Uh but but as and when the
+29:16 
+
+29:16 model sort of increases, it was hard to
+29:19 
+
+29:19 uh decipher what is going right and what
+29:21 
+
+29:21 is going wrong because the trends were
+29:23 
+
+29:23 different for uh there was not a
+29:25 
+
+29:25 monotonous increase a mon decrease in
+29:27 
+
+29:27 trends. There were a lot of other
+29:29 
+
+29:29 factors like your choice of action space
+29:32 
+
+29:32 uh the ability to reason how much model
+29:33 
+
+29:33 has memorized Wikipedia. So the data set
+29:36 
+
+29:36 was not so conducive to clearly draw a
+29:37 
+
+29:37 trend of what is happening what is not
+29:39 
+
+29:39 happening. So most of these results are
+29:41 
+
+29:41 not so conclusive but the part is that
+29:44 
+
+29:44 uh it sort of looks like uh react by
+29:48 
+
+29:48 itself is not able to beat coot
+29:51 
+
+29:51 right so that is a conclusion you can
+29:52 
+
+29:52 draw from this and from the previous
+29:54 
+
+29:54 table as well right uh but on the other
+29:57 
+
+29:57 hand what is interesting is that if you
+29:59 
+
+29:59 are allowed to fine-tune right for this
+30:02 
+
+30:02 data set you know all the successful
+30:04 
+
+30:04 trajectories like for for things that
+30:06 
+
+30:06 match the answers you know the
+30:07 
+
+30:07 trajectory is right right and then if
+30:09 
+
+30:09 you fine fine tune the model using those
+30:11 
+
+30:11 it is clear that react and act are
+30:13 
+
+30:13 better than cootb based training
+30:17 
+
+30:17 right so so this was a very good insight
+30:19 
+
+30:19 from the paper so if you had other
+30:24 
+
+30:24 benchmarks or other use cases where the
+30:27 
+
+30:27 answer cannot come from the model's own
+30:31 
+
+30:31 memory right then it's very likely that
+30:33 
+
+30:33 react and act would be better than coot
+30:37 
+
+30:37 right uh so So, so this was a conclusion
+30:41 
+
+30:41 from this. So, let's take one such
+30:43 
+
+30:43 example where uh the answer cannot
+30:46 
+
+30:46 simply come from the model's internal
+30:49 
+
+30:49 memory. Right? So, one such uh agentic
+30:52 
+
+30:52 workflow or what one such task that got
+30:54 
+
+30:54 extremely popular was uh something
+30:56 
+
+30:56 called uh Swebench
+30:58 
+
+30:58 software engineering benchmark. Uh so
+31:01 
+
+31:01 what this benchmark has is that uh
+31:04 
+
+31:04 they've crawled 12 different Python
+31:06 
+
+31:06 based GitHub repositories and uh they
+31:09 
+
+31:09 did a lot of filtering to identify 2,294
+31:12 
+
+31:12 GitHub issues associated with these uh
+31:15 
+
+31:15 12 different repositories. So, so the
+31:17 
+
+31:17 issue may look like the data leak in
+31:19 
+
+31:19 GBDT due to warm start and then it
+31:21 
+
+31:21 describes the whole issue which is the
+31:24 
+
+31:24 first post of the GitHub right issue and
+31:26 
+
+31:26 then uh it is also provided with the
+31:28 
+
+31:28 entire code base right uh the entire
+31:31 
+
+31:31 code base of where this issue was
+31:33 
+
+31:33 reported right so you take the commit
+31:35 
+
+31:35 before when the issue was reported and
+31:37 
+
+31:37 then you take that particular commit and
+31:39 
+
+31:39 that represents your code base right so
+31:41 
+
+31:41 the code base is not same for all issues
+31:43 
+
+31:43 within that particular report right uh
+31:46 
+
+31:46 And then the goal is for a language
+31:49 
+
+31:49 model to create a pull request for this
+31:52 
+
+31:52 particular issue. Right? And they
+31:54 
+
+31:54 already have designed unit test cases uh
+31:57 
+
+31:57 which are some unit test cases are
+31:59 
+
+31:59 specific for the issue that is and
+32:01 
+
+32:01 associated with the issue that is
+32:02 
+
+32:02 provided here. Okay. And some of these
+32:04 
+
+32:04 test cases in general were passing and
+32:07 
+
+32:07 they they were they were associated with
+32:08 
+
+32:08 the code base all the features
+32:10 
+
+32:10 associated with the code base here.
+32:12 
+
+32:12 Right. Uh so the goal is uh once if your
+32:16 
+
+32:16 your PR is good
+32:20 
+
+32:20 and accurate if the new test cases are
+32:24 
+
+32:24 all passing and the old test cases are
+32:29 
+
+32:29 also passing like it it should not
+32:31 
+
+32:31 happen that the new test cases are
+32:32 
+
+32:32 passing but the old ones are getting
+32:34 
+
+32:34 screwed up right so so so this is the
+32:36 
+
+32:36 the entire uh benchmark uh and of course
+32:41 
+
+32:41 the obvious issue here is that uh you
+32:44 
+
+32:44 won't be able to fit the entire input
+32:46 
+
+32:46 into the LLM's prompt, right? So this is
+32:50 
+
+32:50 an this is a pretty big code base and it
+32:53 
+
+32:53 is almost impossible for you to fit uh
+32:55 
+
+32:55 the entire code base into the prompt. So
+32:58 
+
+32:58 if so based on whatever you've studied
+33:00 
+
+33:00 so far uh what how would you design a
+33:03 
+
+33:03 solution for this particular problem at
+33:05 
+
+33:05 hand?
+33:10 
+
+33:10 It's particular.
+33:13 
+
+33:13 >> So how do you that's a good point. So
+33:15 
+
+33:15 you localize a problem so that you
+33:17 
+
+33:17 reduce the size of the problem. So how
+33:18 
+
+33:18 how would you localize the problem?
+33:24 
+
+33:24 previous
+33:26 
+
+33:26 success
+33:29 
+
+33:29 what the issue was and what
+33:34 
+
+33:34 >> so you're saying maybe we could create a
+33:36 
+
+33:36 training data using uh previous PRs and
+33:40 
+
+33:40 uh the edits that were made during for
+33:42 
+
+33:42 the pull request that was created for
+33:44 
+
+33:44 that comet and then use that to
+33:45 
+
+33:45 fine-tune a language model uh which can
+33:48 
+
+33:48 sorry
+33:48 
+
+33:48 >> could be a
+33:49 
+
+33:49 >> yeah that could be a way uh of course
+33:51 
+
+33:51 that is a good way to synthesize data.
+33:54 
+
+33:54 So let's say that you don't have the
+33:56 
+
+33:56 luxury to fine-tune a model. Uh if that
+33:59 
+
+33:59 is the case, what would be an obvious
+34:00 
+
+34:00 solution?
+34:10 
+
+34:10 So how would you reduce the size of the
+34:12 
+
+34:12 code base? You probably would pick a
+34:14 
+
+34:14 subset of it rather than the entire set.
+34:16 
+
+34:16 That's your solution, right? So how
+34:18 
+
+34:18 would you pick a subset given that you
+34:19 
+
+34:19 have the issue at hand? Issue is always
+34:22 
+
+34:22 provided to you, right? So once you have
+34:23 
+
+34:23 issues how would you select a subset of
+34:25 
+
+34:25 the code base uh from based on the issue
+34:29 
+
+34:29 >> create indexes
+34:37 
+
+34:37 index
+34:41 
+
+34:41 >> right
+34:42 
+
+34:42 >> makes sense. So one easy approach is uh
+34:44 
+
+34:44 index the code uh maybe just by
+34:47 
+
+34:47 searching using the issue you may get
+34:48 
+
+34:48 some hits uh maybe you can look at those
+34:51 
+
+34:51 uh and then figure out whether it will
+34:52 
+
+34:52 help me solve the problem whether this
+34:55 
+
+34:55 problem defined can is sort of
+34:57 
+
+34:57 associated with this code base or not
+34:58 
+
+34:58 and you can sort of iteratively get to
+35:01 
+
+35:01 what you want right so yes you're right
+35:03 
+
+35:03 so the obvious first solution is that
+35:06 
+
+35:06 you do rag right you don't define any
+35:09 
+
+35:09 action space or anything just say rag I
+35:11 
+
+35:11 will take the top k documents
+35:12 
+
+35:12 uh and then I'll see whether the
+35:14 
+
+35:14 documents uh based on the retrieve
+35:16 
+
+35:16 documents I'll provide what should be my
+35:18 
+
+35:18 PR right so
+35:21 
+
+35:21 so that is uh typically the first
+35:23 
+
+35:23 solution and that was a solution that
+35:25 
+
+35:25 was proposed as baseline as well uh but
+35:28 
+
+35:28 now now that you know react right uh now
+35:31 
+
+35:31 that you know react uh do you think uh
+35:34 
+
+35:34 just looking at the retrieved uh code
+35:38 
+
+35:38 base would always be right
+35:41 
+
+35:41 if you retrieve top kh snippets from
+35:45 
+
+35:45 this library based on the issue, right?
+35:47 
+
+35:47 Because people typically talk about the
+35:48 
+
+35:48 surface of surface form of the issue,
+35:50 
+
+35:50 right? Nobody who raises most people who
+35:53 
+
+35:53 raise the issue are not developers in
+35:56 
+
+35:56 the repo, right? They are users of the
+35:59 
+
+35:59 repo, right? And so they will only talk
+36:01 
+
+36:01 about surface level problem like what
+36:02 
+
+36:02 they saw when they ran the code. They
+36:04 
+
+36:04 won't say what code to edit or which
+36:07 
+
+36:07 object is throwing an exception and
+36:09 
+
+36:09 things like that. Maybe they'll paste
+36:10 
+
+36:10 the error trace and most likely if the
+36:12 
+
+36:12 error trace is pointing you to the right
+36:14 
+
+36:14 code base that will be an easy way to
+36:16 
+
+36:16 narrow down. Okay, if the error trace is
+36:17 
+
+36:17 mentioned in the GitHub issue then it's
+36:20 
+
+36:20 fairly obvious to figure out where the
+36:22 
+
+36:22 issue is going wrong but still you may
+36:24 
+
+36:24 not be retrieving
+36:26 
+
+36:26 all the relevant places from where the
+36:28 
+
+36:28 error propagated and came to this
+36:30 
+
+36:30 particular line. Right? So it looks like
+36:32 
+
+36:32 some sort of iteration is needed. Right?
+36:34 
+
+36:34 uh to figure out uh to see the issue,
+36:37 
+
+36:37 look at the first place where the error
+36:40 
+
+36:40 was made and then sort of iteratively uh
+36:43 
+
+36:43 run over multiple parts of the code base
+36:45 
+
+36:45 figure out. So now that you know React
+36:48 
+
+36:48 uh what would what do you think should
+36:50 
+
+36:50 be the action space associated uh with
+36:53 
+
+36:53 this particular problem at hand?
+37:01 
+
+37:01 So as a as as a developer like you might
+37:04 
+
+37:04 have also had encounters in the things
+37:06 
+
+37:06 said you might be coding and then uh you
+37:08 
+
+37:08 you think that you've done everything
+37:09 
+
+37:09 good and then you start running the
+37:11 
+
+37:11 code. So now when the code throws an
+37:12 
+
+37:12 error what is the first thing you would
+37:13 
+
+37:13 do locate where which line the error got
+37:16 
+
+37:16 thrown. After that what would you do?
+37:19 
+
+37:19 try to line
+37:21 
+
+37:21 >> huh
+37:22 
+
+37:22 >> and find out the particular
+37:25 
+
+37:25 function or particular call that is
+37:28 
+
+37:28 posing there.
+37:28 
+
+37:28 >> Mhm.
+37:30 
+
+37:30 >> We try to alter the input to see the
+37:33 
+
+37:33 input is
+37:34 
+
+37:34 >> right. So you start to backtrack from
+37:36 
+
+37:36 the point wherein you know the failure
+37:39 
+
+37:39 happened for sure and then uh you keep
+37:42 
+
+37:42 on backtracking until the point you
+37:45 
+
+37:45 figure out uh where the issue happened.
+37:48 
+
+37:48 Right? So if you're using a debugger
+37:50 
+
+37:50 then backtracking is not that difficult
+37:51 
+
+37:51 a problem right uh you can go back you
+37:55 
+
+37:55 have the if you have executed the code
+37:57 
+
+37:57 you know the control flow right so you
+37:59 
+
+37:59 know the control to this function at
+38:01 
+
+38:01 this point in time came from that code
+38:03 
+
+38:03 but when you're provided with a GitHub
+38:05 
+
+38:05 issue you won't know the control flow
+38:07 
+
+38:07 right so if you figure out that it went
+38:10 
+
+38:10 till the top of the function and now you
+38:12 
+
+38:12 need to know which from where this
+38:13 
+
+38:13 function got called then you would need
+38:15 
+
+38:15 access to the other code basis, right?
+38:19 
+
+38:19 So, uh so so typically what all would
+38:22 
+
+38:22 you do? Uh you will you will need access
+38:24 
+
+38:24 to search
+38:26 
+
+38:26 with if I give you a function name, you
+38:27 
+
+38:27 should be able to search in the codebase
+38:29 
+
+38:29 and tell me uh where all was this
+38:32 
+
+38:32 function called right or if if it is a
+38:35 
+
+38:35 inline function then you will know where
+38:36 
+
+38:36 was this function defined right? You
+38:38 
+
+38:38 need ability to search and browse
+38:39 
+
+38:39 through. So whatever you do uh visually
+38:43 
+
+38:43 uh or using command line tools or using
+38:46 
+
+38:46 your mouse pointer you should be able to
+38:48 
+
+38:48 provide the LLM with all those actions.
+38:51 
+
+38:51 ability to read, ability to scroll up
+38:54 
+
+38:54 and down the page, view, search, like
+38:57 
+
+38:57 all these actions that you would do in
+38:58 
+
+38:58 an IDE should be the action space
+38:59 
+
+38:59 defined for uh SUV bench, right? So, so
+39:03 
+
+39:03 there's this paper called uh SUV agent
+39:06 
+
+39:06 which defined an uh LLM friendly
+39:09 
+
+39:09 commands. Okay, so I'll I'll talk about
+39:12 
+
+39:12 what why why do they call it LLM
+39:14 
+
+39:14 friendly? But in general the tools were
+39:18 
+
+39:18 related to navigating within the repo,
+39:20 
+
+39:20 searching for files, viewing files,
+39:23 
+
+39:23 scrolling files and then finally you
+39:24 
+
+39:24 will have to propose a patch right or or
+39:27 
+
+39:27 a commit. So for that you will have to
+39:28 
+
+39:28 say uh from this line to this line in
+39:31 
+
+39:31 this particular file I want you to
+39:32 
+
+39:32 replace with what I give you now right.
+39:35 
+
+39:35 So that is edit lines and uh once you do
+39:38 
+
+39:38 all those changes they say that uh it's
+39:41 
+
+39:41 good for my uh agentic sol or the
+39:44 
+
+39:44 agentic workflow to have access to a
+39:48 
+
+39:48 computer that uh runs the code that I
+39:52 
+
+39:52 give it and then given that it has test
+39:54 
+
+39:54 cases uh it should be able to uh run
+39:57 
+
+39:57 those test cases give it feedback and
+39:59 
+
+39:59 the feedback again will be passed to the
+40:00 
+
+40:00 LLM and then this loop sort of
+40:03 
+
+40:03 continues. Okay.
+40:05 
+
+40:05 So, how will the prompt look like? The
+40:07 
+
+40:07 prompt will first look like it will
+40:09 
+
+40:09 describe the entire what you're trying
+40:11 
+
+40:11 to build. Like if you're building a SUV
+40:12 
+
+40:12 agent, you will describe what the SUV
+40:14 
+
+40:14 agent is supposed to do that you're an
+40:16 
+
+40:16 expert coder. Uh you can do this that
+40:18 
+
+40:18 and and you will also talk about if
+40:21 
+
+40:21 since it's a react agent, you'll talk
+40:22 
+
+40:22 about all the action space that you're
+40:23 
+
+40:23 allowed to do and how to use them,
+40:25 
+
+40:25 right? Uh and and then in addition to
+40:28 
+
+40:28 that, you will also have to give some
+40:30 
+
+40:30 few short examples, right? So this is a
+40:31 
+
+40:31 system prompt which describes the
+40:33 
+
+40:33 problem and the action space and what
+40:35 
+
+40:35 the output should be like and then you
+40:36 
+
+40:36 will have uh some few short examples
+40:39 
+
+40:39 right uh which are successful of course
+40:40 
+
+40:40 not failures and then you will give the
+40:42 
+
+40:42 current uh GitHub issue and some more
+40:45 
+
+40:45 instructions along with it and then you
+40:46 
+
+40:46 will go through the react
+40:49 
+
+40:49 uh cycles which is start action and uh
+40:53 
+
+40:53 the observation would be that after you
+40:55 
+
+40:55 execute what output came back and how
+40:57 
+
+40:57 you feed it back into the LLM right and
+40:59 
+
+40:59 then you'll continue doing that until a
+41:01 
+
+41:01 point where the model would say that I
+41:02 
+
+41:02 want to I want uh that I'm done. Right?
+41:05 
+
+41:05 One of the action would be that I'm
+41:06 
+
+41:06 done. And when it says I'm done, it will
+41:08 
+
+41:08 pick all the edit commands that has edit
+41:11 
+
+41:11 commands or actions that were proposed
+41:13 
+
+41:13 throughout the uh the trajectory and
+41:16 
+
+41:16 then it will provide all those bundle
+41:19 
+
+41:19 all of them and then create a commit
+41:20 
+
+41:20 pull request. Right?
+41:23 
+
+41:23 So let's see what all so these guys
+41:25 
+
+41:25 define uh these particular uh actions
+41:29 
+
+41:29 and and now I'll discuss why this is LLM
+41:31 
+
+41:31 friendly right so let's say that some of
+41:34 
+
+41:34 the code snippets that you have may be
+41:37 
+
+41:37 too long
+41:39 
+
+41:39 right uh and and when you provide such a
+41:41 
+
+41:41 long uh context into the LLM it's not
+41:45 
+
+41:45 likely that it's going to pay clear
+41:47 
+
+41:47 attention to everything that is present
+41:48 
+
+41:48 there right there is this always this
+41:51 
+
+41:51 problem with long context that the model
+41:53 
+
+41:53 has a bias towards certain uh tokens
+41:56 
+
+41:56 that are in the extremities and not in
+41:58 
+
+41:58 the middle. Right? So, so to counter for
+42:01 
+
+42:01 all the and similarly there are other
+42:03 
+
+42:03 issues as well. So to make it more LLM
+42:06 
+
+42:06 friendly they proposed that uh you can
+42:08 
+
+42:08 open a file and when you open a file it
+42:10 
+
+42:10 only will display uh like 100 lines from
+42:14 
+
+42:14 the first 100 lines right and then you
+42:16 
+
+42:16 are you are provided the ability to
+42:17 
+
+42:17 scroll down or scroll up. So you look at
+42:19 
+
+42:19 that line and then you say scroll down,
+42:20 
+
+42:20 scroll up. Then when you scroll down,
+42:22 
+
+42:22 then it will only give the next uh 100
+42:25 
+
+42:25 lines. It will say like uh and then you
+42:28 
+
+42:28 also have the ability to go to a certain
+42:29 
+
+42:29 line, jump to it given the line number.
+42:32 
+
+42:32 Uh and then uh the other things that I
+42:34 
+
+42:34 said like how you typically debug,
+42:36 
+
+42:36 right? You you'll be allowed to search a
+42:37 
+
+42:37 file, search within a particular
+42:39 
+
+42:39 directory, uh find the location of a
+42:41 
+
+42:41 file and things like that. And of course
+42:43 
+
+42:43 these are for creating the PR which is
+42:46 
+
+42:46 like uh you will say that you're going
+42:47 
+
+42:47 to edit line number X to line number Y
+42:49 
+
+42:49 and then replace that with this
+42:51 
+
+42:51 particular blob of code snippet and then
+42:54 
+
+42:54 you should also say end of edit like I'm
+42:55 
+
+42:55 done with everything now I'm done with
+42:57 
+
+42:57 solving the issue now go ahead and then
+43:00 
+
+43:00 uh solving this particular edit and then
+43:02 
+
+43:02 create of course not always you will
+43:04 
+
+43:04 create sometimes you will have to create
+43:05 
+
+43:05 a new file to write your own function
+43:07 
+
+43:07 and then copy it somewhere else and then
+43:08 
+
+43:08 finally you're saying that I'm
+43:10 
+
+43:10 completely done with the solving the
+43:12 
+
+43:12 whole task. And now you take all the
+43:13 
+
+43:13 edits that have completed and then
+43:15 
+
+43:15 create a pull request. Right?
+43:19 
+
+43:19 So, so these are some examples of how
+43:21 
+
+43:21 the action and the observation looks
+43:24 
+
+43:24 like. Right? So, one of the action is
+43:26 
+
+43:26 open file name which is now it says open
+43:28 
+
+43:28 atmosphere. py and then when it opens uh
+43:32 
+
+43:32 it sort of hides the first 255 lines
+43:34 
+
+43:34 gives the next 100 lines and then says
+43:36 
+
+43:36 there are 180 more lines below. So
+43:39 
+
+43:39 because that these two lines they found
+43:41 
+
+43:41 it to be helpful to scroll up and down
+43:43 
+
+43:43 right uh because sometimes you don't
+43:45 
+
+43:45 know whether the you want to go through
+43:47 
+
+43:47 all the function definitions and you
+43:49 
+
+43:49 want to know where the main function
+43:50 
+
+43:50 lies and things like that. So this this
+43:52 
+
+43:52 line numbering is helpful and the
+43:54 
+
+43:54 numbering of the line is also very
+43:55 
+
+43:55 important because the edit action uses
+43:57 
+
+43:57 it very extensively. Right? So, so you
+44:00 
+
+44:00 see the the most important part in
+44:03 
+
+44:03 making React work is how you define the
+44:06 
+
+44:06 action space and how you define the
+44:08 
+
+44:08 observation, right? Because all this is
+44:11 
+
+44:11 in your control,
+44:13 
+
+44:13 right? So, so this the design of the
+44:16 
+
+44:16 this particular SWE agent would have
+44:17 
+
+44:17 gone through multiple iterations before
+44:19 
+
+44:19 they settle down like okay I need uh
+44:21 
+
+44:21 this information to be present here I
+44:23 
+
+44:23 need this information to be present here
+44:24 
+
+44:24 I always need line numbers here and and
+44:27 
+
+44:27 all the other uh details right so these
+44:29 
+
+44:29 are other some of the other examples of
+44:31 
+
+44:31 actions and their corresponding
+44:34 
+
+44:34 outputs and this is how an example of
+44:36 
+
+44:36 the uh the the action for an edit looks
+44:39 
+
+44:39 like you would say that uh uh you are
+44:42 
+
+44:42 already in a certain file in your
+44:43 
+
+44:43 previous action and then you would say I
+44:44 
+
+44:44 want to edit line number 404 to 407 and
+44:47 
+
+44:47 this is the content that I want to put
+44:49 
+
+44:49 in and then you also say end of edit
+44:51 
+
+44:51 okay
+44:55 
+
+44:55 so so here uh so bench is a 22 200 odd
+44:59 
+
+44:59 examples that I talked about they also
+45:01 
+
+45:01 have a version of a subset of bench
+45:03 
+
+45:03 called bbench light which is 300
+45:05 
+
+45:05 examples so the cost associated with
+45:07 
+
+45:07 running these experiments is slightly
+45:08 
+
+45:08 lesser so uh so people do a lot of
+45:12 
+
+45:12 appellations on SWEBench light but
+45:14 
+
+45:14 report final results on SWEBench. So rag
+45:17 
+
+45:17 setup is one approach where you just
+45:19 
+
+45:19 retrieve relevant code snippets and then
+45:22 
+
+45:22 provide them as input and you see the
+45:23 
+
+45:23 percentage of issues that got resolved
+45:25 
+
+45:25 is only 1.31
+45:27 
+
+45:27 uh but at that point in time when they
+45:29 
+
+45:29 used this particular action setup and
+45:31 
+
+45:31 react uh they were able to achieve 12.47
+45:33 
+
+45:33 47 using uh SUI agent setup. And this
+45:38 
+
+45:38 particular applications on SUI bench
+45:40 
+
+45:40 light shows you if you uh chose whatever
+45:44 
+
+45:44 commands your shell allows you to do as
+45:47 
+
+45:47 the action space, what would you end up
+45:50 
+
+45:50 getting, right? So, so providing actions
+45:53 
+
+45:53 helps in in so rag only has one action
+45:57 
+
+45:57 which is search, right? So if you
+45:59 
+
+45:59 provide lot of shell based actions like
+46:01 
+
+46:01 ls, cat and and other things like that
+46:04 
+
+46:04 uh then you will be able to achieve
+46:06 
+
+46:06 better numbers. So which means like uh
+46:08 
+
+46:08 if you know the right actions for your
+46:11 
+
+46:11 agentic workflow then giving LLM access
+46:15 
+
+46:15 to all those actions would help it uh
+46:18 
+
+46:18 get better accuracy and and and the next
+46:21 
+
+46:21 ailation between shell only and su agent
+46:23 
+
+46:23 shows that if you chose your actions
+46:26 
+
+46:26 more carefully uh then you would still
+46:28 
+
+46:28 be able to improve your system
+46:31 
+
+46:31 right so this is the takeaway uh from
+46:33 
+
+46:33 the sui agent paper so yeah so to
+46:36 
+
+46:36 conclude
+46:37 
+
+46:37 uh react is reasoning plus act to arrive
+46:40 
+
+46:40 at the final answer. Uh so the first
+46:43 
+
+46:43 paper that proposed react it was
+46:44 
+
+46:44 slightly confusing whether it is it is
+46:46 
+
+46:46 the react that is helping or it is the
+46:48 
+
+46:48 model's inherent reasoning ability that
+46:50 
+
+46:50 is helping or how do we combine them and
+46:53 
+
+46:53 things like that but it became slowly
+46:54 
+
+46:54 more and more clear that if the
+46:56 
+
+46:56 information necessary to solve the
+46:57 
+
+46:57 problem is not within the LLM memory
+47:01 
+
+47:01 then react is always better right and
+47:03 
+
+47:03 and and and most and you'll have to put
+47:06 
+
+47:06 a lot of effort into figuring out what
+47:08 
+
+47:08 is the right action space for your task
+47:11 
+
+47:11 at hand uh to to to get better solutions
+47:14 
+
+47:14 right
+47:16 
+
+47:16 now. So, so far we've been more focused
+47:20 
+
+47:20 towards actions and and in the last
+47:23 
+
+47:23 lecture we talked a lot about external
+47:25 
+
+47:25 tools, right? So, so after these two
+47:28 
+
+47:28 lectures it should it should sort of
+47:30 
+
+47:30 come to you that you can also use react
+47:32 
+
+47:32 framework when you have external tools,
+47:34 
+
+47:34 right? So, how where would that help?
+47:37 
+
+47:37 Typically, where would that help is
+47:38 
+
+47:38 let's say when you make an external tool
+47:40 
+
+47:40 call your arguments failed, right? and
+47:42 
+
+47:42 then the error message when you fire the
+47:44 
+
+47:44 query uh and then get back maybe you
+47:47 
+
+47:47 won't get success you would get a
+47:48 
+
+47:48 failure and the failure would have a
+47:50 
+
+47:50 message associated with it so that will
+47:51 
+
+47:51 go in observation again you will ask the
+47:53 
+
+47:53 model to think it will say oh I saw the
+47:55 
+
+47:55 error message the uh this parameter was
+47:58 
+
+47:58 was incorrect so probably based on this
+48:01 
+
+48:01 uh feedback I'm going to change this
+48:02 
+
+48:02 parameter to this value and then it will
+48:05 
+
+48:05 run it again right so so typically
+48:09 
+
+48:09 add in the current uh scen
+48:12 
+
+48:12 like in the current time frame almost
+48:14 
+
+48:14 everybody who designs uh tool calling
+48:16 
+
+48:16 with LLMs typically end up using the
+48:18 
+
+48:18 react uh framework.
+48:21 
+
+48:21 So now let's go to another very
+48:23 
+
+48:23 interesting paper called self-refined.
+48:25 
+
+48:25 Uh so the the the idea is fairly simple
+48:28 
+
+48:28 right? It is that uh in in case of uh in
+48:34 
+
+48:34 case of react you you divided the
+48:37 
+
+48:37 problem into multiple steps right uh and
+48:39 
+
+48:39 then uh these multiple steps are
+48:42 
+
+48:42 grounded on the action space right you
+48:44 
+
+48:44 have a certain action space and you
+48:45 
+
+48:45 traverse the action space uh in a
+48:48 
+
+48:48 certain trajectory and you arrive at the
+48:49 
+
+48:49 final output. Now this is a slightly
+48:51 
+
+48:51 different scenario where you arrive at
+48:53 
+
+48:53 the output. There's no action anything
+48:56 
+
+48:56 necessary. You just arrive at the output
+48:57 
+
+48:57 however you want. Do straight direct
+48:60 
+
+48:60 standard prompting, use chain of
+49:01 
+
+49:01 thought, use react, use act only. It
+49:03 
+
+49:03 doesn't matter. You arrive at the final
+49:05 
+
+49:05 answer and you ask the LLM whether do
+49:08 
+
+49:08 you think this final answer is good or
+49:10 
+
+49:10 not.
+49:11 
+
+49:11 Right? So you you give the model the
+49:14 
+
+49:14 input, get the output and then ask the
+49:17 
+
+49:17 output to provide feedback on the
+49:20 
+
+49:20 answer, right? Of course, this feedback
+49:22 
+
+49:22 is subjective. You can design the
+49:24 
+
+49:24 feedback prompt however you want. Uh but
+49:27 
+
+49:27 the feedback would would the model will
+49:29 
+
+49:29 act as an evaluator and will uh give you
+49:32 
+
+49:32 the feedback. Right? In the first case,
+49:34 
+
+49:34 the model acted as a generator. I'm
+49:35 
+
+49:35 going to give you the output for the
+49:37 
+
+49:37 task that you gave me. In the feedback
+49:39 
+
+49:39 setup, it will tell you uh okay as an
+49:41 
+
+49:41 evaluator I feel the solution is not so
+49:43 
+
+49:43 great. Something is wrong here. Maybe
+49:45 
+
+49:45 you can fix this and make it better.
+49:46 
+
+49:46 Right?
+49:51 
+
+49:51 >> A nudge in the sense.
+49:58 
+
+49:58 >> Yes. So that's a refined step. So refine
+49:60 
+
+50:00 step says that I'll take the feedback uh
+50:02 
+
+50:02 I'll take whatever output that I
+50:04 
+
+50:04 previously generated for this input and
+50:05 
+
+50:05 now I'll refine my answer again.
+50:09 
+
+50:09 >> Huh? So we'll come to that right. So
+50:11 
+
+50:11 this loop will keep continuing until the
+50:14 
+
+50:14 evaluator who gives you feedback says
+50:16 
+
+50:16 I'm good right or the evaluator says
+50:19 
+
+50:19 like or we give it a heart of saying
+50:21 
+
+50:21 don't go more than 100 times right
+50:22 
+
+50:22 otherwise it's too expensive. If you're
+50:23 
+
+50:23 not able to get to the solution by 100
+50:25 
+
+50:25 times then stop right and give whatever
+50:28 
+
+50:28 you currently have.
+50:31 
+
+50:31 So so they have like let's see two
+50:34 
+
+50:34 examples here one for code optimization
+50:36 
+
+50:36 and the other for dialogue response
+50:38 
+
+50:38 generation right. So the user says I'm
+50:40 
+
+50:40 interested in uh playing table tennis
+50:42 
+
+50:42 and the model generates I'm sure it's a
+50:44 
+
+50:44 great way to socialize stay active.
+50:47 
+
+50:47 Right? This is what the model output
+50:48 
+
+50:48 gave. Now you have a feedback or a
+50:52 
+
+50:52 evaluator for which you create a
+50:54 
+
+50:54 separate prompt and say look you look at
+50:56 
+
+50:56 the response and you tell me along two
+50:58 
+
+50:58 dimensions engaging and user
+50:60 
+
+50:60 understanding uh about what you feel
+51:02 
+
+51:02 about this response right so now the LLM
+51:05 
+
+51:05 feedback gives a feedback the evaluator
+51:07 
+
+51:07 gives a feedback saying in engaging it
+51:09 
+
+51:09 provides no information about table
+51:10 
+
+51:10 tennis or how to play it and user
+51:12 
+
+51:12 understanding it says lacks
+51:14 
+
+51:14 understanding of users needs or state of
+51:16 
+
+51:16 mind right so now it takes this
+51:18 
+
+51:18 particular feedback back and the
+51:20 
+
+51:20 dialogue that has been the the entire
+51:22 
+
+51:22 trajectory that has been going through
+51:24 
+
+51:24 so far and then it says that that's
+51:26 
+
+51:26 great to hear. It's a fun sport
+51:28 
+
+51:28 requiring quick reflexes and good hand
+51:30 
+
+51:30 eye coordination. Have you played before
+51:32 
+
+51:32 or are you looking to learn? Right? So
+51:35 
+
+51:35 the this part is making it engaging
+51:36 
+
+51:36 because the moment you post the
+51:38 
+
+51:38 follow-up question then the user is
+51:39 
+
+51:39 forced to answer. Right? So it creates a
+51:41 
+
+51:41 more engaging conversation and secondly
+51:43 
+
+51:43 uh uh user understanding also it says
+51:45 
+
+51:45 that uh it helps it understand slightly
+51:48 
+
+51:48 better right. Uh same thing goes with
+51:51 
+
+51:51 code optimization uh you generate the
+51:53 
+
+51:53 code. So here uh in your evaluator you
+51:56 
+
+51:56 can always you can also say that when
+51:58 
+
+51:58 you generate the code make sure that the
+51:59 
+
+51:59 code has the best time complexity or
+52:01 
+
+52:01 things like that right. So then here it
+52:03 
+
+52:03 model says uh that for this particular
+52:06 
+
+52:06 generating sum of n numbers uh the code
+52:08 
+
+52:08 is slow as it uses brute force. A better
+52:10 
+
+52:10 approach is to use a formula directly
+52:13 
+
+52:13 right for first n natural numbers. Uh so
+52:15 
+
+52:15 then the refined code would then look
+52:18 
+
+52:18 like this which is a bit better along
+52:19 
+
+52:19 the dimensions that you wanted it to get
+52:21 
+
+52:21 better.
+52:24 
+
+52:24 Right? So so this is the algorithm. Uh
+52:27 
+
+52:27 you will uh to start with you will need
+52:29 
+
+52:29 three different prompts. One prompt is
+52:31 
+
+52:31 to generate the output as time step zero
+52:34 
+
+52:34 which is you get the input. You need a
+52:36 
+
+52:36 task specification prompt that generates
+52:38 
+
+52:38 the output. Second is you need a prompt
+52:40 
+
+52:40 for giving feedback. Uh and third is you
+52:42 
+
+52:42 need a prompt that will take whatever
+52:44 
+
+52:44 trajectories have been generated so far
+52:46 
+
+52:46 incorporate the feedback and then give
+52:48 
+
+52:48 you a refined answer. Right? You need
+52:50 
+
+52:50 three prompts. So at step at at at at uh
+52:53 
+
+52:53 step zero you will use the model to with
+52:56 
+
+52:56 the generation prompt and the input to
+52:58 
+
+52:58 get the initial output and then you will
+53:00 
+
+53:00 iterate iterate
+53:02 
+
+53:02 over it. So here uh in this particular
+53:07 
+
+53:07 uh algorithm what they've done is uh I
+53:09 
+
+53:09 will get the feedback from the feedback
+53:11 
+
+53:11 model based on the input and the latest
+53:14 
+
+53:14 output. Right? Uh using the feedback
+53:16 
+
+53:16 prompt uh and uh using the feedback
+53:20 
+
+53:20 prompt or the time step I am in I will
+53:23 
+
+53:23 decide the stopping criteria. Right? If
+53:25 
+
+53:25 the feedback doesn't give anything good
+53:27 
+
+53:27 or if let's say t is 100 or something
+53:29 
+
+53:29 like that then you would stop. uh then
+53:32 
+
+53:32 if not then you generate then when you
+53:34 
+
+53:34 generate the next output typically for
+53:36 
+
+53:36 refine you give all the failures and
+53:39 
+
+53:39 feedbacks you've done so far right so
+53:41 
+
+53:41 this is very important here for
+53:43 
+
+53:43 evaluating you just need the the the
+53:46 
+
+53:46 latest output right but when you create
+53:49 
+
+53:49 a refined output it's very important
+53:52 
+
+53:52 that you give all the outputs that
+53:54 
+
+53:54 you've generated because the latest
+53:56 
+
+53:56 feedback that you have is only on the
+53:58 
+
+53:58 last prompt right so otherwise it may go
+53:60 
+
+53:60 in circles you say that engaging is good
+54:03 
+
+54:03 uh but uh uh uh informativeness is bad
+54:06 
+
+54:06 or something like that then maybe in the
+54:08 
+
+54:08 previous iteration informativeness was
+54:09 
+
+54:09 good and engagement was bad right so if
+54:11 
+
+54:11 you give all of those together then the
+54:13 
+
+54:13 model will be able to not make the
+54:15 
+
+54:15 previous mistakes it made again and then
+54:16 
+
+54:16 arrive at a better solution so it's
+54:18 
+
+54:18 important that in refine you'll have to
+54:19 
+
+54:19 give the whole thing
+54:23 
+
+54:23 so so these guys evaluated on a bunch of
+54:26 
+
+54:26 tasks right because uh this technique is
+54:28 
+
+54:28 in a slightly different dimension than
+54:30 
+
+54:30 react Right? So it has it it so they
+54:33 
+
+54:33 they sort of showcased it in scenarios
+54:35 
+
+54:35 where even tools are not needed. Right?
+54:37 
+
+54:37 So there are a lot of such examples uh
+54:39 
+
+54:39 and so math reasoning, acronym
+54:41 
+
+54:41 generation, uh dialogue response. So in
+54:43 
+
+54:43 most of the cases what they see is that
+54:46 
+
+54:46 self-refin
+54:48 
+
+54:48 at least as good as LLM or much better
+54:51 
+
+54:51 than LMS. Right?
+54:57 
+
+54:57 So the so this is a very important uh uh
+55:01 
+
+55:01 part uh because here what they say is
+55:04 
+
+55:04 that that as you uh increase the number
+55:09 
+
+55:09 of iterations you let the model to to
+55:12 
+
+55:12 loop through right you always see
+55:15 
+
+55:15 monotonic increase in accuracy
+55:18 
+
+55:18 right maybe the first iteration you get
+55:21 
+
+55:21 a pretty good jump and in the second
+55:22 
+
+55:22 iteration you may get slightly lesser
+55:24 
+
+55:24 jump and so on. But the good part is
+55:26 
+
+55:26 that it's okay to set your criteria to
+55:31 
+
+55:31 stop based on some initial analysis,
+55:33 
+
+55:33 right? You you can you can sort of use
+55:36 
+
+55:36 this uh anal this sort of table to or
+55:39 
+
+55:39 this graph to understand your cost
+55:41 
+
+55:41 benefit ratio, right? So let's say that
+55:45 
+
+55:45 you you you've got five point jump in uh
+55:48 
+
+55:48 constraint generation, right? Or sorry
+55:50 
+
+55:50 code optimization and then you only get
+55:51 
+
+55:51 0.9 after that. then maybe you can
+55:53 
+
+55:53 decide I'll just let it do once right
+55:55 
+
+55:55 because this I not gaining much by by
+55:57 
+
+55:57 spending more money or things like that
+55:59 
+
+55:59 so you can uh so this this graph says
+56:02 
+
+56:02 that it's monotonically increasing so
+56:04 
+
+56:04 you can decide your cost to benefit
+56:07 
+
+56:07 ratio and and then decide accordingly
+56:10 
+
+56:10 so now we saw self-refin which is also
+56:13 
+
+56:13 another way of uh agentic workflow uh
+56:16 
+
+56:16 and of course you can combine this with
+56:18 
+
+56:18 react as well right because whether you
+56:20 
+
+56:20 arrive at the final answer in one shot
+56:21 
+
+56:21 or you go through the entire tow loop is
+56:24 
+
+56:24 is up to you. But the problem with using
+56:27 
+
+56:27 selfrefine and tow loop together is that
+56:30 
+
+56:30 it's going to many a times it'll explode
+56:33 
+
+56:33 the amount of uh context you would have
+56:36 
+
+56:36 imagine doing bench uh with
+56:38 
+
+56:38 self-reflection and react right it's
+56:42 
+
+56:42 going to be insanely high the model will
+56:43 
+
+56:43 lose track of what it is doing at some
+56:45 
+
+56:45 point in time u
+56:48 
+
+56:48 so in the last I'll talk about uh
+56:50 
+
+56:50 reflection uh this is this paper also
+56:53 
+
+56:53 came along similar uh time frame
+56:55 
+
+56:55 uh but this sort of uh combines the both
+56:59 
+
+56:59 React and uh the sort of self-refin
+57:05 
+
+57:05 uh but they also uh split the part of
+57:10 
+
+57:10 evaluation and reflection. So in
+57:13 
+
+57:13 self-refin
+57:14 
+
+57:14 uh there was one feedback prompt that
+57:17 
+
+57:17 was supposed to evaluate
+57:19 
+
+57:19 the output implicitly
+57:23 
+
+57:23 uh and provide feedback based on that.
+57:26 
+
+57:26 Right? Uh so so the good thing this
+57:28 
+
+57:28 paper did was that they said there is no
+57:31 
+
+57:31 need for you to club both of them
+57:33 
+
+57:33 together. Right? Maybe there are lot of
+57:35 
+
+57:35 scenarios where you know whether the
+57:37 
+
+57:37 output is good or not. Maybe you don't
+57:39 
+
+57:39 know why it is bad or if it is good you
+57:43 
+
+57:43 you're okay with it. There's no worries.
+57:44 
+
+57:44 But if it's bad, you may not know why it
+57:46 
+
+57:46 is bad. But there may be some huristics
+57:48 
+
+57:48 or some uh external environment based
+57:51 
+
+57:51 reward that you could get that says
+57:53 
+
+57:53 whether the output is good or not. Uh
+57:56 
+
+57:56 and and and and self-refin doesn't let
+57:58 
+
+57:58 you for a way to leverage it. But this
+58:00 
+
+58:00 technique tells you that it doesn't
+58:02 
+
+58:02 matter whether you use rule or LLM
+58:04 
+
+58:04 huristic to evaluate or whether you use
+58:07 
+
+58:07 LLM itself to self-generate test cases
+58:10 
+
+58:10 and then run them in an environment and
+58:11 
+
+58:11 get back the results or you you assume
+58:14 
+
+58:14 that you're getting the reward from
+58:15 
+
+58:15 somewhere else altogether using a reward
+58:18 
+
+58:18 function that you typically use in RL
+58:19 
+
+58:19 setup. Right? So it doesn't matter where
+58:21 
+
+58:21 you get as long as you get some reward
+58:25 
+
+58:25 uh which is u
+58:28 
+
+58:28 a vector reward then we will give out a
+58:31 
+
+58:31 framework with which you can you can
+58:33 
+
+58:33 improve iteratively
+58:35 
+
+58:35 without having to actually fine-tune the
+58:36 
+
+58:36 model right
+58:39 
+
+58:39 so so here uh here you have three actors
+58:44 
+
+58:44 so in the previous approach uh also we
+58:47 
+
+58:47 had three actors right three prompts uh
+58:49 
+
+58:49 which is the initial task prompt and
+58:51 
+
+58:51 then refine prompt and then uh and and
+58:55 
+
+58:55 feedback prompt. Right? So there were
+58:57 
+
+58:57 two modules for output generation which
+59:00 
+
+59:00 is task and refine and there was one
+59:03 
+
+59:03 module for feedback. Here it's the other
+59:05 
+
+59:05 way around. You have two modules for
+59:07 
+
+59:07 feedback and one module for output
+59:10 
+
+59:10 generation. Okay. So n a is a actor
+59:14 
+
+59:14 model uh whose job is to generate the
+59:17 
+
+59:17 output whether you give only the input
+59:19 
+
+59:19 or whether you give the input and all
+59:21 
+
+59:21 the other feedback and experience that
+59:23 
+
+59:23 you give irrespective of that there's
+59:25 
+
+59:25 only one prompt that is going to give
+59:27 
+
+59:27 you the output and that is the actor
+59:29 
+
+59:29 model and there is another model called
+59:31 
+
+59:31 evaluator now again this evaluator need
+59:33 
+
+59:33 not necessarily be an LLM like you can
+59:36 
+
+59:36 replace this evaluator using whatever
+59:39 
+
+59:39 huristics or rules or any
+59:42 
+
+59:42 uh technique you have to evaluate uh and
+59:45 
+
+59:45 then you have a self-reflection
+59:47 
+
+59:47 uh model MSR which will based on the
+59:52 
+
+59:52 output that you saw and based on the
+59:54 
+
+59:54 evaluation it'll try to reflect and say
+59:57 
+
+59:57 what should you be what you did wrong
+60:00 
+
+60:00 and how you should correct it right in
+60:02 
+
+60:02 the action space that you have so these
+60:04 
+
+60:04 are the three LLM prompts you have
+60:08 
+
+60:08 and so here uh they are equating the
+60:11 
+
+60:11 actor uh language model to a to an RL
+60:14 
+
+60:14 policy here. So they are using the uh
+60:16 
+
+60:16 notion of policy here. The policy
+60:18 
+
+60:18 parameters are two things. One is the
+60:21 
+
+60:21 the model itself whose weights are
+60:23 
+
+60:23 associated with it and two is uh they
+60:26 
+
+60:26 have this uh experience memory which is
+60:28 
+
+60:28 basically all the whatever uh feedback
+60:32 
+
+60:32 the self-reflection model gave all of
+60:35 
+
+60:35 them are stored with some experience in
+60:37 
+
+60:37 that experience memory and with
+60:39 
+
+60:39 experience memory as input and the model
+60:41 
+
+60:41 weights it should be able to predict the
+60:43 
+
+60:43 the the next output right so here the
+60:47 
+
+60:47 state of the system is uh whatever
+60:49 
+
+60:49 action and output you have generated and
+60:51 
+
+60:51 you keep doing this action and output
+60:53 
+
+60:53 action and output until you get the
+60:55 
+
+60:55 final answer. Right? and uh and the
+60:59 
+
+60:59 final uh so whatever intermediate so
+61:02 
+
+61:02 this is a before you arrive at the final
+61:03 
+
+61:03 answer whatever uh action observation or
+61:06 
+
+61:06 thought action observation loop you're
+61:07 
+
+61:07 going they're calling it it's typically
+61:09 
+
+61:09 called a trajectory and they are show
+61:11 
+
+61:11 stored in the short-term memory and once
+61:14 
+
+61:14 uh you figure out that okay now I
+61:15 
+
+61:15 finally arrived at the answer uh and and
+61:17 
+
+61:17 and the entire trajectory is referred to
+61:20 
+
+61:20 as
+61:21 
+
+61:21 is referred to like this where it has
+61:23 
+
+61:23 iie uh steps uh and uh Once you have the
+61:27 
+
+61:27 final output then the entire trajectory
+61:29 
+
+61:29 is fed into the evaluator
+61:34 
+
+61:34 right the entire trajectory tow is fed
+61:35 
+
+61:35 into the evaluator and the evaluator
+61:37 
+
+61:37 will then tell you sorry
+61:41 
+
+61:41 the evaluator will give you a feedback
+61:44 
+
+61:44 and that feedback uh along with uh some
+61:47 
+
+61:47 other uh details uh are are are provided
+61:51 
+
+61:51 to the self-reflection model uh which
+61:52 
+
+61:52 will give you a uh textbased reflection
+61:56 
+
+61:56 Right? So the the the evaluator will
+61:58 
+
+61:58 only give you a positive or a negative
+61:59 
+
+61:59 reward or something like that. Or if it
+62:01 
+
+62:01 is 0 to1 then it could give you a reward
+62:03 
+
+62:03 zero or one or 0 to one or things like
+62:05 
+
+62:05 that. And then the self-reflection model
+62:07 
+
+62:07 will take the trajectory uh will also
+62:10 
+
+62:10 take the evaluator output and it will
+62:11 
+
+62:11 give you a text reflection of what went
+62:13 
+
+62:13 right or what went wrong. Right?
+62:17 
+
+62:17 And of course it's a the simple
+62:18 
+
+62:18 operation is like the memory will
+62:19 
+
+62:19 contain the whatever uh reflective text
+62:22 
+
+62:22 was provided and then uh you you keep
+62:25 
+
+62:25 repeating this loop similar to
+62:27 
+
+62:27 self-refined until the evaluator tells
+62:29 
+
+62:29 you that you're that it's good or you
+62:31 
+
+62:31 you exceed certain number of uh
+62:33 
+
+62:33 iterations
+62:35 
+
+62:35 and of course the same thing is repeated
+62:37 
+
+62:37 again you generate a new trajectory
+62:39 
+
+62:39 using the same uh so now the policy will
+62:41 
+
+62:41 not the the typically when you do RL the
+62:44 
+
+62:44 model weights get updated in the in the
+62:48 
+
+62:48 policy but here it's only the memory
+62:50 
+
+62:50 that gets changed right model remains
+62:52 
+
+62:52 the same uh it's just the memory that
+62:54 
+
+62:54 gets appended with a lot of these
+62:55 
+
+62:55 reflective texts and uh in the next uh
+62:58 
+
+62:58 iteration then uh the MEM part will
+63:01 
+
+63:01 change and so you will end up getting a
+63:03 
+
+63:03 different trajectory uh and then again
+63:05 
+
+63:05 you evaluate it again you do
+63:06 
+
+63:06 self-reflection add it to the memory and
+63:08 
+
+63:08 then keep repeating the cycle until the
+63:10 
+
+63:10 evaluator believes that uh it has done a
+63:13 
+
+63:13 good job right So what was so great
+63:16 
+
+63:16 about this paper right uh the the simple
+63:20 
+
+63:20 concept they introduced two simple
+63:22 
+
+63:22 concepts right in this setup one is that
+63:28 
+
+63:28 there exist there should exist a notion
+63:31 
+
+63:31 of memory and there should be a memory
+63:33 
+
+63:33 management within an AI agent or an
+63:36 
+
+63:36 agentic workflow right and and in this
+63:39 
+
+63:39 in this uh particular setup they had
+63:42 
+
+63:42 used a lot of huristics to design two
+63:45 
+
+63:45 different types of memories, right? And
+63:47 
+
+63:47 and they also used some huristics to b
+63:49 
+
+63:49 so they have evaluated on different
+63:50 
+
+63:50 tasks and based on different tasks they
+63:52 
+
+63:52 they did certain different things. But
+63:54 
+
+63:54 what the community realized slowly was
+63:57 
+
+63:57 that uh it's good to have react and uh
+64:03 
+
+64:03 self-refin working together right and
+64:06 
+
+64:06 it's good to have a notion of memory
+64:09 
+
+64:09 right so like after this paper came out
+64:14 
+
+64:14 after the self-refined react and and
+64:16 
+
+64:16 reflection paper came out uh the most
+64:20 
+
+64:20 the most popular uh agentic workflow
+64:23 
+
+64:23 building
+64:24 
+
+64:24 uh software is LN graph right LNC chain
+64:26 
+
+64:26 and then LN graph right so so LN graph
+64:29 
+
+64:29 started to support most of these uh
+64:33 
+
+64:33 components in a readytouse manner so
+64:36 
+
+64:36 that you can mix and match and then
+64:38 
+
+64:38 build your own agentic workflow in a
+64:41 
+
+64:41 much more uh principled manner right so
+64:43 
+
+64:43 so these papers all set a very good tone
+64:46 
+
+64:46 of uh how problem should be solved what
+64:49 
+
+64:49 are the components that are mostly
+64:51 
+
+64:51 reusable across multiple different
+64:53 
+
+64:53 action spaces Of course you have to
+64:54 
+
+64:54 define your own action space but if you
+64:57 
+
+64:57 so how do you what is the right level of
+64:59 
+
+64:59 abstraction of how these langraph should
+65:01 
+
+65:01 be designed and how most agentic
+65:03 
+
+65:03 application should defined right it's
+65:04 
+
+65:04 not just langraph there are like a lot
+65:07 
+
+65:07 of startups and a all major companies
+65:10 
+
+65:10 have their own agent building kits so so
+65:12 
+
+65:12 most these papers set the tone for how
+65:15 
+
+65:15 things should be built right
+65:18 
+
+65:18 so here is the evaluation of uh
+65:21 
+
+65:21 different types of uh agent intentic
+65:23 
+
+65:23 non-agentic uh workflows. Uh coot only
+65:27 
+
+65:27 is is is the only non-agentic workflow
+65:29 
+
+65:29 they have. And what they show is like it
+65:30 
+
+65:30 doesn't matter how many other times you
+65:32 
+
+65:32 iterate. Uh it's still going to be
+65:34 
+
+65:34 almost the same and it's it's somewhere
+65:36 
+
+65:36 close to a little above.3. And react
+65:40 
+
+65:40 again react depends on how you define
+65:42 
+
+65:42 the action space, right? And and how you
+65:45 
+
+65:45 define the observation. So uh so you
+65:48 
+
+65:48 should take this graph with a pinch of
+65:50 
+
+65:50 salt. But again it sort of reflects on
+65:52 
+
+65:52 what we saw in the react paper where if
+65:54 
+
+65:54 you only use react separately uh then
+65:57 
+
+65:57 with whatever action space they defined
+65:59 
+
+65:59 then it's very close to coot. So that
+66:01 
+
+66:01 also makes sense right and uh uh coot.
+66:06 
+
+66:06 So in when you use a reflection
+66:08 
+
+66:08 framework
+66:10 
+
+66:10 to arrive at the output you can either
+66:13 
+
+66:13 go to that tow cycle and interact with
+66:15 
+
+66:15 the environment come back or you can
+66:17 
+
+66:17 ditch the whole tow cycle and directly
+66:19 
+
+66:19 arrive at the answer and give it to the
+66:20 
+
+66:20 evaluator. Right? So so these are the uh
+66:23 
+
+66:23 two gas for those two techniques. You
+66:25 
+
+66:25 use coot and you use react plus
+66:27 
+
+66:27 reflection. And of course like as
+66:29 
+
+66:29 expected uh react plus reflection is
+66:32 
+
+66:32 better than uh coot plus reflection. So
+66:35 
+
+66:35 here it is very clear that uh with the
+66:38 
+
+66:38 right agentic setup react shows
+66:41 
+
+66:41 dominance right because in this in the
+66:43 
+
+66:43 react paper that was not very evident
+66:45 
+
+66:45 right it felt like there's not much uh
+66:48 
+
+66:48 that coot that react is giving over coot
+66:52 
+
+66:52 right but now if you if you design your
+66:54 
+
+66:54 agentic framework right not necessarily
+66:57 
+
+66:57 the action space use of memory right use
+66:60 
+
+66:60 of evaluators use of refinement and
+67:02 
+
+67:02 things like that uh then you could Coot
+67:05 
+
+67:05 has sorry uh react has much more
+67:07 
+
+67:07 capability than coot right so again you
+67:11 
+
+67:11 should take this graph again with a
+67:13 
+
+67:13 pinch of salt uh mainly because the
+67:16 
+
+67:16 evaluator they use for this looks at the
+67:18 
+
+67:18 ground truth and says whether it's
+67:19 
+
+67:19 correct or not it doesn't say what is
+67:22 
+
+67:22 the right answer right uh but it just
+67:24 
+
+67:24 says that whether the answer is right or
+67:26 
+
+67:26 not so the so so technically these two
+67:29 
+
+67:29 are not like
+67:32 
+
+67:32 comparable right because you have this
+67:34 
+
+67:34 additional information. The evaluator
+67:36 
+
+67:36 looks at the ground truth and says
+67:38 
+
+67:38 whether it's correct or incorrect, zero
+67:39 
+
+67:39 or one, right? So the evaluator has
+67:41 
+
+67:41 access to the ground truth. So so the
+67:43 
+
+67:43 red and the blue line has slightly more
+67:45 
+
+67:45 information than the the coot or the
+67:48 
+
+67:48 react only setup. Right? But but the
+67:51 
+
+67:51 premise is that if you have that
+67:53 
+
+67:53 information or some uh proxy or huristic
+67:57 
+
+67:57 or rule based uh thing that can tell you
+67:60 
+
+68:00 that whether the answer looks right or
+68:02 
+
+68:02 not then you can benefit from react a
+68:04 
+
+68:04 lot more than what you would benefit
+68:05 
+
+68:05 from coot right
+68:09 
+
+68:09 uh yeah again these are some again you
+68:11 
+
+68:11 you guys already know human val which is
+68:13 
+
+68:13 a coding benchmark the language is
+68:15 
+
+68:15 they're divided in based on the language
+68:16 
+
+68:16 rust and python and there is also
+68:18 
+
+68:18 another programming benchmark called
+68:20 
+
+68:20 most basic Python programming. There's
+68:22 
+
+68:22 also another benchmark. So here they say
+68:24 
+
+68:24 that uh if you use a simple standard
+68:26 
+
+68:26 prompting uh this is the setup. This is
+68:28 
+
+68:28 what you get and if you use the
+68:29 
+
+68:29 reflection framework you get much better
+68:32 
+
+68:32 numbers. Again in these cases you assume
+68:34 
+
+68:34 that you have access to unit test cases.
+68:36 
+
+68:36 You have you assume that you have access
+68:37 
+
+68:37 to the uh the compiler and the executor
+68:40 
+
+68:40 which will execute give you back the
+68:41 
+
+68:41 results and that will that will be the
+68:43 
+
+68:43 reevaluator and then your self uh sorry
+68:46 
+
+68:46 the the the self-reflection uh model
+68:49 
+
+68:49 will will look at the output and then
+68:51 
+
+68:51 define what the reflection should be and
+68:52 
+
+68:52 how the model should correct it. Okay.
+68:54 
+
+68:54 Uh so to summarize uh we just saw uh
+68:59 
+
+68:59 three three good papers that sort of set
+69:01 
+
+69:01 the tone for uh agentic workflow and
+69:04 
+
+69:04 almost uh every paper that you will read
+69:06 
+
+69:06 now on agentic workflow will have some
+69:08 
+
+69:08 components uh from these three papers.
+69:14 
+
+69:14 All right. Thank you.

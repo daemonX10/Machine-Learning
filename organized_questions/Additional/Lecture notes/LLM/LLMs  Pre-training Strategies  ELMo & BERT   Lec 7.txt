@@ -1,0 +1,442 @@
+00:03 hello everyone welcome to this course again so in this lecture we're going to
+00:08 talk about tring strategies last lecture we covered
+00:13 Transformer different blocks of a transforma model
+00:18 right we also talked about what to wear glove models which are pre-trend um W
+00:24 embedding methods right and uh we will see you know the the
+00:31 overall uh the overall Arena of pre-training with Transformer and then
+00:37 we'll also see how the you know how the Paradigm of pretending actually changed from pretend word embedding to pretend
+00:44 language model the today's breaking news is as
+00:51 follows openi on August 6 they announced that now onwards they are going to uh
+00:59 produce a structured out right uh with GPT 40 the structured
+01:04 output is basically a Json structure uh output right you can directly write prompts you you can optain uh Jon Json
+01:12 file and you can directly feed it into your application so this will basically be very useful for developers looking to
+01:18 build reliable applications with gbt uh 40 apis in the back
+01:24 end okay I think this is interesting if you if you want to know more about this this
+01:29 is the blog where they wrote uh about this uh development let's look at the
+01:36 pre-training strategy okay so while discussing this let us start with this
+01:42 famous quote which we we already mentioned earlier in the distribution semantics chapter in the word embeding
+01:50 chapter that we shall know a word by the company it keeps
+01:55 right so the same person uh ified the quote later on and
+02:03 then he said that the complete meaning of a word is always contextual okay this is always
+02:10 contextual and no study of meaning apart from a complete context can be taken
+02:17 seriously okay and this is essentially the foundation behind building the
+02:22 pre-training strategies okay this is an example I record the record
+02:31 right if you look at these two the two positions of the word record right the meanings are completely different now if
+02:38 you use a water to we kind of method or a glove kind of method which produce
+02:43 which basically produce pre-trend embeddings right you will get same embedding for a for for these two
+02:49 positions of record right but the meanings are different okay let's take another
+02:56 example A bat flew out of the cave he hid the ball with a bat again here the
+03:03 two words bat the the the the the two positions of the word bat the two context of the word b are different
+03:11 right if you use the same embedding to represent this you will not be able to uh do the uh proper processing of it
+03:18 right so what we will do here we will produce embeddings word embeddings which
+03:25 are going to be contextualized meaning depending on the context the embedding will change for
+03:31 example here let's say for the word bat you will get one embedding for the word
+03:37 bat here you get another eding which are different okay how do you do this the
+03:42 first approach which was proposed which is not a Transformer based approach this
+03:48 was proposed in 2018 is called ilmo right deep contextualized word
+03:55 representation right this was this was done by uh mostly by Ln team and you
+04:01 know some folks from from this University also right one of them is a very good
+04:06 friend of mine so the the idea behind the Elmo method is as follows so Elmo is a non-
+04:13 Transformer based approach there is no concept of Transformer Transformers was introduced in 2017 and the same time it
+04:20 was introduced 2018 right so Elmo stands for embedding from
+04:25 language models what what it does
+04:32 it essentially relies on rnns right can be lstm can be Gru right
+04:37 rnns and what it does it essentially processes a sequence right when you
+04:44 process a sequence using RNN each of the Hidden states which are which correspond to
+04:51 basically the tokens right this hidden States will basically be used as
+04:58 eddings right let's say I am going to
+05:06 school this is my RNN
+05:12 okay in RNN what what do we learn we learn the weight Matrix W right there
+05:18 are how many how many matrices are there in general generally there are uh three
+05:25 matrices one is a matrix between uh layers right w H another is this we
+05:32 which corresponds to the input and other is this U which basically projects it to the output space right for the time
+05:39 being you just assume that there's only one Matrix which is wh okay so you have an
+05:47 RNN a fixed L length RNN right and then what you do you pass one training
+05:53 instance okay and you train this RNN using language model objective next for
+05:59 prodiction right you pass one sequence you predict the first position of the sequence
+06:06 second position third position fourth position and so on and so forth right you do backdrop and and you then you
+06:12 update W wh right then again you pass another uh
+06:20 sequence you update uh this and so on and so forth now think about it what is
+06:25 happening here so the claim is that the hidden state will act as an
+06:34 embed the hidden State here let's say let's say this hidden state will act as
+06:40 an embeding for the word two right now you may wonder how how
+06:47 would it be possible because there are so many sequences there there's only one RNN right
+06:54 so let's think of let's think of a dictionary right where every row
+07:01 indicates an embedding of a of a particular token right let's assume that
+07:07 this is a w level token right not a character level water level tokenization so there's an entry I and
+07:13 this is the vector entry J this is a vector and so on and so forth and let's assume that this Matrix is initially
+07:19 randomly initialized okay now when you start this
+07:25 RNN you need to feed the input right this input is taken this inp is fed from
+07:31 the from the dictionary so the correspond so so when you when the input is I you basically F the corresponding
+07:38 embedding Vector from the dictionary and you feed it as an input right to start
+07:44 with then you train the model let's say you take one instance you train the model your hidden states are updated
+07:52 right the hidden State corresponding to the word I is also updated right so you
+07:57 when when the training process is done you take that hidden State and you replace the previous uh embedding of I
+08:04 by this hidden State done another instance another
+08:11 training uh sentence comes in you use the same RNN okay let's say this is C is
+08:17 u c is eating a pizza okay so what you do first how do you initialize this you take the
+08:24 embedding of C from the dictionary is Right eating and so on and so forth
+08:30 right you already have this we metrix which which came from the previous iteration you again update it you update
+08:37 you update the hiden states and the corresponding uh corresponding dictionary is
+08:43 updated you keep on doing this thing with all this instances now you can say that you know I will I will I will train
+08:49 the model using batches that is also possible you take a batch and then you do this update or let's say per instance
+08:56 you basically update this RN okay so this is a language model
+09:01 objective based RNN model there's no task involved so far
+09:09 now so this is now what you do so this is your first RNN which is a language
+09:15 model objective Bas RNN when all these things are done you freeze this
+09:20 RNN when you freeze this what does it mean it means all the embeddings are freezed right and now let's see you are
+09:26 interested in doing some task okay okay and let's say you have some task specific
+09:33 data you have some task specific data which you you you you want to use to
+09:38 train the model further some sort of fine tuning okay so
+09:43 on top of this you you apply another rnm which will be responsible for doing this
+09:49 task now let's say the task is sentiment analysis okay this is s analysis so this
+09:56 is frozen it is frozen means the hidden States coming from this the first
+10:02 layer so given the task specific input all the tokens embeddings are coming
+10:07 from this layer which are frozen right and here in the second layer you have
+10:13 another uh weight Matrix W Dash which corresponds to that layer and you have
+10:19 the task you you produce the uh some output there's some error right you back
+10:26 prop and you update the uh wids the task specific wordss are updated so
+10:33 during the inference time let's say you are given a sentence right what do you do first you are given a sentence then
+10:39 you first retrieve now remember there are two layers don't forget there are two layers
+10:45 the first layer is a language model layer the second layer is a task specific layer right during the
+10:51 inference time what you do during the inference time you feed here right you
+10:57 you basically feed here the bottom layer the corresponding weight wh is already
+11:03 stored it has already been learned right so let's say you are fitting a new sentence let's say aai aai
+11:12 is a great Cricket player okay so what you do uh so this is my first layer okay
+11:19 so you feed the input uh the the input Vector of Oxi from the dictionary right
+11:25 you multiply this with the weight wh right it will and and then uh o is
+11:31 then you also have this is uh emitting for the for for the word is this and the
+11:37 previous hidden state will basically be used to generate the next hidden state right and so on and so forth you roll
+11:45 out okay when you roll out now let's let's look at the current hidden States
+11:50 now now these hidden States the current hidden states of the of the bottom layer
+11:55 are very different from the hidden states which are stor earlier because these are multiplied by these
+12:02 are these are basically functions of the weight Matrix right and this is contextual why
+12:08 this is contextual because the word great is now dependent on on the
+12:13 previous Words which is AA is okay maybe the word great was used in
+12:18 some other context but in this context this is a function of the previous
+12:24 words clear so the bottom layer will produce will produce a hidden States right now
+12:31 this hidden States will be moved to the to the task specific layer and the task specific layer we
+12:37 already know the corresponding weight which was learned earlier that will be used to predict the
+12:45 task okay now there are some changes here and there what I mentioned is a very high
+12:52 level overview of this let's look at the changes but the bottom line bottom line stories should be clear right there are
+12:57 two layers one layer is responsible for language model objective the top layer is responsible for task right U here you
+13:06 stored the hidden States as embeddings of the tokens right and then the embeddings will be will will be changed
+13:12 when you apply um for a for a specific context it will change
+13:18 okay okay RNN is not a very great approach I mean RNN unidirectional RNN
+13:24 is not a very great approach because it only scans from left to right right as you understand for a language model
+13:31 objective why why do we need why do we just need to scan because I want to process the entire sentence so along
+13:37 with the left to right RNN I will also use a right to left RNN as you process the ENT sentence now
+13:45 left to right RNN will process will basically predict uh the next word from
+13:50 left to right right to left RNN will basically predict the word from right to
+13:55 left okay now I mean the the there are two ways to essentially do this thing
+14:01 let's say if you if you have access to only a left to right RNN not an right to left RNN what you can do you can just
+14:09 rotate the sentence right let's say I'm going to school school to going am I and
+14:16 then you uh run a left to right rnm okay in fact what they
+14:23 did they used a stacked rnm there are two layers now this rnm that I'm talking
+14:29 about is a language model RN the bottom the bottom RNN that I mentioned earlier so the bottom RNN was essentially a
+14:37 stacked RNN there are two layers right so you see here this is this is one RNN
+14:44 called the forward uh language model there are two layers layer one and Layer Two right and this is a backward uh LM
+14:52 backward RNN here also there are two layers layer one and Layer
+14:57 Two right a cute puppy and a cute puy okay left to right and right to left
+15:04 then what is going to be my final hidden state which I'm going to store into the dictionary the final hidden State
+15:11 corresponding to the what cute right can be can be either the
+15:17 concatenation of this and this right or it can be let's
+15:24 say only the top layers this plus this
+15:30 plus means concatenation right there can be multiple ways of combining this let's
+15:35 look at it here so you have a left to right RNN okay look at this equation
+15:41 very carefully okay so this is a language model objective here so you have you you are given a sequence of
+15:48 tokens T1 T2 dot do do TK minus one we are predicting TK what is this one this
+15:54 is essentially the lstm I mean the RNN parameter which is w H right the all the
+16:02 other parameters meaning the let's say we right all the other parameters in the
+16:07 RNN will remain the same what is w w is the parameter corresponding to the input right in this
+16:15 case this is Theta X this will remain the same in the forward lstm and the
+16:21 backward lstm okay all the other parameters what is this Theta s what is this Theta s Theta is the S is the
+16:30 U okay the soft Max parameter this will also remain the same in forward and
+16:36 backward so the only parameter which is going to change is the
+16:42 wh okay so then you essentially add this to um look
+16:51 at here this is I think better way to repr presentent it so for every token k for every token
+16:59 okay you you you got one representation from the forward layer and one representation from the backward
+17:05 layer right either you just concatenate them so they what they argued is that
+17:11 instead of instead of taking this embedding this embedding this embedding
+17:16 and this embedding instead of taking four embeddings for a particular token we will only use the top
+17:24 layers not the bottom layers why bottom layers are not that interesting
+17:30 so after the top layers we have this U Matrix right and the S Max so the when
+17:37 you do back prop right this layer will be affected more compared to the bottom
+17:44 layer so Tas specific weight is just above the top layer I'll only use the
+17:50 top two top layers and the corresponding vectors will be fixed and
+17:55 concatenated okay in fact what they said is is that instead of doing this you can
+18:02 also add some some parameters so along with this which is
+18:09 the combination of right combination of backward and forward you add a parameter
+18:15 now this parameter is a layer specific parameter look at here
+18:21 layer J ranges from Z to L and there are two parameters one is
+18:27 this Gamma One is this s right now this s corresponds to a specific layer and
+18:33 this gamma corresponds to a specific task what does it mean it means that
+18:39 when you on top of this language model layer when you apply a task specific
+18:45 layer right I mentioned earlier that the language model is going to be
+18:50 frozen right what they said is that instead of freezing it completely you add some parameters which will be
+18:57 dependent on the task okay this hidden stat will not be updated but the parameters will be updated parameters
+19:03 corresponding to the hidden States will be updated it means during the inference time when
+19:09 when when you feed one specific instance for that specific task you basically f a
+19:15 a and Gamma you see because this parameters are already
+19:21 learned so now your hidden states are little bit dependent on the parameters
+19:27 of the task now if you want you can discard this dependency you can just remove this
+19:32 class specific parameters only use the hidden state right but if you feel that okay you know some dependency should be
+19:39 there you can use this right some other properties of this
+19:47 Elmo uses token level representation this token is essentially character level token not a word level token okay
+19:56 so for that they used a CNN right uh 2048 character CNN um con blayer and
+20:02 then uh you know some some some linear projection and so on and so forth because uh Cel Cel encoding always helps
+20:12 you overcome the Unk kind of problem right an token
+20:17 problem okay let's look at the result very quickly so Elmo was Elmo was one of the
+20:24 first large scale models okay million size models I think 90 million or
+20:29 something like that I forget the exact sides it was tested um on different task
+20:37 question answering task Squad question answering task the squad data set was proposed by Stanford again in 2017 2018
+20:45 during that time we'll talk about it later another task was uh natural
+20:51 language inference task right semantic go leveling task core reference resolution task named entity recognition
+20:57 task sentiment analysis task sst5 is a very famous data set right
+21:04 and if you look at the results uh there is always an increase right increase in
+21:09 fact in some cases increase is significant quite significant compared to the other models okay so this is the
+21:17 previous SOA output right state of theart model and this is Elmo in fact you can use Elmo um to
+21:26 initiate Transformer right in in in a Transformer also you need to feed uh embeddings right instead
+21:33 of using what to you can essentially use Elmo
+21:39 representation okay so this is all about Elmo so Elmo is yet another word
+21:44 embedding technique but contextual Dynamic unlike
+21:50 what to V glove which was static right context independent so we we have been talking
+21:57 about pre Trend W vectors in pretend what vectors your uh your
+22:04 embedding layer is frozen right and your task specific layer is essentially
+22:09 something that you are interested in okay and this part is pre-end model is not pretend the enre
+22:17 model is not pretend only the inputs are pretend right now from pretend what
+22:22 vectors we are moving to pre models in the pre model all the par
+22:29 parameters are preten right all what are the parameters in a Transformer model the parameters
+22:35 are the the parameters corresponding to the attentions right parameters corresponding to fit forward Network all
+22:42 of them are praten right then for a specific task you then find un
+22:47 it okay so let's look at uh so there are
+22:53 there are three kinds of prings that we are interested in right depending on the depending on which part of Transformer
+22:59 we are interested right Transformer there is an encoder block there's a decoder block so one type of pretaining
+23:06 only considers the decoder part of the Transformer okay so all these GPD series models they are only
+23:12 decoder decoder only models decoder based models right they do not consider the encoder part therefore this CR cross
+23:19 attention is not there okay the other type of models are encoder only models
+23:25 where we only look at the encoder part of it we forget the part and then we'll pretend an encoder
+23:32 model B right um Alber robot all these models are uh encoder only model and
+23:39 then the normal structure which is the encoder decoder kind of model the Transformer the actual Transformer model
+23:45 this can also be used for pre tring right so GPD GPD comes here board
+23:52 series model comes here and T5 right another model is called bot b r t these
+23:58 are all basically encoder decoder models okay so let's look at this B BT
+24:05 model proposed by Google okay so board stands for
+24:11 bidirectional encoder representations from Transformer and this is the
+24:17 paper so we now we have only the encoder part of the Transformer model only the encoder part and now we are pre turnning
+24:24 this encoder part okay encoder part the beauty of the encoder part is that there is no mask
+24:30 self attention this is unmask self attention meaning all the tokens each of the tokens can attend to all the other
+24:37 tokens in the in the sequence right so it is some sort of B directional in
+24:43 nature because you can scan from left to right right to left and whatever so in
+24:49 B when we pre-train what we do we
+24:55 essentially now for free training what is my objective because I don't have any task specific
+25:02 data I only have access to Raw Corpus right raw Corpus raw sentences
+25:08 what is going to be my objective so in this paper they came up with an
+25:14 objective called mask language model
+25:20 MLM now this is a self-supervised approach not an unsupervised approach
+25:25 because there's some gradient flow self-supervised apprach you don't need any label
+25:31 data right so what you do in B in the encoder part is that you feed a sentence
+25:39 right and you mask some of the tokens of the sentence and let's say for the time
+25:46 being the tokens are wordss you mask some of the tokens and you let the model
+25:51 predict those tokens okay now there are so many
+25:58 questions for example which tokens I should mask how many tokens I should mask right and so on and so
+26:04 forth so these are all empirical questions and what they showed is that 50% masking is enough so you mask 15% of
+26:11 tokens present uh in the training set right but
+26:17 when you mask it you mask it in in three different ways okay out of this 50
+26:26 15% 80% cases right you you you basically just mask
+26:33 that token right so so what does it mean by masking a token so they introduced a
+26:40 new token called mask right a new token called
+26:48 mask when you feed right you replace a word you replace a token by mask okay
+26:55 and at that position corresponding to the final output you predict what is going to be the actual word uh at the
+27:02 place of mask okay so 80% time you mask some of
+27:11 the tokens 10% times you replace that token by another token let's say the
+27:18 sentence is like going to the park you replace the word park by
+27:25 store and you let the model predict the word Park
+27:31 right this is some sort of corruption you do some sort of corruption and you uh let the model predict the actual word
+27:38 right and 10% of time you don't do any change but still you let the model
+27:45 predict it your input is uh like going to the park right you let the model
+27:52 predict the word Park why this is important
+27:58 why this is important this is important because if you only teach the model to
+28:04 predict the mask token the model will basically start forgetting predicting the actual tokens so sometimes you also
+28:12 need to you know tell the model that that look I mean you are learning the uh
+28:18 this this mask output but you also need to understand what is what is there in the other
+28:25 tokens okay so y 15 % why not
+28:32 50% if you mask 50% of the tokens right most of the contest will be
+28:38 destructed your contest you also need some contest right the contest will be will be
+28:44 gone right so they empirically tested that 15% is a good number 15% of an 1
+28:49 billion or you know 10 billion size token is good enough this is my sentence let's say uh
+28:57 like going to the
+29:03 park right you fit this you replace this by
+29:11 mask okay and you want the model predi to predict
+29:16 like going to the to the
+29:23 park so your error is only computed here
+29:29 not at the other tokens other token positions this is very
+29:36 important right now this is not all about but I'm coming to the other parts of it so mask language modeling is clear
+29:42 clear so one task is this Mass language prediction okay Mass language model so
+29:49 they actually they use two tasks one is this Mass language prediction and the second is next sentence prediction what
+29:57 is next sentence prediction you give two sentences right you have this Corpus you know
+30:03 which sentences are actually are there side by side you know the two consecutive sentences you take two
+30:09 sentences W1 and W2 and you predict you let the model predict whether W2 will
+30:15 follow W1 or not so for the training data what you do you take those pairs of sentences which
+30:23 actually appear side by side right as your positive samples and as your negative sample you do random shling
+30:32 right and you basically take those pairs which which do not appear side by
+30:37 side let's say uh I enjoy reading the book right I finished the novel these
+30:44 two sentences appear side by side so the label is yes otherwise the label is no
+30:50 right so these are two tasks and we will do these two tasks
+30:57 simultaneously mean let's say the input is
+31:04 I enjoyed reading the
+31:11 mask okay and how to separate these two uh sequences this is sequence
+31:17 one sequence two the
+31:24 novel was great right we separate them using another
+31:31 token called ACP separator the separator is a new token
+31:37 like a mask token right and they again again you may have a separator
+31:44 here right so you introduce two new tokens along with
+31:50 this we introduce another token called the CLS
+31:55 token and this is prepended with the sequence this stands for
+32:08 classification okay so you feed this entire thing to the encoder block right
+32:15 what is the need of this CLS token now let me let me first tell you what what will happen after this
+32:24 so the model will predict the vectors right at the end
+32:33 right Vector corresponding to CLS Vector corresponding to ion so on and so forth
+32:39 and it will also try to predict this mask mask word on top of this CLS I will
+32:46 use a task task specific head meaning basically a linear layer U right which
+32:53 will project it into two classes yes or no
+33:00 okay if two sequences are if two sentences are uh
+33:06 sequential then it will predict yes otherwise no there are two losses one loss is here another loss is here mask
+33:15 and those two losses will be backpropagated right now my question is why do we need this CLS
+33:23 token can't we just can't we just you know take the
+33:28 embeddings of all this all these tokens and then concatenated and then pass it
+33:34 through a linear followed by
+33:47 nonlinearity okay okay what is saying that uh we take the we don't we can't
+33:52 take the concatenation because we don't essentially know this one the actual Mass token right okay
+34:00 that's fine then we we just ignore the mass token and uh somehow combine the other tokens the other tokens are good
+34:06 enough only 15% are masked why the CLS token so remember CLS token also acts as
+34:12 a normal token meaning CLS also attends to all the other
+34:17 tokens in the S attention part it has attended to all the other tokens so CLS
+34:23 has information about all the tokens right but CLS token is a token
+34:30 which doesn't indicate any meaning present in the sentence because this is not a part
+34:36 of the sentence at all you may argue that why do I need a classification
+34:44 layer on top of CLS I can have a classification layer on top of I or on top of uh read they have also
+34:53 attended to all the other tokens right but they themselves have some meanings
+34:58 a CLS is a token which is not present in the sequence at all so it is not biased
+35:05 that token is not biased the cess token is not biased to
+35:12 any of the other tokens present in the sequence whereas the token I is biased towards
+35:18 itself attention score would be high right in fact there there is another uh
+35:26 plus point you know be using CLS for the classification how many weights you are
+35:32 incorporating here apart from the uh you know the normal encoder weights self attention
+35:39 Feit forward weights these are already there in the in the in the encoder but this classification how many wordss you
+35:48 incorporating parameters you are incorporating only this part right only U and what is the size of U if the
+35:55 vector size is 512 this is 512 into 2
+36:01 right instead of this if we had a concatenation of tokens this is going to be
+36:07 bigger right the parameter size can also be decreased okay now this error which is
+36:15 the task specific error will get back propagated end to end right the mask the error related to
+36:22 this mask token and the error which is there on top of this CLS token those two
+36:29 errors will be back propagated into it and all the encoder blocks will be
+36:36 updated okay now this is encoder you can use this encoder block for word
+36:43 embeddings also like Elmo you can use B for contextual contextual word
+36:50 embeddings okay all right so this is the this is
+36:57 the graph IAL depiction look at here e0 E1 E2 E3 E4 basically E1 to E1 to E4
+37:07 right uh from this to this this is one sequence from this to this this is
+37:12 another sequence this to this is another sequence right my dog is my dog is cute
+37:18 he likes he likes playing right you have a PO encoding
+37:24 right so in here they introduce another encoding called the segment encoding segment encoding is just indicating
+37:31 whether this is the this token comes from the first sentence or the second sentence right so segment this is a and
+37:38 this is B so positional encoding segment encoding then uh from that you and you
+37:44 also have this token you know normal token encoding this can come from Elmo can be can come
+37:51 from what what to wake and so on and so forth and then you have this CLS
+37:56 prepended ACP separator and so on and so forth now
+38:02 this is my input sequence you mask some of them and you
+38:07 feed so this is the training details they used 2.5 billion Wikipedia Corpus
+38:13 another book Corpus consisting of 800 million BS they tested two different
+38:20 variations of b b base consisting of only 12 layers of encoder and B large
+38:26 consist of 24 layers of Corder with different hidden State size and different uh multi-headed
+38:33 attention uh 12 head 16 head right and so on and so forth there are other uh you know EPO and so on other other
+38:40 details are also me mentioned here okay now if I ask
+38:46 you can we use board for a downstream task and let's say the downstream task
+38:51 is question answering okay what is the question answering task you were given a question
+38:59 Q okay and let's say who
+39:09 played uh the role
+39:16 of Bikram
+39:21 rur in Javan
+39:28 okay this is the question and this is the passage you have a passage where all
+39:34 these things are written and Somewhere In this passage it is written that the
+39:40 role of Vikram rur right was played by
+39:46 saruk Khan
+39:53 right this is the passage and your task would be to essentially retrieve this information from the passage now tell me
+40:00 how do we use board for this kind of task okay this is a typical uh Close
+40:07 book kind of question answering task where you are given there are so many data set Squad Squad is one data set
+40:13 right there are other data set like uh quar right Hotpot QA there are so many
+40:20 data sets available some data sets look like this some data sets basically are conversational data sets where you have
+40:26 conversation you ask a question and you retrieve answer from the conversation how do we use this uh the bot model to
+40:33 solve this kind of task what do you think the B model is already preten
+40:41 using mass language model right now when you find tune the model for this task
+40:46 you already have some training data where the question and the corresponding uh P passage is the input and the output
+40:52 is the specific uh token right so what you do here in the B
+41:00 model this is B you adapt to this model for specific
+41:08 task this is one such task okay so during
+41:15 training you feed question Q right
+41:21 separator and the passage P
+41:26 separator okay and you have CLS okay so you have different tokens
+41:34 here you have token let's say token T1 token T2 T3 dot dot dot dot dot right so
+41:41 t60 and so on and so forth then what you do you add a
+41:47 classification layer on top of every token in fact you add two classification
+41:52 layers on top of every token right one classification layer will be respons responsible for I mean you can think of
+41:59 this specific phrase as a
+42:05 span right so this is start of a span this is end of a span so so here in this
+42:11 passage there is this word called saruk Khan right and the corresponding
+42:16 embedding of saru sa corresponding embedding of ruk corresponding embedding of Khan will also be present
+42:24 here right you maintain two two different classification heads one
+42:31 classification head will basically keep track of the beginning of the span and other will keep track of the end of the
+42:37 span let's say you have C1 let's say CB C okay so CB for all the all these
+42:46 tokens will be 0 00000000 0 during training right
+42:53 and for the word sa right CB is going to be one and CU will be zero then the
+43:00 other The Rook will be 0 0 KH will be zero and one and the remaining will be 0 0
+43:08 0 this is my ground to data I want the model to predict this
+43:15 this labels right now you feed the input to
+43:21 the model the model will produce the embeddings right and those embeddings
+43:27 will be fade to the classification layers classification layers will essentially produce uh produce some
+43:33 probabilities there are two probabilities one is the probability that the current token is uh uh act as a
+43:40 beginning and the current current token act acts as an end right so I hope my hope will be that
+43:47 the token correspond to sa is going to be the the the PB for the token sa is
+43:53 going to be 10 to one that TS to one and the p e correspond to KH uh tends to one
+44:01 right if it doesn't happen then there's a loss and that L loss gets back
+44:08 propagated right task specific layers meaning uh this these two layers right
+44:14 these two layers will be mostly updated and the other uh freend layers can also be
+44:21 updated okay so the now this the model is now ader to the specific task
+44:29 when a test sentence comes in a test sentence the test question and the passage what you
+44:36 do you use this pre-end model pre-end followed by fine tun whatever the model
+44:41 that that is there right you pass the sequence right it will produce p p uh p
+44:49 uh B and P for all these tokens and our task would be to
+44:55 maximize what the task would be to basically figure out two such
+45:02 positions such that PB time P will be
+45:14 maximum now think about it for every token you have two probabilities PB PE
+45:19 right all there are so many possible combinations are there right PB * P so
+45:25 pb1 * P2 right P pb3 * PB uh P1 and so
+45:31 on and so forth all these combinations are possible which combination I will take I will take that combination where
+45:39 number one the end token I mean let's say let's
+45:44 say you choose you have chosen I and J as two different positions right and PB
+45:51 uh comes from I and P comes from E uh P comes from J J should always is be
+45:57 greater than I of course right the end token should should come after the beginning token
+46:05 right this is the first first condition or whatever get than equals to because only one token can also be possible okay
+46:13 and then uh you know considering this condition then I want to maximize this
+46:19 probability PB * P now you may ask that in a p in a
+46:24 passage there are multiple appearances of the word shukan so which one I will
+46:30 consider right so generally you consider the beginning the the first the first
+46:35 appearance of the word okay so in this way you can you can
+46:43 uh essentially use a pretend B model for a downstream task like question answering task which apparently looks
+46:49 very different from the pretending objective right now this is all about B
+46:58 uh it was tested across multiple tasks right this question answering task uh
+47:04 natural language inference task remember for each of these tasks you need to adapt your your model accordingly right
+47:11 uh this is this this schola Benchmark which is a corpus of linguistic
+47:17 acceptability is basically indicates whether sentence grammatically correct or not right STS Benchmark p r Benchmark
+47:26 and so on and so forth and it showed that b large significantly improves the
+47:31 tasks right compared to the other baselines which are s at that time it it also bit the gpt1 model OKAY B had been
+47:41 one of the state of the art models till 2020 and following bot there were
+47:46 approaches like Deb robot right tiny bot where people started squeezing the model
+47:53 right uh making the model tiny then this uh robot paper says that you know the B
+47:60 model is under trained you need to train them you know more and more and so on
+48:05 and so forth there are papers where people essentially feed a lot of training data across multiple task um
+48:12 people also showed when you keep on adding new task how the model I mean whether the model will be generalized or
+48:18 not and so on and so forth right so this is One Direction of research I will not
+48:23 go into the details of the followup of B but I will strongly suggest you guys to read those papers at least use those
+48:30 models for your projects okay with this I stop here and in the next uh lecture
+48:37 we will uh we will try to address the other types of pre- turnings like GPD and T5 yeah thank you

@@ -1,0 +1,533 @@
+00:04 all right uh hello everyone uh so today uh we'll be talking about uh
+00:11 quantization pruning and distillation so these all fall under the same umbrella and uh maybe once I go into the
+00:17 introduction it'll be clear why we are discussing these three topics together right all right so so like we discussed
+00:25 last time the reason why we wanted to to do theft was uh because of how the model
+00:30 sizes have been increasing over time right and this is again a recap of that that uh uh like over time the size of
+00:40 the model is increasing exponentially and uh and it's not just the size but the performance of these
+00:48 models are also increasing over time so here we see that these are the uh test
+00:53 laws of uh various uh language modeling tasks on on different data sets and you
+00:59 see that they are of decreasing considerably uh based on the uh amount of parameters that are there in the
+01:05 large language model right so now uh like what are the flip side of having
+01:11 such a large models uh during inference right so the first thing like we
+01:17 discussed last time is that uh the bigger the model is uh you'll have to buy new hardware to support things right
+01:24 uh and and and in it's sort of uh not so
+01:30 uh monetarily friendly to keep buying Hardware as in when the model keeps growing over time right so so then this
+01:37 also puts a cap on uh how many organizations can actually run these llm inferences so GPU requirement is going
+01:44 to get larger and one of the biggest problems in deployment is latency right
+01:50 so the larger the model is the more time it is going to take to come back with a completion for a given prom now let's
+01:58 say that you have a chat bot that is deployed uh whose backbone is an llm
+02:04 then having to wait for 30 seconds or 40 seconds seems it it seems like really
+02:09 difficult at this point in time when we are so used to getting replies very quickly right and and and the way the
+02:15 llm field is progressing now uh people are not just using single llm call per
+02:21 sort of responding back right for example there is now this new paradigm called agentic Behavior where once the
+02:27 language model responds you ask the same language model or a different language model to reflect on the output or even
+02:34 sometimes execute the output get execute whatever being like for example if the model generates a code you execute the
+02:41 code get the outputs and then make the model reflect on the output and then decide whether there's an execution error should it redo things uh and then
+02:49 finally you give back the answer right so now if you have to make multiple llm inference to just get back with one
+02:55 output then that's going to increase latency even more right so latency latency is one of the biggest concerns
+02:60 third is inference cost like uh if you have an application deployed uh who
+03:06 which uses llms of course you'll be worried about how much money you're going to spend to serve a single user
+03:11 right and the money that a single user is going to pay you should be more than what you invest uh for that user right
+03:18 so if llm for for for for slightly more Improvement in accuracy if you have to spend a lot more uh then it doesn't seem
+03:26 uh commercially friendly right so so of course inference cost is going to be one of the biggest dimensions and
+03:33 finally sustainability right environment concerns like you'll have to you need a lot of energy to run these llms you need
+03:40 to support data centers which require cooling water and and uh so so if your
+03:46 energy is not coming from a sustainable Source then there are a lot of carbon emissions which sort of affects uh the
+03:54 the overall environment right so so again llm inference has a huge impact on uh sustainability
+04:02 so so here uh before going into how can we do this let's look at what just
+04:08 happened very recently right in open AI uh after they release GPT 40 which is
+04:13 the pink model uh they release something called GPT 40 mini right now uh GPT 40
+04:20 mini is sort of like let's say on MML is 6 points lower on uh uh mgsm it is three
+04:28 points lower uh uh but uh the GPT 40
+04:34 mini is also almost always better than the previous version right I mean the
+04:41 one before gbt 4 right gbt 3.5 so it's so but if you see the inference cost
+04:46 that you'll have to pay you will end up paying a lot more for GPD 3.5 turbo than
+04:52 GPD 4 right uh even now so so this is uh a
+04:58 website called GPT for work where if you give them the number of tokens in the input the number of tokens that you
+05:05 expect the model to have in the output and how many times you'll end up calling this again and again it'll give you an estimate of how much money you will end
+05:11 up spending right so so here if you see for the same amount for the same setting
+05:19 uh for GPT 40 you end up spending $80 but for GPT 40 mini you only spend $3
+05:26 right you guys just saw the performance drop you get for GPT 40 it's not that bad right so if you're able to get this
+05:34 much uh reduction in cost for slight drop in accuracy I think like lot of
+05:39 people would go for it right because it makes so much commercial sense to do things like this rather than go for high
+05:44 accuracy now why is GPT 40 mini so cheap right compared to the the non- Mini
+05:53 version right or uh the bigger question here is that uh how can we uh deploy
+05:59 llms in a in a cost effective manner while maintaining the performance
+06:05 of the bigger model right so so this is what we'll be answering in this uh in
+06:11 this talk today uh we're going to cover the different ways in which we can achieve
+06:17 this right so uh so there are two main classes of techniques that you could do
+06:23 right one is model compression uh which is like if you have a 65 billion uh parameter model you can
+06:30 compress it to let's say 8 billion parameter model right with very minimal loss like not so much but there are also
+06:38 another class of algorithms where uh you would do engineering efficient
+06:44 engineering to sort of achieve the same thing that you achieve now uh but it
+06:49 sort of helps you reduce the inference cost right so I can give you some examples of uh efficient engineering uh
+06:56 for one of the most common operations that you do in uh Transformer inference
+07:02 is scale dot product right uh you have the key Vector you have the value Vector uh you'll have to comput a DOT product
+07:09 then you'll have to scale it up uh or scale it down and then uh you'll have to do a soft Max right uh so there
+07:18 are there are software kernels that have been developed which fuses all these
+07:23 subtask together into a single kernel and that gives you tremendous Improvement in uh efficiency right so so
+07:30 here it's not lossy you do get the exact same operation you do get the exact same output it's just that you do some
+07:36 engineering efficiency to reduce the cost now there are also Hardwares that
+07:42 specifically support certain operations right out of the box and and you can
+07:47 people who do these efficient engineering when they fuse kernels they also they also effectively make use of
+07:53 the information provided in the the instruction manual about in the data sheet about how to leverage those
+07:59 operations and then make it more efficient right
+08:04 uh so the efficient engineering part uh yatin will be covering it in the some
+08:10 parts of it yatin will be covering it in the next lecture for this lecture we'll focus mainly on model compression
+08:15 techniques and specifically we'll be talking about quantization uh pruning and
+08:22 distillation so let me give you a brief about what these are quantization as the name suggests uh what we want to do is
+08:29 we want to keep the exact same model but just use reduced number of bits to represent parameters and activations and
+08:35 whatnot right uh and pruning is as the name suggest again you just prune out
+08:42 certain parts of the network uh and then uh while trying to maintain similar
+08:47 performance of course it's going to be lossy and finally it's distillation where uh you have a a big model that is
+08:54 trained well and then now you train a smaller model uh by using the bigger model as as a teacher right don't use
+09:01 the real output but rather use what the model predicts to guide the smaller models to do now out of these techniques
+09:09 distillation helps you is is the least lossy right uh but it's the most
+09:15 expensive because now you have to train the whole thing first of all you have to do inference over the teacher Network
+09:22 and then get the outputs that itself is expensive on on on a really large data set and then you have to use those
+09:28 outputs and then backrop on the new model which is smaller much smaller than the original architecture to sort of uh
+09:34 achieve uh model compression so distillation is the costliest but uh it it gives you a lot of uh uh good it's
+09:43 it's it's sort of the best way to get to maintain the accuracy whereas quantization and pruning are sort of slightly lossy uh but uh but but they
+09:51 require very little changes but quantization has other advantages as well which I'll be covering uh when I
+09:57 talk about it so let's first talk about quantization so uh before jumping into
+10:03 the quantization technique let's just do a recap of uh how llms do inference and
+10:09 talk about uh how uh floating Point numbers are represented in uh in the
+10:16 computers and then finally talk about quantisation right so so this is a usual neural network where uh there is input
+10:23 and uh uh and then there are weights which are the which which
+10:29 are here and and and you also have uh activations here right so so like llms
+10:38 have a lot of parameters uh that are in the weights uh and and and they are really expensive to store and and during
+10:44 inference you you end up creating activations and uh these are the product of input and the weights right and they
+10:52 also are required to be stored and and and the goal of quantization is like how
+10:57 uh efficiently uh can you store these values so that you end up using lesser
+11:03 memory you compute faster and you save cost right so it's more about how do you
+11:08 represent them so let's talk about how uh numbers are represented so typically
+11:15 uh a full Precision is what is referred to as the fp32 notation where uh you
+11:21 represent the floating point with a single sign bit for positive negative and there is an exponent that is
+11:26 represented using eight bits and the fraction or the mantisi is theed using 23 bits right so the the the difference
+11:34 between the two smallest numbers that you can uh the difference between the
+11:39 two smallest numbers is so low and it's sort of captured in the 23 bits right so the Precision is really high here this
+11:44 is typically called Full Precision uh like in the past a lot of machine learning modules used fp32 to represent
+11:53 so this this gives enough uh Precision for a lot of scientific applications
+11:58 right and and and after a while uh in the Deep learning era uh people mve to fp16
+12:06 because uh gpus out of the out of their box started supporting fp16 uh with
+12:12 improvements in time than fp32 right and uh so so here the difference is that as
+12:19 you see it's it's the number of bits that you use for exponent and the number of bits that you use for the fraction
+12:24 right so the range has reduced because the exponent has reduced and even the Precision has reduced considerably but
+12:29 for machine learning T specifically deep learning applications this still does the trick right you you you you almost
+12:35 don't see any drop in like performance uh but your computations improve significantly if you move from fp32 to
+12:43 uh fp16 now you can reduce it even further right so there are certain uh
+12:50 applications where people simply use uh int 8 representation where you use one
+12:56 bit to represent the sign and seven to represent just the
+13:01 uh the rest so so let's talk about how would
+13:08 you uh quantize fp32 uh into int 8 for fp16 also it sort
+13:14 of Remains the Same uh so so the so this is a very simple way of quantization uh
+13:20 which is the the simplest of all so what we do here is the first task is so let's
+13:25 say this is the fp32 vector that you have right so first task is to identify
+13:32 the value in this Vector that has the highest magnitude right uh so for a
+13:38 given Vector you identify the max absolute number which is 10.8 uh in this
+13:43 particular case and then what you do is that you you set the maximum and and and set it symmetrical
+13:50 and the minimum right the the range is centered at zero always and and you set
+13:56 the maximum absolute value and the minimum AB absolute value as a two extremes and and then the rest is simple
+14:03 right you sort of map this maximum Alpha to 127 and minimum Alpha to minus 127
+14:10 and and how do we compute this number the the intake so so basically the first
+14:15 thing you do is compute a scale factor so here we are using seven bit uh here we using eight bits uh so so we so this
+14:24 number would be 127 and Alpha is the highest absolute value so this is going to be your scale
+14:31 factor and to compute the the let's say the quanti value for 5.47 all you have
+14:37 to do is multiply the uh value 5.47 with uh the scale factor and then round it up
+14:45 right so that's how you quantize a u 32bit floating Point into a intake right
+14:51 and and of course for for different vectors your Alpha is going to change and so the scale factor is going to
+14:58 change so you'll if if you have let's say an uh a two-dimensional Matrix which has 20,000 rows then you will have
+15:05 20,000 different uh scale factors to sort of quantise right uh so so so so
+15:13 this is how quantization works and and and D Quant uh yeah so this is how quantization
+15:19 works and uh D quantization is quite straightforward all you have to do is if
+15:24 you have the quantized uh vector and you divide it by the scale factor you end up
+15:30 getting the de quantized version which is the fp32 version right so here you have the
+15:35 fp32 uh Matrix and then uh let's say you want to quantize it into in uh 8 format
+15:43 you will end up getting the the alphas and uh the scaling factor for each
+15:48 Vector separate individually and you'll quantize them and then when you de quantize of course you're not going to get the original back right so the
+15:55 difference between original and de quantized is this quantization error
+16:01 right so it is going to be lossy and you will end up getting a quantization error
+16:06 so so let's see uh how this quantization
+16:11 and dequantization is typically used in uh machine learning inference
+16:18 right so so there are two types of ways in which you can use this quantization
+16:23 technique uh during your in your llm inference right one is you during
+16:29 training meaning don't worry about quantization okay you you train the model in half Precision which is fp16 or
+16:36 or mixed precision fp32 and bf6 whichever format that the model the code supports and you want to train on do
+16:42 that and and during inference uh you do uh you you first do a post training
+16:47 quantisation and figure out your scale factors and and and and other things and
+16:53 other constants and then uh use them for inference so that is one way you can do it uh the second way is ization aware
+16:60 training right so so maybe uh like like for example we we we discussed Laura in
+17:06 the last class and there is a variant of Laura called quantized Laura so that fine-tuning would be is a quantized
+17:13 version of Laura and it is it is quantization aware during training right so you can leverage uh quantization even
+17:19 during your fine tuning process so so now let's discuss the post
+17:25 training quantization um so so here the good part is that you don't have to worry about
+17:31 figuring out what should be your compressed versions architecture should be it's exactly the same right so
+17:36 there's no uh difficult decision to take there and uh and and the good part is
+17:42 you you also don't need retraining right so it's very cheap uh but again it's at the cost of how much quantization loss
+17:48 you get and how much lossy compression happens right so so the easiest thing here is that uh look weights and buyers
+17:55 are fixed after training right so and and when you look look at the weight Matrix you look at it at one vector at a
+18:02 time you uh when so whatever quantization I discussed just before is called symmetry quantization because
+18:09 zero is represented using zero in the quanti format and you have both positive
+18:14 and negative going through the the same value right but there are other asymmetric formats where zero is not
+18:21 mapped to zero and and the negative minimum and the maximum values are not the absolute values are not the same
+18:26 right so so there in addition to scale factor you will have other constants as well so so so since weights and bies are
+18:34 are sort of doesn't change over time it is easy to compute all these scale factors and other constants and then
+18:39 keep them fixed right but this is not going to be the same for input and activations right you're going to get uh
+18:45 inputs uh like during you're going to get inputs during inference sometimes the input matrices might have a smaller
+18:52 max value sometimes it may have a really big max value which will make it like clip which will end up clipping if you
+18:58 choose the uh uh the choose the scale factors like in a not so uh good way so what people
+19:07 typically do is similar to how we do for validation that you take some sort of a very small calibration data set okay
+19:14 pass them uh through your network so if you just have the data set you will only know the inputs but if you pass them
+19:20 through the network you will understand how these activation values changes with respect to the weights right so once you
+19:25 do it for a bunch of input called the calibration data said you'll be able to get some sense of what are the range of
+19:31 values you would see and what vectors would look like what maximum value you would hit and what range you would get
+19:38 so you use all these data and you again compute the scale factors so right so now for a given Network you would know
+19:45 all the scale factors that is needed to quantize for both weights for both model parameters and the inputs and
+19:51 activations right so then what do we do so typically
+19:56 what you do during inference is that uh you have multiple layers and within layers you'll have multiple operations
+20:03 one after the other that leads you to complete that layer right so the the
+20:08 typical way people use post training quantization is take one operation at a
+20:13 time right you have full Precision or half Precision whatever Precision the model is trained on as input right
+20:21 quantize the weights and the activations and then de quantize them after that
+20:27 operation right and then you keep repeating this right so so why why is
+20:32 this uh why is this efficient right because if you do a matrix
+20:39 multiplication using fp16 there is only so much uh you can do
+20:45 but if you convert this into a much smaller quantized version then the
+20:51 number of operations you can do like blows up right so that that blow up is
+20:56 sort of not is so high that that even the quantization and dequantization is sort of very small in that fraction so
+21:03 you end up getting a lot of speed up right so here if you see like you you have the input and the weight Matrix and
+21:11 uh and then first you quantize them because here you know your scaling Factor the scaling factor is 127 divided
+21:17 by Alpha right uh and uh and and you have the input you quantize them into
+21:22 from fp6 to uh int 8 you do the same for your weights as well and then you do
+21:28 your takes multiplication in the quantized format right and then you end
+21:34 up de quantizing them right so so why is this really
+21:41 helpful like I said like here we saw that we are converting from fp6 uh to int 8 right so so this is a
+21:51 data sheet of the h00 uh gpus so here if you see for
+21:57 fp6 uh you get let's say for nvl you get or XM you you
+22:03 end up getting 1,9 7 79 Tera flops uh but on inate you
+22:11 end up getting a lot more tensor operations right so so for the same amount of uh energy you end up doing lot
+22:19 more operations than what you would do on uh fp16 right so this is the advantage of uh doing uh this type of
+22:27 quantization and dequantization ation within every uh step in your computations
+22:35 right so okay so people started using this uh and this seems to work a a lot
+22:42 well uh but then uh in 2022 uh when the size of the model started to increase uh
+22:49 people found that after a certain value the the 8bit Baseline uh was not giving
+22:56 as as much accuracy as the 16 one which is the green line right so so here if
+23:02 you see the the the point at which this property emerges is around the the 2.7
+23:08 billion uh model uh where uh until then
+23:14 there was not much difference in performance uh here but then after that
+23:19 there was a steady uh Decline and and it sort of doesn't make sense to quantize anymore right so then uh uh these people
+23:29 figured out that the reason the the reason behind this uh emerging pattern and and they also
+23:35 proposed a way in which you can fix this right and their technique is called lm. inate right now we'll discuss a bit
+23:42 about what this does so before going into uh what this does the the reason
+23:48 why this dip is happening is because of outliers in your uh vectors okay so we
+23:56 we'll see what and what they say is that the percentage of outliers in your vectors are slot of negligible until you
+24:03 reach 2.7 billion parameter model but once you cross that you start from six
+24:09 billion and above the number of outliers become so high right that you end up not
+24:15 getting the same performance as what you would get right so let's see the effect of outliers right so let's say that uh
+24:22 you have your vector right and most of the numbers in your vector are sort of
+24:28 between uh let's say uh 10 minus 10 and 10 or something like that right most of
+24:35 them are in that range right and a lot of them are focused around zero right but there is one one value in the vector
+24:43 that is really really high right so what happens because of this the alpha is decided by this particular
+24:51 uh absolute number and so you set your uh you set both your extremes to uh
+24:58 represent this particular number so then what happens is that every other number in the vector sort of ends up getting
+25:04 mapped to the the same point right which means you end up losing everything just
+25:09 because of that one number and and if most of your vectors are going to be like this then quantisation is not going
+25:15 to help right so so this was the reason why uh you sort of saw a dip uh after
+25:22 the 2.7 billion model because most of them seem to have these out layers so so how do we fix them right
+25:29 their their proposal was quite simple the the the main uh contribution of this paper is that they found the issue right
+25:37 so that was the biggest contribution the approach is very simple and elegant right so so this was what we used to do
+25:44 uh before llm intake right if you have any Matrix X and W you would just
+25:51 quantize them and then do the matrix multiplication and then de quantized them right so what these guys said is
+25:57 that uh you have a certain threshold and and and any value that crosses that
+26:04 threshold is sort of the outlayer right so don't use them to
+26:09 compute your scale factors or other constants right keep keep them away just
+26:15 identify them as outliers and keep them out right do all your quantization constants and then during input uh when
+26:22 you see these outliers then just mask them out take them out right so if you
+26:28 see here the yellow ones are the outlayer ones so they have removed the The outlayer Columns here and the
+26:34 outlayer rows here and then they have kept it separate right and now uh for
+26:41 the nonoutlier ones you do quantization and for the outlayer ones you don't do quantisation right you
+26:48 represent them Asis and then whatever uh Precision you used for your uh during
+26:54 your train and what the full model uses use the same to do in here as well and then you add them up right so the the
+27:02 Simplicity of this sort of uh is really good and and it helps solve this problem right and and as we saw in the first
+27:09 graph once you do this small hack then everything gets fixed right so this is
+27:16 uh int 8 llm int 8 post post training
+27:21 quantisation okay so the the most popular technique uh for quantisation
+27:27 aware training is Kora because like this is sort of one of the most popularly used P technique uh mainly because of
+27:35 two reasons one is that its memory footprint is quite low and it almost achieves similar performance as
+27:42 fp16 right now uh on an average uh if you're
+27:47 going to fine tune a 65 billion parameter model uh again this is for full fine tuning that I mentioned that
+27:54 you would end up requiring 12 to 20 times the size of the par right so
+27:59 you'll end up taking 780 GB of memory which seems like almost impossible to get that much GPU memory right and uh so
+28:07 so the good part about Kora is that it reduces the memory footprint by big margin and and for a now you can find
+28:13 tune a 65 billion parameter model in just uh 48 GB of memory right and and the best part is
+28:20 that uh it it almost doesn't degrade your performance right for a lot of
+28:26 tasks so so so QA is a is sort of a
+28:32 combination of these four items right so the here the Laura Laura is sort of borrowed from the previous work but what
+28:39 these guys suggested is that on top of Laura uh we would uh use uh this specific format of quantization of
+28:46 Weights which is called the 4bit normal float uh they would use something called double quantization I will get into the
+28:52 details and they also make use of uh some of these Hardware specifications to
+28:58 sort of further reduce the memory footprint and this sort of is sort of they they looked at the uh the fact
+29:04 sheet of Nvidia gpus and then they came up with these paged optimizers which would further reduce the amount of memory that you would need uh during uh
+29:12 PFT so let's talk about what uh the normal float uh for quantization is so
+29:20 as the like since it is four it is clear that it's a four bit quantization right
+29:26 uh and uh float again it it would represent floating numbers and then n
+29:31 here represents a normal distribution right so so typically when you do the regular quantization uh you would Define
+29:38 the Max and the Min and then you divide the buckets into equally spaced ones
+29:44 right because now you know the range now you can bucket them and and because of this what happens the Assumption here is
+29:51 that your uh array is uniformly distributed right so if that is the case you'll end up getting uh sort of same
+29:58 number of of candidates in each of the bucket and you would do the computations but if you make another assumption that
+30:04 most of your weights are going to come from normal distribution then this is not the effective way of leveraging
+30:09 quantization right so so for this rather than uh using equally spaced now that
+30:15 you know the data distribution you can and it is not uniform so you can get
+30:21 equally sized distribution by by assuming that this is a gan the normal distribution right so this is what in
+30:28 simp simple terms n for quantization is and uh so now let's look at what
+30:35 double quantization is right so so when you quantize uh you typically store the
+30:42 quantization constants in fp32 full Precision right because the more precise
+30:49 your constants are the lower your quantization error is going to be right
+30:55 uh so what people typically do is that represent uh these in uh fp32 but now
+31:02 imagine if you have so many vectors in your parameter space right because there
+31:08 going to be so many matrices there are going to be so many feed forward networks right so many weight matrices
+31:14 uh attention uh weights and so on and you will end up getting so many constants right so so this storing these
+31:22 constants would end up taking a lot of memory and and what they said is that uh
+31:30 once I have all these constants I will divide those constants into blocks and
+31:35 further quantise these quantization constants right so you sort of do double
+31:42 quantization so and they say that by doing double quantization you don't lose
+31:47 so much on your performance but you gain a lot in storage space gain a lot in Saving storage space
+31:54 right so that is the advantage of double quantization it's not going to give you a performance bump it's just going to save a lot of
+32:01 space and thirdly like I said uh paged optimizers so let's say that you have a
+32:07 you want to fine tune a 1.3 billion parameter model and and it ends up taking uh it it needs about 21 gigabytes
+32:16 of memory right so so so if you look at GPU in isolation you don't have 21
+32:22 gigabytes of memory right uh but if you look at the memory that the uh that the
+32:28 chip has on both GPU and CPU that is good enough right so how you do paging
+32:34 for CPU and Main memory right uh some of these uh Hardwares do the same for GPU
+32:44 and CPU memory right and and what Kora does is that it makes use of this particular
+32:50 feature uh in the hardware right so so you would be able to fine-tune uh F1
+32:57 model with uh this particular GPU even though it has only 16 GB of uh GPU
+33:03 memory right so this is one thing and finally of course uh they're going to
+33:08 use Laura uh for for for as a base for fine-tuning so a small recap of what we
+33:14 did in the last class uh in Laura the the the basically the the weight Matrix
+33:20 is divided into W and DW and and the d uh this part is d w and this part is w
+33:28 and and any input is first multiplied here with this and then here with this and and this this sort of leads to
+33:37 uh plus d w uh a * right so so this is what you end up
+33:44 getting uh and and and this is factorized in a way where uh the rank here R is much lesser than T
+33:52 right so just uh uh the same uh sort of equation is likely re- return where you
+33:59 have the uh input uh sorry you have the input you have the weights this is a scale factor again uh and there is this
+34:06 is a b L1 L2 and the input is the same so this is the usual Laura equation for
+34:12 for doing one for for the for the for getting the output given the the PFT
+34:17 weights right L1 and L2 uh so now let's do a little bit recap of uh different
+34:24 style different uh uh data formats again because we'll use this in in in in understanding the whole Kora setup
+34:30 better right so so so far we discussed fp32 fp16 and in8 right and in fp6 they
+34:39 reduce the exponents and and and they also reduced the fractions in sort of
+34:45 similar proportion right but what uh people in Google brain did was that they
+34:51 came up with this new format called bf16 right so that it's brain float
+34:56 because it is from Google brain uh and what they did was that they said let's not change the exponent right
+35:03 let's just reduce the Precision right so why is this helpful like if you have to
+35:08 convert an fp6 sorry an fp32 to bf6 it's so easy
+35:14 right all you need to do is just truncate it you don't need to scale or do anything right so this Simplicity
+35:20 actually speeds up a lot of things this conversion is so convenient right and there are also certain operations where
+35:27 this amount of does not lead to that bigger gain in performance it increases the
+35:32 computations but it does not lead to that bigger performance jump so there are certain uh uh training paradigms
+35:40 called mixed Precision training where not all parameters are represented in the same representation for certain
+35:47 formats you use certain for certain operations you use certain representations for certain you don't
+35:52 and and this Paradigm of full Paradigm is called mixed Precision training so here also we sort of use some mixed precision
+35:59 let's look at it how it does right so so let's look at this format this is Rewritten we just Rewritten the first
+36:05 equation here by representing what goes on within Kora right so you're now your
+36:12 like most of your operations are going to be in bf16 right so so if you see this part is
+36:18 in bf16 right this part is also going to be uh
+36:23 bf6 and and L1 and L2 are negligible number of parameters right so it's okay let them be in bf16 and here the input
+36:31 is also in bf6 right so so far here everything is
+36:36 in bf6 right and and here is the part
+36:41 where we're going to do double quantization and nf4 quantization right
+36:47 so so let's look at this in more detail right so so this double quantization can
+36:53 be first let's look at only this bit right this is first we are de
+36:59 quantizing the quantization factors the scale factors and the quantization constants right so for that the the
+37:07 quantization the second level quantization constants are in fp32 right the first level are now represented in
+37:13 4bit uh but now once you do the de quantisation of this you will end up getting the 32-bit Precision de quantied
+37:21 version of the new scaling factors and now again you de quantize your weight uh weights which are in uh the normal float
+37:30 right and then you get back the uh the the the double quantized
+37:36 uh the Double quantized value and finally you would use that to get the
+37:42 weight Matrix in bf16 which again goes back here everything is in bf6 and you get Y in bf16 right so this is the the
+37:50 whole uh uh this is the whole Crux of Kora and and this gives uh incredible
+37:57 amount of memory uh efficiency again here I've not actually
+38:02 talked about the paging uh but what typically happens is that you won't be able to save let's say if uh uh if if a
+38:10 certain uh 65 billion model uses 48 gigs of memory and you only have 32 gigs of
+38:15 memory on your GPU then there will be a time wherein you will hit and and certain matrices will not be available
+38:21 and all the hardware would do is that go replace something that's not used for a long time get the right Matrix that
+38:27 needs to be used into the memory and you will not run out of out of memory you will keep running right so so that is not covered
+38:34 in these equations but that's also a very essential part of uh why K should work
+38:41 right so so here uh so all these three graphs are four bit quantization the
+38:48 only difference here is that this is simple fp4 something like fp4 right uh
+38:53 the orange the orange line is the normal float so there is a good Improvement in accuracy from uh fp4 to normal 4 but
+39:02 like I said earlier double quantization does not give you Improvement in accuracy as much but it gives you a lot
+39:08 of space right so you reduce on
+39:13 storage and uh so this is the uh so if you use only 4 bit quantization like say
+39:20 float 4 then there is always a drop in comparing to do to doing the usual one
+39:25 which is using bf16 uh so 38 comes 37 there is a there is a drop here there's
+39:30 a drop here right uh but when you use normal float 4 plus uh again DQ will uh
+39:38 is not going to help in accuracy but again it will help in storage but adding both you end up getting almost actually
+39:44 slightly more mean uh than even the vf16 but that's
+39:49 only a little bit you can for all practical reasons you can assume that it's able to maintain the half Precision
+39:54 uh performance uh so so in pruning it's as a name
+40:01 suggest it's very simple all you need to do is just uh remove certain things from the network so so here uh these are the
+40:08 uh weights right uh so so unstructured tuning is like randomly keep removing
+40:14 weights from the network with the hope that you don't uh affect the performance and structured tuning is more like you
+40:20 take into account the exact structure of the network that you are going to uh prune and then and then prune certain
+40:26 structural components from the Network right so I'll cover both of them so so the simplest form of uh pruning is
+40:33 unstructured pruning is called magnitude pruning just sort the weights whichever weights are low just ditch them off
+40:39 right it's as simple as that so what they found is that if you remove 40% of the weights you don't actually see that
+40:46 big a change in performance but if you start removing a lot more then you see a degradation but what they say is after
+40:52 you prune if you fine tune right continue pre-training or continue fine tuning uh then then uh you would end up
+40:59 bridging that Gap until 80% of the case right
+41:04 um and and some people figured out that uh everybody only does weight pruning you only take into account the weight of
+41:10 the uh the parameters only the parameters but uh activations are also important uh so if you take into account
+41:17 activations then the product of weights and activations will show you a different story so rather than pruning
+41:22 at weight level prun it at activations right so this uh this was one idea that
+41:29 was very recently proposed and uh so the issue with unstructured pruning is that let's say
+41:35 you prune right you make a lot of values in your Matrix zero right but still if a
+41:41 hardware is not going to utilize that information it's as much as using that same fp16 or uh to store zero as well
+41:49 it's not going to give you speed up in numbers it's not going to save uh compute it's not going to save energy
+41:54 nothing is Sav right so so there's no point in actually doing unstructured tuning if your Hardware doesn't
+41:60 support right so it's a very important part so people started to slightly move away from unstructured tuning and start
+42:06 to focus on structured groning like for example uh there is this a00 Nvidia gpus
+42:11 which says that if you take any block of
+42:17 four uh you compress them into block of Two By ignoring two right this is called 2 is 4 sparity pattern if you do that
+42:24 and you represent your values with half the number of weights and and you use two bit indexes to store the indexes
+42:31 where which are non zero it will give you performance speed up right so now
+42:36 your pruning algorithm that you're going to design should be aware of this particular Hardware Choice uh to sort of
+42:45 Leverage this so if you see here uh if you do for any different type of uh uh
+42:54 Precision uh the dense operation and there's a big difference between how much you can do with the dense operation
+43:00 and the sparse operations right so because the hardware supports this now you can think of pruning your weights in
+43:06 this particular format without loss while minimizing the uh the loss in
+43:12 performance right another recent paper that came out was that uh that let's say
+43:18 that you have a fine tune bird there are a lot of multi attentions speed forward Network and within multi attention you have multiple heads uh within fee
+43:24 forward network uh you would have certain hidden dimensions and so on so what they say is that you can prune
+43:31 almost any component right you can remove a layer like for example uh They
+43:36 removed this feet forward n they removed this multihead attention you can remove certain heads within the multi head you
+43:43 can remove certain hidden Dimensions here and there and they say that you take into account the structure of the network and remove structural components
+43:50 uh you end up getting performance speed up so this is about pruning so I'm just
+43:55 covering the overview to give a brief picture of what pruning does I'm not going into details or other techniques
+44:01 that does pruning more efficiently finally I'll talk about distillation uh so distillation again is
+44:07 a process of uh training a much smaller model to imitate a bigger model the
+44:13 bigger model is a teacher and then the smaller model is the student so the smaller model should end up mimicking
+44:18 what the bigger model does so it's s of works like this the one of the biggest issues with
+44:25 distillation is that you need this data right so to think about post training
+44:30 quantization right like if you have llama uh 70 billion model and you want
+44:35 to quantize it you don't need the data with which llama was trained for you don't have to find a proxy for the data
+44:41 with which llama was trained for right you can just do your quantization but
+44:46 here uh you need the data right if you don't have the real data you should sort of end up getting some representative
+44:53 data uh that sort of looks like what this model would have trained on and
+44:58 that is a big bottleneck in this era right because people are willing to share and open source their models but
+45:04 nobody is willing to open source the data right because that's the gold right so nobody would do that so this distillation is typically difficult from
+45:11 that standpoint and so people do task specific distillation you have task specific data let me distill the model
+45:17 conditioned on the task right so in general distillation is still a useful technique to learn but uh thinking that
+45:23 I can fine tune or I can distill any big model into a smaller model is not going to be that effective unless you have the
+45:30 right data right so the the the way it works is that you feed only the input to
+45:36 the the train fully train bigger model you get its predictions right so let's call it y hat right and then you give
+45:43 the same data to the student Network let's call it Y dash right and now uh
+45:49 you want Y dash to be as close as y hat both are not gold right uh but you just
+45:55 want Y dash to be as close to Y hat as possible that's all the objective function is so the the the different
+46:03 there are different flavors of distillation uh some of them are specifically about how you compute this
+46:08 loss there are different ways of computing this loss right and some are like you don't just do distribution
+46:14 matching only on the output do distribution matching even in the intermediate layers based on certain structures like there are a lot of
+46:20 variants of distillation so okay so let's take an
+46:26 example here so here there are five outputs let's assume that they're all
+46:31 going to give us a uh a probability and so let's say if the go label is
+46:36 something like this then your typical loss would have been that you increase the log likelihood of of that particular
+46:43 value which is one right that's going to be your usual loss so now for the knowledge distillation uh your Theta is
+46:50 here that is your Theta this network parameters are Theta T so now in addition to Theta you also have Theta T
+46:56 but Theta T is Frozen so what you do is you end up getting the value of every
+47:02 output uh with q and you serve that as a reference distribution and compute cross inol right um so there are several
+47:10 advantages for doing Q rather than again taking only the uh the max value and doing it uh that is like you can find
+47:18 more details in this the this this first paper that came for
+47:23 distillation now like I mentioned before uh the good part of distillation is that
+47:28 your student Network can be much much smaller you can have very few number of layers uh so that you can like increase
+47:34 the latency sorry reduce the latency by quite a bit like whatever your latency is you can Define your network structure
+47:40 to satisfy that latency right you have that flexibility with you right and then you can try to F tune and then figure
+47:45 out what is the performance Gap you get now now now if you have to get like a lot of speed gain this is the way to go
+47:53 right pruning and Quan quantization are not going to get you there now again like I said the cons is that you need
+47:58 the training data and it's extremely expensive to perform this type of model compression mainly because you have to
+48:04 do first inference you have a lot of data you have to do inference inference is a lot more expensive because it has to do one generate one token at a time
+48:11 it's extremely expensive and then again after you do that expensive task of generating outputs of every data point
+48:18 in your input you will again have to train the model student model from scratch right there are there are
+48:23 techniques which say like if you initialize your student Network this way by pruning the teacher and and then
+48:29 using uh a very aggressively pruned version of the teacher as student your starting point is much better you can
+48:35 reduce the time but still you'll have to end up F un right now like I said there are
+48:42 different ways in which Hinton proposed H at all proposed uh distillation one is called The Hard Target where let's say
+48:49 that this was the uh value that got the highest probability you can you can
+48:54 forget about the the likelihood just take the AR Max and then set it to one and uh use it or the other way is to end
+49:01 up using the uh entire soft distribution this is specifically found to be a lot more better than simply using hard
+49:08 targets but sometimes uh when you don't have access to
+49:14 the the probabilities right for example if you're using open API and they're not going to give you uh they do give you
+49:21 for some cases but maybe you're doing some complex things and they're not you're not able to get access to those
+49:26 probability Le you can still do some sort of a hard target uh distillation although it's illegal but
+49:34 still so so now so so what I talked before is more like a a single step
+49:40 quantization sorry uh distillation right now what if you want to distill a whole sequence right which is like in an auto
+49:47 regressive manner or something right so so this is our usual knowledge distillation equation where Q's are the teacher uh
+49:54 likelihoods and then you want to uh match them student wants to exactly the same as the teachers now in in Word level
+50:01 distillation what we say is that uh we add this particular summation over all
+50:07 the uh J words and it's simply the same as before right you do it one word at a
+50:12 time by fixing the other ones and in case of sequence level distribution uh
+50:18 we ideally would want to do it by taking the entire space of all possible sequences but it's going to be like all
+50:26 possible sequences are insanely expensive right it's it's so the space is so dis
+50:31 like that's so high that it's not Poss possible to even do this so what they
+50:36 typically do is that very badly approximate this into just what the
+50:42 model gives you the highest uh sequence for a beam search or something like that
+50:49 right and then set that as y hat and simply uh increase the log likelihood of that the higher sequence that you get
+50:56 right so these are some simple ways of knowledge distillation there are also
+51:01 other techniques where uh the loss function is not cross entropy they use K Divergence they use inverse Divergence
+51:07 so there are lot of different flavors of uh loss functions and lot of different flavors of how do you approximate the
+51:13 knowledge so one way of approximating the knowledge from the teacher to student is to mimic the whole distribution right but you're only
+51:20 mimicking the distribution of the output space but there are like multiple other places where you can sort of uh fix your
+51:26 network in such a way that you expect the middle layer in this to be replicated by this layer here something
+51:31 of that type and you can do a lot more and then try to mimic the teacher as much as
+51:38 possible right and uh so I just want to make a small connection between
+51:43 distillation in in in sort of network related literature and and and and a certain other distillation that uh
+51:51 people are now doing with large language models right which is that let's say if
+51:56 you take a the Llama 405 billion model right so do you guys know why would
+52:02 somebody use a 405 billion model it's going to take like minutes to come back with a response but why would anybody
+52:08 want to use a 405 billion model and so do do you guys have any idea why would
+52:14 somebody use a 405 billion model sorry yes output quality is good
+52:20 that is absolutely right it has a much better output quality than any of the models but then its latency and its cost
+52:27 to so high whatever task you use it for you're not going to get back the money that you put in but why would still
+52:33 people use
+52:40 it yes so that's so you're saying like it will be used as a proxy for humans
+52:46 right so that is sort of heading towards the right answer so basically what they say is that an extremely
+52:51 overparameterized model can capture all the nuances in the training data and it can model it better so once it models it
+52:58 better you can always distill it right so the whole point of why you want such a big model is that it will it will
+53:05 generate output so good right that you can use that output to distill a smaller
+53:11 model which would be much better than just training that smaller model from scratch right so one such way is so one
+53:17 early the first paper that came out in this Paradigm is called self- instruct uh what they say is that let's say uh so
+53:23 C tasks are something like this find out if the given text is in favor or or against right this is one task and the
+53:30 other task is like give me a code from a famous person on this topic and and for for each task they given instruction
+53:37 along with one example right and they only take 175 seed tasks not more right
+53:43 these are handcrafted uh with one instruction and one instru that's about it now what they say is that they ask
+53:50 the llm to generate new instruction like you have 175 you do a few short example
+53:56 uh you give a few short example and then you say generate one more it's going to give you one uh task that is different
+54:01 from the 175 and once you have one task you again do a check whether it's good or not if it is good then you ask it to
+54:09 generate the class label and the input given the instruction right this is output first input next right and in in
+54:17 another case uh you do input first and output second so so there are some advantages of doing these uh and what
+54:24 they say is that by doing this you end up generating so much data right so so this is a few short example right so a
+54:31 base llm can do a Bas llm which is not instruct fine tune can still do this work right because they cannot follow
+54:38 zero Shot instructions but they can do few shot very well right so so just with one seed example you end up getting a
+54:46 lot of information from the model itself on how to instruct F unit right so what
+54:52 you end up getting is an instu fune data set right now you can use this instu fune data set to actually instruct fine
+54:58 tune the model itself right so so here uh distillation is coming from Gathering
+55:06 as much knowledge from the model as possible right in the other way how did you gather knowledge you gave the input
+55:12 and you saw how the model reacts to it right so now these are generative models right if they are discriminative models
+55:18 you can all you can do is only see how it reacts right you cannot ask it to generate new stuff but if a generative
+55:24 model then you can ask it to actually generate new stuff and this is a new paradigm and and and and this is sort of
+55:31 like widely used Paradigm now for any uh industrial fine tuning applications like
+55:36 for example if you are to create a uh let's say a a new natural language interface for one of your uh softwares
+55:43 or something like that right so you have your whole action space about what all it can do maybe some descriptions of uh
+55:49 what they achieve you can actually synthesize a lot of examples of how a person would ask in natural language to
+55:55 do this execution right and if you have an example for a few you you can end up generating a lot of data from a bigger
+56:03 model that can do this and then you can use that to find you in a smaller model and now you have a very easy to uh use
+56:10 software right so there are a lot of good application synthetic data generation and then using it to find you
+56:15 a smaller model is sort of the big thing now right so distillation is sort of indirectly what led to this whole Space
+56:22 being developed and this distillation is Possible only if you have an awesome teacher right and that's why people want build really really big models because
+56:29 you end up getting really good synthetic data and you end up saving cost uh
+56:35 eventually right so to summarize uh we we looked at uh effective ways of
+56:41 reducing inference cost and and specifically we looked at model compression techniques and in them uh we
+56:48 we discussed in detail about uh quantization we discussed the uh the llm
+56:53 intake for post training quantization we discussed Q for quation a training we discuss some pruning techniques and some
+56:60 distillation techniques and where the field is moving more okay all right thank you

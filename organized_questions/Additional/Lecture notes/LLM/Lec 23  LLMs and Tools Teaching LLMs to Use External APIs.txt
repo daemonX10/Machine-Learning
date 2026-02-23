@@ -1,0 +1,4609 @@
+00:00 So today uh let's continue our
+00:03 
+
+00:03 discussions on uh how LLMs are trained
+00:05 
+
+00:05 to handle tools. So I'll just do a quick
+00:08 
+
+00:08 recap of what we did last week, right?
+00:10 
+
+00:10 So that you guys are back to
+00:13 
+
+00:13 uh speed. So we talked about how uh the
+00:18 
+
+00:18 first paper on how tools were augmented
+00:20 
+
+00:20 along with LLMs which was GSM8K and then
+00:24 
+
+00:24 we talked about few different papers
+00:27 
+
+00:27 that sort of uh added tools during the
+00:32 
+
+00:32 fine-tuning process so that LLMs in
+00:34 
+
+00:34 addition to responding back to users
+00:36 
+
+00:36 could also have the ability to uh work
+00:39 
+
+00:39 with tools right and uh one of the
+00:42 
+
+00:42 common uh issues with all the proposed
+00:45 
+
+00:45 approaches back then was that uh they
+00:48 
+
+00:48 cannot generalize to tools that were
+00:50 
+
+00:50 unseen during train right and for every
+00:53 
+
+00:53 tool you have to add or you have to let
+00:56 
+
+00:56 the LLM know then you need to create a
+00:59 
+
+00:59 bunch of uh examples for them and then
+01:02 
+
+01:02 retrain the whole thing right so whereas
+01:04 
+
+01:04 Talm required a lot of human annotations
+01:07 
+
+01:07 PLA required fewer annotations but could
+01:11 
+
+01:11 only work on uh Python related
+01:14 
+
+01:14 outputs or tools, right? And tool former
+01:17 
+
+01:17 came in which said that it can
+01:19 
+
+01:19 generalize, it can work with multiple
+01:21 
+
+01:21 different tasks but at the same time uh
+01:24 
+
+01:24 it can it cannot work with unseen tools.
+01:26 
+
+01:26 They require few annotations. So there
+01:27 
+
+01:27 was slight progression in how much
+01:29 
+
+01:29 effort is needed but still this is
+01:31 
+
+01:31 considered to be significant effort
+01:33 
+
+01:33 mainly because uh if you have to develop
+01:37 
+
+01:37 an agent and you have access to let's
+01:39 
+
+01:39 say five or six tools with you or APIs
+01:41 
+
+01:41 with you then you would have to end up
+01:43 
+
+01:43 fine-tuning your model right which is
+01:45 
+
+01:45 which is a very costly approach because
+01:47 
+
+01:47 every agent requires fine-tuning and
+01:50 
+
+01:50 then they require hosting and there's a
+01:52 
+
+01:52 lot of cost associated with it right so
+01:54 
+
+01:54 so now in today's lecture Here what we
+01:57 
+
+01:57 will see is how do we create fine-tuning
+02:01 
+
+02:01 data for LLM in such a way that uh it
+02:05 
+
+02:05 can generalize to tools that were unseen
+02:07 
+
+02:07 during train right again uh we will
+02:10 
+
+02:10 start by going through few important
+02:13 
+
+02:13 papers and then with slight progression
+02:16 
+
+02:16 on how each paper improved over the
+02:17 
+
+02:17 other right
+02:20 
+
+02:20 so before jumping into uh the details
+02:24 
+
+02:24 let's first take a step back and
+02:27 
+
+02:27 uh why do we need this to begin with
+02:30 
+
+02:30 right so let's take an example where
+02:33 
+
+02:33 let's say that you are building a
+02:34 
+
+02:34 chatbot for IIT Delhi uh using LLMs
+02:37 
+
+02:37 right and your goal is that uh you have
+02:42 
+
+02:42 a you have lot of documents about IIT
+02:44 
+
+02:44 Delhi rules and all the policies that
+02:46 
+
+02:46 they have and now if you have to build a
+02:49 
+
+02:49 chatbot over it how would you build like
+02:52 
+
+02:52 provide solutions based on whatever
+02:53 
+
+02:53 you've read in the class so far Right.
+02:56 
+
+02:56 So how would you build one?
+03:02 
+
+03:02 >> Yes, you can use retrieval augmented
+03:03 
+
+03:03 generation. Uh so basically you split
+03:06 
+
+03:06 the documents into multiple chunks,
+03:08 
+
+03:08 index them and when a new user query
+03:11 
+
+03:11 comes, search the index, get appropriate
+03:14 
+
+03:14 documents and let the LLM answer. Right?
+03:16 
+
+03:16 So you would use LLM during retrieval
+03:18 
+
+03:18 and then you would use LLM during
+03:20 
+
+03:20 generating the generation of the
+03:22 
+
+03:22 response. Right? So now let's say that
+03:25 
+
+03:25 uh one common task that all students do
+03:27 
+
+03:27 is when during the beginning of the
+03:29 
+
+03:29 semester they uh search for courses that
+03:33 
+
+03:33 are being floated this semester and then
+03:35 
+
+03:35 they will register for some courses and
+03:37 
+
+03:37 during the
+03:39 
+
+03:39 semester they might even drop courses
+03:41 
+
+03:41 right this is a very common task and
+03:43 
+
+03:43 let's say that now I uh now you've been
+03:46 
+
+03:46 asked to add this functionality
+03:49 
+
+03:49 uh into your chatbot right so how would
+03:52 
+
+03:52 you go about doing it.
+03:54 
+
+03:54 >> So externally.
+03:57 
+
+03:57 >> Yes, absolutely. Right. So like the
+04:00 
+
+04:00 there is a database where all the
+04:02 
+
+04:02 registration information would be
+04:04 
+
+04:04 available, right? And at this point in
+04:07 
+
+04:07 time, you guys use a web interface which
+04:09 
+
+04:09 anyway would be connecting back into the
+04:11 
+
+04:11 uh database and updating things. And
+04:13 
+
+04:13 that web interface would have access to
+04:16 
+
+04:16 APIs that are being exposed by the the
+04:18 
+
+04:18 database, right? So now if you have
+04:20 
+
+04:20 access to tools right or the APIs then
+04:24 
+
+04:24 how would you
+04:26 
+
+04:26 augment your existing rack bot into
+04:30 
+
+04:30 supporting this as well
+04:34 
+
+04:34 so I'll give you a hint in the previous
+04:35 
+
+04:35 class we did synthesize some data for
+04:38 
+
+04:38 tools and teach the LLM right so so that
+04:41 
+
+04:41 is one way in which you can do right so
+04:44 
+
+04:44 you can uh create an example for search
+04:48 
+
+04:48 an API for There would be an API for
+04:50 
+
+04:50 search, there would be an API for adding
+04:51 
+
+04:51 courses and API for dropping courses.
+04:53 
+
+04:53 You have three tools with you. So you
+04:55 
+
+04:55 would synthesize examples and then you
+04:57 
+
+04:57 would add it as a part of the
+04:58 
+
+04:58 fine-tuning step. Now when you fine-tune
+05:01 
+
+05:01 with this maybe your model's ability to
+05:03 
+
+05:03 do rag may drop,
+05:06 
+
+05:06 right? So then what would you do? You
+05:08 
+
+05:08 would have to add rag examples to make
+05:11 
+
+05:11 sure that it doesn't drop there. Now
+05:13 
+
+05:13 there may be complex reasoning questions
+05:15 
+
+05:15 that students may ask about policies
+05:17 
+
+05:17 where you have to relate three four
+05:18 
+
+05:18 different policies and then arrive at
+05:20 
+
+05:20 the answer then you have to add data for
+05:22 
+
+05:22 that. So, so what would end up happening
+05:24 
+
+05:24 is that if you have to support new
+05:26 
+
+05:26 tools, you'll have to synthesize data
+05:28 
+
+05:28 for it and during finetuning you lose
+05:30 
+
+05:30 out LLM's ability to do usual things and
+05:32 
+
+05:32 then this becomes a very difficult loop
+05:35 
+
+05:35 to sort of uh figure out and then create
+05:38 
+
+05:38 a bot that is just a a simple bot for
+05:42 
+
+05:42 IID which just supports three tools and
+05:44 
+
+05:44 then simple rack right so then imagine
+05:47 
+
+05:47 like if you're doing enterprise level uh
+05:49 
+
+05:49 or or a banking solution related tool
+05:51 
+
+05:51 callings you have so many tools, so many
+05:53 
+
+05:53 APIs, so many rules about the bank in
+05:55 
+
+05:55 which things have to happen like it
+05:57 
+
+05:57 becomes so complex, right? So the ideal
+05:59 
+
+05:59 strategy would be that out of the box
+06:03 
+
+06:03 LLM should support tools, right? What if
+06:06 
+
+06:06 they give you GPT, GPT4 should already
+06:09 
+
+06:09 have access to tools and they do, right?
+06:11 
+
+06:11 So now what we're going to see is how is
+06:14 
+
+06:14 it how is that they support the tools
+06:16 
+
+06:16 and then uh how you end up creating data
+06:19 
+
+06:19 which typically would be end up being
+06:22 
+
+06:22 used in the instruction fine-tuning
+06:23 
+
+06:23 phase right so that whenever it learns
+06:26 
+
+06:26 the other things it also ends up
+06:27 
+
+06:27 learning how to use tools and and any
+06:30 
+
+06:30 tool you provide during inference right
+06:33 
+
+06:33 so with this uh let's go to how and
+06:38 
+
+06:38 let's say that you have a model let's
+06:40 
+
+06:40 say it could be mist or claude or GPT4
+06:45 
+
+06:45 and when these models exist there is
+06:48 
+
+06:48 always an application layer on top right
+06:50 
+
+06:50 so even when you use chat GBT it may not
+06:53 
+
+06:53 necessarily mean that you're directly
+06:55 
+
+06:55 interacting with LLM there may be an
+06:57 
+
+06:57 agentic middleware in between that sits
+07:01 
+
+07:01 right because when you when you ask for
+07:03 
+
+07:03 let's say calculation related questions
+07:06 
+
+07:06 uh it does run Python script and then
+07:08 
+
+07:08 get you back results when you ask
+07:10 
+
+07:10 current uh events related queries it
+07:12 
+
+07:12 would search the web get the results
+07:14 
+
+07:14 back and then call the LLM come back and
+07:16 
+
+07:16 give you the results. So there is always
+07:18 
+
+07:18 an application layer that sits right. So
+07:20 
+
+07:20 typically the user interacts with the
+07:22 
+
+07:22 application layer. the application layer
+07:24 
+
+07:24 will have access to some tools as well
+07:27 
+
+07:27 uh or mechanism to call tools and get
+07:29 
+
+07:29 back responses and then there would be
+07:30 
+
+07:30 an LLM which would be uh like which the
+07:33 
+
+07:33 application layer would have access to
+07:35 
+
+07:35 right so let's take the same example of
+07:37 
+
+07:37 adding searching or dropping courses and
+07:39 
+
+07:39 see how it would work right
+07:42 
+
+07:42 so let's say that uh you go to the
+07:45 
+
+07:45 application and as a user you say that
+07:48 
+
+07:48 this is the I assume that this is the ID
+07:50 
+
+07:50 application and say that I want to
+07:52 
+
+07:52 register for AI IL861 right so what
+07:55 
+
+07:55 would happen is that this application
+07:57 
+
+07:57 layer would have access to the three
+08:00 
+
+08:00 tools that you have right and all you
+08:03 
+
+08:03 have done is that you've registered
+08:04 
+
+08:04 those three tools you've not given
+08:06 
+
+08:06 examples you have not given anything
+08:08 
+
+08:08 else you're just registering the three
+08:09 
+
+08:09 tools and here it says the tools
+08:11 
+
+08:11 available are add course drop course and
+08:13 
+
+08:13 search course right and maybe some more
+08:15 
+
+08:15 details associated with what are the
+08:17 
+
+08:17 input arguments what are the required
+08:19 
+
+08:19 attributes what are the optional ones
+08:21 
+
+08:21 for optional what is the default value
+08:24 
+
+08:24 right and and it may also say like what
+08:26 
+
+08:26 would the output structure look like
+08:28 
+
+08:28 like the the JSON response that comes
+08:30 
+
+08:30 back right so each tool will have some
+08:32 
+
+08:32 description associated with it for
+08:34 
+
+08:34 brevity I've just included the name of
+08:35 
+
+08:35 the tools and along with that uh the
+08:38 
+
+08:38 application layer would also say like
+08:39 
+
+08:39 look these are the tools available and
+08:41 
+
+08:41 and this is the this is what the user
+08:42 
+
+08:42 wants now tell me uh now the model has
+08:47 
+
+08:47 to make a decision about whether it
+08:49 
+
+08:49 requires to
+08:50 
+
+08:50 use any tools or not and if required
+08:53 
+
+08:53 what tool to use and how to use it right
+08:56 
+
+08:56 this is what the LLM should decide if it
+08:58 
+
+08:58 was a rack query let's say that are
+08:60 
+
+08:60 there any uh so if I drop a course what
+09:03 
+
+09:03 are the consequences right if you if
+09:05 
+
+09:05 your question was that it may not choose
+09:08 
+
+09:08 the drop course tool there right it may
+09:11 
+
+09:11 just say that I don't want to use any
+09:12 
+
+09:12 tools rather I want to search or or use
+09:15 
+
+09:15 rack right something like that but in
+09:17 
+
+09:17 this case it should decide that it has
+09:19 
+
+09:19 to call appropriate function which is ad
+09:21 
+
+09:21 goes right
+09:24 
+
+09:24 so what the LLM would come back is that
+09:26 
+
+09:26 when the prompt goes in it went with the
+09:28 
+
+09:28 user input and the list of tools and
+09:30 
+
+09:30 what LLM would give back is some token
+09:32 
+
+09:32 that says at this point in time I want
+09:34 
+
+09:34 you to execute a tool right and says the
+09:36 
+
+09:36 tool is add course so let's say that
+09:39 
+
+09:39 when you logged in into the portal it
+09:40 
+
+09:40 already knew your student ID so student
+09:42 
+
+09:42 ID and the course ID it took it from the
+09:45 
+
+09:45 query the user gave which is a 861 right
+09:48 
+
+09:48 and then it sends back to the
+09:50 
+
+09:50 application layer Right now the
+09:52 
+
+09:52 applications layer responsibility is to
+09:54 
+
+09:54 uh execute the API and let's say that
+09:57 
+
+09:57 the response here from the API execution
+09:59 
+
+09:59 comes back with student ID this course
+10:01 
+
+10:01 ID this and current status is
+10:02 
+
+10:02 registered. So it was able to register
+10:04 
+
+10:04 maybe if it was a failure then it would
+10:06 
+
+10:06 be a failure and and at this in this
+10:08 
+
+10:08 case let's say that it it got
+10:09 
+
+10:09 registered. So now once the response
+10:13 
+
+10:13 comes back then the application layer
+10:15 
+
+10:15 again will send an
+10:17 
+
+10:17 call to the LLM and at this point in
+10:20 
+
+10:20 time what it would do is it will say
+10:22 
+
+10:22 that what are the tools available. It
+10:24 
+
+10:24 would say what the user initially said.
+10:26 
+
+10:26 It would say what the assistant said in
+10:29 
+
+10:29 the previous call which is make a tool
+10:31 
+
+10:31 call with these parameters and to this
+10:32 
+
+10:32 function. It would also contain the tool
+10:35 
+
+10:35 response. Right? And at this point in
+10:37 
+
+10:37 time, the LLM should figure out if it
+10:38 
+
+10:38 has to call more tools or if it has to
+10:40 
+
+10:40 do rack or if it just can generate the
+10:43 
+
+10:43 response back to the user. Right? So at
+10:45 
+
+10:45 this point in time, it looks like it has
+10:47 
+
+10:47 all the information necessary and it it
+10:49 
+
+10:49 has executed what was requested from it
+10:51 
+
+10:51 and then it can go back to the user and
+10:53 
+
+10:53 just say you've been registered for
+10:54 
+
+10:54 course AIL 861. Right? So this is going
+10:58 
+
+10:58 to be what typical function
+11:01 
+
+11:01 use of unseen functions would look like.
+11:03 
+
+11:03 Right? All you need to do is register
+11:05 
+
+11:05 what all tools are available in a
+11:07 
+
+11:07 certain format and the model should be
+11:08 
+
+11:08 in a position to make all the decisions
+11:10 
+
+11:10 and then make it work for you. Right? So
+11:12 
+
+11:12 there is no finetuning required. You
+11:14 
+
+11:14 just have to specify what tools are
+11:16 
+
+11:16 available. Right? So now in the
+11:17 
+
+11:17 remainder of the class we'll see how we
+11:19 
+
+11:19 would end up generating training data of
+11:22 
+
+11:22 this type so that you can use it during
+11:24 
+
+11:24 instruction finetuning phase. Right?
+11:28 
+
+11:28 So typically a function definition would
+11:31 
+
+11:31 look like something like this. It would
+11:32 
+
+11:32 be a JSON object uh which would have the
+11:35 
+
+11:35 name of the function, the description of
+11:38 
+
+11:38 the function. Uh it would have all the
+11:40 
+
+11:40 parameters it supports. Here it supports
+11:42 
+
+11:42 properties like uh transaction ID which
+11:44 
+
+11:44 is a string. If it has default values,
+11:46 
+
+11:46 it would have default value. And then
+11:48 
+
+11:48 here it says uh at this point it is only
+11:50 
+
+11:50 one parameter but if there are multiple
+11:52 
+
+11:52 parameters it would say uh the required
+11:54 
+
+11:54 parameters are what are the subset of
+11:56 
+
+11:56 the parameters that you have and of
+11:58 
+
+11:58 course you can in many cases a well-
+12:01 
+
+12:01 definfined function description would
+12:03 
+
+12:03 also have what is the output type right
+12:05 
+
+12:05 output type will also be a complex JSON
+12:07 
+
+12:07 object and it would say what all
+12:09 
+
+12:09 information are available uh in the
+12:11 
+
+12:11 response that comes back right and uh
+12:16 
+
+12:16 like
+12:17 
+
+12:17 like that there is an application layer
+12:18 
+
+12:18 that sits in between right so it is not
+12:21 
+
+12:21 always necessary that you have to create
+12:23 
+
+12:23 a rest API and then call and get back
+12:26 
+
+12:26 right uh if you use an application uh uh
+12:29 
+
+12:29 if you use LAN graph to build your
+12:31 
+
+12:31 application then it also supports Python
+12:33 
+
+12:33 functions you can create Python
+12:35 
+
+12:35 functions of your own and then define
+12:37 
+
+12:37 some tool annotations which will expose
+12:39 
+
+12:39 that as an API right so you so when you
+12:42 
+
+12:42 design it so you should not always
+12:44 
+
+12:44 assume when I say tools it's just APIs
+12:46 
+
+12:46 it could also mean uh Python programs or
+12:50 
+
+12:50 any other uh language programs right.
+12:55 
+
+12:55 So now yeah so the overall process like
+12:58 
+
+12:58 just to repeat right when you design the
+13:01 
+
+13:01 application you have to register all the
+13:03 
+
+13:03 tools that you have to the application
+13:04 
+
+13:04 layer and then when the user enters a
+13:06 
+
+13:06 query here it says what's the status of
+13:08 
+
+13:08 my payment my transaction ID is t1001
+13:12 
+
+13:12 uh the model identifies whether to call
+13:14 
+
+13:14 the function if it has to call a
+13:16 
+
+13:16 function what function to call and what
+13:17 
+
+13:17 arguments to provide that's step two and
+13:20 
+
+13:20 then uh the agent of the application
+13:23 
+
+13:23 layer will execute the function and
+13:25 
+
+13:25 provide the results back and again it
+13:27 
+
+13:27 goes back to the LLM until the LLM
+13:29 
+
+13:29 generates a natural language response.
+13:31 
+
+13:31 If it again generates a tool call then
+13:33 
+
+13:33 again it would go back to the
+13:34 
+
+13:34 application layer. It'll execute it give
+13:36 
+
+13:36 back the results. So the so the
+13:38 
+
+13:38 iteration keeps continuing until the LLM
+13:41 
+
+13:41 says a natural language response which
+13:42 
+
+13:42 is not a tool call. Right? So this is
+13:44 
+
+13:44 how it's going to
+13:47 
+
+13:47 look like. So now how do we teach this
+13:49 
+
+13:49 to the LLM? Right? So obviously we'll
+13:51 
+
+13:51 have to construct examples using
+13:54 
+
+13:54 something similar to what we saw in the
+13:56 
+
+13:56 exam in the in the in the introduction
+13:58 
+
+13:58 example right. So if your input is the
+14:01 
+
+14:01 tools are available, the user in says
+14:03 
+
+14:03 this, then you have to output something
+14:04 
+
+14:04 like this, right? And similarly if the
+14:07 
+
+14:07 tools available are here, the user says
+14:09 
+
+14:09 this, the assistant says this, tool
+14:11 
+
+14:11 response is this, then what should you
+14:12 
+
+14:12 respond back, right? So you need to
+14:15 
+
+14:15 gather a lot of examples of this type
+14:17 
+
+14:17 and then use this to instruction during
+14:20 
+
+14:20 the instruction finetuning phase.
+14:25 
+
+14:25 Right? So I'll talk through uh some
+14:27 
+
+14:27 papers uh which sort of generate data of
+14:31 
+
+14:31 this type. Right? The first paper is
+14:33 
+
+14:33 going to be uh about the paper that
+14:35 
+
+14:35 introduced this notion of uh how do we
+14:39 
+
+14:39 generalize well to unseen
+14:42 
+
+14:42 tools. Right? This was a paper that sort
+14:43 
+
+14:43 of hinted towards a direction. But in
+14:46 
+
+14:46 parallel, OpenAI was also working
+14:47 
+
+14:47 towards tool calling. So once the first
+14:50 
+
+14:50 gorilla paper came out openai in in a
+14:53 
+
+14:53 matter of month or so they also exposed
+14:55 
+
+14:55 how do we use external tools in with
+14:58 
+
+14:58 charg with charge GBT or GBT 3.5 at that
+15:01 
+
+15:01 point in time right so so gorilla was
+15:05 
+
+15:05 the first paper uh that created a
+15:09 
+
+15:09 uh a data set with which you can
+15:11 
+
+15:11 evaluate tool calling ability of LLMs
+15:14 
+
+15:14 with external APIs right and then they
+15:18 
+
+15:18 showed like how do we design the
+15:20 
+
+15:20 training examples so that you can
+15:23 
+
+15:23 generalize to examples that were unseen
+15:25 
+
+15:25 during train right so as a part of this
+15:27 
+
+15:27 effort they collected or they
+15:28 
+
+15:28 synthesized a data set called API bench
+15:31 
+
+15:31 right and and it it sort of used all the
+15:34 
+
+15:34 model cards from lot of these model hubs
+15:36 
+
+15:36 like hugging face model hub torch hub or
+15:39 
+
+15:39 tensorflow hub and then they created the
+15:41 
+
+15:41 data set so I'll go to into the details
+15:43 
+
+15:43 of how this data set was created and uh
+15:46 
+
+15:46 they fine-tuned llama 7 billion model
+15:48 
+
+15:48 with the API bench data set they
+15:49 
+
+15:49 synthesized and they create something
+15:50 
+
+15:50 called the gorilla model right so so
+15:53 
+
+15:53 this is a tool calling model so the
+15:55 
+
+15:55 reason why they fine-tune is that uh
+15:58 
+
+15:58 they fine- tune to show that it will
+15:59 
+
+15:59 generalize to unseen uh examples unseen
+16:03 
+
+16:03 tools as well but fine-tuning is a easy
+16:05 
+
+16:05 way to demonstrate that it works right
+16:07 
+
+16:07 so ideally you should have used this
+16:08 
+
+16:08 examples during instruction fine-tuning
+16:10 
+
+16:10 phase so that the model learns tool
+16:12 
+
+16:12 calling in addition to other tasks right
+16:16 
+
+16:16 so so any questions so
+16:20 
+
+16:20 All right.
+16:22 
+
+16:22 Okay. So the first step was uh data
+16:25 
+
+16:25 curation. So as you see that they have
+16:26 
+
+16:26 three different sources of model, right?
+16:28 
+
+16:28 Uh uh sorry three different sources for
+16:31 
+
+16:31 getting the model cards. Uh so what they
+16:33 
+
+16:33 did was uh they collected a total of,645
+16:37 
+
+16:37 model cards uh and uh from different
+16:41 
+
+16:41 sources
+16:42 
+
+16:42 and they converted them into a standard
+16:45 
+
+16:45 JSON format all three. Right? So this is
+16:48 
+
+16:48 sort of synonymous to how tool
+16:49 
+
+16:49 definition the example of a tool
+16:51 
+
+16:51 definition I showed they were not there
+16:52 
+
+16:52 yet but this was how they started with
+16:54 
+
+16:54 right. So a common format to represent
+16:56 
+
+16:56 tools and so they have lot of keys which
+16:58 
+
+16:58 may not be very generic which may be
+16:60 
+
+17:00 specific to model cards. Some of them
+17:02 
+
+17:02 are generic like uh API name or the
+17:05 
+
+17:05 description these are generic but but
+17:06 
+
+17:06 many of the other things like
+17:07 
+
+17:07 performance of the model or what
+17:10 
+
+17:10 framework it uses or what domain uh like
+17:13 
+
+17:13 domain framework these are very specific
+17:15 
+
+17:15 to model cards but their idea was that
+17:18 
+
+17:18 we need to have a single way of
+17:20 
+
+17:20 representing all the tools uh so that
+17:23 
+
+17:23 model can sort of understand and then
+17:25 
+
+17:25 use them accordingly right so so that
+17:28 
+
+17:28 was the first step they did
+17:30 
+
+17:30 and uh in Second step what they did was
+17:32 
+
+17:32 now that you have definitions of each
+17:34 
+
+17:34 model now how do you construct input
+17:36 
+
+17:36 output pairs with which you can
+17:38 
+
+17:38 fine-tune the model right like I showed
+17:40 
+
+17:40 you before so for that they use
+17:42 
+
+17:42 something called self instruct so I'm
+17:44 
+
+17:44 not sure if this has been already
+17:45 
+
+17:45 covered during the instruction
+17:47 
+
+17:47 finetuning phase but they use the same
+17:49 
+
+17:49 technique here uh to generate thousand
+17:52 
+
+17:52 uh 16,450 examples which is basically 10
+17:55 
+
+17:55 examples per API call or per model that
+17:59 
+
+17:59 they had filtered
+18:02 
+
+18:02 So an example of the input output pair
+18:04 
+
+18:04 was something like this. Uh if you were
+18:08 
+
+18:08 talking about uh SSD mobile net version
+18:11 
+
+18:11 2 uh then it sort of says that uh this
+18:14 
+
+18:14 is the way in which you access it and
+18:17 
+
+18:17 then with that you can create a query
+18:19 
+
+18:19 like our customer is a zoo and we want
+18:21 
+
+18:21 help uh to help them detect movement of
+18:24 
+
+18:24 different animals. Uh write a Python
+18:26 
+
+18:26 program in one or two lines to call the
+18:27 
+
+18:27 API in TensorFlow hub. Right. So, so
+18:31 
+
+18:31 what they did was they provided a bunch
+18:33 
+
+18:33 of seed examples, right? And they
+18:37 
+
+18:37 provide and they sample from the seed
+18:39 
+
+18:39 examples and give one of these APIs and
+18:41 
+
+18:41 then for that API the model would an LLM
+18:44 
+
+18:44 would end up generating the user at
+18:45 
+
+18:45 right. So because they already have the
+18:47 
+
+18:47 API call available with them. They have
+18:49 
+
+18:49 to generate examples. they need to
+18:50 
+
+18:50 create the user at utterances and they
+18:52 
+
+18:52 use self instruct along with some seed
+18:54 
+
+18:54 in context examples to sort of create uh
+18:57 
+
+18:57 16,000 pairs of input output right
+19:02 
+
+19:02 now once you have those examples you can
+19:03 
+
+19:03 train the LLM so in in their case they
+19:06 
+
+19:06 trained llama I think and then they got
+19:08 
+
+19:08 gorilla 7 billion model now let's see
+19:10 
+
+19:10 what happens during inference right so
+19:12 
+
+19:12 if you only used this examples to train
+19:16 
+
+19:16 user and then assistant is the output so
+19:18 
+
+19:18 which means like uh you are in some
+19:22 
+
+19:22 sense forcing the model to memorize all
+19:24 
+
+19:24 the tools right that's what they have
+19:26 
+
+19:26 done here 16 there there is 1 1600 APIs
+19:30 
+
+19:30 and they have made the model memorize
+19:31 
+
+19:31 all the 1600 APIs if you use user and
+19:34 
+
+19:34 assistant as input and output right so
+19:36 
+
+19:36 during inference what would you do if
+19:38 
+
+19:38 somebody says I want to see some cats
+19:39 
+
+19:39 dancing in celebrations right which
+19:41 
+
+19:41 means they want to generate an image of
+19:42 
+
+19:42 cats dancing uh then you would directly
+19:46 
+
+19:46 pass that input to the gorilla model and
+19:48 
+
+19:48 And the model would predict uh what API
+19:51 
+
+19:51 it should call with what parameters uh
+19:54 
+
+19:54 which it is in his which is in his
+19:56 
+
+19:56 memory right uh and then it would end up
+19:59 
+
+19:59 generating the the final image right
+20:01 
+
+20:01 when you execute this now the issue with
+20:03 
+
+20:03 this approach is that of course it
+20:05 
+
+20:05 cannot adapt to unseen APIs right if you
+20:07 
+
+20:07 add more APIs it cannot do it because
+20:09 
+
+20:09 again you'll have to retrain from
+20:10 
+
+20:10 scratch and many of times what happens
+20:12 
+
+20:12 is like people end up changing the model
+20:15 
+
+20:15 weights and they update it and then they
+20:17 
+
+20:17 say that the API name is the same but
+20:20 
+
+20:20 the model you have to call has now
+20:22 
+
+20:22 changed to the latest version. Now this
+20:25 
+
+20:25 is a very very frequent phenomena right
+20:27 
+
+20:27 in 16,000 if you use 16,000 different
+20:30 
+
+20:30 sorry 1600 different models then of
+20:32 
+
+20:32 course every day one model is going to
+20:34 
+
+20:34 change right at least so so this was not
+20:37 
+
+20:37 a very uh viable solution because it
+20:40 
+
+20:40 means every day you'll have to retrain
+20:41 
+
+20:41 right so what they suggested is like
+20:43 
+
+20:43 make a small tweak into how you train
+20:46 
+
+20:46 the model right so this is a paper that
+20:48 
+
+20:48 said that in addition to the user trends
+20:50 
+
+20:50 also train with the API reference
+20:54 
+
+20:54 as input right so which is which is
+20:57 
+
+20:57 exactly what the JSON they are
+20:58 
+
+20:58 constructed uh while converting all the
+21:01 
+
+21:01 the model cards into a standard format
+21:03 
+
+21:03 right so if you have a standard format
+21:05 
+
+21:05 of representing tools then add the tool
+21:08 
+
+21:08 format in the input along with the user
+21:10 
+
+21:10 query right so they started with one but
+21:14 
+
+21:14 like you can generalize it to you can
+21:16 
+
+21:16 you can also show like three or four
+21:17 
+
+21:17 different tools the model can end up
+21:18 
+
+21:18 selecting which tool it wants and then
+21:20 
+
+21:20 use it right so this was a paper that
+21:22 
+
+21:22 first talked about is uh that you have
+21:24 
+
+21:24 to use APIs as input as well API
+21:27 
+
+21:27 definitions as inputs so that the model
+21:28 
+
+21:28 learns to adapt to new APIs unseen
+21:31 
+
+21:31 during train and of course when you were
+21:32 
+
+21:32 providing this as input then you of
+21:34 
+
+21:34 course the model weights change you can
+21:36 
+
+21:36 point to the new model weights right in
+21:38 
+
+21:38 this definition right so it's as simple
+21:39 
+
+21:39 as that you don't have to retrain you
+21:41 
+
+21:41 just have to change the tool definition
+21:42 
+
+21:42 which is a much easier process
+21:45 
+
+21:45 so now what happens during inference
+21:48 
+
+21:48 right so when they created when I said
+21:50 
+
+21:50 that they converted everything to JSON
+21:51 
+
+21:51 you could as well take all those JSONs
+21:53 
+
+21:53 and index them in a in a retriever right
+21:57 
+
+21:57 in an index and once you index them then
+21:59 
+
+21:59 when a new user entrance comes then the
+22:01 
+
+22:01 first thing you would do is go search
+22:03 
+
+22:03 through the API database and figure out
+22:05 
+
+22:05 what are all the relevant uh tools that
+22:07 
+
+22:07 you can use right so that would be the
+22:09 
+
+22:09 first step and let's say the the the
+22:12 
+
+22:12 retriever gave you one tool for now
+22:15 
+
+22:15 right and then you would you would feed
+22:19 
+
+22:19 the gorilla model the tool which will
+22:22 
+
+22:22 also go as input and the user atance
+22:24 
+
+22:24 which will also go as input uh and the
+22:27 
+
+22:27 model will then predict the tool to be
+22:29 
+
+22:29 called and then you could execute it
+22:32 
+
+22:32 right. So, so as I said before, this
+22:34 
+
+22:34 will lead to better generalization
+22:36 
+
+22:36 because now in your API database, you
+22:38 
+
+22:38 can also add new tools.
+22:40 
+
+22:40 In this specific scenario, you you can
+22:43 
+
+22:43 add more models, right? Uh that were not
+22:45 
+
+22:45 seen during train. And of course, you
+22:47 
+
+22:47 can always change the tool definition,
+22:49 
+
+22:49 tool description and all the parameters
+22:51 
+
+22:51 in the tools even during runtime without
+22:53 
+
+22:53 having to retrain the system, right? So,
+22:55 
+
+22:55 this was a major change in how people
+22:57 
+
+22:57 perceive LLM should interact with tools,
+23:00 
+
+23:00 right? So, so these guys also introduced
+23:03 
+
+23:03 a new evaluation metric called as uh
+23:07 
+
+23:07 match which basically uh is how
+23:09 
+
+23:09 typically code modules are matched right
+23:12 
+
+23:12 abstract syntax tree like when you have
+23:15 
+
+23:15 two Python codes
+23:17 
+
+23:17 doing a strict string match to check
+23:18 
+
+23:18 whether both are the same or not is a
+23:20 
+
+23:20 very bad idea right because there are
+23:21 
+
+23:21 multiple ways of writing the same code
+23:23 
+
+23:23 and just because the surface forms don't
+23:24 
+
+23:24 match doesn't mean that the code
+23:25 
+
+23:25 generated is bad right so what people
+23:28 
+
+23:28 typically do is they go one level of
+23:30 
+
+23:30 abst raction higher and then they form
+23:33 
+
+23:33 something called like how variables are
+23:35 
+
+23:35 linked, what operator is used, right?
+23:37 
+
+23:37 They create a tree structure of what the
+23:39 
+
+23:39 code does and and they create a slight
+23:41 
+
+23:41 abstraction of the tree structure so
+23:43 
+
+23:43 that the variable names don't have to be
+23:45 
+
+23:45 the same, right? And things like that
+23:47 
+
+23:47 and then they match that to understand
+23:49 
+
+23:49 how good the two codes are or how close
+23:52 
+
+23:52 these codes are, right? So they adopted
+23:54 
+
+23:54 that as a evaluation metric which
+23:56 
+
+23:56 basically says that look uh even if the
+23:59 
+
+23:59 arguments are not in the right order or
+24:02 
+
+24:02 things like that those all will be taken
+24:03 
+
+24:03 care right and uh like you don't
+24:06 
+
+24:06 necessarily have to define a default
+24:07 
+
+24:07 value if the value is default even if
+24:09 
+
+24:09 you explicitly say it is fine if you
+24:11 
+
+24:11 don't say it also is fine because
+24:12 
+
+24:12 eventually you end up getting the same
+24:13 
+
+24:13 thing right so this abstract syntax
+24:15 
+
+24:15 stream match is not exactly strict
+24:17 
+
+24:17 string match but slightly uh uh it
+24:21 
+
+24:21 covers a lot of different scenarios
+24:22 
+
+24:22 which will which means like two programs
+24:24 
+
+24:24 or two function calls are synonymous,
+24:26 
+
+24:26 right?
+24:29 
+
+24:29 And in addition to reporting a accuracy,
+24:32 
+
+24:32 uh this paper also reported two metrics
+24:35 
+
+24:35 which was uh which was a big problem
+24:37 
+
+24:37 back then which is even when you provide
+24:40 
+
+24:40 certain tools in your prompt, the model
+24:42 
+
+24:42 will end up giving you a tool that was
+24:45 
+
+24:45 not there. It just makes up tool names,
+24:48 
+
+24:48 right? or it would make up argument uh
+24:51 
+
+24:51 arguments in the functions. Right? So
+24:53 
+
+24:53 these hallucinations are really bad. Uh
+24:55 
+
+24:55 so they want to say how different to to
+24:58 
+
+24:58 compute hallucination they would check
+25:00 
+
+25:00 the output uh which are wrong and then
+25:03 
+
+25:03 they would see that whether the name or
+25:05 
+
+25:05 the arguments were hallucinated. So that
+25:07 
+
+25:07 indicates how much hallucination. So the
+25:08 
+
+25:08 lower the hallucination the better right
+25:10 
+
+25:10 zero is the ideal but lower the better.
+25:12 
+
+25:12 And similarly apart from that you might
+25:14 
+
+25:14 have other errors like you you picked a
+25:16 
+
+25:16 tool but that was not the right tool
+25:18 
+
+25:18 like you didn't hallucinate the tool but
+25:19 
+
+25:19 the tool was incorrect and or you
+25:22 
+
+25:22 incorrectly filled up some arguments
+25:23 
+
+25:23 let's say if if it was a enum and it
+25:27 
+
+25:27 allows only four values maybe you gave
+25:28 
+
+25:28 some value that was not accepted or the
+25:30 
+
+25:30 user said something to generate cats and
+25:32 
+
+25:32 then in your function call you did not
+25:35 
+
+25:35 say cats you say dogs or something right
+25:36 
+
+25:36 so you call the API right but somehow
+25:39 
+
+25:39 something didn't add up right right but
+25:40 
+
+25:40 that's not hallucination so They have
+25:43 
+
+25:43 hallucination rate. They have error rate
+25:44 
+
+25:44 which is not hallucination. And then
+25:46 
+
+25:46 they also report abstract syntax tree
+25:49 
+
+25:49 accuracy.
+25:50 
+
+25:50 So now let's see how the how different
+25:53 
+
+25:53 models perform uh in the zero short
+25:55 
+
+25:55 setting which is no retriever setting
+25:57 
+
+25:57 right you you let the model memorize
+25:59 
+
+25:59 everything right and then you try to do
+26:01 
+
+26:01 now uh
+26:05 
+
+26:05 in case of so of course like gorilla is
+26:07 
+
+26:07 the only model that has been fine tuned
+26:09 
+
+26:09 for this task. So it has to do better
+26:11 
+
+26:11 right? So there's no big insight in
+26:13 
+
+26:13 that. Uh and of course other models
+26:15 
+
+26:15 might have seen a lot of information on
+26:17 
+
+26:17 the web. So they might have tried their
+26:18 
+
+26:18 best but they cannot do much right. So
+26:20 
+
+26:20 what is interesting is what happens when
+26:22 
+
+26:22 you provide them with access to tools
+26:25 
+
+26:25 right in the prompt. So when you provide
+26:27 
+
+26:27 them with access to tools in the prompt
+26:29 
+
+26:29 you see like GPT 3.5 GPT4 clot their
+26:32 
+
+26:32 numbers jumped considerably now. So just
+26:34 
+
+26:34 when you provide tools in the prompt
+26:35 
+
+26:35 they're able to make use of it and then
+26:37 
+
+26:37 provide uh reasonable uh accuracy. But
+26:41 
+
+26:41 some things are important like uh in in
+26:44 
+
+26:44 llama it looks like most of the issues
+26:46 
+
+26:46 comes from severe hallucinations right
+26:49 
+
+26:49 uh and uh so in other cases things are
+26:51 
+
+26:51 similar uh but here you see like in most
+26:55 
+
+26:55 cases gorilla is a small model but it's
+26:59 
+
+26:59 doing as good as most of the uh big
+27:01 
+
+27:01 models right that was the summary here
+27:04 
+
+27:04 and then they did one more experiment
+27:06 
+
+27:06 where rather than providing a retriever
+27:09 
+
+27:09 uh they provided the the correct
+27:12 
+
+27:12 reference library. So in some sense
+27:13 
+
+27:13 you're hinting the model that this is
+27:16 
+
+27:16 the only tool available to you and
+27:18 
+
+27:18 that's the right tool. So you just have
+27:19 
+
+27:19 to do a good job in filling the
+27:20 
+
+27:20 arguments and then calling them
+27:22 
+
+27:22 appropriately. Right? So when they do
+27:24 
+
+27:24 that again they also show that uh the
+27:27 
+
+27:27 numbers are considerably higher compared
+27:30 
+
+27:30 to what you would reach with GBT index.
+27:32 
+
+27:32 Right? So which like there is a jump
+27:34 
+
+27:34 here from 47 which is the best to 91
+27:38 
+
+27:38 right like there's a severe jump
+27:40 
+
+27:40 similarly there's a jump from 65 to 95.
+27:42 
+
+27:42 So what this and gorilla is very close
+27:44 
+
+27:44 to what in most cases gorilla is the
+27:46 
+
+27:46 best in cases it's not it's very close
+27:48 
+
+27:48 to the best right so what they say so
+27:50 
+
+27:50 this paper concluded saying that if you
+27:52 
+
+27:52 are to work for unseen
+27:55 
+
+27:55 uh unseen uh tools or things like that
+27:59 
+
+27:59 then you go with this approach of giving
+28:01 
+
+28:01 the tool description in the prompt and
+28:03 
+
+28:03 they also said that in the current state
+28:05 
+
+28:05 of things uh you have to use a retriever
+28:08 
+
+28:08 and these retrievers are really bad
+28:10 
+
+28:10 right so with with a good retriever with
+28:13 
+
+28:13 an ideal retriever you could achieve 90%
+28:14 
+
+28:14 accuracy but with whatever
+28:16 
+
+28:16 state-of-the-art retrievers was there
+28:17 
+
+28:17 back then which are not very specific to
+28:19 
+
+28:19 tool calling retrievalss but rather more
+28:21 
+
+28:21 like document retrieval for rack so
+28:23 
+
+28:23 those were not good retrievers so these
+28:25 
+
+28:25 are the main two takeaways from the
+28:26 
+
+28:26 paper
+28:28 
+
+28:28 and these guys the people who wrote this
+28:30 
+
+28:30 paper also came up with something called
+28:32 
+
+28:32 uh Berkeley function calling leaderboard
+28:34 
+
+28:34 of course the paper was from university
+28:35 
+
+28:35 of uh UCB and uh so they called it
+28:39 
+
+28:39 Berkeley function calling leaderboard
+28:40 
+
+28:40 and
+28:42 
+
+28:42 after they introduced now they have like
+28:44 
+
+28:44 V4 as well. So they they gradually
+28:47 
+
+28:47 increase the complexity of the the the
+28:50 
+
+28:50 test benchmark and then now they have
+28:52 
+
+28:52 V4. This is sort of the standard de
+28:54 
+
+28:54 facto tool calling benchmark that exists
+28:56 
+
+28:56 out there. So if you want to know how
+28:58 
+
+28:58 each mod like different models perform
+28:60 
+
+28:60 on tool calling, it's good for you to go
+29:02 
+
+29:02 to the BFCL leaderboard and check where
+29:04 
+
+29:04 that model stands. Right? So, so as of
+29:08 
+
+29:08 now I think claude is the best and GLM
+29:11 
+
+29:11 uh is slightly above that as well right
+29:15 
+
+29:15 and of course there are multiple
+29:16 
+
+29:16 different things for single turn for
+29:17 
+
+29:17 multi-turn and then there is something
+29:19 
+
+29:19 called V4 format sensitivity V4 agentic
+29:22 
+
+29:22 solutions and these are like an average
+29:23 
+
+29:23 of multiple things and really within
+29:25 
+
+29:25 each even within multi-turn there are
+29:27 
+
+29:27 multiple subcategories as well so it's a
+29:29 
+
+29:29 very exhaustive evaluation benchmark and
+29:32 
+
+29:32 this is a good representation of how
+29:34 
+
+29:34 good these LLMs are for function
+29:36 
+
+29:36 calling.
+29:38 
+
+29:38 Yeah. So to summarize, API bench was one
+29:40 
+
+29:40 of the first papers that talked about
+29:41 
+
+29:41 retrievers in uh uh tool calling. Their
+29:45 
+
+29:45 diversity of APIs is very low. They just
+29:47 
+
+29:47 work with model cards. We don't know
+29:48 
+
+29:48 whether it will generalize to any tool
+29:50 
+
+29:50 that exists out there. And of course,
+29:51 
+
+29:51 these are very simple dialogue, single
+29:53 
+
+29:53 turn. The user says everything they want
+29:55 
+
+29:55 very clearly in the first, which is
+29:57 
+
+29:57 never the case, right? Very rarely
+29:59 
+
+29:59 people who exactly know what they want
+30:01 
+
+30:01 and they know what tools exist can do
+30:03 
+
+30:03 this, right? But typically when you go
+30:05 
+
+30:05 you may forget to say something which
+30:07 
+
+30:07 may be obvious for experts but not for
+30:10 
+
+30:10 novice right. So so this is a very
+30:12 
+
+30:12 contra like very restrictive scenario
+30:14 
+
+30:14 and but it's a good progress in that
+30:17 
+
+30:17 setup. So the next paper we're going to
+30:19 
+
+30:19 see is called tool alpaka. So here what
+30:22 
+
+30:22 they the main difference compared to the
+30:23 
+
+30:23 previous approach is that they use four
+30:26 
+
+30:26 real world inspired tools right uh and
+30:30 
+
+30:30 uh and and and and again like the
+30:32 
+
+30:32 synthesis is similar I'll talk about
+30:34 
+
+30:34 some details uh and then they end up
+30:37 
+
+30:37 again fine-tuning an LLM called Vikuna
+30:39 
+
+30:39 and then they call the model tool alpha
+30:41 
+
+30:41 right they have not named their data set
+30:42 
+
+30:42 here
+30:45 
+
+30:45 so basically what they did was they went
+30:46 
+
+30:46 to this GitHub repo called public APIs
+30:49 
+
+30:49 uh which is basically
+30:51 
+
+30:51 people like us who would document all
+30:54 
+
+30:54 the APIs that exist out there that are
+30:55 
+
+30:55 free to use, right? There are a lot of
+30:57 
+
+30:57 public APIs that are available, free to
+30:59 
+
+30:59 use, but this is one place where uh the
+31:01 
+
+31:01 community has pulled in and then they
+31:03 
+
+31:03 update the list of APIs available. So,
+31:06 
+
+31:06 they use that to get a list of uh like
+31:10 
+
+31:10 broad
+31:12 
+
+31:12 apps and and what they do, right? And
+31:14 
+
+31:14 they also list all the APIs within that
+31:17 
+
+31:17 app as well, right? For example, there
+31:19 
+
+31:19 may be one for Dropbox. There may be one
+31:21 
+
+31:21 for uh getting public holidays and which
+31:24 
+
+31:24 may have like different things like
+31:25 
+
+31:25 search holidays or get by country.
+31:27 
+
+31:27 Multiple APIs might be inside it. But
+31:29 
+
+31:29 this is sort of the app and they give.
+31:31 
+
+31:31 So they only took the name of the app
+31:34 
+
+31:34 and the introduction of the app from
+31:36 
+
+31:36 this public APIs and they have 1,400 of
+31:39 
+
+31:39 them right and with that they prompted
+31:42 
+
+31:42 an LLM like first LLM given the title
+31:45 
+
+31:45 and the introduction would generate a
+31:46 
+
+31:46 description based on few short examples
+31:48 
+
+31:48 like self-instruct and then given the
+31:51 
+
+31:51 public sorry given the title
+31:52 
+
+31:52 introduction description it will create
+31:54 
+
+31:54 some function documentation here it
+31:56 
+
+31:56 lists all the functions here it provides
+31:58 
+
+31:58 some more details about what each
+31:60 
+
+31:60 function does and Then for each of the
+32:02 
+
+32:02 function it would end up generating the
+32:03 
+
+32:03 entire open a API spec. Open API spec is
+32:07 
+
+32:07 one of the example that I showed you in
+32:08 
+
+32:08 the first when when I was discussing the
+32:10 
+
+32:10 motivation right. It has all the
+32:11 
+
+32:11 required parameters what is all the
+32:14 
+
+32:14 parameters descriptions default values
+32:16 
+
+32:16 that that JSON is called the open API
+32:17 
+
+32:17 spec. So they ended up generating an
+32:19 
+
+32:19 open API spec for each of the function
+32:22 
+
+32:22 that they had right so so this is why
+32:24 
+
+32:24 it's called inspired. This is why they
+32:25 
+
+32:25 say it's real world inspired. They did
+32:27 
+
+32:27 not actually use the same APIs but they
+32:29 
+
+32:29 took just the
+32:31 
+
+32:31 uh the app name and the introduction
+32:33 
+
+32:33 from there but they ended up generating
+32:34 
+
+32:34 their own stuff right
+32:38 
+
+32:38 now from this they have to generate
+32:39 
+
+32:39 dialogues right so they have 1400 tools
+32:42 
+
+32:42 now with those tools they have to end up
+32:43 
+
+32:43 generating dialogues and the way they
+32:45 
+
+32:45 generated dialogue is that they had
+32:47 
+
+32:47 three different prompts right one was a
+32:49 
+
+32:49 user prompt one was an uh one was a
+32:51 
+
+32:51 prompt for the user which would end up
+32:53 
+
+32:53 generating user utterances right which
+32:55 
+
+32:55 like if you say you give this API and
+32:58 
+
+32:58 these three tools it would come up with
+32:59 
+
+32:59 I'm planning to planning a trip to Japan
+33:01 
+
+33:01 next year and I wanted to avoid any
+33:03 
+
+33:03 major holidays so can you tell me the
+33:04 
+
+33:04 list of holidays in Japan next year
+33:06 
+
+33:06 right so given this tool it has created
+33:08 
+
+33:08 a user at rents and then there is an
+33:10 
+
+33:10 agent bot uh or assistant bot the
+33:13 
+
+33:13 assistant bot will say what it wants to
+33:15 
+
+33:15 do it could say that I want to chat with
+33:17 
+
+33:17 the user or it could say that uh I want
+33:20 
+
+33:20 to call this method called get holidays
+33:23 
+
+33:23 and then it would also give all the
+33:25 
+
+33:25 arguments associated with it. In this
+33:27 
+
+33:27 case, it wants it says that could you
+33:29 
+
+33:29 please specify the year you are planning
+33:31 
+
+33:31 your trip for? And in case of get
+33:34 
+
+33:34 holidays, it may follow the description
+33:35 
+
+33:35 here for get holidays and then give uh
+33:40 
+
+33:40 date and type and other sorry uh country
+33:42 
+
+33:42 and year, right? Country and year, which
+33:45 
+
+33:45 is what is described here, right? uh and
+33:48 
+
+33:48 then there is also a to there's an
+33:50 
+
+33:50 prompt for tool execution which is if
+33:52 
+
+33:52 you give the open API open API specs for
+33:55 
+
+33:55 get holidays it would have the response
+33:57 
+
+33:57 object as well right so based on this
+34:00 
+
+34:00 query it would synthesize the response
+34:04 
+
+34:04 uh following the response object format
+34:06 
+
+34:06 right so so these uh different prompts
+34:09 
+
+34:09 will act in tandem uh and then they will
+34:12 
+
+34:12 generate the dialogue right so you you
+34:14 
+
+34:14 so the the way they coordinate pin is
+34:17 
+
+34:17 basically using rules, right? If the
+34:20 
+
+34:20 first utterance, it has to be the user,
+34:21 
+
+34:21 right? If it is chat with uh then then
+34:25 
+
+34:25 the user has to hand over the uh the
+34:28 
+
+34:28 control to the assistant agent for sure,
+34:31 
+
+34:31 right? Whenever after user, it has to go
+34:32 
+
+34:32 to the assistant and uh uh if the
+34:34 
+
+34:34 assistant says chat with user, then the
+34:36 
+
+34:36 control has to go to the user agent,
+34:38 
+
+34:38 right? uh and if the then after user
+34:40 
+
+34:40 again the control has to come to
+34:41 
+
+34:41 assistant agent and the assistant agent
+34:43 
+
+34:43 says any API that is available then the
+34:46 
+
+34:46 control has to go to the tool executor
+34:48 
+
+34:48 agent right so it is a very
+34:49 
+
+34:49 deterministic flow uh but the only
+34:52 
+
+34:52 difference is that they use different uh
+34:54 
+
+34:54 uh prompts for generating different
+34:56 
+
+34:56 parts the reason why they do this is
+34:58 
+
+34:58 because uh if you give all the prompts
+35:02 
+
+35:02 together as a single monolithic prompt
+35:04 
+
+35:04 then uh it typically doesn't follow all
+35:08 
+
+35:08 the instructions very clearly and even a
+35:10 
+
+35:10 single point of failure would result in
+35:12 
+
+35:12 uh the dialogue becoming incorrect.
+35:14 
+
+35:14 Right? So typically it's a good idea to
+35:16 
+
+35:16 break your prompts when you do synthetic
+35:17 
+
+35:17 data generation so that you can avoid
+35:20 
+
+35:20 that failure. Right?
+35:24 
+
+35:24 So, so they use three different EVA. So,
+35:27 
+
+35:27 they used the the way they evaluate the
+35:31 
+
+35:31 uh the different models are by calling
+35:34 
+
+35:34 GBT as a or LLM as a judge, right? They
+35:37 
+
+35:37 have different dimensions. One is called
+35:38 
+
+35:38 the procedure which says whether you
+35:40 
+
+35:40 call the right tool, whether you use the
+35:41 
+
+35:41 right arguments and things like that and
+35:43 
+
+35:43 response which says whether the final
+35:45 
+
+35:45 response that you generated is correct
+35:47 
+
+35:47 or not. and then overall indicates
+35:49 
+
+35:49 includes both procedure and response and
+35:51 
+
+35:51 they also did a human annotation to see
+35:53 
+
+35:53 whether these LLM as a judge correlate
+35:55 
+
+35:55 with humans. So as as expected tool
+35:58 
+
+35:58 alpaka the model the the vikuna model
+36:01 
+
+36:01 trained using tool alpaka was doing uh
+36:04 
+
+36:04 like as good as gpd3.5 right and here
+36:07 
+
+36:07 the only difference compared to the
+36:09 
+
+36:09 previous approach is that the tools are
+36:11 
+
+36:11 a lot more exhaustive uh and real world
+36:13 
+
+36:13 right and if you see here uh these tools
+36:17 
+
+36:17 simulated tools are not the same as the
+36:19 
+
+36:19 tools that was used during training
+36:22 
+
+36:22 right the training was done with 400
+36:24 
+
+36:24 these are not the 400 and similarly they
+36:25 
+
+36:25 also took some real world APIs which are
+36:27 
+
+36:27 not simulated right the entire
+36:30 
+
+36:30 description open API specs everything
+36:31 
+
+36:31 was real world and then they used that
+36:33 
+
+36:33 also to show that if you train on
+36:35 
+
+36:35 whatever we synthesized it would also
+36:37 
+
+36:37 work well for real world uh and and
+36:39 
+
+36:39 these were very close to uh what you
+36:41 
+
+36:41 would achieve using uh GPT right look at
+36:45 
+
+36:45 this point it's 10 points but if you see
+36:48 
+
+36:48 other small models which are not trained
+36:49 
+
+36:49 for function calling were really bad but
+36:51 
+
+36:51 once you train it with this approach are
+36:53 
+
+36:53 very close and in this case simulator
+36:55 
+
+36:55 tools It's even more closer than uh the
+36:59 
+
+36:59 other one. So the tool alpaca showed
+37:02 
+
+37:02 better diversity. It also showed
+37:04 
+
+37:04 multi-turn dialogues. But the only uh
+37:07 
+
+37:07 common part between the both is still
+37:08 
+
+37:08 they use only single tool, right? Only
+37:10 
+
+37:10 one tool is where the entire
+37:12 
+
+37:12 conversation is grounded on.
+37:16 
+
+37:16 All right. So let's go to the next
+37:18 
+
+37:18 approach called tool LLM. So these guys
+37:20 
+
+37:20 use a lot of names. Their data set is
+37:23 
+
+37:23 called toolbench and their model is
+37:24 
+
+37:24 called tool alpha. tool lama and uh it's
+37:27 
+
+37:27 the same approach. The only difference
+37:28 
+
+37:28 here is that uh rather than using
+37:31 
+
+37:31 simulated APIs, they ended up crawling
+37:33 
+
+37:33 real APIs from a marketplace called API
+37:35 
+
+37:35 hub and then they use that to synthesize
+37:38 
+
+37:38 the data.
+37:40 
+
+37:40 Now that comes with a lot of issues
+37:42 
+
+37:42 because these are real world executable
+37:44 
+
+37:44 APIs like these if you pass arguments
+37:47 
+
+37:47 they can actually execute and give you
+37:48 
+
+37:48 back results. You don't have to
+37:49 
+
+37:49 synthesize any uh tool responses, right?
+37:53 
+
+37:53 And so they totally gathered 53,000 APIs
+37:57 
+
+37:57 but from there they ended up only using
+37:59 
+
+37:59 16,000 APIs because others were not were
+38:01 
+
+38:01 outdated. You you were not able to
+38:03 
+
+38:03 execute they were not able to execute
+38:04 
+
+38:04 them. So they filtered and they took
+38:06 
+
+38:06 only 16,000 that were functional and
+38:09 
+
+38:09 what they wanted to do was they wanted
+38:11 
+
+38:11 to focus on generating dialogues that
+38:15 
+
+38:15 requires multiple tools. Right? So
+38:17 
+
+38:17 rather than sampling only one tool uh
+38:20 
+
+38:20 they they sort of rapid API sort of
+38:23 
+
+38:23 organizes APIs in hierarchical groups
+38:26 
+
+38:26 like these APIs can be are from a
+38:28 
+
+38:28 similar application and these these
+38:31 
+
+38:31 applications are from similar domain. So
+38:32 
+
+38:32 they sort of group them together. So
+38:34 
+
+38:34 based on the groups they sample tools
+38:36 
+
+38:36 that are cohesive and then they gave n
+38:38 
+
+38:38 tools to an LLM and ask it to generate
+38:41 
+
+38:41 user references. Right? So, so, so one
+38:44 
+
+38:44 example here is like they had tools like
+38:46 
+
+38:46 entrepreneur mindset collection, random
+38:48 
+
+38:48 words, the digital news feed, feeder
+38:51 
+
+38:51 API, chemical elements. Uh, and then
+38:53 
+
+38:53 they gave this to the instruction
+38:55 
+
+38:55 generation prompt and it would generate
+38:57 
+
+38:57 query like uh for my best friend
+38:59 
+
+38:59 surprise birthday party, I require
+39:01 
+
+39:01 inspiration for party games and
+39:02 
+
+39:02 decorations. Kindly suggest some random
+39:04 
+
+39:04 words that can serve as theme for the
+39:05 
+
+39:05 party. Furthermore, I'm interested in
+39:07 
+
+39:07 gathering news articles about the latest
+39:09 
+
+39:09 party trends to ensure uh modern
+39:11 
+
+39:11 celebration. Right. So here it the this
+39:14 
+
+39:14 is what the LLM would generate as a user
+39:16 
+
+39:16 query for this subset of tools and it
+39:18 
+
+39:18 would also say it didn't use all the
+39:20 
+
+39:20 tools but what tools it ended up using
+39:22 
+
+39:22 uh for for for for generating this
+39:24 
+
+39:24 particular instruction right so this is
+39:26 
+
+39:26 how gen ended up generating instructions
+39:29 
+
+39:29 and then
+39:30 
+
+39:30 uh now the main part is once you have
+39:33 
+
+39:33 the first user instruction you have to
+39:34 
+
+39:34 generate the dialogue right so how do
+39:36 
+
+39:36 you end up a dialogue that looks
+39:38 
+
+39:38 realistic right and and for that when
+39:41 
+
+39:41 they prompted LLM to generate dialogues
+39:43 
+
+39:43 like what the previous approach did
+39:45 
+
+39:45 which is like do uh a multi- aent
+39:49 
+
+39:49 approach where first user generates a
+39:51 
+
+39:51 user prompt and then agent generates an
+39:53 
+
+39:53 agent prompt and then tool executor you
+39:56 
+
+39:56 can replace a tool executor with a real
+39:57 
+
+39:57 exeutor but if you go by that approach
+39:59 
+
+39:59 they were not able to get good results
+40:01 
+
+40:01 and the main reason for it is that uh
+40:03 
+
+40:03 the to if the tool calls were not made
+40:05 
+
+40:05 right then the tools will return errors
+40:07 
+
+40:07 or some failure and then it would get
+40:09 
+
+40:09 stuck in the loop and then keep doing
+40:10 
+
+40:10 the same thing again again. So you would
+40:12 
+
+40:12 not get like real realistic looking
+40:14 
+
+40:14 dialogues with which you can actually
+40:16 
+
+40:16 train. Right? So uh so let's see how
+40:20 
+
+40:20 they changed it. Right? So let's take
+40:21 
+
+40:21 this example in the right. Right? So the
+40:24 
+
+40:24 the the I want to give my friend a
+40:27 
+
+40:27 birthday surprise. I know her favorite
+40:29 
+
+40:29 actress is Haley. Uh help me please. Now
+40:33 
+
+40:33 uh
+40:35 
+
+40:35 the first API that is called is to get
+40:38 
+
+40:38 more details about Haley so that it can
+40:40 
+
+40:40 think about what what it can uh like
+40:43 
+
+40:43 suggest right. So, so now when that
+40:46 
+
+40:46 particular tool call is made get extra
+40:48 
+
+40:48 character details and the name is Haley
+40:50 
+
+40:50 uh Steinfelk then the rapid API can
+40:52 
+
+40:52 either give you the exact details right
+40:55 
+
+40:55 or it can say server error or any other
+40:58 
+
+40:58 error maybe you didn't put the arguments
+40:59 
+
+40:59 right so it may give a different error
+41:02 
+
+41:02 uh maybe it ended up uh like saying that
+41:05 
+
+41:05 additional required parameter was not
+41:07 
+
+41:07 given things like that right and then
+41:09 
+
+41:09 based on whether the uh API execution
+41:12 
+
+41:12 was successful or failure you you could
+41:14 
+
+41:14 finish with a good final answer or you
+41:16 
+
+41:16 could end up with giving up saying that
+41:18 
+
+41:18 I don't know what to do. I tried
+41:20 
+
+41:20 sometimes it may go in loop as well
+41:22 
+
+41:22 again the model would say that let me
+41:24 
+
+41:24 repredict the API name and API arguments
+41:26 
+
+41:26 and then it never would come out of the
+41:27 
+
+41:27 loop like after 30 tries it would still
+41:29 
+
+41:29 be stuck in the loop. So, so what this
+41:31 
+
+41:31 what this paper says is that if you go
+41:33 
+
+41:33 by the usual approach like one after the
+41:36 
+
+41:36 other then at some point in time you
+41:38 
+
+41:38 will end up facing errors and it may go
+41:39 
+
+41:39 in circles and finally you end up
+41:41 
+
+41:41 generating a fail trajectory and this
+41:43 
+
+41:43 failed trajectory is typically not a
+41:44 
+
+41:44 good thing to learn right uh so what
+41:46 
+
+41:46 they said was let's go do some sort of a
+41:48 
+
+41:48 depth first search which is if I know
+41:51 
+
+41:51 this failed then I go back to the place
+41:53 
+
+41:53 where it was we didn't fail and try
+41:55 
+
+41:55 something slightly different
+41:57 
+
+41:57 right and maybe that also failed so Then
+42:00 
+
+42:00 uh they may come when they keep doing
+42:02 
+
+42:02 depth first search finally you'll hit a
+42:04 
+
+42:04 point where you would you would be able
+42:07 
+
+42:07 to respond back to the user right and
+42:09 
+
+42:09 and that path is what will be taken as a
+42:12 
+
+42:12 example and others would be
+42:15 
+
+42:15 ignored right
+42:20 
+
+42:20 and then of course that becomes the
+42:21 
+
+42:21 toolbench data set and if you do sft of
+42:25 
+
+42:25 toolbench on llama they end up getting
+42:28 
+
+42:28 the tool lama uh thingy, right? And in
+42:31 
+
+42:31 addition to that, what they also did is
+42:33 
+
+42:33 like in the previous approaches, in the
+42:35 
+
+42:35 previous approach, we saw that retriever
+42:36 
+
+42:36 is a crucial component and they clearly
+42:38 
+
+42:38 said that these retrievers are general
+42:40 
+
+42:40 purpose retrievers are really bad. So
+42:42 
+
+42:42 what they did was they ended up training
+42:44 
+
+42:44 their own retriever. The the advantage
+42:46 
+
+42:46 they have here is that if you remember
+42:49 
+
+42:49 uh they have this setup, right? This was
+42:53 
+
+42:53 generated as a part of their synthetic
+42:54 
+
+42:54 data generation. So they know for this
+42:56 
+
+42:56 query what are the right APIs to call
+42:58 
+
+42:58 right. So they could use this as
+43:00 
+
+43:00 training they could use this to
+43:01 
+
+43:01 synthesize the training examples for
+43:03 
+
+43:03 retriever and they ended up u training a
+43:06 
+
+43:06 retriever as well right from the
+43:08 
+
+43:08 instruction generation phase they could
+43:10 
+
+43:10 use the user instruction the relevant
+43:12 
+
+43:12 APIs to train an API retriever. Yeah.
+43:14 
+
+43:14 And of course during inference once the
+43:16 
+
+43:16 user instruction is given it you would
+43:19 
+
+43:19 hit the retriever get relevant APIs and
+43:21 
+
+43:21 then you will keep interacting with the
+43:24 
+
+43:24 tools as and when the LLM tells you to
+43:27 
+
+43:27 and then once all the tools are and the
+43:29 
+
+43:29 model gives you a final response then
+43:31 
+
+43:31 give it back to the uh user and then
+43:33 
+
+43:33 they will evaluate how good that output
+43:36 
+
+43:36 was. Again they use similar uh metrics
+43:40 
+
+43:40 as the previous paper which is
+43:41 
+
+43:41 hallucination rate and abstract syntax
+43:44 
+
+43:44 tree accuracy and uh here also they say
+43:47 
+
+43:47 that uh with retrievers the abstract
+43:50 
+
+43:50 syntax tree scores are much lower right
+43:53 
+
+43:53 but when you use an Oracle retriever
+43:55 
+
+43:55 then the numbers are much better. So
+43:57 
+
+43:57 still the retriever is not that great.
+43:59 
+
+43:59 But what I suspect the reason why I
+44:01 
+
+44:01 suspect why they used their own
+44:02 
+
+44:02 retriever rather than doing their uh
+44:05 
+
+44:05 performance using out of the box
+44:07 
+
+44:07 retrievers is because I think their
+44:08 
+
+44:08 model was not able to achieve as good
+44:10 
+
+44:10 accuracy as gorilla with regular
+44:12 
+
+44:12 retrievers. So they ended up using their
+44:14 
+
+44:14 own retriever for their approach. It
+44:16 
+
+44:16 feels slightly manipulative but I think
+44:19 
+
+44:19 that was the reason why they used API
+44:20 
+
+44:20 retriever and not uh DM25 in that setup.
+44:27 
+
+44:27 Right. So now toolbench the the main
+44:31 
+
+44:31 advantage was that uh you know they
+44:34 
+
+44:34 identified something called rapid API
+44:35 
+
+44:35 hub which has real world specs and uh
+44:38 
+
+44:38 their dialogues are grounded on multiple
+44:40 
+
+44:40 tools right which is more realistic than
+44:43 
+
+44:43 a single case.
+44:46 
+
+44:46 Now let's go to uh the final paper that
+44:48 
+
+44:48 we discussed called API gen. So uh this
+44:52 
+
+44:52 was a paper uh by Salesforce and they
+44:55 
+
+44:55 generated around 60k examples again from
+44:57 
+
+44:57 rapid API as the grounding tools but
+44:59 
+
+44:59 they ended up generating only single
+45:01 
+
+45:01 turn
+45:03 
+
+45:03 tool calls right they did not use uh
+45:05 
+
+45:05 multi-turn and their main focus was BFC
+45:09 
+
+45:09 right BFCL is the leaderboard that I
+45:11 
+
+45:11 showed you in the beginning that gorilla
+45:13 
+
+45:13 people did right so when this paper came
+45:15 
+
+45:15 out BFCL B1 was out and their goal was
+45:19 
+
+45:19 like how do we get top numbers in BFC
+45:20 
+
+45:20 BFCL right so this paper uh although it
+45:24 
+
+45:24 has some new things but the target was
+45:27 
+
+45:27 to get better numbers on BFCL and so
+45:29 
+
+45:29 some of the design choices would be
+45:30 
+
+45:30 geared towards that right
+45:34 
+
+45:34 so basically
+45:36 
+
+45:36 this is this is an example of how the
+45:38 
+
+45:38 data set would look like the input would
+45:40 
+
+45:40 be I want to know the weather in Palo
+45:41 
+
+45:41 Alto and the available functions would
+45:44 
+
+45:44 be like check stock price get weather
+45:46 
+
+45:46 fetch news and things like that and then
+45:48 
+
+45:48 the model should predict get weather
+45:49 
+
+45:49 palo alto and today right this is how
+45:53 
+
+45:53 the function call like they didn't focus
+45:55 
+
+45:55 on generating the uh the final user
+45:59 
+
+45:59 attance
+46:00 
+
+46:00 right or they did not even worry about
+46:03 
+
+46:03 making this executable and getting back
+46:04 
+
+46:04 the results right because BFCL did not
+46:07 
+
+46:07 have the evaluation did not have
+46:10 
+
+46:10 evaluating the response the evaluation
+46:12 
+
+46:12 only had evaluating the function calls
+46:14 
+
+46:14 being made so they generated just the
+46:16 
+
+46:16 data that given the user query and a
+46:18 
+
+46:18 bunch of tools they would only generate
+46:20 
+
+46:20 the tool call, right? That's what their
+46:22 
+
+46:22 data was focused on.
+46:24 
+
+46:24 So, yeah. So, so for first they have a
+46:27 
+
+46:27 bunch of APIs. They took the same APIs
+46:30 
+
+46:30 as what uh uh the the toolbench did and
+46:34 
+
+46:34 then got all the rapid APIs. But what
+46:36 
+
+46:36 they figured out was that out of the
+46:37 
+
+46:37 16,000 APIs that toolbench made
+46:39 
+
+46:39 available, most of the APIs maybe the
+46:42 
+
+46:42 descriptions was generic, right? and uh
+46:45 
+
+46:45 they they were having high latency in
+46:47 
+
+46:47 the sense that you query them and you
+46:49 
+
+46:49 get back response after three or four
+46:50 
+
+46:50 minutes. So they had multiple issues uh
+46:53 
+
+46:53 that was not very uh that that made them
+46:57 
+
+46:57 very flaky, right? So they removed most
+46:58 
+
+46:58 of the things and they only kept 3,000
+47:01 
+
+47:01 good execution once and in cases where
+47:04 
+
+47:04 they felt descriptions were not very
+47:06 
+
+47:06 clear they enrich that metadata using
+47:09 
+
+47:09 GPT4. Right? So if the description if
+47:12 
+
+47:12 the tool was booking tickets and the
+47:14 
+
+47:14 description was also booking tickets
+47:15 
+
+47:15 booking underscore tickets and booking
+47:17 
+
+47:17 tickets then they would make an LLM
+47:18 
+
+47:18 elaborate a little bit more based on the
+47:21 
+
+47:21 uh the the required parameters and
+47:24 
+
+47:24 response parameters and things like that
+47:25 
+
+47:25 even parameter descriptions were
+47:27 
+
+47:27 enriched and things like that and then
+47:28 
+
+47:28 they also have some seed uh uh user
+47:32 
+
+47:32 question and function output pairs right
+47:36 
+
+47:36 so they use self instruct again they
+47:38 
+
+47:38 sample some APIs they would sample some
+47:40 
+
+47:40 seed data
+47:41 
+
+47:41 uh like the sample APIs would be what
+47:44 
+
+47:44 you would want to generate the question
+47:45 
+
+47:45 on and the seed examples would be the
+47:46 
+
+47:46 few short examples and then they would
+47:48 
+
+47:48 end up generating the question answer
+47:49 
+
+47:49 pairs. But here the one main uh
+47:53 
+
+47:53 difference or contribution was that they
+47:56 
+
+47:56 after you sample them all the existing
+47:58 
+
+47:58 techniques would just directly generate
+48:00 
+
+48:00 right but here they introduce lot of
+48:02 
+
+48:02 diversity okay let's see how they what
+48:04 
+
+48:04 type of diversity they introduced right
+48:06 
+
+48:06 so of course simple things are question
+48:08 
+
+48:08 verbosity sometimes the user may be very
+48:10 
+
+48:10 crisp and clear in what they want or
+48:12 
+
+48:12 sometimes they give background story of
+48:13 
+
+48:13 what they are doing and then indirectly
+48:15 
+
+48:15 say what they want and figure out like
+48:17 
+
+48:17 for example if I have to some question
+48:19 
+
+48:19 is it going to rain in Palo Alto today
+48:22 
+
+48:22 or you can say like should I carry an
+48:23 
+
+48:23 umbrella like so or or say that I have a
+48:26 
+
+48:26 interview today blah blah blah give the
+48:28 
+
+48:28 whole story and then say that I don't
+48:29 
+
+48:29 want my dress to get wet uh should I
+48:31 
+
+48:31 carry an umbrella like you can have
+48:33 
+
+48:33 different types of questions and and
+48:35 
+
+48:35 sometimes user will misspell certain
+48:37 
+
+48:37 things so they so the reason why they
+48:39 
+
+48:39 had all these set up is because BFCL had
+48:41 
+
+48:41 examples like this right so since they
+48:43 
+
+48:43 want to do good there they had these
+48:45 
+
+48:45 different types of prompts and similarly
+48:48 
+
+48:48 BFCL also had four different
+48:50 
+
+48:50 subcategories for single turn dialogues,
+48:52 
+
+48:52 right? Single tool indicates that the
+48:55 
+
+48:55 user says something, you have to use one
+48:57 
+
+48:57 call, one tool and then you should get
+48:58 
+
+48:58 back the results, right? Multiple is the
+49:02 
+
+49:02 same tool call but say you want to call
+49:04 
+
+49:04 it twice with different arguments. For
+49:06 
+
+49:06 example, the single example would be
+49:08 
+
+49:08 what is the uh weather in Delhi, right?
+49:11 
+
+49:11 The multiple example would be like I'm
+49:13 
+
+49:13 traveling from Delhi to Bangalore. What
+49:15 
+
+49:15 is the weather in both places? So then
+49:16 
+
+49:16 it has to make two different tool calls
+49:18 
+
+49:18 with the same tool but different
+49:19 
+
+49:19 arguments. Parallel is you may have
+49:22 
+
+49:22 multiple different APIs that almost
+49:24 
+
+49:24 achieve the same thing but there are
+49:26 
+
+49:26 small nuances in where they are
+49:28 
+
+49:28 different and the model has to figure
+49:29 
+
+49:29 out from from that right this is
+49:32 
+
+49:32 slightly harder than the usual single
+49:34 
+
+49:34 single you may have very different APIs
+49:36 
+
+49:36 it may be easy for you to narrow down
+49:37 
+
+49:37 and pick what you want parallel might uh
+49:39 
+
+49:39 might be slightly different and parallel
+49:41 
+
+49:41 multiple is a combination of both right
+49:43 
+
+49:43 so so randomly you would pick a
+49:47 
+
+49:47 a prompt based on all these different
+49:50 
+
+49:50 diverse set of prompts and then you
+49:51 
+
+49:51 would generate uh QA pairs right so once
+49:55 
+
+49:55 they generate QA pairs the good the good
+49:58 
+
+49:58 part they did was the APIs were already
+49:60 
+
+49:60 standardized right they were already in
+50:02 
+
+50:02 the open API format so they were all
+50:04 
+
+50:04 JSON functions calls are also always
+50:06 
+
+50:06 JSON right the answer is a function call
+50:08 
+
+50:08 for them so it always in JSON and uh and
+50:11 
+
+50:11 even when they generated u
+50:15 
+
+50:15 outputs which is like the answer type
+50:17 
+
+50:17 here So
+50:23 
+
+50:23 they also have uh a standard sort of uh
+50:26 
+
+50:26 they represented in a standard way. The
+50:28 
+
+50:28 reason for that is because they wanted
+50:30 
+
+50:30 to filter queries that did not confirm
+50:33 
+
+50:33 to a format in the sense that you want
+50:35 
+
+50:35 the answer to have these the these
+50:36 
+
+50:36 fields and the model did not generate
+50:38 
+
+50:38 some of these fields then it means it
+50:40 
+
+50:40 has made some mistakes somewhere right.
+50:42 
+
+50:42 So, so the format checker will help you
+50:44 
+
+50:44 simply look at the keys and values and
+50:47 
+
+50:47 sometimes if the API specification says
+50:50 
+
+50:50 a key and then in the argument of the
+50:52 
+
+50:52 generated answer you have a different
+50:54 
+
+50:54 key then those don't match. So they use
+50:56 
+
+50:56 simple rules to remove examples that
+50:58 
+
+50:58 were bad using the format checker. Uh
+51:02 
+
+51:02 yeah so they generated removed using
+51:03 
+
+51:03 format checker. Second was uh they also
+51:06 
+
+51:06 have another verification step where
+51:08 
+
+51:08 they would actually run the function
+51:10 
+
+51:10 call on the rapid API uh execution and
+51:14 
+
+51:14 if the execution fails uh then they
+51:16 
+
+51:16 would ignore that example because the
+51:18 
+
+51:18 execution can fail even when the
+51:21 
+
+51:21 arguments are not given right or it
+51:23 
+
+51:23 doesn't make sense and things like that
+51:24 
+
+51:24 right
+51:26 
+
+51:26 and finally semantic checker which is
+51:28 
+
+51:28 sometimes uh the execution may run but
+51:32 
+
+51:32 still you might have given some weird
+51:34 
+
+51:34 Maybe a misspelled word was picked up
+51:36 
+
+51:36 rather than the right word. Right? So
+51:37 
+
+51:37 output may not give any results and
+51:39 
+
+51:39 because of that you would say something
+51:40 
+
+51:40 that does not make sense. Right? So
+51:42 
+
+51:42 semantic checker would say that okay I
+51:44 
+
+51:44 will not look at tools. I will not look
+51:45 
+
+51:45 at tool output. I will just look at
+51:47 
+
+51:47 input and output and then see whether
+51:49 
+
+51:49 the output looks something that's that
+51:50 
+
+51:50 makes sense for the input at hand.
+51:52 
+
+51:52 Right?
+51:55 
+
+51:55 So with all these one of the good thing
+51:57 
+
+51:57 they did was uh they they showed like if
+51:59 
+
+51:59 you use different types of models where
+52:01 
+
+52:01 all these models would fail right and
+52:03 
+
+52:03 they said that if you use a very big
+52:06 
+
+52:06 model like 236 billion model then your
+52:07 
+
+52:07 pass rate was very high of all the
+52:09 
+
+52:09 verification step you have. If you have
+52:11 
+
+52:11 mixtural 8 cross 7 billion its pass rate
+52:14 
+
+52:14 is similar to the 33 billion uh
+52:17 
+
+52:17 deepcoder and 8 + 22 was 65 right. So
+52:20 
+
+52:20 they sort of g gave some until then
+52:22 
+
+52:22 nobody talked about these things
+52:24 
+
+52:24 everybody were generating data with GPT
+52:26 
+
+52:26 uh open AAI models and those quality
+52:28 
+
+52:28 were really good once they started
+52:30 
+
+52:30 moving towards non-proprietary models
+52:32 
+
+52:32 then then this was a paper that showed
+52:34 
+
+52:34 like what is the model that you should
+52:36 
+
+52:36 probably be using and and how much uh
+52:40 
+
+52:40 good how good they are and of course all
+52:41 
+
+52:41 these verified data doesn't mean they're
+52:43 
+
+52:43 good
+52:45 
+
+52:45 right it means that they've passed this
+52:47 
+
+52:47 multi-stage verification there may be
+52:49 
+
+52:49 issues here as as well right but but
+52:52 
+
+52:52 this means that these are all bad for
+52:54 
+
+52:54 sure this doesn't mean that all these in
+52:56 
+
+52:56 the verified data are good
+52:59 
+
+52:59 and with this the uh so this was a
+53:02 
+
+53:02 screenshot that was taken
+53:04 
+
+53:04 uh when the paper was released right uh
+53:07 
+
+53:07 and then at that point in time uh this
+53:10 
+
+53:10 model's overall accuracy was very close
+53:12 
+
+53:12 to what GBT4 could do at that point in
+53:14 
+
+53:14 time and this was uh mixt2 billion model
+53:18 
+
+53:18 fine tune with their data Right.
+53:23 
+
+53:23 So yeah. So so basically to summarize uh
+53:26 
+
+53:26 Gorilla introduced the notion of having
+53:29 
+
+53:29 the tool description in the prompt and
+53:31 
+
+53:31 tool alpaka started to explore with
+53:33 
+
+53:33 slightly more diverse data. Toolbench
+53:35 
+
+53:35 started to work with real world APIs and
+53:38 
+
+53:38 multi- aent simulation framework. And
+53:40 
+
+53:40 then XLAM came up and said that uh you
+53:43 
+
+53:43 can tweak the knobs on how to generate
+53:46 
+
+53:46 so that you generate lot more diverse
+53:47 
+
+53:47 data uh than simply following what GPT
+53:50 
+
+53:50 or other models would assume right uh so
+53:53 
+
+53:53 diversity was the main focus there but
+53:55 
+
+53:55 again the issue here was that still a
+53:57 
+
+53:57 sing it was grounded on a single tone
+53:58 
+
+53:58 right uh and it did not have multi-turn
+54:02 
+
+54:02 so during the time frame when when when
+54:05 
+
+54:05 this type of data model was getting
+54:06 
+
+54:06 generated in our team uh we were working
+54:08 
+
+54:08 towards
+54:10 
+
+54:10 data
+54:12 
+
+54:12 that was that has permissible license,
+54:15 
+
+54:15 right? Because in most of the in all the
+54:18 
+
+54:18 previous papers, GBT4 is used at some
+54:21 
+
+54:21 point in time or the other, right? In uh
+54:23 
+
+54:23 in XLAM uh uh or the API gen, they used
+54:26 
+
+54:26 it for metadata enrichment of the APIs.
+54:28 
+
+54:28 In other cases, they generated dialogues
+54:30 
+
+54:30 using GPT4 and they did not have
+54:32 
+
+54:32 permissible license. Secondly, rapid API
+54:35 
+
+54:35 specifications don't have permissible
+54:37 
+
+54:37 license, right? You can't use that to
+54:39 
+
+54:39 fine-tune your model and then use it for
+54:42 
+
+54:42 making money or for general purpose. You
+54:44 
+
+54:44 have to pay royalty to them or you
+54:46 
+
+54:46 cannot use them directly. If you want to
+54:48 
+
+54:48 use it for any purposes only for
+54:50 
+
+54:50 academic research it is allowed right.
+54:52 
+
+54:52 So, so our team was working on mainly uh
+54:55 
+
+54:55 openness which is like how can we create
+54:58 
+
+54:58 data using models that are Apache 2 and
+55:01 
+
+55:01 using APIs that are open source uh which
+55:05 
+
+55:05 have permissible Apache 2 license or MIT
+55:07 
+
+55:07 license and then work with them. So that
+55:09 
+
+55:09 was a main goal for our team and of
+55:11 
+
+55:11 course uh we wanted it to be
+55:13 
+
+55:13 generalizable in the sense that when we
+55:15 
+
+55:15 used most of these data sets fine-tuned
+55:17 
+
+55:17 the model and then work with enterprise
+55:19 
+
+55:19 or any other APIs they don't generalize
+55:22 
+
+55:22 very well right they still there is some
+55:25 
+
+55:25 bias in those APIs and and so they are
+55:28 
+
+55:28 not working well and we showed that if
+55:31 
+
+55:31 like if you use multiple evaluation
+55:33 
+
+55:33 benchmarks then whatever you trained on
+55:35 
+
+55:35 it worked well there but in other
+55:36 
+
+55:36 benchmarks it slightly degraded by food
+55:38 
+
+55:38 margin, right? So, so we ended up
+55:41 
+
+55:41 pooling lot of data from different
+55:43 
+
+55:43 sources and then created a sort of
+55:46 
+
+55:46 training set and a benchmark which helps
+55:48 
+
+55:48 generalize and third during that time
+55:51 
+
+55:51 that was a time where people started to
+55:53 
+
+55:53 build agents right uh so until this
+55:56 
+
+55:56 point in time people's belief were that
+55:59 
+
+55:59 belief was that you give the tools the
+56:01 
+
+56:01 model would be able to figure out
+56:02 
+
+56:02 everything that's needed right but soon
+56:04 
+
+56:04 they realized like just by giving the
+56:06 
+
+56:06 set of tools and the descriptions model
+56:08 
+
+56:08 will not be able to stitch them together
+56:10 
+
+56:10 to answer, right? Because typically
+56:12 
+
+56:12 business process or any process involves
+56:15 
+
+56:15 would require a sequence of steps and
+56:17 
+
+56:17 unless you know what those sequence of
+56:18 
+
+56:18 steps are, it'll be very hard for you to
+56:20 
+
+56:20 stitch them together. Nobody is going to
+56:22 
+
+56:22 ask like I want the weather for uh
+56:24 
+
+56:24 Bangalore and Chennai right in in in
+56:27 
+
+56:27 banking that you you would rather say
+56:29 
+
+56:29 that I want to open an account. Now, you
+56:32 
+
+56:32 don't know what all procedures are there
+56:33 
+
+56:33 to open an account, right? So similarly
+56:35 
+
+56:35 if you say open an account to LLM there
+56:37 
+
+56:37 is not going to be a single API that
+56:38 
+
+56:38 says open an account with all the
+56:40 
+
+56:40 necessary parameters right maybe there's
+56:42 
+
+56:42 a KYC phase that output once you get the
+56:44 
+
+56:44 key from that KYC phase you need to do
+56:46 
+
+56:46 something else then you need to manage
+56:47 
+
+56:47 your uh approval to create what type of
+56:49 
+
+56:49 account you want based on things so
+56:51 
+
+56:51 there may be a certain procedure and
+56:53 
+
+56:53 policy on how to join things together so
+56:55 
+
+56:55 people were not able to build usable
+56:58 
+
+56:58 agentic solutions with what LLMs were
+57:01 
+
+57:01 allowed there right so what they wanted
+57:03 
+
+57:03 was to break them into smaller tasks,
+57:06 
+
+57:06 right? Sometimes the procedure is listed
+57:10 
+
+57:10 and you as an application developer know
+57:12 
+
+57:12 what the process is. So you know what
+57:14 
+
+57:14 API to call, you just want slot filling,
+57:16 
+
+57:16 which is you just want the arguments to
+57:18 
+
+57:18 be filled, right? In some cases when the
+57:20 
+
+57:20 user comes with a query, you just want
+57:22 
+
+57:22 to figure out what the tool has to be
+57:25 
+
+57:25 called and once you select what the tool
+57:27 
+
+57:27 is, then you have other procedures to
+57:29 
+
+57:29 get the variables for the tools and fill
+57:30 
+
+57:30 them up. So while function calling uh is
+57:34 
+
+57:34 a is a task that has multiple subtask
+57:36 
+
+57:36 like function tool name detection slot
+57:38 
+
+57:38 filling validation and what sequence of
+57:40 
+
+57:40 tools have to be called things like
+57:42 
+
+57:42 that. So we broke the task into gran
+57:44 
+
+57:44 granular tasks and then we taught LLM
+57:46 
+
+57:46 all the tasks along with function
+57:48 
+
+57:48 calling as well right. So so this was uh
+57:52 
+
+57:52 what we were doing at that point in time
+57:54 
+
+57:54 and uh when we released this data and
+57:57 
+
+57:57 the model uh like we were the we were
+58:00 
+
+58:00 the top Apache 2 licensed model with
+58:03 
+
+58:03 data on the BFCL leaderboard back at
+58:06 
+
+58:06 that point in time. Right. So so this is
+58:10 
+
+58:10 a summary of what we discussed today. uh
+58:12 
+
+58:12 going forward uh I will talk about uh
+58:16 
+
+58:16 slightly more about uh what is happening
+58:18 
+
+58:18 now. So this is until 2003 end right.
+58:21 
+
+58:21 So, so in 2020 uh 2024 and 2025 most
+58:25 
+
+58:25 work has been focused on uh how do we
+58:28 
+
+58:28 generate multi-turn dialogues that are
+58:31 
+
+58:31 stitched with multiple tools that are
+58:33 
+
+58:33 more closer to realistic use of agents
+58:35 
+
+58:35 right that's what I'll be covering in
+58:37 
+
+58:37 the next class and then I think like
+58:39 
+
+58:39 there's a break of three classes and
+58:40 
+
+58:40 after that uh we will see if we put the
+58:43 
+
+58:43 models that are trained like this and
+58:45 
+
+58:45 want to build a realistic agent what all
+58:48 
+
+58:48 obstacles you will face and how do you
+58:50 
+
+58:50 build a good solution with. Right. All
+58:53 
+
+58:53 right.

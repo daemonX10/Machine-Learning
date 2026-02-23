@@ -1,0 +1,345 @@
+00:02 okay good morning everyone in today's lecture we will continue our discussion on uh neural
+00:09 language model so in the last class we we started discussing vanilla RNN we
+00:15 discussed the architecture of RNN and then uh the training of RNN using back Pro pration Through Time BPT right and
+00:25 uh we have also seen that uh due to the recurrent multi lications of gradients
+00:32 right what happens is that if the size of the gradient uh is is small it would
+00:38 lead to Vanishing gradient problem if the size is large it would lead to
+00:43 exploding gradient problem so although theoretically RN can capture long long context but in practice uh it starts
+00:51 forgetting um you know those context which are far from the current current
+00:56 context current word so uh you know in gradient can be addressed using methods like gradient
+01:03 clipping right whereas Vanishing gradient can be addressed in various ways so in today's class we'll discuss
+01:09 different getting mechanisms we'll discuss lstm and Gru right but in the next lecture maybe we will discuss uh
+01:16 more advanced topics like like attention right so attention lstm Gru these are uh
+01:24 different ways but apart from these techniques there are also other ways for example you can add Skip connection and
+01:30 residual connection etc etc right we'll discuss all these Concepts in today's
+01:35 lecture but today's breaking news is as follows so py torch recently released a
+01:42 torch chart which is a very uh friendly Library which you can B basically deploy
+01:48 uh in your laptop uh desktop age devices mobile devices and so on py
+01:54 toch uh this torch chart has uh has has already access to multiple llms
+02:01 specifically Lama 3 billion instruct it has been deployed on Galaxy Samsung
+02:07 Galaxy s23 and iPhone right uh using some sort of quantizer as you see 4bit
+02:13 quantization was used here and this is I I guess this is a very interesting tool right for example you know uh we we have
+02:20 been talking about small language models in the in this class so you can use p uh
+02:26 this torch chart and you can deploy this in your mobile iPad right for for quick
+02:32 access and the the good part about this is that this is very fast per second it can generate eight tokens uh you know
+02:40 that this is quite significant okay so let's get started so
+02:47 in U so we'll first look at some of the very some of the usage of RNN in in NLP in language technology
+02:55 so since RNN is a sequence labeling method right given any any sequence it
+03:01 should be able to solve Downstream tasks right let's say the downstream task is a task like paral spe tagging POS tagging
+03:08 right so you are given this uh sequence the uh so this is the
+03:14 sequence and you were asked to essentially determine the POS tag for
+03:19 every token in the sequence right so what you do you run an RNN vanilla RNN
+03:24 right so let's say let's say there are 46 tags 46 POS tags right
+03:30 so from every hidden State you pass it through a linear layer U last day we discussed followed by a nonlinearity s
+03:37 Max Etc and soft Max will essentially map this to a 46 dimensional
+03:43 Vector right and you choose the one which has the highest probability and so
+03:48 on and so forth we choose the one which has the highest probability not we choose the one we we sample it from the
+03:53 distribution right remember this because this is not a generation task this is a classification task and you do this for
+04:01 all the uh for all the words now here you can ask that um in order to predict
+04:08 let's say the POS tag for the word cat at this hidden State okay I have
+04:16 access to only the previous hiden States right but sometimes when I when we do
+04:21 POS tagging or let's say named entity recognition we we may also need to
+04:26 access to the uh future uh hidden state and remember the the entire sequence is
+04:33 given to you it is not a generation task the entire sequence is given to you and the task is to predict the POS tag for
+04:39 every word right so why only to consider the previous hidden States we can also consider the future hidden States right
+04:47 so we will discuss in today's class that here we will use wi directional by directional RNN there is
+04:55 one RNN from left to right there is another RNN from right to left right so at every
+05:00 at every time stamp you you you will have two hidden States one from left to right and other from right to left right
+05:07 you have two hidden States and then then you can either concatenate or you do some operations and basically create a
+05:14 single hidden State and from the single inste then you uh then you pass it through linear layer and nonlinearity
+05:20 right this is called bidirectional bir directional
+05:28 RNN okay uh you can use RNN for simple sentence
+05:33 classification task for example sent analysis for example right or let's say uh let's say uh spam uh spam email
+05:42 classification right so what you do here again there are different ways to do it
+05:48 um one way would be you look at this sentence there are hidden States here one RNN right then you basically uh
+05:55 March all the stes together some ways and you create a uh a single Vector this
+06:02 can be possible another possibility is that you look at you you take only the last hiden state because assumption is
+06:08 that the last hidden state has information to all the previous hidden States so you take the last hidden State
+06:14 and you pass it through linearly non linearity or so on so forth right so the
+06:19 problems the problems with RNN I mentioned last day Vanishing gradient problem exploding gradient problem and
+06:25 it happens due to this recurrent uh computation of gradients right let's say
+06:30 this is the last loss of the final loss which is J J Theta right at the fourth
+06:38 step right I I discussed this thing in the last class okay and if you want to take the
+06:45 gradient of this with respect to H1 right you'll have to check the gradient
+06:50 of this H4 with respect to H3 H3 with respect to H2 H2 respect to H1 and so on
+06:57 and so forth right and if so so these gradients
+07:03 right these are essentially Matrix because you are taking the derivative of a vector with respect to another Vector
+07:10 okay now if the size of this Matrix is small right then it will lead to gradient uh Vanishing gradient problem
+07:16 with size is large it will lead to exploding radient problem okay uh so and how to address
+07:24 this problem we discussed last day now uh how to address this we'll discuss today but
+07:30 let's look at the problem here why this is why this is a problem right let's look let's look at this sentence right
+07:38 so when she tried to print her tickets she found that the printer was out of
+07:45 toner she went to the stationary store to buy more toner it was very overpriced
+07:51 after installing the toner into the printer she finally printed her Dash right so this this will be tickets
+07:59 now look at the distance between this and this this tickets the what tickets in uh uh this is I think uh at the
+08:07 seventh position of the sentence and this is very very far so venish gradient
+08:13 due to venish gradient problem RN won't be able to predict the next word tickets okay so what are the uh what are
+08:21 the ways we will fix it using a getting mechanism right we will see that in a
+08:27 getting mechanism we will explicitly use CH another state called the memory
+08:34 state right so along with the hidden State we also have a memory State called the cell State we'll
+08:40 discuss so using lstm Gru we will we will try to address the problem of Vanishing gradient but there are other
+08:47 mechanisms also like attention residual connection we'll discuss later okay so
+08:52 let's focus on lstm and gr so what is the idea here so the idea
+08:59 here is that in vanilla RNN so these are hidden States H1 H2 H3 X1 X2 X3 are the
+09:07 inputs right so at every state at every uh time you have a hidden state right in
+09:15 in lstm we will also maintain another state a state is a
+09:21 vector right we will maintain another state called the Sal
+09:27 State denoted by CT the sales state will act as a
+09:33 memory okay so the sales state is responsible for storing information
+09:39 which you do not want the model to forget okay so hidden State and Sal
+09:45 State these are the two states which will be available at every every Tim stamp
+09:50 okay and we will control the content which
+09:56 which is going to be written to this memory cell State using a getting mechanism so we have a cell State we
+10:03 have hidden State the cell state will act as a memory and the hidden state will act as an
+10:10 output okay now this is the overview I'll discuss uh in details try to
+10:15 understand the overview of this so memory cell State and hidden State cell
+10:20 state will act as a memory and hidden state will act as an output right uh we
+10:27 will generate some content which we which we want to store within the memory
+10:32 right but how much of this content will be stored into the memory this will be
+10:39 controlled through a getting mechanism right and what are these Gates these gates are same similar to and or Gates
+10:45 that we have that we we already know but uh not as simple as that but the idea is
+10:51 more or less same if the so gate itself is a vector it is also a vector right so
+10:58 a vector has multiple uh multiple sales if one cell is the value of one cell is
+11:05 one it means it will allow the information to pass the corresponding information to pass to the uh memory if
+11:13 it is zero it will not allow if the number is in between one or 0 to one
+11:18 let's say 0. five or3 proportionately the information will be passed right
+11:25 so in lstm we will see there are three kinds of Gates that are that are uh
+11:32 being maintained right now these gates are responsible for deciding which part
+11:38 of the content I would like to store into the memory how much I would like to
+11:44 read from the memory and store into state right so this is so these
+11:50 operations are very similar to the operations that we have in computer read and write operation right I write
+11:55 something right so here I write the content to to the memory I read content
+12:02 from the memory and stored it to the hidden State okay and and how much will be uh
+12:08 stored how much will be forgotten how much will be written all these decisions will be taken by the
+12:15 gates clear now these Gates the values of these gates are controlled
+12:21 dynamically okay in fact these are the parameters okay values of these Gates
+12:28 will be controll dynamically uh gates are vectors like this okay
+12:33 values generally the uh the the value of every cell of the gate ranges between
+12:40 between 0 to one right if it is zero then it will not allow it will not allow the content to pass to move forward if
+12:48 it is one it will allow the complete content to move forward and if if let's say this is point three so it will only
+12:54 allow 30% of the content to move forward okay
+13:01 let's look at it this is very important I'll go slow so that you understand
+13:08 it okay so now as I mentioned at every time T okay there is
+13:17 a s State CT there is an hidden State
+13:22 HT right HT okay this is at every time similarly
+13:29 at T T minus one we have a c State CT minus one let me write in this way T
+13:36 minus one right and a hidden State h t
+13:41 minus one okay so there are three gates
+13:47 that we will that we will um that we will create
+13:53 right one is called the forget Gate Ft forget gate right the second one is
+14:01 called the input get it and the third one is called the output G OT let me let
+14:09 me explain the functions of these three Gs right so the I will I I will discuss
+14:16 this equations later first try to understand the intuition behind this so the forget
+14:22 gate controls what to keep versus what to
+14:28 forget right so now remember at T minus one time time
+14:34 stamp you have some information stored in CT minus one either you want
+14:41 to move the entire information from T minus one to T or you want to move a
+14:47 part of this 2T right so how much you want to forget and how much you want to move will be decided by
+14:55 if okay so you will see that if will be attached with C T minus
+15:03 one if we decide uh how much content right you want to basically move from C
+15:09 T minus one to T right so what is it it is the input
+15:16 G what is the role of the input gate the role of the input gate is to
+15:21 decide right so remember at every Tim stamp you generate some
+15:27 content T minus honest time stamp you generate some content and how do you generate the content the content will be
+15:33 generated based on the current input and the previous information right at this time stamp you
+15:39 generate some content and then we'll have to see that how much of this
+15:45 content that you generate at time stamp T will be written to the sale now remember a sale will have
+15:55 information from the current content and from the previous content where was the previous content stored
+16:01 the previous content was stored in the sales state of previous time stamp right so how much the sales States
+16:08 previous sales States content will move to the current sales State who will decide that forget get and how much the
+16:15 current content will be stored to the uh to the sale who will decide that input
+16:21 gate clear and then we have so so far there
+16:26 is no role of hidden State we have just decided how much amount of information you want to store into the sales State now we
+16:35 have already decided let's we have decided sales state has been uh uh has
+16:40 been updated now from sales State how much
+16:45 information you want to read and store it to the hidden state will be decided by the output gate right so output gate
+16:53 controls what parts of the sales state are output to the hidden State let's look at how these gates are formed
+16:60 so you see here all these Gates f i o they are functions of the previous
+17:07 hidden state right and the current
+17:12 input right and what are the differences the differences are the weights for the
+17:17 forget gate you have two sets of weight matrices WF and HF for the input get wi
+17:24 II for output get W uh uh W uh WF UF w i
+17:31 UI W uo right and these uh matrices we need
+17:37 to learn and along with this we have bias just ignoring the bias for the time
+17:44 being right so all this
+17:49 Gates values of these gates are decided by whom it will be decided by XT right
+17:56 it will be decided by XT okay and HT minus
+18:04 one okay it will be decided by htus
+18:10 one correct clear okay
+18:16 now what is the next task the next task is to generate the content at this time
+18:23 right so the content that we will generate this is not the sale content this is the content that I want to write
+18:30 to the sale this is called sale content this is the content that I want to write to the sale okay so the sale content C
+18:39 Tilda at time T will be generated based on the previous hiden state same based
+18:45 on the previous series State and the current input but the look at the parameters parameters are different WC
+18:51 and UC so a sale content C Tilda at time
+18:57 T will be generated based on HT minus one and
+19:05 XT okay now this is the content that I would like to write to the cell
+19:11 State okay but my forget gate and my input gate will not allow to write this
+19:17 totally to the Sal state right so here this forget get comes to the picture if
+19:22 FT and ft will say that look at look at
+19:28 here ft and CT minus one right they are they are connected through this element
+19:35 twice multiplication right so ft will decide how much of the previous current
+19:41 state previous Sal state will be moved forward right so ft through ft this will
+19:49 this will come here and through
+19:55 it through it the sale content that you have just generated will basically come
+19:60 to the memory so through it this is it through
+20:06 it it will come here right so the Sal state is essentially a function of the
+20:15 previous uh sale State and the current sale content and it will be controlled
+20:21 by forget gate and inut get
+20:27 clear so So based on this uh we will update the the the the values of the
+20:34 sell content of the cell state right
+20:39 now how much I would like to basically write or read from the Sal state it will
+20:47 be decided by OT so you see here right how much will be uh how much we would
+20:53 like to read from the Sal State and write to the hidden state will be decided by OT so OT T again element tce
+20:60 forget about 10 H for the time being right this is OT element tce multiplication
+21:08 CT clear so now uh this the current hidden State hidden state will be updated now
+21:16 now think what will happen at T +1 at T +1 again I will I will um first
+21:25 initialize all the uh all the for all the gates right which will be a function
+21:30 of the the input at t + one so XT +1 and
+21:36 the hidden State HT right and at time t+ one we will generate a sale content CA right and
+21:44 then the similar operations will basically be executed okay now what is the guarantee
+21:52 that it will it will not have the Vishing gradient problem
+21:59 what is the guarantee or can you intuitively state that uh uh you know the the past
+22:08 information can be preserved for for uh for the longer
+22:16 time if let's say if FT if FT is one all the elements of Ft
+22:26 uh are one all the elements of Ft are one and all the elements of I are zero
+22:33 then what will happen so then at so so so so then the
+22:38 cell state will get copied and copied right so ideally if you do
+22:47 this a token Which is far far from the current state it will not be
+22:54 forgotten right if you want to forget the sell State completely then you fix
+22:59 fals to Z and I equal to 1 so these two GES will essentially
+23:05 control how much you want to forget how much you want to rain right now now of course you have
+23:12 seen operations like 10 each year 10 each here these are all these are all design decisions that they took there
+23:19 are there are not uh proper justification behind taking this one but these are all design decisions
+23:25 right and you have seen that this this is passed through a sigmoid
+23:33 right the sigmoid will make sure that ft it and OT they are just
+23:39 probabilities H clear
+23:45 clear now can you see problems here how many parameters are there now think of a
+23:52 vanilla r&m and an lstm lstm is long shortterm memory right how many
+23:59 parameters are there in vanilla RN and how many parameters are there in lstm so in lstm you see if you forget
+24:06 bias for the time being right you have two sets of parameters for every G right
+24:13 and and then also you have U two sets of parameters for the sale content there
+24:20 are so many parameters and these are all matrices remember
+24:25 this okay so lstm is generally useful when you have a lot of data to train
+24:32 otherwise you will you'll over Feit right if you have a lot of data to
+24:38 train then only you can use you can basically train all these parameters so this is a diagram
+24:45 pictorial diagram you can I've already mentioned so this is so so each of these
+24:50 blocks indicates um a particular time stamp right this is one block another
+24:55 block another block and so on and so forth okay
+25:01 so remember lstm doesn't guarantee that it will remove Vanishing gradient
+25:06 problem totally right but you can say that uh it
+25:12 will reduce theing problem compared to a vanilla R right
+25:19 uh in fact there are there are other alternative ways of creating more direct and linear path through connections
+25:26 right we will discuss all these things later okay so one way so the so lstm was one
+25:32 way the other way to address Bing gradient is what now remember the vanishing gradient problem is not an
+25:39 unique problem for LSM right Vanishing gradient problem is there in other
+25:45 models also for example if you think of a very deep feed forward Network right
+25:50 very deep fed forward network if you are aware of Transformer for example you know that Transformer has multiple
+25:57 layers right 12 layers right 24 layers 36 layers and so on and
+26:02 so forth so as we increase the number of layers you see maning R problem right so
+26:11 as we increase the number of players in in simple CNN simple RNN simple uh feed
+26:17 forward Network you see that the effect of the bottom layers to the to the loss final loss will be much lesser so you
+26:25 see the bottom layers will not be updated at all it will remain the same over the iterations right so another way
+26:32 to address this problem is something called a residual connection this is also called skip
+26:38 connection what is the residual connection a residual connection says that let's say you have a layer like
+26:45 this okay a layer is nothing but a function isn't it it's a function right
+26:51 let's say you uh this is your X right the input to
+26:57 that layer and the layer output is f ofx right and let's say you want to pass
+27:03 this F ofx again to another layer which is f- X right and so on so what you do
+27:10 in this residual connection U you essentially you add the input to the
+27:17 output so the input to the next layer will be FX plus
+27:25 X okay again when you generate if do F
+27:30 Dash something right you feed this input here right you basically take a plus of
+27:36 this what will happen is that due to uh due to so many uh complicated
+27:43 operations within every within each layer right the model will start forgetting the input itself right so
+27:50 every time you basically you know uh make it awake that please don't remember
+27:55 the input you have an input and you should not forget that input right so you at every
+28:01 step you keep on adding this uh input again and again we'll see this kind of
+28:06 sleep Connection in Transformer when we discuss later the other way to address this
+28:13 is is let's say a dense connection dense net right in dense net what happens
+28:19 let's say let's say you have uh RNN layers like
+28:27 this okay so in a vanilla RNN two consecutive layers are connected through
+28:32 one connection right in dense dense net what you do you connect all the layers
+28:38 to all its next layers each of the layers to all its next next layers for
+28:43 example this will there's a connection from here to here there's a connection from here to here the connection from
+28:49 here to here okay from here to here and so on and so forth so every every layer
+28:57 is connected to all the future
+29:02 layers not back Connection by the way forward connection okay so in that way
+29:08 you will always make sure that uh information will not be forgotten because you have con multiple
+29:14 connections of course how to combine all these connections together would be a question but there are ways right in
+29:21 fact there are many other ways there is another technique called Highway connection where you can use a getting mechanism so Highway connection is a
+29:26 mixture of a getting mechan and dense net right so the high uh this is called
+29:32 Highway net in Highway net you you you use a gate to control um uh so you you
+29:39 also have this dense connections and this gate so gate will control how much you want to basically remember from the
+29:46 from the Far Far a States and how much you want to remember from the current state okay the combination of
+29:53 this okay then in so so LST was proposed long time back by the way
+29:59 long time back and people did not use it because at that time let's say early
+30:04 2000 that time there was uh there was a scarcity of the amount of data right and
+30:11 then in in 2014 So In from from 2008 2009 when people started curating data
+30:18 huge amount of data right d net Alex net all these methods was proposed in 2011
+30:25 2012 people uh got access to a huge amount of data sets then they thought
+30:31 that you know uh lstm is okay but let's look at other mechanisms so in this
+30:37 paper in 20 in 2014 right they proposed a mechanism called Gru GED recurrent
+30:44 unit so in Gru the idea is exactly the same as lstm right the only difference
+30:50 is that here there is no explicit cell State okay and there are only two gs
+31:01 one is called the update gate which is responsible for controlling what parts
+31:07 of the Hidden state are updated versus what to preserve so there's only one state which
+31:12 is hidden state right you have to you have to control so this is what you have right so you want to control how much of
+31:20 the previous hidden state will be preserved and how much of the previous hidden state will be updated in the next
+31:27 hidden state recet gate controls what parts of the previous
+31:33 states are used to compute the new content let's look at the
+31:40 equation so similar to lstm here also I will create uh I will basically
+31:47 initialize this two uh vectors create these two vectors Gates update GS and
+31:53 reset G and they are functions of the previous state and the current same right with parameters different
+32:00 parameters now this time here there is no sell content here
+32:07 there is something called hidden cell content that you want to uh that you want to insert into hidden state right
+32:14 now this hidden State hidden State uh content H Tia right is essentially
+32:21 controlled by R what is r r is a res get right so R
+32:27 will decide how much of the previous hiden States will be used to generate
+32:33 the content okay and
+32:38 then so you generated the content which is H Tia right which is a function of
+32:44 the previous hidden State and the current input right and then this content will again
+32:54 be controlled by the update git so the update gate will say
+33:01 decide so there are two components now one is the current hidden State the
+33:08 current hidden State content that you generated H Tia and the previous hidden state right then
+33:16 this the update get controls that how much of the current sale current Uh
+33:21 current content will be moved to the hidden State current hidden State and how much of the previous hidden state
+33:27 will be moved to the current hidden state right and you see they use a single gate UT right so UT and here UT
+33:36 and here one minus UT right so it basically balances if UT
+33:41 is very high then we'll give low weightage to the previous state and more weightage to the current content if UT
+33:47 is low and then you basically uh do the opposite okay
+33:54 so in this way we essentially control the entire thing now you see how many
+33:59 parameters here there are two parameter sets two parameter matrices for you
+34:05 there are two parameter matrices for R and and there are two parameter matrices
+34:10 for uh for a okay so
+34:19 uh let's look at the comparison between lstm and Gru you can ask that which one is preferred lstm or Gru right uh in
+34:27 general the practice the the the the suggestion is that you um you start with lstm and then you move to GRU right if
+34:35 you have enough data if you don't have enough data you can use Gru but this is the rule of thumb you start with lstm
+34:41 you can switch it to GRU if you want something more efficient but there is no clear evidence which one is better lstm
+34:48 or Gru sometimes lstu performs better sometimes Gru performs better okay so this is about lstm Gru I
+34:56 already mentioned by RNN right in Bal RNN you see this Bal Arrow right so
+35:03 there is one forward RNN right which will um generate hidden State uh at T
+35:11 there is a backward RNN right which will generate a hidden State at T and then the final hidden State at T is basically
+35:19 a concatenation of the backward RNN hidden State and forward R state right
+35:24 and this these kind of methods you use when you want to access access to the to
+35:29 the enter sequence right multi-layer RNN you can also think
+35:34 of other variations where RNN layers are stacked one upon another right so this is one RNN it can
+35:42 be Bal unidirectional this is another RNN but look at here what's the
+35:48 difference between bir directional and multi-layer in bidirectional uh you you in in B
+35:55 directional you you have something like this so this this is a Time St
+36:00 t Okay where if this hidden state will be generated based on the current input
+36:07 XT and the previous hidden State HT + one right and XT he this hidden state
+36:14 will be generated based on XT and H T minus one right and these two things will be
+36:22 combined but in multi- Layar RNN you see here that the input of every hidden state is not the actual input what is
+36:29 the input the input is the output of the previous hidden State output of the uh
+36:35 hidden layer of the previous hidden state of the previous layer see the difference between these
+36:41 two okay uh lstm has been very very successful from 2013 to 20
+36:48 2015 and then in 2017 Transformer was proposed and then people started using
+36:54 Transformer but again uh the importance of L M kind of methods was realized
+36:59 recently uh the state space model Mamba kind of model right we will see that
+37:05 there RNN models will be used right RNN has its own Beauty right but here also
+37:13 the same the I mean one problem Still Remains there what's the problem you cannot process the uh the
+37:21 sequence in parallel you can't process the sequence in parallel right you have to wait wait
+37:28 till till till T minus one to basically process the hidden State at T right
+37:34 we'll we'll see how we can address this okay so this is all about lstm Gru
+37:41 right uh in the next class we will discuss uh sequence to sequence models and attention okay thank you

@@ -1,0 +1,492 @@
+00:05 hello everyone I'm yin and uh today we will continue our discussion on efficient llm uh inference or efficient
+00:12 llm decoding that we started yesterday so till now we saw that you know why are
+00:18 we talking about uh you know efficient inference that's mainly because of the inefficiencies in the inference for each
+00:24 token we have to run forward pass you know uh for each token we have to run a
+00:30 forward pass right whereas in training we could process all the tokens uh parall right so this is obviously slow
+00:37 and uh as a first thing we saw that we can uh avoid some redundant computations
+00:44 right by caching whatever we compute in the previous iterations so we created a KV cache but then we saw that uh the way
+00:51 KV cache is created and the memories allocated in the GPU that is very inefficient primarily because we need
+00:57 continuous memory and then we saw VM and page ention that efficiency that
+01:02 efficiently uh manages the KV cache and uses page detention to compute attention
+01:08 over the you know the KV blocks that it creates right so so we looked at
+01:14 avoiding recomputation and efficient memory management now can we do anything
+01:20 else can we speed up the attention computation itself right and uh you have
+01:27 already covered I think flash attention that actually looks at speeding up the computation of attention right at the
+01:34 time for training so let's first quickly revisit uh what flash attention does and
+01:39 then we will see how we can apply that at the time of decoding right so just a recap uh you know the memory uh in our
+01:48 system follows this hierarchy where uh this is the GPU memory so for example
+01:54 when you have an 80GB that 80GB is the memory that you talk about is essentially HB hbm right
+02:00 however when you have to do any computation we load tensors from hbm to SRAM and perform any computation that
+02:08 has to be done but you know here it's very fast but it size is restricted
+02:14 right so when we look at uh the implementation
+02:19 of attention a naive implementation of attention right it requires three or four operations right each operation is
+02:26 let's say a single uh line in five but you know if you abstract those are
+02:32 abstraction of certain things right for example matrix multiplication actually when matrix multiplication is happening Those sensors are being moved from uh
+02:40 hbm to SRAM and then all the computation is happening right and then we have to
+02:45 write it back for other operation for example masking right once we have done masking we have to write the uh tensor
+02:53 again back to SRAM for doing soft Max right so this requires multip mle read
+03:00 and right back and forth from hbm to SRAM right and this is the bottleneck in
+03:07 Flash attention that is the core idea that because you are naively using uh
+03:13 some abstract operations from uh from py let's say to compute soft Max which involves three independent abstract
+03:20 computations right this makes it slow so each operation for example here is called a kernel right you have a kernel
+03:25 for matrix multiplication you have a kernel for masking a kernel for soft right right so the core idea of flash
+03:32 attention is that instead of using these operation how about you know creating
+03:38 writing a fused kernel which will copy it once to SRAM do all the computation
+03:44 and write it back so that is the high Lev idea of flash attention right which is essentially an IO aware
+03:51 implementation and uh how does it happen uh so essentially they use something a
+03:57 standard technique called tiling we discussed that yesterday as well in in context of page detention right it's
+04:03 essentially it's about Computing the softmax over a bigger
+04:09 uh Computing the soft Max over let's say n uh vectors right you compute it over
+04:16 smaller vectors and then combine them right so you have you want to compute softmax with over A1 A2 you first
+04:22 compute softmax over A1 and A2 and then combine right and uh so we we covered
+04:29 this yesterday and the so this is this is an animation from The Flash attention blog uh in
+04:37 their implementation what they do is that they parallelize things with respect to query and bat size right so
+04:44 for each query right each query will be run on a each query will be run
+04:50 parallely for each query they will compute the softmax right using the fused kernel implementation in parallel
+04:58 right but now when we are decoding think consider the scenario for example where
+05:03 you know uh there is only one query there is only one request right and uh
+05:10 now these days these models support support context length of up to 32,000 right and let's say I'm doing content
+05:15 grounded uh question answering the content itself is huge there are a lot of uh keys and values but there is only
+05:23 a single query at any at any iteration right so how do so essentially we need to modify this because here
+05:30 right we are using fused kernel but paralyzation happens across multiple queries at the time of training right
+05:38 but now if we have a single query and we have multiple key value pairs how should
+05:43 we go about it right so the trick is very simple what they do is that
+05:49 they split the keys and values into let's say different blocks right here
+05:55 they have created five blocks right they use standard flash
+06:00 attention to compute soft Max over each split so here right standard flash
+06:07 attention is being applied right so we have this query right we are loading a
+06:13 set of KVs doing some computation and reducing it there right this is
+06:19 happening in one process and in parallel we have five processes we can compute softmax parall
+06:26 in those five processes over different set of queries and uh set of keys and values for the same query and we know
+06:33 that the soft Max is distributional in nature we can then combine them as well right by maintaining the sum of
+06:38 numerator and denominator separately right in in the in the softmax right so this is the basic idea
+06:45 which is very similar to what what happens in Flash attention for training the only difference is that their
+06:51 parallelization happens across queries and here to introduce parallelism we
+06:56 split the entire sequence the entire prompt very PR that we have into smaller
+07:02 splits and for each split we use Flash attention to compute uh the attention over that split only and then we combine
+07:08 as we usually do using tying so this is uh the the comparison of flash attention
+07:15 flash decoding with respect to other U methods right uh so this is this is
+07:21 Flash decoding and on the y axis you have tokens for second the throughput how many tokens are you able to generate
+07:26 per second uh even with respect to flash attention V2 right this is this is much better right
+07:33 because even in Flash potion V2 we are not taking the advantage of you know splitting the the input prompt into
+07:40 different chunks right so for a query it will still happen uh serly right okay and with respect to
+07:48 standard py using uh you know standard pyo Primitives this this is the
+07:53 throughput that we get uh in blue c yeah right so it gives us up to 8X speed UPS
+07:60 decoding when we are decoding for very large sequences primarily right okay so till now again
+08:07 uh we first looked at KV caching page retention which is efficient management of the memory right of GPU memory and
+08:14 then we looked at flash decoding which is you know uh efficient attention for very very long sequences with a single
+08:22 query but still generation is sequential right even even now we are generating
+08:28 one token in one iteration right this again makes it slow because
+08:35 if you're generating only one token in each itation it Still Remains memory bound all the process most of the
+08:40 processors are empty because uh you know they are yeah because of that right it's
+08:46 it's we and we cannot do anything about it as well right so how can we break
+08:53 this right how can we break the sequentiality in the generation what
+08:58 we're talking about here is that for a single prompt I don't need multiple samples right now I'm interested
+09:04 primarily in a single sample but instead of generating it one token at a time I want to generate multiple tokens at
+09:10 different time steps in beam search you generate multiple tokens at the same time step right here we we don't want
+09:16 that we want multiple tokens at different time steps so let's let me give you a hint let us suppose that I am
+09:24 able to guess we will talk about how do I guess okay let's say uh then prompt is
+09:30 the cat sat our standard uh prompt and I make a guess the cat sat on the
+09:38 chair now can I use this guess somehow so right so what we do here is that we
+09:43 first make a guess for the input prompt right for here for example we have on the chair remember that at the time of
+09:50 training we are able to process the entire sequence in one go I can forward this entire sequence in one go and get
+09:56 all the probability distributions right so uh this is the input prompt and I
+10:03 have the probability distribution here which is the distribution for the next token
+10:09 right and then here again we have the distribution over the next open the this
+10:15 is the distribution right from which we would have sampled the provided the previous token is on right okay so now
+10:24 let's focus on this bit this distribution right now let's say this
+10:30 comes out to be the token with the maximum probability here right this happens to be the token with the maximum probability we compare it what we what
+10:37 we had in our guess right just let's say on has the highest probability and we have on Bingo there's a match right so
+10:43 we accept that right now let's say
+10:49 here probability of a is maximum conditioned on this sequence the cat sat
+10:56 on right but what we have here is the it doesn't match right so we can't
+11:03 accept that right so what we have done we have been able to generate only one token
+11:09 on right okay should we stop here or can we do anything else we have only gotten a
+11:16 single token on right is that it or do we have anything else so why are we
+11:21 rejecting the right so we get two tokens on and
+11:26 a right we reject the guess but we replace it with the token selected by the model which is essentially a it's
+11:34 even if our one guess is correct we are good and even okay let's so in one forward pass we able to generate two
+11:40 tokens right okay so what we are doing essentially here is that uh we make a
+11:47 make a guess we check whether you want to accept this or not this accepted accept this or not rejected and once we
+11:55 are we can't this this is to answer your question that we can't use rest of the completion as it was dependent of the token the that has been rejected by the
+12:02 model right and the new input prompt with which we run the next iteration
+12:07 would be the cat at on and we have this o as well so this is a new prompt and
+12:14 we'll make a new guess let's say now the new guess is uh the cat sat on a chair instead of that we have a cat sat on a
+12:21 table right and we will run the forward pass again and this time you have to
+12:27 focus on this distribution right it says Matt our even first guess is wrong right
+12:34 but still it doesn't go wasted right because we get Matt right so we replace
+12:40 this table with Matt so even if our guess is not correct even if a single guess is not correct we have a lower
+12:46 bound of of one so it will be at least as good as standard inference we'll at
+12:51 least get one token okay so this is what speculative decoding is we guess the input prompt is the cat sat we make a
+12:58 guess on the chair we verify we accepted one token we rejected the chair but
+13:04 still uh you know we can replace this the with the token that we get from the model which is a so the new prompt for
+13:12 us will be the cat sat on a with the new prompt we will make a new guess again
+13:18 and then repeat the process right now the so so we will cover that right we
+13:24 will come to how how to be sample but let's now uh answer the question you
+13:29 know how are we guessing right what is the right way of
+13:35 guessing because that is a bigger piece here all of this discussion was you know under the assumption that we have a good
+13:41 guess so what we do essentially is that uh okay let's motivate why why would that work uh but let me motivate that
+13:48 right so let's say the question is a group of flamingos is called and we have a 100 billion model uh which has to
+13:55 answer this question right the next token is a I mean this is
+14:02 easy and the next token is a little difficult does anyone know here what
+14:07 what is a group of flamingos called okay I also didn't know it's called Uh
+14:14 flambo right so right this this is this is difficult this is easy right you can
+14:21 predict a easily anyone can do that but this is difficult so do I really need a 100
+14:29 billion model for predicting this a probably not right I can maybe use a 1
+14:35 billion model to create a small draft in some sense right so let's say I pass
+14:41 this through a small model a seven let's say a 1 billion model and it generates an answer of log of course this is wrong
+14:47 but at least this token is correct right so I can use this here and then correct
+14:55 flock right so right we will accept this token uh we will reject get flock but then we will have a distribution over
+15:01 flamb points and we will be able to accept that while we are verifying
+15:07 right so this is an example uh from from staged uh speculative decoding paper
+15:14 here you can see that you know only the red tokens are the one which are generated by the bigger
+15:20 model rest everything was generated by small smaller model was able to guess
+15:25 that I mean this is essentially following a syntax right and if a small model knows the syntax of the coding it
+15:31 should be able to generate by spaces at least right right so it's similar to
+15:36 generating uh an article in the previous sentence right so this is exactly what we do U in
+15:43 speculative sampling and uh if you're doing greedy decoding as we saw earlier
+15:50 it was easy but then there was a very pertinent question that if you're doing sampling then how do we go about it
+15:56 right what is the right way of doing it okay so any anyone knows how do we do that let me abstract out the problem
+16:02 here right what we have essentially is uh that there is a draft
+16:07 model which is MP and then there is a target model which is mq right let's say
+16:13 we are on a particular token the cat sat right the distribution that I get from the token sat which is for the next next
+16:21 token right let's say that token that probability is
+16:26 p right I have a distribution P because when I'm running the forward pass I will have the distribution over all the
+16:32 tokens conditioned on whatever uh tokens that I had earlier I have this distribution P right and when I right
+16:41 and when I am running the forward pass we saw that when we are verifying we had the the distribution Q as
+16:47 well right when we even when we are verifying we get the entire distribution conditioned on the previous uh input so
+16:54 we have q of X as well condition one X12 XT minus1
+16:60 right we have drawn a sample X TAA from here right now is this a good sample
+17:08 from Q or not that's what we want to judge right so have you studied
+17:14 something similar to that earlier if you cannot sample from a
+17:20 difficult distribution like q but you already have a sample from an easy to sample distribution P then uh you know
+17:30 how do you go about it how do you generate samples from Q very much similar to that yes this is
+17:35 that is very close right important sampling is actually indeed what it is right so the technical term there is
+17:41 called rejection sampling right that is the concept there so let's quickly uh look at the setup here um so PF is the
+17:48 prefix that corresponds to our X12 XT minus1 that we have let us say we want
+17:53 to generate five next tokens right so we get first sample X1 from MP which was
+17:60 the draft model right we get x2 up to X5
+18:05 right but in addition to these tokens we also have the probability distributions P1 till
+18:11 P5 right conditioned on of course they are conditioned on the previous tokens that we have right uh now when we run
+18:19 the Target Model to verify remember that we Al we again get the distribution at
+18:24 each step right so this q1x is the distribution for the first open q2x is the distribution over the second token
+18:30 and so and so forth right so these are distributions at every step and distribution over all the tokens okay so
+18:36 here uh as an example let's say the completion is dogs love chasing after cars this is the completion after the
+18:42 input prefixed and uh what we have shown here is the probability of these token only dog love chasing after
+18:49 cards right in actuality we have the distribution over all the tokens right
+18:54 at each step at even at step one we have distribution over all the tokens right
+19:00 and uh let's say these are the probabilities that we get from the Target Model okay and now I have to
+19:08 decide whether I should accept this dogs or should I reject this right so this is
+19:17 exactly similar to rejection sampling where we have already sampled something from a distribution fee and I want to
+19:24 decide whether I want to whether I will get the same sample indeed if I sample from Q right so the the algorithm is
+19:32 pretty simple it simply says that if essentially you have to accept the
+19:39 proposal with probability probability QX over PX right
+19:47 so we say accept x with this
+19:52 probability right and how do we do that so let's say in this case this comes out
+19:58 to be uh let's compute that in this case it comes out to be 0.9 by8 this is this
+20:03 is greater than one right we have to accept this with probability greater than one so we will definitely accept that right here it comes out to be again
+20:13 probability 8 by 7 greater than one so we accept this right now
+20:20 here it turns out that you know we have to accept it with the probability 08 by 0.9 roughly let's say this is
+20:27 0.9 right so essentially we have to accept this with the probability point9 what we do is that we sample a uniform
+20:33 dist from a uniform distribution between 0 and one if the number comes out to be less than 0.9 we accept it right that
+20:40 that is exactly what is rejection sampling is so if QX is greater than PX then we accept and if QX is less than PX
+20:47 then we accept with the probability PX sorry QX by PX right QX is the D is the
+20:53 Target Model and P is the draft model right does it does this make sense intuitively
+20:60 right I mean if if a model small model has already accepted this has enited the
+21:05 sample with you know when it probability was 08 and the Target Model is assigning a higher probability than that then you
+21:12 know intuitively it makes sense to accept that right but now what happens if you reject let's say you accept this
+21:18 you accept this accept this as well but you reject this after right so now what should you do
+21:26 right so earlier you know we had add the distribution over X4 we do have the distribution right now as well over X4
+21:33 we can we can sample from there right but instead to you know I will not go
+21:39 into the proof of this but what they propose is that instead of sampling from QX don't sample from QX directly in this
+21:47 case it was Q4 of X right was it yeah Q4 of X don't sample from there but sample
+21:54 from QX - PX plus so what is QX - PX plus so let's say uh again just to
+21:60 illustrate that let's say these are all the tokens that we have and this is the probability distribution this is the distribution using the draft model right
+22:08 and this is the distribution using the Target Model right so here what we're saying is that okay for this is the case
+22:15 where we have rejected a particular sample and we want to you know get
+22:20 something else in in place of it right so it says that first of all for the cases when QX is less than PX right so
+22:29 so here Q is less than less than P right you I mean you
+22:36 just you don't sample from here you focus only in this on these tokens only
+22:41 right where uh Q is greater than P right I mean intuitively you know here anywh
+22:48 the probability of uh Q is low it's lower than P so we are ignoring that place that space and when only for those
+22:57 tokens where probability of the TG model is higher than the probability of the uh draft model right that's where we focus
+23:05 and essentially we compute the difference Q minus P here this is the gap this is Q minus P length of this
+23:10 vertical line and we sample these uh tokens in with probability proportional
+23:15 to that right so we we we normalize it and then sample right so this is essentially rejection sampling and this
+23:21 answers your question how do we do U you know when we uh have to do sampling instead ofing and incidentally
+23:29 uh this technique was proposed by simultaneously by a group of researchers
+23:35 in Deep Mind and uh Google research right okay so let's this is an
+23:40 illustration uh you know how much speed up do we get right so this illustration is from the Google paper where they
+23:46 focus on an encoder decoder model right T5 and uh this time is taken for
+23:52 encoding you're encoding using a T5 model this is standard time and this one unit of time here is for decoding one
+23:59 token at a time right so this is the wall time right when you generate one token the wall
+24:05 time moves ahead right so this is this is the total time that you will need to generate these many tokens and now if I
+24:10 have k equal to three right I generate three tokens from a draft model and then
+24:17 one token from the uh the bigger Target Model right so
+24:23 so essentially uh these there are three bands here three blue these are three tokens which are generated from the
+24:29 draft model after and that takes very less amount of time right after that one
+24:34 token is generated by the bigger model so that takes a lot of time right and so
+24:39 and so forth so you can see that the you know there is a huge reduction in the water time and if you use k equal to 7
+24:45 it further reduces right so uh this is this these results are from the Deep
+24:52 Mind paper I guess and uh on different data sets they also show up to 2x speed
+24:58 up so this is uh this is auto regressive sampling standard nuclear sampling and this is uh you know speculative
+25:05 decoding right okay so so we looked at one method of guessing right uh which is
+25:14 spec in speculative decoding we have a smaller draft model which we are using and we are using that to make a guess
+25:21 but do we always have that right do we have I mean of course if we have a
+25:26 smaller model from the same family we can use that we can use a seven billion model for a 70 billion model right right
+25:33 but is 7 billion small enough so I mean there was again a tweet which said that
+25:38 you know meta should have released a couple of 1 billion models as well uh because 7 billion is not good enough so
+25:45 that it can be used as a draft model right and there could be some issues with hosting two models uh in the
+25:52 same system so can we do something else about it right
+26:00 so that is the hypothesis here that the smaller model is not going to be slow that's I mean if it is slow then less
+26:06 weights less memory and we are working in a setup your memory is the water link right so by definition it's it's not
+26:12 going to be slow it's it's essentially a Transformer based model right I me the same operations you are doing and you
+26:19 have less number of parameters that means less memory and more
+26:24 efficient once we have a big model let's say we have a 100 billion model
+26:29 right uh we studied about something called p in our last few lectures right
+26:35 we looked at parameter efficient fine tuning right so can we combine these two
+26:40 things instead of retraining the entire model from scratch what I do is that I
+26:46 train multiple language model heads so we have this one language model head right so we have this embedding e that
+26:53 we get right and we have a matrix M which Maps this e to a distribution over
+26:59 all the tokens in the vocabulary right token one till token V right this is
+27:04 this is called a language model head this m right now what we are proposing
+27:10 is that you know create more such heads these are simple linear layers a single
+27:16 you know with one hidden layer maybe right and their task is to generate the
+27:22 next next token not the next token but next next token right and this fine tuning is
+27:28 simple this is not difficult right because you can do PFT you can have all of this can be trained using
+27:35 PFT right and uh if you have access to the training Corpus right earlier then
+27:40 you can use that to to run these uh to you can use that to train these heads
+27:46 and it won't take I mean yeah they say that it doesn't take more than five to six hours depending on the size of the
+27:52 right so we train multiple heads after freezing the backbone so this is Frozen
+28:00 right so we are not compromising on the quality of the base model we are just training mult attaching multiple heads
+28:06 on top of it right okay we create this multiple uh heads and then when we run
+28:14 the inference let's say we running inference at at some iteration each head can give us some
+28:22 topk uh tokens right uh let's say we have uh k equal to three right so we can
+28:30 pick uh topk tokens from each of the heads right or we can sample these three
+28:37 whatever using these uh top three tokens from different heads right we I can
+28:44 generate multiple possible potential completions right so one could be it is difficult
+28:51 not the other could be it the it
+28:57 the difficult difficult right
+29:03 I I is is right so I can take a cartisan
+29:10 product here to get all potential completions some of them will not make sense of course right so that's what we
+29:16 do next we take a cartisan product to create all the potential completions and it will give us certain
+29:24 candidates right let's say these are the candidates that we have and now our job
+29:30 is to verify these candidates right earlier we were verifying only a single candidate but
+29:36 now we have multiple candidates that we need to verify right how will we do that how
+29:43 will we verify multiple candidates if we have to do that in one
+29:49 forward pass is it possible does anyone know
+29:59 okay so for that they use something called tree attention I quickly cover
+30:05 this right this will enable you to parallely in one iteration verify all
+30:12 the candidates and select the best right so essentially you will get some sort of
+30:17 a score for each of the uh possible completions and then you have to have some acceptance criteria there right so
+30:24 so they devise an acceptance criteria which essentially make sure that you get the largest subsequence which passes
+30:32 certain uh test right we'll look at that as well right so uh so the first step
+30:38 here is you know uh training multiple LM heads this is easy right we can uh do
+30:45 that using pep we saw that and uh yeah and here we figured out when
+30:52 they trained it when they trained multiple heads for vuna 7 billion they figured out that the top one accuracy is
+30:59 approximately 60% right which is very low right because if you are uh creating a path
+31:07 here right 60% 60% 60% 60% that will be 60% times to the^ 4 that will be very
+31:14 low right but then uh top five accuracy
+31:19 is 80% so it makes sense to you know evaluate multiple completions instead of just going for one greedy completion
+31:25 which anyway will have a very low probability of acceptance right so therefore this gives them the idea of keeping top K predictions from each of
+31:32 the heads and create a cartisan product okay then uh this is simple this we
+31:38 discussed that you create potential completions using the cartisan product right and then we process all
+31:45 the candidates in parallel which is enabled by tree attention let's quickly
+31:51 um look at how tree attention works right so so the idea here is that uh
+31:56 let's say you know this is simp example where let's say first head gives you only two tokens we select only two
+32:01 tokens from first head it I and from the second head we select three tokens is
+32:06 apostrophe the right so how many possible completions are there two times
+32:12 three six right it is it apostrophe it
+32:18 the and similarly with I is I this and either so this is essentially a tree
+32:23 that is that we are creating right now if I have to process only this uh let's
+32:31 say you know I create an attention mask like this here right so the these two are for both the
+32:37 tokens right and then these are replicated two times so this so essentially we have
+32:44 eight tokens here right and uh if I have to look at you know a
+32:51 particular path in the tree which is let's say it followed by is right it
+32:58 will depend on itself right it will attend to itself and when I have this token let's
+33:06 say this this represent the path it is right this token is representing it is
+33:13 right this is has to attend only on it it should not attend on I right so we
+33:19 create an attention Mass where we don't attend on this but we attend on this right so um the mistake that I did
+33:25 earlier was that I I was looking at the transpose right this is these are the queries these are the queries and these are the keys right if yeah so this it is this is
+33:33 it is this is that path here and when I am Computing the uh attention for is I
+33:41 have to attend on is and I have to attend on on it right and I don't have to attend here so this is this will be
+33:48 zero right similarly when I am here this path is I is right this node represent I
+33:58 is is so here I will have an attention mass for for this particular query right
+34:04 which all keys will it attend on on on on itself and
+34:12 on I right is this making sense or is there a
+34:17 confusion I can I can go over it again okay so let's go over it again
+34:23 right so let's say from the first head we accept two tokens it and I from from the head two we except three tokens is
+34:31 apostrophe and the total combinations are six right and uh to to you know
+34:38 parall process all of this in one go the device something called tree attention
+34:43 right they creatively modify the attention mask right so what they do for example is that let's say I'm looking at
+34:50 this particular completion it is right so for this token is
+34:56 here right this token is has to attend on itself it
+35:02 and it has to attend on it it doesn't have to attend on I right whereas if I look at this completion I is here it
+35:11 will attend on itself is will attend on itself and attend on I right it will not
+35:18 attend on anything else so we can appropriately add position embeddings as well and create an attention mask right
+35:26 and each basically each node here each node all
+35:32 of the eight nodes that we have here gives us a potential subsequence right whenever we get the probability
+35:39 distribution at this step it right we this is essentially a potential
+35:45 completion as well right there are not only six but eight completion it is also a potential completion I is also a
+35:51 potential completion it is is also a potential completion and it apostrophe
+35:57 and and it the right and similarly with I so we have total eight potential
+36:03 completions here that's why we have 8 cross 8 attention Matrix here and at each point by modifying the attention
+36:10 Matrix The Mask we're ensuring that a token is attending
+36:16 appropriately you know to to the appropriate token in the past right so this is what they uh use three attention
+36:22 mass and uh yeah so okay so we saw
+36:28 earlier that uh you know if you take the cartisian product it's going to be a
+36:35 huge uh number of options right the total number of new tokens that we will have to add are going to be total number
+36:41 of nodes in the tree right and how many nodes are there in the tree 2 to the power K which is you know a lot right
+36:51 not 2 to the power K but 4 to the whatever depending on uh the branching Factor right so uh what they do is that
+36:57 they create a technique to prune the tree they do not consider all the POS
+37:03 potential completions what they do is that they uh remember that we saw that their uh you know accuracy at top one
+37:10 was 60% and accuracy at top five was 80% right so essentially they know that you
+37:16 know what is the accuracy at each step right so for a potential completion they can compute the accuracy right so for
+37:23 example if if I have it is right I know what is the accuracy here and I know
+37:29 what is the accuracy at the Second Step multiplying the two will give me the the the potential accuracy for that
+37:36 subsequence right so I can use that to you know statically sta statically Pro
+37:42 the tree a prior right so so this is the tree that they are showing and uh red is
+37:48 the greedy one right and these are the nodes the in the tree that they are considering that they obtain after
+37:54 pruning right they do not consider for example a the sub tree here that is that is there
+38:00 right okay so uh again they show that pruning the tree helps uh if you
+38:06 randomly select a dense sub tree you will always have a budget of how many subse how many subsequences you want to
+38:12 you know verify in parallel right so what you can do is that either you can randomly select a subtree connected sub
+38:19 tree with those many uh nodes or you can prun the tree and this is what they're showing that if you randomly subselect
+38:25 depending on the number budgets that you have number of candidate tokens that you want to or candidate subsequences that
+38:31 you want to um evaluate you know this Spar this pruned attention tree gives us
+38:36 a better uh accuracy acceleration rate right okay
+38:43 so fine so this brings us to the last part where we have to decide how to accept uh a particular candidate
+38:50 sequence right so maybe we can um quickly go through it we will not go
+38:56 into the detail I'll just give you a high level intuition so instead of using standard they don't support standard
+39:02 nucleus sampling they devise their own their own sampling method right they devise their own acceptance criteria and
+39:09 uh intuitively the idea is that you know you
+39:15 select a token right a candidate based on two things one what
+39:22 is the probability first of all that is given by the model to that of course right your selection should be proportional to the probability assigned
+39:28 by the model for that token and second is the entropy at that particular point right so for example let's say the
+39:34 entropy is low what does that mean what does that mean if the entropy
+39:40 over all the tokens is low at a particular Point how would the distribution look like less random yeah pey right so if it
+39:47 is pey if the entropy is low then I should have a higher bar of accepting a particular token right and if entropy is
+39:53 high that means you know there are multiple tokens over which the prob is distributed good amount of probability
+39:59 mass is distributed and therefore I can adjust my threshold accordingly right so for each token they have a dynamic
+40:06 threshold whether to accept that uh proposal or not right and that threshold
+40:11 is determined by two things one is a you know hyper parameter that they have and this is this is introp right it's it's a
+40:19 function of introp right and if this this threshold is high inop is low right
+40:25 okay so and we select the longest sub sequence in which all tokens satisfy this criteria we don't have to select
+40:32 the entire sequence right we can select a subsequence as well right we might have generated U you know four tokens
+40:39 but only out of that three are good right for those three for which this criteria is
+40:45 satisfied okay so this essentially demonstrate the impact of this threshold if you increase the threshold here that
+40:51 you the selection criteria you are becoming more and more rigid U so your accept the accuracy the acceleration
+40:57 rate reduces right this here but your
+41:03 performance score increases I mean yeah this is a crude linear approximation to these CES okay so this is this is
+41:10 expected and uh this is what they show they get roughly 2x speed up in terms of
+41:15 tokens per second that they are able to generate and uh this brings us to you
+41:21 know another way of guessing right now what we have looked at we have looked at
+41:26 speculative decoding where used a small draft model with the same tokenizer to make the guess then we looked at Medusa
+41:33 where we trained additional language model heads right to make to to create
+41:39 some candidates and candidate engrams and uh they use page they use tree
+41:47 attention to you know creatively evaluate all the candidate engrams
+41:52 simultaneously right and then accept or reject based on a threshold now
+41:58 can we do something else and this brings us to whatever points that you raised earlier right if we can
+42:05 find from The Prompt if you can find the prefix in the Corpus can we use that and
+42:10 and you defined that thought that we can index the entire Corpus and retrieve
+42:16 right so that is called retrieval aware gener generation which we will you know discuss in the next lecture uh and even
+42:22 if you're doing so that's broadly is called content grounded QA right you have some content and you have to do QA on top of those content right or
+42:29 summarization you already have information and you have to summarize that right in such scenarios this is a
+42:35 very good strategy right so this is called uh prompt lookup decoding right
+42:41 so let me just play this video which demonstrates that this is taken from the authors
+42:51 directly right so this is the current prompt that we have right they take uh
+42:56 French Tri this is the prefix that they're taking from the current prompt and they're looking it up in the Corpus
+43:04 or in the retrieved uh content or essentially The Prompt that they have whatever prompt that they have they are
+43:09 searching within the prompt that prompt May consist of retrieved documents that prompt May consist of you know whatever
+43:15 you're summarizing as in this case right so this gives us some the search for it
+43:21 and it gives us some candidate tokens right so here the candidate tokens are this uh
+43:28 Striker whatever this is right uh and then you pass it through the
+43:35 language model to verify right so you generate candidate question uh candidate tokens
+43:41 and then you pass it through the model to select and you accept these tokens from the draft and you get one new token
+43:48 as we as you saw earlier right you always get one new token from the last step right and then you keep on
+43:54 repeating this right so this is this is what we discussed and
+44:00 uh right and this is this video is essentially demonstrating you know the
+44:06 kind of speed up that you get right so this is done this is using
+44:12 prompt lookup decoding and this is still going on right and all the colored tokens are essentially the ones they
+44:19 were able to search in the prompt only few tokens were generated uh by the
+44:24 language model Okay so this is the speed up that they get roughly
+44:30 2.4x right so we have looked at speculative decoding where we use uh
+44:35 small model to make a guess Medusa where we train multiple heads we looked at
+44:40 prompt lookup decoding where we use the prompt to search for uh a guess right
+44:46 now can we again the next thing is that you know can we create potential candidates without using the input
+44:53 prompt without training uh say separate language model heads and without using
+45:01 a smaller model right so I think we are going to skip that that is called look
+45:07 up look ahead decoding I can broadly talk about it the idea is it's another
+45:13 fancy way of generating engram candidates and then you verify them using you know whatever we saw in Medusa
+45:19 using tree attention we do not have to train any additional language model head here and it doesn't even rely on the
+45:26 input prompt broadly the idea is that uh you know you start with a random
+45:32 sequence right so you have let's say an input prompt and you randomly select X1
+45:37 X2 X3 X4 and X5 this is a random selection right but intuitively we know
+45:44 that you know the language model given X2 will
+45:50 select a good next token right the byrams will make sense right the cat sat
+45:56 on after on most likely an article is going to come or is going to come right
+46:02 even if this happens to be on this token is let's say on randomly whatever token
+46:07 that we will get at this step right we will have a distribution when we are verifying we will have a distribution here this distribution will be heavily
+46:13 dependent on this token itself on right and it most likely it will select a here
+46:20 right so even if we start with a random sequence a forward pass will give us
+46:28 some diagrams that those are potentially you know those can be
+46:34 potentially used in the future iteration right so even if you start with random tokens
+46:39 here the token which the language model will will suggest here the token which
+46:45 let's say has a maximum probability here let's say a so we get on a it's a
+46:50 candidate diagram that we can evaluate right and then if it is a good Bagram
+46:56 then I can you know have this prefix and right when when I'm when in
+47:03 the next iteration let's say I'm verifying this backround on a right now I know that this is a good diagram when
+47:10 I get a distribution at this place uh this will be a distribution over the next tokens right and most likely it
+47:18 will be a good diagram now right on a let's say table on a table is a good uh
+47:25 you know trigram potential candidate right right so intuitively it is
+47:30 starting from a random sequence doing the in the verification step it gets the next you know tokens
+47:38 which gives us a Bagram right it has multiple diagrams now that it has to verify for example right it will verify
+47:44 it using tree attention that we saw earlier and in the process it will give
+47:49 diagrams right and if you repeat the process uh we can maintain a cache of multiple n Gams and validate them
+47:56 simultaneously in parallel right so there are two parts uh in the look ahead decoding one is creating this candidate
+48:03 and the second is verifying those candidates and those can be done simultaneously as well because we saw
+48:08 that when we were verifying this prefix on Earth this verification gave
+48:13 us the trigram as well right so yeah they do that in one one
+48:18 iteration okay so so yes I think we will stop here for
+48:24 look ahead decoding and uh you know if you need more details you can check out their blog uh I will just
+48:31 summarize what we have uh you know looked at in this in these couple of lectures we first started with the
+48:38 motivation that why are we talking about efficient uh inference right because in
+48:44 training we saw that we can process a sequence in one go in parallel right but to generate the same sequence we have to
+48:51 call forward pass multiple times one token at a time right one token one forward pass for each token this was was
+48:57 not feasible this was very slow and uh as a first step we looked at KV caching which was a way of addressing the memory
+49:04 issue right uh right and and and redundant computation we were avoiding redundant computation when we maintained
+49:10 KV cach but then that the way KV cach was managed right in the memory that was
+49:16 creating issues and we looked at uh page detention in VM which kind of created a
+49:21 novel way of managing the cash in the GPU and then we looked at flash decoding
+49:26 which which was a variant of flash attention right the difference was that in Flash decoding we were parallelizing
+49:34 across KB blocks instead of paralyzing across queries and bat size we split the entire prompt which is very long let's
+49:40 say into different splits let's say five splits each of the split will be processed parall using flash attention
+49:47 right and then we combine them we can combine them because attention is you know uh distributed in nature and then
+49:53 uh we tried to break the sequential generation process to speed up the generation there we looked at
+49:59 speculative decoding which is essentially a guess and verify Paradigm and in order to you know look at
+50:06 different candidates uh different ways of guessing we looked at a smaller draft model with same tokenizer we looked at
+50:12 Medusa and we briefly talked about look ahead decoding which I have missed look
+50:19 ahead decoding right so these are the things that we covered and uh as a bonus
+50:26 there is a other things as well that we need to take care of when we are creating you know we when we are using
+50:32 llm as a server as a service right so when we are using you know when we are hosting these language models for
+50:39 example VM right it's it's or TGI these are two uh libraries which are used to
+50:44 serve large language models now in a server setup you know
+50:51 for example consider chart GPT right multiple users are using it they're getting multiple requests
+50:58 simultaneously right and typically you process these requests in a batch you
+51:03 don't process one request at a time right and now imagine that if you create a batch there are going to be certain
+51:10 sequences let's say this S3 which will finish early it ends now
+51:17 what do you do do you do you you know continue processing that batch even though you are wasting some resources
+51:24 because this is not done you're not you know using the resources there right so
+51:30 to um you know um handle such inefficiencies there's something called
+51:36 continuous batching the idea here is that as soon as a sequence ends S3 ends
+51:43 here we fill in it with S5 right this is the next sequence that
+51:49 we get request five of course we will have to pause in between because we have to go through the prefill step remember
+51:55 that you know when we get an input prompt we first pass it the entire prompt Pary that is called the prefill
+52:00 step and then we sequentially generate each at a time we may have to pause it for a time for for for some time right
+52:07 to get uh this s the prefills of S5 and then continue right so this is what it
+52:12 shows that if it ends we start with request number five when this ends we
+52:18 start with request number six and when this ends we start with request number seven right so this is called continuous
+52:24 batching and uh yeah you should check out or Ora which is essentially a framework which
+52:30 implements this so this is the link for Ora you can check this out okay so yeah
+52:37 that's it and and in the end I think I would like to give credits for the content here because I might have skipped this earlier in individual
+52:43 slides but uh most of the content is driven from from the resources that I have mentioned here thank you

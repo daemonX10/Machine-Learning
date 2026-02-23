@@ -1,0 +1,4078 @@
+00:00 Today is going to be one of those uh
+00:03 
+
+00:03 four lectures on alternative models.
+00:06 
+
+00:06 It's the first lecture
+00:09 
+
+00:09 and uh I'm going to bring your attention
+00:12 
+
+00:12 to this very interesting model called
+00:15 
+
+00:15 you know it's pronounced rau
+00:18 
+
+00:18 rw kv uh the full form being receptance
+00:22 
+
+00:22 weighted key value right uh and we will
+00:27 
+
+00:27 show uh throughout this discussion how
+00:31 
+
+00:31 this model differs from the traditional
+00:34 
+
+00:34 transformer-based
+00:36 
+
+00:36 models including the modern LLMs
+00:40 
+
+00:40 uh that are based on uh transformer
+00:43 
+
+00:43 based decoders.
+00:46 
+
+00:46 All right. So, so this is the paper. Uh,
+00:51 
+
+00:51 the paper was published in at in
+00:54 
+
+00:54 findings at EMNLP in 2023, but after
+00:57 
+
+00:57 that it got a lot of traction and
+00:60 
+
+00:60 subsequent many other Rakub based models
+01:03 
+
+01:03 were were published in top tier
+01:07 
+
+01:07 uh venues. So I thought that this is
+01:09 
+
+01:09 some thing that we should uh start in
+01:13 
+
+01:13 terms of our discussion and why this is
+01:16 
+
+01:16 interesting is because uh it's sort of
+01:19 
+
+01:19 like a bridge model between the RNN
+01:23 
+
+01:23 styled architectural models and the
+01:28 
+
+01:28 later on transformer style architectural
+01:31 
+
+01:31 models. So because it's a bridge, let me
+01:36 
+
+01:36 just give you some very quick recap over
+01:40 
+
+01:40 uh what all went through
+01:43 
+
+01:43 uh over time uh in terms of modeling
+01:47 
+
+01:47 language like chronological
+01:49 
+
+01:49 advancements,
+01:51 
+
+01:51 right? So if you look at the statistical
+01:53 
+
+01:53 language modeling you'll see that as an
+01:56 
+
+01:56 example if you have a sentence like John
+01:58 
+
+01:58 loves Mary who lives in New York City
+02:01 
+
+02:01 the usual pred I mean the modeling
+02:04 
+
+02:04 language modeling problem is that you
+02:06 
+
+02:06 have to predict what is the next token
+02:09 
+
+02:09 given a sequence of prior prior tokens.
+02:13 
+
+02:13 So it is always an estimation of the
+02:15 
+
+02:15 conditional probability density uh once
+02:19 
+
+02:19 you in an auto reggressive setup once
+02:22 
+
+02:22 you have new and new model new and new
+02:26 
+
+02:26 tokens uh predicted uh within that auto
+02:30 
+
+02:30 reggressive setup right so so as an
+02:34 
+
+02:34 example in this particular uh sequence
+02:37 
+
+02:37 uh uh you you see that uh there's Mary
+02:41 
+
+02:41 is both an object of loves right John
+02:47 
+
+02:47 being the subject and also a subject of
+02:52 
+
+02:52 lives in so it's an object of loves as
+02:56 
+
+02:56 well as a subject of lives in right so
+03:00 
+
+03:00 so essentially it has two different uh
+03:03 
+
+03:03 grammatical aspects
+03:06 
+
+03:06 you know so we will carry on with this
+03:08 
+
+03:08 particular example all through to help
+03:12 
+
+03:12 you understand this particular model and
+03:15 
+
+03:15 how it differs from or you know the
+03:18 
+
+03:18 contrast with existing models.
+03:25 
+
+03:25 So
+03:27 
+
+03:27 uh a standard you know classical way of
+03:32 
+
+03:32 representing this uh conditional
+03:34 
+
+03:34 probability estimation uh density
+03:37 
+
+03:37 estimation is to approximate this as an
+03:41 
+
+03:41 in order markoff chain you know which we
+03:44 
+
+03:44 basically we know in NLP we know it with
+03:47 
+
+03:47 the more popular engram language
+03:49 
+
+03:49 modeling right and the approximation is
+03:52 
+
+03:52 this that you don't have to go till the
+03:55 
+
+03:55 very beginning of the sequence you can
+03:57 
+
+03:57 just go backwards till end steps and
+04:02 
+
+04:02 that is good enough to carry the entire
+04:07 
+
+04:07 sequences information content. So what
+04:10 
+
+04:10 marov would mean is that you don't
+04:14 
+
+04:14 really have to go to the entire ancestry
+04:17 
+
+04:17 of your lineup just to give you an
+04:19 
+
+04:19 analogy. You can just look at your
+04:21 
+
+04:21 grandfather and your grandfather will
+04:23 
+
+04:23 have all the information of your great
+04:25 
+
+04:25 great great forefathers. So that's the
+04:28 
+
+04:28 mark of assumption basically. So if you
+04:32 
+
+04:32 go to your end
+04:34 
+
+04:34 uh steps uh before the particular token
+04:38 
+
+04:38 then that would be an order right? So
+04:40 
+
+04:40 that's the first thing. The limitation
+04:43 
+
+04:43 being that well it's fixed window there
+04:46 
+
+04:46 was there's no explicit uh structure
+04:48 
+
+04:48 modeling in terms of how one token
+04:52 
+
+04:52 specifically influences the other token
+04:54 
+
+04:54 and so on. Right? It's almost like a a
+04:57 
+
+04:57 snowball principle where you keep
+04:60 
+
+04:60 accumulating the snowball uh across time
+05:04 
+
+05:04 and all you need to you're doing is that
+05:07 
+
+05:07 how the snowball collectively
+05:10 
+
+05:10 uh cumulatively influences
+05:14 
+
+05:14 uh the next token. So it doesn't have a
+05:16 
+
+05:16 very intrinsic understanding of what
+05:19 
+
+05:19 each part of that snowball how each part
+05:22 
+
+05:22 of that snowball is actually
+05:23 
+
+05:23 influencing. Right. Uh
+05:29 
+
+05:29 a next way, another way of looking at
+05:31 
+
+05:31 it, you know, more advanced way of
+05:33 
+
+05:33 looking at it is that you model it as a
+05:36 
+
+05:36 HM. Uh but HMM in this case is modeled
+05:40 
+
+05:40 more as a language model and you have
+05:42 
+
+05:42 this uh latent uh uh variable called Z.
+05:48 
+
+05:48 And this latent variable which is
+05:50 
+
+05:50 basically the unobserved
+05:52 
+
+05:52 uh variable that gives you an emission
+05:55 
+
+05:55 in terms of the what you can what you
+05:58 
+
+05:58 can see which is x and from there you
+06:01 
+
+06:01 can actually come with this particular
+06:03 
+
+06:03 way of approximating language models. So
+06:06 
+
+06:06 you can say that okay what is the pro
+06:08 
+
+06:08 what is that conditional probability of
+06:11 
+
+06:11 the next token given a sequence a prior
+06:15 
+
+06:15 sequence is basically a sum over all
+06:17 
+
+06:17 possible latent variables that is
+06:21 
+
+06:21 connected to that particular
+06:23 
+
+06:23 uh that particular token with respect to
+06:27 
+
+06:27 all the other tokens that is preceding
+06:29 
+
+06:29 that particular latent variable right
+06:31 
+
+06:31 and you sum sum that up so that's
+06:34 
+
+06:34 another assumption which is the hidden
+06:37 
+
+06:37 hidden mark of model way of doing
+06:39 
+
+06:39 language model. Then what came up is
+06:43 
+
+06:43 that you know more explicit way of
+06:46 
+
+06:46 figuring out the different how the
+06:48 
+
+06:48 different parts and pieces of that
+06:51 
+
+06:51 cumulative memory or snowball so to say
+06:54 
+
+06:54 effects
+06:56 
+
+06:56 uh affects the next token right so and
+07:01 
+
+07:01 and then we came across the era of LSTM
+07:06 
+
+07:06 where we introduce that okay we would
+07:09 
+
+07:09 introduce uh so basically it's a it's a
+07:12 
+
+07:12 gated RNN and uh where we have different
+07:16 
+
+07:16 types of gates so we said that we will
+07:19 
+
+07:19 have one kind of gate called the forget
+07:21 
+
+07:21 gate and what would the forget gate do
+07:24 
+
+07:24 it will try to figure out that if there
+07:26 
+
+07:26 is noise that is coming in as a part of
+07:30 
+
+07:30 the memory I'm going to eliminate that
+07:34 
+
+07:34 points or if there is something that is
+07:37 
+
+07:37 irrelevant that is coming in as a part
+07:40 
+
+07:40 of that memory or the history I'm going
+07:43 
+
+07:43 to eliminate that that that that uh that
+07:46 
+
+07:46 redundant uh history part of the history
+07:51 
+
+07:51 right and then whatever comes in I'm
+07:54 
+
+07:54 going to take that and uh I'm going to
+07:58 
+
+07:58 create an resultant of that with the
+08:01 
+
+08:01 incoming input again the incoming input
+08:04 
+
+08:04 I do a gating on top of that which is
+08:07 
+
+08:07 the input gate or the update gate.
+08:09 
+
+08:09 Sometimes it's also called the update
+08:10 
+
+08:10 gate. And what we are doing over there
+08:13 
+
+08:13 is saying that okay so we do not want
+08:16 
+
+08:16 the input to
+08:18 
+
+08:18 uh overemphasize a particular aspect of
+08:23 
+
+08:23 the memory that is already there present
+08:24 
+
+08:24 in the memory. So don't try to
+08:28 
+
+08:28 re-emphasize something that is already
+08:30 
+
+08:30 already present in in the incoming
+08:33 
+
+08:33 incoming memory of that cell. So that's
+08:36 
+
+08:36 why you have an input gate which
+08:38 
+
+08:38 basically takes care of some sort of
+08:40 
+
+08:40 redundancy if at all there could be a
+08:43 
+
+08:43 redundancy.
+08:45 
+
+08:45 And then we have whatever flows on to
+08:49 
+
+08:49 the next cell. So we have again we put a
+08:52 
+
+08:52 gate on top of that and that would be
+08:54 
+
+08:54 the output gate. And my way of
+08:56 
+
+08:56 interpreting that is you know one reason
+08:58 
+
+08:58 could be that uh you might again come up
+09:03 
+
+09:03 with uh
+09:06 
+
+09:06 reintroducing the noise that you just
+09:08 
+
+09:08 tried to
+09:10 
+
+09:10 eliminate or minimize via the forget
+09:14 
+
+09:14 forget get but that may be again
+09:16 
+
+09:16 reintroduced within the input. And why
+09:19 
+
+09:19 noise? It could be something that
+09:22 
+
+09:22 disturbs some uh downstream task that
+09:26 
+
+09:26 would be classification or regression or
+09:29 
+
+09:29 it could be something that is irrelevant
+09:32 
+
+09:32 that is not relevant as of uh to the
+09:35 
+
+09:35 next uh to the next uh subsequence.
+09:41 
+
+09:41 Okay. So this is a familiar I hope that
+09:44 
+
+09:44 this is a familiar set of equations. uh
+09:48 
+
+09:48 I'm not going to go into the details of
+09:49 
+
+09:49 that but this is extremely important to
+09:53 
+
+09:53 to to keep in mind because you know
+09:58 
+
+09:58 Rakov did took a lot of inspiration from
+10:01 
+
+10:01 from LSDM. By the way, just a a small
+10:04 
+
+10:04 little digression. Uh the S is in red
+10:09 
+
+10:09 and italics because it's still short
+10:12 
+
+10:12 although it can capture a good amount of
+10:15 
+
+10:15 longer dependency but it still fails to
+10:19 
+
+10:19 capture very long context. Right? So at
+10:22 
+
+10:22 the end of the day uh it's not a long
+10:26 
+
+10:26 uh term memory but it's a long shortterm
+10:29 
+
+10:29 memory. So that has to be always
+10:31 
+
+10:31 understood about about LSTMs,
+10:34 
+
+10:34 right?
+10:36 
+
+10:36 So basically the gate learns what to
+10:39 
+
+10:39 retain or overwrite um and it leads to a
+10:43 
+
+10:43 learned mark of a learned mark of drift
+10:46 
+
+10:46 right so the marovian drift in LSM is
+10:50 
+
+10:50 you know if we look at it with this
+10:53 
+
+10:53 example so
+10:56 
+
+10:56 let's say that at who at the word who
+10:59 
+
+10:59 the hidden state still carries Mary
+11:01 
+
+11:01 through the clause uh if ft which is the
+11:05 
+
+11:05 forget at that time step decides to keep
+11:09 
+
+11:09 that information and it should ideally
+11:11 
+
+11:11 it should because Mary is important for
+11:13 
+
+11:13 who because we need to know that who is
+11:16 
+
+11:16 actually Mary. So the information of
+11:19 
+
+11:19 Mary should come should come in and not
+11:22 
+
+11:22 be eliminated by the forget. So that is
+11:25 
+
+11:25 an important thing to to understand.
+11:28 
+
+11:28 The limitation again being that
+11:30 
+
+11:30 sequential dependency
+11:32 
+
+11:32 uh it's a very implicit retrieval. It's
+11:34 
+
+11:34 not very explicit in the sense that uh
+11:37 
+
+11:37 explicitly trying to bring the influence
+11:40 
+
+11:40 of Mary and the influence of love and
+11:42 
+
+11:42 the influence of of of John on to who
+11:47 
+
+11:47 let's say as an example. So you are not
+11:49 
+
+11:49 explicitly trying to pick each and every
+11:51 
+
+11:51 single preceding token and trying to
+11:54 
+
+11:54 understand what percentage of influence
+11:56 
+
+11:56 that has on who. Right? So it's a in in
+11:60 
+
+11:60 that sense it's it's it's implicit.
+12:03 
+
+12:03 Right? And again as I said like it's
+12:05 
+
+12:05 still short at the end of the day. So
+12:07 
+
+12:07 very long range uh uh you know you will
+12:11 
+
+12:11 see that many of that effect goes away
+12:14 
+
+12:14 and it's still marovian in a sense
+12:16 
+
+12:16 because uh it's
+12:19 
+
+12:19 in general it's always going to give
+12:21 
+
+12:21 more preference to tokens that are in
+12:25 
+
+12:25 the near past as to tokens that are in
+12:27 
+
+12:27 the in the further further past.
+12:34 
+
+12:34 Now if you look at from there onwards
+12:37 
+
+12:37 what happened in transformers or rather
+12:40 
+
+12:40 in the self attention part of the
+12:42 
+
+12:42 transformers you can think of it more
+12:44 
+
+12:44 like a a generalization of a scriptgram
+12:48 
+
+12:48 language model. So from engram language
+12:50 
+
+12:50 model to uh to to gated engram language
+12:54 
+
+12:54 model. So now we are in a generalization
+12:57 
+
+12:57 generalized version of skip gram
+12:59 
+
+12:59 language model right and what we do over
+13:02 
+
+13:02 there is that we have these three
+13:04 
+
+13:04 components query and key and value Q and
+13:07 
+
+13:07 K and V where Q is the target word or
+13:12 
+
+13:12 the word that you have to contextualize
+13:15 
+
+13:15 in terms of embedding. It has its two
+13:18 
+
+13:18 other avatars. One is the key and one is
+13:21 
+
+13:21 the value. So we can look at it from
+13:24 
+
+13:24 this point of view that while when it
+13:28 
+
+13:28 has the V V avatar then it acts like a
+13:32 
+
+13:32 influencer.
+13:34 
+
+13:34 So which means it influences other other
+13:36 
+
+13:36 words in the sequence. When it has the Q
+13:39 
+
+13:39 avar it acts like the token which is
+13:42 
+
+13:42 getting influenced
+13:44 
+
+13:44 right and K is almost like a
+13:48 
+
+13:48 representative of V or a secretary of V.
+13:51 
+
+13:51 You can think of it like that where K is
+13:54 
+
+13:54 the guy who does the handshaking with
+13:56 
+
+13:56 other cues, you know, in terms of
+13:59 
+
+13:59 figuring out whether there at all can be
+14:02 
+
+14:02 a handshaking or a friendship or some
+14:04 
+
+14:04 sort of an influence or association
+14:07 
+
+14:07 basically that can happen with that
+14:10 
+
+14:10 particular word, right? And the way to
+14:15 
+
+14:15 one way of looking at it is that now
+14:17 
+
+14:17 when you try to uh figure out the final
+14:20 
+
+14:20 ZT which is the contextual embedding all
+14:24 
+
+14:24 that you're doing is you're trying to
+14:25 
+
+14:25 take certain percentage of the
+14:29 
+
+14:29 neighboring vis
+14:31 
+
+14:31 and adding them up including its own vi
+14:35 
+
+14:35 and adding them up where that percentage
+14:37 
+
+14:37 is omega over here omega ti where omega
+14:42 
+
+14:42 is basically that soft max that you do.
+14:44 
+
+14:44 So it's basically the softmax of the dot
+14:46 
+
+14:46 product between QT and all the other
+14:51 
+
+14:51 neighbors. But this time you are doing
+14:54 
+
+14:54 the handshaking. The dot product is the
+14:56 
+
+14:56 handshaking over here. So you're doing
+14:58 
+
+14:58 the dot product or the hand shaking with
+15:01 
+
+15:01 the neighboring keys. Right? So that's
+15:04 
+
+15:04 the thing. So for this example
+15:10 
+
+15:10 uh who attends to Mary as an example uh
+15:14 
+
+15:14 explicitly while city explicitly
+15:19 
+
+15:19 separately independently
+15:21 
+
+15:21 at you know is being influenced by new
+15:24 
+
+15:24 and York and in lives and so on. It is
+15:28 
+
+15:28 it actually gets influenced by everybody
+15:30 
+
+15:30 by the way. I'm just giving you a a
+15:32 
+
+15:32 small subset of that thing and it keeps
+15:34 
+
+15:34 and it aggregates all of those
+15:36 
+
+15:36 influences in terms of new and your and
+15:40 
+
+15:40 and lives, right? So, so it it
+15:44 
+
+15:44 aggregates over the V of new, the V of
+15:47 
+
+15:47 York, the V of in and the V of lives and
+15:50 
+
+15:50 that all comes in and of course it you
+15:52 
+
+15:52 know it also aggregates John and loves
+15:55 
+
+15:55 and Mary and who and and so on. So why
+16:00 
+
+16:00 is generalized? uh yeah by the way but
+16:03 
+
+16:03 you know in a standard typical classical
+16:06 
+
+16:06 transformer sense it will take a
+16:08 
+
+16:08 quadratic time because everybody is
+16:11 
+
+16:11 getting it is handshaking with everyone
+16:13 
+
+16:13 else right so if you look at it like
+16:16 
+
+16:16 that everybody is trying to handshake
+16:18 
+
+16:18 with everybody so as a bipartite graph
+16:22 
+
+16:22 you can think of all the Q's on one side
+16:24 
+
+16:24 and all the K's on the other side and
+16:27 
+
+16:27 everybody has a K corresponding K so
+16:30 
+
+16:30 that's how it's t square or in terms of
+16:33 
+
+16:33 the where t capital t is the length of
+16:35 
+
+16:35 the sequence
+16:37 
+
+16:37 and also during inferencing it's it's
+16:40 
+
+16:40 heavy on the kv kv cache and I don't
+16:44 
+
+16:44 know whether you have already studied
+16:45 
+
+16:45 that but if you think about it you'll
+16:47 
+
+16:47 you'll you'll see why why that is so
+16:54 
+
+16:54 rau comes as as a bridging between the
+16:58 
+
+16:58 RNN era models mod and the transformer
+17:02 
+
+17:02 era era models. Right? So what's the
+17:06 
+
+17:06 goal? The goal is that you know the idea
+17:10 
+
+17:10 the inspiration was or the motivation
+17:12 
+
+17:12 was can we somehow get the the good
+17:17 
+
+17:17 thing about transformers which is uh you
+17:21 
+
+17:21 know the high quality attention uh the
+17:24 
+
+17:24 self attention. Can we bring that in?
+17:28 
+
+17:28 But at the same time can we also bring
+17:32 
+
+17:32 the
+17:34 
+
+17:34 you know the more uh marovian
+17:39 
+
+17:39 uh aspect of RNN's because you know what
+17:42 
+
+17:42 what happens in in transformers is that
+17:45 
+
+17:45 you are you're adding another additional
+17:48 
+
+17:48 assumption over the marovium assumption
+17:50 
+
+17:50 saying that uh it's not only uh n order
+17:55 
+
+17:55 marovian but it is also also
+17:58 
+
+17:58 conditionally independent.
+18:01 
+
+18:01 Right? So that if you look at the skip
+18:02 
+
+18:02 gram model, what it says is that it's
+18:05 
+
+18:05 not only engram in order marobian, but
+18:09 
+
+18:09 you are again splitting that probability
+18:14 
+
+18:14 condition into factors. You're
+18:16 
+
+18:16 factorizing it out and you're saying
+18:18 
+
+18:18 that no, it's it's conditionally
+18:20 
+
+18:20 independent also, right? So you don't
+18:22 
+
+18:22 really have to look at the entire
+18:23 
+
+18:23 sequence as a whole. Which means you
+18:25 
+
+18:25 don't really have to do the snowballing
+18:27 
+
+18:27 or the cumulative uh aggregation of
+18:30 
+
+18:30 memory anymore. But what if we don't
+18:32 
+
+18:32 want to do that? We want to have the the
+18:35 
+
+18:35 global contain mixing of transformers.
+18:37 
+
+18:37 But at the same time, we also want to do
+18:40 
+
+18:40 something that RNN's did. However, RNNs
+18:44 
+
+18:44 were sequential, right? All kinds of RNN
+18:47 
+
+18:47 architectures are sequential which means
+18:49 
+
+18:49 you cannot process all the cells all
+18:52 
+
+18:52 together at the same time. You know one
+18:54 
+
+18:54 cell has to wait for the previous cells
+18:56 
+
+18:56 to get processed and then only a
+18:59 
+
+18:59 particular cell at a particular time
+18:60 
+
+18:60 step can can process. It's basically
+19:02 
+
+19:02 it's like a while loop. You're putting
+19:04 
+
+19:04 it into a for loop. So you can you know
+19:06 
+
+19:06 you can't really uh parallelize that. So
+19:11 
+
+19:11 the attempt and it was quite a bold
+19:13 
+
+19:13 attempt that can we parallelize
+19:16 
+
+19:16 uh parallelize this this thing. So what
+19:19 
+
+19:19 they are trying to do it's like okay uh
+19:21 
+
+19:21 the content at every state every time
+19:24 
+
+19:24 step they call it s in terms of the
+19:28 
+
+19:28 state of the cell uh LSTM used to call
+19:31 
+
+19:31 that content or c it's just a notational
+19:34 
+
+19:34 difference but the same thing. So what
+19:38 
+
+19:38 they say is that okay can we have some
+19:40 
+
+19:40 sort of the same percentage of the vi
+19:43 
+
+19:43 where v is the value the same percentage
+19:45 
+
+19:45 concept we just keep adding the
+19:48 
+
+19:48 different percentages of how every
+19:50 
+
+19:50 single vi is influencing
+19:53 
+
+19:53 uh the q but instead of the soft max and
+19:59 
+
+19:59 the dot product kind of percentage we do
+20:02 
+
+20:02 it in a different way we try to do in a
+20:06 
+
+20:06 way which mimics or which models the
+20:10 
+
+20:10 marcoian drift.
+20:13 
+
+20:13 So if you look at the factor beta i
+20:16 
+
+20:16 alpha and we are going to
+20:19 
+
+20:19 make it very explicit
+20:21 
+
+20:21 what each of that means but uh if you
+20:25 
+
+20:25 look at that equation itself forget
+20:27 
+
+20:27 about what beta and alpha means for now
+20:29 
+
+20:29 but if you just look at the numerator
+20:31 
+
+20:31 and the denominator you it's very clear
+20:33 
+
+20:33 that it's basically some sort of a
+20:34 
+
+20:34 percentage
+20:36 
+
+20:36 uh that's happening basically right so
+20:38 
+
+20:38 you are essentially the numerator is one
+20:41 
+
+20:41 specific take neighbor neighboring token
+20:45 
+
+20:45 which is I and the denominator is you
+20:48 
+
+20:48 are actually
+20:50 
+
+20:50 comparing that across all other J's
+20:53 
+
+20:53 including that I right okay so
+20:59 
+
+20:59 so just for now to you just need to
+21:03 
+
+21:03 understand that beta is basically the
+21:06 
+
+21:06 content strength which is uh how much vi
+21:12 
+
+21:12 is going to influence
+21:14 
+
+21:14 a query let's say and alpha uh is that
+21:20 
+
+21:20 exponential decay over time across the
+21:25 
+
+21:25 entire whatever happened before that
+21:28 
+
+21:28 right so so basically
+21:32 
+
+21:32 uh and and that alpha is what brings
+21:36 
+
+21:36 that marovian drift uh assumption back
+21:40 
+
+21:40 into the play, right? So, we'll we'll
+21:44 
+
+21:44 we'll we'll uh don't worry about this.
+21:46 
+
+21:46 We'll we'll look at it in in more
+21:49 
+
+21:49 details.
+21:51 
+
+21:51 So, this is the this is the architecture
+21:55 
+
+21:55 uh in in general. It's also a stacked
+21:58 
+
+21:58 architecture for now. Just uh just
+22:02 
+
+22:02 remember that it's uh it's a stacked
+22:04 
+
+22:04 architecture just like transformer with
+22:07 
+
+22:07 the final layer being ahead which
+22:10 
+
+22:10 actually does some
+22:12 
+
+22:12 uh downstream task for auto regression
+22:15 
+
+22:15 language model. It will just predict the
+22:17 
+
+22:17 next token. So that's the final head. So
+22:20 
+
+22:20 that is pretty much the same. Uh so we
+22:23 
+
+22:23 will go one by one by one. So let's
+22:25 
+
+22:25 first look at the
+22:27 
+
+22:27 the first uh dot the rock of encoder
+22:30 
+
+22:30 first. I mean the decoder is is the head
+22:33 
+
+22:33 basically. Let's look at the encoder.
+22:38 
+
+22:38 So
+22:40 
+
+22:40 so the first step is the time mixing uh
+22:45 
+
+22:45 the time mixing step. So what uh what it
+22:49 
+
+22:49 does is that it says that okay so we
+22:52 
+
+22:52 have
+22:54 
+
+22:54 uh let's look at the the word that is
+22:57 
+
+22:57 coming in right now let's say John loves
+22:59 
+
+22:59 Mary so let's look at Mary right now and
+23:02 
+
+23:02 let's say that xt is Mary right and so
+23:06 
+
+23:06 which means xt minus one will be loves
+23:10 
+
+23:10 so let's look at these two words only
+23:12 
+
+23:12 just by very simple bground And let's
+23:17 
+
+23:17 try to see to what
+23:20 
+
+23:20 what would be the
+23:23 
+
+23:23 what would be the percentage of
+23:27 
+
+23:27 Mary that I should bring in and what
+23:30 
+
+23:30 should be the percentage of loves that I
+23:33 
+
+23:33 should bring in. So this mix k I have
+23:36 
+
+23:36 changed the
+23:39 
+
+23:39 the variable name a bit the in the
+23:41 
+
+23:41 original paper you will see that as mu
+23:44 
+
+23:44 uh but I like this more because it tells
+23:47 
+
+23:47 you what it actually is trying to do
+23:48 
+
+23:48 it's basically trying to mix up these
+23:51 
+
+23:51 two words Mary and love let's say or
+23:54 
+
+23:54 between John and love love and John so
+23:57 
+
+23:57 that's what it's trying to do it's
+23:58 
+
+23:58 trying to mix the content the
+23:60 
+
+23:60 information content of these two words
+24:02 
+
+24:02 right so it says that if with certain
+24:04 
+
+24:04 percentage I will take uh Mary then one
+24:07 
+
+24:07 minus that percentage or 100 minus that
+24:09 
+
+24:09 percentage I will take I will take love
+24:12 
+
+24:12 right and I will create this new mixed
+24:15 
+
+24:15 version of uh information at that time
+24:19 
+
+24:19 step at that time step which means what
+24:22 
+
+24:22 is the situation till now which means
+24:26 
+
+24:26 till
+24:28 
+
+24:28 till Mary so John loves Mary has
+24:31 
+
+24:31 occurred and I'm focusing on Mary right
+24:33 
+
+24:33 now which is the third word and I'm
+24:35 
+
+24:35 trying to understand what is the
+24:37 
+
+24:37 situation till Mary and that is XTK
+24:42 
+
+24:42 right now what I do I say that okay I do
+24:44 
+
+24:44 the same thing not only for
+24:47 
+
+24:47 the query I do the same thing uh for
+24:52 
+
+24:52 rather for the key I do the same thing
+24:55 
+
+24:55 for the value as well. So I do a very
+24:57 
+
+24:57 separate mixing for the value and I do a
+25:01 
+
+25:01 very separate mixing for the key.
+25:02 
+
+25:02 Remember the key is the the
+25:05 
+
+25:05 representative of the value that in
+25:07 
+
+25:07 transformer used to go and do the hand
+25:10 
+
+25:10 shaking with the query. Right now there
+25:12 
+
+25:12 is no handshaking
+25:14 
+
+25:14 in rau
+25:17 
+
+25:17 in rau no hand shaking happens. So
+25:19 
+
+25:19 there's no Q so to say it's just we have
+25:23 
+
+25:23 the key and we have the value right. So
+25:26 
+
+25:26 we do a mix representation in terms of
+25:29 
+
+25:29 biogram of these two. And then we have
+25:33 
+
+25:33 this third thing called
+25:36 
+
+25:36 receptance and we'll come to that later
+25:38 
+
+25:38 but we just for now just uh know that
+25:42 
+
+25:42 there is something called a third uh
+25:45 
+
+25:45 entity or a third avdar
+25:48 
+
+25:48 called receptance and we will later on
+25:51 
+
+25:51 see what why we need that
+25:55 
+
+25:55 which is the R.
+25:57 
+
+25:57 Now one important thing to understand
+25:59 
+
+25:59 over here although it looks like
+26:01 
+
+26:01 sequential right which means I first
+26:03 
+
+26:03 have to process XT minus one and then I
+26:06 
+
+26:06 have to process XT but you have to
+26:08 
+
+26:08 understand that XT and XT minus one if
+26:11 
+
+26:11 you look at it look from how we put give
+26:14 
+
+26:14 input to a transformer so we get give
+26:17 
+
+26:17 input to a transformer like a matrix
+26:18 
+
+26:18 like a whole X capital X matrix right so
+26:21 
+
+26:21 where we have all the sequence as a
+26:24 
+
+26:24 matrix given as a whole to the to the
+26:27 
+
+26:27 model that exact same thing happens over
+26:28 
+
+26:28 here. So essentially when you are giving
+26:32 
+
+26:32 XT you also have access to XT minus one
+26:36 
+
+26:36 at the same time during that time only.
+26:40 
+
+26:40 This is not a snowball. XT minus one
+26:42 
+
+26:42 unlike RNN
+26:45 
+
+26:45 in RNN this XT minus one instead of XT
+26:49 
+
+26:49 minus one you would have had something
+26:50 
+
+26:50 like HT minus one or HT the history that
+26:53 
+
+26:53 is coming in right that is not what it
+26:56 
+
+26:56 is because if that was so then you would
+26:58 
+
+26:58 you would have had to process the
+26:59 
+
+26:59 history first. So you have complete
+27:02 
+
+27:02 access of all the X's as of now right?
+27:08 
+
+27:08 So that's what makes this parallelized
+27:11 
+
+27:11 and linear time also.
+27:15 
+
+27:15 Okay. So yeah
+27:23 
+
+27:23 >> as of now yeah we the hidden state will
+27:26 
+
+27:26 uh there is something called the hidden
+27:28 
+
+27:28 state but since the processing at every
+27:31 
+
+27:31 step is happening in one single shot.
+27:34 
+
+27:34 Even the hidden steps intermediate the
+27:36 
+
+27:36 intermediate steps are also happening in
+27:38 
+
+27:38 one single shot.
+27:42 
+
+27:42 You can parallelize it through the cores
+27:44 
+
+27:44 of your GPU. Essentially, that's what
+27:46 
+
+27:46 happens at the CUDA level.
+27:54 
+
+27:54 >> Yeah, I'm coming I'm coming to that. You
+27:55 
+
+27:55 feel like you know it's almost like
+27:57 
+
+27:57 biogram. So, it's it cannot be that. So,
+28:00 
+
+28:00 I'm coming to that. That's the that's
+28:02 
+
+28:02 the beauty of this this this this model.
+28:05 
+
+28:05 Okay. So, as an example, let's say for
+28:07 
+
+28:07 Mary I just said, right? So you mix up
+28:11 
+
+28:11 uh Mary and you mix up loves and you
+28:14 
+
+28:14 create a key for a mixed key and
+28:18 
+
+28:18 similarly you will create a mixed value
+28:22 
+
+28:22 and the local biogram blending is
+28:25 
+
+28:25 basically a so we call it the technical
+28:29 
+
+28:29 term for looking it up you know just by
+28:32 
+
+28:32 one index shifting the technical term is
+28:35 
+
+28:35 called token shift that's a fancy way of
+28:37 
+
+28:37 saying that you are basically
+28:39 
+
+28:39 you know looking up the previous index
+28:42 
+
+28:42 and calling it up. Okay. And this this
+28:45 
+
+28:45 idea of mixing the biograms together
+28:48 
+
+28:48 like the previous one and this one
+28:50 
+
+28:50 that's called time mixing
+28:53 
+
+28:53 because you are mixing two different
+28:55 
+
+28:55 time steps together. Okay. All right.
+28:60 
+
+28:60 Now somebody can ask why not three g.
+29:03 
+
+29:03 Yes, you can do that. that was not what
+29:05 
+
+29:05 they did but you could have actually
+29:08 
+
+29:08 combined three but again that would have
+29:11 
+
+29:11 been linear time because you have access
+29:12 
+
+29:12 to everyone right so but uh that is not
+29:17 
+
+29:17 needed according to them for one
+29:18 
+
+29:18 interesting reason and I'll come to that
+29:22 
+
+29:22 okay before that uh let's let's just
+29:26 
+
+29:26 look at why this receptance is uh is is
+29:29 
+
+29:29 is needed right so so this Uh
+29:36 
+
+29:36 so this receptance what it does is that
+29:38 
+
+29:38 it helps you to create uh but we will
+29:43 
+
+29:43 come okay let me let me first uh look at
+29:46 
+
+29:46 uh let me first give you some some some
+29:49 
+
+29:49 uh something to do with the gates that
+29:52 
+
+29:52 uh we create on the key and the value
+29:55 
+
+29:55 and then we look at uh what this
+29:57 
+
+29:57 receptance actually does for now let's
+29:59 
+
+29:59 just hold on to that there is something
+30:02 
+
+30:02 called receptance and which will be
+30:03 
+
+30:03 important important. So uh so now the
+30:06 
+
+30:06 beta you know we talked you know in the
+30:08 
+
+30:08 first in that earlier slide you you saw
+30:10 
+
+30:10 the alpha and the beta. So I promised
+30:13 
+
+30:13 you that I going to tell you what that
+30:14 
+
+30:14 is. So beta is basically a gate that
+30:19 
+
+30:19 is an exponentiation version of the key.
+30:24 
+
+30:24 It's an exponential version of the key
+30:26 
+
+30:26 only. Right? So the key that you just
+30:28 
+
+30:28 created and alpha is also a get which is
+30:31 
+
+30:31 which acts like a forget gate.
+30:34 
+
+30:34 So while beta is like an update gate of
+30:37 
+
+30:37 your RNN style models, alpha acts like a
+30:42 
+
+30:42 a forget gate, right? And why that is a
+30:45 
+
+30:45 forget get is because it is basically an
+30:49 
+
+30:49 exponentiation
+30:50 
+
+30:50 uh decay minus w which means it's an
+30:54 
+
+30:54 exponential decay of a learnable w. So w
+30:57 
+
+30:57 is learnable not a constant and
+31:02 
+
+31:02 uh you apply that alpha over all the
+31:06 
+
+31:06 prior steps
+31:08 
+
+31:08 right and how that is applied
+31:11 
+
+31:11 is
+31:13 
+
+31:13 this way. So basically you have uh you
+31:17 
+
+31:17 do this you you apply alpha to the prior
+31:20 
+
+31:20 state let's say that the let's call the
+31:22 
+
+31:22 prior state a a t minus one so let's say
+31:26 
+
+31:26 that is the prior state and you apply
+31:28 
+
+31:28 alpha to that which means you want to
+31:29 
+
+31:29 decay that you want to decay the effect
+31:33 
+
+31:33 of that state right and then you apply
+31:36 
+
+31:36 beta to the v why because beta is the
+31:39 
+
+31:39 update gate so the update gate is
+31:42 
+
+31:42 applied on what on the actual value
+31:45 
+
+31:45 because that is the percentage that you
+31:47 
+
+31:47 need to bring in percentage of V just
+31:50 
+
+31:50 similar to transformer
+31:52 
+
+31:52 right so the percentage come is is
+31:55 
+
+31:55 actually will come from the beta I'll
+31:58 
+
+31:58 show you how and then you have some BT
+32:02 
+
+32:02 which is which will uh which is
+32:05 
+
+32:05 formulated like this and this BT acts
+32:08 
+
+32:08 like the denominator in terms of how you
+32:11 
+
+32:11 know a particular time step is
+32:14 
+
+32:14 contrasted with every other time steps
+32:16 
+
+32:16 prior time steps. Right? So what we can
+32:19 
+
+32:19 do is we can write a if you unfold it
+32:23 
+
+32:23 then you can write a as a summation over
+32:26 
+
+32:26 alpha t i t minus i over all the prior
+32:31 
+
+32:31 i's
+32:33 
+
+32:33 and you can then bring beta i o you know
+32:38 
+
+32:38 that that is that sums over all the
+32:41 
+
+32:41 priority minus i. So if you look at uh
+32:44 
+
+32:44 the first alpha being alpha raised to
+32:47 
+
+32:47 zero right so that is one so that will
+32:50 
+
+32:50 be beta beta t bt that is the second
+32:54 
+
+32:54 term over here that is this term so this
+32:58 
+
+32:58 betat v_t can be written as alpha ra z
+33:03 
+
+33:03 betat and that's how you bring the alpha
+33:06 
+
+33:06 in inside the summation and you can sum
+33:09 
+
+33:09 it over all the prior time steps right
+33:13 
+
+33:13 so that's your a and beta t bt bt can
+33:17 
+
+33:17 also be written in a in a similar
+33:20 
+
+33:20 fashion but over there you don't have
+33:22 
+
+33:22 the v then what you do is you say that
+33:25 
+
+33:25 your final content st
+33:29 
+
+33:29 is a contrast of a which is your actual
+33:33 
+
+33:33 real deal over all the other a so if you
+33:38 
+
+33:38 look at bt then bt is basically
+33:42 
+
+33:42 a summation of and if you plug that
+33:44 
+
+33:44 summation you know this this particular
+33:47 
+
+33:47 this the second summation of BT and if
+33:49 
+
+33:49 you bring it inside the the the inside
+33:52 
+
+33:52 the summation of A
+33:55 
+
+33:55 uh then this is how it will look like
+33:57 
+
+33:57 and you can say that this particular
+33:59 
+
+33:59 term which is beta I alpha t minus one
+34:04 
+
+34:04 divided by summation of all all of such
+34:08 
+
+34:08 beta I's alpha t minus one all of such
+34:13 
+
+34:13 uh across
+34:15 
+
+34:15 all the steps before that particular
+34:17 
+
+34:17 step gives you that percentage
+34:22 
+
+34:22 right for that particular vi
+34:26 
+
+34:26 so what I did was this is not how it is
+34:29 
+
+34:29 structured in the paper but what I did
+34:31 
+
+34:31 was I actually I'm trying I'm doing this
+34:33 
+
+34:33 so that you can give see this analogy
+34:36 
+
+34:36 between what really happened in
+34:40 
+
+34:40 transformers
+34:42 
+
+34:42 versus what actually is going on uh in
+34:45 
+
+34:45 in in braov everything remains the same
+34:48 
+
+34:48 which is omega is still a simple x over
+34:52 
+
+34:52 one and omega t i comm i is greater than
+34:55 
+
+34:55 zero right okay so
+35:02 
+
+35:02 so while the omega of transformer or the
+35:06 
+
+35:06 the attention score of transformer is an
+35:09 
+
+35:09 exponentiation of the handshake or the
+35:11 
+
+35:11 dotproduct of Q and K. Uh in RAOV there
+35:18 
+
+35:18 is no handshaking
+35:20 
+
+35:20 uh between Q and K. is just that you
+35:24 
+
+35:24 you know you you write it as a
+35:26 
+
+35:26 multiplication of beta and alpha where
+35:28 
+
+35:28 beta is e raised ki
+35:32 
+
+35:32 and alpha is the e raised minus w over t
+35:38 
+
+35:38 minus i.
+35:40 
+
+35:40 Right? So, so, so, so that's the
+35:46 
+
+35:46 uh if you want me to pause here for a
+35:49 
+
+35:49 while. Uh, how how it
+35:54 
+
+35:54 how what is the parallel and what it
+35:56 
+
+35:56 really means? Uh, you can think over a
+35:60 
+
+35:60 while maybe. Um
+36:04 
+
+36:04 okay so it's like a decayed
+36:06 
+
+36:06 co-occurrence weight you know
+36:08 
+
+36:08 co-occurrence in the skip ground sense
+36:11 
+
+36:11 right and nearby tokens contribute
+36:14 
+
+36:14 strongly
+36:16 
+
+36:16 uh distant one fades unless reinforced
+36:20 
+
+36:20 now unless reinforce means what where xt
+36:23 
+
+36:23 maybe xt again a new xt comes in and
+36:26 
+
+36:26 again in introduces that information
+36:28 
+
+36:28 back into that
+36:31 
+
+36:31 memory right so unless that happens uh
+36:38 
+
+36:38 is is going to fail when I read the
+36:41 
+
+36:41 paper the original idea is how to make
+36:44 
+
+36:44 it linear time and because you have
+36:47 
+
+36:47 access you are no more dealing with
+36:48 
+
+36:48 history the cumulative history because
+36:50 
+
+36:50 that has to be process because that
+36:51 
+
+36:51 makes it sequential in in RNN and these
+36:54 
+
+36:54 models right because you have to wait
+36:57 
+
+36:57 till the prior history is computed and
+36:59 
+
+36:59 then you have to add that with the
+37:01 
+
+37:01 incoming new input over here. Yeah.
+37:05 
+
+37:05 >> So RNN RNN have that issue, right? RNN
+37:10 
+
+37:10 >> RNN styled models have that issue
+37:15 
+
+37:15 >> because at every time step you have to
+37:17 
+
+37:17 wait till the previous history is
+37:19 
+
+37:19 computed.
+37:21 
+
+37:21 >> Transformer that's not there. So they
+37:22 
+
+37:22 took that idea from transformer. They
+37:24 
+
+37:24 said okay we are not going to we are not
+37:26 
+
+37:26 going to talk in terms of history. We
+37:29 
+
+37:29 are going to talk in terms of the the
+37:31 
+
+37:31 tokens that are accessible but in but
+37:35 
+
+37:35 but instead of what transformer did by
+37:37 
+
+37:37 looking at all other tokens in the
+37:40 
+
+37:40 sequence what they are doing okay we
+37:42 
+
+37:42 just have to focus on two tokens at a
+37:44 
+
+37:44 time
+37:51 
+
+37:51 >> yeah linear time attention yeah so I
+37:54 
+
+37:54 mean uh and that's what I'm saying so so
+37:57 
+
+37:57 linear means not in a absolute linear
+37:59 
+
+37:59 sense I don't think but n login n login
+38:04 
+
+38:04 or something like that have have
+38:06 
+
+38:06 happened even uh by restricting the
+38:09 
+
+38:09 context window and trying to make it
+38:14 
+
+38:14 >> right
+38:16 
+
+38:16 you're looking at two words at a time
+38:17 
+
+38:17 three words at a time
+38:19 
+
+38:19 >> no what and so that's the thing so what
+38:22 
+
+38:22 >> theoretically yes but in in practice
+38:25 
+
+38:25 what what where the parallelization
+38:27 
+
+38:27 happens happens is uh is is here because
+38:32 
+
+38:32 is here because when you are it's not
+38:35 
+
+38:35 that you are trying to process XT minus
+38:37 
+
+38:37 one and then later on you are processing
+38:41 
+
+38:41 XT and then you're actually doing it all
+38:43 
+
+38:43 in one go
+38:45 
+
+38:45 >> and there's no loop
+38:47 
+
+38:47 essentially because you have access to
+38:51 
+
+38:51 every single XT so you can do a
+38:53 
+
+38:53 multi-threading over at a CUDA level
+38:57 
+
+38:57 on your GPU
+38:58 
+
+38:58 >> in that sense if you consider that
+39:01 
+
+39:01 attention is transform is also linear
+39:04 
+
+39:04 because you can do all this computation
+39:06 
+
+39:06 in par I'm talking about algorithmic
+39:08 
+
+39:08 complexity
+39:10 
+
+39:10 I'm not talking about complexity in
+39:11 
+
+39:11 terms of GPU access or making
+39:15 
+
+39:15 >> no even uh
+39:18 
+
+39:18 okay so uh
+39:21 
+
+39:21 >> so I mean are you trying to improve upon
+39:25 
+
+39:25 or you trying to improve upon
+39:26 
+
+39:26 transformer what's the base here the
+39:29 
+
+39:29 base so I think uh you know if if you if
+39:33 
+
+39:33 you ask me my my opinion about about
+39:36 
+
+39:36 raco I look at it more in terms of you
+39:39 
+
+39:39 know how you can bring in the idea of
+39:42 
+
+39:42 marovian drift into into something like
+39:47 
+
+39:47 a transformer
+39:49 
+
+39:49 I'm less interested personally
+39:53 
+
+39:53 in the linear time attention
+39:56 
+
+39:56 uh pick up that they they showed I'm
+40:00 
+
+40:00 more interested in the hypothesis the
+40:04 
+
+40:04 marovian drift hypothesis
+40:06 
+
+40:06 is it better or equally as good as the
+40:10 
+
+40:10 plain and blatant independent you know
+40:14 
+
+40:14 conditional independence kib model that
+40:16 
+
+40:16 that transformer has which means see if
+40:20 
+
+40:20 what what I'm more interested in in
+40:21 
+
+40:21 terms of the science behind it is or the
+40:23 
+
+40:23 scientific question is that the
+40:26 
+
+40:26 percentage that is coming in terms of
+40:29 
+
+40:29 skip ground or or transformer let's say
+40:32 
+
+40:32 how much percentage John or in this in
+40:34 
+
+40:34 this example with what percentage don
+40:36 
+
+40:36 influences Mary right now skip or
+40:40 
+
+40:40 transformer would be like okay let me
+40:42 
+
+40:42 learn it through data I will figure it
+40:45 
+
+40:45 out right so which means I'm trying to I
+40:47 
+
+40:47 will try to figure out actually to what
+40:49 
+
+40:49 extent the query of Mary can go together
+40:53 
+
+40:53 with the key of John and that will
+40:56 
+
+40:56 determine what is the percentage and I
+40:58 
+
+40:58 take bring that percentage on to the
+41:00 
+
+41:00 value of John. What these guys are have
+41:04 
+
+41:04 done is this is these guys are saying
+41:07 
+
+41:07 that no you need to add an additional
+41:11 
+
+41:11 aspect of exponential decay which is the
+41:14 
+
+41:14 because you know the if you do with the
+41:16 
+
+41:16 transformer may you you are no more
+41:19 
+
+41:19 assuming the marovianness
+41:22 
+
+41:22 of it because then even a something
+41:25 
+
+41:25 which is quite
+41:28 
+
+41:28 away far can have higher percentage than
+41:31 
+
+41:31 something which is nearby.
+41:33 
+
+41:33 >> How can that be? How can that be high
+41:35 
+
+41:35 percentage? Because attention will
+41:37 
+
+41:37 figure out that if something is very far
+41:39 
+
+41:39 from your current position, the will be
+41:42 
+
+41:42 less.
+41:44 
+
+41:44 I'm not talking.
+41:45 
+
+41:45 >> I mean it it depends upon it depends
+41:47 
+
+41:47 upon what is the association.
+41:48 
+
+41:48 >> Yeah. So I'm not talking quy simple
+41:51 
+
+41:51 query. You can also think of a linear
+41:53 
+
+41:53 projection. Let's say let's say query W
+41:57 
+
+41:57 have a linear layer between query and P
+41:60 
+
+41:60 and so so let's say let's say
+42:04 
+
+42:04 I mean Q W K something like that and
+42:08 
+
+42:08 because there are multiple variations of
+42:10 
+
+42:10 attention right
+42:11 
+
+42:11 >> yeah see like the associations in
+42:13 
+
+42:13 attention can be all kinds of syntactic
+42:16 
+
+42:16 associations and all kinds of semantic
+42:18 
+
+42:18 associations you know or lexical lexical
+42:20 
+
+42:20 associations right and that is why you
+42:22 
+
+42:22 need all the different types of heads
+42:24 
+
+42:24 and you have layers so that you can
+42:26 
+
+42:26 capture longer dependencies also. So at
+42:29 
+
+42:29 different layers and different heads you
+42:31 
+
+42:31 have different patterns of association
+42:33 
+
+42:33 that are getting captured right. So uh
+42:37 
+
+42:37 so as an example if you want to look at
+42:39 
+
+42:39 from a uh you know pause tag association
+42:43 
+
+42:43 that would be one kind of association
+42:45 
+
+42:45 that those are nearby associations but
+42:47 
+
+42:47 if you look at uh in terms of the
+42:49 
+
+42:49 dependency grammar kind of association
+42:51 
+
+42:51 that's more longer associations right
+42:53 
+
+42:53 and and that's why you have different
+42:55 
+
+42:55 heads the entire concept of why
+42:57 
+
+42:57 multi-headed attention is needed comes
+42:59 
+
+42:59 from there what these guys are saying
+43:01 
+
+43:01 they don't have heads by the way so
+43:03 
+
+43:03 Rakov doesn't have heads. They are have
+43:06 
+
+43:06 they have stacks or they have layers but
+43:08 
+
+43:08 they don't have heads multiple heads. So
+43:10 
+
+43:10 what they're saying is that if you do if
+43:14 
+
+43:14 you do that what they're saying is
+43:16 
+
+43:16 exactly what you are trying to point out
+43:18 
+
+43:18 which is if you do transformer it is as
+43:22 
+
+43:22 good as doing
+43:24 
+
+43:24 a normal marovian you know learning. So
+43:29 
+
+43:29 you don't really have to uh so which
+43:32 
+
+43:32 means what they're saying is that John
+43:35 
+
+43:35 cannot influence Mary more than loves
+43:40 
+
+43:40 or even if it does it should get a
+43:43 
+
+43:43 punishment because it is far away from
+43:46 
+
+43:46 Mary in comparison to us. So what it's
+43:50 
+
+43:50 trying to do is trying to balance this
+43:54 
+
+43:54 percentage with two norms beta and
+43:57 
+
+43:57 alpha. So while beta does something
+43:60 
+
+43:60 which is sort of analogous to what
+44:02 
+
+44:02 transformer would have done which is
+44:05 
+
+44:05 what is the natural percentage or the
+44:08 
+
+44:08 natural relationship association what
+44:11 
+
+44:11 alpha does is that no no no despite the
+44:14 
+
+44:14 fact that let's say that John has higher
+44:17 
+
+44:17 percentage in term you know with Mary
+44:20 
+
+44:20 association with respect to let's say
+44:22 
+
+44:22 loves let's say John has 70% association
+44:25 
+
+44:25 and loves only has 10% association
+44:28 
+
+44:28 If that is so then Rakov is saying that
+44:32 
+
+44:32 no you need to bring it down that 70%.
+44:36 
+
+44:36 Because even though John is 70% it has
+44:39 
+
+44:39 to decay so that additional alpha in the
+44:42 
+
+44:42 numerator comes in in terms and that is
+44:45 
+
+44:45 a function of how further away you are
+44:47 
+
+44:47 from that particular
+44:49 
+
+44:49 uh time step. So that is the that is the
+44:54 
+
+44:54 that is the assumption. Now whether that
+44:56 
+
+44:56 assumption is whether language actually
+44:58 
+
+44:58 works like that that is the results will
+45:01 
+
+45:01 show whether this hypothesis is is valid
+45:05 
+
+45:05 or to what extent this hypothesis is
+45:07 
+
+45:07 valid but I think that that was not the
+45:11 
+
+45:11 original motivation. I think the
+45:13 
+
+45:13 original motivation at the in 2023 was
+45:16 
+
+45:16 more in terms of how to reduce the time
+45:19 
+
+45:19 complexity and also the space
+45:21 
+
+45:21 complexity. I think that was the that
+45:24 
+
+45:24 was the original motivation.
+45:36 
+
+45:36 >> Right.
+45:43 
+
+45:43 Yeah. Okay. So theoretically this can
+45:46 
+
+45:46 have infinite amount of context, right?
+45:48 
+
+45:48 So the interesting thing about this
+45:50 
+
+45:50 model is you know it can be anything.
+45:53 
+
+45:53 You don't you are not putting a bar in
+45:55 
+
+45:55 terms of the context length as such
+45:57 
+
+45:57 because it anyways it will vanish away.
+45:60 
+
+45:60 It's like a tail is the the decay will
+46:02 
+
+46:02 take care of that. So anyways you can
+46:05 
+
+46:05 have as many number of context length
+46:08 
+
+46:08 theoretically
+46:10 
+
+46:10 but yeah but it will it will it will
+46:12 
+
+46:12 just remove the effect of very far away
+46:16 
+
+46:16 stuffs
+46:23 
+
+46:23 >> right but we will look at some of the
+46:25 
+
+46:25 comparisons with the longer context
+46:27 
+
+46:27 models and how it performed on on that
+46:31 
+
+46:31 right and we we will see this something
+46:33 
+
+46:33 interesting on on that as well.
+46:40 
+
+46:40 Okay. So, so you know the inherent
+46:43 
+
+46:43 marovian drift over here is that you
+46:46 
+
+46:46 know with with alpha which is within the
+46:48 
+
+46:48 range of zero and one older info decays
+46:51 
+
+46:51 exponentially
+46:53 
+
+46:53 and the memory ST or the state you know
+46:57 
+
+46:57 drifts towards recent high beta tokens.
+47:01 
+
+47:01 So it's not it doesn't so it's not also
+47:05 
+
+47:05 that there is no beta because if there
+47:07 
+
+47:07 is no beta then you are taking a very
+47:08 
+
+47:08 radical sort of a position saying that
+47:12 
+
+47:12 no it's always going to be purely mark.
+47:15 
+
+47:15 So which means that only the most closed
+47:19 
+
+47:19 one will have the highest percentage. So
+47:22 
+
+47:22 you're not all doing that as well.
+47:27 
+
+47:27 What about
+47:30 
+
+47:30 >> the learnable parameter? Beta is
+47:33 
+
+47:33 basically a function of your learnable
+47:35 
+
+47:35 parameters right so uh so beta is
+47:38 
+
+47:38 exponentiation of KT KT itself is uh so
+47:43 
+
+47:43 wk wk and wv and I'll talk about the
+47:46 
+
+47:46 receptance what it does later on but
+47:49 
+
+47:49 this is the encoding part yeah
+47:54 
+
+47:54 >> the mix
+47:55 
+
+47:55 >> because you you are doing this this xt
+47:57 
+
+47:57 is a mixed version the mixed version of
+47:60 
+
+47:60 uh x Mix.
+48:04 
+
+48:04 >> No, mix is the hyper mix is a
+48:07 
+
+48:07 hyperparameter. Hyper parameter that you
+48:10 
+
+48:10 >> learnable.
+48:21 
+
+48:21 Okay. So,
+48:26 
+
+48:26 so at who as an example influence peaks
+48:29 
+
+48:29 at Mary earlier John fades unless
+48:32 
+
+48:32 refreshed. So, so that's the idea.
+48:38 
+
+48:38 All right. So, uh now comes the R part.
+48:42 
+
+48:42 So, this was the WQ the WQV operation.
+48:47 
+
+48:47 So, this is called the WQV operation. So
+48:50 
+
+48:50 the one in the red box. So that's
+48:52 
+
+48:52 actually the WK the WKV operation.
+48:58 
+
+48:58 Uh now
+49:02 
+
+49:02 the R. So what does the R do?
+49:06 
+
+49:06 So it's called the receptance and is
+49:07 
+
+49:07 basically is used to create yet another
+49:11 
+
+49:11 gate that has the analogy of with
+49:15 
+
+49:15 analogy with the output gate of an LSTM.
+49:19 
+
+49:19 Right. So we already saw the forget gate
+49:22 
+
+49:22 which is the analogy of the analogy of
+49:25 
+
+49:25 forget gate would be alpha. The analogy
+49:28 
+
+49:28 of update gate would be beta. And this
+49:31 
+
+49:31 is more of a uh the you know
+49:34 
+
+49:34 analogically you know this is what they
+49:38 
+
+49:38 have for for uh for output but the it so
+49:43 
+
+49:43 it's basically a sigmoid of on this RT
+49:48 
+
+49:48 uh which means bringing everything into
+49:49 
+
+49:49 like a percentage
+49:52 
+
+49:52 uh and then you normalize you layer
+49:56 
+
+49:56 normalize the ln is layer normalization
+49:59 
+
+49:59 so you I I'm not in my equations. I'm
+50:02 
+
+50:02 I've not shown all the there are four
+50:05 
+
+50:05 five layer normalizations that happen in
+50:07 
+
+50:07 the entire architecture. I'm just
+50:10 
+
+50:10 showing you this most important one over
+50:12 
+
+50:12 here. So you do a layer norm on the ST
+50:14 
+
+50:14 and then you apply the gate
+50:17 
+
+50:17 on the ST. So what it means is that your
+50:21 
+
+50:21 final
+50:24 
+
+50:24 uh contextual embedding which is YT in
+50:27 
+
+50:27 this case right the final contextual
+50:31 
+
+50:31 embedding to what extent that should be
+50:34 
+
+50:34 born out of
+50:36 
+
+50:36 ST so which means what percentage of ST
+50:40 
+
+50:40 should you use to create YT
+50:46 
+
+50:46 okay so that's the That's the re that's
+50:50 
+
+50:50 what that's what receptance
+50:53 
+
+50:53 uh is all about which means what
+50:55 
+
+50:55 percentage of ST should you receive
+50:58 
+
+50:58 uh accept in order to create uh YT
+51:05 
+
+51:05 okay
+51:07 
+
+51:07 so this is the this is the R operation
+51:12 
+
+51:12 in that rau operation this is the R the
+51:14 
+
+51:14 underline the red underline that's where
+51:16 
+
+51:16 the R operation is happening
+51:19 
+
+51:19 Okay. All right. So
+51:24 
+
+51:24 now comes the
+51:27 
+
+51:27 the second kind of mixing. So what do
+51:32 
+
+51:32 you do before you before you start this
+51:34 
+
+51:34 which we call as channel mixing and the
+51:37 
+
+51:37 channel mixing can be think thought of
+51:38 
+
+51:38 like an analogous version of what you do
+51:41 
+
+51:41 before you send in your transformer
+51:43 
+
+51:43 before you send your information the
+51:45 
+
+51:45 contextual embedding to the next layer.
+51:47 
+
+51:47 you have a
+51:49 
+
+51:49 uh an in between FFN a shallow FFN feed
+51:53 
+
+51:53 forward network. So this acts like that
+51:57 
+
+51:57 you know it's like an analogous to you
+51:59 
+
+51:59 know an alternative to the FFN that acts
+52:02 
+
+52:02 between the two the two layers. So you
+52:05 
+
+52:05 first do a residual so that the soul the
+52:08 
+
+52:08 sole or the crux of the information is
+52:11 
+
+52:11 not lost. So you essentially add XT as a
+52:15 
+
+52:15 residual onto the newly formed YT. Where
+52:19 
+
+52:19 is YT? YT is over here.
+52:22 
+
+52:22 So you got the YT, you add the residual
+52:24 
+
+52:24 to YT, you create a YT prime, let's say.
+52:28 
+
+52:28 And then what you do, you mix YT prime
+52:31 
+
+52:31 at two different fronts,
+52:34 
+
+52:34 right? The first front
+52:37 
+
+52:37 uh again the same thing that you do uh
+52:40 
+
+52:40 again in the background level
+52:44 
+
+52:44 again parallelizable because since
+52:48 
+
+52:48 everything is happening in parallel in
+52:50 
+
+52:50 one shot you got the yt
+52:53 
+
+52:53 and the yt prime yt minus one at the
+52:55 
+
+52:55 same time
+52:57 
+
+52:57 and that's why you can do the mixing uh
+53:01 
+
+53:01 in in in in parallel right And uh and
+53:06 
+
+53:06 the first mixing is for something to do
+53:11 
+
+53:11 on applying yet another forget get and
+53:14 
+
+53:14 the second mixing is
+53:17 
+
+53:17 uh an update yet another update gate
+53:20 
+
+53:20 gate right so you get two different
+53:22 
+
+53:22 versions of y prime t uh I just named it
+53:28 
+
+53:28 xt but I should have named it ytf and yt
+53:33 
+
+53:33 g but it's Okay fine. Uh
+53:37 
+
+53:37 so this XT then you create the final
+53:43 
+
+53:43 uh update
+53:45 
+
+53:45 uh or the final state uh using this WF
+53:51 
+
+53:51 uh that's a linear transformation on on
+53:53 
+
+53:53 on the XT basically. So it's a think of
+53:57 
+
+53:57 it like what happens in that FFN. So
+53:59 
+
+53:59 there are two one hidden layer right? So
+54:01 
+
+54:01 you do one single linear transformation,
+54:04 
+
+54:04 expand it in terms of the dimension.
+54:07 
+
+54:07 Again you do another linear
+54:08 
+
+54:08 transformation, contract it and then
+54:10 
+
+54:10 send it to the next layer. Right? So
+54:12 
+
+54:12 this is one of those transformations. WF
+54:15 
+
+54:15 is doing one such transformation. But
+54:17 
+
+54:17 before doing that transformation, you
+54:18 
+
+54:18 first do this mixing on the biogram
+54:22 
+
+54:22 level and then do the transformation
+54:24 
+
+54:24 which does not happen in transformers.
+54:29 
+
+54:29 already happened before.
+54:30 
+
+54:30 >> Yeah.
+54:33 
+
+54:33 >> Yeah. But this this the the the purpose
+54:35 
+
+54:35 is different. Uh over there the purpose
+54:38 
+
+54:38 was to create those those gates which
+54:41 
+
+54:41 will do the exponential decay and the
+54:45 
+
+54:45 update. Over here the purpose is to do
+54:49 
+
+54:49 some sort of a final a final output of
+54:52 
+
+54:52 that layer. What should be the final
+54:54 
+
+54:54 output of that layer?
+54:57 
+
+54:57 Yeah. before it goes to the next layer.
+55:04 
+
+55:04 >> Yeah. And I'll tell you why why probably
+55:06 
+
+55:06 they have done this again because they
+55:09 
+
+55:09 are constantly in this sort of a thing
+55:10 
+
+55:10 that you need to you are working as a by
+55:13 
+
+55:13 ground. So at the X at the first level
+55:16 
+
+55:16 you did that mixing but then you will
+55:18 
+
+55:18 get this YT and YT minus one. Now they
+55:22 
+
+55:22 cannot be living in a separate
+55:25 
+
+55:25 zone. they have to be again brought
+55:27 
+
+55:27 together
+55:28 
+
+55:28 into one common representation.
+55:32 
+
+55:32 So you're you're looking at it in that
+55:34 
+
+55:34 way because if you don't bring this
+55:36 
+
+55:36 together then if you you can't unfold
+55:38 
+
+55:38 mathematically and get all the prior yts
+55:43 
+
+55:43 but doesn't have
+55:51 
+
+55:51 >> right now. This is just encoding that is
+55:54 
+
+55:54 going on.
+55:60 
+
+55:60 >> Yeah, T only looks backwards.
+56:03 
+
+56:03 >> Um
+56:08 
+
+56:08 I mean because it's more if you look at
+56:10 
+
+56:10 it like a language model, you are always
+56:12 
+
+56:12 going to predict what's the condition so
+56:15 
+
+56:15 far.
+56:17 
+
+56:17 It is finally because at the end of the
+56:19 
+
+56:19 day if you look at the final head the
+56:23 
+
+56:23 head of the rau you know that's the
+56:24 
+
+56:24 final layer at the final layer you will
+56:27 
+
+56:27 put that head which will do the auto
+56:29 
+
+56:29 regression right so that is the same
+56:32 
+
+56:32 that is exactly the same as what would
+56:34 
+
+56:34 happen to any model including
+56:36 
+
+56:36 transformers.
+56:39 
+
+56:39 So now the other guy you create yet
+56:44 
+
+56:44 another
+56:45 
+
+56:45 another gate uh out of the other guy
+56:50 
+
+56:50 right uh which is this guy XTG
+56:54 
+
+56:54 right and put a sigmoid so that
+56:57 
+
+56:57 everything becomes a percentage and then
+56:60 
+
+56:60 what you do what you do is you
+57:05 
+
+57:05 you create you you apply that gate on a
+57:10 
+
+57:10 squashed version of that UT.
+57:14 
+
+57:14 So think of UT as ZT where Z was the
+57:17 
+
+57:17 contextual embedding in transformers. So
+57:20 
+
+57:20 think of U as the transformers capital I
+57:24 
+
+57:24 mean transformer Z or the contextual
+57:26 
+
+57:26 element right and you are squashing it
+57:29 
+
+57:29 uh because think of it why squashing
+57:32 
+
+57:32 because you're bringing it all into this
+57:34 
+
+57:34 between zero and one sort of a hypers
+57:37 
+
+57:37 sphere uh the same reason why in neural
+57:40 
+
+57:40 feed forward network you would squash
+57:42 
+
+57:42 your your intern internal internal
+57:46 
+
+57:46 representations right so you do an
+57:48 
+
+57:48 activation function so this is so this
+57:50 
+
+57:50 squash function is rel square function.
+57:53 
+
+57:53 So that's what the this rel square
+57:56 
+
+57:56 function is looks like. So max of UT and
+57:59 
+
+57:59 zero whole squared and you apply and
+58:02 
+
+58:02 then you apply the gate on top of it.
+58:04 
+
+58:04 You don't let it go just like that. In
+58:07 
+
+58:07 transformer you you would have let it
+58:09 
+
+58:09 gone just like that. You don't do it
+58:11 
+
+58:11 over here. you apply another gate on top
+58:13 
+
+58:13 of it and then you create your final ZT.
+58:20 
+
+58:20 This ZT
+58:23 
+
+58:23 uh yeah this this is again parallel in
+58:26 
+
+58:26 the same way and this ZT
+58:31 
+
+58:31 you again make sure that the original
+58:34 
+
+58:34 information stays. So you apply the
+58:37 
+
+58:37 residual Y prime T from where ZT was
+58:40 
+
+58:40 born. So ZT was born out of that one y
+58:43 
+
+58:43 prime t. So you again apply the y prime
+58:45 
+
+58:45 t so that you know y prime t is not
+58:48 
+
+58:48 suppressed in the zt representation. So
+58:51 
+
+58:51 you add that again and you get y prime
+58:54 
+
+58:54 prime t and that y prime prime t for a
+58:57 
+
+58:57 particular layer becomes the xt for the
+58:59 
+
+58:59 next layer the input for the next layer
+59:02 
+
+59:02 and it keeps going on and then finally
+59:06 
+
+59:06 in the final layer you would do exactly
+59:08 
+
+59:08 what you would do add a decision
+59:11 
+
+59:11 function if it is an auto reggression or
+59:13 
+
+59:13 or if it is a mass language model also
+59:16 
+
+59:16 you can create a mass language model out
+59:17 
+
+59:17 of it or a classification
+59:19 
+
+59:19 uh header whatever that you would want
+59:22 
+
+59:22 to do.
+59:24 
+
+59:24 So, so you from X you do time mix after
+59:28 
+
+59:28 time mixing you do the WKV operation you
+59:32 
+
+59:32 get Y prime you then do channel mixing
+59:35 
+
+59:35 which is the analogy to the FFN in
+59:40 
+
+59:40 between and you get Z from Z you create
+59:44 
+
+59:44 you add the residual back so there are
+59:46 
+
+59:46 two residuals just like transformers you
+59:48 
+
+59:48 get Y prime prime
+59:50 
+
+59:50 which is basically Y prime which is
+59:52 
+
+59:52 basically the residualized version of Y
+59:55 
+
+59:55 prime or or rather sorry Z.
+59:60 
+
+59:60 So stack multiple rau blocks and then LM
+60:04 
+
+60:04 head on top
+60:09 
+
+60:09 >> H
+60:12 
+
+60:12 >> at this level. Yeah. And before that
+60:15 
+
+60:15 there was another one right. So before
+60:17 
+
+60:17 uh you so
+60:20 
+
+60:20 before you started with the final you
+60:23 
+
+60:23 know before sending it into your
+60:25 
+
+60:25 so-called FFN which is this thing you
+60:28 
+
+60:28 actually do yet another residual and
+60:30 
+
+60:30 then you send it that part is pretty
+60:33 
+
+60:33 similar to to to transformers. Okay. So
+60:37 
+
+60:37 um
+60:40 
+
+60:40 yeah so far any any any any question? So
+60:44 
+
+60:44 the interesting thing is that the
+60:46 
+
+60:46 original people doesn't talk really
+60:48 
+
+60:48 about any multi head
+60:51 
+
+60:51 sort of a learning
+60:56 
+
+60:56 it's bit difficult if you look at the
+60:59 
+
+60:59 paper it's bit difficult the I mean that
+61:01 
+
+61:01 was one of the major comment also given
+61:03 
+
+61:03 to them.
+61:05 
+
+61:05 findings eml so it got into final
+61:08 
+
+61:08 because uh the maj one of the major
+61:11 
+
+61:11 comment was very hard to to process
+61:14 
+
+61:14 because the way it was written
+61:17 
+
+61:17 >> there is no reason to believe that
+61:30 
+
+61:30 >> I I look at it like more from an
+61:32 
+
+61:32 experiment
+61:34 
+
+61:34 Huh? I look at it more from an
+61:36 
+
+61:36 experiment point of view that okay you
+61:39 
+
+61:39 have doubt you think that it is there is
+61:42 
+
+61:42 a uh exponential decay component that
+61:45 
+
+61:45 needs to be added explicitly. Let's find
+61:48 
+
+61:48 it out. I look at it more like that.
+61:50 
+
+61:50 Let's find it out and see you know
+61:52 
+
+61:52 whether that really is the case or not.
+62:03 
+
+62:03 Yeah, I I think I think uh it's bit
+62:06 
+
+62:06 troubling. It's bit troubling.
+62:09 
+
+62:09 >> I mean it may work for let's say weather
+62:11 
+
+62:11 and those sort of data you know weather
+62:15 
+
+62:15 data or other kind of data where
+62:17 
+
+62:17 exponential decay makes sense.
+62:25 
+
+62:25 Right.
+62:34 
+
+62:34 Right. Right.
+62:37 
+
+62:37 No, I I'll tell you I'll tell you the
+62:38 
+
+62:38 mean uh there is a result
+62:41 
+
+62:41 >> there is a result which
+62:43 
+
+62:43 whatever I could gather at least that uh
+62:47 
+
+62:47 that so so the arc the typical ARC
+62:51 
+
+62:51 challenge the AI2 reasoning challenge
+62:53 
+
+62:53 right so what it does is it has multiple
+62:55 
+
+62:55 choice science questions uh you guys
+62:58 
+
+62:58 know uh have you have you seen this uh
+63:02 
+
+63:02 benchmark uh before in some other
+63:05 
+
+63:05 previous lectures or am I repeating it?
+63:09 
+
+63:09 H okay. So, so basically it's a multiple
+63:12 
+
+63:12 choice science question just like your
+63:14 
+
+63:14 MCQ kind of question papers and it
+63:17 
+
+63:17 requires a factual recall and some
+63:21 
+
+63:21 amount of reasoning.
+63:23 
+
+63:23 So general logical reasoning over
+63:25 
+
+63:25 knowledge. So that's what it tastes
+63:27 
+
+63:27 right. So what it did was it looked that
+63:31 
+
+63:31 uh so as you what it tried they try to
+63:34 
+
+63:34 do they try to see whether the accuracy
+63:36 
+
+63:36 improves as they improve the training
+63:39 
+
+63:39 regime as they increases the training
+63:42 
+
+63:42 regime right in terms of the x flops or
+63:45 
+
+63:45 the compute by x flop what we mean is so
+63:48 
+
+63:48 one flop is one floating point operation
+63:50 
+
+63:50 which is one single arithmetic step so
+63:53 
+
+63:53 so x the compute would mean the model
+63:56 
+
+63:56 size multiplied by the data size
+63:58 
+
+63:58 multiplied by the number of training
+63:60 
+
+63:60 steps right uh in terms of epochs uh and
+64:04 
+
+64:04 all.
+64:06 
+
+64:06 So uh so as the training steps increased
+64:11 
+
+64:11 of course we can see that Rakov is
+64:13 
+
+64:13 beating OPT and Pythia and Bloom with
+64:16 
+
+64:16 which they uh can somebody help me in
+64:19 
+
+64:19 cracking the time
+64:25 
+
+64:25 >> down by
+64:28 
+
+64:28 I'm already
+64:29 
+
+64:29 >> okay 15 minutes. So do we complete that
+64:33 
+
+64:33 on Monday or
+64:36 
+
+64:36 Oh, this one.
+64:38 
+
+64:38 >> Okay. No, I have some more evaluations.
+64:40 
+
+64:40 So,
+64:41 
+
+64:41 >> yeah. So, maybe I can finish this and I
+64:44 
+
+64:44 can Yeah.
+64:46 
+
+64:46 So, so an interesting thing that the way
+64:49 
+
+64:49 to understand such plots is you need to
+64:52 
+
+64:52 understand that with the same regime,
+64:56 
+
+64:56 you know, or or compute are you able to
+64:58 
+
+64:58 get better results than be than previous
+65:01 
+
+65:01 one than than other models or not?
+65:04 
+
+65:04 Right. So let's say that 30 accuracy 30
+65:07 
+
+65:07 am I able to reach when am I able to
+65:10 
+
+65:10 reach accuracy 30 so that's somewhere
+65:12 
+
+65:12 around 10 ra 3 now if somebody is able
+65:16 
+
+65:16 to do that before that let's see then
+65:20 
+
+65:20 that model is a better model because
+65:22 
+
+65:22 it's able to reach that amount of
+65:24 
+
+65:24 accuracy at an earlier time with less
+65:28 
+
+65:28 compute which is a good good thing to do
+65:31 
+
+65:31 what these guys are trying to say is
+65:32 
+
+65:32 that we are able to not only beat but in
+65:36 
+
+65:36 many of these cases we are able to
+65:38 
+
+65:38 achieve higher accuracy in less compute
+65:43 
+
+65:43 right so that's what they are trying to
+65:46 
+
+65:46 claim although yes so if you look at
+65:49 
+
+65:49 only you know these were a bit older
+65:52 
+
+65:52 models you know those are all uh
+65:55 
+
+65:55 transformer based models pythia and
+65:57 
+
+65:57 bloom and opt bit older models but of
+66:01 
+
+66:01 the same size as what Rao models. Uh
+66:06 
+
+66:06 this particular model is right.
+66:09 
+
+66:09 Uh Hela swag again it it is very
+66:14 
+
+66:14 comparable to the best ones. Uh ha swag
+66:18 
+
+66:18 is is basically you have to pick the
+66:20 
+
+66:20 most plausible continuation of a short
+66:22 
+
+66:22 story. So it measures common sense
+66:25 
+
+66:25 reasoning and even plausibility
+66:28 
+
+66:28 right in terms of perplexity and all. So
+66:30 
+
+66:30 again you see that the accuracy
+66:33 
+
+66:33 is uh is is better. Lambara
+66:37 
+
+66:37 from open AI you know again you know
+66:40 
+
+66:40 predict the final word of a passage
+66:41 
+
+66:41 given full preceding. So this this
+66:43 
+
+66:43 actually you know tests your long
+66:46 
+
+66:46 context range uh sensitivity right and
+66:50 
+
+66:50 again it does pretty good provided you
+66:54 
+
+66:54 give it more compute and it is
+66:57 
+
+66:57 comparable to to these models
+67:01 
+
+67:01 open book QA you know small science
+67:04 
+
+67:04 reasoning task
+67:10 
+
+67:10 they did that I did not put it on my
+67:12 
+
+67:12 slide. But if you go to the paper in the
+67:14 
+
+67:14 appendix, right below in the appendix,
+67:16 
+
+67:16 they have a lot of other uh other
+67:18 
+
+67:18 challenges which they uh looked into.
+67:26 
+
+67:26 So this is uh reading comprehensive
+67:28 
+
+67:28 comprehension with common sense
+67:30 
+
+67:30 reasoning. So basically
+67:33 
+
+67:33 uh closed style question answer fill in
+67:36 
+
+67:36 the blank.
+67:39 
+
+67:39 We'll we'll look into this long range
+67:41 
+
+67:41 arena. This is where things get bit
+67:43 
+
+67:43 interesting on Monday and then we will
+67:46 
+
+67:46 go into
+67:49 
+
+67:49 uh and then we will go into
+67:53 
+
+67:53 uh
+67:54 
+
+67:54 state space machines.
+67:57 
+
+67:57 You know we can think of state space
+68:00 
+
+68:00 machines and the modern versions as like
+68:02 
+
+68:02 a subsequence of Rahu style models.
+68:06 
+
+68:06 Although you know it got a lot of
+68:08 
+
+68:08 traction in terms of because it's still
+68:10 
+
+68:10 you will see including new rips and ICLR
+68:13 
+
+68:13 and all there are a lot of models in
+68:14 
+
+68:14 visuals and visual domain and image
+68:17 
+
+68:17 processing domain which are taking rau
+68:20 
+
+68:20 as an inspiration based model and then
+68:22 
+
+68:22 building on top of it and even today
+68:24 
+
+68:24 this raov is no more the raov you know
+68:26 
+
+68:26 because if you look at raov I think
+68:31 
+
+68:31 rau 7 or something like that that has
+68:33 
+
+68:33 come up so these guys are are building
+68:36 
+
+68:36 this this you know their their their
+68:39 
+
+68:39 goal is to challenge the transformer
+68:42 
+
+68:42 based the based models and to see if
+68:44 
+
+68:44 they can beat or be as good as the
+68:46 
+
+68:46 transformer based models with lot less
+68:49 
+
+68:49 compute
+68:51 
+
+68:51 like real compute not big complexity
+68:54 
+
+68:54 level but real compute

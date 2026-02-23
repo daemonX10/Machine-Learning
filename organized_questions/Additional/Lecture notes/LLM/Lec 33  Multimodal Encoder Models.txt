@@ -1,0 +1,4831 @@
+00:00 Just to introduce quickly um my name is
+00:02 
+
+00:02 Manish Gupta and I work as a principal
+00:04 
+
+00:04 applied scientist at Microsoft for the
+00:06 
+
+00:06 past 12 years or so. Uh before this I
+00:09 
+
+00:09 did my PhD at UIC right uh I also work
+00:12 
+
+00:12 as a faculty at Hyderabad and as a
+00:15 
+
+00:15 visiting faculty at ISB so Indian school
+00:17 
+
+00:17 of business. So let's get started. Um
+00:20 
+
+00:20 this is on multimodel encoder models. So
+00:22 
+
+00:22 we are going to talk about uh uh you
+00:25 
+
+00:25 know problems that require an input uh
+00:28 
+
+00:28 consisting of image plus text. Uh so
+00:31 
+
+00:31 problems of this kind uh they are also
+00:34 
+
+00:34 called as vision and language tasks and
+00:36 
+
+00:36 uh specifically in this session I mean
+00:38 
+
+00:38 well multimodality can mean several
+00:40 
+
+00:40 things but in this session we will
+00:41 
+
+00:41 specifically focus on vision and
+00:43 
+
+00:43 language. Okay. So essentially here you
+00:47 
+
+00:47 see several of these tasks. Um visual
+00:50 
+
+00:50 question answering. So this is one of
+00:51 
+
+00:51 the oldest tasks in multimodal learning
+00:54 
+
+00:54 in that senses where there is an image
+00:56 
+
+00:56 in context and then you basically ask a
+00:58 
+
+00:58 text based question. Yeah. I mean
+01:00 
+
+01:00 originally this task was text based
+01:02 
+
+01:02 question answering. People also came up
+01:03 
+
+01:03 with spoken question answering where
+01:05 
+
+01:05 your input is text uh passage or a
+01:08 
+
+01:08 spoken audio. Uh but then this one is
+01:11 
+
+01:11 vision based question answering. Right?
+01:13 
+
+01:13 [laughter] And there are several several
+01:14 
+
+01:14 variants of vision question answering.
+01:15 
+
+01:15 For example, there could be generic
+01:17 
+
+01:17 vision v visual question answering or
+01:19 
+
+01:19 there could be you know electrical
+01:21 
+
+01:21 circuit diagram and you might want to
+01:24 
+
+01:24 you know come up with a question like
+01:26 
+
+01:26 solve this using some ohm's law or
+01:28 
+
+01:28 kershop's law and you know get some some
+01:30 
+
+01:30 answer or there could so that's
+01:31 
+
+01:31 basically domain specific question
+01:32 
+
+01:32 answering there could be um also other
+01:35 
+
+01:35 variants like essentially using text
+01:38 
+
+01:38 which is also you know there in the
+01:40 
+
+01:40 image and so on right soam for example
+01:42 
+
+01:42 asking you know what is the brand of the
+01:44 
+
+01:44 cur or things of that time. There are
+01:46 
+
+01:46 other such vision and language tasks
+01:48 
+
+01:48 like VCR. So visual common sense
+01:49 
+
+01:49 reasoning uh which is basically also
+01:51 
+
+01:51 some sort of a question answering task
+01:53 
+
+01:53 but common sense reasoning based
+01:54 
+
+01:54 question answering rather than sort of
+01:56 
+
+01:56 factual question answering right. So
+01:58 
+
+01:58 essentially you know questions like why
+01:60 
+
+02:00 is person four pointing at person one
+02:02 
+
+02:02 while this guy is trying to serve and so
+02:04 
+
+02:04 on. There are other interesting tasks
+02:06 
+
+02:06 like referring expressions. So given
+02:07 
+
+02:07 this image and the text you know you
+02:10 
+
+02:10 want to output let's say the rectangle
+02:12 
+
+02:12 uh coordinates of the box essentially
+02:15 
+
+02:15 which correspond to the expression here
+02:17 
+
+02:17 right uh vision language encoder models
+02:20 
+
+02:20 are also useful for retrieving so for
+02:22 
+
+02:22 example when you're doing image search
+02:24 
+
+02:24 there's a text and you're trying to
+02:26 
+
+02:26 search on a gallery of images right so
+02:29 
+
+02:29 in fact you know uh later talk today
+02:31 
+
+02:31 I'll actually talk about a whole bunch
+02:32 
+
+02:32 of multimodal retrieval uh as as an
+02:34 
+
+02:34 important uh topic itself Right. So, and
+02:37 
+
+02:37 they require uh very accurate uh vision
+02:40 
+
+02:40 and language encoder models. Right? So,
+02:42 
+
+02:42 these are some of the tasks. Obviously,
+02:44 
+
+02:44 there are many many more tasks in this
+02:45 
+
+02:45 area. You know, for example, figuring
+02:47 
+
+02:47 out fake tweets. So, tweets are
+02:49 
+
+02:49 multimodal these days. There's an image,
+02:51 
+
+02:51 there's a text, right? Hateful memes,
+02:53 
+
+02:53 hateful meme detection. Uh meme actually
+02:55 
+
+02:55 has a text and image. Uh and many other
+02:58 
+
+02:58 tasks which sort of require processing
+02:59 
+
+02:59 of image and text together. Okay. So,
+03:02 
+
+03:02 let's start with where it started. So
+03:05 
+
+03:05 essentially the initial image and text
+03:08 
+
+03:08 models uh processed images using CNN's
+03:11 
+
+03:11 because CNN's are the efficient ways of
+03:13 
+
+03:13 encoding images. However um I mean
+03:16 
+
+03:16 everything more or less has now moved to
+03:18 
+
+03:18 transformers. So you basically do vision
+03:20 
+
+03:20 and text encoding also using
+03:21 
+
+03:21 transformers right to be able to do
+03:23 
+
+03:23 vision text encoding using transformers.
+03:25 
+
+03:25 The first thing is this vision
+03:26 
+
+03:26 transformer model. U more or less it's
+03:28 
+
+03:28 basically the same transformer encoder
+03:29 
+
+03:29 model. And I'm assuming all of you
+03:31 
+
+03:31 basically know about transformer
+03:32 
+
+03:32 encoders which basically consist of
+03:35 
+
+03:35 multi head self attention and uh feed
+03:37 
+
+03:37 forward sub layers right essentially
+03:39 
+
+03:39 vision transformer models are um
+03:41 
+
+03:41 transformer encoder based models except
+03:43 
+
+03:43 that the input is images and rather than
+03:46 
+
+03:46 doing any other interesting fancy tiling
+03:49 
+
+03:49 of the image they basically do a or
+03:51 
+
+03:51 finding you know patches from the image
+03:53 
+
+03:53 they basically do just tiling I mean
+03:54 
+
+03:54 essentially just take a partition for
+03:56 
+
+03:56 example take the image divide into nine
+03:58 
+
+03:58 different tiles give each of take each
+04:00 
+
+04:00 of those tiles do some sort of
+04:02 
+
+04:02 projection learn this projection and um
+04:04 
+
+04:04 pass on position encoding so which is
+04:07 
+
+04:07 basically raster scan based typical
+04:09 
+
+04:09 position encoding and um uh pass it to
+04:12 
+
+04:12 the transmitter encoder right on the
+04:14 
+
+04:14 transparent encoder you basically put up
+04:15 
+
+04:15 a MLP head and the way the model was
+04:17 
+
+04:17 trained was basically using these
+04:19 
+
+04:19 standard uh classification data sets
+04:21 
+
+04:21 like imageet 1000 imageet 21000 GFT uh
+04:25 
+
+04:25 large uh image classification data sets
+04:27 
+
+04:27 right so essentially the job is to still
+04:28 
+
+04:28 do this thousand class classification or
+04:30 
+
+04:30 uh 21,000 class classification and so on
+04:33 
+
+04:33 as the task may be. Okay. So this this
+04:37 
+
+04:37 this model is uh basically more or less
+04:39 
+
+04:39 a very very standard application of how
+04:42 
+
+04:42 one would basically use transformers for
+04:44 
+
+04:44 images. Okay. Uh they trained these VIT
+04:47 
+
+04:47 models um for uh of of different sizes
+04:50 
+
+04:50 base large huge and with different patch
+04:53 
+
+04:53 sizes as well. So essentially uh you
+04:55 
+
+04:55 know what should be the size of these
+04:57 
+
+04:57 patches. So 16 + 16 pixel uh 30 + 32
+05:00 
+
+05:00 pixel and so on right and we're talking
+05:02 
+
+05:02 about vision transformers because this
+05:04 
+
+05:04 form the basis of various multimodal
+05:05 
+
+05:05 encoder models today right I mean
+05:07 
+
+05:07 obviously vision transformers is
+05:08 
+
+05:08 essentially just for uh just for image
+05:10 
+
+05:10 encoding in that senses but vit are now
+05:13 
+
+05:13 combined with a whole bunch of other uh
+05:15 
+
+05:15 text based decoders and text based
+05:17 
+
+05:17 encoders also to basically lead to
+05:19 
+
+05:19 multimodal models okay uh the
+05:21 
+
+05:21 interesting aspect is that they showed
+05:23 
+
+05:23 that uh you know when vision transmos
+05:25 
+
+05:25 was came up it could match or exceed the
+05:27 
+
+05:27 accuracy of resonates which were very
+05:28 
+
+05:28 popular as a um convolution neural
+05:30 
+
+05:30 network based image encoder models.
+05:32 
+
+05:32 Right? Um now more on to multimodality.
+05:36 
+
+05:36 So before vision transformers came in,
+05:38 
+
+05:38 people were still dependent on uh uh
+05:40 
+
+05:40 traditional convolution neural networks
+05:42 
+
+05:42 to do multimodal encoding. One of the
+05:43 
+
+05:43 first works in multimodal encoding was
+05:46 
+
+05:46 this thing called visual bird. I mean
+05:47 
+
+05:47 the name itself is basically capturing
+05:49 
+
+05:49 the meaning. It's sort of bird but with
+05:52 
+
+05:52 uh vision tokens as well, right? Rather
+05:54 
+
+05:54 than just word tokens. Okay. So as you
+05:56 
+
+05:56 can imagine it's basically still a
+05:57 
+
+05:57 transformer model. Um and uh you know
+06:00 
+
+06:00 you have text tokens and you have vision
+06:03 
+
+06:03 tokens. Um the interesting aspect is at
+06:05 
+
+06:05 that time as I was saying you know there
+06:06 
+
+06:06 was no better way of um of of taking an
+06:09 
+
+06:09 image and getting visual tokens uh which
+06:11 
+
+06:11 was transformers based. So they were
+06:13 
+
+06:13 using CNN based way of getting these
+06:15 
+
+06:15 visual tokens and the CNN based way was
+06:17 
+
+06:17 basically using object detection. Okay.
+06:19 
+
+06:19 So you wanted visual tokens uh which
+06:21 
+
+06:21 have some correlation with text and the
+06:23 
+
+06:23 way they would do that is to basically
+06:25 
+
+06:25 run a faster RCNN. So RCNN basically had
+06:28 
+
+06:28 come up at that time fast faster RCNN
+06:31 
+
+06:31 and so on and then they would basically
+06:32 
+
+06:32 just get these uh get these boxes um and
+06:36 
+
+06:36 encode them uh as tokens uh from fast
+06:39 
+
+06:39 RCN. Faster RCNN also gives you box
+06:41 
+
+06:41 embeddings. So basically they take those
+06:43 
+
+06:43 embeddings and pass on as input. Okay.
+06:45 
+
+06:45 Um so obviously when you give input to
+06:48 
+
+06:48 bird style models you essentially
+06:49 
+
+06:49 require those three token embeddings
+06:51 
+
+06:51 position embeddings and uh segment
+06:53 
+
+06:53 embeddings. So uh segment embedding just
+06:55 
+
+06:55 like in bird you have like a and b you
+06:57 
+
+06:57 basically just you know randomly
+06:59 
+
+06:59 initialize it here and train it as you
+07:00 
+
+07:00 train the model. position embeddings you
+07:02 
+
+07:02 basically have the text based position
+07:03 
+
+07:03 embeddings that is not a problem for
+07:05 
+
+07:05 vision embeddings I mean for for for for
+07:07 
+
+07:07 image tokens right the segment
+07:09 
+
+07:09 embeddings were sort of uh specified by
+07:12 
+
+07:12 uh doing a broad alignment uh with you
+07:16 
+
+07:16 know the the the object name that is
+07:19 
+
+07:19 present in that was detected by the
+07:21 
+
+07:21 object detector along with the word. So
+07:23 
+
+07:23 for example, if you align tennis racket
+07:25 
+
+07:25 with what is shown here, then you would
+07:27 
+
+07:27 encode the position based on um based on
+07:31 
+
+07:31 wherever tennis racket those words are
+07:33 
+
+07:33 present in the in in the text. Okay, so
+07:35 
+
+07:35 that's that. Uh and then [laughter] you
+07:37 
+
+07:37 typically do uh so so this model was
+07:39 
+
+07:39 basically trained using two objectives
+07:40 
+
+07:40 MLM mass language modeling. You don't do
+07:42 
+
+07:42 masked image modeling. So you basically
+07:44 
+
+07:44 just mask out text pieces still. And the
+07:46 
+
+07:46 idea is to be able to sort of have the
+07:48 
+
+07:48 model predict those uh masked tokens,
+07:51 
+
+07:51 mass text tokens based on the other text
+07:53 
+
+07:53 tokens and the visual tokens in that
+07:54 
+
+07:54 senses. Okay. The other task is
+07:56 
+
+07:56 basically sentiment sentence uh image
+07:58 
+
+07:58 prediction. So in the sense um you give
+08:01 
+
+08:01 a sentence and you give a image.
+08:02 
+
+08:02 Sometimes it may match the um match the
+08:05 
+
+08:05 paired with the image versus not. So you
+08:07 
+
+08:07 give positive pairs, negative pairs and
+08:09 
+
+08:09 that's how you train the model. So this
+08:11 
+
+08:11 was trained using these two objectives.
+08:13 
+
+08:13 Um the interesting part uh that visual
+08:16 
+
+08:16 bird could do is uh be able to nicely
+08:19 
+
+08:19 learn uh relationships between text
+08:22 
+
+08:22 tokens and visual tokens. So since
+08:24 
+
+08:24 you're using the standard trans
+08:26 
+
+08:26 architecture for the last layer, you
+08:28 
+
+08:28 could actually visualize the self
+08:29 
+
+08:29 attention between the text tokens and
+08:31 
+
+08:31 image tokens and try to understand if it
+08:33 
+
+08:33 can learn those correlations. Right? So
+08:36 
+
+08:36 for example uh so these are those
+08:38 
+
+08:38 attention heat maps, right? And this is
+08:41 
+
+08:41 for across different layers. Layer 11 is
+08:43 
+
+08:43 the most interesting to see because you
+08:45 
+
+08:45 hope by the end of the last layer, you
+08:47 
+
+08:47 know, it has learned those correlations
+08:48 
+
+08:48 between visual and text tokens nicely,
+08:50 
+
+08:50 right? Um and as you can observe, this
+08:52 
+
+08:52 is the caption associated with this uh
+08:54 
+
+08:54 image. So a man wearing white shirt is
+08:56 
+
+08:56 walking sidewalk along with other
+08:57 
+
+08:57 pedestrians. Uh yeah. And uh u you see
+09:00 
+
+09:00 those are the boxes that are basically
+09:02 
+
+09:02 identified by faster RCNN. So uh that's
+09:05 
+
+09:05 that. And what you observe is that in
+09:07 
+
+09:07 this layer 11 uh if you see man you know
+09:10 
+
+09:10 so the man box is basically this box. So
+09:12 
+
+09:12 that does make sense. So that's the man
+09:14 
+
+09:14 box and what you observe is that the
+09:15 
+
+09:15 attention value is highest uh for the
+09:17 
+
+09:17 man token right and uh you see I mean
+09:20 
+
+09:20 while you can uh say that uh well I mean
+09:24 
+
+09:24 the word is exactly matching but uh I
+09:26 
+
+09:26 mean the object detector actually
+09:28 
+
+09:28 figured out that this was a man belong
+09:29 
+
+09:29 to the man class right? So it is able to
+09:31 
+
+09:31 nicely relate the visual token with the
+09:33 
+
+09:33 text token right even when the attention
+09:36 
+
+09:36 is spread out. So for example if you see
+09:37 
+
+09:37 these pedestrian tokens right so the are
+09:39 
+
+09:39 spread out in that senses uh but the
+09:41 
+
+09:41 interesting part is that alongside other
+09:44 
+
+09:44 pedestrians basically has a very good
+09:45 
+
+09:45 attention there right so essentially uh
+09:48 
+
+09:48 it is able to capture multiple words
+09:50 
+
+09:50 recognizing a single visual token and so
+09:53 
+
+09:53 on. Um now I mean this is 2019 so sure I
+09:57 
+
+09:57 mean the paper would really have all the
+09:58 
+
+09:58 good awesome case studies but there's
+09:60 
+
+09:60 also errors that happen. So the
+10:02 
+
+10:02 correlation was good but not in many
+10:03 
+
+10:03 other cases. So it was it was doing a
+10:05 
+
+10:05 reasonable job. The first model pretty
+10:07 
+
+10:07 good model. Okay. Um uh so the next one
+10:11 
+
+10:11 is is Wilbur. This is also BERT. I mean
+10:14 
+
+10:14 the the philosophy is similar. You have
+10:16 
+
+10:16 vision and language combined in a BERT
+10:18 
+
+10:18 model uh in a B kind of an architecture.
+10:21 
+
+10:21 However, they basically had a
+10:22 
+
+10:22 interesting hypothesis that since vision
+10:24 
+
+10:24 and text are sort of different
+10:26 
+
+10:26 modalities, you should you should sort
+10:28 
+
+10:28 of process them slightly differently.
+10:30 
+
+10:30 Maybe uh you know you should process um
+10:33 
+
+10:33 um I mean images are already processed
+10:36 
+
+10:36 in some ways when you get these patch
+10:38 
+
+10:38 embeddings and so on. So text maybe you
+10:40 
+
+10:40 want to process slightly more or less
+10:41 
+
+10:41 and so on. Right? So therefore what they
+10:43 
+
+10:43 proposed is a two tower model. So unlike
+10:45 
+
+10:45 visual bird which was a one tower model
+10:47 
+
+10:47 you know you basically uh merged or
+10:50 
+
+10:50 concated the input right at the
+10:51 
+
+10:51 beginning you know early concat as it is
+10:53 
+
+10:53 called in today's world right visual is
+10:56 
+
+10:56 a two tower model where what you do is
+10:58 
+
+10:58 to basically have an image pipeline
+10:60 
+
+10:60 separately and a text pipeline
+11:02 
+
+11:02 separately you embed the text using
+11:03 
+
+11:03 standard transformer layers transformer
+11:05 
+
+11:05 encoder layers for some uh you know for
+11:07 
+
+11:07 some layers and then after uh this
+11:11 
+
+11:11 visual stream and linguistic stream
+11:13 
+
+11:13 processing has happened separately,
+11:15 
+
+11:15 individually, independently. Um, at some
+11:18 
+
+11:18 point you start basically merging
+11:20 
+
+11:20 information across the two using this
+11:22 
+
+11:22 core transformer layers in that senses.
+11:24 
+
+11:24 Um, and again this is 2019. So cross
+11:26 
+
+11:26 attention was not really very very
+11:28 
+
+11:28 popular in those days. So literally
+11:30 
+
+11:30 today I can just call it cross
+11:31 
+
+11:31 attention. That's it. Right? So
+11:33 
+
+11:33 essentially this is a so this is a
+11:34 
+
+11:34 standard transform model. So nothing new
+11:36 
+
+11:36 here. But this is essentially this core
+11:39 
+
+11:39 transformer uh you know modules um where
+11:42 
+
+11:42 what you see is that there's a visual
+11:44 
+
+11:44 stream and there's a linguistic stream
+11:46 
+
+11:46 um and uh then the information is being
+11:48 
+
+11:48 propagated using cross attention in that
+11:50 
+
+11:50 senses where in the visual stream you
+11:52 
+
+11:52 use the query from the visual side but
+11:54 
+
+11:54 you basically use the keys and the
+11:55 
+
+11:55 values coming from the linguistic side.
+11:56 
+
+11:56 Okay. Um on the other side you also do
+11:58 
+
+11:58 the same thing. I mean the linguistic
+11:59 
+
+11:59 side you'll use the queries from the
+12:00 
+
+12:00 linguistic side and the keys and the
+12:02 
+
+12:02 values from the vision side. Right. Um
+12:04 
+
+12:04 after you basically get these outputs
+12:05 
+
+12:05 you basically pass it on to the next
+12:07 
+
+12:07 layer and uh you do um individual
+12:10 
+
+12:10 modality sort of transformer uh layer as
+12:13 
+
+12:13 well and then you do this k times uh
+12:15 
+
+12:15 that's basically wilbert right so
+12:19 
+
+12:19 Wilbert also depended on faster RCNN so
+12:22 
+
+12:22 as to basically get its uh visual tokens
+12:24 
+
+12:24 in that senses okay because vit was not
+12:28 
+
+12:28 there until that time so vision
+12:30 
+
+12:30 transfers were not there until that time
+12:31 
+
+12:31 but Wilbert did did one other
+12:33 
+
+12:33 interesting Same thing. So for
+12:35 
+
+12:35 pre-training uh they also required some
+12:37 
+
+12:37 loss functions. So they also had the
+12:38 
+
+12:38 same two loss functions more or less
+12:40 
+
+12:40 mass language modeling and uh image text
+12:42 
+
+12:42 alignment matching right. So this is
+12:44 
+
+12:44 what you see image text alignment
+12:45 
+
+12:45 matching. So you know are these image
+12:47 
+
+12:47 tokens and these text tokens matched
+12:48 
+
+12:48 aligned or not. But uh for the masking
+12:51 
+
+12:51 right they also involved this master
+12:54 
+
+12:54 multimodel learning. So you could mask
+12:56 
+
+12:56 out image tokens also this time. Okay.
+12:58 
+
+12:58 Um now you see I mean when you mask out
+13:00 
+
+13:00 image tokens uh the idea would be hey
+13:03 
+
+13:03 can I reconstruct the image but remember
+13:04 
+
+13:04 this is 2019 and people had not started
+13:06 
+
+13:06 doing image generation at that time
+13:08 
+
+13:08 right so image generation was pretty
+13:09 
+
+13:09 poor. So what they did and and on top of
+13:12 
+
+13:12 that you know uh these patches were
+13:15 
+
+13:15 actually objects which were discovered
+13:16 
+
+13:16 by the object detector. So therefore the
+13:18 
+
+13:18 idea was basically that hey you take you
+13:20 
+
+13:20 mask out a patch but then uh you try to
+13:23 
+
+13:23 predict the object the class
+13:25 
+
+13:25 distribution rather than actually
+13:26 
+
+13:26 regenerating that object image. Right?
+13:28 
+
+13:28 So essentially you try to predict the
+13:29 
+
+13:29 class distribution um and if you do well
+13:32 
+
+13:32 great otherwise the back otherwise you
+13:33 
+
+13:33 back propagate the cross entropy loss.
+13:35 
+
+13:35 Right? That was uh one difference from
+13:38 
+
+13:38 visual bird. The other difference was
+13:39 
+
+13:39 the kind of data. So I forgot to mention
+13:41 
+
+13:41 but visual bird basically was trained on
+13:43 
+
+13:43 very small amount of data MS coco data
+13:45 
+
+13:45 which was basically about 600k
+13:48 
+
+13:48 um image text pairs image caption pairs.
+13:51 
+
+13:51 However this was trained on conceptual
+13:52 
+
+13:52 captions data. So MS Coco was small
+13:55 
+
+13:55 because it was manually generated.
+13:56 
+
+13:56 Somebody actually sat down and came up
+13:59 
+
+13:59 with manually generated captions on some
+14:01 
+
+14:01 120k images five captions each right. uh
+14:04 
+
+14:04 but this is automatically generated the
+14:05 
+
+14:05 conceptual captions data 3.3 million uh
+14:08 
+
+14:08 images and uh uh the caption uh was uh
+14:12 
+
+14:12 essentially just extracted so this is
+14:13 
+
+14:13 basically images obtained from web pages
+14:15 
+
+14:15 like news pages Wikipedia and so on
+14:17 
+
+14:17 where there's a caption underneath so
+14:18 
+
+14:18 you just take those captions or you take
+14:20 
+
+14:20 the caption as the alt text associated
+14:21 
+
+14:21 with the image and that's how you
+14:23 
+
+14:23 basically get the automated um you know
+14:26 
+
+14:26 uh image caption pairs right so so that
+14:29 
+
+14:29 was good that basically led them to have
+14:31 
+
+14:31 like 3.3 million images image text
+14:33 
+
+14:33 images along with their text in that
+14:34 
+
+14:34 senses after a whole bunch of cleaning.
+14:37 
+
+14:37 Okay, so that was that. Um now in 2021
+14:41 
+
+14:41 fast forward uh you have those vision
+14:43 
+
+14:43 transformers around uh people are sort
+14:46 
+
+14:46 of realizing that hey maybe CNN's are
+14:48 
+
+14:48 great but uh maybe vision transformers
+14:50 
+
+14:50 also have similar promise right uh vit
+14:52 
+
+14:52 paper had just come up and uh openai
+14:54 
+
+14:54 basically started came up with this
+14:56 
+
+14:56 model called as clip very popular again
+14:59 
+
+14:59 um in the in the multimodel world uh in
+15:02 
+
+15:02 fact at that time also contrastive
+15:04 
+
+15:04 learning had started gaining popularity
+15:05 
+
+15:05 not just in the multimodal domain but in
+15:07 
+
+15:07 text domain in images and so on so in
+15:09 
+
+15:09 several domains, contrastive learning,
+15:11 
+
+15:11 contrastive loss is way better compared
+15:12 
+
+15:12 to the standard, you know, categorical
+15:15 
+
+15:15 cross entropy losses has started coming
+15:17 
+
+15:17 up, right? So they made use of best use
+15:19 
+
+15:19 of all of these things and the large
+15:20 
+
+15:20 compute power that they had started
+15:22 
+
+15:22 getting uh uh to train clip. Okay, so
+15:26 
+
+15:26 clip is a contrastive language image
+15:28 
+
+15:28 pre-trained model as you can see in the
+15:30 
+
+15:30 title. Um uh the modeling is super
+15:33 
+
+15:33 simple. Essentially uh you have images
+15:36 
+
+15:36 and you have captions and you basically
+15:38 
+
+15:38 uh that's the data that you use. So as
+15:41 
+
+15:41 to train a separate image encoder text
+15:43 
+
+15:43 encoder. So you don't it's a it's a pure
+15:45 
+
+15:45 pure two tower model. So there is no
+15:47 
+
+15:47 concatenation happening anywhere except
+15:49 
+
+15:49 at the end. So it's it's more like uh
+15:52 
+
+15:52 you know late concat if you really want
+15:54 
+
+15:54 to even call it concat right. Um and uh
+15:57 
+
+15:57 you see I mean you use image encoder. So
+15:59 
+
+15:59 for image encoder they actually tried
+16:00 
+
+16:00 several restnet models and several VIT
+16:02 
+
+16:02 models. Okay. Uh they wanted to
+16:04 
+
+16:04 experiment with everything because
+16:06 
+
+16:06 surely I mean reviewers at that time
+16:07 
+
+16:07 would really expect you to also have CNN
+16:10 
+
+16:10 based encoders, right? So that's that.
+16:13 
+
+16:13 Uh for text they basically used a 12-ear
+16:15 
+
+16:15 bird. So that's that. Um and uh they
+16:18 
+
+16:18 used web image text data set much larger
+16:20 
+
+16:20 400 million uh crawled corpus uh you
+16:24 
+
+16:24 know created in the similar philosophy
+16:26 
+
+16:26 as conceptual captions. essentially you
+16:28 
+
+16:28 extract a whole bunch of images and
+16:30 
+
+16:30 along with that also get the captions.
+16:32 
+
+16:32 Okay. Uh the loss function was
+16:33 
+
+16:33 different. So rather than actually you
+16:35 
+
+16:35 know trying to do this mass language
+16:36 
+
+16:36 modeling or all of that stuff uh they
+16:39 
+
+16:39 did contrastive learning. So the idea
+16:41 
+
+16:41 was given a batch of samples uh let's
+16:43 
+
+16:43 say batch size n right. So you have uh
+16:46 
+
+16:46 images and you have text and you have
+16:50 
+
+16:50 you know these these diagonal which is
+16:51 
+
+16:51 basically positive positive pairs. the
+16:54 
+
+16:54 um you know text matching with the image
+16:56 
+
+16:56 and you have non-dagonal entries which
+16:58 
+
+16:58 are negative pairs and um obviously what
+16:60 
+
+16:60 you want to do is to maximize the cosine
+17:01 
+
+17:01 similarity of the diagonal versus the
+17:03 
+
+17:03 non-dagonal right so that's basically
+17:04 
+
+17:04 the contrastive learning uh loss I think
+17:06 
+
+17:06 they use the standard infency
+17:08 
+
+17:08 contrastive noise contrastive estimation
+17:10 
+
+17:10 loss yeah um that's that and you know uh
+17:14 
+
+17:14 they did a very very rigorous job um
+17:16 
+
+17:16 tested on like 30 plus computer vision
+17:18 
+
+17:18 tasks u and uh they basically showed uh
+17:21 
+
+17:21 a very very uh important thing which
+17:24 
+
+17:24 they were also showing by the way with
+17:25 
+
+17:25 GPT uh zeros learning right so
+17:28 
+
+17:28 essentially saying that hey you know you
+17:30 
+
+17:30 basically just do zero short learning
+17:31 
+
+17:31 zero short execution on those new tasks
+17:34 
+
+17:34 not fine-tune on those new tasks and
+17:36 
+
+17:36 still you get accuracies which are
+17:37 
+
+17:37 really as good as other fine-tuned
+17:39 
+
+17:39 models right so they were also doing
+17:40 
+
+17:40 that obviously with GPD3 at that time
+17:42 
+
+17:42 period so that's that so zero short clip
+17:44 
+
+17:44 is often um you know as equivalent in
+17:48 
+
+17:48 that senses to fully supervised uh
+17:50 
+
+17:50 baseline models uh for for for many many
+17:52 
+
+17:52 such computations tasks. Okay. Um, so
+17:55 
+
+17:55 that's the architecture. I mean, as
+17:58 
+
+17:58 simple as it can get. They could do zero
+18:00 
+
+18:00 shot mainly because they have a text
+18:02 
+
+18:02 encoder. They have a image encoder. So
+18:04 
+
+18:04 you basically images well I mean when
+18:06 
+
+18:06 you get a new task you basically images
+18:08 
+
+18:08 obviously would be whatever they would
+18:10 
+
+18:10 be. But uh the classes could be
+18:13 
+
+18:13 different right? So essentially you
+18:15 
+
+18:15 trained it for just image text
+18:16 
+
+18:16 captioning thing. But uh hey you could
+18:18 
+
+18:18 use it for uh I'll show you on the next
+18:20 
+
+18:20 slide a few examples of different
+18:22 
+
+18:22 classification problems. But rather than
+18:24 
+
+18:24 generic classification like imageet
+18:26 
+
+18:26 classification just like cat and dog
+18:27 
+
+18:27 images you could also have uh you know
+18:29 
+
+18:29 domain specific classification like
+18:30 
+
+18:30 medical classification. Hey this tissue
+18:32 
+
+18:32 is good or bad and so on or or
+18:35 
+
+18:35 classification in uh about about uh you
+18:38 
+
+18:38 know satellite images. So you know land
+18:39 
+
+18:39 use classification. So is it basically a
+18:42 
+
+18:42 highway that you can see in the
+18:43 
+
+18:43 satellite image or um can you see like
+18:45 
+
+18:45 some farm or can you see some river and
+18:47 
+
+18:47 so on? Right? So the interesting part is
+18:49 
+
+18:49 since it is a text encoder whatever was
+18:51 
+
+18:51 the class name you could basically use
+18:53 
+
+18:53 that and encode it. So the class
+18:55 
+
+18:55 representation was not really just a
+18:57 
+
+18:57 class ID but more like a you know text
+18:59 
+
+18:59 based representation which made it
+19:00 
+
+19:00 really uh really really um rich in that
+19:03 
+
+19:03 senses. Um that's that and again on on
+19:06 
+
+19:06 multiple data sets basically they showed
+19:08 
+
+19:08 uh that uh compared to restnet 50 um
+19:11 
+
+19:11 they basically got on many many data
+19:14 
+
+19:14 sets positive results on some data sets
+19:16 
+
+19:16 sure the clip was not as good but many
+19:18 
+
+19:18 many data sets they basically got
+19:20 
+
+19:20 positive results while being zero shot
+19:22 
+
+19:22 while not really specifically training
+19:24 
+
+19:24 while restnet was obviously you know
+19:26 
+
+19:26 fine-tuned for those data sets
+19:28 
+
+19:28 specifically okay here are some examples
+19:30 
+
+19:30 so I talked a whole bunch about models
+19:32 
+
+19:32 now let's see some examples So uh this
+19:34 
+
+19:34 is basically food classification. So
+19:36 
+
+19:36 essentially this is a data set like 101
+19:38 
+
+19:38 different kinds of foods and given an
+19:39 
+
+19:39 image you want to figure out what food
+19:41 
+
+19:41 it is. Um or uh this is basically the
+19:44 
+
+19:44 the land use um you know satellite data
+19:47 
+
+19:47 that I was talking about right uh this
+19:50 
+
+19:50 is essentially uh indooroutdoor
+19:51 
+
+19:51 settings. essentially tell me in this
+19:53 
+
+19:53 image what do you see television studio
+19:55 
+
+19:55 podium indoor conference room lecture
+19:56 
+
+19:56 lecture room and so on so forth right so
+19:59 
+
+19:59 and and then there are many many such
+20:01 
+
+20:01 things that you can read up on openi
+20:02 
+
+20:02 blog as well as in the clip paper okay
+20:04 
+
+20:04 that they used for changing gears
+20:07 
+
+20:07 slightly I mean uh while multimodal
+20:10 
+
+20:10 encoders are obviously required for
+20:12 
+
+20:12 standard tasks um standard cat dog
+20:16 
+
+20:16 images and other kinds of things uh
+20:18 
+
+20:18 document image understanding is a is a
+20:21 
+
+20:21 is a field bite itself. Okay. Um, so as
+20:24 
+
+20:24 you can see there are so many
+20:25 
+
+20:25 interesting problems in document image
+20:28 
+
+20:28 understanding. One of them is just key
+20:29 
+
+20:29 value extraction. So essentially uh
+20:32 
+
+20:32 beyond OCR. So yeah I mean obviously you
+20:34 
+
+20:34 can get the text from this image but
+20:35 
+
+20:35 then hey can you say what key is
+20:37 
+
+20:37 associated with what value right? Um
+20:40 
+
+20:40 other kind of task is visual question
+20:42 
+
+20:42 answering but with document images this
+20:43 
+
+20:43 time. So essentially you know mention
+20:45 
+
+20:45 the zip code written. So that's the
+20:47 
+
+20:47 question and then the answer is that or
+20:49 
+
+20:49 basically what is the date in the seal
+20:50 
+
+20:50 and so on right so visual question
+20:52 
+
+20:52 answering given document images uh or
+20:55 
+
+20:55 long contract understanding and parsing
+20:57 
+
+20:57 I mean essentially this is for single
+20:59 
+
+20:59 image but then if you have like a
+21:00 
+
+21:00 contract with like 100 pages uh
+21:03 
+
+21:03 extracting key value pairs from uh long
+21:05 
+
+21:05 documents I mean long docu document
+21:06 
+
+21:06 images which span across multiple uh
+21:09 
+
+21:09 multiple scans right
+21:12 
+
+21:12 so uh or or there could be uh you know
+21:16 
+
+21:16 simpler problems in terms of
+21:18 
+
+21:18 reorganizing user one drives or or or
+21:20 
+
+21:20 Google drives and so on where they store
+21:22 
+
+21:22 a whole bunch of documents and just
+21:23 
+
+21:23 saying hey this document is is personal
+21:26 
+
+21:26 identification documents like PAN card
+21:27 
+
+21:27 and Aadhaar card and so on while the
+21:29 
+
+21:29 other kinds of documents are like
+21:30 
+
+21:30 insurance forms or you know uh offer
+21:33 
+
+21:33 letters and whatnot right [snorts] um
+21:36 
+
+21:36 other other kinds of things are also
+21:38 
+
+21:38 receipt parsing so uh bill parsing
+21:40 
+
+21:40 receipt parsing those kinds of things
+21:43 
+
+21:43 okay so all interesting document
+21:45 
+
+21:45 problems Right. And as you can see, I
+21:47 
+
+21:47 mean these images obviously are very
+21:48 
+
+21:48 different from cat dog images. So
+21:50 
+
+21:50 therefore, uh some folks basically in
+21:52 
+
+21:52 MSR actually built this layout LM models
+21:55 
+
+21:55 uh layout language models uh which are
+21:57 
+
+21:57 specifically trained for uh document
+21:59 
+
+21:59 specific tasks. Okay. Um the um I mean
+22:04 
+
+22:04 it's a transform based architecture. So
+22:06 
+
+22:06 fortunately in today's world
+22:07 
+
+22:07 architecture is just unified in some
+22:08 
+
+22:08 ways. I mean not much has changed
+22:09 
+
+22:09 basically there. Uh I mean there are
+22:12 
+
+22:12 minor changes here and there. Maybe
+22:13 
+
+22:13 people change the position embeddings or
+22:15 
+
+22:15 maybe they change the pre- post
+22:16 
+
+22:16 postnormalization to pre-ormalization
+22:18 
+
+22:18 and or they change activation function
+22:19 
+
+22:19 from ReLU to swigloo and whatever right
+22:22 
+
+22:22 uh but uh uh more or less the
+22:24 
+
+22:24 architectures are very very similar
+22:26 
+
+22:26 right so it's basically transformer
+22:28 
+
+22:28 architecture uh but then the way the
+22:31 
+
+22:31 loss functions are defined is
+22:32 
+
+22:32 interesting so the loss functions are
+22:34 
+
+22:34 very very specific to document uh based
+22:37 
+
+22:37 uh images okay so the way they do this
+22:39 
+
+22:39 is as follows the pre-training uh
+22:41 
+
+22:41 obviously the way they do is is as
+22:42 
+
+22:42 follows um they take a whole bunch of
+22:45 
+
+22:45 documents um so this is the original
+22:46 
+
+22:46 document right um they uh tile it so
+22:50 
+
+22:50 vision transformers is what you would
+22:52 
+
+22:52 see the vision transformer kind of
+22:53 
+
+22:53 philosophy is what you would see
+22:54 
+
+22:54 everywhere now so they do a tiling right
+22:56 
+
+22:56 you basically get like four tiles and um
+22:59 
+
+22:59 they also redact a few lines as you can
+23:01 
+
+23:01 observe so a few lines are essentially
+23:03 
+
+23:03 just hidden in that senses yeah I'm
+23:04 
+
+23:04 sorry the image is too small but still
+23:06 
+
+23:06 you can actually see u you can still see
+23:08 
+
+23:08 some lines are basically hidden right so
+23:10 
+
+23:10 the redact a few lines okay Um and that
+23:12 
+
+23:12 basically gives you these images image
+23:15 
+
+23:15 tokens with reducted lines. Okay. Um now
+23:18 
+
+23:18 on the on the original document they do
+23:20 
+
+23:20 OCR PDF parsing. So you basically get
+23:22 
+
+23:22 those text tokens out uh and you get
+23:24 
+
+23:24 them line by line. So essentially you
+23:25 
+
+23:25 have like line one. Um and uh so so when
+23:28 
+
+23:28 you do redaction you do redaction at
+23:30 
+
+23:30 line level. So some lines are redacted
+23:32 
+
+23:32 versus not. Okay. So first line is well
+23:36 
+
+23:36 they call it covered. So I would rather
+23:37 
+
+23:37 use the same terminology. So line one is
+23:38 
+
+23:38 covered versus line two is not covered
+23:41 
+
+23:41 in that senses. Okay. Uh and then do
+23:43 
+
+23:43 masking. So mass language modeling in
+23:44 
+
+23:44 that sense is clearly is is something uh
+23:46 
+
+23:46 because there is text involved. So you
+23:48 
+
+23:48 would also do mass language modeling
+23:49 
+
+23:49 here. Okay. Um so the loss functions
+23:52 
+
+23:52 there are three loss functions. There's
+23:54 
+
+23:54 m visual language modeling. There is
+23:56 
+
+23:56 text image alignment and there is text
+23:58 
+
+23:58 image matching. Okay. So text image
+23:60 
+
+23:60 matching is the same as in vision board
+24:01 
+
+24:01 visual bird or Wilbur. So essentially
+24:03 
+
+24:03 you know given a particular visual
+24:05 
+
+24:05 tokens and given text tokens you want to
+24:08 
+
+24:08 figure out oh are these text tokens
+24:11 
+
+24:11 really related to this document image or
+24:13 
+
+24:13 not right so that's basically just the
+24:15 
+
+24:15 same [clears throat]
+24:16 
+
+24:16 u m vision language modeling is also
+24:18 
+
+24:18 very similar in the sense that you
+24:20 
+
+24:20 basically mask out a few tokens in the
+24:22 
+
+24:22 text and you ask the model to sort of
+24:24 
+
+24:24 regenerate those. Now model obviously
+24:26 
+
+24:26 can depend on the other text tokens or
+24:28 
+
+24:28 it can actually depend on the um you
+24:30 
+
+24:30 know on on these on these lines on on
+24:32 
+
+24:32 these images sorry on these images which
+24:34 
+
+24:34 are uh also provided as input. I mean
+24:36 
+
+24:36 obviously these are sort of uh uh you
+24:38 
+
+24:38 know images with some covered text as
+24:40 
+
+24:40 well. So uh it's it's sort of a mixture
+24:42 
+
+24:42 of uh those uh uh covered lines and text
+24:47 
+
+24:47 other unmasked text tokens that
+24:49 
+
+24:49 basically help it to uh unmask help it
+24:52 
+
+24:52 to help it to predict those mass tokens.
+24:54 
+
+24:54 Okay, the third one is interesting. It's
+24:57 
+
+24:57 basically covered or not kind of
+24:58 
+
+24:58 prediction. It's a binary prediction
+24:59 
+
+24:59 task. Uh given a particular uh you know
+25:02 
+
+25:02 token, you are sort of trying to predict
+25:04 
+
+25:04 unmasked token. I mean the obviously the
+25:06 
+
+25:06 token is mass you can't do much but
+25:08 
+
+25:08 given a token which is not masked you
+25:10 
+
+25:10 want to predict whether it was on a
+25:11 
+
+25:11 covered line or a not covered line. So
+25:13 
+
+25:13 basically saying hey you know this token
+25:15 
+
+25:15 that you see here can you relate it with
+25:17 
+
+25:17 what was there on the image on the way
+25:19 
+
+25:19 also learning OCR right? So if it was
+25:20 
+
+25:20 there on the image sure I mean it should
+25:22 
+
+25:22 be able to say uh it was not covered
+25:24 
+
+25:24 otherwise it should be able to predict
+25:25 
+
+25:25 covered in that sense that's basically
+25:27 
+
+25:27 that uh for visual encoder well they
+25:30 
+
+25:30 basically used massen and backbone but
+25:33 
+
+25:33 they did tiling so essentially they got
+25:35 
+
+25:35 the features from that but they still
+25:36 
+
+25:36 use tiling. There is a little bit more
+25:38 
+
+25:38 details about position embeddings and so
+25:40 
+
+25:40 on. Uh well position embeddings for text
+25:42 
+
+25:42 is super clear because when you
+25:44 
+
+25:44 essentially do OCR on text and you get
+25:46 
+
+25:46 those text tokens you actually have
+25:47 
+
+25:47 those coordinates. So therefore um
+25:49 
+
+25:49 position embedding 2D position embedding
+25:51 
+
+25:51 for that is basically is the box
+25:52 
+
+25:52 embedding uh for images basically is
+25:55 
+
+25:55 just these boxes anyway. So 2D
+25:57 
+
+25:57 embeddings that is how they are obtained
+25:58 
+
+25:58 in that senses. Yeah. Uh like like you
+26:02 
+
+26:02 would expect uh the image part and the
+26:05 
+
+26:05 text part is separated by some tokens.
+26:07 
+
+26:07 So essentially uh they have a CLS token
+26:09 
+
+26:09 here and a SE token at the end. Okay. Uh
+26:12 
+
+26:12 and then for those special tokens they
+26:13 
+
+26:13 basically just pad it with a 000000 kind
+26:16 
+
+26:16 of a box. So uh that's basically the
+26:18 
+
+26:18 representation there. Um they work with
+26:21 
+
+26:21 some 11 million scanned documents uh
+26:23 
+
+26:23 pre-trained documents and uh essentially
+26:26 
+
+26:26 all of these are self-supervised tasks.
+26:28 
+
+26:28 So essentially no specific labeling is
+26:30 
+
+26:30 required just use the Microsoft OCR API
+26:32 
+
+26:32 to do that. Okay. Now as we are moving
+26:35 
+
+26:35 further you know very recently there's a
+26:37 
+
+26:37 very interesting paper it's called as
+26:40 
+
+26:40 and it's an interesting finding as well.
+26:42 
+
+26:42 Um so people have been working with
+26:45 
+
+26:45 these vision transformer models and they
+26:47 
+
+26:47 have been seeing awesome gains right so
+26:49 
+
+26:49 open AAI showed that with clip uh and
+26:51 
+
+26:51 later uh there are many many models I
+26:54 
+
+26:54 mean uh not just for encoding purpose
+26:56 
+
+26:56 tomorrow we'll talk about uh generative
+26:59 
+
+26:59 models as well where these im where
+27:02 
+
+27:02 these vit vision transformer based
+27:03 
+
+27:03 encoders have been doing great I mean
+27:05 
+
+27:05 they have been essentially leading to
+27:07 
+
+27:07 super awesome accuracies okay uh what
+27:10 
+
+27:10 these folks found um in this paper
+27:12 
+
+27:12 published very recently right so is 1224
+27:16 
+
+27:16 they found a very interesting phenomena
+27:18 
+
+27:18 so the idea is if you take basically
+27:19 
+
+27:19 this input right and you sort of study
+27:22 
+
+27:22 the attention heat maps at the last
+27:24 
+
+27:24 layer uh for many many of these models
+27:27 
+
+27:27 these are other interesting models deit
+27:30 
+
+27:30 openclip uh dyno uh we'll talk about
+27:33 
+
+27:33 some of them some of them tomorrow as
+27:36 
+
+27:36 well right so other encoder models what
+27:38 
+
+27:38 they found is that a huge attention is
+27:42 
+
+27:42 basically appearing at background tokens
+27:45 
+
+27:45 at tokens that should ideally not
+27:47 
+
+27:47 matter. Right? So across all of these
+27:48 
+
+27:48 three images you basically see these
+27:50 
+
+27:50 tokens are just background tokens but
+27:52 
+
+27:52 there's a huge amount of attention uh on
+27:54 
+
+27:54 these tokens in some form. Okay. So uh
+27:57 
+
+27:57 and that was basically very very
+27:59 
+
+27:59 interesting. Why would these tokens
+28:00 
+
+28:00 basically have so much of attention?
+28:02 
+
+28:02 Okay. So many of these vit models
+28:04 
+
+28:04 actually exhibit these peaky outliers in
+28:06 
+
+28:06 attention heat maps. Um I mean and the
+28:08 
+
+28:08 way they quantified or they they sort of
+28:10 
+
+28:10 tried to define these artifacts is uh I
+28:14 
+
+28:14 mean their artifacts they're outliers
+28:15 
+
+28:15 obviously has to be smaller amount. So
+28:17 
+
+28:17 2.37% of these tokens have 10x higher
+28:19 
+
+28:19 normat output. Okay. So when you look at
+28:22 
+
+28:22 their output I mean so for every tile
+28:25 
+
+28:25 after all a transform model would give
+28:26 
+
+28:26 you an embedding and that's the
+28:28 
+
+28:28 embedding if you look at it basically
+28:30 
+
+28:30 you observe that the norm of that
+28:31 
+
+28:31 embedding is pretty high okay uh much
+28:34 
+
+28:34 higher 10x higher compared to other uh
+28:36 
+
+28:36 tokens. Okay. Um the other interesting
+28:39 
+
+28:39 part is that rather than looking at the
+28:41 
+
+28:41 last layer, if you look at around the
+28:42 
+
+28:42 middle layers of VIT, they appear much
+28:44 
+
+28:44 more uh and then they continue from
+28:46 
+
+28:46 there. So it's not like the VIT model is
+28:49 
+
+28:49 obviously a multi-layer uh trans
+28:50 
+
+28:50 encoder. So they don't really start
+28:52 
+
+28:52 appearing right at the beginning layer,
+28:54 
+
+28:54 the embedding layers closer to the
+28:56 
+
+28:56 embedding, but they start appearing
+28:57 
+
+28:57 somewhere in the middle and then they
+28:58 
+
+28:58 appear all the way all the way up to the
+28:59 
+
+28:59 last layer of the of the VIT model.
+29:01 
+
+29:01 Okay. uh they also do not appear in
+29:04 
+
+29:04 smaller vit models but they start
+29:05 
+
+29:05 appearing in larger vit models after it
+29:08 
+
+29:08 has been pre-trained quite some so they
+29:10 
+
+29:10 also tried to do some analysis oh if I
+29:12 
+
+29:12 pretend on small amount of data does it
+29:13 
+
+29:13 still appear with large models and so on
+29:15 
+
+29:15 so so they found that they appear
+29:16 
+
+29:16 actually sufficiently longer training of
+29:19 
+
+29:19 sufficiently large models but you do
+29:20 
+
+29:20 want such models because larger models
+29:22 
+
+29:22 with sufficiently pre-trained
+29:23 
+
+29:23 pre-training actually give you better
+29:25 
+
+29:25 results so you do care about those
+29:26 
+
+29:26 models anyway right um and then the
+29:29 
+
+29:29 interesting part is that they appear in
+29:30 
+
+29:30 patches which are similar to the
+29:32 
+
+29:32 neighbor ers from a image semantics
+29:34 
+
+29:34 perspective in the sense that there's
+29:36 
+
+29:36 nothing [laughter] particular about
+29:37 
+
+29:37 about this pixel you know or this patch
+29:40 
+
+29:40 here which is very different from the
+29:41 
+
+29:41 patch which is next to it right so
+29:42 
+
+29:42 essentially saying uh it's out of
+29:44 
+
+29:44 nowhere I mean how do you explain this
+29:46 
+
+29:46 is the problem okay uh they couldn't
+29:49 
+
+29:49 find a good explanation why this happens
+29:51 
+
+29:51 uh in fact you know there's another
+29:54 
+
+29:54 parallel work which also going on in in
+29:55 
+
+29:55 the text world so where people call them
+29:58 
+
+29:58 as attention sinks I mean essentially
+29:60 
+
+29:60 saying that you know and you could
+30:02 
+
+30:02 directly relate right these artifacts
+30:03 
+
+30:03 are more like attention sinks in some
+30:05 
+
+30:05 ways uh they couldn't do much about why
+30:08 
+
+30:08 they appear but what they did was
+30:10 
+
+30:10 basically hey can I basically avoid them
+30:12 
+
+30:12 and uh improve the accuracy of my
+30:15 
+
+30:15 improve the accuracy of my encoder in
+30:16 
+
+30:16 that sense right so which is why they
+30:18 
+
+30:18 said oh we'll do a very very simple job
+30:20 
+
+30:20 so essentially uh we'll encode uh the
+30:23 
+
+30:23 images using the standard input patches
+30:24 
+
+30:24 but hey we would also have these extra
+30:26 
+
+30:26 tokens and think about them as you know
+30:29 
+
+30:29 dustbin classes or dust bin token
+30:31 
+
+30:31 tokens, you know, they call them as
+30:32 
+
+30:32 registers. So, essentially, they call
+30:34 
+
+30:34 them as registers and then you have you
+30:36 
+
+30:36 pre-train the VIT models with these
+30:38 
+
+30:38 registers. Uh they literally are like
+30:40 
+
+30:40 extra tokens where you would want all
+30:43 
+
+30:43 the random attention that is being paid
+30:44 
+
+30:44 to just get collected there. Okay?
+30:46 
+
+30:46 Rather than on uh on some patches in
+30:49 
+
+30:49 your input, okay. uh and uh what they
+30:52 
+
+30:52 observe is that these these the simple
+30:54 
+
+30:54 idea of just having some extra register
+30:56 
+
+30:56 tokens while training uh leads to
+30:58 
+
+30:58 improved performance lead to leads to
+30:60 
+
+30:60 improved accuracy right improved
+31:02 
+
+31:02 accuracy is measured on dense prediction
+31:03 
+
+31:03 task object discovery and many other
+31:04 
+
+31:04 such tasks okay so it's a very
+31:06 
+
+31:06 interesting one I mean the idea is super
+31:08 
+
+31:08 simple but the detection was the
+31:10 
+
+31:10 interesting discovery okay
+31:13 
+
+31:13 >> [clears throat]
+31:13 
+
+31:13 >> um uh very recently people this is one
+31:17 
+
+31:17 of the latest ones as you can see August
+31:20 
+
+31:20 25. Uh Dino actually has been a popular
+31:24 
+
+31:24 uh line of work by itself. Dino encoders
+31:27 
+
+31:27 uh Dino V3 basically came up very
+31:29 
+
+31:29 recently. Okay. Uh and has some
+31:31 
+
+31:31 interesting uh uh ways in which uh
+31:34 
+
+31:34 things are done. Okay. So essentially it
+31:37 
+
+31:37 basically is also vision encoder model.
+31:39 
+
+31:39 It's also a transformer based model. I
+31:41 
+
+31:41 mean you know all of those things go
+31:42 
+
+31:42 without saying now, right? Um and uh
+31:45 
+
+31:45 Dynino models are available in different
+31:47 
+
+31:47 sizes. So basically uh Dynino models are
+31:50 
+
+31:50 available for VIT and also something
+31:52 
+
+31:52 called as conext backbone. Okay. But VIT
+31:55 
+
+31:55 backbone is more interesting I mean from
+31:57 
+
+31:57 for various use cases. I mean
+31:58 
+
+31:58 essentially even at Microsoft we try to
+32:00 
+
+32:00 deploy models right. Essentially this
+32:02 
+
+32:02 optimization team and uh the
+32:04 
+
+32:04 optimization team typically loves
+32:05 
+
+32:05 transform models because they have
+32:07 
+
+32:07 they've developed an expertise around
+32:08 
+
+32:08 it. I mean they don't want really you
+32:10 
+
+32:10 know several customized architectures
+32:12 
+
+32:12 and everyone saying oh can you please
+32:13 
+
+32:13 optimize for me as well? and they're
+32:14 
+
+32:14 basically developing expertise and the
+32:16 
+
+32:16 GPU they're the nice kernels that they
+32:18 
+
+32:18 have they've done a whole bunch of work
+32:20 
+
+32:20 there. So typically people these days
+32:22 
+
+32:22 love transform models if they are
+32:23 
+
+32:23 available right for anything. So vision
+32:25 
+
+32:25 transform vision encoder sure I mean
+32:27 
+
+32:27 it's available in different sizes dinov3
+32:29 
+
+32:29 models um and uh there's a large one as
+32:32 
+
+32:32 well so vit 7 billion also okay so which
+32:34 
+
+32:34 they have trained using the dino
+32:36 
+
+32:36 philosophy so dino philosophy is
+32:38 
+
+32:38 basically just about training using
+32:39 
+
+32:39 different loss functions different
+32:41 
+
+32:41 pre-training loss functions okay um
+32:43 
+
+32:43 dynino was trained because uh these guys
+32:46 
+
+32:46 observed uh that vision encoders are
+32:49 
+
+32:49 really good at classification tasks uh
+32:52 
+
+32:52 like imageet classification and so but
+32:54 
+
+32:54 not very good at dense prediction tasks.
+32:56 
+
+32:56 So what are dense prediction tasks?
+32:57 
+
+32:57 Dense prediction tasks are pixel level
+32:59 
+
+32:59 classification tasks like image
+33:00 
+
+33:00 segmentation is a dense prediction task
+33:03 
+
+33:03 or you know um taking a or you know
+33:07 
+
+33:07 monocular depth estimation is a dense
+33:08 
+
+33:08 prediction task which is basically like
+33:10 
+
+33:10 you know if I take a photo then you know
+33:12 
+
+33:12 being able to say that this is close to
+33:13 
+
+33:13 my camera while you know that pixel is
+33:15 
+
+33:15 far away from my camera depth estimation
+33:16 
+
+33:16 basically right or coloring book uh
+33:19 
+
+33:19 creation from images you know just the
+33:21 
+
+33:21 outline boundary boundary detection you
+33:23 
+
+33:23 know that's also dense prediction so
+33:24 
+
+33:24 they found that dense prediction task
+33:25 
+
+33:25 you know these models don't perform very
+33:27 
+
+33:27 Right. Uh so that is why they basically
+33:29 
+
+33:29 came up with this. So so the idea is
+33:31 
+
+33:31 that let's talk about how did they
+33:32 
+
+33:32 really you know define the architecture.
+33:34 
+
+33:34 So um uh there is a a larger teacher
+33:39 
+
+33:39 model and there's a student model. So
+33:40 
+
+33:40 the training of these models happens in
+33:42 
+
+33:42 a uh in a in a distillation kind of a
+33:45 
+
+33:45 framework where there's a teacher and
+33:46 
+
+33:46 there's a student and you distill
+33:47 
+
+33:47 knowledge from the teacher to the
+33:48 
+
+33:48 student in that senses. Okay. um the
+33:51 
+
+33:51 teacher uh I mean you know um typically
+33:54 
+
+33:54 what you would do is you have a large
+33:55 
+
+33:55 amount of labelled data and you would
+33:56 
+
+33:56 train the teacher and then uh step two
+33:58 
+
+33:58 you would basically train the student
+33:60 
+
+33:60 based on the teacher okay here the
+34:02 
+
+34:02 teacher is not specifically trained
+34:03 
+
+34:03 separately in fact the teacher is never
+34:05 
+
+34:05 trained to be specific okay uh and
+34:07 
+
+34:07 that's that kind of philosophy of doing
+34:09 
+
+34:09 distillation is called the exponential
+34:11 
+
+34:11 moving average philosophy of updating
+34:14 
+
+34:14 the teacher okay so here the teacher is
+34:17 
+
+34:17 not trained but the teacher's weights
+34:19 
+
+34:19 are still updated
+34:20 
+
+34:20 as a moving average over students
+34:22 
+
+34:22 weights. So you should think about it
+34:24 
+
+34:24 like this. The teacher and student are
+34:25 
+
+34:25 collaboratively learning and the teacher
+34:27 
+
+34:27 basically is a uh is a weighted average
+34:30 
+
+34:30 over multiple students previous
+34:32 
+
+34:32 iterations. Think about it like that.
+34:34 
+
+34:34 Okay. Uh and teacher is uh you know uh
+34:37 
+
+34:37 higher capacity. So that's another
+34:39 
+
+34:39 interesting thing right. So um so
+34:41 
+
+34:41 therefore when you copy weights
+34:42 
+
+34:42 basically uh you have to be careful how
+34:44 
+
+34:44 do you copy those weights but uh uh in
+34:47 
+
+34:47 the sense that maybe you repeat some
+34:48 
+
+34:48 layers and so on so forth uh but uh the
+34:50 
+
+34:50 idea is that teacher is higher capacity
+34:52 
+
+34:52 in that s okay um so more or less it's a
+34:56 
+
+34:56 student teacher framework okay so
+34:57 
+
+34:57 essentially that's that um now uh the
+35:00 
+
+35:00 data that they used they used like crazy
+35:02 
+
+35:02 amount of data 17 billion images so as
+35:05 
+
+35:05 to train their dynino model um the loss
+35:08 
+
+35:08 functions are pretty interesting thing.
+35:10 
+
+35:10 So the way the loss functions are
+35:12 
+
+35:12 defined are as follows. You basically
+35:14 
+
+35:14 take an image. Okay. Um and uh you see
+35:19 
+
+35:19 um now people have been training using
+35:22 
+
+35:22 you know significant data augmentation.
+35:24 
+
+35:24 So even though the data is very large
+35:26 
+
+35:26 they still basically take the image and
+35:28 
+
+35:28 they create some global crops and local
+35:30 
+
+35:30 crops and so on and then try to process
+35:32 
+
+35:32 it. Okay, that's one level. The other
+35:34 
+
+35:34 level that they did was to basically
+35:36 
+
+35:36 create two views of the image. You
+35:37 
+
+35:37 should really think about them as like
+35:38 
+
+35:38 features extracted. So basically you
+35:40 
+
+35:40 take the image and you basically project
+35:41 
+
+35:41 into two different spaces. Okay, two
+35:43 
+
+35:43 views of the image. Okay. So basically
+35:46 
+
+35:46 to say that you know you have some dense
+35:48 
+
+35:48 layers to effectively just create some
+35:51 
+
+35:51 features some some different uh
+35:53 
+
+35:53 embeddings in a different space in some
+35:54 
+
+35:54 ways. Okay. Uh from patches from the
+35:56 
+
+35:56 patches themselves. Okay. U you take
+35:59 
+
+35:59 those patch embeddings and you give uh
+36:01 
+
+36:01 both the views to the student and to the
+36:02 
+
+36:02 teacher as you see them here. Right. So
+36:04 
+
+36:04 basically you input it to the student
+36:05 
+
+36:05 and the teacher. FS is student model. FT
+36:08 
+
+36:08 is teacher model. Okay. And as you can
+36:09 
+
+36:09 see the teacher is basically just
+36:11 
+
+36:11 updated using students weights. So
+36:13 
+
+36:13 essentially the teacher weights are uh
+36:15 
+
+36:15 you know older teacher weights plus the
+36:17 
+
+36:17 latest student weights in that senses
+36:18 
+
+36:18 right. So it's a moving average kind of
+36:20 
+
+36:20 teacher. Okay. Um
+36:23 
+
+36:23 so uh the inputs are basically being
+36:25 
+
+36:25 passed in the standard VIT format where
+36:28 
+
+36:28 essentially you have a CLS token in the
+36:30 
+
+36:30 beginning and you actually have like
+36:31 
+
+36:31 local patch tokens in that senses for
+36:33 
+
+36:33 both the views. So you have like two
+36:34 
+
+36:34 views U and V for the same image and you
+36:36 
+
+36:36 basically pass on for both the views to
+36:38 
+
+36:38 both of the uh models the student and
+36:40 
+
+36:40 the teacher model. Okay. Now um uh this
+36:44 
+
+36:44 another interesting thing happening in
+36:45 
+
+36:45 the input well the student actually gets
+36:47 
+
+36:47 a mass tokens while the teacher does not
+36:49 
+
+36:49 get any mass tokens. Teacher actually
+36:51 
+
+36:51 gets uh tokens as it is I mean unmasked
+36:54 
+
+36:54 ones. Okay. Um and then what happens?
+36:57 
+
+36:57 Well FS and FT both are bird B bird
+36:59 
+
+36:59 style models essentially uh transformer
+37:01 
+
+37:01 encoder models. uh not bird sorry
+37:03 
+
+37:03 transparent encoder models and uh
+37:05 
+
+37:05 therefore they basically give you a
+37:06 
+
+37:06 representation
+37:07 
+
+37:07 at the end of it. So basically a
+37:09 
+
+37:09 12-layer model or 24 layer whatever are
+37:11 
+
+37:11 the different models. In fact we 7
+37:13 
+
+37:13 billion uh model the largest model that
+37:15 
+
+37:15 they have basically has like 40 layers.
+37:17 
+
+37:17 Yeah.
+37:19 
+
+37:19 So uh at the end of it you basically get
+37:21 
+
+37:21 a CS token and you get like patch
+37:22 
+
+37:22 embeddings for each patch for each of
+37:24 
+
+37:24 those uh local patches right. Uh the
+37:27 
+
+37:27 last functions are interesting. So what
+37:29 
+
+37:29 you want to do now is the following. So
+37:31 
+
+37:31 you want to ensure that the CLS token as
+37:34 
+
+37:34 predicted by the student uh should match
+37:37 
+
+37:37 with the CLS token as predicted by the
+37:39 
+
+37:39 teacher for the same view and other
+37:41 
+
+37:41 views. Okay. So remember there are two
+37:44 
+
+37:44 views uh U and V, right? And both of the
+37:47 
+
+37:47 views basically are different samples
+37:49 
+
+37:49 more or less I mean different inputs
+37:50 
+
+37:50 that you pass to student and teacher. So
+37:52 
+
+37:52 you do both pairs. So in the sense that
+37:54 
+
+37:54 you have like you know uh student cls
+37:58 
+
+37:58 for vue 1 matching with teacher cls for
+38:01 
+
+38:01 v1 and teacher cls for vue2 and same for
+38:05 
+
+38:05 um you know view 2 as well. Okay so
+38:07 
+
+38:07 that's that. So that's basically called
+38:08 
+
+38:08 as dino loss. So what you do is
+38:10 
+
+38:10 basically you have a cross entropy kind
+38:11 
+
+38:11 of stuff defined there. So essentially
+38:13 
+
+38:13 uh you want to ensure that the CLS uh uh
+38:16 
+
+38:16 token um I mean that representation
+38:18 
+
+38:18 essent you define a loss based on the
+38:20 
+
+38:20 matching CLS token between the uh
+38:22 
+
+38:22 teacher and the student okay across
+38:24 
+
+38:24 views. Okay. Um the next thing that you
+38:27 
+
+38:27 do is for patches. So essentially uh
+38:29 
+
+38:29 remember you basically masked out a few
+38:31 
+
+38:31 patches. So essentially you take the
+38:33 
+
+38:33 patch representations that the student
+38:34 
+
+38:34 created for both the views and you try
+38:37 
+
+38:37 to match it uh with the patch
+38:39 
+
+38:39 representation that the teacher has.
+38:42 
+
+38:42 Okay. So basically teacher uh the hope
+38:44 
+
+38:44 is that teacher is larger in size the
+38:46 
+
+38:46 teacher also has uh you see unmasked
+38:49 
+
+38:49 token so there should be therefore it
+38:51 
+
+38:51 should be able to come up with really
+38:52 
+
+38:52 good patches. So that's what you do. So
+38:54 
+
+38:54 across all the patches you're
+38:55 
+
+38:55 essentially um trying to uh uh you know
+38:59 
+
+38:59 across all the patches you're sort of
+39:00 
+
+39:00 trying to match the distribution uh of
+39:02 
+
+39:02 the student whatever the student
+39:03 
+
+39:03 generated with whatever the teacher
+39:05 
+
+39:05 generated without masking. Okay. So
+39:06 
+
+39:06 that's basically that. So this are the
+39:09 
+
+39:09 two loss functions. So basically they
+39:10 
+
+39:10 have a image level objective they have a
+39:12 
+
+39:12 patch level objective. Okay. What they
+39:14 
+
+39:14 also have is this interesting
+39:15 
+
+39:15 regularizer. So the idea is that several
+39:18 
+
+39:18 times people have observed that these
+39:19 
+
+39:19 patches basically get very very similar
+39:21 
+
+39:21 representations and they wanted these
+39:24 
+
+39:24 patches to have diverse representations
+39:26 
+
+39:26 the embeddings to have diverse
+39:27 
+
+39:27 representations. So what they did was
+39:30 
+
+39:30 across a batch of samples uh and across
+39:33 
+
+39:33 all batches across all patches each
+39:35 
+
+39:35 patch right what they said is that uh
+39:39 
+
+39:39 the patch representation uh generated by
+39:41 
+
+39:41 the student uh and the nearest neighbor
+39:45 
+
+39:45 patch representation should be as far
+39:47 
+
+39:47 away from each other as possible. Okay.
+39:49 
+
+39:49 So basically they are trying to enforce
+39:51 
+
+39:51 diversity in the patch representations
+39:54 
+
+39:54 by saying that hey if I take this patch
+39:56 
+
+39:56 and its nearest neighbor well you know
+39:58 
+
+39:58 it should be far away from each other.
+39:59 
+
+39:59 Okay it's far away from each other.
+40:00 
+
+40:00 Okay. So so this is popularly called as
+40:02 
+
+40:02 a colio regularizer. So uh I think it is
+40:05 
+
+40:05 based on uh two people's names co and
+40:07 
+
+40:07 leo. I mean full form I forgot but
+40:09 
+
+40:09 anyway there's a colo regularizer that
+40:11 
+
+40:11 they also included um so as to have um
+40:14 
+
+40:14 you know uh interesting pre-training. uh
+40:16 
+
+40:16 uh so this pre-training is actually a
+40:18 
+
+40:18 part of what is called as the dino v2
+40:20 
+
+40:20 model so this is basically just dino v2
+40:21 
+
+40:21 dino v3 is on the next slide so which
+40:23 
+
+40:23 I'll talk about but it's a precursor so
+40:25 
+
+40:25 basically to sort of understand how the
+40:27 
+
+40:27 pre-training was done uh I mean several
+40:29 
+
+40:29 differences from the architectures that
+40:30 
+
+40:30 I've discussed so far right first it has
+40:31 
+
+40:31 a student teacher kind of a thinking um
+40:34 
+
+40:34 also by this time people have started
+40:36 
+
+40:36 doing this heavy augmentation while
+40:38 
+
+40:38 training your image encoders global
+40:39 
+
+40:39 patches uh local patches um so they use
+40:43 
+
+40:43 two global crops of each image 17
+40:45 
+
+40:45 billion images, right? Uh and eight
+40:47 
+
+40:47 local crops. Uh they also have some
+40:50 
+
+40:50 differences in their position encoding.
+40:52 
+
+40:52 I'll not get there, but they have some
+40:53 
+
+40:53 differences there. Um and uh they have
+40:57 
+
+40:57 image level loss, patch level loss.
+40:58 
+
+40:58 Earlier people were just having like
+40:60 
+
+40:60 image level laws, visual bird, right?
+41:01 
+
+41:01 Just text and captions. They never
+41:03 
+
+41:03 bothered about patch level law. Well,
+41:05 
+
+41:05 they did care about some mass language
+41:06 
+
+41:06 modeling, but that was that, right? But
+41:08 
+
+41:08 here you have a student teacher kind of
+41:10 
+
+41:10 a philosophy. So it's an interesting
+41:11 
+
+41:11 one. Um now after doing this what is
+41:15 
+
+41:15 interesting is that so they do pretend
+41:17 
+
+41:17 using dyno v2 okay so they do pretend a
+41:19 
+
+41:19 lot of epochs using dynino v2 but the
+41:22 
+
+41:22 last few epochs they make a very
+41:23 
+
+41:23 interesting change and uh that change
+41:26 
+
+41:26 basically improves the performance of
+41:28 
+
+41:28 the model on dense prediction tasks
+41:30 
+
+41:30 also. So if you recall right I basically
+41:32 
+
+41:32 started discussing Dino V2 saying that
+41:34 
+
+41:34 hey or Dino V3 saying that hey the model
+41:36 
+
+41:36 was really good um for uh for
+41:40 
+
+41:40 classification task but the model was
+41:41 
+
+41:41 not good for dense prediction tasks. So
+41:43 
+
+41:43 how do you improve that right? So that
+41:45 
+
+41:45 that that that thing is also visible
+41:47 
+
+41:47 here. So as you increase training
+41:49 
+
+41:49 iterations um yeah sorry the legend is
+41:52 
+
+41:52 not there but uh uh you see the uh the
+41:54 
+
+41:54 top curve is for classification kind of
+41:57 
+
+41:57 tasks. The lower curve is for dense
+41:60 
+
+41:60 prediction tasks. And what you observe
+42:02 
+
+42:02 is that you know if you do this
+42:03 
+
+42:03 prolonged training, you keep training
+42:05 
+
+42:05 and training on uh your um your data
+42:08 
+
+42:08 sets specifically image uh uh
+42:11 
+
+42:11 classification data sets because you
+42:12 
+
+42:12 know large data sets are image
+42:13 
+
+42:13 classification typically and you're
+42:15 
+
+42:15 training encoders. You're doing that
+42:16 
+
+42:16 right? It gets better at doing image
+42:18 
+
+42:18 classification. No wonder, right? Not
+42:21 
+
+42:21 overfitting. You're just doing really
+42:22 
+
+42:22 nice on image classification but
+42:23 
+
+42:23 overfitting to the task type. not doing
+42:26 
+
+42:26 really great for dense prediction. Okay.
+42:28 
+
+42:28 Uh and you know they visually also
+42:30 
+
+42:30 observed this. So this is basically uh
+42:32 
+
+42:32 this this interesting one is a cosine
+42:35 
+
+42:35 similarities between the CLS token and
+42:37 
+
+42:37 output patch. Okay. Um so for every
+42:41 
+
+42:41 patch uh uh for every patch you compute
+42:44 
+
+42:44 cosine similarity between the CLS token
+42:46 
+
+42:46 and output patch. Um this is the
+42:49 
+
+42:49 original image. This is after 200k
+42:51 
+
+42:51 iterations. This is after million
+42:52 
+
+42:52 iterations. So basically the second one
+42:54 
+
+42:54 I mean basically this one is uh way more
+42:58 
+
+42:58 uh way more uh it has seen way more
+43:00 
+
+43:00 tokens. So it's much more pre-trained.
+43:02 
+
+43:02 Okay. Um now what is what is interesting
+43:05 
+
+43:05 to observe here? So the interesting
+43:06 
+
+43:06 thing to observe here is that since it
+43:08 
+
+43:08 was trained on a um on a classification
+43:11 
+
+43:11 kind of a task after 200k iterations you
+43:14 
+
+43:14 do not see too much of u uh you know uh
+43:18 
+
+43:18 attention spreading out. So or the
+43:20 
+
+43:20 cosign similarity spreading out. All of
+43:21 
+
+43:21 these tokens seem to be very similar to
+43:23 
+
+43:23 the CS token. But obviously, you know,
+43:25 
+
+43:25 since you're optimizing that CS token
+43:27 
+
+43:27 should contain really rich information
+43:28 
+
+43:28 to be predictive of the class label for
+43:30 
+
+43:30 this for this image, you know, uh after
+43:32 
+
+43:32 a million tokens, sure, I mean, it
+43:34 
+
+43:34 starts giving super high importance to
+43:36 
+
+43:36 certain certain tokens which are
+43:37 
+
+43:37 representative of the FL, right? Uh and
+43:39 
+
+43:39 therefore be able to do the
+43:41 
+
+43:41 classification task very accurately. But
+43:43 
+
+43:43 now if you think ABOUT IT YOU KNOW it
+43:44 
+
+43:44 has started now giving a huge lot of
+43:46 
+
+43:46 importance to those tokens only in
+43:48 
+
+43:48 general screwing up dense prediction
+43:49 
+
+43:49 tasks because dense prediction tasks do
+43:51 
+
+43:51 care about those other pixels also
+43:53 
+
+43:53 right. So that is the explanation why
+43:55 
+
+43:55 they think or rather why they realized
+43:57 
+
+43:57 that hey uh you see I mean these uh uh
+44:01 
+
+44:01 you know the loss functions are really
+44:02 
+
+44:02 good in terms of learning great
+44:04 
+
+44:04 representations that uh that that focus
+44:07 
+
+44:07 a lot on um on on the original
+44:11 
+
+44:11 foreground things. But hey other pixels
+44:13 
+
+44:13 are also important for dense prediction.
+44:15 
+
+44:15 Okay. So that is why they could explain
+44:17 
+
+44:17 that hey that is why the dense
+44:18 
+
+44:18 prediction accuracy is going down. But
+44:20 
+
+44:20 how do you handle that is the question.
+44:22 
+
+44:22 Okay. How do you handle that is the
+44:23 
+
+44:23 question. So um in fact they also
+44:26 
+
+44:26 observed another interesting one. What
+44:28 
+
+44:28 they observed is that there's a loss of
+44:30 
+
+44:30 patch level consistency over training.
+44:32 
+
+44:32 Now what does that mean? Okay. Um so
+44:36 
+
+44:36 let's look at this image. This is the
+44:37 
+
+44:37 original image. Okay. And what you see
+44:40 
+
+44:40 here is 200k iterations, 400k, 600k,
+44:44 
+
+44:44 million iterations and so on. Okay. And
+44:46 
+
+44:46 now what you see in these images is not
+44:48 
+
+44:48 similarity between CLS token and output
+44:51 
+
+44:51 patches but similarity between the red
+44:53 
+
+44:53 token right at the center and every
+44:56 
+
+44:56 other patch every other patch. Okay. So
+44:60 
+
+44:60 um so it's a similarity between the red
+45:01 
+
+45:01 token in the center and every other
+45:02 
+
+45:02 patch. Okay. So the idea is that uh yeah
+45:06 
+
+45:06 I mean you know when you have small
+45:08 
+
+45:08 amount of training well it's basically
+45:10 
+
+45:10 primarily focusing on um on on basic
+45:13 
+
+45:13 features like color okay and you can
+45:15 
+
+45:15 basically observe that yes the red patch
+45:17 
+
+45:17 basically has very good similarity with
+45:18 
+
+45:18 other yellow things which is beautiful
+45:20 
+
+45:20 as expected right but over time over
+45:23 
+
+45:23 iteration since you're not training it
+45:24 
+
+45:24 for finding similar pixels but really
+45:26 
+
+45:26 training it for object detection or
+45:28 
+
+45:28 rather being able to do classification
+45:30 
+
+45:30 at the at the top level right I mean
+45:32 
+
+45:32 this is what happens to the similarity
+45:33 
+
+45:33 Okay, the red patch suddenly starts to
+45:36 
+
+45:36 have similarity with random things. I
+45:37 
+
+45:37 mean with with things that are unrelated
+45:39 
+
+45:39 for example this railing and things of
+45:41 
+
+45:41 that kind. Okay, so basically what they
+45:44 
+
+45:44 have observed is that yeah I mean you
+45:46 
+
+45:46 know as you train for classification
+45:48 
+
+45:48 kind of scenarios yes you are basically
+45:50 
+
+45:50 just focusing on CLS token and you know
+45:52 
+
+45:52 you're telling other patch tokens patch
+45:54 
+
+45:54 tokens are secondass folks rather than
+45:56 
+
+45:56 the first class you know uh tokens here.
+45:58 
+
+45:58 Okay. So that is why they introduced an
+46:01 
+
+46:01 interesting new objective beyond the
+46:03 
+
+46:03 three that we already talked about on
+46:05 
+
+46:05 the previous slide. Right? Beyond these
+46:06 
+
+46:06 three dino objective I mean a image
+46:08 
+
+46:08 level dyno objective and a patch level
+46:11 
+
+46:11 you know patch level construction
+46:13 
+
+46:13 objective because after all they're
+46:14 
+
+46:14 reconstructing these patches from the
+46:16 
+
+46:16 teacher in that senses right so um and
+46:18 
+
+46:18 and then the regularizer beyond these
+46:21 
+
+46:21 they basically said we'll have one more
+46:22 
+
+46:22 objective okay uh one more loss function
+46:25 
+
+46:25 uh called as the gram anchoring
+46:27 
+
+46:27 objective. Okay. So the idea is super
+46:29 
+
+46:29 simple. You basically take uh you know
+46:32 
+
+46:32 what is called as gram matrix. So gram
+46:34 
+
+46:34 matrix is uh and and basically again
+46:37 
+
+46:37 this is going to be a student teacher
+46:38 
+
+46:38 thing. So you have the same architecture
+46:40 
+
+46:40 obviously. So what you do is basically
+46:43 
+
+46:43 take uh uh the representations for every
+46:46 
+
+46:46 patch uh after a layer. So essentially
+46:49 
+
+46:49 you you you take representations of
+46:51 
+
+46:51 every patch access the representation
+46:53 
+
+46:53 for that patch. Okay. um and then you
+46:56 
+
+46:56 multiply it uh you basically do excess
+46:58 
+
+46:58 excess transpose. Okay, so that's
+46:60 
+
+47:00 basically called as a gram matrix. So
+47:02 
+
+47:02 you have a gram matrix of patch
+47:04 
+
+47:04 representations for the student and you
+47:07 
+
+47:07 want to make sure that your uh this gram
+47:09 
+
+47:09 matrix basically is very similar to the
+47:12 
+
+47:12 gram matrix for a teacher and this
+47:14 
+
+47:14 teacher is not the same as your previous
+47:16 
+
+47:16 teacher. So it's not the same as your
+47:18 
+
+47:18 online uh tokenizer teacher. Okay. Um
+47:22 
+
+47:22 so what you want to do okay so the Uber
+47:24 
+
+47:24 goal is to ensure that your patch
+47:26 
+
+47:26 presentations don't get screwed up okay
+47:28 
+
+47:28 and uh to be able to ensure that your
+47:30 
+
+47:30 patch presentations don't get screwed up
+47:32 
+
+47:32 as you are essentially doing more and
+47:33 
+
+47:33 more training uh for classification
+47:35 
+
+47:35 geared towards classification the idea
+47:38 
+
+47:38 is that you basically look at a teacher
+47:39 
+
+47:39 which was existent a few iterations back
+47:41 
+
+47:41 in time let's say 10k iterations back in
+47:43 
+
+47:43 time because that guy was really had
+47:45 
+
+47:45 much better patch iterations than you
+47:47 
+
+47:47 would get today than you would get with
+47:48 
+
+47:48 with the current current iteration Okay.
+47:51 
+
+47:51 So you basically take a gram teacher and
+47:54 
+
+47:54 it's teacher because it is a larger
+47:56 
+
+47:56 model. So you take the gram teacher
+47:58 
+
+47:58 which was existent 10k iterations back
+47:60 
+
+47:60 in time and you ensure that this gram
+48:02 
+
+48:02 matrix for the student matches with that
+48:05 
+
+48:05 with that gram teacher with that with
+48:07 
+
+48:07 the gram matrix for that teacher. Okay.
+48:08 
+
+48:08 So that's basically that um and the
+48:12 
+
+48:12 interesting part is that uh when they
+48:14 
+
+48:14 train now with this objective most of
+48:17 
+
+48:17 the pre-training actually happens in the
+48:18 
+
+48:18 standard manner. Okay. And your dense
+48:20 
+
+48:20 prediction accuracy keeps dropping,
+48:21 
+
+48:21 keeps dropping, keeps dropping. Now
+48:23 
+
+48:23 after a million iterations, you just do
+48:25 
+
+48:25 very few iterations, you know, just like
+48:27 
+
+48:27 a few 10k 20k iterations and suddenly
+48:30 
+
+48:30 you see this, you know, this extreme
+48:31 
+
+48:31 discontinuity. You basically start
+48:33 
+
+48:33 suddenly seeing dense prediction
+48:34 
+
+48:34 accuracy jumping like crazy. Okay. So
+48:37 
+
+48:37 essentially all that they have done is
+48:39 
+
+48:39 to uh ensure that your dense prediction
+48:43 
+
+48:43 your patch label uh representations are
+48:45 
+
+48:45 preserved uh compared to the teacher
+48:47 
+
+48:47 which existed like 10k iterations back
+48:49 
+
+48:49 in that senses. Okay. uh there are two
+48:52 
+
+48:52 variants I mean that you can do and I'll
+48:54 
+
+48:54 skip the variants for the sake of it but
+48:55 
+
+48:55 uh uh the the point is that yes this
+48:58 
+
+48:58 this is a new objective that they
+48:59 
+
+48:59 introduced called gram anchoring uh
+49:01 
+
+49:01 which gives you an encoder which does
+49:03 
+
+49:03 well not just for image level
+49:05 
+
+49:05 classification task but also as these
+49:07 
+
+49:07 dense prediction tasks which are uh more
+49:10 
+
+49:10 like u uh you know uh pixel level
+49:12 
+
+49:12 predictions in that senses okay
+49:15 
+
+49:15 now yeah we have some time and I'll
+49:17 
+
+49:17 basically just quickly talk about video
+49:19 
+
+49:19 tasks I mean uh not too much But a
+49:21 
+
+49:21 little bit about video tasks. Uh just
+49:23 
+
+49:23 like there has been vision encoding on
+49:25 
+
+49:25 images, there is also encoding on
+49:27 
+
+49:27 videos. Uh and uh um and there are many
+49:31 
+
+49:31 many tasks that you see here very very
+49:32 
+
+49:32 related. So just like you can do image
+49:34 
+
+49:34 search, you can do video search and that
+49:36 
+
+49:36 requires video encoding as well. And
+49:38 
+
+49:38 there have been a lot of work in
+49:39 
+
+49:39 convolution neural networks domain
+49:41 
+
+49:41 coming up with interesting vision video
+49:43 
+
+49:43 encodings, right? So essentially uh
+49:44 
+
+49:44 obviously videos are sequence of images.
+49:46 
+
+49:46 you would sample some images and then
+49:48 
+
+49:48 for every image you would learn some I
+49:50 
+
+49:50 mean you would capture in motion also
+49:52 
+
+49:52 besides actually coming up with image
+49:54 
+
+49:54 presentations uh and they have
+49:57 
+
+49:57 interesting optical flow vector based
+49:59 
+
+49:59 motion capturing and so on right but in
+50:02 
+
+50:02 the transformers world all of that takes
+50:03 
+
+50:03 a backseat in the transformers world
+50:05 
+
+50:05 everything is basically using
+50:06 
+
+50:06 transformers I mean you don't need to uh
+50:08 
+
+50:08 you know you can ditch all of your CNN's
+50:10 
+
+50:10 in that senses okay um and represent
+50:13 
+
+50:13 images more like uh more like uh cubes
+50:17 
+
+50:17 represent videos more like image cubes.
+50:19 
+
+50:19 So in the sense just you know put images
+50:21 
+
+50:21 one after the other and you have like 3D
+50:22 
+
+50:22 filters processing them and so on. Okay.
+50:25 
+
+50:25 Um or or rather sorry you have so that
+50:28 
+
+50:28 was the CNN way of doing things but now
+50:30 
+
+50:30 in the transformers world you would take
+50:32 
+
+50:32 those videos you take frames and each
+50:34 
+
+50:34 frame is processed by tiling it just
+50:36 
+
+50:36 like in the VIT world. Okay. uh but
+50:39 
+
+50:39 anyway I mean you have several tasks
+50:41 
+
+50:41 multiplechoice video question answering
+50:43 
+
+50:43 like you could do on images you could do
+50:45 
+
+50:45 question answering on videos as well um
+50:48 
+
+50:48 you can uh do fancy other fancy things
+50:50 
+
+50:50 with videos in fact I'll talk in the in
+50:52 
+
+50:52 the later talk um today I'll talk about
+50:55 
+
+50:55 video based use cases as well but um
+50:57 
+
+50:57 there are these uh u um I mean you know
+51:00 
+
+51:00 finding where given a small video and a
+51:03 
+
+51:03 large video you want to localize a small
+51:05 
+
+51:05 video moment in the large video long
+51:07 
+
+51:07 video right so those kinds of things or
+51:09 
+
+51:09 doing segmentation of videos. So
+51:10 
+
+51:10 basically I have a long video which
+51:12 
+
+51:12 explains um how to install a particular
+51:15 
+
+51:15 product and I have like five steps. So
+51:17 
+
+51:17 how do you find those segments? Okay,
+51:19 
+
+51:19 all of those interesting tasks.
+51:21 
+
+51:21 Now in this uh domain I mean the first
+51:24 
+
+51:24 thing that came up after clip was video
+51:25 
+
+51:25 clip. So the idea is the same
+51:28 
+
+51:28 contrastive learning. You represent
+51:29 
+
+51:29 videos using uh some nice interesting
+51:32 
+
+51:32 video encoders. Um they started off with
+51:34 
+
+51:34 frozen pretend CNN. uh but uh in today's
+51:38 
+
+51:38 world you could basically take um the
+51:41 
+
+51:41 video um I mean each of those image
+51:43 
+
+51:43 frames and represent them using VIT
+51:44 
+
+51:44 models themselves uh I mean uh the same
+51:47 
+
+51:47 tiling business and so on right uh but
+51:49 
+
+51:49 more or less the model is the
+51:51 
+
+51:51 architecture is very very similar you
+51:52 
+
+51:52 have a video encoder you have a text
+51:53 
+
+51:53 encoder and you try to do contrastive
+51:55 
+
+51:55 training the idea is about you know
+51:58 
+
+51:58 finding good im video text pairs okay
+52:01 
+
+52:01 finding good image text pairs yes you
+52:03 
+
+52:03 have lots of captions and one would
+52:04 
+
+52:04 imagine oh finding video text pairs
+52:06 
+
+52:06 should easier because after all you have
+52:07 
+
+52:07 transcript for most of the videos right
+52:09 
+
+52:09 but that's not true because you see when
+52:12 
+
+52:12 somebody says I'm now going to teach you
+52:13 
+
+52:13 how to make choleur well he's just
+52:15 
+
+52:15 saying that and his face is there in the
+52:17 
+
+52:17 image it's not like cholur is visible in
+52:19 
+
+52:19 the image so the idea is that you see I
+52:22 
+
+52:22 mean um uh so therefore finding those
+52:25 
+
+52:25 pairs which are aligned was some some
+52:27 
+
+52:27 sort of interesting challenge in this
+52:29 
+
+52:29 paper uh and they try to have some
+52:31 
+
+52:31 uristics and you know try to find
+52:33 
+
+52:33 segments I mean chole is not there here
+52:36 
+
+52:36 but it's going to be there soon and so
+52:37 
+
+52:37 on. So, so they do some interesting
+52:39 
+
+52:39 fancy stuff there. Uh but uh they have
+52:42 
+
+52:42 large data set on which they basically
+52:45 
+
+52:45 just do the standard um contrastive
+52:47 
+
+52:47 training. Okay. Um recently people have
+52:51 
+
+52:51 started doing uh um multimodality across
+52:54 
+
+52:54 many other uh modalities besides just
+52:57 
+
+52:57 vision and text. So uh vision, text,
+52:60 
+
+52:60 audio. Image bind is basically a paper
+53:03 
+
+53:03 or a system you know with like six
+53:05 
+
+53:05 different modalities. So where you have
+53:08 
+
+53:08 um you know image, videos, um audio,
+53:11 
+
+53:11 text, uh there's also this depth thing.
+53:14 
+
+53:14 So essentially uh you can actually uh
+53:16 
+
+53:16 depth as a modality and then there is
+53:18 
+
+53:18 sensor modality. So I imu data as they
+53:21 
+
+53:21 call it. Okay. Uh there's thermal
+53:23 
+
+53:23 modality. So so temperature images,
+53:26 
+
+53:26 right? So essentially I'm not sure some
+53:27 
+
+53:27 of you might have worked with flur
+53:28 
+
+53:28 images
+53:30 
+
+53:30 electrical circuits typically people
+53:32 
+
+53:32 take those images to do fault analysis
+53:34 
+
+53:34 from electrical data electrical circuit
+53:37 
+
+53:37 data in that sense right so so for
+53:39 
+
+53:39 example and and what they did I mean
+53:40 
+
+53:40 they could enable way more interesting
+53:42 
+
+53:42 things now so for example you could take
+53:44 
+
+53:44 the audio of a crackle of a fire and
+53:46 
+
+53:46 actually generate an image or a video
+53:48 
+
+53:48 representing that right uh or you could
+53:51 
+
+53:51 basically also generate like depth
+53:53 
+
+53:53 images of a furnace or things of that
+53:56 
+
+53:56 based on just the audio. Okay. So you
+53:57 
+
+53:57 could basically do multimodality
+54:00 
+
+54:00 generation as well. Um while uh when you
+54:04 
+
+54:04 have a model of that kind which can
+54:06 
+
+54:06 understand different modalities and map
+54:08 
+
+54:08 different modalities to the same
+54:09 
+
+54:09 embedding space right u I mean well the
+54:12 
+
+54:12 inspiration was this an image of a beach
+54:14 
+
+54:14 can remind us of the sound of waves and
+54:15 
+
+54:15 so on. So yes there is information which
+54:17 
+
+54:17 is semantic which is modality agnostic.
+54:19 
+
+54:19 So there must be a way of uh sort of uh
+54:22 
+
+54:22 relating everything to some sort of a
+54:24 
+
+54:24 central space. Okay. Uh so that was the
+54:27 
+
+54:27 inspiration but majorly they were
+54:28 
+
+54:28 inspired by the availability of data. I
+54:30 
+
+54:30 mean essentially if you want to do this
+54:32 
+
+54:32 multimodality training you want aligned
+54:34 
+
+54:34 data after all. Okay. Uh obviously when
+54:36 
+
+54:36 people did like image text pre-training
+54:38 
+
+54:38 they had image captions data. If you
+54:39 
+
+54:39 want to do video text pre-training sure
+54:41 
+
+54:41 you have video text you know data in
+54:42 
+
+54:42 that senses transcripts and so on. How
+54:45 
+
+54:45 do you get all of that alignment? So
+54:47 
+
+54:47 what they figured out that it's easy to
+54:48 
+
+54:48 get alignment you know using image text
+54:52 
+
+54:52 image depth image heat map image I imu
+54:54 
+
+54:54 image audio at the center of it is image
+54:56 
+
+54:56 basically so all data paired with images
+54:58 
+
+54:58 okay and that's why they called it image
+54:60 
+
+54:60 bind by the way there's also another
+55:01 
+
+55:01 interesting call text bind they said
+55:03 
+
+55:03 everything can be you know uh uh b you
+55:06 
+
+55:06 know can can be bound together using
+55:08 
+
+55:08 text and so on but uh that's that um and
+55:12 
+
+55:12 yes I mean if you can train these models
+55:13 
+
+55:13 you can also do fancy multimodal
+55:15 
+
+55:15 arithmetics so you can take the crane
+55:16 
+
+55:16 and the waves and generate uh images
+55:18 
+
+55:18 with the crane not in the uh grassland
+55:20 
+
+55:20 but uh near the beach and so on right um
+55:25 
+
+55:25 so now when you do pre-training for
+55:27 
+
+55:27 image bind kind of things uh what you
+55:29 
+
+55:29 use are data sets uh which bind these
+55:33 
+
+55:33 modalities so for example this text and
+55:36 
+
+55:36 image uh modality which is uh basically
+55:39 
+
+55:39 large scale web data the the standard um
+55:42 
+
+55:42 web image text kind of corpora um then
+55:45 
+
+55:45 you have depth sensor data from I mean
+55:49 
+
+55:49 basically there are data sets available
+55:50 
+
+55:50 for each of those pairs and you
+55:52 
+
+55:52 essentially all you do is your standard
+55:54 
+
+55:54 uh contrastive training standard
+55:56 
+
+55:56 contrastive training right um that's
+55:60 
+
+55:60 that so in summary right I think in this
+56:04 
+
+56:04 uh session right we talked about a whole
+56:06 
+
+56:06 bunch of um encoders so starting from uh
+56:11 
+
+56:11 VIT which is basically a vision encoder
+56:14 
+
+56:14 um then sort of delving into visual bird
+56:16 
+
+56:16 and billboard which are more like CNN
+56:18 
+
+56:18 based uh um encoders for images but then
+56:22 
+
+56:22 again I mean so these are basically CNN
+56:24 
+
+56:24 based patch CNN based encoders for
+56:27 
+
+56:27 images right um but uh everything else
+56:30 
+
+56:30 that you see is basically uh
+56:32 
+
+56:32 transformers based right transformers
+56:34 
+
+56:34 based um uh yeah so that's that
+56:38 
+
+56:38 questions open for questions or u I mean
+56:42 
+
+56:42 tomorrow obviously we'll go over
+56:43 
+
+56:43 generative models So you'll see how
+56:46 
+
+56:46 these have been combined with um with
+56:49 
+
+56:49 decoders so as to essentially
+56:51 
+
+56:51 essentially you know generate things uh
+56:53 
+
+56:53 primarily focusing on text generation uh
+56:55 
+
+56:55 by the end if we have time we'll also
+56:57 
+
+56:57 talk a little bit about image generation
+56:59 
+
+56:59 but I don't think we'll have time 1 hour
+57:00 
+
+57:00 is very less talk about text generation
+57:04 
+
+57:04 okay so thank you I think we'll stop
+57:06 
+
+57:06 here then thank Yeah.

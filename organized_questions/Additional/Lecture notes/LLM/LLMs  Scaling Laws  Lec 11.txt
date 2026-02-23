@@ -1,0 +1,802 @@
+00:08 so good morning everyone so so thanks for having me for yet
+00:14 another session and today I'm going to talk about uh scaling laws right so uh
+00:22 what exactly uh we will look into it you know what what exactly is scaling G not
+00:28 something that's uh uh you know to understand the scaring law is not something that's quite rocket
+00:35 science but the is it's something that these laws exist or apparently exists is
+00:43 something that is quite surprising and not much of that this has been explained
+00:49 so far so it's quite interesting so we are going to delve into all these
+00:55 different types of uh scaling laws and we are going to see why they are important right so so that's the idea
+01:02 okay so uh again sort of a recap or a context
+01:08 uh to motivate the today's talk as you can see starting from 2018 onwards
+01:14 models are becoming really large and uh but then something started
+01:21 again started happening it's kind of like almost like Trend coming back so from 2022 you're seeing two two strands
+01:28 or two threads uh coming in one which is uh uh you know you know sort of research
+01:37 that is again moving towards smaller models and uh and of course there's
+01:44 another strand which is moving towards even larger models right so we don't
+01:49 know at the end of the day uh where we would lean more towards but probably
+01:56 this today's talk about scaling laws will help you to understand uh you know what are the
+02:04 nuances when we have to decide which one of these directions we should be
+02:09 investing more time on in terms of a researcher also in terms of a ml
+02:14 engineer uh if you have to choose that sort of a carer so emergent abilities in llm right
+02:22 so what exactly let's try to understand what exactly we mean by emergent okay uh
+02:32 so uh in the in this famous gpt3 paper which you probably would know uh uh it
+02:39 was uh gbt2 paper rather it it was shown that uh there were two things that that
+02:46 came out from the experiments that uh were discussed in that paper uh the
+02:52 first uh sort of uh understanding was that um llms are few short Learners you
+03:00 know by few shot you would mean that okay if you don't give an llm a prompt
+03:06 and if you just uh by no prompt what it would mean is that you you're not giving
+03:12 any prompt and you're asking the LM to to execute that task ler say say say a
+03:19 task of summarization so you're just asking the llm to do to you're putting a
+03:24 document and you're asking the llm to summarize that document that would be like no prompt you know you're just
+03:29 giving the and asking for the output but uh one short and few short would mean
+03:36 that you're also giving certain exam number of examples so you're saying that okay if this is the document then this
+03:42 is the summary if this is the document then this is the summary if this is the document and this is the summary now
+03:48 tell me if I give you this document what would be the summary so you're sort of like helping the model to understand the
+03:57 mapping between the input and the output with in the prompt itself and by zero or
+04:04 Sorry by by one or few would mean what would mean how many number of such
+04:09 examples or such pairs demonstration pairs you are giving right so one shot
+04:15 would be that you only give one one example and then you ask the uh model to
+04:23 to give you the output now of course uh it's quite clear that the more help the
+04:29 model gets the more the model is able to uh would you know you would expect that
+04:35 to happen rather that if you give more help uh if you guide the model more it
+04:41 would be able to give you better results and what happens is that as you give the
+04:46 number of examples as you increase the number of examples you'll see that uh
+04:53 the accuracy uh keeps climbing up right but
+04:58 then something also so happens at the same time you know if you look at it at
+05:04 the very carefully you'll see that uh this phenomena of improving the
+05:11 performance exists only when you climb up to larger
+05:18 models or models with more parameters right and then only you will
+05:25 see that okay so uh so if I
+05:31 uh if I see this uh this uh so so as I
+05:36 um as I look into so this is the jump this is the jump right so this jump I'm
+05:44 I'm happening to see this jump right so so with 13 billion parameters as you
+05:49 climb up to 175 billion parameters you see suddenly that there is a there is a
+05:54 jump in terms of the performance right so uh so that's the thing even in even
+06:01 even with a very smaller uh let's say just one shot right
+06:09 even there you see that there is sort of a a
+06:14 jump uh in terms of the accuracy right so that's what uh what we mean by larger
+06:22 is better okay so as you increase the size of the model um you will suddenly
+06:29 see this jump s happening okay so this was this particular task was a task to
+06:35 remove random symbols from a word so that was uh that was the task uh and uh
+06:42 we also try to understand what happens when we you know try to do some arithmetic op tasks give some arithmetic
+06:50 tasks as well so these are all different types of arithmetic tasks you see two digit addition two digit subtraction and
+06:56 so on and so forth and again over here is see this sudden jump you know so so
+07:04 like as an example uh you see this sudden
+07:11 spikes so this sudden spikes right for a given model you see the sudden spikes so
+07:18 the spikes are sudden so this is
+07:23 the this is to be understood okay and
+07:30 one more thing just a little bit of digression is that you see that these spikes are you are achieving
+07:39 you are achieving this spice lot earlier when the task is relatively
+07:46 easier as compared to more difficult task let's say this this versus this
+07:52 let's say four digigit addition versus two digit addition right so in in a four digigit Edition you know you need to go
+07:60 even Beyond uh you know in terms of the size in order to get that Spike so what I
+08:08 mean to say is that and it's intuitive like if the task is harder you would have to push the size of the model more
+08:15 in order to get to see that Spike if the task is easier you get to see that spikes lot early on you know with not
+08:23 that much of scale required so that's the that's the point that's the point that I'm trying to make over here
+08:32 okay so some uh some more examples uh uh so this is uh uh basically uh some
+08:41 examples of you know in terms of some like like
+08:46 this one is the uh arithmetic versus uh the language understanding uh uh this is
+08:55 the MML benchmark
+09:01 so this has a lot of different types of uh challenges or tasks and all related
+09:09 to language understanding and over there also this paper what they did did was it
+09:14 looked into at that time it looked into one of the larger models gopher and
+09:20 looked into GPD 3 and he tried to understand uh to what extent uh these
+09:28 spikes are being
+09:34 seen okay so this bikes are being seen right and something very interesting
+09:39 over here the point that that I want to make here make here is
+09:45 that the the discussion is not about which model is better than which model so so you know try to make that
+09:53 you know I want to make that clear the discussion over here is the spike the sudden jump and irrespective of what
+10:01 they are trying to say over here is that irrespective of which model you look at if you keep on increasing the uh scale
+10:09 the model you'll suddenly get to see this Spike at some point right and quite
+10:16 interestingly you'll see that in all these experiments the there is a range which
+10:22 which happens to be between uh 10 billion and 100 billion parameters where
+10:28 you know you your suddenly seeing this huge Spike so so if you if you look at
+10:34 the previous uh so it's it's it's around that 10 to 100 billion where you see
+10:41 that Spike coming up right so uh by the way note this uh down we uh
+10:50 we will need it need it so in in our discussion down the line and again for
+10:57 for a task Life program synthesis this you again see this
+11:03 Spike somewhere a bit later than 100 billion for program synthesis so so
+11:11 that's the thing so these are some NLP Tas uh so these are some NLP
+11:18 Tas and again you see the same thing happening the spikes
+11:29 coming up right so as you increase the parameter so so now uh we looked into
+11:40 roughly we we could understand that okay all right so there's some sort of uh uh
+11:45 performance sudden performance increase as we keep uh increasing the number of
+11:51 parameters of the of the of the model what if we also increase the number of
+11:59 of uh training uh steps or we can also count in terms of the flops or the
+12:06 floating Point operations what if you increase the number of trainings you know training time uh or the training
+12:14 compute uh can we uh also see the Flop uh see the spike over there as well and
+12:21 the answer was yes and they actually looked into different types of model and
+12:26 then they figured out that yeah for different Tas and for different models you are again seeing the
+12:33 Spike as you increase the training as you increase the training
+12:41 you are again seeing this Spike noticing this Spike for different types of tasks
+12:48 right so it's also so given a particular model which means if you fix a
+12:54 particular model and if you keep on increasing the you know the training on the compute you you can
+13:01 also expect to see the spike after some time right which you were not initially
+13:07 seeing so so these were some of the early
+13:12 uh observations and then uh what what
+13:18 Google did was that they came up with this uh big bench Benchmark again that's
+13:24 another Benchmark uh for which of lots of
+13:30 different types of EI challenges for evaluating large language models and
+13:36 what they did was they said that okay so we will try to figure out we will try to quantify this emergence or this Spike so
+13:44 can we quantify the spike you know in in the sense of how much is this Spike so
+13:50 they come came up with this measure to quantify
+14:01 the for a given model right and what they did was they said that okay
+14:06 all right let me take the for for a particular I where I is a
+14:15 particular size of a given
+14:24 model right and let me take the prediction
+14:29 you know the score rather uh or rather the uh
+14:35 uh uh the prediction the score given to the
+14:44 prediction and let me uh look at the max of all so what whatever was the
+14:53 maximum score that that particular model got and let me look at the minimum
+15:00 uh score that that particular M model got so which means I'm trying to figure out in in
+15:06 this uh in this in this x axis I'm trying to figure
+15:12 out where it got the maximum score and where it got the minimum score right so
+15:18 at what point did it get the maximum score and what point did it get the minimum score and then what I am doing
+15:25 is I'm looking at what is that index or what is that point where it got the maximum and the minimum and ideally if
+15:32 it is actually showing emergence then the minimum would be the point where it
+15:38 got the minimum would be less than the point where he got the maximum because you are monotonically increasing right
+15:44 so if that's happening then you are trying to understand that okay if that is happening which means if that is
+15:50 positive and that is why you they did this AR Max to figure out whether it's not the other way
+15:57 around so it could have been the other way around also which means you know somewhere early on you are getting that
+16:02 Max and then later on you are it's you know the accuracy is dropping that should not happen so the
+16:09 expectation from this part is that it should be
+16:15 positive okay so that's why you're you're looking at the sign right and
+16:20 then you are normalizing
+16:27 this in terms of how much is that difference you know from a median scale
+16:33 point of view so what is the median difference uh between
+16:39 uh that particular Y which gave you that uh uh that particular y you know for for
+16:47 every interval rather so and the previous y basically so which is the
+16:53 previous uh uh the the scod that you got got in the previous uh point on the ex
+16:59 axis right so how much is that difference at a medium medium level right so that's what you're doing and
+17:06 you're doing a square of the square of the I mean square root of the square of the medium so so this is what uh they
+17:14 came up with emergence score and they uh you know this is a way to understand to
+17:20 what extent uh models are showing this emergent uh ability now over here I want
+17:26 to clarify something before I move on is when I say
+17:32 emergent
+17:37 ability there are two words that you need to uh be carefully understanding
+17:43 your understanding needs to be clear over here one is when we talk about imersion we don't talk
+17:52 about we don't mean that this capability or this ability was completely absent in
+17:59 smaller models that's not the meaning the meaning of emergence is in
+18:06 very loose word what we what we were calling a spike so it's not that the ability is
+18:13 not there in the smaller models it's just that you are suddenly getting this abrupt sudden jump in terms of the
+18:19 accuracy that's what we mean by emerging okay so don't think that emergent would
+18:26 always necessarily mean that the capability was complet absent in the smaller models and then suddenly you are
+18:32 getting to see uh something so that's not the point the second point is the
+18:39 ability uh now when uh when we talk about ability uh most of the time when
+18:47 it comes to scaling laws in the in the context of scaling laws most of the time
+18:52 you'll be talking about in context learning which you would learn
+18:59 uh in subsequent uh sessions so we call it I or in context learning and but uh
+19:09 so so most of the time the context is this so which in in other words you know when when you Loosely talk with people
+19:15 in this community machine Learning Community about scaling laws usually people would might might have there in
+19:22 their mind that you are talking about in context learning and what is in context learning in context learning basically means that you you
+19:29 ask the model in your prompt you ask the model to do something that the model was never trained on and the model is still
+19:36 able to do something loely speaking uh if the model
+19:42 was trained on I'm just giving you an analogy because I love analist so if the model is uh trained to make
+19:50 chai and you are prompting it to make coffee you know tell me how to make
+19:56 coffee then the model is still able to tell you how to make coffee simply because of the fact that the model has
+20:03 been able to at an latent level the model has been able to associate hard beverage with boiling water with other
+20:11 kind of processes of making the Chai at a latent concept level and also uh for
+20:18 because it was trained on other tasks it was able to also club together coffee and chai within one L concept right so
+20:26 that's why it was it able to you know give you the answer of uh how to make a
+20:31 of course the the the task that the unknown task so-called unknown task that
+20:36 you are asking the model to do has to be within one of the known classes of
+20:43 problem like you know if I if if if you train the model to do uh how to make
+20:49 chai and if you now tell Now teach me how to play cricket that won't
+20:55 work okay so just a lose analog so by ability what usually would mean is
+21:03 in context learning but at the same time it may not not necessarily have to be
+21:08 unknown to us all the time okay all right so
+21:16 uh what it what what sort of uh uh what
+21:21 what what people started realizing is when it comes to uh the scale uh or or
+21:28 scaling models there are three factors in in which people can actually scale
+21:35 one and where you can start getting to see the spikes so the spikes can be
+21:40 observed in terms of you know scaling the amount of training data it can be
+21:45 seen in terms of scaling uh the model size which we saw in the previous
+21:51 examples and it can also be in terms of scaling the amount of compute or the
+21:57 training time or the training resource or the training steps which we also saw
+22:02 like flops in the previous example right and uh what exactly is a flop so so a
+22:12 flop a training compute can be measured in terms of flop which is basically some constant Alpha in terms of which would
+22:19 which would uh be uh the number of uh
+22:24 you know basic operations that he would do to to do some sort of matrix multiplication and addition and it turns
+22:32 out to be that the both the forward pass and the backward pass would mean six
+22:37 roughly six such operations or flops and multiplied by the model size multiplied
+22:43 by the training data would come down to the overall total flop so that's how
+22:49 they are related in you know in in in a flop sense so uh and uh one important thing
+22:58 to to note here is that uh there should not be when you are trying to understand
+23:05 how models would behave as you scale one of these you have to understand that the
+23:12 model should not run out of the other two parameters which are needed for
+23:19 doing the first experiment as an example if you have to figure out let's say you
+23:25 want to do an experiment on a particular model and see that if I start if I keep
+23:31 increasing the training data what happens to the accuracy so the Assumption over here is that okay let's
+23:37 do that experiment but during the course of that experiment if you feel that you need more amount
+23:44 of uh bigger models to figure out whether that spike is happening and you
+23:51 know you are going to get that so which means the model size is not a constraint or if you want bigger you know more
+23:58 amount of computer compute then you will get that compute that's not a constraint
+24:03 so that's what we mean by no bottleneck or if you want to do it across model size let's say now you want to
+24:09 experiment over the model size like as you scale over the model size then if you need more data more records or
+24:17 training records or training data in order to see whether there is something like that the assumption is that you
+24:22 will get that training data and there is no dirth of training data you know plenty of supply of train data so that's
+24:30 the that's what we mean by if you fix one parameter then the other two parameters should not be a bottleneck to
+24:37 run that experiment in order to conduct that experiment in order to figure out whether there is actually that Spike
+24:43 happening or not right so that's the idea okay some recap of uh so basically
+24:54 uh so this is the you have already probably
+24:60 not probably but you have already discussed this things in terms of at least in terms of the parameters so you
+25:07 have the embedding Matrix so that would consist of the vocabulary uh uh Matrix which contains
+25:14 all the vocabularies and the context so this is
+25:20 the context length which means the sequence input sequence basically nothing other than the input sequence
+25:29 so how big is that sequence that you are feeding to let's say a Transformer kind of model or an lstm or whatever that is
+25:36 so and this is the dimension so that this plus this multiply by the dimension
+25:42 that's you're embeding Matrix size and then attention would be this because the
+25:48 three comes because you have q and a and v so that's how uh uh you can comp you
+25:54 can compute the number you can calculate the number of parameters required for attention masking nothing uh projection
+26:02 you know uh if you want to you know if you want to do the projection then uh this many number of parameters are
+26:08 needed feed forward you know because it's layered your model is layered so between two layers you have a sandwich
+26:16 sandwiched feet forward Network like a one layer or two layer feet forward Network right so that would again have
+26:23 uh uh that many because there are two layers one one one layer which is the input layer and the hidden layer so 2
+26:29 multiplied by that many numbers so dff is the dimension of the uh feed forward Network that is
+26:41 sandwiched between to attention Network
+26:48 layers got the point are you remembering the architecture okay and then if you add them all of
+26:55 them up then that would be the total embedding similarly for flop flops so this is how you come calculate the flops
+27:02 I'm not going to go into the details but usually people look at it not from a flop point of view but from a PFD point
+27:09 of view like paa paa flop for paa Flop Day sort of and that that is basically
+27:16 24 Hours multipli by this many number of seconds multip by this uh which is
+27:22 equivalent to saying that it's basically this many number of floating Point operations right okay
+27:30 so emergent abilities so so so till some point people people were thinking that
+27:35 we could never predict when that Spike will happen when that sudden Spike will you
+27:41 know you keep doing and you cross your finger and at some point you will suddenly start seeing that thing so
+27:48 basically the the notion till till a good amount of time was that well these
+27:53 emerging abilities are unpredictable you can't really foresee them
+27:59 right so now uh if that's true then there's a problem
+28:06 you know as Homo sapiens we we love to predict right we are very uncomfortable
+28:12 if we have uncertain situations so the problem is that we would never get to
+28:17 know which abilities uh um are are really triggering and when are they
+28:23 going to trigger right if if it is truly uncertain then we will never get to answer the first question which is a
+28:29 very important question uh what controls trigger that's even uh bigger and I
+28:36 would say tougher question which is the explainability part of it uh can we make desirable abilities to emerge faster
+28:43 that is where all the smaller language model research is sort of going you know
+28:49 in that direction so if we can know that these are the desirable abilities and if
+28:54 they emerge at this certain point can we bring it to earlier point right so can
+29:00 we do that can we make undesirable abilities to to be suppressed and you
+29:06 know when When I Was preparing the slide it just occurred that this uh um the California AI act just came up so it's
+29:14 very pertinent to this fourth point which is uh if you know you are not
+29:20 seeing an undesirable ability right now and you think that oh that's fine and
+29:25 you are opening the project or making the project open source or La launching
+29:31 the model but what happens if somebody starts scaling that same model just by increasing the number of parameters or
+29:38 something or the number of training dat amount of training data and then
+29:43 suddenly the Pandora's Box is open you know so what happens about that
+29:49 you know can we have ways to control that thing beforehand sort of right so
+29:54 that's the that's and and if it is uncertain we can never do that if
+29:59 somebody proves let's say somebody proves to you mathematically or empirically in some way that this is
+30:05 really uncertain then we can never ever even uh there's no way to actually do
+30:13 this so some other values of uh the scaling laws is that how much return
+30:19 that you know you can do budgeting so there is a budgeting value to to scaling laws like if you are a machine learning
+30:26 mlop sort of a person in company you would really want uh want to make
+30:33 everything be predictable because if it is not predictable you will not be able to budget anything as an example the
+30:39 return that you would get given a particular compute uh or how or if you have a
+30:46 limited compute budget then how do you balance between the model size versus the data set size you know because both
+30:53 can give you that jump right so which one to grow more which one to grow less
+31:00 and how do you how do you manage it given that your boss has told you that
+31:07 this is what you will get this is the amount of Computer Resources that you going to get now how do you do those
+31:15 adjustments so uh the question is that people started uh uh dabbling about you
+31:22 you know after after these uh observations were seen was that can
+31:28 there be a curve that we can fit you know in other words can we fit
+31:33 emergence right so is it really unpredictable or can be predicted by
+31:38 fitting a curve it would mean that we can predict it right so uh see the
+31:45 intuition is quite clear which you might have uh gotten even from your you know
+31:51 basic statistics 101 sort of a class and over there let's say that you have an an
+31:57 input you know X1 to through xn let say then and that that that draws from a
+32:05 distribution a normal distribution or that uh with a parameter which is parameter right with the parameter mu
+32:12 and sigma Square which is the mean in the variance and let's say the task is
+32:18 that you have to estimate the average uh uh uh as in terms of the estimating
+32:25 mu and that would be basically uh summation of x i by n given that that's
+32:31 a population so what's the error so the error usually the expected error is
+32:38 basically this right so so this is the expected error and this error is nothing
+32:44 more than Sigma Square by n right so that's the expected uh expected deviance
+32:50 or expected error right and if you do a log if you take the log on this side and
+32:56 the log on this side so so you get this so the log of the error
+33:01 is basically minus log n uh plus 2 * log of some Sigma right so
+33:10 so in other words uh if you want to if you want to look at it it's basically
+33:16 that uh it's already a
+33:23 power is already a power law why is it a power law because if you do a log log of
+33:30 the Power log then you would get a linear thing log log means on the Y on
+33:35 the Y you you make a log of the Y you make a log of the X and you get a linear
+33:42 a linear equation a linear equation in terms of the log log so the Y AIS would also you would do a log on the Y you
+33:48 would do a log on the X and then and then the Power log would suddenly become uh a linear uh you know equation so so
+33:57 so that that's the general uh intution right so which means that it's not that
+34:04 error errors would you know would uh would actually follow a power law so if
+34:11 errors are following a power law which means loss right so error means loss so
+34:16 if loss can follow a power law which means inversely the accuracy also follow follows a power law so that's the idea
+34:23 so if if loss drops according to a power law then accuracy will go up according to a power
+34:31 LW right so that's the that's the intuition uh in a nonparametric setting
+34:37 which means you don't have mu or or Sigma to a specific mu or Sigma to begin
+34:43 with then also you know there are you know you you know one very interesting technique is that you just cut let's say
+34:51 that in a 2d and in a 2d space you just cut the boxes uh with let's say
+34:58 uh this sort of a uh uh this sort of a you
+35:09 know sort of something like this in like its box right so uh and so the with with
+35:16 the length of this and what's uh if you do that then you you start getting this
+35:21 many number of boxes and each box contains this number of samples so the
+35:27 error then coms uh per box would become would would approximate to 1 by root n
+35:34 plus some other smoothness terms and if it is D Dimension so this is for two
+35:40 Dimension so if it is D Dimension then uh it would be instead of U uh n raised
+35:48 U so so it would be n uh um something like this right so uh
+35:59 so that's uh that's the thing so in other words this the so this is this
+36:06 nonparametric uh version of of of looking at the same thing or the
+36:11 intuition which we talked about right so so the idea is that there will be a
+36:17 power law that's number one what's the takeaway the takeaway two is that there is some
+36:23 power uh which depends upon D or the dimension so the exponentiation of the
+36:29 power law would sort of depend upon the dimension that uh of uh that on on which
+36:37 the data point is so the data Point's Dimension right or the training data's Dimension okay so
+36:45 uh so so this was the thing like what if the L drop or the emergence follows a
+36:52 power law so something a power law again would be something like y isal to a into
+36:58 X raised K where K can be negative so which means something like the
+37:03 loss over a particular parameter X is inversely proportional to X raised alpha
+37:12 x where Alpha is a function over the dimension just we just said right uh so
+37:21 uh so as we know we discussed that there are three major factors right one is the
+37:27 parameters size one is the training data and one is the compute so let's look at the parameter size so they came up with
+37:33 this hypothesis this is the hypothesis okay so this is just a hypothesis so they came up with this hypothesis that
+37:40 uh Ln is approximately some scaling factor which
+37:47 is a constant this is a scaling factor a
+37:56 constant upon the N this n is
+38:02 the the the model size on which you want to do that experiment the x-axis right
+38:08 so the N is the x-axis basically and it turns out to be through
+38:13 empirical uh evidences as they started fitting the curve it turned out to be
+38:19 that NC is uh this value and alpha n is
+38:24 this value right so that these are the two knobs so to say that controls the
+38:31 the scaling one is the exponentiation and one is the scaling Factor so these are
+38:37 the two controls these are the two knobs that control to what extent it will shoot up and show that emergence right
+38:45 so uh similarly uh you have the amount of training data as the other
+38:52 parameter and in they said that if we also try to understand what's the effect of increasing the amount of training
+38:59 data independently you know uh independently means by
+39:05 fixing uh the the amount of parameter which is n so if you fix the N if you
+39:11 fix the compute and then if you keep on increasing the training data what really
+39:17 goes on in terms of the scale right and that also they came up with a very
+39:23 similar uh it's just that the constants are different the constants will be different with because the parameters
+39:28 are different right so they came up with this uh this particular hypothesis which
+39:34 is a par La by itself one important thing that we have to understand over here is they did not take the embedding
+39:43 Matrix so no embedding Matrix during the
+39:49 uh during the calcul calculations or the fitting curve fitting and over here by
+39:57 training data what they really mean is the total number of tokens in the inside the training
+40:03 data okay so the total number of tokens inside the training data so let's say
+40:09 that if the training data consists of only one sentence imagine and the senten
+40:15 is John loves ice cream made in New York so John is one token loves is one token
+40:20 if that is the tokenization method so this this constant
+40:25 DC is also dependent upon on the the scaling Factor also depends depends upon
+40:30 then the tokenization method because if you do a tokenization
+40:35 like a BP sort of subw based BP tokenization or uh some other kind of
+40:41 tokenization right then uh it uh the constant will change so it depends upon
+40:48 it's a function of of of the of the tokenization method so it depends on the tokenization method
+41:01 okay so so so so that's that's the way
+41:06 we would measure uh the scale which is tokens and then
+41:12 uh we have the compute that's the third Factor right so again the same sort of
+41:20 uh uh you know uh same sort of equation uh and we will see that we are measuring
+41:29 compute in terms of in a in a in terms of lose C which is the actual compute
+41:35 that you would require and also in terms of c m so I'll I'll tell you in a in a
+41:41 minute what what is the difference between C and C Min is C Min is the minimum amount of compute that's
+41:48 required to achieve a Target loss so let's say that he fix the loss and you said that this much the loss cannot be
+41:56 greater than this it has to be this let's say then what is the minimum compute that you would
+42:02 require the minimum number of flops that you would require in the training the iterations that minimum number of flops
+42:09 that they require to achieve to hit that uh that that that loss so that is c mean
+42:16 okay so and uh and again as you know
+42:21 that this is measured in terms of PF days um so it's basically that constant
+42:28 multiplied by 24 hours multiplied by 3600 seconds right so that's so that's
+42:35 the that's the total number of PF days or pet flop days okay
+42:42 so so this laws this three fundamental laws are were proposed by a group uh
+42:51 from John's Hopkins and open AI uh and and and and and cap was one of this
+42:58 group and famously known commonly known as kaan laws and it's a the paper is in
+43:04 in 20 was published in 2020 and it's in a so it's not really published in any
+43:11 particular but hugely cited paper so so so this is uh this was what was the
+43:19 foundation the first uh I wouldn't say the first scaling law there were scaling
+43:24 sort of scaling laws before this as well so let's say in 20 2017 there were
+43:30 certain kind of scaling laws that came up for lstm kind of models and so on and so forth but a rigorous thorough
+43:37 empirical analysis probably this was the first paper uh that that we can see okay so uh
+43:46 uh for the computer more reliable version this just a just an Integrity the more reliable version is the C
+43:53 minimum version that's more reliable and uh
+43:58 what C minimum is C so C minimum is you take the C you take the
+44:05 compute and then what you do is you take the
+44:10 bat that's the minimum or the most critical B to
+44:16 achieve this loss and then what you do is you so so
+44:23 this is the so this is the formula for B critical so how do you get the B critical so the B the batch
+44:30 critical okay by the by batch I mean the training batch so how many number of Records you are your you're you're
+44:37 packing into one pass sort of so that's the batch and it has this constant of 2
+44:45 * by 10 raed 8 tokens with this Alpha B uh so that's the batch and for uh for
+44:53 any particular l so if you if you plug in the L let's say this is the the loss that you are looking at you will get the
+44:59 corresponding B critical if you plug a different L you will get the corresponding B critical so
+45:05 you can actually get all the b b criticals at different loss points right
+45:11 now you plug this particular L get the big critical look at the particular bass that you are uh using in your experiment
+45:20 that ratio together with the compute that you are using up would give you the C
+45:26 minimum which means that would give the minimum compute that you you would have
+45:32 required what it means is that you might be using something more than what the
+45:38 minimum is in your experiments so more reliable is to actually look at the
+45:44 threshold the minimum compute and then see how that scales as opposed to the compute that
+45:51 you have you have started to use you know so you could have used one
+45:58 compute and then you could have run that experiment so what they saying is that don't do that whatever computer you're
+46:05 using get the sein of that compute and then scale according to cmen instead of
+46:11 according to the C so there is the C which that is increasing across x-axis
+46:16 you take the corresponding C Min and see how the C Min is increasing across the x-axis that's what it means
+46:24 okay and uh so so so so that's the that's the thing so basically this is
+46:30 the usual C where the comput is C you
+46:36 you convert that into Cain so get that converted into a Cain so instead of
+46:42 infinite amount of data you calculate the D op the optimal amount of data and
+46:49 uh instead of a fixed batch size you take a b that is lot less than the
+46:55 critical B now this is a bit again a little Integrity this is important why
+47:01 because what people have seen earlier results have shown that if you increase
+47:07 the bat size above the critical batch that achieves that loss you will get
+47:14 diminishing return it actually goes down the accuracy starts going down so if you increase the bat size beyond that limit
+47:20 beyond that threshold of B critical the loss actually goes down so what they are
+47:26 trying to is that if you really want to see how compute what kind of what kind
+47:32 of Spike effect compute has keep your bass size within that limit that's what
+47:38 they are recommending that keep your bass size within that limit don't go beyond that limit that's what they
+47:45 saying okay all right
+47:51 so so it turns out that we are in lock this was just a what all all these uh
+47:58 these this this these laws so-called quote unquote laws they were just predictions they were like hypothesis
+48:06 right that well this is how it would be it would look like it just turns out that when they actually do those
+48:13 experiments uh they started getting to see that actually uh the model was literally
+48:22 sticking to that line why is it a straight line again just to remind you
+48:28 because it's log log so that's why you know it is going down the loss is going
+48:34 down as a straight line and ideally it should just follow that straight line the real empirical results should follow
+48:40 that straight line if it is following that straight line then it means Bingo we have gotten the power
+48:45 law which means actually models are following the power
+48:51 law and in reality when we really do the experiments we are seeing that the
+48:56 models with little bit of minor deviations here and there but the models are actually they are following that
+49:03 they are going they're moving across that line right as you increase the the
+49:09 parameters similarly for the data science in terms of tokens again the same thing is going on except for some
+49:16 early some early deviation but it's more or less follows that right uh and uh
+49:26 over here also uh uh this is more reliable because the deviation is less
+49:32 as compared to here but you could have done both ways it's just an again an
+49:37 Integrity whether you want to do c Min way or whether you want to do the C way
+49:42 but it's just uh you know the cing gives you a better prediction so so so that's
+49:51 the that's the thing uh one important thing to understand when this paper got out uh the the largeest scale reported
+49:59 scale was 1 billion versus 100
+50:05 billion which we were seeing in the earlier earlier experiments in gpt3 and
+50:11 gpt2 and all so which means what that they must have done the fingers
+50:18 Crossing thing that okay it will remain so even if you go to 100 billion it will
+50:24 still follow that that line you know it won't deviate away from that line right
+50:30 so as you go towards 100 billion even if you cross 100 billion even if it is 500
+50:35 billion it will still follow that line it will still go down and follow the same line right that is the finger
+50:43 Crossing thing over here which means there is no it's not a mathematical analysis as such it's not a mathematical
+50:50 bound or a guarantee or anything that oh yeah we have finally found out that this is how models will work no that's not
+50:58 something it's an empirical result so it's an empirical curve fitting that
+51:04 okay yeah it follows this and we think that it will keep on following the same
+51:10 thing okay okay so then they what they did was
+51:17 they started to uh dig a little bit deeper and try to understand that uh you
+51:25 know what else is going on uh in this uh as we scale let's say so
+51:31 what they did was they said that okay all right so if we keep scaling the parameters and we don't
+51:39 supply the amount of training data like bigger models what is the
+51:46 intution that bigger models will will love to eat more data more training data in order to perform but let's say we
+51:52 don't Supply that data we don't Supply that amount of food
+51:58 for for the bigger models what will happen and it what they saw was not
+52:04 surprisingly that it just saturates and doesn't go the loss doesn't drop much it
+52:12 just gets plude it just gets saturated so it doesn't matter even if you're
+52:18 increasing the model size if you're trading data doesn't increase so it
+52:23 doesn't matter how big is your model the loss is not going to is going to be the same as smaller
+52:29 models so your bigger model will perform the same way as a smaller model so nothing really will happen so that's a
+52:36 big big observation really you know which means that your bigger model will just
+52:42 overfit and uh sort of like memorize everything memorize your training data
+52:49 and won't be able to generalize well and that's why the loss you're not you're not getting to see that much of drop
+52:55 drop in the loss so as you increase the data size in terms of
+53:01 tokens as you increase the data size then only you see at this point you
+53:08 start seeing again it starts following that power law so as you keep increasing
+53:14 data size you will see that then slowly it's again coming back to that straight
+53:20 line and again is uh you know pushing itself back into the in in into the
+53:26 track right so that's that's the thing so this is uh so so basically this is what we
+53:32 call as the bottleneck so if there is a data data data data bottleneck which means there's not not enough supply of
+53:38 data set you have run out of your training data then it doesn't make
+53:43 sense okay you there's no point uh increasing so this is the corresponding
+53:49 this is the corresponding overfitting that's happening and over fitting will happen very quickly for
+53:57 uh for larger models if your data set is um data set is small right so this is
+54:03 the ratio between the model size you know the model scale how much you are
+54:08 scaling the model keeping the data set fixed so that uh and and you'll see that
+54:14 uh it's it steeply rises for everybody you know okay all right so so this is
+54:22 called uh this is this was termed as the universal universality of overfitting why Universal because it doesn't matter
+54:29 which model it doesn't matter how what is the data size that you are increasing
+54:35 you you are bound to fall into this trap of overfitting if you don't increase the data set right the other thing that they
+54:43 saw was they now switched the role so they took now data set and fixed the
+54:51 model so let's say that okay so let's do the opposite experiment so let's fix the
+54:57 model let's take a small model but let's now keep increasing the training data
+55:03 now will the small model suddenly start showing emergence quote unquote in terms
+55:08 of the spike can the small can the smaller model show the spike like suddenly as you increase the
+55:15 training data suddenly the smaller model becomes immensely intelligent sort of can that happen and the answer is
+55:24 again uh no is not happening so it only
+55:30 happens as you increase the model size then only you'll
+55:36 get to see somewhere over here like 0.5 this is
+55:43 like .5 billion uh a bit 7 71 billion and you sort of get to see that uh
+55:52 something closer to the power LW you start getting to see not before that that right so it's also not that you can
+56:00 keep increasing the training data and any model any small model can suddenly
+56:06 start showing you that emergence not going to happen so what does that
+56:12 mean it means that you have to increase both you can't simply fix one and
+56:19 increase the other you have to increase both in tandem so that's the first take away
+56:27 that both parameter and data set needs to be scaled right so the power law cannot be
+56:36 just this or cannot be just this the power law has to be some
+56:42 combination of these two and then only you can fit it properly then only then only you can
+56:50 actually show that yeah this is reality this is how actually the models are scaling so you can't just take this this
+56:56 or this so that is why the
+57:02 joint scaling law was
+57:08 proposed and that looks something like something like this okay so the idea is
+57:18 that and and what Caplan and uh others what they showed was that the the
+57:25 relationship between uh the the data and the uh the data
+57:34 scale and the parameter scale is this that's the this is the relationship between the data scale and the parameter
+57:39 scale and empirically that that scale turned out to be somewhere somewhere
+57:45 around this so in other words if the model if you increase the model if you
+57:50 want to increase the model eight times the model size you increase the model size eight times you have to increase
+57:57 the model at least five times sorry the data you have to
+58:03 increase the data set by five times so you cannot just keep quiet on the data point on the data side if you increase
+58:11 the model eight times you have to increase the data also the data set also five times so that's the relationship
+58:18 eight times over here which would mean five times of the data set then only you can see the then only you you will
+58:25 be able to follow the power LW not just the spike but you will also be
+58:31 able to follow the power otherwise you won't be otherwise your model will not follow the power
+58:37 law okay and things won't be predictable so that's the that's the
+58:43 point okay what's the second observation they
+58:49 also saw that if uh they
+58:55 uh they uh now what they did was they said that okay all right if you scale
+59:00 the parameters now but now I am going to pitch the parameter against the compute
+59:05 earlier I was pitching the parameter against the data set so now I'm going to
+59:11 pitch the parameter against the compute and as I
+59:16 increase the compute then only at this level I'm going to see something like
+59:22 the Power log which means that if my compute is low then I will not be in
+59:30 fact I will be seeing some AEP things you know from very strange things happening in other words as I increase
+59:37 it a little bit it actually goes up the loss actually is going
+59:43 up so it's only when I have enough the minimum amount of power uh I mean
+59:50 compute which means I I allow that much of compute to happen or which means my manager allows
+59:57 me to actually go through that much of compute and doesn't want to me to ship
+60:03 the model as it is then only I will see something this to happen Okay so you
+60:10 better your first thing when you go to um the corporate is to teach your
+60:16 manager scaling laws okay that's important for the
+60:22 management for the boss for the co-founder founder whoever that is okay so uh extremely important or the product
+60:30 manager okay so so this is the thing now a very different way of seeing the same
+60:37 thing is performance versus steps so now we are we are looking at the same thing but we are looking at it from the training steps point of view instead of
+60:43 flop but just the number of iterations the number of steps right passes the
+60:49 number of passes and that again you know as you increase the steps then only you
+60:55 will get to see that the the training the test laws the
+61:02 test law actually otherwise it's sort of like saturates and flattens and doesn't
+61:08 decrease much so it's only with the increases of test uh steps that you can
+61:13 actually bring it down uh in terms of the in terms of the
+61:20 loss so so this observation led to the
+61:26 second key takeaway which they started calling Universal universality of training which means what they figured
+61:34 was is not just good enough to have a joint loss that can
+61:40 characterize parameter and data set you also need to characterize parameter and
+61:46 the compute or at least you have to parameterize uh the you know
+61:57 yeah where where is it okay yeah yeah yeah so yeah so this was there so this
+62:02 was there so this we saw but this is not good enough not enough okay you also
+62:10 need to observe this you you also need to have a law that captures the Dynamics
+62:16 between these two right and again it pretty much looks
+62:22 the same uh SC is the again the scaling
+62:27 factor for the number of steps uh s minimum is again you know the the
+62:36 minimum number of steps that you would require to achieve a particular a particular loss Point okay the minimum
+62:43 number of training uh steps you can think of it like EPO as well that you
+62:49 would need right and again over here what they are saying is that uh
+62:56 over here for for some reason they're saying that okay in in this particular example you better keep your so what
+63:02 they did was they're not recommending it but what they did was they actually kept their B lot uh bigger than the minimum B
+63:10 critical and then which means that they are opening the possibility that actually there can be a loss drop you
+63:18 know sorry uh a loss increase because uh if you go beyond B critical if your
+63:24 batch goes beyond B legal then the loss can detate so they actually kept that possibility open and then they started
+63:31 to increase the steps to figure out whether it you can again dra drag it down and bring down the loss so
+63:38 basically they started out with a bad situation and then they tried to figure out whether by increasing the number of
+63:45 training steps you can bring it down to a good situation right so that's the sort of
+63:51 what my interpretation would be that was the that was the probably that was the f
+63:56 of keeping the B bigger and again be critical as it is this formula Remains
+64:03 the Same and uh you plug this and then you get uh the the SM so basically the
+64:11 idea is that instead of x axis May instead of keeping s you're keeping s
+64:18 minimum and then you are trying to figure out how it's How that scaling is
+64:24 happening right and when you do that you have this alpha s which is this which
+64:32 which comes down to this value right okay
+64:38 so very uh pertinent question are we only to
+64:44 worry about these three factors because there are so many other factors right so so many so uh although not every all of
+64:52 the factors have been explored but certain factors were all explored and very
+64:58 interestingly uh some observations that came out was that the first observation
+65:04 was uh that the model shape actually doesn't really matter in terms of the
+65:10 depth versus the layers or the breadth right the width the width versus the
+65:16 depth so that's that doesn't really matter much because if you look at the
+65:21 let's say that they started out with the attention head so let's say the attention head let's say I increase the
+65:28 number of attention heads so it's not really giving you that sort of a spike
+65:33 so there's no real Spike as such uh if you look at the if you try to have a
+65:41 ratio between the number of dimension of the model versus the number of head and if you keep on increasing that uh
+65:48 ratio uh uh uh you will you will you you know
+65:53 it's not that you are getting to see it's weekly I wouldn't say it's not it
+65:58 does not matter at all but I would say it's it's a very weak uh very weak
+66:05 Association so it doesn't really matter that much as compared to the other three factors so that's the thing the other
+66:12 thing is that the aspect ratio which means you increase the number of you
+66:17 know increase or decrease the number of layers keeping the D model uh the dimension of the model the same and
+66:24 again you are seeing you're not able to fit it well so some it's increasing
+66:29 decreasing and increasing again so it's not really something that you would be
+66:34 you know able to model well right so
+66:40 that was the thing and this is where they try to play with the uh uh the
+66:46 dimension of the feed forward Network keeping the D D model the same and again
+66:53 uh that's something that they saw was uh you know uh the ratio as they saw it
+67:02 really didn't really matter much uh so uh so there's no not nothing like a
+67:09 sharp there's no sharpness as such that okay it was so it's it's smooth this is
+67:16 predictable so there's nothing like there's a sharp emergence so there's no emergence as such so if there's no
+67:21 emergence you can model it but you can't model it as a power LW so you you use power L only when there
+67:29 is a sharp edge when there is a sharp emergence so there's no sharp emergence as such
+67:35 right okay what's the other thing well we uh we said that you know all these
+67:43 experiments that Kaplan and group did was on non uh embedding which means they
+67:49 did not take into account the embedding metrics so then uh they said okay all
+67:54 right let's try to do the Bing metrix also so it's more or less the same except for a few here and there maybe
+68:01 this zero layer which actually there's a lot of difference between zero layer
+68:07 versus first layer but except for that uh if you just look at the first layer
+68:13 in this box you see that there's not really much of a not really much of a
+68:19 difference you know in terms of you know if you take it versus if you don't take
+68:25 it right so that's what their argument was that you know it's pretty much so the
+68:31 point that they are trying to make is that both are showing the scaling law so
+68:37 since both are showing the scaling law you know it doesn't really matter whether you use the non-embedding or use
+68:44 the embedding in fact what they wanted to probably wanted to show was that uh
+68:50 that this is uh uh maybe this is better in some sense
+68:58 that uh what what they are saying is that even over here you can see that the
+69:04 layers it's till certain point it's not that they have a lot of difference among
+69:10 themselves so if you if you look at the drop between the layers it's not that there's a lot of loss drop that's going
+69:17 on at if you increase the layer so that's something also that's uh uh
+69:23 that's there but anyways I mean I don't think that there is much difference according to me if you ask
+69:29 me okay so uh okay so there was another uh you know
+69:37 a followup sort of a paper in 2021 and there was another P you know on the same title the same and then you know what
+69:45 they say saw was that even for different types of dat different types of data
+69:53 sets they were having getting to see the same kind of power LW so the hypothesis
+70:01 is that the composition of the data set also doesn't really matter like you just scale on the uh parameters of the data
+70:08 set doesn't matter what kind of data set it is it will still show the power law
+70:14 right so that's the that was the sort of the hypothesis this is the summary uh
+70:21 these are the joint ones The Joint scaling
+70:27 ones uh and uh so yeah so this is so far
+70:33 so good as far as Klan scaling laws are concerned so is there any other alternative law so is this is this yeah
+70:40 there are there were before capan also there were and after kapan also there was something that uh that become or is
+70:48 becoming very very popular and that's a chinchila scaling law so this this paper
+70:55 came out on in in 2022 newps uh people from these guys were from Deep Mind and
+71:01 they came up with this law and then they came up with a different sort of a law they said that okay we have this two
+71:07 joint uh uh losses to to uh to model and
+71:15 they came up with this sort of a thing that okay it's some some constant by n t
+71:21 where T is the total parameter total
+71:26 parameters uh and this total parameters would would
+71:31 also include um the embedding Matrix that we would see right so and E is the
+71:40 the you know the the the loss that you cannot uh uh the loss that is
+71:50 intrinsic to the data set sort of like
+71:56 the residual you know is the noise and you can't really minimize that any further so that's the lower that
+72:02 therefore that becomes a lower bound okay so uh empirically when they
+72:07 started to understand what this would mean what this uh Alpha and beta would mean they came up with this uh
+72:16 this uh version uh and this is the constants involved so e so e becomes
+72:25 this and and and sort of that way so and they also saw something very interesting
+72:31 they saw that if Alpha is and this is very important to note they they saw
+72:38 that if Alpha is somewhere closely uh similar is quite similar to Beta then
+72:44 you get uh the best curve fitting so this results in the best curve fitting
+72:56 if Alpha is equal to Beta right which means equal scaling of N and D so this
+73:02 is something which is very which is a little bit different than what Kaplan propos Kaplan said that okay if you
+73:09 increase your n by eight times your D should increase by five times but these
+73:15 guys the chinchilla people they say that no it's not like that you should equally
+73:21 scale it's not that eight times versus five times if if that is eight times this should also Al be eight times if
+73:27 that is if that is five times this should also be five times so that's what is the primary difference so so apart
+73:35 from this sort of things you know the scale and also this is without this is
+73:40 like without the embedding Matrix right so without the
+73:46 embedding Matrix what cap did and CH included the
+73:51 embedding Matrix so NT is equals to n e the
+73:58 parameters for the embedding
+74:04 Matrix right and where the embedding Matrix itself is
+74:10 basically the the vocabulary this is the
+74:15 vocabulary plus the context
+74:21 uh together with the dimension so and uh this is the computer okay so then
+74:30 a lot of people I am just showing one results a lot of people after that started working on chinchula started to
+74:37 revise chinchillas trying to figure out to what extent chinchula is applicable for the chinula scaling law is
+74:42 applicable for lot of these newer models right and then you know very recently uh
+74:48 there's this paper in you know it's in aive right now in 2024 by some people from EPO AI the company EPO Ai and they
+74:55 came out with a revision so this was this is chinchula the original chinchula by Google Deep Mind law and
+75:05 they came up with this revation they said that no this should not be 1.69 this should be uh 1 uh 82 this should
+75:14 not be this this should be this and this should not be this but this is a lot higher so this is where they said the
+75:21 scaling factor of data set training data set is actually a lot
+75:28 higher and this will give give me a better fit a better fit that's it that's that's
+75:36 the idea so that's what they said okay so that's the revision sort of that's
+75:42 what they proposed that we should rather follow this instead of this in order to get a better fit so it's more about uh
+75:49 you know there are a bunch of people who are trying to figure out like how who can give me who can give a better prediction
+75:55 sort of now to sort of wrap wrap things up
+76:01 I'm going to there's a surprise for all of you and the surprise is that a very recent paper
+76:10 came up in newps you know 2023 last year by a group from Stanford and then they
+76:15 completely made made everybody start rethinking the entire problem you know it's almost
+76:22 like you know whe as if like the point of view has changed and what they said
+76:29 that okay we agree that these three factors are important we are not disagreeing with that we so let's but we
+76:38 did some experiments so what they did was they said that okay let's take only this guy the model size and let's try to
+76:45 figure that that out whether there is really that spy and because of the spike
+76:51 we will need the power law the power laws come only because of the spike
+76:56 right so let's let's look at that that Spike so what they first saw was they
+77:01 saw that okay for most of the accuracy measures so for most of the measures
+77:07 they are not emergent so most
+77:14 measures from an emerging score point of view most measures are not even showing
+77:20 the emergence it's only a few of the measures
+77:26 that are actually showing the that spy so which means if you are using a
+77:32 different metric for the same thing let's say same task the task remains
+77:38 same but the metric changes for most of the matrics you don't even see the that
+77:46 Spike you only see see the spike for just
+77:53 10% roughly 10% so out of 39 Matrix only four Matrix
+78:03 showed that Spike okay so that kind of motivated
+78:10 them to think that whether the devil is in the matric and it's not the emergence
+78:17 is not really an intrinsic property of the scale but the devil is actually in the metric the devil is actually in the
+78:23 way of looking at it so they further dig deeper down into that 10% and then they
+78:30 saw that 76% where all you know for for the big bench for the big bench uh
+78:38 Benchmark they saw that 76% uh were all multiple choice grade
+78:46 like which means that it's uh it's a very strict kind of an accuracy measure which
+78:54 means you either hit it or you miss it there's no in between right so so
+78:59 multiple choice grade means you give an option and you say that you know if the highest probability matches this option
+79:06 then you have you get an A L zero so even if you are the second
+79:11 highest with a very small margin from the highest still you get a
+79:19 zero got the point the problem okay so it's extremely extreme ly harsh metric and
+79:29 then the remaining 16% so not remaining but the 16% is exact string match again
+79:34 a harsh again a very harsh metric so if the next token prediction let's say is
+79:40 was supposed to be cat but for some reason you predicted cats plural you
+79:47 will get a zero okay so that's that harsh all right
+79:54 and then there other stuffs like blue and normalized aggregate score so they were all fall
+80:00 under that 10% so again first of all 90% were not even emergent and then within
+80:08 the remaining 10% this is the scenario when they dig deeper into the remaining 10% then they say that okay
+80:15 let's look relook at the power law and let's say that okay so this is your power law what capan proposed
+80:25 okay c means NC you can think of it like that and this Alpha you can look at it like a negative also if it is negative
+80:31 then it you know it just reverses the numerator becomes a denominator so and then they equate this with the cross
+80:39 entropy loss which is the L this is the L this
+80:45 was the L and then they now they are now trying to
+80:53 look at the yeah look at this from this point of view from from the from the probability
+81:00 of that token point of view like how that is equated to this uh this this
+81:08 scale right and then uh what they did was they said that okay the moment you
+81:13 do that this becomes an S curve right so the accuracy so over here is the log in
+81:19 in terms of the number so and then the accuracy becomes an like an s cve and
+81:25 then what they did was they looked into uh uh you know in terms of the length of
+81:32 the token they looked into the accuracy in terms of the length of the token and of course if the length is one then it's
+81:40 an easier task but if the length is more it's a harder task and that's why you
+81:47 know if the length is more it's you don't get to see that that kind of accuracy that early on you have to wait
+81:54 more to get that kind of accuracy if the length is more it's very simple right so so this is the power law
+82:04 and this is the corresponding this is the corresponding S curve when you
+82:10 converted into this I mean it's the same thing basically okay so now what they
+82:16 were saying is that the problem is that most of these measures which are one or zero are nonlinear and by nonlinear what
+82:24 they mean is that they say that okay all right so let's what they did was they said that okay let's take this task the
+82:30 task of adding K digit integers right and which means that if all the k+ one
+82:36 digit because it's a k digit addition so there can be an additional one digit so
+82:42 if the task of that if if the final uh result if all the digits match then only
+82:48 we will get a one else it will get a zero right and which means that they
+82:54 kind reformulated the accuracy to be like this so the probability of single token being correct uh times or raise
+83:03 the number of tokens right so that's the joint probability so they looked at it from that point of view and when they
+83:08 looked at it from that point of view and then when they plotted on uh on you know in terms of
+83:14 the model then you know the shape of this curve looked very similar to what
+83:20 was published so they came up with this idea that yes so if I uh if I actually
+83:27 take the accuracy to be something which is
+83:33 nonlinear then I get a similar Repro I can reproduce the
+83:39 result right that's what they said that if I if I do this then I can reproduce the result okay all right then what they
+83:48 did was they said that okay I am no more interested in exact string bass let me do something like an edit distance
+83:54 something like Leen Stein or other kind of Ed distance let me just change the
+83:60 perspective the moment they did that then they change the loss right so the
+84:06 loss now becomes something like this so the moment the loss becomes something like this you actually
+84:13 rewarding even intermediary probabilities so if the probability is
+84:20 one which means no loss if the probability is zero it means zero
+84:25 but in in between if you have let's say 98 or 99 you will also get very less
+84:34 penalization so they did something like that and then suddenly what happened was that this socalled power law suddenly
+84:42 started looking near
+84:52 linear which means that that emergence the so-called
+84:60 emergence is gone is sort of gone the emergence is
+85:12 gone just by changing the accuracy measure okay they did another experiment
+85:18 that I said okay all right now let's look at discontinuous measures which are completely discontinuous like MC CG or
+85:25 multiple choice grade that's discontinuous right and then they said
+85:30 that okay all right if I do the same experiment over a choice of
+85:36 two okay and I am able to replicate what
+85:41 was uh published so I'm able to replicate it so
+85:48 okay so far so good now let's say that I change it I change the measure from MCG
+85:57 to Brier score and by Brier score again it's basically this that you are not you know
+86:07 penalizing uh the intermediary probability with the zero you're giving some some reward and by doing that again
+86:16 what you what they saw was that this emergence the so-called emergence that you found the
+86:22 spike is again gone
+86:29 right and then what they did they tried on multiple other things so they just
+86:35 changed the perspective and then they tried to understand whether these spikes whether all these spikes what happens to
+86:43 this those spikes and what they saw was that that's gone sort of gone so it sort of
+86:51 becomes a near linear scale
+86:57 okay so and they did it with uh uh so this
+87:03 the this is the so they say that no it's not a power law that was their point the
+87:08 point is that you don't need a power law to explain you can need you you can actually do very well with a non with a
+87:16 near linear counterpart so that was the thing and then they started experimenting and
+87:22 whether actually it really happens or not in let's say some of the latest
+87:27 models like GPD 3.5 and so on and then they saw that yeah something like this
+87:32 is going on uh you know as opposed to
+87:39 this so then they looked at other uh big bench benchmarks and for
+87:48 different types of tasks and then they say that okay all right so the moment
+87:55 they so this was MCG but the moment they made Brier score all these all these
+88:03 spikes went away all the spikes the spikes went
+88:13 away right so so basically the key takeaway was
+88:19 that you want to predict without the theatrics without the drama that there
+88:24 is is in emergence and suddenly it will pop up from nowhere or something like
+88:30 that they said that you can actually predict it's nothing like that you you can predict without the the theatric you
+88:35 know so you choose a matrix that's basically soft or continuous in in in
+88:40 some sense right and there's no sudden jump in reality most can be predicted on
+88:46 a near linear scale okay if you just change the
+88:51 perspective and then the you know then the question the big question comes is
+88:58 this do we really need the power there is no so the power LW came because of that sudden jump so if there is no real
+89:05 sudden Jump Then do we really need the power law uh of scale and probably the answer
+89:13 is uh maybe not you know maybe in some cases where you can't have a soft
+89:20 measure it doesn't make sense to have a soft measure of accuracy but the it has to be hard let's say in that sort of
+89:28 cases probably yes but in other kind of cases no that's the suggestion so
+89:35 yeah so that is the that is what I have for you for today session

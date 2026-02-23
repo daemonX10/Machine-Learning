@@ -1,0 +1,4231 @@
+00:00 Hello everybody. So uh this is the
+00:03 
+
+00:03 second lecture of reinforcement learning
+00:06 
+
+00:06 uh part of the course and uh uh last
+00:10 
+
+00:10 class if you everybody remembers we
+00:12 
+
+00:12 covered how to train reward models and
+00:15 
+
+00:15 some reward models that don't need to be
+00:17 
+
+00:17 trained basically verifiable rewards.
+00:19 
+
+00:19 And uh today what we will look into is
+00:22 
+
+00:22 how do we use these reward models and
+00:24 
+
+00:24 we'll look at uh methods where you don't
+00:27 
+
+00:27 need to train anything just use the
+00:29 
+
+00:29 reward model directly which is very
+00:30 
+
+00:30 simple and we'll also look at methods
+00:33 
+
+00:33 where you train a policy to uh use the
+00:38 
+
+00:38 reward model to generate outputs with
+00:40 
+
+00:40 high reward. we'll look at uh so this is
+00:44 
+
+00:44 uh the this is the uh top these are the
+00:48 
+
+00:48 topics that we are going to cover today
+00:50 
+
+00:50 and slowly we are going to build up
+00:52 
+
+00:52 towards PO or proximal policy
+00:55 
+
+00:55 optimization which so PO has a lot of
+00:58 
+
+00:58 different aspects that cannot be covered
+00:60 
+
+00:60 in one class there a lot of different
+01:01 
+
+01:01 things we'll cover two things that will
+01:04 
+
+01:04 reach towards PO and the remaining will
+01:07 
+
+01:07 be covered in the next class where we'll
+01:09 
+
+01:09 also talk about GRPO
+01:12 
+
+01:12 Okay. So, uh the uh we'll look at the
+01:15 
+
+01:15 best of end policy which is does not
+01:17 
+
+01:17 require any training. It's simply you
+01:18 
+
+01:18 take the language model uh or whatever
+01:21 
+
+01:21 the starting policy you have. You have a
+01:24 
+
+01:24 reward model and you sample a bunch of
+01:26 
+
+01:26 outputs. Pick the one with the highest
+01:27 
+
+01:27 reward. That is a very simple thing.
+01:29 
+
+01:29 Then we will look at what the reward
+01:32 
+
+01:32 maximization objective looks like.
+01:36 
+
+01:36 Uh and we'll cover two algorithms. the
+01:39 
+
+01:39 vanilla policy gradient algorithm and
+01:41 
+
+01:41 the second one is the actor critic which
+01:43 
+
+01:43 is a family of algorithms it's not one
+01:45 
+
+01:45 algorithm it's a bunch of different
+01:46 
+
+01:46 algorithms and uh we will see uh we will
+01:49 
+
+01:49 see what the general picture of the
+01:51 
+
+01:51 actor algorithms is we'll not look at
+01:53 
+
+01:53 all possible actor critic there are a
+01:54 
+
+01:54 lot there are huge number of them po is
+01:56 
+
+01:56 an example of actor critic that we will
+01:58 
+
+01:58 see in the next lecture
+02:01 
+
+02:01 so let's start with the best of end
+02:03 
+
+02:03 policy so best of end policy uh is very
+02:06 
+
+02:06 simple that you have a reward model. You
+02:08 
+
+02:08 have a reference model uh starting in
+02:11 
+
+02:11 policy and you want to uh generate
+02:15 
+
+02:15 outputs that are that have high reward
+02:17 
+
+02:17 as dictated by the reward model. So how
+02:20 
+
+02:20 do you do that? Uh you generate multiple
+02:23 
+
+02:23 outputs from your starting policy or the
+02:26 
+
+02:26 base policy. We also call it the
+02:28 
+
+02:28 reference policy and it is generally an
+02:30 
+
+02:30 instruction tuned model uh that when we
+02:33 
+
+02:33 start aligning there is generally a
+02:35 
+
+02:35 instruction tune model and recently
+02:37 
+
+02:37 people have started using pre-trained
+02:38 
+
+02:38 models also pre-trained uh base models
+02:41 
+
+02:41 also as starting policy.
+02:43 
+
+02:43 Okay. So we generate multiple outputs
+02:46 
+
+02:46 from the starting policy whatever it is
+02:49 
+
+02:49 you score each of them using the reward
+02:51 
+
+02:51 function and you pick the one with the
+02:53 
+
+02:53 highest reward. So pretty simple there's
+02:54 
+
+02:54 not much in the best of end policy and
+02:57 
+
+02:57 whatever has the highest reward you
+02:58 
+
+02:58 return
+02:59 
+
+02:59 and uh this is just a picture explaining
+03:02 
+
+03:02 the same that you have uh you have a
+03:04 
+
+03:04 prompt something like write a poem and
+03:07 
+
+03:07 you have a reference policy uh and you
+03:10 
+
+03:10 sample a bunch of outputs from the
+03:11 
+
+03:11 reference policy and then you score each
+03:13 
+
+03:13 of those outputs using the reward model
+03:16 
+
+03:16 and then pick the one with the highest
+03:19 
+
+03:19 reward.
+03:23 
+
+03:23 So yeah,
+03:29 
+
+03:29 >> right
+03:31 
+
+03:31 so we not this is uh I mean you can
+03:33 
+
+03:33 train it. Uh right now what I mentioned
+03:36 
+
+03:36 mentioning here is that this requires no
+03:38 
+
+03:38 training. Basically you have a reference
+03:39 
+
+03:39 policy. Reference policy can be an
+03:41 
+
+03:41 instruction tuned model. Uh you have
+03:44 
+
+03:44 trained on a bunch of I so professor
+03:46 
+
+03:46 Tanma convert instruction tuning.
+03:48 
+
+03:48 uh you will be familiar with the given
+03:50 
+
+03:50 input output pairs how to get
+03:51 
+
+03:51 instruction tune model right. So if you
+03:53 
+
+03:53 have an instruction tune model like
+03:54 
+
+03:54 llama instruct model or any of the
+03:57 
+
+03:57 instruct models you can sample multiple
+03:59 
+
+03:59 outputs from that and pick the one with
+04:01 
+
+04:01 the highest reward. Now if you have to
+04:02 
+
+04:02 train it, let's say you want to train
+04:04 
+
+04:04 it, you can train with this highest
+04:05 
+
+04:05 reward output. You can do an SFT an
+04:07 
+
+04:07 instruction or super fine tuning on top
+04:09 
+
+04:09 of this highest reward output. That's
+04:11 
+
+04:11 one way to uh train the model. But here
+04:14 
+
+04:14 I was just talking about picking the one
+04:15 
+
+04:15 the simple way that you uh you just
+04:18 
+
+04:18 using the reward model for ranking but
+04:20 
+
+04:20 not for training. So the advantage is
+04:22 
+
+04:22 that you don't require any training
+04:24 
+
+04:24 here. The disadvantage is that your
+04:25 
+
+04:25 inference time blows up, right? because
+04:28 
+
+04:28 you have to sample a lot of different
+04:30 
+
+04:30 outputs and then pick the one with the
+04:32 
+
+04:32 highest reward
+04:35 
+
+04:35 and another disadvantage is that you
+04:37 
+
+04:37 cannot do iterative improvement. uh what
+04:39 
+
+04:39 I mean by creative improvement is that
+04:41 
+
+04:41 suppose you had a prompt you generated a
+04:43 
+
+04:43 bunch of output pick the highest reward
+04:45 
+
+04:45 now in the next step you had a let's say
+04:48 
+
+04:48 similar prompt right but not exactly
+04:50 
+
+04:50 same maybe it will write a poem about
+04:52 
+
+04:52 cow and the second prompt is write a
+04:54 
+
+04:54 poem about horse now
+04:57 
+
+04:57 uh
+04:59 
+
+04:59 uh the advantage of our uh reinforcement
+05:01 
+
+05:01 learning is that you can use the
+05:03 
+
+05:03 information in prompt one to get I mean
+05:06 
+
+05:06 if you have trained using prompt one you
+05:07 
+
+05:07 should you will get your uh your outputs
+05:09 
+
+05:09 for prompt two will also improve, right?
+05:12 
+
+05:12 But if you're just picking the one with
+05:13 
+
+05:13 the highest reward, then there's no
+05:16 
+
+05:16 information getting transferred from one
+05:17 
+
+05:17 prompt to another, right? You'll again
+05:18 
+
+05:18 have to sample eight or 16 or 32
+05:20 
+
+05:20 outputs, pick the one with the highest
+05:22 
+
+05:22 reward. So it cannot get better
+05:24 
+
+05:24 iteratively. So then there's you cannot
+05:27 
+
+05:27 do this during inference time. You can
+05:29 
+
+05:29 only uh so uh you cannot basically use
+05:32 
+
+05:32 the best of end policy uh during
+05:34 
+
+05:34 inference time. I mean we uh because you
+05:37 
+
+05:37 will not have a reward basically right.
+05:41 
+
+05:41 So we will look at the reward
+05:44 
+
+05:44 maximization objective which probably is
+05:47 
+
+05:47 more interesting and which is what
+05:48 
+
+05:48 people use. Uh we'll try to frame this
+05:51 
+
+05:51 objective first and then we will look at
+05:53 
+
+05:53 two algorithms to maximize this
+05:55 
+
+05:55 objective.
+05:59 
+
+05:59 So what is the reward maximation
+05:60 
+
+05:60 objective? Uh the task is same. uh given
+06:04 
+
+06:04 you are given a base policy you are
+06:07 
+
+06:07 given a reward model and you want to
+06:10 
+
+06:10 generate outputs with high rewards so
+06:13 
+
+06:13 now you want to train the base policy so
+06:15 
+
+06:15 when I say base policy we should think
+06:17 
+
+06:17 of an instruction tuned language model
+06:19 
+
+06:19 right so the task is that you pick you
+06:22 
+
+06:22 want to take this base policy and use
+06:24 
+
+06:24 the reward model somehow to train it
+06:27 
+
+06:27 this base policy so that it generates
+06:29 
+
+06:29 high reward outputs.
+06:32 
+
+06:32 Uh another point is that generating high
+06:34 
+
+06:34 reward outputs is not sufficient
+06:36 
+
+06:36 and we'll talk about why it is not
+06:38 
+
+06:38 sufficient. So uh but the idea is that
+06:40 
+
+06:40 your reward model that you're going to
+06:42 
+
+06:42 train with it's not a perfect reward
+06:44 
+
+06:44 model. It has been trained on some
+06:46 
+
+06:46 preference data that was available to
+06:48 
+
+06:48 you. You just use that to train the
+06:49 
+
+06:49 reward model. So when you train the
+06:51 
+
+06:51 reward model it also picks up a lot of
+06:54 
+
+06:54 uh noise. So it also picks uh present in
+06:57 
+
+06:57 the so for example if your data looked
+06:60 
+
+06:60 like where longer responses had higher
+07:02 
+
+07:02 reward were preferred over shorter
+07:03 
+
+07:03 responses in a lot of cases then the
+07:06 
+
+07:06 model might simply pick up that uh
+07:08 
+
+07:08 reward model might simply give high
+07:09 
+
+07:09 reward to very long outputs but there
+07:11 
+
+07:11 are lots of different noises that the
+07:13 
+
+07:13 reward model the reward model may end up
+07:14 
+
+07:14 focusing on a single specific token uh
+07:17 
+
+07:17 it may say that okay if this to token is
+07:19 
+
+07:19 present I will give high reward and the
+07:22 
+
+07:22 reason is that because you're not
+07:23 
+
+07:23 trained in all all possible data You
+07:24 
+
+07:24 have trained it on a very small subset
+07:26 
+
+07:26 of data and now you're expecting it to
+07:28 
+
+07:28 generalize to everything. Right?
+07:31 
+
+07:31 So you don't want to just maximize the
+07:32 
+
+07:32 output to the highest uh sorry maximize
+07:34 
+
+07:34 or generate output with the highest
+07:36 
+
+07:36 reward. What you want to do is to be
+07:39 
+
+07:39 also remain close to what your starting
+07:41 
+
+07:41 point was. If your uh starting point was
+07:45 
+
+07:45 uh let's say give the starting point is
+07:46 
+
+07:46 an instruction tuned language model. It
+07:48 
+
+07:48 generates reasonably good outputs. Let's
+07:51 
+
+07:51 assume right. So if if it's a good
+07:54 
+
+07:54 approximation of what the sentences
+07:56 
+
+07:56 should look like, if it's a good
+07:57 
+
+07:57 distribution of what the natural
+07:58 
+
+07:58 language sentences look should look
+07:60 
+
+07:60 like, then here what you're saying is
+08:01 
+
+08:01 that uh don't deviate too much from what
+08:04 
+
+08:04 your starting point is. The output
+08:05 
+
+08:05 should still look like reasonable
+08:07 
+
+08:07 natural language and should reason be
+08:09 
+
+08:09 reasonable outputs for the given prompt.
+08:11 
+
+08:11 So these are the two objectives that we
+08:14 
+
+08:14 try to maximize together.
+08:18 
+
+08:18 So I al already uh mentioned why should
+08:21 
+
+08:21 we care about closeness to the reference
+08:23 
+
+08:23 policy the reward as I said so this is
+08:27 
+
+08:27 saying the exactly same thing that
+08:29 
+
+08:29 reward model have been trained to score
+08:31 
+
+08:31 only selected outputs
+08:34 
+
+08:34 and it may we don't I mean uh if you try
+08:37 
+
+08:37 to maximize the reward model the output
+08:39 
+
+08:39 that maximize the reward model will not
+08:41 
+
+08:41 look like natural language at all it
+08:42 
+
+08:42 will look very weird actually so you
+08:45 
+
+08:45 don't want to simply maximize is the
+08:46 
+
+08:46 reward model unless unless if it is a
+08:48 
+
+08:48 perfect reward model somehow if you I
+08:50 
+
+08:50 mean I don't think there's any perfect
+08:52 
+
+08:52 reward model but uh so you don't want to
+08:55 
+
+08:55 hack the reward model and basically
+08:57 
+
+08:57 that's called reward hacking if you end
+08:59 
+
+08:59 up maximizing the reward which which has
+09:02 
+
+09:02 if your model ends up generating very
+09:04 
+
+09:04 high reward output but they don't make
+09:05 
+
+09:05 any sense at all it's called reward
+09:06 
+
+09:06 hacking
+09:10 
+
+09:10 so yeah so reward max another point to
+09:13 
+
+09:13 note is that uh you may have mult
+09:16 
+
+09:16 multiple correct outputs and if you do
+09:19 
+
+09:19 reward maximization uh what will happen
+09:21 
+
+09:21 is the high the model will overfit to
+09:23 
+
+09:23 the highest reward output and maybe you
+09:25 
+
+09:25 want diversity in the output. Generally
+09:26 
+
+09:26 diversity is a preferable thing to have.
+09:29 
+
+09:29 So that's another reason why we add this
+09:33 
+
+09:33 closeness to the reference policy as
+09:35 
+
+09:35 another loss function.
+09:40 
+
+09:40 Okay. So let's so there are two things
+09:42 
+
+09:42 as I mentioned one is the reward
+09:43 
+
+09:43 maximization part
+09:46 
+
+09:46 and
+09:48 
+
+09:48 yeah so one is the reward maximation
+09:50 
+
+09:50 part and the other one is staying close
+09:52 
+
+09:52 to the reference policy. So what does
+09:54 
+
+09:54 reward maximization mean that I want my
+09:58 
+
+09:58 policy to be such that if I sample a
+10:01 
+
+10:01 bunch of outputs and score them using
+10:03 
+
+10:03 the reward model the average uh reward
+10:06 
+
+10:06 of those outputs should high should be
+10:08 
+
+10:08 high. So I want to have this policy pi
+10:11 
+
+10:11 theta. So this is pi theta that is the
+10:13 
+
+10:13 trainable part. This is
+10:16 
+
+10:16 this is what we want to train
+10:18 
+
+10:18 right and we want it to train in such a
+10:21 
+
+10:21 way that if I sample
+10:24 
+
+10:24 let's say
+10:27 
+
+10:27 uh a bunch of outputs
+10:31 
+
+10:31 or uh if I sample an output a bunch of
+10:34 
+
+10:34 outputs from the policy and take the
+10:37 
+
+10:37 expect comput the expected reward.
+10:42 
+
+10:42 This is the expected reward. Uh right if
+10:44 
+
+10:44 you want to uh this is how you write
+10:45 
+
+10:45 expectation. So this quantity should be
+10:49 
+
+10:49 high. I want to maximize this quantity.
+10:53 
+
+10:53 Does it make sense? Okay. Is there any
+10:56 
+
+10:56 confusion about this uh expectation?
+10:58 
+
+10:58 Okay. Uh so I want to train theta train
+11:02 
+
+11:02 theta
+11:04 
+
+11:04 such that this expectation is high.
+11:10 
+
+11:10 uh how do you approximate an
+11:11 
+
+11:11 expectation?
+11:13 
+
+11:13 Uh yeah, you can basically uh it's
+11:17 
+
+11:17 called Monte Carlo sampling. You just
+11:18 
+
+11:18 sample a bunch of outputs. Monteal is
+11:21 
+
+11:21 just a fancy name where you it means
+11:23 
+
+11:23 that if you have to approximate an
+11:25 
+
+11:25 expectation you sample from the policy
+11:27 
+
+11:27 and uh compute the average reward
+11:36 
+
+11:36 where y1 to yn these samples where do
+11:39 
+
+11:39 they come from?
+11:41 
+
+11:41 Pi theta y.
+11:48 
+
+11:48 So this is the reward maximum objective.
+11:54 
+
+11:54 The other objective is that you want to
+11:56 
+
+11:56 stay close to the reference policy. Uh
+11:60 
+
+11:60 how do we capture the closeness to
+12:02 
+
+12:02 reference policy? So any idea how do we
+12:05 
+
+12:05 capture the closeness to to reference
+12:06 
+
+12:06 policy?
+12:08 
+
+12:08 >> K divergence. Yes. So
+12:13 
+
+12:13 so the next term is the K divergence.
+12:18 
+
+12:18 between the policy that I'm training
+12:23 
+
+12:23 and the reference policy
+12:28 
+
+12:28 and the K diverence can also be written
+12:31 
+
+12:31 as an expectation. Uh so what will this
+12:34 
+
+12:34 look like?
+12:36 
+
+12:36 expectation under the
+12:39 
+
+12:39 policy
+12:45 
+
+12:45 log ratio of probabilities.
+12:49 
+
+12:49 Pi theta
+12:51 
+
+12:51 y given x
+12:56 
+
+12:56 y given
+13:03 
+
+13:03 I don't know if is is it visible to
+13:05 
+
+13:05 everybody okay so uh does does this
+13:10 
+
+13:10 equation make sense this expectation or
+13:12 
+
+13:12 is there any confusion about this scale
+13:14 
+
+13:14 diver
+13:17 
+
+13:17 anybody
+13:18 
+
+13:18 Okay, if if you are looking for K d for
+13:20 
+
+13:20 the first time, probably this will not
+13:22 
+
+13:22 look very familiar. But uh for now, you
+13:24 
+
+13:24 can assume that this is what the K
+13:25 
+
+13:25 divergence looks like between the policy
+13:28 
+
+13:28 pi theta and the reference policy. So
+13:31 
+
+13:31 this you want to maximize or minimize
+13:34 
+
+13:34 minimize. So we want to minimize this
+13:35 
+
+13:35 quantity.
+13:38 
+
+13:38 So the final objective
+13:40 
+
+13:40 looks like a combination of the previous
+13:42 
+
+13:42 reward maximation objective that we saw
+13:44 
+
+13:44 here
+13:46 
+
+13:46 and the care diver objective that you
+13:49 
+
+13:49 show.
+13:56 
+
+13:56 So this is the final object. Uh so this
+13:58 
+
+13:58 is how we combine the objective. We take
+14:01 
+
+14:01 the policy
+14:03 
+
+14:03 uh sample the outputs uh from the policy
+14:08 
+
+14:08 for each output we uh pass it through
+14:10 
+
+14:10 the reward model and get the reward of
+14:14 
+
+14:14 each output. Similarly, we pass the each
+14:17 
+
+14:17 of the output to compute the log
+14:19 
+
+14:19 probability log probability under the pi
+14:22 
+
+14:22 theta the policy that we are training
+14:24 
+
+14:24 and log probability under the reference
+14:25 
+
+14:25 policy pi ref and we get both of these
+14:29 
+
+14:29 quantities and compute the difference
+14:32 
+
+14:32 log pi theta minus log pi ref that's
+14:35 
+
+14:35 what this kr term that you see here is
+14:38 
+
+14:38 it's basically log of
+14:42 
+
+14:42 pi theta by p<unk> Yes.
+14:47 
+
+14:47 Okay.
+14:49 
+
+14:49 And then
+14:51 
+
+14:51 you multiply. So now how much weight to
+14:54 
+
+14:54 give to the K divergence and how much
+14:55 
+
+14:55 weight to give to the reward maximum
+14:57 
+
+14:57 that is controlled by the beta term. So
+15:01 
+
+15:01 this controls the weight uh that I
+15:04 
+
+15:04 should give to the K divergence term and
+15:07 
+
+15:07 the weight that I should give to the
+15:09 
+
+15:09 reward maximization term.
+15:11 
+
+15:11 and I multiply the k by beta and then
+15:14 
+
+15:14 compute the difference between these two
+15:15 
+
+15:15 quantities. So I want to maximize this
+15:17 
+
+15:17 quantity and I want to minimize this
+15:19 
+
+15:19 quantity. So that's why I will look at
+15:20 
+
+15:20 the difference of these two quantities
+15:21 
+
+15:21 and that will give me the objective that
+15:23 
+
+15:23 I want to train.
+15:30 
+
+15:30 Okay. So let's write both the objectives
+15:32 
+
+15:32 again. uh the first the reward
+15:34 
+
+15:34 maximation objective was that I sample
+15:37 
+
+15:37 from the
+15:42 
+
+15:42 policy that I'm training and compute the
+15:45 
+
+15:45 expected reward.
+15:49 
+
+15:49 This is the reward maximation objective.
+15:51 
+
+15:51 The kale divergence can be written as
+15:55 
+
+15:55 uh
+15:57 
+
+15:57 again sample from the policy that I'm
+16:00 
+
+16:00 training
+16:03 
+
+16:03 and look at the log probability ratio
+16:09 
+
+16:09 between pi theta and pi ref
+16:14 
+
+16:14 and com take the average that is your k
+16:16 
+
+16:16 difference.
+16:18 
+
+16:18 And how do you combine them? You just
+16:21 
+
+16:21 add you right take this term the reward
+16:24 
+
+16:24 maximation term
+16:34 
+
+16:34 you take the k term
+16:38 
+
+16:38 the expectation I can take common
+16:39 
+
+16:39 between the two right and
+16:42 
+
+16:42 you multiply the k term with beta
+16:55 
+
+16:55 and you get the combined objective.
+17:07 
+
+17:07 So this is how you will approximate the
+17:10 
+
+17:10 uh this is how the combined objective
+17:12 
+
+17:12 will look like. You will have a policy
+17:15 
+
+17:15 uh that you want to train. Sample a
+17:17 
+
+17:17 bunch of outputs
+17:18 
+
+17:18 and uh each of the output you will send
+17:21 
+
+17:21 to the reward model and each of the
+17:23 
+
+17:23 output you will send it to the reference
+17:25 
+
+17:25 model to get this
+17:28 
+
+17:28 ratio log probability ratio and the
+17:31 
+
+17:31 difference between the reward and the
+17:33 
+
+17:33 log probability ratio scaled by beta.
+17:36 
+
+17:36 This you can think of as a
+17:39 
+
+17:39 um regularized reward.
+17:42 
+
+17:42 Oh, I've already written it below.
+17:45 
+
+17:45 Regularized reward
+17:51 
+
+17:51 and regularized. So, we don't want to
+17:53 
+
+17:53 just maximize the reward of the output.
+17:55 
+
+17:55 We don't just want outputs with high
+17:57 
+
+17:57 reward. Now, we are saying that we want
+17:59 
+
+17:59 outputs for which regularized reward is
+18:01 
+
+18:01 high. So, we are trying to maximize the
+18:04 
+
+18:04 regularized reward. Does that make sense
+18:08 
+
+18:08 also? So uh let's say this was this
+18:12 
+
+18:12 sampling process was differentiable and
+18:15 
+
+18:15 this reward model everything was let's
+18:16 
+
+18:16 say differentiable okay reward model is
+18:18 
+
+18:18 generally a language model so this is
+18:20 
+
+18:20 often differentiable this is also
+18:22 
+
+18:22 differentiable if this sampling process
+18:24 
+
+18:24 was differentiable let's say this
+18:26 
+
+18:26 particular part
+18:28 
+
+18:28 then I could in principle do a forward
+18:32 
+
+18:32 pass compute this average and do the
+18:34 
+
+18:34 backward pass I mean so if you have a
+18:37 
+
+18:37 network which is uh differentiable from
+18:39 
+
+18:39 end to end. You can do back propagation
+18:41 
+
+18:41 and you don't need to do anything. You
+18:42 
+
+18:42 can just back uh do the forward pass and
+18:46 
+
+18:46 uh uh compute the loss function whatever
+18:48 
+
+18:48 it is assuming that the loss function is
+18:50 
+
+18:50 a differentiable function of the uh
+18:53 
+
+18:53 parameters that you want to train and do
+18:55 
+
+18:55 the backward pass but this part is not
+18:58 
+
+18:58 differentiable the sampling part and
+19:01 
+
+19:01 that's where all the algorithms come
+19:04 
+
+19:04 into the picture. So if you uh if any of
+19:07 
+
+19:07 you are familiar with varian
+19:09 
+
+19:09 autoenccoder there also a sampling is
+19:11 
+
+19:11 involved right you have uh is anybody
+19:13 
+
+19:13 familiar with v short encoders
+19:15 
+
+19:15 okay somewhat maybe not a lot of people
+19:18 
+
+19:18 so when the sampling process is
+19:21 
+
+19:21 differentiable and the loss function is
+19:22 
+
+19:22 differentiable then you can backropate
+19:24 
+
+19:24 the gradient if it is not then you have
+19:26 
+
+19:26 to put some more effort to make this
+19:28 
+
+19:28 work okay
+19:34 
+
+19:34 so now we'll look at the first algorithm
+19:36 
+
+19:36 which is vanilla policy gradient. Uh and
+19:40 
+
+19:40 we'll see how vanilla policy gradient
+19:43 
+
+19:43 algorithm looks like.
+19:45 
+
+19:45 So this has three parts. Uh the we first
+19:47 
+
+19:47 we'll talk about the reinforced gradient
+19:49 
+
+19:49 estimator.
+19:51 
+
+19:51 Uh how to estimate the gradient of the
+19:55 
+
+19:55 uh loss function that we are trying to
+19:57 
+
+19:57 maximize or minimize. And then we'll
+19:60 
+
+19:60 look at the problem of high variance.
+20:03 
+
+20:03 And finally we will uh have the ban
+20:07 
+
+20:07 policy grad algorithm.
+20:10 
+
+20:10 Okay. So we have the maximization
+20:13 
+
+20:13 objective. How do we go about maximizing
+20:17 
+
+20:17 it? So when you have anything that you
+20:18 
+
+20:18 want to maximize or anything you want to
+20:20 
+
+20:20 optimize the first thing to do is I
+20:22 
+
+20:22 since I cannot do differentiable
+20:24 
+
+20:24 backward path end to end the first thing
+20:25 
+
+20:25 to do is to compute the gradient.
+20:28 
+
+20:28 uh and that the gradient estimate of
+20:30 
+
+20:30 this objective is called the reinforced
+20:32 
+
+20:32 gradient estimate. We'll see what uh
+20:34 
+
+20:34 what is in I mean why is it a special
+20:37 
+
+20:37 gradient
+20:38 
+
+20:38 uh and if we can once we can get the
+20:41 
+
+20:41 gradient of the objective that we are
+20:42 
+
+20:42 trying to maximize then we can just use
+20:45 
+
+20:45 any of these gradient based optimization
+20:47 
+
+20:47 algorithms. So uh if you take Adam,
+20:50 
+
+20:50 Metagrad, SGD, all they need is your
+20:52 
+
+20:52 gradient per batch and if once you give
+20:55 
+
+20:55 them the this is the gradient per batch
+20:56 
+
+20:56 you can just run these algorithms
+20:58 
+
+20:58 optimation algorithm and they will
+20:60 
+
+20:60 update the weights and you can keep on
+21:01 
+
+21:01 doing and your training will be done. So
+21:03 
+
+21:03 all you need is how to comput the
+21:04 
+
+21:04 gradient.
+21:07 
+
+21:07 No, no, no. This is so uh so sampling is
+21:10 
+
+21:10 differentiable then you don't need any
+21:12 
+
+21:12 uh basically then you just need to
+21:14 
+
+21:14 compute the loss function and do loss
+21:16 
+
+21:16 dot backward and automatically gradient.
+21:19 
+
+21:19 So just the chain rule is sufficient in
+21:22 
+
+21:22 that case but only when if because here
+21:25 
+
+21:25 sampling is not differentiable we cannot
+21:27 
+
+21:27 use the chain rule to comput the
+21:28 
+
+21:28 gradient of everything.
+21:30 
+
+21:30 So we'll see uh how to comput the
+21:32 
+
+21:32 gradient here.
+21:35 
+
+21:35 Okay. So gradient of the expected
+21:39 
+
+21:39 reward. Can I take this gradient inside
+21:40 
+
+21:40 the expectation here?
+21:44 
+
+21:44 Can I take the gra inside?
+21:46 
+
+21:46 I cannot take the actually and the
+21:48 
+
+21:48 reason is that uh the expectation is
+21:50 
+
+21:50 over the policy itself. So let me let me
+21:54 
+
+21:54 expand the expectations. I can write the
+21:57 
+
+21:57 expectation not approximated. If I can
+21:60 
+
+21:60 write the expectation exactly as
+22:01 
+
+22:01 follows. Y belonging to the list of all
+22:04 
+
+22:04 outputs
+22:08 
+
+22:08 pi theta
+22:16 
+
+22:16 right I've just expanded no
+22:17 
+
+22:17 approximation here so far and uh I can
+22:20 
+
+22:20 now I can take the gradient inside
+22:22 
+
+22:22 because see uh a summation does not
+22:25 
+
+22:25 depend on theta
+22:27 
+
+22:27 this summation is fine and I can write
+22:30 
+
+22:30 it
+22:39 
+
+22:39 And this is the quantity that we want to
+22:41 
+
+22:41 approximate. We want an estimate for
+22:43 
+
+22:43 this quantity. This is exact. What you
+22:45 
+
+22:45 want is how to estimate this quantity
+22:49 
+
+22:49 using samples.
+22:52 
+
+22:52 That's the question that we're trying to
+22:54 
+
+22:54 answer.
+23:03 
+
+23:03 Okay.
+23:07 
+
+23:07 So, exact computition is intractable and
+23:09 
+
+23:09 the reason is that this summation this
+23:12 
+
+23:12 space is actually can be the space of
+23:14 
+
+23:14 all possible sentences in the world.
+23:15 
+
+23:15 This space can be infinite.
+23:19 
+
+23:19 So, we want to approximate it using
+23:21 
+
+23:21 samples. Now if I just give you this
+23:24 
+
+23:24 expression and ask you to approximate
+23:26 
+
+23:26 it, it's tough. The reason see we what
+23:29 
+
+23:29 we do know is that how to approximate an
+23:30 
+
+23:30 expectation. If you have an expectation
+23:32 
+
+23:32 of a function, you can approximate it.
+23:34 
+
+23:34 But this quantity is not does not look
+23:37 
+
+23:37 like an expectation to me. This quantity
+23:38 
+
+23:38 if you see here,
+23:41 
+
+23:41 this is not an expectation. This is a
+23:44 
+
+23:44 gradient of an expectation.
+23:48 
+
+23:48 So somehow I have to make it look like
+23:49 
+
+23:49 an expectation because I know how to
+23:51 
+
+23:51 approximate an expectation.
+23:54 
+
+23:54 So I want it to look like this. This is
+23:56 
+
+23:56 how I want it to look.
+24:03 
+
+24:03 So instead of gradient theta pi theta, I
+24:05 
+
+24:05 want pi theta* something. Does that make
+24:07 
+
+24:07 sense? So why do we want it to look like
+24:09 
+
+24:09 an expectation?
+24:14 
+
+24:14 Yeah, we can approximate an expectation.
+24:17 
+
+24:17 Uh so if I can do that, so that's where
+24:20 
+
+24:20 the next trick comes from that how do I
+24:23 
+
+24:23 change this quantity to something like
+24:25 
+
+24:25 this.
+24:32 
+
+24:32 So that's called the log derivative
+24:34 
+
+24:34 trick that if you have to take the
+24:36 
+
+24:36 gradient of a log, what does the
+24:38 
+
+24:38 gradient of a log look like? If I
+24:39 
+
+24:39 compute this gradient uh what will it
+24:41 
+
+24:41 look like?
+24:43 
+
+24:43 Yeah. So 1 by
+24:48 
+
+24:48 5 theta
+24:57 
+
+24:57 which means
+25:01 
+
+25:01 that the this quantity
+25:04 
+
+25:04 can be written as
+25:06 
+
+25:06 greater theta pi theta
+25:10 
+
+25:10 y given x is equal
+25:14 
+
+25:14 pi theta
+25:17 
+
+25:17 time the gradient of log
+25:25 
+
+25:25 and now we can plug it back in the
+25:27 
+
+25:27 previous equation we had. So let's see
+25:29 
+
+25:29 what the previous equation was. The
+25:31 
+
+25:31 first first equation that we have we can
+25:33 
+
+25:33 replace this first term this term that
+25:36 
+
+25:36 we have here by the log derivative uh
+25:40 
+
+25:40 trick that we applied. So what will
+25:42 
+
+25:42 happen to this summation?
+25:46 
+
+25:46 Let's write the summation y belonging to
+25:49 
+
+25:49 y
+25:51 
+
+25:51 gradient theta pi theta.
+26:02 
+
+26:02 So the first thing that we'll do is
+26:03 
+
+26:03 we'll replace this gradient theta by
+26:10 
+
+26:10 pi theta
+26:14 
+
+26:14 times the gradient of the I mean this
+26:17 
+
+26:17 quantity basically
+26:18 
+
+26:18 log pi theta
+26:27 
+
+26:27 is that fine with everybody and now if
+26:30 
+
+26:30 you look at this quantity
+26:32 
+
+26:32 as something. Now does this look look
+26:34 
+
+26:34 like an expectation? So now I can write
+26:36 
+
+26:36 it as
+26:38 
+
+26:38 expectation
+26:40 
+
+26:40 y coming from pi theta
+26:47 
+
+26:47 rxy
+26:49 
+
+26:49 to gradient theta.
+26:58 
+
+26:58 Okay.
+27:04 
+
+27:04 So now I can approximate the expectation
+27:06 
+
+27:06 using samples. This was the whole reason
+27:08 
+
+27:08 why we did this trick. And now I can
+27:10 
+
+27:10 estimate the gradient using samples. So
+27:13 
+
+27:13 how will I estimate the gradient? No. Uh
+27:16 
+
+27:16 again let's say the prompt is write a
+27:18 
+
+27:18 poem. I will use the current policy.
+27:21 
+
+27:21 It's a so this is what we are training
+27:23 
+
+27:23 right now. Always remember that this is
+27:24 
+
+27:24 what we are trying to train
+27:27 
+
+27:27 and we'll sample from the policy that we
+27:30 
+
+27:30 are training. We'll pass those samples
+27:32 
+
+27:32 to the reward model. We'll pass those
+27:33 
+
+27:33 through samples to the gradient computer
+27:35 
+
+27:35 whatever the basically we'll do a
+27:37 
+
+27:37 backward pass. So this is generally done
+27:40 
+
+27:40 during the backward
+27:43 
+
+27:43 pass
+27:46 
+
+27:46 of log pi theta y given hex computation.
+27:51 
+
+27:51 So if you're computing log with p theta
+27:53 
+
+27:53 y given x for example and you do the
+27:55 
+
+27:55 backward path you'll get this gradient
+27:57 
+
+27:57 quantity. So you get this gradient you
+27:59 
+
+27:59 get the reward you multiply by the two
+28:01 
+
+28:01 and just average and that will give you
+28:03 
+
+28:03 the reinforced gradient estimate
+28:08 
+
+28:08 and then you can use this reinforced
+28:09 
+
+28:09 gradient estimate for training.
+28:17 
+
+28:17 So uh if I have to write the estimation
+28:19 
+
+28:19 let's say I have y1 to yn which are
+28:21 
+
+28:21 samples coming from the policy.
+28:24 
+
+28:24 Uh what will be my reinforced gradient
+28:26 
+
+28:26 estimate look like
+28:30 
+
+28:30 1 / n summation i = 1 to n
+28:36 
+
+28:36 rx y i time
+28:41 
+
+28:41 uh gradient theta
+28:44 
+
+28:44 log pi theta
+28:48 
+
+28:48 Y X.
+28:50 
+
+28:50 So this is your reinforce gradient
+28:51 
+
+28:51 estimate
+28:53 
+
+28:53 and this you can use for training.
+28:56 
+
+28:56 So this is the first part of moving
+28:58 
+
+28:58 towards PP deriving the reinforce
+29:00 
+
+29:00 gradient estimate. Now this estimate is
+29:04 
+
+29:04 actually quite noisy. Why is it noisy?
+29:07 
+
+29:07 So if I had samp chosen a different set
+29:10 
+
+29:10 of samples, I would have gotten a
+29:13 
+
+29:13 different gradient. See when you are
+29:14 
+
+29:14 doing instruction tuning your input is
+29:16 
+
+29:16 fixed, output is fixed and your gradient
+29:17 
+
+29:17 is always fixed. No matter how many what
+29:19 
+
+29:19 you do, you'll always get the same
+29:20 
+
+29:20 gradient. Maybe drop out or something
+29:22 
+
+29:22 will change the gradient a little bit
+29:23 
+
+29:23 but there won't be a huge amount of
+29:25 
+
+29:25 variation.
+29:27 
+
+29:27 But when you are trying to estimate
+29:29 
+
+29:29 estimate the gradient in reinforcement
+29:30 
+
+29:30 learning the number of outputs the
+29:33 
+
+29:33 gradient estimate always depends on what
+29:35 
+
+29:35 outputs get sampled. Change the outputs
+29:38 
+
+29:38 that got sampled and you will get a
+29:39 
+
+29:39 different estimator. Uh so uh we'll see
+29:43 
+
+29:43 how to deal with the noisiness of this
+29:46 
+
+29:46 gradient estimate.
+29:49 
+
+29:49 Okay. Uh we'll see this uh how to uh
+29:52 
+
+29:52 estimate uh how to deal with the
+29:54 
+
+29:54 noisiness. But for now let's expand the
+29:57 
+
+29:57 gradient in terms of tokens. So why are
+29:59 
+
+29:59 we doing expansion? This is just to show
+30:01 
+
+30:01 how uh when you are implementing it
+30:04 
+
+30:04 let's say in code how will this look
+30:06 
+
+30:06 like? So,
+30:09 
+
+30:09 so let's say your y is a response
+30:11 
+
+30:11 actually uh contains of the tokens A1 to
+30:14 
+
+30:14 AM. Okay. So, this will be
+30:18 
+
+30:18 RX, Y.
+30:23 
+
+30:23 So, I can expand the log policy log
+30:27 
+
+30:27 probability of under the policy of first
+30:30 
+
+30:30 response Y of an output Y in terms of
+30:32 
+
+30:32 tokens because it is an autogressive
+30:34 
+
+30:34 model. How do I expand this?
+30:37 
+
+30:37 What will it become even? Does anybody
+30:39 
+
+30:39 have any idea what becomes of the log
+30:41 
+
+30:41 probability of Y if I expand? No, it
+30:45 
+
+30:45 will just expand in terms of its token
+30:48 
+
+30:48 summation. I = 1 to M
+30:53 
+
+30:53 log pi theta
+30:56 
+
+30:56 of A I
+31:01 
+
+31:01 should have used the term J equal to
+31:03 
+
+31:03 let's say J given A1 to A J minus one
+31:08 
+
+31:08 and X
+31:10 
+
+31:10 so the log probability of output of a
+31:13 
+
+31:13 sequence of tokens is just the sum of
+31:14 
+
+31:14 the log probability of those individual
+31:16 
+
+31:16 tokens conditioned on everything that
+31:18 
+
+31:18 comes before Okay. And now if you put
+31:21 
+
+31:21 gradient inside this will be
+31:27 
+
+31:27 summation j = 1 to m
+31:30 
+
+31:30 gradient of the log of
+31:34 
+
+31:34 pi theta.
+31:56 
+
+31:56 Um yeah. So
+31:60 
+
+31:60 or you can let me just sorry
+32:05 
+
+32:05 you can put this RXY inside although it
+32:08 
+
+32:08 does not make much difference. I'll just
+32:10 
+
+32:10 put this RXY inside.
+32:25 
+
+32:25 I will call this quantity that I'm
+32:27 
+
+32:27 conditioning on the all the past tokens
+32:29 
+
+32:29 including the prompt and the tokens that
+32:31 
+
+32:31 you have generated so far. Yeah, this is
+32:32 
+
+32:32 the state. So I will call this as SJ.
+32:36 
+
+32:36 Okay. Uh okay.
+32:42 
+
+32:42 And so if you have to implement it uh
+32:44 
+
+32:44 using a language model what you'll do is
+32:46 
+
+32:46 uh you will take the prompt these are
+32:49 
+
+32:49 the prompt
+32:52 
+
+32:52 you will take whatever output got
+32:54 
+
+32:54 generated generated output
+33:02 
+
+33:02 and you will pass uh all these tokens
+33:04 
+
+33:04 through the policy and for the tokens
+33:06 
+
+33:06 that got generated only for the tokens
+33:08 
+
+33:08 that were generated uh uh you will
+33:10 
+
+33:10 compute the log probability of each of
+33:12 
+
+33:12 the token given the past. Right? So log
+33:15 
+
+33:15 probability of Taj given the prompt, log
+33:18 
+
+33:18 probability of Mahel given prompt and
+33:20 
+
+33:20 Taj log probability of is given prompt
+33:23 
+
+33:23 Taj Mahel and so on. You will compute
+33:25 
+
+33:25 the log probability of each token. You
+33:27 
+
+33:27 will sum up these lo multiply them with
+33:29 
+
+33:29 the reward of the total reward of the
+33:31 
+
+33:31 output. This this includes the reward
+33:34 
+
+33:34 that comes from the reward model and the
+33:36 
+
+33:36 reward that comes from the Kale negative
+33:38 
+
+33:38 beta KL. Right? So it might might come
+33:41 
+
+33:41 from reward model
+33:44 
+
+33:44 or may come from negative beta kl
+33:50 
+
+33:50 and you will sum up uh the reward uh sum
+33:53 
+
+33:53 up these reward time log probabilities
+33:56 
+
+33:56 and then you will backup
+33:59 
+
+33:59 and that will give you the reinforced
+34:01 
+
+34:01 gradient estimate. Okay.
+34:07 
+
+34:07 So this is the algorithm. Uh you sample
+34:12 
+
+34:12 you you will repeat this process until
+34:15 
+
+34:15 you converge. You will sample a bunch of
+34:17 
+
+34:17 prompts from the data
+34:20 
+
+34:20 and for each prompt you will get some
+34:22 
+
+34:22 outputs. You can use VLM SG lang
+34:25 
+
+34:25 whatever framework you want to get the
+34:27 
+
+34:27 get sample outputs uh from the policy.
+34:30 
+
+34:30 This is the policy that you're training.
+34:33 
+
+34:33 For each output, compute the reward,
+34:36 
+
+34:36 compute the log probability of the
+34:37 
+
+34:37 output under the policy that you are
+34:40 
+
+34:40 training
+34:43 
+
+34:43 and also you will probably need ah okay
+34:47 
+
+34:47 uh
+34:49 
+
+34:49 so uh this reward may include both of
+34:52 
+
+34:52 the things the reward model and the
+34:54 
+
+34:54 negative uh KL
+34:57 
+
+34:57 and now to get the loss you will
+34:59 
+
+34:59 multiply these two quantities reward
+35:00 
+
+35:00 times log probability for each output
+35:03 
+
+35:03 and uh you will average across the
+35:07 
+
+35:07 outputs
+35:09 
+
+35:09 and then you will back propagate that
+35:10 
+
+35:10 will compute the gradient and then you
+35:12 
+
+35:12 can train. So it's pretty
+35:14 
+
+35:14 straightforward.
+35:16 
+
+35:16 But as I mentioned that this is uh
+35:18 
+
+35:18 gradient estimator is very noisy. So
+35:19 
+
+35:19 it's very it does not uh if you train
+35:22 
+
+35:22 using this gradient estimator it will
+35:25 
+
+35:25 diverge the training will diverge very
+35:27 
+
+35:27 fast. So we have to somehow reduce the
+35:29 
+
+35:29 noise and we'll see different steps to
+35:31 
+
+35:31 reduce the noise.
+35:36 
+
+35:36 The first step is to do a baseline
+35:38 
+
+35:38 subtraction. So what is baseline? Let's
+35:41 
+
+35:41 say you have two random variables. One
+35:45 
+
+35:45 that can take values between 95 and 105
+35:48 
+
+35:48 105
+35:49 
+
+35:49 uh and can take integer values uh only
+35:52 
+
+35:52 only I should have mentioned it's only
+35:55 
+
+35:55 integer. Okay. Uh so it's a discrete
+35:58 
+
+35:58 random variable. Yeah. And uh the other
+36:00 
+
+36:00 random variable can take only two values
+36:02 
+
+36:02 plus one and minus one. Let's say
+36:06 
+
+36:06 so if what if I sample from the product
+36:09 
+
+36:09 of these two random variables X * Y what
+36:12 
+
+36:12 will the samples look like? They might
+36:14 
+
+36:14 be either very positive or very negative
+36:17 
+
+36:17 very positive or very negative. Right?
+36:21 
+
+36:21 In other words, the difference between
+36:23 
+
+36:23 the samples can be very huge and uh
+36:26 
+
+36:26 mathematically if you want to say this,
+36:28 
+
+36:28 you want you can say the variance across
+36:29 
+
+36:29 these numbers is going to be very high,
+36:32 
+
+36:32 right?
+36:33 
+
+36:33 So but if you had subtracted if you have
+36:37 
+
+36:37 taken the mean of the x and subtracted
+36:39 
+
+36:39 100 is the mean of x this is the uh
+36:42 
+
+36:42 expected value of x
+36:45 
+
+36:45 I'm guessing expectation will be that
+36:47 
+
+36:47 only but I'm not sure somewhere around
+36:48 
+
+36:48 100 it will look like right so if you
+36:50 
+
+36:50 subtracted the mean of the random
+36:52 
+
+36:52 variable x and then multiplied by y and
+36:55 
+
+36:55 then sampled from that quantity then how
+36:57 
+
+36:57 will the numbers look like they will
+36:59 
+
+36:59 look like - 54 I mean the difference
+37:02 
+
+37:02 between these numbers will not be as
+37:04 
+
+37:04 huge as in the first case or in the
+37:06 
+
+37:06 other words the variance is low.
+37:14 
+
+37:14 So that means that if you center one of
+37:18 
+
+37:18 the random variables or one of the yeah
+37:20 
+
+37:20 random variables if you uh center them
+37:23 
+
+37:23 somehow uh then you can reduce the
+37:25 
+
+37:25 variance of the overall thing that
+37:27 
+
+37:27 you're trying to estimate and that's
+37:29 
+
+37:29 what we are going to do next.
+37:31 
+
+37:31 So uh he in when we are computing the
+37:35 
+
+37:35 reinforced gradient estimate we are
+37:37 
+
+37:37 multiplying two quantities the reward of
+37:38 
+
+37:38 each output and the gradient of log
+37:41 
+
+37:41 probability and then we do the average
+37:43 
+
+37:43 right so that can have very high
+37:46 
+
+37:46 variance but one way to reduce variance
+37:48 
+
+37:48 and this is the simplest way is to
+37:50 
+
+37:50 compute the average of the reward and
+37:52 
+
+37:52 subtract the average of the so let's say
+37:53 
+
+37:53 you have sampled eight outputs you can
+37:56 
+
+37:56 take the average across those eight
+37:57 
+
+37:57 outputs and subtract that average from
+38:01 
+
+38:01 each reward and then multiply by the
+38:03 
+
+38:03 gradient
+38:06 
+
+38:06 do that
+38:08 
+
+38:08 then the variance of the reinforced
+38:10 
+
+38:10 gradient estimate reduce reduces a
+38:13 
+
+38:13 little bit and not I mean it's not a
+38:14 
+
+38:14 perfect uh way of reducing uh the
+38:17 
+
+38:17 variance but it will reduce to some
+38:18 
+
+38:18 extent and what will the new uh
+38:22 
+
+38:22 reinforced gradient estimate look like
+38:24 
+
+38:24 once you subtract this baseline
+38:26 
+
+38:26 so it will be one so let's say again we
+38:29 
+
+38:29 assume y1 to yn are the samples. So 1 /
+38:32 
+
+38:32 n summation i equ= 1 to n. So instead of
+38:36 
+
+38:36 reward now you'll have rx
+38:39 
+
+38:39 yi
+38:42 
+
+38:42 minus
+38:43 
+
+38:43 r bar
+38:45 
+
+38:45 x.
+38:47 
+
+38:47 So RB bar does not depend on the outputs
+38:49 
+
+38:49 right it only depends on the prompt
+38:50 
+
+38:50 because it's average across the outputs
+38:54 
+
+38:54 times gradient.
+39:05 
+
+39:05 So sometimes I will use R hat
+39:08 
+
+39:08 to refer to this the reward minus
+39:11 
+
+39:11 baseline
+39:14 
+
+39:14 I will use R hat to refer to this
+39:16 
+
+39:16 quantity or sometimes I will also use R
+39:18 
+
+39:18 to refer to this quantity. We can assume
+39:19 
+
+39:19 that it's already you have subtracted
+39:21 
+
+39:21 the mean. Another thing is that this
+39:24 
+
+39:24 mean need not be just over the outputs
+39:26 
+
+39:26 of the given prompt. You can take the
+39:28 
+
+39:28 mean across the entire batch. So let's
+39:31 
+
+39:31 say you have 10 prompts in a batch and
+39:33 
+
+39:33 10 outputs per prompt. So across all
+39:35 
+
+39:35 those 100 outputs you can take the mean.
+39:39 
+
+39:39 So
+39:42 
+
+39:42 uh and uh if you do that you will get
+39:44 
+
+39:44 something similar to the GRP algorithm
+39:46 
+
+39:46 which we'll discuss in the next slide
+39:47 
+
+39:47 next class sorry
+39:50 
+
+39:50 um yeah but uh no so yeah if you sub
+39:55 
+
+39:55 sorry my bad uh if if you just subtract
+39:57 
+
+39:57 the mean for uh outputs for a given
+39:60 
+
+39:60 prompt then you'll get something similar
+40:01 
+
+40:01 to the gRP algorithm if you do the
+40:03 
+
+40:03 comput the mean across the entire batch
+40:06 
+
+40:06 then it's not gpo it's basically
+40:08 
+
+40:08 standard reinforce uh baseline
+40:11 
+
+40:11 reinforcement baseline.
+40:16 
+
+40:16 So this if you are uh so if you have
+40:18 
+
+40:18 this baseline uh there will be a small
+40:21 
+
+40:21 modification to the vanilla policy
+40:24 
+
+40:24 grading algorithm
+40:27 
+
+40:27 and uh now uh the reward competition
+40:31 
+
+40:31 will be followed by the competition of
+40:33 
+
+40:33 the average reward that you will
+40:35 
+
+40:35 subtract from the reward of each output.
+40:40 
+
+40:40 and then that you can use to compute the
+40:42 
+
+40:42 loss.
+40:47 
+
+40:47 Okay. So this finishes the uh reinforce
+40:50 
+
+40:50 uh the policy gradient part of it. Now
+40:52 
+
+40:52 we'll move towards acttoitic algorithms
+40:56 
+
+40:56 which is the second step before building
+40:58 
+
+40:58 towards PPR.
+41:03 
+
+41:03 So let's look at the reinforce gradient
+41:05 
+
+41:05 estimate again.
+41:07 
+
+41:07 Uh the way we computed the reinforced
+41:09 
+
+41:09 gradient estimate is that we took the
+41:12 
+
+41:12 prompt, we took the output, we passed
+41:14 
+
+41:14 them through the policy, we got the lock
+41:16 
+
+41:16 probability of each token, multiplied
+41:19 
+
+41:19 the log probability by the reward of the
+41:21 
+
+41:21 entire output. Now if you look at the uh
+41:24 
+
+41:24 first token Taj,
+41:26 
+
+41:26 let's look at this token. What is the
+41:29 
+
+41:29 loss associated with this particular
+41:31 
+
+41:31 token or what is the uh objective
+41:33 
+
+41:33 associated with this particular token?
+41:35 
+
+41:35 uh it's just this quantity reward
+41:42 
+
+41:42 times log probability of Taj right now
+41:45 
+
+41:45 if
+41:47 
+
+41:47 let's say so this question is where Taj
+41:49 
+
+41:49 Mahel and the response is Taj Mahal is
+41:50 
+
+41:50 in Agra so the reward is probably going
+41:52 
+
+41:52 to be positive right because the
+41:53 
+
+41:53 response is correct so reward is going
+41:54 
+
+41:54 to be plus one so that means what what
+41:57 
+
+41:57 the objective is saying that this reward
+42:00 
+
+42:00 will be + one * log probability
+42:04 
+
+42:04 of Taj. So if I use this objective for
+42:08 
+
+42:08 training, it will say okay, Taj is the
+42:10 
+
+42:10 correct token that it has a positive
+42:13 
+
+42:13 reward. So let me increase the
+42:14 
+
+42:14 probability of this token. But this
+42:17 
+
+42:17 response could have been something else.
+42:19 
+
+42:19 This response could have been Taj Mahel
+42:20 
+
+42:20 is in Paris. So the first token is still
+42:22 
+
+42:22 Taj.
+42:24 
+
+42:24 But now uh the response is wrong, which
+42:28 
+
+42:28 means the reward will be negative. And
+42:30 
+
+42:30 now uh if I compute the objective again
+42:35 
+
+42:35 this will be minus1 * log probability of
+42:38 
+
+42:38 taj and effectively what I'm saying
+42:39 
+
+42:39 decrease the probability of so in one
+42:42 
+
+42:42 case I'm telling the model increase the
+42:44 
+
+42:44 probability of taj and in other case I'm
+42:46 
+
+42:46 telling the model decrease the
+42:47 
+
+42:47 probability of the taj but the point is
+42:50 
+
+42:50 that taj is not contributing to the
+42:51 
+
+42:51 correctness right the the only thing
+42:54 
+
+42:54 that is contributing to the correctness
+42:55 
+
+42:55 is this last token whether it's argra or
+42:57 
+
+42:57 paris or something right so this is the
+42:59 
+
+42:59 problem of assignment that if it is a if
+43:01 
+
+43:01 this response gets a positive reward
+43:04 
+
+43:04 which tokens in this response actually g
+43:06 
+
+43:06 resulted in the positive reward and if
+43:08 
+
+43:08 this response gets a negative reward
+43:10 
+
+43:10 which tokens in the response actually
+43:11 
+
+43:11 resulted in negative reward that's
+43:14 
+
+43:14 credit assignment
+43:19 
+
+43:19 so this is exactly what I said that if
+43:22 
+
+43:22 you are generating uh Taj Mahal is in
+43:25 
+
+43:25 Paris you will get a negative reward and
+43:27 
+
+43:27 if you're genra you getting positive
+43:30 
+
+43:30 reward and
+43:33 
+
+43:33 uh it's not clear to the model whether
+43:36 
+
+43:36 to increase the probability of the word
+43:37 
+
+43:37 taj or to decrease the probability. So
+43:40 
+
+43:40 ide so ideally what how do you solve
+43:42 
+
+43:42 this problem? Uh let's say you lived in
+43:44 
+
+43:44 an ideal world where you had infinite
+43:46 
+
+43:46 compute and do anything. So what would
+43:47 
+
+43:47 you do in that case?
+43:52 
+
+43:52 You can probably take the word taj and
+43:55 
+
+43:55 see generate all possible sequences from
+43:57 
+
+43:57 the policy that follow this word. So you
+43:60 
+
+43:60 can fix the word till taj and you can
+44:02 
+
+44:02 keep on generating from that point until
+44:04 
+
+44:04 the sentence ends and generate infinite
+44:06 
+
+44:06 number of sequences and you can then
+44:08 
+
+44:08 take the average of reward for all those
+44:11 
+
+44:11 sequences and I'm guessing the reward
+44:13 
+
+44:13 average reward will come out to be zero
+44:14 
+
+44:14 because uh let's say there are lots of
+44:17 
+
+44:17 possibilities some will be positive some
+44:18 
+
+44:18 will be negative. So it it will turn out
+44:21 
+
+44:21 that uh if you uh compute the reward of
+44:25 
+
+44:25 all possible sequences that can be
+44:27 
+
+44:27 generated from Taj that expected reward
+44:29 
+
+44:29 may be zero right because Taj is does
+44:32 
+
+44:32 not control the correctness of the
+44:33 
+
+44:33 response right
+44:36 
+
+44:36 so that's what is called the Q function
+44:37 
+
+44:37 Q function is that
+44:40 
+
+44:40 if I generate Taj
+44:42 
+
+44:42 uh and then if I continue the policy
+44:45 
+
+44:45 what is my expected reward that I what
+44:47 
+
+44:47 is the expected reward that I will get
+44:49 
+
+44:49 That's your Q function. So it's an
+44:51 
+
+44:51 average over all possible continuations
+44:54 
+
+44:54 that follow Taj
+44:56 
+
+44:56 uh using the policy. So I should mention
+44:59 
+
+44:59 that Q function is always a function of
+45:01 
+
+45:01 the policy. So using the
+45:05 
+
+45:05 policy
+45:08 
+
+45:08 and if you use this Q function that
+45:10 
+
+45:10 gives you a uh very stable estimate for
+45:13 
+
+45:13 learning because if you can tell whether
+45:15 
+
+45:15 to increase or decrease exactly with
+45:17 
+
+45:17 that uh does not if does not depend on
+45:19 
+
+45:19 the sample that you're going to generate
+45:21 
+
+45:21 then training becomes stable
+45:26 
+
+45:26 also this uh expected reward okay I have
+45:30 
+
+45:30 used the word discounted here which I
+45:31 
+
+45:31 we'll talk about later. This cumulative
+45:33 
+
+45:33 reward after a given time is referred to
+45:37 
+
+45:37 also referred to as reward to go or it's
+45:39 
+
+45:39 also referred to as return. So there are
+45:42 
+
+45:42 these terms that are sometimes used
+45:44 
+
+45:44 interchangeably. They what to go and
+45:46 
+
+45:46 return and uh yeah let me see
+45:51 
+
+45:51 so more formal definition of Q function
+45:53 
+
+45:53 Q function is the uh if you are in state
+45:56 
+
+45:56 S and if you have taken action A. So
+45:60 
+
+45:60 state is basically all the tokens so far
+46:02 
+
+46:02 action is whatever token you have
+46:03 
+
+46:03 generated just now. So if you're in
+46:05 
+
+46:05 state S and take an action A then the Q
+46:08 
+
+46:08 function is the reward of the
+46:14 
+
+46:14 current state and action
+46:16 
+
+46:16 plus if you continue from that point
+46:18 
+
+46:18 onwards. So I'm assuming that
+46:22 
+
+46:22 uh
+46:24 
+
+46:24 that time is t. Let's assume that we are
+46:26 
+
+46:26 at time step t. Then it's
+46:32 
+
+46:32 gamma * I will talk about what gamma is
+46:34 
+
+46:34 one. S t + 1
+46:37 
+
+46:37 a t + 1
+46:39 
+
+46:39 + gamma square
+46:41 
+
+46:41 t + 2
+46:46 
+
+46:46 and so on until until you encounter the
+46:48 
+
+46:48 end of text in case of language and
+46:50 
+
+46:50 expectation over this expectation of
+46:53 
+
+46:53 this quantity.
+46:56 
+
+46:56 So these think of these 80 + 1 at 80
+46:59 
+
+46:59 plus2 are the tokens that follow the
+47:00 
+
+47:00 word daj and st1 is all the tokens
+47:03 
+
+47:03 previous to it. Okay. So, gamma square
+47:06 
+
+47:06 time reward.
+47:09 
+
+47:09 Yeah. So, actually gamma and r looks bit
+47:11 
+
+47:11 similar. So, I will
+47:13 
+
+47:13 make this
+47:15 
+
+47:15 slightly different.
+47:17 
+
+47:17 Okay.
+47:19 
+
+47:19 And this expectation is over these
+47:23 
+
+47:23 uh tokens that you generate 80 + 1 80 +
+47:27 
+
+47:27 2 and so on. So you keep on you sample
+47:31 
+
+47:31 tokens compute the all the reward of the
+47:34 
+
+47:34 feature. So in the case of language
+47:35 
+
+47:35 model you generally get reward at the
+47:37 
+
+47:37 end. So you can think that I generate uh
+47:39 
+
+47:39 ending at starting with that I generate
+47:41 
+
+47:41 first sequence get the reward second
+47:43 
+
+47:43 sequence get the reward third sequence
+47:44 
+
+47:44 get the reward and then take the average
+47:45 
+
+47:45 that's your Q function. Okay
+47:52 
+
+47:52 why okay also this discounting is there.
+47:54 
+
+47:54 So why do we need this discounting? So
+47:56 
+
+47:56 this discounting is uh something that is
+47:59 
+
+47:59 used when you are uh doing policy
+48:01 
+
+48:01 gradient or PO in games or when you are
+48:04 
+
+48:04 doing it for robotics and the reason is
+48:06 
+
+48:06 that suppose you are trying to train a
+48:08 
+
+48:08 robot and it took let's say it moved its
+48:11 
+
+48:11 hand from here to here and finally in
+48:14 
+
+48:14 the end it achieved uh it got uh it got
+48:18 
+
+48:18 a different rewards at different time
+48:19 
+
+48:19 steps. So the point is that the rewards
+48:21 
+
+48:21 that it got immediately after taking
+48:23 
+
+48:23 some action those are more relevant for
+48:25 
+
+48:25 that action. I mean so the action could
+48:28 
+
+48:28 have influenced future rewards also but
+48:29 
+
+48:29 the immediate reward that it got is
+48:31 
+
+48:31 probably more relevant to the action and
+48:33 
+
+48:33 the reward that it got let's say after
+48:35 
+
+48:35 1,000 times steps of taking action
+48:37 
+
+48:37 probably they're not very relevant. So
+48:39 
+
+48:39 that's why this discounting fac uh
+48:41 
+
+48:41 factor is there. So in language model
+48:44 
+
+48:44 generally we set the discounting factor
+48:46 
+
+48:46 to one. We don't uh worry about the
+48:48 
+
+48:48 discounting factor.
+48:54 
+
+48:54 Okay, so let's look at
+48:58 
+
+48:58 so uh what does the Q function look like
+48:60 
+
+48:60 for a language model? You have the
+49:02 
+
+49:02 prompt
+49:05 
+
+49:05 and you have the partial response which
+49:07 
+
+49:07 is the word taj
+49:10 
+
+49:10 or partial output
+49:12 
+
+49:12 and uh you got a reward for probably
+49:16 
+
+49:16 generated a word here. uh sorry so unit
+49:18 
+
+49:18 reward is here and you got a reward of
+49:20 
+
+49:20 zero here because generally you get a
+49:22 
+
+49:22 reward at the end of generation so now
+49:25 
+
+49:25 the q function is the reward this
+49:27 
+
+49:27 quantity
+49:30 
+
+49:30 now you and now you continue uh from at
+49:33 
+
+49:33 this point you will feed is again you'll
+49:34 
+
+49:34 get s output and keep on doing this so
+49:37 
+
+49:37 you'll uh you will keep on feeding this
+49:40 
+
+49:40 uh token step by step you whatever
+49:42 
+
+49:42 reward you get uh you accumulate it and
+49:46 
+
+49:46 if you do this multiple times and
+49:48 
+
+49:48 average that will be your Q function. So
+49:51 
+
+49:51 starting from a point just compute what
+49:53 
+
+49:53 are possible continuations and get the
+49:55 
+
+49:55 reward and average
+49:58 
+
+49:58 and this quantity also known as the
+49:60 
+
+49:60 reward to go the uh given a particular
+50:03 
+
+50:03 time step whatever reward uh of tokens
+50:07 
+
+50:07 that you get after uh that point that's
+50:09 
+
+50:09 called the reward to go. So again in
+50:12 
+
+50:12 language models this can simply be the
+50:14 
+
+50:14 reward of the entire response because
+50:15 
+
+50:15 you are getting reward at the end.
+50:27 
+
+50:27 >> Uh so we'll come uh so that's what we we
+50:31 
+
+50:31 are trying to do. We are trying to reach
+50:32 
+
+50:32 a point where we can assign uh tokens
+50:35 
+
+50:35 different reward. That's what the Q
+50:37 
+
+50:37 function is. uh so q function is for a
+50:40 
+
+50:40 particular token is that uh if you
+50:43 
+
+50:43 generate all possible sequence from that
+50:46 
+
+50:46 token and take the average reward so
+50:48 
+
+50:48 it's going to be different for each
+50:49 
+
+50:49 token so for example for the word taj it
+50:51 
+
+50:51 might be zero because the question is
+50:53 
+
+50:53 where is tajmail then the word taj does
+50:55 
+
+50:55 not affect the reward it might or not so
+50:58 
+
+50:58 I think that's what you want right
+50:59 
+
+50:59 that's what you're saying that how do we
+51:00 
+
+51:00 assign different tokens different reward
+51:02 
+
+51:02 how do we decide between and so this Q
+51:04 
+
+51:04 function does that job q function uh
+51:06 
+
+51:06 says that all possible sequence at this
+51:09 
+
+51:09 point compute them take the average
+51:10 
+
+51:10 reward and that's what the so it's it's
+51:13 
+
+51:13 a replacement for a reward you can think
+51:15 
+
+51:15 right
+51:18 
+
+51:18 and now we cannot genate all possible
+51:20 
+
+51:20 sequence so we'll see how to approximate
+51:21 
+
+51:21 it but right now you can assume somehow
+51:24 
+
+51:24 magically you can get this Q function
+51:25 
+
+51:25 somehow you can compute the average
+51:27 
+
+51:27 reward for all possible sequences
+51:30 
+
+51:30 starting from that point using the
+51:32 
+
+51:32 policy sample from the policy
+51:34 
+
+51:34 so if you can somehow get that uh
+51:36 
+
+51:36 quantity uh Then the reinforced gradient
+51:39 
+
+51:39 estimation estimate will look something
+51:41 
+
+51:41 like this. Uh you feed the prompt. This
+51:44 
+
+51:44 is your prompt.
+51:48 
+
+51:48 Then uh this is the output that got
+51:50 
+
+51:50 generated. And now somehow magically you
+51:54 
+
+51:54 also have the Q function at each token.
+51:57 
+
+51:57 So instead of multiplying the reward
+51:59 
+
+51:59 with the log probability of the token as
+52:01 
+
+52:01 we were doing for reinforce gradient
+52:02 
+
+52:02 estimate, what we'll do is uh multiply
+52:06 
+
+52:06 the Q function with the log probability
+52:08 
+
+52:08 of each token. Sum up the log
+52:10 
+
+52:10 probabilities and do a backward pass and
+52:12 
+
+52:12 that will give me the uh give me a
+52:14 
+
+52:14 gradient estimate that I can use with
+52:16 
+
+52:16 Adam or whatever optimizer to update the
+52:17 
+
+52:17 weights.
+52:19 
+
+52:19 Does that make sense? So I've just done
+52:22 
+
+52:22 I've just replaced the reward with the Q
+52:24 
+
+52:24 function. Okay.
+52:30 
+
+52:30 Okay.
+52:33 
+
+52:33 So, Q functions are uh uh so just like
+52:38 
+
+52:38 we for the rewards what we did was we
+52:40 
+
+52:40 subtracted a baseline to make the v
+52:43 
+
+52:43 reduce the variance, right? See, because
+52:46 
+
+52:46 why do we why is the why do we still
+52:48 
+
+52:48 have variance? Because we still sampling
+52:51 
+
+52:51 outputs to be able to generate the
+52:52 
+
+52:52 gradient, right? So we as long as you're
+52:54 
+
+52:54 sampling you will always have variance
+52:56 
+
+52:56 across the gradient estimates different
+52:58 
+
+52:58 samples will give you different gradient
+52:59 
+
+52:59 that's your variance right so just like
+53:02 
+
+53:02 we did it for the case of reward we
+53:04 
+
+53:04 subtracted the average reward can we do
+53:05 
+
+53:05 it for the Q function also and the idea
+53:08 
+
+53:08 is very simple that uh so in the case of
+53:11 
+
+53:11 reward we computed the expected reward
+53:13 
+
+53:13 and then we subtracted from the reward
+53:15 
+
+53:15 of each output in the case of Q function
+53:17 
+
+53:17 we'll compute the expected value of Q
+53:19 
+
+53:19 function at a given state and so now the
+53:21 
+
+53:21 Q function is different so we'll At each
+53:23 
+
+53:23 time step we'll compute the expected Q
+53:25 
+
+53:25 function which is called the value
+53:27 
+
+53:27 function. So value function is the
+53:29 
+
+53:29 expected value of Q function at a given
+53:31 
+
+53:31 state
+53:34 
+
+53:34 and that we will subtract from the Q
+53:36 
+
+53:36 function to give us the advantage
+53:39 
+
+53:39 function.
+53:47 
+
+53:47 So what uh so Q function captures that
+53:51 
+
+53:51 okay if I'm at a particular state and a
+53:53 
+
+53:53 particular token and if I keep on
+53:55 
+
+53:55 sampling according to the policy uh what
+53:58 
+
+53:58 is the average reward I will get the
+54:00 
+
+54:00 value function say that if I'm at a
+54:02 
+
+54:02 particular state
+54:04 
+
+54:04 not I have not taken any action I'm a
+54:05 
+
+54:05 particular state now if I compute the
+54:07 
+
+54:07 average reward I will sample according
+54:09 
+
+54:09 to policy and uh and compute the average
+54:11 
+
+54:11 reward is the average reward I will get
+54:14 
+
+54:14 so uh value function does not depend on
+54:16 
+
+54:16 action Q function depends on the action
+54:17 
+
+54:17 So think of it value function as a
+54:19 
+
+54:19 baseline. It's saying that okay I have
+54:21 
+
+54:21 not taken any action now what is the
+54:22 
+
+54:22 average what I will get and Q function
+54:24 
+
+54:24 is after if I have taken a particular
+54:26 
+
+54:26 action what is the average what I will
+54:28 
+
+54:28 get and the difference between those two
+54:30 
+
+54:30 quantities basically it captures how
+54:32 
+
+54:32 good the action was. So if the action uh
+54:35 
+
+54:35 was very good compared to the other
+54:37 
+
+54:37 actions compared to the other actions
+54:39 
+
+54:39 that I could have taken at that point.
+54:40 
+
+54:40 So if the action was very good this
+54:41 
+
+54:41 advantage is going to be high right.
+54:44 
+
+54:44 So it uh it captures the contribution of
+54:47 
+
+54:47 one specific action.
+54:52 
+
+54:52 >> Yeah.
+54:56 
+
+54:56 [Music]
+55:01 
+
+55:01 >> Right. Right. Right. Right.
+55:08 
+
+55:08 >> Right. Right. Right. Right. Right. So
+55:09 
+
+55:09 the Q function if you let's say you're
+55:11 
+
+55:11 gener if you have if you're not
+55:12 
+
+55:12 generating any token and you're
+55:13 
+
+55:13 generating uh if you're generating Taj
+55:15 
+
+55:15 the Q function is that given that you
+55:17 
+
+55:17 have generated Taj what is the expected
+55:19 
+
+55:19 reward that you will get and value
+55:21 
+
+55:21 function is that before you generated
+55:23 
+
+55:23 Taj
+55:24 
+
+55:24 >> yeah so include yeah include all
+55:26 
+
+55:26 possible tokens that you could generated
+55:27 
+
+55:27 what is the average reward you would
+55:28 
+
+55:28 have get that is the difference between
+55:30 
+
+55:30 Q and value function
+55:37 
+
+55:37 okay so we are reaching towards the end
+55:38 
+
+55:38 of uh uh slides. So now now if you have
+55:42 
+
+55:42 to do reinforce with advantage function
+55:44 
+
+55:44 again magically if you assume that you
+55:46 
+
+55:46 are given a Q function you are given a
+55:48 
+
+55:48 value function you can compute the
+55:49 
+
+55:49 advantage function for each token and
+55:51 
+
+55:51 you could do uh the same gradient
+55:53 
+
+55:53 estimation computation that you did
+55:55 
+
+55:55 earlier. Take each token of the output,
+55:57 
+
+55:57 pass it through the L policy, compute
+55:59 
+
+55:59 the lock probability, multiply by the
+56:02 
+
+56:02 advantage for each token and sum and
+56:05 
+
+56:05 then you can back to it. That will give
+56:06 
+
+56:06 you the reinforced gradient estimation
+56:08 
+
+56:08 with advantage function. Okay,
+56:14 
+
+56:14 the last part is how do I estimate? So
+56:17 
+
+56:17 now we don't uh magically have Q and
+56:20 
+
+56:20 value function. So how do I estimate
+56:22 
+
+56:22 this? So in when you are doing
+56:23 
+
+56:23 reinforcement learning for language
+56:25 
+
+56:25 models Q function is generally estimated
+56:27 
+
+56:27 with a single sample that is you uh
+56:31 
+
+56:31 generated an output by A1 to A or A 0 to
+56:34 
+
+56:34 80 this is the output that you generated
+56:37 
+
+56:37 then Q function instead of saying that
+56:39 
+
+56:39 all possible sequences that could have
+56:40 
+
+56:40 originated at a point I would say only
+56:43 
+
+56:43 for this sequence what is the reward to
+56:47 
+
+56:47 go what is the at each time step what is
+56:49 
+
+56:49 the uh reward to go which is the reward
+56:50 
+
+56:50 of the entire response so at each token
+56:52 
+
+56:52 Basically you will have the reward of
+56:54 
+
+56:54 the entire response. Uh and that would
+56:57 
+
+56:57 be a Q function because it's it's the
+56:60 
+
+56:60 future reward right
+57:02 
+
+57:02 so Q function is generally estimated
+57:03 
+
+57:03 using single samples. The value function
+57:05 
+
+57:05 is uh estimated by training a neural
+57:09 
+
+57:09 network. So okay let me write down the Q
+57:12 
+
+57:12 function. So if you have sampled this
+57:13 
+
+57:13 particular output Y the Q function at
+57:17 
+
+57:17 any given time
+57:19 
+
+57:19 ST comma 80. ST is the past tokens. It
+57:21 
+
+57:21 is the token that you're generating at
+57:23 
+
+57:23 time step t. This is given by the reward
+57:26 
+
+57:26 of this token
+57:30 
+
+57:30 plus all the future reward. So I will
+57:32 
+
+57:32 assume gamma equal to 1 for now. So
+57:35 
+
+57:35 reward of st + 1 a + 1
+57:40 
+
+57:40 until you encounter the end of text.
+57:52 
+
+57:52 ST sorry
+58:00 
+
+58:00 ST comma 80.
+58:03 
+
+58:03 So this is your Q function uh estimated
+58:05 
+
+58:05 using just one response. Okay.
+58:09 
+
+58:09 The value function is estimated by
+58:10 
+
+58:10 training a neural network. So uh uh what
+58:14 
+
+58:14 you do is you train a neural network
+58:17 
+
+58:17 that uh you sample outputs from the
+58:19 
+
+58:19 policy
+58:21 
+
+58:21 compute this quantity again uh for each
+58:24 
+
+58:24 of the outputs
+58:29 
+
+58:29 and you train a network to minimize
+58:32 
+
+58:32 the so you have a network which gives
+58:34 
+
+58:34 you this value so this network let's say
+58:36 
+
+58:36 V5
+58:38 
+
+58:38 ST so you minimize the difference
+58:40 
+
+58:40 between this V5 ST and the reward of the
+58:46 
+
+58:46 entire sequence that you got. So this
+58:48 
+
+58:48 quantity uh
+58:50 
+
+58:50 ST +
+58:55 
+
+58:55 S st + 1
+58:60 
+
+58:60 and so on.
+59:02 
+
+59:02 You train a network to minimize this
+59:04 
+
+59:04 quantity
+59:06 
+
+59:06 and do it for all tokens. So 1 / capital
+59:10 
+
+59:10 t summation t =0
+59:13 
+
+59:13 t.
+59:14 
+
+59:14 So at each point so you have a network
+59:17 
+
+59:17 which takes each token and outputs a
+59:19 
+
+59:19 number. So and this is this is how the
+59:22 
+
+59:22 network looks like. Uh generally the
+59:24 
+
+59:24 policy itself is modified to also
+59:27 
+
+59:27 predict the value function. So at each
+59:29 
+
+59:29 time step in the policy you have a
+59:31 
+
+59:31 linear layer which take basically this
+59:34 
+
+59:34 is the pre-loited layer or the last
+59:37 
+
+59:37 layer before you have the unmbeding
+59:39 
+
+59:39 layer.
+59:42 
+
+59:42 So you have this this is your unmbeding
+59:44 
+
+59:44 layer. This is your unmbedding layer
+59:47 
+
+59:47 which is anyway there in the policy. you
+59:49 
+
+59:49 add one more layers whose output is only
+59:52 
+
+59:52 one dimensional and you say that okay
+59:54 
+
+59:54 this particular uh layer is what I want
+59:56 
+
+59:56 to train to predict value.
+59:59 
+
+59:59 So uh this is your value function and
+60:01 
+
+60:01 you train this value function at time
+60:04 
+
+60:04 step zero you will train it to predict
+60:06 
+
+60:06 the reward of the entire sequence at
+60:08 
+
+60:08 time step one you will train to predict
+60:09 
+
+60:09 the reward of the sequence from this
+60:11 
+
+60:11 point onward uh so if the reward of the
+60:13 
+
+60:13 entire sequence is given only at the end
+60:15 
+
+60:15 it doesn't make a difference but let's
+60:17 
+
+60:17 say you have kl terms so there is a
+60:18 
+
+60:18 reward at each token also or you have
+60:21 
+
+60:21 some other reward model which can give
+60:23 
+
+60:23 reward intermediate reward also so in
+60:26 
+
+60:26 that case you minimize the squared error
+60:29 
+
+60:29 between the value function at each time
+60:30 
+
+60:30 step and the reward that you get from
+60:32 
+
+60:32 that point onwards.
+60:39 
+
+60:39 So this so the set of al so uh this is
+60:43 
+
+60:43 called the critic we call this network
+60:45 
+
+60:45 as a critic. Why? Because uh if you look
+60:49 
+
+60:49 at the algorithm what the way we are
+60:51 
+
+60:51 training uh we have the actor which is
+60:54 
+
+60:54 parameterized by pi theta which
+60:56 
+
+60:56 parameterized by theta
+60:58 
+
+60:58 uh the the lm policy is referred to as
+61:01 
+
+61:01 the actor which takes basically that is
+61:03 
+
+61:03 the one that taking actions. Now critic
+61:06 
+
+61:06 is the one who is uh uh so so you train
+61:09 
+
+61:09 this actor by minimizing the expected uh
+61:13 
+
+61:13 sorry maximizing the expected reward
+61:15 
+
+61:15 and you train the critic to minimize the
+61:18 
+
+61:18 squared error from the reward. So
+61:22 
+
+61:22 the you're training the policy to
+61:24 
+
+61:24 generate outputs that will have higher
+61:26 
+
+61:26 reward than what the value so value
+61:28 
+
+61:28 function is your average reward. So you
+61:30 
+
+61:30 are training the poly to generate output
+61:31 
+
+61:31 that will higher function than the what
+61:32 
+
+61:32 the value function gives at a point and
+61:34 
+
+61:34 you are training the value function to
+61:36 
+
+61:36 be able to predict that reward uh to be
+61:40 
+
+61:40 able to predict reward back. So it's
+61:41 
+
+61:41 like adversarial training uh you guys
+61:43 
+
+61:43 are familiar with that you're training
+61:45 
+
+61:45 your generator to give outputs that are
+61:47 
+
+61:47 higher reward than the value function
+61:55 
+
+61:55 and uh then you're training the critic
+61:56 
+
+61:56 to minimize the squared error. So this
+61:58 
+
+61:58 is a family of algorithm. There are a
+61:60 
+
+62:00 bunch of algorithm that follow this
+62:01 
+
+62:01 pattern of uh training the policy and
+62:05 
+
+62:05 training the critic and they and this
+62:07 
+
+62:07 family of algorithm includes PPO which
+62:09 
+
+62:09 we will cover in the next class.
+62:12 
+
+62:12 Okay.

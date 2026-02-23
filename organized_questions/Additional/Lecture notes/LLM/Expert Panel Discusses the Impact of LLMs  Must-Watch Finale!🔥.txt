@@ -1,0 +1,3301 @@
+00:00 hello everyone uh this is the concluding
+00:03 
+
+00:03 session uh for this course I hope you
+00:06 
+
+00:06 enjoyed the course uh we tried to make
+00:08 
+
+00:08 it dense in terms of content and um I
+00:11 
+
+00:11 hope you you uh enjoyed the entire
+00:14 
+
+00:14 lecture Series so the way we are going
+00:17 
+
+00:17 to conclude this um lecture so we
+00:20 
+
+00:20 thought that uh we'll have a panel
+00:22 
+
+00:22 discussion where we will discuss U you
+00:25 
+
+00:25 know different aspects of uh llm
+00:27 
+
+00:27 research you know in in Industry as well
+00:29 
+
+00:29 as in Academia and the way people
+00:31 
+
+00:31 actually look at uh you know these
+00:33 
+
+00:33 problems right so uh we have with us uh
+00:38 
+
+00:38 you know iminent researchers from both
+00:40 
+
+00:40 industry and Academia as well as
+00:43 
+
+00:43 students um and U uh the way we will
+00:47 
+
+00:47 essentially U follow this panel
+00:50 
+
+00:50 discussion is that we we will ask a few
+00:53 
+
+00:53 questions right to all the panel members
+00:55 
+
+00:55 and we will get their views okay I hope
+00:58 
+
+00:58 you know the the the answers that we get
+01:01 
+
+01:01 from the panelist will essentially help
+01:04 
+
+01:04 students and uh you know listeners
+01:06 
+
+01:06 audience understand the current
+01:08 
+
+01:08 landscape of llm in India and across the
+01:11 
+
+01:11 world okay so with this let me start uh
+01:14 
+
+01:14 my name is Tano I'm a faculty member at
+01:16 
+
+01:16 I Delhi I work in um in NLP so welcome
+01:21 
+
+01:21 welcome you all to this panel discussion
+01:25 
+
+01:25 so I request you to introduce yourself
+01:28 
+
+01:28 very briefly you uh just introduce um uh
+01:31 
+
+01:31 you know your research very briefly and
+01:33 
+
+01:33 maybe will take it from there hello
+01:36 
+
+01:36 everyone I'm yatin and I'm working in
+01:38 
+
+01:38 the conversational AI team at IBM
+01:40 
+
+01:40 research uh currently I'm focusing on
+01:42 
+
+01:42 find tunning language models uh for a
+01:45 
+
+01:45 specific client or or on a domain
+01:47 
+
+01:47 specific Corpus hi I'm G Pandi and I'm
+01:51 
+
+01:51 working as a research scientist as at
+01:53 
+
+01:53 IBM research and my current research
+01:55 
+
+01:55 focuses on reinforcement learning and
+01:58 
+
+01:58 search techniques and incorporating
+01:59 
+
+01:59 search techniques during training for
+02:01 
+
+02:01 language models hi I'm sish Das Gupta
+02:04 
+
+02:04 I'm a professor at hubai Amani Institute
+02:07 
+
+02:07 of information and communication
+02:09 
+
+02:09 technology uh my research area is uh
+02:12 
+
+02:12 trying to understand to what extent uh
+02:14 
+
+02:14 large language models have
+02:16 
+
+02:16 personalization capabilities in
+02:18 
+
+02:18 different types of down strip and
+02:20 
+
+02:20 downstream NLP tasks and also trying to
+02:23 
+
+02:23 figure out whether we can build energy
+02:25 
+
+02:25 efficient smaller models which are
+02:27 
+
+02:27 specialized uh for personalization task
+02:31 
+
+02:31 I'm a p student at I Delhi and I mostly
+02:33 
+
+02:33 work on uh interpretability of different
+02:36 
+
+02:36 capabilities of LMS trying to understand
+02:38 
+
+02:38 how LMS work as uh making them as a
+02:41 
+
+02:41 white box instead of a black box yeah
+02:43 
+
+02:43 thanks very much um so my first question
+02:46 
+
+02:46 to uh my friends from from industry from
+02:49 
+
+02:49 IBM you know we we have witnessed last
+02:52 
+
+02:52 two three years you know huge size
+02:55 
+
+02:55 models right uh you know those models
+02:59 
+
+02:59 are designed by all industry giants like
+03:01 
+
+03:01 ibbm Microsoft Google anthropic and so
+03:05 
+
+03:05 on and so forth so what are the most
+03:07 
+
+03:07 pressing challenges in deploying these
+03:09 
+
+03:09 llms in real world applications what do
+03:11 
+
+03:11 you think you so right I mean I think we
+03:13 
+
+03:13 can bifurcate the question and the
+03:15 
+
+03:15 answer into two parts right one is in
+03:17 
+
+03:17 terms of the scale right imagine a
+03:20 
+
+03:20 couple of years ago or 5 10 years ago
+03:23 
+
+03:23 when a company would deploy a model it
+03:25 
+
+03:25 would be on Prem it would be a NE
+03:27 
+
+03:27 Network which would be deployed on Prem
+03:29 
+
+03:29 and they will train on their specific
+03:31 
+
+03:31 data and so and so forth right but now
+03:34 
+
+03:34 with such big L language models this is
+03:37 
+
+03:37 Unthinkable right now we as academicians
+03:40 
+
+03:40 can't think of so maybe Industries have
+03:44 
+
+03:44 different but many small scale
+03:46 
+
+03:46 Industries right they will not have
+03:48 
+
+03:48 capabilities to develop these language
+03:51 
+
+03:51 models on their own right so that is
+03:53 
+
+03:53 that is why you will see uh you know
+03:56 
+
+03:56 that is why these are being served as a
+03:57 
+
+03:57 service we have language model as a
+03:59 
+
+03:59 service right right right if you're
+04:00 
+
+04:00 trying to deploy on frame then that
+04:03 
+
+04:03 require another level of expertise right
+04:05 
+
+04:05 I mean VM Technologies like VM have
+04:07 
+
+04:07 helped in in simplifying that but still
+04:10 
+
+04:10 that requires different expertise right
+04:13 
+
+04:13 so so they are being run on the cloud by
+04:16 
+
+04:16 few experts and that brings in a lot of
+04:18 
+
+04:18 challenges for example there is a
+04:20 
+
+04:20 challenge of privacy you know client
+04:23 
+
+04:23 data is going on the server right can
+04:25 
+
+04:25 they trust it or not there are other
+04:27 
+
+04:27 challenges right so this is one aspect
+04:29 
+
+04:29 of it which is this in terms of scale
+04:31 
+
+04:31 right now going forward language models
+04:34 
+
+04:34 are going to be as service we will not
+04:36 
+
+04:36 have it'll be difficult to have small
+04:38 
+
+04:38 language models right the Second
+04:41 
+
+04:41 Challenge is intrinsic to the language
+04:42 
+
+04:42 models themselves so for example the
+04:44 
+
+04:44 biggest challenge that I see at present
+04:46 
+
+04:46 is that of hallucination currently the
+04:49 
+
+04:49 way language models are used uh you
+04:52 
+
+04:52 always have a verifier at the
+04:53 
+
+04:53 end they're not working in an autonomous
+04:56 
+
+04:56 fash right without if there is an
+04:58 
+
+04:58 adversary at the end then you are doomed
+05:00 
+
+05:00 right for example if there's a chat
+05:02 
+
+05:02 deployed by the company and there's a
+05:04 
+
+05:04 client who is trying to dke the company
+05:06 
+
+05:06 then he can do that right right right so
+05:09 
+
+05:09 Hallucination is the biggest challenge
+05:10 
+
+05:10 at this point in time how do you control
+05:13 
+
+05:13 how do you put rail guards right on it
+05:15 
+
+05:15 right right right I think these are the
+05:17 
+
+05:17 things okay okay thank you um gorab so
+05:23 
+
+05:23 uh we all know that this llms are you
+05:25 
+
+05:25 know uh data hungry they need a lot of
+05:27 
+
+05:27 data set right to for for training so um
+05:31 
+
+05:31 so how do you I mean in Industry uh how
+05:34 
+
+05:34 do you uh how do you think of addressing
+05:36 
+
+05:36 problems like data scarcity like
+05:38 
+
+05:38 representation legal concerns right as
+05:41 
+
+05:41 yatin was mentioning that if some of the
+05:44 
+
+05:44 uh private data is leaked then you are
+05:46 
+
+05:46 gone right right so so so how do you
+05:48 
+
+05:48 address this copyright privacy issues
+05:51 
+
+05:51 right so uh and this is this is more
+05:54 
+
+05:54 important from uh industry perspective
+05:56 
+
+05:56 because again from Academia side we
+05:59 
+
+05:59 don't care much because we always work
+06:01 
+
+06:01 with publicly available data sets which
+06:04 
+
+06:04 are which are presumed to be cleaned or
+06:06 
+
+06:06 whatever right correct but industry you
+06:08 
+
+06:08 have private data data from customers
+06:11 
+
+06:11 right right yeah right so yeah so uh
+06:15 
+
+06:15 there are two parts one uh one the first
+06:18 
+
+06:18 part was about I think how do you deal
+06:21 
+
+06:21 with data scity right uh and in recent
+06:24 
+
+06:24 years synthetic data generation has come
+06:28 
+
+06:28 a long way actually started with uh
+06:30 
+
+06:30 Chain of Thought data generation and now
+06:32 
+
+06:32 uh people are using search techniques to
+06:35 
+
+06:35 get even better uh higher quality data
+06:39 
+
+06:39 uh and fine tuning the models on using
+06:41 
+
+06:41 that so things like approaches like AAR
+06:44 
+
+06:44 and stuff have been able to address the
+06:47 
+
+06:47 problem of data scity to some extent uh
+06:50 
+
+06:50 uh but for yeah and uh in terms ofes but
+06:54 
+
+06:54 do you sorry sorry to inter but do you
+06:56 
+
+06:56 do you think the synthetic data
+06:58 
+
+06:58 generation problem uh or the synth data
+07:01 
+
+07:01 generation models right right would
+07:03 
+
+07:03 always be helpful uh for application
+07:06 
+
+07:06 like healthcare for example or very
+07:08 
+
+07:08 specific applications which uh which is
+07:10 
+
+07:10 not very you know U prevalent right
+07:14 
+
+07:14 because uh at the end of the day you'll
+07:16 
+
+07:16 basically have to have some some
+07:18 
+
+07:18 automatic way of generating text which
+07:20 
+
+07:20 may be readable right right right uh so
+07:24 
+
+07:24 uh domain specific synthe data uh again
+07:28 
+
+07:28 if the task say that that you have a
+07:30 
+
+07:30 bunch of documents medical documents and
+07:33 
+
+07:33 you have to answer queries related to
+07:34 
+
+07:34 documents that can be done like you can
+07:36 
+
+07:36 feed those documents convert them to
+07:37 
+
+07:37 question answer train your model on top
+07:39 
+
+07:39 of those question anwers that you
+07:40 
+
+07:40 created from the documents that can be
+07:42 
+
+07:42 done to some extent uh similarly task
+07:45 
+
+07:45 related to document summarization for
+07:47 
+
+07:47 related to the medical documents or
+07:48 
+
+07:48 Finance documents that also can be done
+07:50 
+
+07:50 using the synth data approaches uh so
+07:53 
+
+07:53 yeah uh so you you feel that synthetic
+07:56 
+
+07:56 data generation is the way to go it
+07:58 
+
+07:58 might be there there uh needs to be a
+08:01 
+
+08:01 verifier a human being who uh can who
+08:04 
+
+08:04 should be able to judge the data and see
+08:07 
+
+08:07 if it is of sufficient quality and also
+08:08 
+
+08:08 the model that you train uh it should be
+08:11 
+
+08:11 able to answer the queries that you care
+08:12 
+
+08:12 about right so it yeah currently it
+08:16 
+
+08:16 appears might be the way to go yeah okay
+08:19 
+
+08:19 what about the copyright issues and
+08:21 
+
+08:21 other ethical concerns right uh so right
+08:25 
+
+08:25 yeah the the issue of having diversity
+08:28 
+
+08:28 in the data representation in data
+08:30 
+
+08:30 uh that in some way uh that probably
+08:33 
+
+08:33 requires more careful data uh U getting
+08:37 
+
+08:37 the data from different Source uh uh
+08:40 
+
+08:40 basically ensuring that you getting the
+08:41 
+
+08:41 data from that represents different
+08:44 
+
+08:44 views also represent different groups uh
+08:47 
+
+08:47 so that uh there is enough
+08:50 
+
+08:50 representation now the last part which
+08:52 
+
+08:52 is basically uh uring that dealing with
+08:55 
+
+08:55 copyright stuff I that is a bit more
+08:57 
+
+08:57 challenging uh and I uh
+08:60 
+
+08:60 uh uh there is something called
+09:02 
+
+09:02 Federated learning where you try to do
+09:05 
+
+09:05 training and inference on PR basically
+09:07 
+
+09:07 where the where you don't share the data
+09:10 
+
+09:10 but uh uh for something yeah right
+09:13 
+
+09:13 correct and you uh basically the N you
+09:16 
+
+09:16 your part of the data stays on on your
+09:18 
+
+09:18 machine and that you do training on that
+09:20 
+
+09:20 part so there are approaches that deal
+09:22 
+
+09:22 with it uh other concerns you by
+09:24 
+
+09:24 ensuring that data that you use is not
+09:26 
+
+09:26 cated is something that looked by the
+09:28 
+
+09:28 legal team uh uh yeah okay yeah got it
+09:32 
+
+09:32 thank you so um before before moving
+09:36 
+
+09:36 into sories uh maybe uh let me again get
+09:39 
+
+09:39 back to uh yatin so yatin what do you
+09:44 
+
+09:44 think like the way um you know um the
+09:49 
+
+09:49 the way this industry Academia
+09:50 
+
+09:50 collaboration is happening right uh do
+09:53 
+
+09:53 you know from India's perspective right
+09:56 
+
+09:56 you we need more such industry Academia
+09:58 
+
+09:58 partnership and some times I have seen
+10:00 
+
+10:00 being being academ academician I have
+10:03 
+
+10:03 seen that Industries although they are
+10:05 
+
+10:05 willing to collaborate with academic uh
+10:08 
+
+10:08 folks but they are also bit uh hesitant
+10:11 
+
+10:11 in terms of sharing data in terms of
+10:13 
+
+10:13 sharing ideas because of this IP issues
+10:15 
+
+10:15 and so on and so forth but the way llm
+10:17 
+
+10:17 research is happening I firmly believe
+10:20 
+
+10:20 that there is I mean we always need a
+10:22 
+
+10:22 strong industry Academia collaboration
+10:24 
+
+10:24 right so so so how can industry academic
+10:26 
+
+10:26 partnership be improved to accelerate
+10:28 
+
+10:28 research uh while ensuring practical
+10:30 
+
+10:30 applicability so I think that's a this
+10:32 
+
+10:32 is a very pertinent question especially
+10:35 
+
+10:35 in today's era right I mean a few couple
+10:37 
+
+10:37 of years ago we could think of academic
+10:39 
+
+10:39 research independently but I think going
+10:42 
+
+10:42 forward it's going to be become more and
+10:44 
+
+10:44 more difficult the kind of resources
+10:46 
+
+10:46 which are required for doing research
+10:50 
+
+10:50 you know Academia may not be able to
+10:51 
+
+10:51 afford and that is where uh industry
+10:54 
+
+10:54 comes in right in terms of a giving good
+10:57 
+
+10:57 resources and B coming up with pertinent
+10:59 
+
+10:59 problems as well right because industry
+11:01 
+
+11:01 people are more close to the the
+11:04 
+
+11:04 problems which are being faced by the
+11:05 
+
+11:05 clients and in the real world
+11:06 
+
+11:06 applications right so this is this is
+11:08 
+
+11:08 where industry will come in and now this
+11:11 
+
+11:11 collaboration has to strengthen
+11:12 
+
+11:12 otherwise uh you know that will be bad
+11:15 
+
+11:15 for both industry as well as Academia
+11:17 
+
+11:17 Academia will be short of resources and
+11:19 
+
+11:19 Industry will be short of maybe good
+11:21 
+
+11:21 talent and you know that independent
+11:23 
+
+11:23 thinking which comes with Academy right
+11:26 
+
+11:26 this is true that uh when you
+11:29 
+
+11:29 collaborating with industry
+11:30 
+
+11:30 unfortunately because of business needs
+11:32 
+
+11:32 most of the focus is toward client
+11:34 
+
+11:34 specific problem whereas in um in
+11:37 
+
+11:37 Academy you would need uh you know free
+11:40 
+
+11:40 thinking and blue sky research as well
+11:42 
+
+11:42 right so there definitely is a gap and I
+11:45 
+
+11:45 think uh you know programs like aih
+11:47 
+
+11:47 which IBM has uh I I believe such Pro
+11:50 
+
+11:50 more and more such programs should come
+11:51 
+
+11:51 up and other uh industry and other
+11:54 
+
+11:54 companies should also promote such
+11:56 
+
+11:56 programs where there is enough freedom
+11:58 
+
+11:58 for the academic research and in the end
+12:01 
+
+12:01 I mean in the long run it always helps
+12:03 
+
+12:03 right it's not always about solving the
+12:05 
+
+12:05 current problem at hand within the
+12:07 
+
+12:07 industry as well right so I think
+12:09 
+
+12:09 leaders within the industry also need to
+12:11 
+
+12:11 Envision and think that you cannot uh
+12:13 
+
+12:13 make big progress by taking just small
+12:16 
+
+12:16 step and the immediate Next Step you
+12:18 
+
+12:18 definitely need Blue Sky research which
+12:20 
+
+12:20 comes that perspective comes from
+12:21 
+
+12:21 Academia right I think that is very
+12:23 
+
+12:23 crucial it's going to be very crucial
+12:25 
+
+12:25 it's going to be bad for both IND as
+12:27 
+
+12:27 well as academ that's what I also feel
+12:29 
+
+12:29 yeah okay thanks uh just to you know
+12:31 
+
+12:31 continue with this discussion uh gab so
+12:34 
+
+12:34 recently I visited one of the leading
+12:36 
+
+12:36 Industries in India okay I don't take
+12:38 
+
+12:38 the name uh but then I I mean there I
+12:41 
+
+12:41 realized that I was talking to some the
+12:43 
+
+12:43 researchers there and I realized that uh
+12:47 
+
+12:47 the that industry they actually don't uh
+12:50 
+
+12:50 allow uh the Breakthrough research MH uh
+12:55 
+
+12:55 to be published mhm right they don't
+12:57 
+
+12:57 allow them to publish uh good techniques
+13:00 
+
+13:00 for example which they invent right they
+13:03 
+
+13:03 they keep it confidential they keep it
+13:04 
+
+13:04 secret because they essentially want to
+13:06 
+
+13:06 deploy this those techniques to their
+13:09 
+
+13:09 their own llms right and they only allow
+13:12 
+
+13:12 researchers to publish let's say data
+13:14 
+
+13:14 set Centric papers or like those those
+13:16 
+
+13:16 those Innovations which don't have high
+13:19 
+
+13:19 valued uh intellectual property right uh
+13:22 
+
+13:22 now let's say when uh a good PhD student
+13:25 
+
+13:25 after completing PhD joins such
+13:28 
+
+13:28 Industries right they they would also
+13:31 
+
+13:31 they they might feel a bit frustrating
+13:34 
+
+13:34 because because you know they also feel
+13:36 
+
+13:36 that their Innovations will be published
+13:38 
+
+13:38 right and the way this llm race is going
+13:40 
+
+13:40 on right uh I have seen many of such
+13:43 
+
+13:43 cases not one industry many Industries
+13:45 
+
+13:45 they actually keep their confidential
+13:47 
+
+13:47 thing I mean they they high valued
+13:49 
+
+13:49 research confidential and low valued
+13:51 
+
+13:51 research published corre right so what
+13:53 
+
+13:53 do you uh what is your opinion on that
+13:56 
+
+13:56 because if this continues then I think
+13:58 
+
+13:58 good I mean that talented P students
+14:01 
+
+14:01 they would also think uh twice before
+14:03 
+
+14:03 joining industry they would think that
+14:05 
+
+14:05 okay uh you know let me stay back in
+14:07 
+
+14:07 Academia and let me continue uh this
+14:11 
+
+14:11 yeah have you seen the same same thing
+14:13 
+
+14:13 in your industry uh no uh at least in at
+14:16 
+
+14:16 IBM this is not thing okay uh but so uh
+14:21 
+
+14:21 I think this is happening right now
+14:23 
+
+14:23 because people feel that there is a lot
+14:25 
+
+14:25 of money to make out ofing people are
+14:27 
+
+14:27 insecure I think yeah so people are feel
+14:29 
+
+14:29 that okay there is a huge uh huge amount
+14:32 
+
+14:32 of money that is available and If you
+14:35 
+
+14:35 have the algorithm to there's something
+14:38 
+
+14:38 called first movers Advantage right even
+14:40 
+
+14:40 if you you know even if you publish
+14:43 
+
+14:43 right I mean these days the way people
+14:44 
+
+14:44 write the paper there are many uh gray
+14:46 
+
+14:46 areas that you don't reveal right
+14:48 
+
+14:48 correct you already you already build
+14:50 
+
+14:50 this thing you already deployed this
+14:52 
+
+14:52 thing and then you basically
+14:53 
+
+14:53 communicated your paper corre so you
+14:54 
+
+14:54 already have a first for Advantage now
+14:56 
+
+14:56 why people are so scared I think uh so I
+14:59 
+
+14:59 mean I mean with many of the companies
+15:01 
+
+15:01 if they found an algorithm better than
+15:02 
+
+15:02 what they have currently they will
+15:03 
+
+15:03 probably release the current algorithm I
+15:05 
+
+15:05 I mean uh so so as you said the first
+15:09 
+
+15:09 mover thing I think I am guessing many
+15:12 
+
+15:12 of the companies will be happy to
+15:13 
+
+15:13 release things that they believe is now
+15:15 
+
+15:15 worse than what they have
+15:17 
+
+15:17 cently yeah so uh yeah so I think slowly
+15:21 
+
+15:21 The Craze around this LMS will yeah it
+15:25 
+
+15:25 will calm down actually I mean we still
+15:27 
+
+15:27 have a good research coming out of it
+15:28 
+
+15:28 but hopefully uh people will realize
+15:30 
+
+15:30 that I mean the race this race will
+15:32 
+
+15:32 slightly flatten and then uh because we
+15:35 
+
+15:35 know before two years three years 5
+15:37 
+
+15:37 years I don't see any hope before 2020
+15:40 
+
+15:40 before the st came out everybody was
+15:42 
+
+15:42 happy to share all their research and
+15:45 
+
+15:45 everybody was I mean thearch there was
+15:47 
+
+15:47 no such secrecy among the and this is
+15:50 
+
+15:50 just recent phenomenon when when people
+15:53 
+
+15:53 are realizing that maybe there's a lot
+15:54 
+
+15:54 of money to make yeah so yeah but it's
+15:56 
+
+15:56 not good for
+15:59 
+
+15:59 got for and also not good for research
+16:01 
+
+16:01 in general right thearch will progress
+16:02 
+
+16:02 at a much lower yeah so science will
+16:04 
+
+16:04 progress at a much lower paas and the
+16:06 
+
+16:06 boundaries will be pushed much much
+16:07 
+
+16:07 slower than they there limited number of
+16:09 
+
+16:09 people in a research lab how much what
+16:12 
+
+16:12 there's a limit to how much they can
+16:13 
+
+16:13 innovate and how they can do thank you
+16:16 
+
+16:16 by the way so while while I'm asking
+16:18 
+
+16:18 these questions to some to to to
+16:19 
+
+16:19 individuals feel free to give your
+16:22 
+
+16:22 opinion so moving to uh sories so again
+16:26 
+
+16:26 the distribution change right from
+16:27 
+
+16:27 industry to Academia so so you know we
+16:30 
+
+16:30 academicians always uh feel uh very
+16:34 
+
+16:34 difficult to teach courses like NLP
+16:36 
+
+16:36 these days right because you know how to
+16:38 
+
+16:38 teach because we have statistical NLP
+16:41 
+
+16:41 and now all this llm based research uh
+16:43 
+
+16:43 llm based NLP right and uh sometime it
+16:47 
+
+16:47 is not possible to teach NLP in both the
+16:49 
+
+16:49 semester you don't have the Liberty
+16:50 
+
+16:50 right so so how do you think how how one
+16:53 
+
+16:53 should uh teach NLP these days uh do you
+16:56 
+
+16:56 do you have some
+16:57 
+
+16:57 suggestion see the way I uh usually do
+17:01 
+
+17:01 it like I have I used to teach one
+17:03 
+
+17:03 classical NLP course and then the
+17:06 
+
+17:06 following semester I would teach a
+17:08 
+
+17:08 neural NLP course I just just just
+17:10 
+
+17:10 finish one that may not be possible yeah
+17:13 
+
+17:13 like as an example in our own University
+17:15 
+
+17:15 they scrapped up the classical
+17:18 
+
+17:18 NLP so now uh now what what what I done
+17:23 
+
+17:23 is that what I'm thinking uh even in
+17:26 
+
+17:26 this semester what I've done is uh the
+17:28 
+
+17:28 very first uh few lectures I would make
+17:31 
+
+17:31 them ground in the more uh the basic
+17:36 
+
+17:36 elements of classical NLP uh starting
+17:39 
+
+17:39 from linguistic properties morphology
+17:42 
+
+17:42 all of that uh syntax uh and then so one
+17:47 
+
+17:47 month is gone not one month uh not one
+17:50 
+
+17:50 month but three weeks definitely weeks
+17:51 
+
+17:51 definitely yeah but at the same time
+17:53 
+
+17:53 while working on those topics I would uh
+17:56 
+
+17:56 also uh uh teach them
+17:59 
+
+17:59 how these
+18:01 
+
+18:01 heuristics uh can be used to design
+18:04 
+
+18:04 neural
+18:05 
+
+18:05 models right like it's particularly how
+18:08 
+
+18:08 one can um use them as inductive biases
+18:13 
+
+18:13 into into models and do interesting
+18:16 
+
+18:16 things and then uh you know I would move
+18:20 
+
+18:20 into the you know what and all of those
+18:23 
+
+18:23 sort of things but at the same time I
+18:24 
+
+18:24 also make sure that hmm CRF yeah so so
+18:28 
+
+18:28 that's that's why I'm coming so at the
+18:29 
+
+18:29 same time I'm I also make sure that the
+18:32 
+
+18:32 you know how they can
+18:35 
+
+18:35 interpret uh these let's say what and
+18:38 
+
+18:38 other kind of models how one can
+18:41 
+
+18:41 interpret them in a
+18:43 
+
+18:43 probabilistic uh manner like let's say
+18:45 
+
+18:45 that how what's the correspondence
+18:47 
+
+18:47 between these models and probabilistic
+18:49 
+
+18:49 graphical models like CRF or hmm or so
+18:53 
+
+18:53 on yeah and in that way I sort of not in
+18:57 
+
+18:57 in the depth definitely I can go I can't
+18:59 
+
+18:59 go into the depth of the different
+19:00 
+
+19:00 algorithms and so on and so forth but at
+19:03 
+
+19:03 least some idea of what used to be was
+19:06 
+
+19:06 used to happen and what is the
+19:07 
+
+19:07 reflection of that in in in modern uh
+19:11 
+
+19:11 modern architectures and also uh
+19:14 
+
+19:14 recognizing those Elements which were
+19:17 
+
+19:17 there in classical recognizing those
+19:20 
+
+19:20 those elements in in you know in in the
+19:22 
+
+19:22 newer architectures and trying to give
+19:26 
+
+19:26 them a perspective a linguistic
+19:27 
+
+19:27 interpretation of how these neural
+19:29 
+
+19:29 models uh how to interpret these neural
+19:32 
+
+19:32 models in a in a more linguistic fashion
+19:36 
+
+19:36 so that usually I try to look at it that
+19:38 
+
+19:38 way okay okay okay cool um the second
+19:42 
+
+19:42 question to you is um you
+19:46 
+
+19:46 know again from academic perspective we
+19:49 
+
+19:49 have uh constraint in in terms of
+19:52 
+
+19:52 computing facilities and stuff like that
+19:53 
+
+19:53 right data sets also right so how do you
+19:56 
+
+19:56 envision the role of academic institutes
+19:58 
+
+19:58 in fostering open research on LM because
+20:00 
+
+20:00 see I yeah I I think first of all uh
+20:04 
+
+20:04 either at a state level or at an
+20:06 
+
+20:06 University level there has to be a
+20:08 
+
+20:08 Consortium and government has to come
+20:10 
+
+20:10 forward and set up Consortium in terms
+20:13 
+
+20:13 of uh you know data centers where we can
+20:17 
+
+20:17 uh share uh uh resources depending upon
+20:22 
+
+20:22 uh uh a few such projects are coming up
+20:27 
+
+20:27 but I think more and more such project
+20:29 
+
+20:29 should come out I think state level is
+20:31 
+
+20:31 the is a better way that every state
+20:33 
+
+20:33 should have their own resources
+20:35 
+
+20:35 installed and I think uh sharing is also
+20:39 
+
+20:39 going to be tough right yeah
+20:40 
+
+20:40 particularly countries like India right
+20:42 
+
+20:42 right Al let's say hypothetically assume
+20:44 
+
+20:44 that state government will Implement
+20:46 
+
+20:46 something we'll have some data centers
+20:48 
+
+20:48 but who will maintain this and how would
+20:50 
+
+20:50 the other institutes basically share
+20:52 
+
+20:52 that resource right right so so
+20:55 
+
+20:55 basically uh maintenance cannot be done
+20:58 
+
+20:58 by the University people or it has to be
+20:60 
+
+21:00 some dedicated government uh you know it
+21:03 
+
+21:03 can be taken up by government agency
+21:05 
+
+21:05 itself that they they maintain the
+21:07 
+
+21:07 resources and all and also the sharing
+21:10 
+
+21:10 and all of that like if if what I was
+21:12 
+
+21:12 thinking of like this way I'm not an
+21:15 
+
+21:15 expert in this but if Library if he can
+21:18 
+
+21:18 if Library resources can be you know
+21:21 
+
+21:21 there's INF flip net and all so if
+21:22 
+
+21:22 Library resources can be you know shared
+21:25 
+
+21:25 across the country you know why not uh
+21:29 
+
+21:29 at a state level why not and also that
+21:32 
+
+21:32 not everybody is doing highend LM
+21:35 
+
+21:35 research and all of that so why not
+21:38 
+
+21:38 queue it up and and do it that way and I
+21:41 
+
+21:41 think the iits and the ISS have to take
+21:43 
+
+21:43 the lead in in setting up this sort of
+21:46 
+
+21:46 things I mean in that aspect I would
+21:49 
+
+21:49 actually uh uh go with what yatin
+21:52 
+
+21:52 mentioned right I mean personally what I
+21:54 
+
+21:54 do is that whenever I feel that I need
+21:56 
+
+21:56 uh I mean I want to do something uh for
+21:59 
+
+21:59 which I need L resources I just go and
+22:01 
+
+22:01 talk to Industries right and uh they are
+22:04 
+
+22:04 actually happy to collaborate number one
+22:07 
+
+22:07 because they also feel that this is
+22:08 
+
+22:08 important in academic collaboration is
+22:10 
+
+22:10 important number two they also have
+22:11 
+
+22:11 resources which they actually want to
+22:13 
+
+22:13 share happily and I've been successful
+22:16 
+
+22:16 uh over the years like with industry
+22:18 
+
+22:18 support from Google from IBM from Adobe
+22:21 
+
+22:21 and so on and so forth I think they are
+22:23 
+
+22:23 also apart from along with State support
+22:26 
+
+22:26 I think industry support might also be
+22:28 
+
+22:28 right right right things are becoming
+22:30 
+
+22:30 obsolete at a very high how do you take
+22:33 
+
+22:33 of that I mean there
+22:36 
+
+22:36 arec it h00 is obsolute can you imagine
+22:40 
+
+22:40 that I was thinking another AR h00 is no
+22:44 
+
+22:44 longer there to BU
+22:47 
+
+22:47 200 yeah that is another argument that
+22:52 
+
+22:52 yeah right I think that is another
+22:54 
+
+22:54 argument that our institution keeps
+22:57 
+
+22:57 giving that you know okay let's IM we we
+22:59 
+
+22:59 we tell Reliance and we can we can buy
+23:01 
+
+23:01 this then what I mean what when things
+23:03 
+
+23:03 get obsolete so from that perspective
+23:06 
+
+23:06 you know industry I think is better
+23:09 
+
+23:09 placed at utilizing those resources and
+23:11 
+
+23:11 generat revenue order yeah exactly right
+23:13 
+
+23:13 so you you don't have resources sitting
+23:17 
+
+23:17 idle bandwidth which you can utilize for
+23:20 
+
+23:20 academic collaboration as so we we we
+23:24 
+
+23:24 have to think about how to monetize that
+23:25 
+
+23:25 even if Government pitches in there has
+23:27 
+
+23:27 to be a plan for mon ing that as well
+23:30 
+
+23:30 right right otherwise otherwise it won't
+23:32 
+
+23:32 work yeah that's true that's true okay
+23:36 
+
+23:36 um moving to onno so a set of different
+23:41 
+
+23:41 questions right so from students
+23:43 
+
+23:43 perspective right so you have been
+23:45 
+
+23:45 working on llms and you have also been
+23:48 
+
+23:48 uh I think reading papers published by
+23:50 
+
+23:50 other labs outside India right so uh uh
+23:54 
+
+23:54 I always you know motivate students to
+23:57 
+
+23:57 uh stay in India and continue their PHD
+23:60 
+
+23:60 right for example yatin did from I Delhi
+24:03 
+
+24:03 he did from ISC you doing in I Delhi
+24:06 
+
+24:06 right so and and and and and all of your
+24:09 
+
+24:09 research is actually very very good very
+24:10 
+
+24:10 very motivated influential so so why you
+24:14 
+
+24:14 think that you know uh so the the kind
+24:17 
+
+24:17 of tradition right that uh you know
+24:20 
+
+24:20 after btech after undergrad you actually
+24:22 
+
+24:22 want to go go go abroad for PhD versus
+24:25 
+
+24:25 you actually want to stay here right do
+24:27 
+
+24:27 you see a major difference in terms of
+24:29 
+
+24:29 research quality number one and number
+24:31 
+
+24:31 two in terms of uh Prospect job
+24:34 
+
+24:34 opportunities and your future growth so
+24:36 
+
+24:36 uh what do you think about it I guess uh
+24:40 
+
+24:40 it's a kind of a historical uh side
+24:42 
+
+24:42 effect to it I when it started say in
+24:46 
+
+24:46 20056 that time that AG India was not
+24:50 
+
+24:50 properly placed in terms of this it
+24:52 
+
+24:52 resources but I guess nowadays things
+24:54 
+
+24:54 are changing with all the big techs
+24:56 
+
+24:56 having their research labs in India and
+24:59 
+
+24:59 uh over the friends and seniors I have I
+25:02 
+
+25:02 guess a lot of people who have done
+25:04 
+
+25:04 their phds from say these top
+25:05 
+
+25:05 institutions have joined Industries
+25:07 
+
+25:07 apart from
+25:08 
+
+25:08 Academia previously we used to see most
+25:11 
+
+25:11 of Indian P student used to go to
+25:12 
+
+25:12 Academia because there were no indust so
+25:15 
+
+25:15 I guess things are changing there are
+25:17 
+
+25:17 not uh much difference in terms of
+25:19 
+
+25:19 research quality of course there is uh
+25:21 
+
+25:21 difference in terms of the volume of
+25:23 
+
+25:23 research which is very understandable
+25:25 
+
+25:25 because countries like us they have say
+25:27 
+
+25:27 100 uh
+25:29 
+
+25:29 institutions working on a field compared
+25:31 
+
+25:31 to India where maybe in a lab there are
+25:33 
+
+25:33 30 pages students 40 pages students we
+25:35 
+
+25:35 are working at a much smaller skill than
+25:37 
+
+25:37 them but if you normalize it if you
+25:39 
+
+25:39 normalize the quantity terms of number
+25:41 
+
+25:41 of students right yeah but when we see
+25:43 
+
+25:43 at conferences like nobody normaliz like
+25:45 
+
+25:45 when we go to any conference any top
+25:47 
+
+25:47 conference Like Ur we always see at
+25:50 
+
+25:50 least 60 70% students are either chines
+25:53 
+
+25:53 or us so Indians are less over there or
+25:56 
+
+25:56 the people who are there are mostly us p
+25:59 
+
+25:59 because it's understandable about the
+26:01 
+
+26:01 volume so I guess things are changing
+26:03 
+
+26:03 but I guess students are not aware of
+26:06 
+
+26:06 the shft especially in field in CS or
+26:10 
+
+26:10 most specifically NLP I will talk um I
+26:13 
+
+26:13 guess we are kind of now at part at a
+26:16 
+
+26:16 more like normaliz so what would be your
+26:18 
+
+26:18 advice to the to the students who are
+26:20 
+
+26:20 now applying uh to the US for their uh
+26:23 
+
+26:23 PhD and I'm I'm just you know submitting
+26:26 
+
+26:26 L every day 15 20 L every day
+26:29 
+
+26:29 I guess they should start the most
+26:31 
+
+26:31 interesting part on is that all the
+26:34 
+
+26:34 students who are applying for them I'm
+26:36 
+
+26:36 writing L they have already published
+26:38 
+
+26:38 two three papers with me in their
+26:39 
+
+26:39 underground but they still think that
+26:41 
+
+26:41 our lab is not not their their uh their
+26:45 
+
+26:45 next
+26:47 
+
+26:47 place somewhat about the both the brand
+26:50 
+
+26:50 value and how do you we need better
+26:52 
+
+26:52 marketing I guess well I is also have
+26:54 
+
+26:54 brand values right I mean of course we
+26:55 
+
+26:55 don't compare ourselves with Stanford
+26:57 
+
+26:57 CMU but if you look at let's say second
+26:59 
+
+26:59 TI third TI institutes in the US we
+27:02 
+
+27:02 actually are better in terms of Cub
+27:04 
+
+27:04 ranking yeah it might also be have to do
+27:07 
+
+27:07 with exposure uh
+27:09 
+
+27:09 that student that are studying outside
+27:11 
+
+27:11 they get a lot of exposure in the
+27:13 
+
+27:13 research lab that are open all the They
+27:15 
+
+27:15 intership every year maybe here also we
+27:18 
+
+27:18 have exposure for example let's see if
+27:19 
+
+27:19 somebody wants to go to IBM or let's say
+27:22 
+
+27:22 Google uh they they always recruit
+27:24 
+
+27:24 interns I think my uh you know because
+27:29 
+
+27:29 I've done my PhD over there and uh I've
+27:32 
+
+27:32 done my PhD over there and you know I
+27:34 
+
+27:34 have half of my family over there and
+27:36 
+
+27:36 I'm seeing what's going on I think also
+27:39 
+
+27:39 one another reason is that there is
+27:40 
+
+27:40 still this
+27:42 
+
+27:42 lingering myth is basically a myth that
+27:45 
+
+27:45 life is going to be lot better over
+27:47 
+
+27:47 there once you go over there and it's
+27:50 
+
+27:50 complete myth and uh I'm I'm a practical
+27:54 
+
+27:54 example of uh coming back to India
+27:56 
+
+27:56 immediately after my PhD so I didn't
+27:58 
+
+27:58 even have you know spend much time to
+28:01 
+
+28:01 realize that so for the time being sorry
+28:05 
+
+28:05 if we assume that the life is better
+28:07 
+
+28:07 there why not doing PhD from India and
+28:09 
+
+28:09 go there after doing PhD let's say post
+28:11 
+
+28:11 dog and settle down yeah and and I think
+28:14 
+
+28:14 that's another uh thing that they have
+28:16 
+
+28:16 you know these kids have that that's
+28:19 
+
+28:19 much Upstream MH task in the sense of
+28:22 
+
+28:22 Landing in us without having a US degree
+28:26 
+
+28:26 uh and and that's sort of like common
+28:29 
+
+28:29 notion a general notion that it may be a
+28:32 
+
+28:32 bit difficult to to settle in
+28:34 
+
+28:34 there okay so the second question on my
+28:37 
+
+28:37 to you is um uh what are the unique
+28:40 
+
+28:40 challenges you face while working on llm
+28:43 
+
+28:43 Research as a student especially
+28:45 
+
+28:45 balancing ambitious ideas with resource
+28:48 
+
+28:48 constraints yeah like as J was also
+28:51 
+
+28:51 mentioning it's always a good idea to
+28:53 
+
+28:53 collaborate with the industry during PhD
+28:55 
+
+28:55 and probably that has helped me a lot in
+28:57 
+
+28:57 my journey because uh obviously there
+28:60 
+
+28:60 are areas like which are still
+29:01 
+
+29:01 academicians can pursue with
+29:04 
+
+29:04 comparatively low sources like things
+29:06 
+
+29:06 like evaluations ofm which maybe
+29:08 
+
+29:08 industry are not that much interested in
+29:10 
+
+29:10 but uh there are a lot of complaints how
+29:12 
+
+29:12 do you evaluate a particular LM and
+29:14 
+
+29:14 things like that so maybe things like
+29:16 
+
+29:16 that and also we work on
+29:18 
+
+29:18 interpretability with we start with toy
+29:20 
+
+29:20 models which are a GPU is not required
+29:22 
+
+29:22 collab is so problems like that
+29:25 
+
+29:25 obviously one can start but when you go
+29:27 
+
+29:27 to more ambition things um tweaking with
+29:30 
+
+29:30 the model doing more designing new
+29:33 
+
+29:33 methods s say alignment fine tuning you
+29:35 
+
+29:35 need resources because at least for
+29:37 
+
+29:37 publishing papers reviewers are every
+29:39 
+
+29:39 time like why don't you try with 70
+29:41 
+
+29:41 million models so we need resources but
+29:45 
+
+29:45 I think it's always a good idea to
+29:47 
+
+29:47 collaborate with the industries
+29:48 
+
+29:48 unfortunately nowadays in India at least
+29:50 
+
+29:50 in the field of llms I see we always
+29:53 
+
+29:53 collaborate with all the big techs so I
+29:55 
+
+29:55 think that's a plus point and I think um
+29:58 
+
+29:58 uh you know resource constraint also
+29:60 
+
+29:60 gives you a different perspective right
+30:02 
+
+30:02 for example I always give this example
+30:04 
+
+30:04 that we we were able to send a space
+30:06 
+
+30:06 spacecraft to moon with less budget of a
+30:09 
+
+30:09 of of of a Hollywood movie right so
+30:11 
+
+30:11 there is a different challenge so if you
+30:13 
+
+30:13 have low resources low data maybe one or
+30:16 
+
+30:16 two 00 right how do you build better
+30:18 
+
+30:18 models so as FIS was telling that he
+30:21 
+
+30:21 works in this uh energy efficient models
+30:24 
+
+30:24 I also work in uh small language models
+30:27 
+
+30:27 I think these are these are good right
+30:29 
+
+30:29 an example this ml emlp paper that we
+30:32 
+
+30:32 just recently you know the IUS paper
+30:34 
+
+30:34 that we had this time so it's just
+30:37 
+
+30:37 because we didn't have the resource the
+30:40 
+
+30:40 GPU resources we started converting all
+30:42 
+
+30:42 the models all these large models into
+30:45 
+
+30:45 Jacks and then you know thanks to Google
+30:49 
+
+30:49 that we got the TPU resources and we we
+30:51 
+
+30:51 ran all of that into TP resources and
+30:53 
+
+30:53 then we go about the results so yeah I
+30:56 
+
+30:56 mean and also writing more efficient
+30:59 
+
+30:59 code and uh you know so so so so you
+31:03 
+
+31:03 start thinking about a lot of different
+31:05 
+
+31:05 ways in which you can optimize things
+31:07 
+
+31:07 you know when you have uh limited
+31:09 
+
+31:09 resources or constrained resources and
+31:12 
+
+31:12 so on just to add to this um if you look
+31:14 
+
+31:14 at the ways uh or the papers that are
+31:17 
+
+31:17 published many papers published in ACL
+31:20 
+
+31:20 venues CL venues these days you see a
+31:22 
+
+31:22 lot of papers are on exploration of LMS
+31:25 
+
+31:25 on on a certain aspect right they just
+31:27 
+
+31:27 took some LMS and they ran those llms on
+31:30 
+
+31:30 uh big big gpus clusters and they
+31:33 
+
+31:33 discover something versus let's say we
+31:36 
+
+31:36 we don't have resources we think of it a
+31:39 
+
+31:39 different ways because we know that uh
+31:41 
+
+31:41 that's not uh that that's that's
+31:44 
+
+31:44 different thing and we won't be able to
+31:45 
+
+31:45 do that right and then we basically
+31:47 
+
+31:47 focus on model design optimization and
+31:50 
+
+31:50 so on I think that is also a good good
+31:51 
+
+31:51 perspective is right but of course this
+31:54 
+
+31:54 is this this should not be an excuse uh
+31:57 
+
+31:57 we need more use more resources to train
+32:00 
+
+32:00 the no even and and and my personal
+32:02 
+
+32:02 opinion is that even to come up with
+32:04 
+
+32:04 smaller models you have to understand
+32:06 
+
+32:06 what's really going on in this llms and
+32:09 
+
+32:09 why they are yeah yeah all right I think
+32:12 
+
+32:12 these are very very interesting U
+32:15 
+
+32:15 responses I really enjoyed so now just
+32:18 
+
+32:18 to conclude this session I have a few uh
+32:20 
+
+32:20 general questions to all of you right I
+32:22 
+
+32:22 feel free to raise hands to respond to
+32:23 
+
+32:23 this so so the first one is the way the
+32:27 
+
+32:27 scaling laws
+32:28 
+
+32:28 uh you know the the the the increasing
+32:31 
+
+32:31 size of LM and stuff like that do you
+32:33 
+
+32:33 think that an alternative paradigms uh
+32:36 
+
+32:36 Paradigm is emerging right which will be
+32:40 
+
+32:40 U which will essentially Surplus um the
+32:43 
+
+32:43 traditional AI research in general I
+32:45 
+
+32:45 mean the my let me rephrase so given
+32:47 
+
+32:47 that scaling laws dominate discussions
+32:50 
+
+32:50 right uh What alternative paradigms
+32:53 
+
+32:53 should we explore for advancing uh
+32:56 
+
+32:56 AI so uh
+32:59 
+
+32:59 so
+33:01 
+
+33:01 uh or it's a different AI Al together
+33:04 
+
+33:04 right so yeah so we have seen that the
+33:07 
+
+33:07 more data and the bigger these models
+33:09 
+
+33:09 are the there are emergent cap with
+33:12 
+
+33:12 every let's say 10 times increase in
+33:14 
+
+33:14 data size and model size uh we are
+33:16 
+
+33:16 seeing some emergent property uh uh from
+33:19 
+
+33:19 the models in context learning and
+33:21 
+
+33:21 instruction following behavior and a lot
+33:23 
+
+33:23 of other stuff that probably smaller
+33:24 
+
+33:24 models are not that that well adapted it
+33:28 
+
+33:28 now ultimately we so we have Lama 3.1
+33:30 
+
+33:30 which is stain on 15 trillion tokens uh
+33:33 
+
+33:33 and grite models I think also around 12
+33:35 
+
+33:35 trillion tokens now uh the ultimately we
+33:39 
+
+33:39 are going to run out of data that two
+33:41 
+
+33:41 train on and uh so the emergent
+33:43 
+
+33:43 properties now will uh cannot be from
+33:47 
+
+33:47 the data that is already there on there
+33:48 
+
+33:48 it has to be so my that's my get feeling
+33:50 
+
+33:50 that the emerging properties that will
+33:51 
+
+33:51 emerge from now will be you based on
+33:54 
+
+33:54 synthetic data but gorab you are just
+33:56 
+
+33:56 talking about text right there are
+33:58 
+
+33:58 images there are videos there are other
+34:00 
+
+34:00 dimensions of data set that you can
+34:02 
+
+34:02 collect that's true yeah that is uh yes
+34:05 
+
+34:05 and those yeah talking from more from a
+34:07 
+
+34:07 text perspective that what all behaviors
+34:09 
+
+34:09 can emerge uh now that we are running
+34:12 
+
+34:12 out of data for textual data and uh my
+34:16 
+
+34:16 gut feeling was that uh uh as we are now
+34:19 
+
+34:19 for example now the way data is being
+34:21 
+
+34:21 generated is that given query you try to
+34:23 
+
+34:23 search try to get the uh result using
+34:26 
+
+34:26 search using different verification and
+34:27 
+
+34:27 then pick the the result and fine tune
+34:29 
+
+34:29 on top of it right so that data is
+34:32 
+
+34:32 basically is not something that LM is
+34:33 
+
+34:33 generating as it is it's it's basically
+34:35 
+
+34:35 you're searching on top of the result
+34:36 
+
+34:36 and then fine tuning it on it and if you
+34:39 
+
+34:39 find and probably if you train bigger
+34:41 
+
+34:41 llms in this with this new emerging
+34:43 
+
+34:43 proper uh new data that you have found
+34:44 
+
+34:44 using search it might be uh better
+34:47 
+
+34:47 adopted at uh it might be do a better
+34:50 
+
+34:50 reasoning than what the uh what a small
+34:53 
+
+34:53 LM can do so so that's what my feeling
+34:56 
+
+34:56 is that uh new data new the void will be
+34:59 
+
+34:59 filled by synthetically generated data
+35:01 
+
+35:01 but it's just cut in I I'm not sure
+35:04 
+
+35:04 that's that's correct um uh do anybody
+35:08 
+
+35:08 else wants to yeah I think that there
+35:10 
+
+35:10 are other kind of uh alternative
+35:12 
+
+35:12 paradigms of model that are coming up
+35:15 
+
+35:15 especially one of the interesting models
+35:18 
+
+35:18 you know we do not need that much of uh
+35:21 
+
+35:21 parameters is like the can model the K
+35:24 
+
+35:24 arold sort of model it's interesting
+35:26 
+
+35:26 model of course it's a bit of bit of
+35:29 
+
+35:29 more of a claim than what and I think
+35:32 
+
+35:32 that idea of the activation functions
+35:35 
+
+35:35 you learning them you're you know and
+35:37 
+
+35:37 and also you know that leads for me that
+35:40 
+
+35:40 leads to all sorts of possibilities
+35:42 
+
+35:42 including neuros symboling techniques
+35:45 
+
+35:45 while you're applying those activation
+35:47 
+
+35:47 functions it's more logic driven uh
+35:49 
+
+35:49 techniques and so on and so forth and
+35:51 
+
+35:51 and and and the the very fact that do we
+35:54 
+
+35:54 really need that many number of features
+35:58 
+
+35:58 and are are those that many number of
+35:60 
+
+35:60 features even helping in terms of the
+36:02 
+
+36:02 final decision and usually we see that
+36:04 
+
+36:04 much of the you know the parameters are
+36:07 
+
+36:07 SP right so so that leads us to that
+36:09 
+
+36:09 thing that okay we start with very large
+36:11 
+
+36:11 models but how much of that large model
+36:13 
+
+36:13 we actually really using in terms of the
+36:15 
+
+36:15 final final decision right so I'm very
+36:18 
+
+36:18 hopeful in coming up with alternative
+36:20 
+
+36:20 paradigms you know kind of like uh uh
+36:24 
+
+36:24 bringing back some of the stuffs of
+36:26 
+
+36:26 olden days logic B techniques or
+36:28 
+
+36:28 symbolic techniques but at the same time
+36:30 
+
+36:30 trying to figure out you know how we can
+36:33 
+
+36:33 apply some of those techniques into uh
+36:36 
+
+36:36 into the newer ideas that that is coming
+36:40 
+
+36:40 out of the L World okay okay okay so
+36:44 
+
+36:44 maybe uh you want to say something or
+36:46 
+
+36:46 can you ask the next question maybe yeah
+36:48 
+
+36:48 so I think you know uh they will go
+36:51 
+
+36:51 through their own Evolution as in any
+36:53 
+
+36:53 other technology right we have to go all
+36:55 
+
+36:55 in to see where it ends right and and
+36:58 
+
+36:58 once it saturates then of course
+37:00 
+
+37:00 alternative ways are going to come right
+37:02 
+
+37:02 so for example gorov mentioned search so
+37:05 
+
+37:05 that is I think that is the next thing
+37:06 
+
+37:06 that has come very recently with with o1
+37:09 
+
+37:09 right so right so so basically you equip
+37:12 
+
+37:12 the model with search and verification
+37:14 
+
+37:14 techniques and then you have a better uh
+37:17 
+
+37:17 better better high quality data or high
+37:20 
+
+37:20 quality U output right so I think once
+37:24 
+
+37:24 this saturates then distillation of the
+37:26 
+
+37:26 same expertise into smaller models will
+37:29 
+
+37:29 definitely is going to come in right I'm
+37:31 
+
+37:31 sure that you know that will happen and
+37:33 
+
+37:33 then the other question is that do we
+37:36 
+
+37:36 really need such large language models
+37:38 
+
+37:38 do we need one model which can do
+37:39 
+
+37:39 everything or do we need specialized
+37:41 
+
+37:41 models and if we have specialized task
+37:44 
+
+37:44 or specialized domains then can smaller
+37:47 
+
+37:47 models suffice and I think that is an
+37:49 
+
+37:49 active area of research exactly right
+37:52 
+
+37:52 exactly all right maybe the last
+37:54 
+
+37:54 question um so um so as llms uh become
+37:60 
+
+37:60 more integrated into our daily life
+38:02 
+
+38:02 right how do you envision their role
+38:04 
+
+38:04 evolving in kind of in collaborative
+38:07 
+
+38:07 environments with human because we have
+38:09 
+
+38:09 been talking about human AI
+38:10 
+
+38:10 collaboration right and U I think uh
+38:14 
+
+38:14 it's still uh in fancy in in the in in
+38:18 
+
+38:18 the sense like I think uh human AI
+38:22 
+
+38:22 collaboration is something which is
+38:24 
+
+38:24 which is the future right so so so what
+38:27 
+
+38:27 do you think I mean what is what is your
+38:30 
+
+38:30 perspective about this and how how we as
+38:32 
+
+38:32 researchers can take this thing forward
+38:34 
+
+38:34 so that so that you know uh normal
+38:37 
+
+38:37 citizens in our country right across the
+38:39 
+
+38:39 globe they can also use AI more
+38:42 
+
+38:42 judiciously right what do you think
+38:45 
+
+38:45 anybody wants to take this up I can
+38:47 
+
+38:47 maybe start yeah so I think the Paradigm
+38:49 
+
+38:49 Shift has already come right AI has
+38:52 
+
+38:52 already become an integral part of
+38:54 
+
+38:54 people's life whether they may be know
+38:56 
+
+38:56 they may be knowing it or not or un for
+38:59 
+
+38:59 example if you look at whatsapp right
+39:01 
+
+39:01 you can ask you can use Lama 3.2 model
+39:04 
+
+39:04 and people do not know what they're
+39:05 
+
+39:05 using underneath right so I'll give you
+39:07 
+
+39:07 an example so my wife is a doctor and
+39:10 
+
+39:10 she had to uh you know create a survey
+39:13 
+
+39:13 or some questionnaire for some training
+39:15 
+
+39:15 in the hospital right so she asked she
+39:19 
+
+39:19 opened WhatsApp and asked Lama it gave
+39:21 
+
+39:21 some questions that then she used that
+39:23 
+
+39:23 for you know for for training purposes
+39:25 
+
+39:25 in her organization and then you know so
+39:28 
+
+39:28 a few years down the line a few years
+39:30 
+
+39:30 ago this was not imaginable so this has
+39:33 
+
+39:33 already started touching people and
+39:36 
+
+39:36 general people who are not tech people
+39:38 
+
+39:38 tech tech tech heavy yeah who are not
+39:40 
+
+39:40 Tech heavy so I think AI as an assistant
+39:43 
+
+39:43 is already there where users are
+39:45 
+
+39:45 verifying in Industry code llms have
+39:48 
+
+39:48 become very powerful and you know I'm
+39:50 
+
+39:50 sure almost everyone of us is using them
+39:53 
+
+39:53 for coding they're assisting Us in
+39:55 
+
+39:55 coding for drafting emails for writing
+39:58 
+
+39:58 formal notices and all people General
+40:00 
+
+40:00 people are also using it right now
+40:03 
+
+40:03 envisioning AI models as an autonomous
+40:07 
+
+40:07 agents I think I don't know maybe that
+40:10 
+
+40:10 is that is the future but at this point
+40:12 
+
+40:12 in time I don't know whether we are
+40:14 
+
+40:14 there yet or not right okay yeah okay uh
+40:18 
+
+40:18 cool I think we are running out of time
+40:20 
+
+40:20 um I will ask each one of you the last
+40:23 
+
+40:23 question okay so to sories what would be
+40:26 
+
+40:26 your message to the students right who
+40:28 
+
+40:28 are learning llm ctive a right how how
+40:32 
+
+40:32 would they prepare themselves for let's
+40:34 
+
+40:34 say for placement or for
+40:36 
+
+40:36 research I think first of all don't
+40:38 
+
+40:38 forget the fundamentals uh the
+40:40 
+
+40:40 fundamentals of machine learning the
+40:42 
+
+40:42 fundamentals of NLP and uh if you are
+40:45 
+
+40:45 using llms for deviation and all the
+40:48 
+
+40:48 fundamentals the fundamental classical
+40:49 
+
+40:49 techniques are extremely important
+40:51 
+
+40:51 because if even if you look into the
+40:53 
+
+40:53 llms if you really want to understand uh
+40:56 
+
+40:56 and then build on it and not just use it
+40:59 
+
+40:59 as a plug and play because that would
+41:00 
+
+41:00 only take you to certain level and after
+41:02 
+
+41:02 that it will it will hit a wall so that
+41:05 
+
+41:05 is bound to happen you have to be very
+41:08 
+
+41:08 strong in the fundamentals so that is
+41:11 
+
+41:11 this one thing I would I would say okay
+41:14 
+
+41:14 uh to both of you um let's say after
+41:16 
+
+41:16 taking this course the students will
+41:18 
+
+41:18 will uh will call themselves experts
+41:21 
+
+41:21 right in LM and gener for text whatever
+41:23 
+
+41:23 right so so when they apply for job
+41:27 
+
+41:27 let's say say to IBM for example or to
+41:29 
+
+41:29 say Google Microsoft right what kind of
+41:31 
+
+41:31 qualities you expect uh from candidates
+41:34 
+
+41:34 right when you take interviews what are
+41:36 
+
+41:36 the qualities that you expect that they
+41:39 
+
+41:39 they fulfill I think one of the things
+41:41 
+
+41:41 would be how much of done see here what
+41:43 
+
+41:43 we taught was mostly uh uh let's say
+41:47 
+
+41:47 theorems and some some uh some ways of
+41:51 
+
+41:51 doing decoding but the real use case
+41:54 
+
+41:54 will be if they could apply they can
+41:56 
+
+41:56 transfer that knowledge to a new problem
+41:58 
+
+41:58 and if they uh if they can Implement
+42:00 
+
+42:00 some of these approaches or uh so that
+42:03 
+
+42:03 would be the quality that we be looking
+42:05 
+
+42:05 at how much are they able to transfer
+42:06 
+
+42:06 what they learned in the class to actual
+42:07 
+
+42:07 real world problem yeah okay so I think
+42:12 
+
+42:12 here I kind of agree with Sor that
+42:15 
+
+42:15 fundamentals are the most important what
+42:17 
+
+42:17 do you mean by fundamentals I'll tell
+42:18 
+
+42:18 you so can you back propagate can you
+42:20 
+
+42:20 write a function which will uh you know
+42:22 
+
+42:22 WR find the gradient of some some
+42:24 
+
+42:24 function but if I ask you to uh write
+42:27 
+
+42:27 the Transformer layer do you know what
+42:29 
+
+42:29 are the operations which are going on
+42:30 
+
+42:30 without using hugging face Transformer
+42:32 
+
+42:32 can you write a plain pych code in that
+42:35 
+
+42:35 right so see if do you also ask let's
+42:37 
+
+42:37 say question from linear linear algebra
+42:39 
+
+42:39 probability statistics in the in the
+42:40 
+
+42:40 interview to that level or no so I do
+42:43 
+
+42:43 you do I do okay but but I don't know
+42:45 
+
+42:45 about others but I definitely ask
+42:47 
+
+42:47 questions from linear algebra and also I
+42:49 
+
+42:49 ask people to you know to write uh let's
+42:52 
+
+42:52 say a Transformer layer for me and
+42:55 
+
+42:55 anding coding yeah coding coding part
+42:57 
+
+42:57 right and uh so see if if if a
+42:60 
+
+42:60 biochemical engineer is using ANM I
+43:02 
+
+43:02 don't expect him to know the integrities
+43:04 
+
+43:04 of the model right I don't expect him to
+43:06 
+
+43:06 know what is a Transformer layer and all
+43:07 
+
+43:07 but if you are hiring an ml expert he
+43:10 
+
+43:10 how will he push the boundaries if he
+43:12 
+
+43:12 doesn't know you know what lies inside
+43:15 
+
+43:15 so I think I don't know you said that
+43:17 
+
+43:17 students are going to call themselves
+43:18 
+
+43:18 experts I don't think that I am an
+43:20 
+
+43:20 expert in at this point in time nobody
+43:22 
+
+43:22 can
+43:25 
+
+43:25 claim yeah yeah the the pace at which
+43:29 
+
+43:29 the field is moving we know very little
+43:31 
+
+43:31 so you still assess the fundamentals
+43:33 
+
+43:33 that's what you're saying right
+43:34 
+
+43:34 absolutely without that it is not
+43:35 
+
+43:35 possible to push the boundaries right
+43:38 
+
+43:38 and the coding skills that comes into
+43:40 
+
+43:40 play right if I'm asking you what kind
+43:42 
+
+43:42 of coding skill like uh uh cc++ old
+43:44 
+
+43:44 schools coding competive coding or like
+43:47 
+
+43:47 ml coding coding so so there are see
+43:49 
+
+43:49 there are two aspects I would say in in
+43:51 
+
+43:51 the research right one is uh putting the
+43:54 
+
+43:54 AI models for that we need p so we don't
+43:58 
+
+43:58 we not deploying models we researchers
+43:60 
+
+43:60 we not deploying models we don't need
+44:01 
+
+44:01 knowledge of C++ and other Frameworks so
+44:04 
+
+44:04 we primarily focus on py and Python and
+44:06 
+
+44:06 the other minor thing is whenever you
+44:09 
+
+44:09 have the data you need to have the
+44:11 
+
+44:11 ability to analyze the data for that
+44:14 
+
+44:14 little bit knowledge of statistics and
+44:16 
+
+44:16 you know tools which are there P data
+44:18 
+
+44:18 frames and all right can you use them or
+44:21 
+
+44:21 not I think these are the two aspects
+44:23 
+
+44:23 that I test okay okay uh the last
+44:26 
+
+44:26 question to on
+44:28 
+
+44:28 so um imagine that your uh next door
+44:32 
+
+44:32 neighbor uh your brother uh he is kind
+44:35 
+
+44:35 of hesitant he's not very he's very
+44:38 
+
+44:38 confused whether to apply abroad for our
+44:40 
+
+44:40 studies versus India what would be your
+44:42 
+
+44:42 message at least come work with us for
+44:45 
+
+44:45 few months and then decide take an
+44:47 
+
+44:47 informed decision at
+44:50 
+
+44:50 least okay all right thanks very much I
+44:52 
+
+44:52 think this was wonderful session thank
+44:54 
+
+44:54 you thanks thanks for your uh your
+44:56 
+
+44:56 opinion and you know uh responding to
+44:59 
+
+44:59 questions I think uh uh audience also
+45:02 
+
+45:02 enjoyed this one and uh hopefully uh
+45:05 
+
+45:05 some of these advises right might be
+45:07 
+
+45:07 useful for you guys to let's say apply
+45:09 
+
+45:09 for high studies apply for jobs in top
+45:12 
+
+45:12 industries and so on and so forth with
+45:14 
+
+45:14 this uh we officially conclude uh this
+45:18 
+
+45:18 lecture series I hope you enjoyed and we
+45:20 
+
+45:20 I I also hope that you uh recommend this
+45:23 
+
+45:23 course for uh to to your friends to your
+45:25 
+
+45:25 to your colleagues right and and please
+45:28 
+
+45:28 do do feel free to write to me and write
+45:30 
+
+45:30 to other instructors right uh whether
+45:32 
+
+45:32 you enjoyed the course or not and what
+45:34 
+
+45:34 are the uh what are the aspects you
+45:36 
+
+45:36 thought might uh might have been uh you
+45:39 
+
+45:39 know better uh in terms of quality thank
+45:41 
+
+45:41 you very much

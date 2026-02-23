@@ -1,0 +1,614 @@
+00:03 okay hello everyone um let's get started
+00:07 so uh in today's class we will continue
+00:10 our discussion on word
+00:12 representation so in the last lecture we
+00:16 started
+00:17 discussing uh the old school method of
+00:21 representing a word right we looked at
+00:23 count based methods simple term term
+00:26 context Matrix right from term context
+00:30 metrix we move to uh tfidf based metrics
+00:33 right uh in fact there are other other
+00:36 ways to measure the
+00:39 currence like uh PMI ppmi right uh
+00:44 pointwise Mutual information positive
+00:46 pointwise Mutual information and so on
+00:49 so I I did not cover those parts because
+00:52 those essentially come under statistical
+00:55 uh statistical NLP part of it right and
+00:58 then we also uh we also discussed what
+01:01 I'm bring specifically what to VI right
+01:05 and uh we saw that how a prediction
+01:08 based method like what to right
+01:10 addresses some of the problems of count
+01:12 based methods what are the major
+01:14 problems of count based methods major
+01:16 problem is
+01:18 that you have uh uh a larger Matrix
+01:22 right many entries are zero right and uh
+01:27 the good part about the count based
+01:28 method is that
+01:30 you can capture the statistics properly
+01:33 right for example the number of times
+01:35 two words appear together that count uh
+01:38 it's a very statistically uh important
+01:40 count right and that count you can
+01:43 capture properly in a count based
+01:45 method whereas if you look at
+01:48 the uh if you look at the prediction
+01:51 based methods there are also some
+01:52 problems we'll discuss here right so in
+01:55 today's class the idea is that we will
+01:57 um we'll finish this chapter we'll talk
+01:60 about
+02:01 another embedding method which is called
+02:02 The Glove embedding method Global
+02:04 vectors okay and
+02:07 then we will see you know some of the
+02:09 important properties of this embedding
+02:11 methods and then we U uh close this
+02:15 chapter okay so today's breaking news is
+02:18 as follows so M Mistral recently
+02:22 collaborated with the Mamba team so
+02:25 Mamba as you know it's a state space
+02:27 based model we will discuss Mamba in the
+02:30 I think in the last few lectures of this
+02:33 course uh it's a state space based model
+02:35 like an RNN or hmm kind of model right
+02:38 which is a non- Transformer based model
+02:41 so Mamba team they they they focus on
+02:45 non- Transformer based models whereas
+02:47 mistel focuses on Transformer based
+02:50 models so mistel recently collaborated
+02:52 with Mamba team to to come up with a new
+02:56 uh new model called Cod codral
+03:01 right uh Cod St Mamba is a is now the
+03:05 bestas code llm for for for coding right
+03:08 which has U fewer than 10 billion
+03:11 parameters it's a small language model
+03:14 in that sense right and uh it shows
+03:18 quite comparable quite comparable
+03:21 performance uh with respect to other
+03:24 models like cod Lama right and other
+03:26 bigger models right okay so if you're
+03:29 interested this is the link that you
+03:31 should you should look at right and this
+03:34 this was released on July
+03:36 16 very
+03:39 recently okay so let's now proceed we
+03:43 will look at uh the advantage of count
+03:46 based method and prediction based method
+03:48 and disadvantage of count count based
+03:51 method and prediction based method
+03:53 right count based methods include tfidf
+03:56 based methods PMI ppmi based
+04:01 methods those methods are fast in
+04:03 training
+04:05 why because those methods essentially uh
+04:08 what do you need to run these methods
+04:11 you need to just scan the entire
+04:12 document right and prepare this Matrix
+04:16 right so once you scan the entire
+04:17 document and prepare this Matrix
+04:20 cooccurrence Matrix you are
+04:21 done right and then you need to run TF
+04:24 and so is very simple computation so
+04:27 this is fast in training
+04:29 and and and U it also uh uses the
+04:33 statistics of cooccurrence uh very
+04:36 carefully right because if two two words
+04:40 coae several times you see the numbers
+04:44 would be quite high right and you would
+04:46 give more importance to those pairs of
+04:48 words and so on and so forth right what
+04:51 are the problems in countbest methods
+04:53 the first problem is
+04:56 that uh it is primarily used to capture
+04:60 word
+05:02 similarity okay if you see that you know
+05:05 two words coae with multiple other words
+05:08 again and again that means that those
+05:10 two words are similar
+05:13 right but it it is not a good way it is
+05:17 not a good measure or it's not a good
+05:20 algorithm to obtain the embedding of a
+05:22 word because I mentioned last day
+05:24 embedding is generally a dense Vector
+05:26 right uh small size
+05:28 Vector if gives disproportionate
+05:32 importance to highly frequent
+05:33 cooccurrences
+05:35 if two words coae so many times right
+05:38 let's say two stop wordss coar so many
+05:41 times within the same window right it it
+05:45 it will not be able to uh uh it will not
+05:48 be able to kind of um give them low
+05:50 voltage right I
+05:53 mean we know that uh stop wordss coar so
+05:56 many times right so we need some ways to
+05:59 ignore those Co cooccurrences but count
+06:02 based methods don't do that if you look
+06:05 at prediction based methods like what to
+06:08 V the bad part about this methods are as
+06:12 follows it scales with Corpus size what
+06:15 does it mean let's say if you have a
+06:19 fixed set of vocabulary number of
+06:22 vocabulary words is the same fixed right
+06:25 and you keep on increasing the size of
+06:27 the
+06:28 documents right without adding
+06:31 additional vocabulary words so in case
+06:34 of count based approach The Matrix will
+06:36 not
+06:37 change because count best approach this
+06:40 is basically vocabulary words times
+06:42 vocabulary words The Matrix right
+06:45 whereas in prediction best approach you
+06:47 need to scan through all these documents
+06:49 write all those new newly added words
+06:51 and for every word you need to run for
+06:55 for every uh for every context every
+06:58 context window you need to run this
+06:60 logistic regression again and
+07:02 again right so let's say there are there
+07:05 are there were thousand wordss initially
+07:08 now 100 wordss uh came in right you have
+07:12 to move the this contest window through
+07:15 this 100 wordss right 99 times because
+07:19 let's say the contest window size is
+07:21 seven so and for every contest window
+07:24 you need to run the logistic regression
+07:26 again and again so with the increasing
+07:28 size of the Corpus the the effective
+07:30 time to run this uh the inter algorithm
+07:33 will increase whereas in case of uh in
+07:36 case of uh count based approach you just
+07:39 need to scan and that's
+07:41 all okay and of course the other problem
+07:44 is that it doesn't consider the
+07:46 statistics properly because you know it
+07:49 it is it
+07:51 is it is not based on the fact that how
+07:54 many times two words s appear right so
+07:57 therefore it is not that U efficient in
+07:60 capturing the statistics what are the
+08:02 plus points of of redition based methods
+08:05 the first first plus point is
+08:08 that uh it generates improved
+08:11 performance on other tasks right let's
+08:14 say you you are interested in sentiment
+08:16 analysis or you are interested in um
+08:19 right let's say name dty recognition you
+08:21 can use these embeddings and you can
+08:23 feed those embedding to a task and that
+08:26 can be useful right uh given the fact
+08:30 that this is a dense Vector right uh it
+08:32 is less likely that the model will uh
+08:36 model will overfit right
+08:39 and sometimes it also captures complex
+08:42 patterns we have seen last day uh this
+08:45 analogy test right uh King minus man man
+08:49 plus woman equals to Queen right the so
+08:52 uh you know King Man Woman these
+08:55 are these words have complex patterns
+08:58 right and these complex pattern PS are
+08:60 so smoothly integrated using linear
+09:02 operations right that that's very
+09:05 interesting property of prediction based
+09:07 approach which you cannot do you with
+09:11 the count based approach
+09:13 right
+09:16 so let's try to
+09:20 utilize the best part of both the
+09:24 worlds right let's try to utilize the
+09:26 best part of count based approach and
+09:29 the best part of prediction based
+09:30 approach right and that's the idea
+09:33 behind
+09:34 glove this was proposed in 2014 right
+09:37 after the year when the what to was
+09:40 proposed this was this was by um Chris
+09:44 Manning's group his post do JF
+09:47 Pennington and the PHD that times PhD
+09:50 prer
+09:51 saer so let's look at the idea
+09:54 here the idea here
+09:57 is we will again here also we we we
+09:60 we'll again build this cooccurrence
+10:02 Matrix like count based
+10:05 approach okay words cross words right
+10:08 and we have this window size a specific
+10:10 window and if two words coae multiple
+10:13 times
+10:14 within within different Windows you can
+10:16 just increase the count
+10:18 okay but here we will not use the raw
+10:22 count we'll use something else okay
+10:26 let's see let's assume that we are
+10:29 interested in
+10:30 a concept of
+10:32 thermodynamics we are understanding
+10:34 we're trying to understand different
+10:36 different words related to
+10:38 thermodynamics right and let's say the
+10:40 words are uh something like ice and U
+10:45 steam right let's let's look at these
+10:48 two words ice and
+10:50 steam okay so what we will see we will
+10:54 see what are the other
+10:56 words which coae within the context of
+10:60 ice and
+11:02 steam right and how and how do you get
+11:04 this information from this cooccurrence
+11:06 Matrix right so we
+11:08 have we have all those tokens which are
+11:11 present in the vocabulary right all
+11:13 those tokens will essentially act as
+11:15 context right and we'll see how many of
+11:17 them essentially appeared with these
+11:19 words in the context right and for this
+11:24 example let's assume that there are four
+11:27 context words that we are interested
+11:30 solid gas water and let's say some
+11:34 random word like
+11:38 fashion right so if ice is the target
+11:43 word it is highly likely that the word
+11:46 solid will appear as a context word
+11:49 right so you see that this count that so
+11:52 this count indicates that if ice is the
+11:55 target word what is the probability that
+11:58 the context word will be solid
+11:60 so this will be
+12:01 high if if I is a target word the
+12:05 context word gas will be less likely to
+12:10 appear this this should be small right
+12:13 the the word water may appear with eyes
+12:18 multiple times so this can also be high
+12:21 right whereas the what fashion which is
+12:23 a random what it it will not appear as a
+12:26 as a context word right so this will be
+12:28 small
+12:30 clear
+12:32 now let's look at another Target was
+12:35 steam so solid being the context word of
+12:38 steam will be
+12:40 less gas with the context word of steam
+12:43 will be high right water as a context
+12:46 word of steam will be high right and
+12:49 fashion as a context word of steam will
+12:51 be
+12:53 small right now what we do now this
+12:57 context words are called are called
+12:59 pivot word they are
+13:01 pivot how many such pivots are there
+13:04 vocabulary number the size of the
+13:06 vocabulary right then what we do we take
+13:09 the ratio of these
+13:11 two this by this this by this this by
+13:15 this this by this okay so if we take the
+13:19 ratio of a large a ratio of large and
+13:22 small it will produce a large value if
+13:24 we take a ratio small and large it will
+13:26 produce a small value large and large
+13:29 number would be number 10 uh TS to one
+13:33 right and small and small also the
+13:35 number tends to one bless
+13:37 you these numbers are very important
+13:40 okay so now let's look at
+13:44 uh this numbers okay so using this
+13:48 numbers let's say if you look at the
+13:49 last
+13:51 row you can differentiate relevant
+13:55 context from the non-relevant context
+13:58 you can differentiate
+13:60 context words like solid and gas from
+14:02 the non-relevant context words like
+14:04 water and random because based on this
+14:08 numbers if the numbers tend to
+14:12 one that means that context word is not
+14:17 relevant to differentiate ice and
+14:20 steam if a word is non-relevant it may
+14:24 be it may be completely non-relevant or
+14:26 it may be it may be completely
+14:28 non-relevant like fashion or it may be
+14:31 it may be it may be so close that it
+14:34 appears with both ice and steam like
+14:36 water so water is not a good context
+14:39 word to differentiate ice and
+14:42 steam clear so this ratio tells you a
+14:45 lot of
+14:47 things so it it it
+14:50 differentiates important context words
+14:52 from uh and not so important context
+14:55 words it also differentiates which
+14:58 context word
+15:00 is important right for ice and which
+15:03 context word is important for steam so
+15:05 let's look at the number here so I just
+15:08 gave an intuition here let's look at
+15:10 some of the
+15:12 numbers right uh and so these are some
+15:16 random numbers and this is the ratio you
+15:19 see this is very high this is very low
+15:22 and these numbers are quite same as
+15:26 one okay I will utilize this philosophy
+15:29 to derive the glove embedding objective
+15:34 okay this is just an example let's say
+15:36 this is the coor Matrix you can easily
+15:39 compute uh P of G given I these are
+15:43 I these are I and these are J's right I
+15:47 are Target words and J's are context
+15:49 words and so on and so
+15:51 forth okay so
+15:54 now let's see how we can model this how
+15:56 you can utilize
+15:57 this so
+15:60 given a pair of words I and
+16:02 J and their corresponding embeddings w i
+16:06 and WJ that we want to
+16:09 learn okay how do we learn this we say
+16:13 that the similarity between these two
+16:15 embeddings which is captured using the
+16:17 dot product wi product
+16:21 WJ this should be modeled using the the
+16:27 probability that I just measured
+16:37 okay so so this probability I just
+16:39 measured from the count based uh
+16:42 approach right I try to model this dot
+16:44 product similarity using this
+16:47 probability right instead of taking the
+16:50 raw probability I take a log
+16:53 probability
+16:55 clear okay
+16:57 so this is asmet by the way because when
+17:01 J appears as a context word and I
+17:04 appears as a Target word the ratio will
+17:07 be different from When J appears as a
+17:10 Target word and I appears as a context
+17:12 word so as symmetry
+17:14 so what I do
+17:17 here uh w i WJ this is the dot product
+17:22 right uh
+17:24 and what is xig xig is a count of uh
+17:29 number of times I and J coar right what
+17:33 is Xi XI is the count of the word I so
+17:37 this is essentially the probability so
+17:39 given that wi is the target what how
+17:42 many times W and WJ coars this is this a
+17:47 probability I want to come up with such
+17:51 two vectors w i and WJ which kind of uh
+17:55 mimics this count based
+17:58 approach right we can unfold it further
+18:01 and this is going to be my
+18:03 formula similarly if J is the target
+18:08 word and I is the context word you have
+18:11 WJ *
+18:13 wi and how do we model this x i the
+18:16 numerator will remain the same and the
+18:18 denominator is going to be
+18:19 XJ okay the same
+18:22 formula okay but the left hand part is
+18:26 same it's do product
+18:30 okay let's so these are the two uh
+18:32 formula so what is X XI is the count of
+18:36 I and J appearing together and what is x
+18:39 i x i is the count of I meaning uh the
+18:43 sum of the this row
+18:46 values
+18:48 okay okay
+18:50 so these are two formulas now what we do
+18:53 we we add them if we add them this is
+18:56 going to be the resultant formula
+19:00 right we cancel this two and we move
+19:03 this two here now this is my resultant
+19:05 formula W J = to log X I jus half log X
+19:10 IUS half log
+19:13 XJ okay now if you look at this term and
+19:17 this term carefully these are the terms
+19:21 which are not dependent on the
+19:23 currence these two terms are dependent
+19:26 on the word specific word right so I can
+19:30 say that you know I can basically use
+19:33 these two
+19:34 components I can use these two
+19:37 components as uh as basically a property
+19:41 of that word right and I when I model
+19:43 this using neural network I will assume
+19:46 that this is a biased term or some sort
+19:48 of term which is associated with the
+19:50 word I and I will again consider this as
+19:54 a biased term which is associated with
+19:56 the term G
+19:60 so now this is my resultant
+20:05 formula w i WJ log uh xig and what I say
+20:12 what I'm saying is that I will
+20:13 essentially create a neural network
+20:16 which will try to model this right using
+20:19 a bias term bi and try to model this
+20:22 using another bias term BJ now if you
+20:24 want if you if you think that this is
+20:26 not possible you can also simply ignore
+20:28 these two terms that is also
+20:31 possible so what I have at this moment I
+20:34 have this one and this
+20:38 one okay and so w i
+20:44 WJ w i WJ and log of x i j okay and what
+20:52 I do these two things are same what I do
+20:54 I try to minimize the these and this
+20:60 because I will try to what is the aim
+21:02 the aim is that I'll try to come up with
+21:04 two such vectors w y WJ which will mimic
+21:08 this so I'll try to minimize the
+21:10 difference between these two right I'll
+21:12 basically take a square
+21:15 loss so this is my resultant formula I
+21:18 mean if I if you consider b bj this will
+21:20 be there otherwise you can also ignore
+21:22 this
+21:23 part this I want to minimize this is my
+21:26 Square loss formula and I want to
+21:28 minimize
+21:30 so this is my objective function now
+21:32 there's a problem here what is the
+21:34 problem the problem is it still gives
+21:38 disproportionate advantage to those
+21:41 counts which is significantly
+21:43 high right X I will be high so what we
+21:49 do to address this I will essentially
+21:51 add a function
+21:53 FX before
+21:56 this so FX is a function
+21:59 which is a property of this cooccurrence
+22:03 currence xig
+22:05 J if the currence value is too high I
+22:09 will
+22:09 penalize so I'll basically penalize
+22:12 those those
+22:14 pairs which are let's say stop W pairs
+22:17 or something like that right so this is
+22:19 just an weight before this and how do we
+22:22 choose this
+22:23 if you can choose this if many ways such
+22:28 that
+22:29 these three properties
+22:31 hold so what are these three properties
+22:33 it says that you should choose an F
+22:37 forget about this graph okay forget
+22:39 about this function you choose an F such
+22:43 that uh f is viewed as a continuous
+22:45 function right and as you move towards
+22:49 zero right this would be
+22:52 finite property one property two is is
+22:55 is that it should be non decreasing it
+22:57 will never decrease with increase of
+22:59 currence right and the third property
+23:02 says that this the value of this
+23:06 function should be relatively small for
+23:09 larger value of
+23:12 cooccurrence if the currence is so large
+23:15 you should not give proportionate uh
+23:18 weight right so this is the formula that
+23:21 they came up with and they also said
+23:23 that uh if I mean you can also come up
+23:26 with new formula new function that can
+23:28 satisfy these three properties right and
+23:31 this is the function that came up they
+23:33 came up with and the function looks like
+23:35 this so this is X and this is
+23:38 f in our context this is x i j right and
+23:43 this is this
+23:44 F right
+23:48 so you see here that there is a COV here
+23:51 this cut off is called x
+23:53 max right so after X Max whatever uh
+23:59 currence you have you have the same
+24:01 weight for that and the weight is
+24:03 one so it will not give additional
+24:06 weight or extra weight to those
+24:08 cooccurrences which are highly frequent
+24:11 right whereas the before this x max spot
+24:15 this is almost
+24:18 linear okay so this is glove embedding
+24:22 now this is my objective function what I
+24:24 do now I I will minimize this and and I
+24:29 will uh when I do the gradient descent I
+24:32 will take the derivative of this with
+24:34 respect to W and with respect to WJ here
+24:37 also remember similar to what to V here
+24:40 also there are two embeddings that we
+24:43 are learning one is w i other is WJ
+24:46 meaning one is acting as a Target other
+24:48 is acting as a
+24:51 context
+24:52 okay so this essentially uh captures
+24:56 both the Both Worlds
+24:59 uh uh you know uh uh appropriately right
+25:03 because you have this count based uh
+25:06 method right this component log of x i j
+25:10 which comes from the count based
+25:11 approach whereas this one is very
+25:14 similar to the prediction based approach
+25:15 that we have seen okay so this is GL
+25:18 glove embedding this is also static
+25:20 embedding and they showed the efficacy
+25:23 of this method across multiple task and
+25:25 so on and so forth glove embedding is
+25:28 fast in terms of training scalable to
+25:31 huge corpor and it also showed good
+25:34 performance when you have small Corpus
+25:36 this is very important right unlike what
+25:39 to
+25:39 with okay so if you want to know more
+25:42 about love this is original paper and
+25:44 these are the very interesting blogs
+25:46 that you can go through where um uh
+25:49 things are explained
+25:51 easily easier way so uh there are very
+25:54 interesting properties which I'm not
+25:56 explaining in this lecture
+25:60 but with this water embeddings right you
+26:03 can not only use this water embeddings
+26:05 for uh I mean as an input to different
+26:08 uh Downstream task but you can also do
+26:11 very interesting studies for
+26:13 example What analogy test I already
+26:15 mentioned right uh you if you let's say
+26:18 if you want to understand like this
+26:21 let's say Beijing right is to China
+26:25 equals to right uh Delhi is to dash
+26:30 right you'll get India something like
+26:32 that
+26:34 similarly these kind of analogies these
+26:36 are linear
+26:37 analogies it was also shown that these
+26:40 kind of methods are prone to bias right
+26:44 for
+26:45 example uh
+26:48 father is to computer programmer equals
+26:52 to mother is to dash it will return
+26:57 Homemaker okay
+26:60 uh man is to
+27:04 doctor equals to woman is to dash it
+27:08 will produce
+27:09 Nars okay so these are essentially some
+27:12 of the bias examples you can also do
+27:15 very funny thing uh for some of the
+27:17 funny experiments using water Tock right
+27:20 or using glove so what you do let's say
+27:23 you have historical data from 1950s to
+27:26 uh 2010 let's say you have uh New York
+27:30 Times uh news articles from 1950 to 2010
+27:34 so what you do you for for every decade
+27:37 1950 to 60 you collect all the documents
+27:40 and you run a glob edting again 61 to 70
+27:43 take all the documents and run CL
+27:45 meeting right and
+27:48 then if you look at all these decades
+27:51 corresponding uh uh Vector space right
+27:55 you see the words the meaning of this
+27:58 words are changing over
+28:02 time how do you know that you look at
+28:04 the neighbors you you you identify one
+28:07 word and look at their neighbors so look
+28:09 at their neighbors in 1950 1960 look at
+28:12 their neighbors 60 to 70 17 to 80 you
+28:14 see that the meaning is changing for
+28:16 example the word
+28:19 broadcast okay early days the word
+28:21 broadcast was used to
+28:23 basically indicate spreading of seeds
+28:28 right in cultivation Agriculture and
+28:31 these days broadcast is used uh in in in
+28:34 um radios and you know frequency related
+28:37 stuff and so on and so you can do a lot
+28:40 of things using uh this kind of
+28:41 embedding methods in fact these
+28:45 embedding methods are going to be the
+28:47 input for the Transformer model that
+28:49 we'll discuss in the next to next class
+28:51 maybe right so we will see how these
+28:54 words em what embeddings are used to uh
+28:57 essentially uh to to perform different
+28:60 types of neural networks in in the next
+29:02 chapter which is going to be on uh
+29:04 neural language mod okay thank you

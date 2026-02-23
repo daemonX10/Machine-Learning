@@ -716,3 +716,15 @@ Fastest/smallest ←――――――――――――――――――→ Sl
 - GPU memory is limited; batch size affects memory
 - Know that modern frameworks handle much of this automatically
 
+---
+
+## Question 9
+
+**Explain how you would use linear algebra to clean and preprocess a dataset.**
+
+---
+
+## Question 10
+
+**Given a dataset, determine if PCA would be beneficial and justify your approach.**
+

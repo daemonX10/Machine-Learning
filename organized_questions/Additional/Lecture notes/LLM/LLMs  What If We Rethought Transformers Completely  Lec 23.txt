@@ -1,0 +1,2773 @@
+00:02 all right so welcome everyone in today's
+00:05 
+
+00:05 lecture we will discuss an alternative
+00:08 
+
+00:08 formulation of Transformer okay and this
+00:12 
+
+00:12 is a very
+00:13 
+
+00:13 new development I would say one years of
+00:17 
+
+00:17 development recent development uh which
+00:21 
+
+00:21 which is basically the premise behind uh
+00:24 
+
+00:24 the recent interpretability work that we
+00:26 
+
+00:26 are going to discuss in the next lecture
+00:27 
+
+00:27 next to next lecture okay so in this
+00:30 
+
+00:30 lecture
+00:31 
+
+00:31 we will discuss how we can um you know
+00:34 
+
+00:34 dive deeper into different components of
+00:37 
+
+00:37 a transformer model and understand it in
+00:39 
+
+00:39 a very different point of view
+00:41 
+
+00:41 okay so uh today's breaking news is as
+00:45 
+
+00:45 follows uh open recently introduces chat
+00:49 
+
+00:49 GPT
+00:50 
+
+00:50 search this is not same as search GPT I
+00:53 
+
+00:53 guess here um you know in search model
+00:57 
+
+00:57 is basically a fine-tuned version of GPT
+00:59 
+
+00:59 40
+01:01 
+
+01:01 with some sort of novel novel synthetic
+01:04 
+
+01:04 TCH generation techniques with some
+01:06 
+
+01:06 distilled output uh and uh I think Opia
+01:11 
+
+01:11 is already partnered with many news and
+01:13 
+
+01:13 data providers for up toate data related
+01:17 
+
+01:17 to web uh weathers stock sports news Etc
+01:22 
+
+01:22 you can check out the
+01:23 
+
+01:23 blog to more to know more about um this
+01:27 
+
+01:27 chat gbt search
+01:30 
+
+01:30 okay
+01:31 
+
+01:31 so now let's move to the next part I
+01:34 
+
+01:34 mean the main part of today's lecture
+01:36 
+
+01:36 which is uh
+01:38 
+
+01:38 Transformer and um let's again go back
+01:42 
+
+01:42 to the self attention mask self
+01:45 
+
+01:45 attention that we discussed long time
+01:47 
+
+01:47 back okay Mass help attention what was
+01:50 
+
+01:50 it if you
+01:52 
+
+01:52 remember uh we essentially compute an
+01:55 
+
+01:55 attention score attention score is what
+01:58 
+
+01:58 I mean you have this hidden States let's
+01:60 
+
+01:60 say as a specific layer l l minus
+02:03 
+
+02:03 one right so uh uh what you do here
+02:08 
+
+02:08 essentially is is that you
+02:10 
+
+02:10 um for for every hidden state right you
+02:14 
+
+02:14 have now this hidden States correspond
+02:16 
+
+02:16 to uh different inputs right let's input
+02:20 
+
+02:20 input X1 input X2 X3 dot dot dot so we
+02:24 
+
+02:24 have uh we have three weight matrices
+02:28 
+
+02:28 one corresponding to uh
+02:31 
+
+02:31 are corresponding to key are
+02:33 
+
+02:33 corresponding to
+02:34 
+
+02:34 Value right and you obtain three
+02:37 
+
+02:37 different representations different
+02:38 
+
+02:38 representations for every token and um
+02:43 
+
+02:43 now each of this representations will be
+02:46 
+
+02:46 used in different ways for example let's
+02:49 
+
+02:49 say when you take the dot product
+02:50 
+
+02:50 between a query and um the uh the the
+02:55 
+
+02:55 key vectors of other inputs right this
+02:58 
+
+02:58 dot product you take the DOT product and
+03:01 
+
+03:01 then and then you get the attention
+03:04 
+
+03:04 score from attention score you get the
+03:06 
+
+03:06 distribution uh using S Max right uh
+03:09 
+
+03:09 here as you see this is basically a
+03:11 
+
+03:11 normalized DOT product and then the
+03:14 
+
+03:14 attention distribution will be used uh
+03:17 
+
+03:17 for a weighted sum right over the value
+03:20 
+
+03:20 vectors
+03:22 
+
+03:22 okay so uh this is normal scaled dot
+03:26 
+
+03:26 product
+03:26 
+
+03:26 attention the problem in the s in this
+03:29 
+
+03:29 do product is that
+03:31 
+
+03:31 uh the I mean at at at every token if
+03:33 
+
+03:33 you look at a single token it can now
+03:35 
+
+03:35 attend to all the tokens right it tokens
+03:38 
+
+03:38 Can appear before the current token
+03:40 
+
+03:40 tokens Can appear after the current
+03:41 
+
+03:41 token so you cannot use this uh the this
+03:46 
+
+03:46 this kind of self attention layer in a
+03:49 
+
+03:49 decoder decoder only model or a decoder
+03:52 
+
+03:52 layer right so for that what you need
+03:55 
+
+03:55 you need a mask mask self attention
+03:57 
+
+03:57 right in mask self attention what we do
+03:59 
+
+03:59 we essentially if you think of this
+04:02 
+
+04:02 Matrix as a attention score Matrix
+04:05 
+
+04:05 right you have uh this numbers
+04:11 
+
+04:11 right okay so what you do you
+04:13 
+
+04:13 essentially mask the upper diagonal part
+04:16 
+
+04:16 of this Matrix right and how do we do
+04:18 
+
+04:18 that we we add a mask Matrix uh called
+04:23 
+
+04:23 M and uh so uh so essentially uh those
+04:29 
+
+04:29 numbers which which uh fall above the
+04:31 
+
+04:31 diagonal will will be masked as minus
+04:35 
+
+04:35 infinity
+04:36 
+
+04:36 because then when you when you take
+04:39 
+
+04:39 short Max this minus infinity will lead
+04:41 
+
+04:41 to zero this we already discussed okay
+04:44 
+
+04:44 mask self attention indic coders now now
+04:48 
+
+04:48 once we have this mask attention uh mask
+04:51 
+
+04:51 self attention what's the next operation
+04:53 
+
+04:53 the next operation is feed forward in in
+04:56 
+
+04:56 the feed forward Network there are
+04:58 
+
+04:58 essentially two um two projections the
+05:01 
+
+05:01 first one is uh kind of an up projection
+05:03 
+
+05:03 and second one is down projection you
+05:05 
+
+05:05 have two matrices
+05:07 
+
+05:07 right so these are essentially the
+05:09 
+
+05:09 operations the main operations uh s sale
+05:12 
+
+05:12 pention feed forward and then this
+05:15 
+
+05:15 residual
+05:17 
+
+05:17 connection now let's dive deeper into
+05:20 
+
+05:20 this one
+05:22 
+
+05:22 and
+05:23 
+
+05:23 uh and let's look at only one token this
+05:26 
+
+05:26 is a token level perspective of
+05:29 
+
+05:29 Transformer indiv idual token forget
+05:31 
+
+05:31 about multiple tokens just focus on only
+05:33 
+
+05:33 one token right right let's say the I
+05:36 
+
+05:36 token I think I already mentioned uh in
+05:40 
+
+05:40 this perspective residual stream
+05:41 
+
+05:41 perspective what we consider we consider
+05:44 
+
+05:44 all these operations like self attention
+05:47 
+
+05:47 multi-headed self attention right fed
+05:50 
+
+05:50 forward these are just an additive
+05:52 
+
+05:52 operations over uh over the
+05:54 
+
+05:54 vector right so you think of you think
+05:57 
+
+05:57 of a stream this is a stream or a pip
+05:60 
+
+05:60 pipeline right where the input to this
+06:03 
+
+06:03 pipeline is the word
+06:06 
+
+06:06 itself right and at every layer you
+06:10 
+
+06:10 essentially add something to this
+06:14 
+
+06:14 stream right and what the what are the
+06:17 
+
+06:17 things that we are adding we are adding
+06:19 
+
+06:19 attention score and we are adding uh we
+06:22 
+
+06:22 are adding uh Feit forward Network score
+06:25 
+
+06:25 MLP
+06:27 
+
+06:27 score right and if you have multiple
+06:30 
+
+06:30 heads in the attention so you you will
+06:32 
+
+06:32 essentially add multiple things uh to
+06:35 
+
+06:35 the
+06:37 
+
+06:37 stream okay so this is the to this is
+06:41 
+
+06:41 the token you get the embedding now at
+06:43 
+
+06:43 every layer l you have different
+06:46 
+
+06:46 heads right multiple heads this these
+06:49 
+
+06:49 heads will essentially contribute uh
+06:52 
+
+06:52 separately right they will uh they will
+06:55 
+
+06:55 basically be added to the stream this is
+06:57 
+
+06:57 the stream and you will get an
+07:00 
+
+07:00 intermediate representation after
+07:02 
+
+07:02 attention this we call as uh X mid x i
+07:07 
+
+07:07 mid right and then we have a multier
+07:10 
+
+07:10 perceptron feed forward
+07:11 
+
+07:11 Network this will this will produce um
+07:16 
+
+07:16 another um I mean the output of this
+07:18 
+
+07:18 will basically be added to the stream
+07:20 
+
+07:20 okay and we keep on doing this thing for
+07:23 
+
+07:23 for cap for Capital number of layers
+07:26 
+
+07:26 right and at the
+07:28 
+
+07:28 end if the task is
+07:30 
+
+07:30 to uh produce a produce the next word
+07:33 
+
+07:33 let's say this is a decoder only model
+07:35 
+
+07:35 produce the next word what you do you
+07:37 
+
+07:37 pass the last hidden State through
+07:39 
+
+07:39 another layer which we call as
+07:41 
+
+07:41 unembedded layer un edding layer right
+07:45 
+
+07:45 embedding and un embedding embedding
+07:46 
+
+07:46 layer is at the beginning which embeds a
+07:49 
+
+07:49 token to an embedding space uh which
+07:53 
+
+07:53 basically converts a dictionary word or
+07:56 
+
+07:56 a vocabulary word to a representation
+07:58 
+
+07:58 space and the unadding layer converts
+08:00 
+
+08:00 the representation space to a dictionary
+08:04 
+
+08:04 word okay it's called uning layer and
+08:07 
+
+08:07 here the UN edding layers is denoted by
+08:10 
+
+08:10 W sub
+08:11 
+
+08:11 U so this is called the residual stream
+08:14 
+
+08:14 perspective of
+08:16 
+
+08:16 Transformer okay so let's dive deeper
+08:19 
+
+08:19 into this operations very carefully
+08:22 
+
+08:22 right and what is important here is the
+08:24 
+
+08:24 dimension so we need to take care of the
+08:26 
+
+08:26 dimension very carefully so let's assume
+08:29 
+
+08:29 that you have
+08:30 
+
+08:30 uh tokens right T1 T2 dot dot dot uh
+08:37 
+
+08:37 TN okay and so these are tokens and from
+08:42 
+
+08:42 these tokens you obtain the uh
+08:45 
+
+08:45 embeddings right X1 X2 dot dot dot
+08:50 
+
+08:50 xn okay and how do how did you get it
+08:53 
+
+08:53 you basically got it through this
+08:55 
+
+08:55 embedding layer
+08:57 
+
+08:57 we okay now
+09:00 
+
+09:00 you can think of a matrix X which
+09:03 
+
+09:03 represents the input X1 X2 dot dot dot
+09:06 
+
+09:06 xn right what is the dimension of all
+09:08 
+
+09:08 these x i right the dimension of all
+09:11 
+
+09:11 this x i is essentially
+09:15 
+
+09:15 D and what is the dimension of x x is a
+09:18 
+
+09:18 matrix right where all this uh n number
+09:22 
+
+09:22 of all these n inputs are stacked one
+09:24 
+
+09:24 after another so the dimension of X is
+09:27 
+
+09:27 essentially n cross d you have n
+09:32 
+
+09:32 rows and each of the dimension is D
+09:36 
+
+09:36 okay let us denote another uh let us
+09:40 
+
+09:40 denote this let us use this notation x
+09:44 
+
+09:44 l now remember this x Matrix gets
+09:49 
+
+09:49 updated after every layer right in the
+09:52 
+
+09:52 residual stream stream view your input
+09:55 
+
+09:55 is the X Matrix this will be processed
+09:58 
+
+09:58 through attention this this will be
+09:60 
+
+09:60 processed through feed forward Network
+10:02 
+
+10:02 and things will be added to the to the
+10:04 
+
+10:04 actual re Stream So X will be added X
+10:07 
+
+10:07 will be updated after every layer so for
+10:09 
+
+10:09 every layer
+10:10 
+
+10:10 l we have this x Matrix which will be uh
+10:14 
+
+10:14 updated right so one of the elements of
+10:17 
+
+10:17 this x Matrix is let's say x i this is
+10:20 
+
+10:20 the I token I word at the L
+10:24 
+
+10:24 layer right this is I remember this I I
+10:29 
+
+10:29 word or bi
+10:32 
+
+10:32 token at elith
+10:37 
+
+10:37 layer okay and remember when we compute
+10:42 
+
+10:42 the attention mask attention at the I
+10:46 
+
+10:46 position right I will only consider
+10:49 
+
+10:49 those tokens which appear before
+10:51 
+
+10:51 I right so x
+10:56 
+
+10:56 l i less than equals to I sub less than
+10:59 
+
+10:59 equals to I this is what this is
+11:01 
+
+11:01 essentially a
+11:05 
+
+11:05 matrix which has all those uh you know
+11:11 
+
+11:11 representations of tokens which appear
+11:13 
+
+11:13 before I stacked one upon another right
+11:16 
+
+11:16 so what is the size of this Matrix I
+11:18 
+
+11:18 cross D this is essentially a subset of
+11:22 
+
+11:22 XL which is D which is n cross
+11:26 
+
+11:26 D okay this notation is important
+11:29 
+
+11:29 because this this this will be used to
+11:32 
+
+11:32 calculate
+11:34 
+
+11:34 attention all right so now we look at
+11:38 
+
+11:38 the the attention block carefully
+11:41 
+
+11:41 attention
+11:45 
+
+11:45 block so attention
+11:50 
+
+11:50 block so in attention there are
+11:54 
+
+11:54 essentially three operations the first
+11:56 
+
+11:56 operation is query key do product the
+11:59 
+
+11:59 the second operation is uh uh whatever
+12:02 
+
+12:02 you obtain that will be multiplied with
+12:04 
+
+12:04 the value right the third operation is
+12:08 
+
+12:08 whatever you optain that will be
+12:10 
+
+12:10 projected through another layer for
+12:12 
+
+12:12 adjusting the
+12:13 
+
+12:13 dimension right because remember this is
+12:16 
+
+12:16 multi-headed attention for every head
+12:19 
+
+12:19 what is the head by the way let's say
+12:21 
+
+12:21 let's say this is this is attention
+12:24 
+
+12:24 right at at I position right there are
+12:28 
+
+12:28 multiple such heads
+12:31 
+
+12:31 right and and the dimension of these
+12:34 
+
+12:34 heads can be different right the
+12:36 
+
+12:36 original Dimension is D and let's say
+12:39 
+
+12:39 the dimension of this head individual
+12:41 
+
+12:41 head is is denoted by
+12:44 
+
+12:44 H right for example for the first head
+12:47 
+
+12:47 the dimension is let's say four the
+12:49 
+
+12:49 second head the dimension is 10 the
+12:51 
+
+12:51 third head the dimension is uh uh you
+12:54 
+
+12:54 know 20 generally we use same dimensions
+12:57 
+
+12:57 for the heads which may not be same as d
+12:60 
+
+12:60 right so H may not be same as
+13:06 
+
+13:06 D okay so after attention score
+13:11 
+
+13:11 attention output we need to project it
+13:14 
+
+13:14 back to D otherwise this will not be
+13:16 
+
+13:16 added to the residual stream because in
+13:18 
+
+13:18 the residual stream the dimension is
+13:20 
+
+13:20 always
+13:21 
+
+13:21 D isn't it so let's uh let's compute the
+13:25 
+
+13:25 attention weight attention weight a
+13:29 
+
+13:29 attention weight wait for the token I at
+13:32 
+
+13:32 the lth layer for the HTH head let's
+13:36 
+
+13:36 focus on only one head
+13:39 
+
+13:39 H right let's assume there only one head
+13:41 
+
+13:41 H okay L layer ith token please
+13:44 
+
+13:44 visualize this okay otherwise it would
+13:46 
+
+13:46 be difficult to
+13:48 
+
+13:48 compute
+13:51 
+
+13:51 so what is this uh attention weight the
+13:54 
+
+13:54 attention weight is after the the the
+13:57 
+
+13:57 score
+14:01 
+
+14:01 after query key query key.
+14:05 
+
+14:05 product before the value dot product
+14:08 
+
+14:08 okay this is after query dot product so
+14:11 
+
+14:11 at the I token the representation is x i
+14:15 
+
+14:15 right x i but this is lth layer so how
+14:19 
+
+14:19 do you get the so all these operations
+14:21 
+
+14:21 are happening at the lth layer what is
+14:23 
+
+14:23 the input to this
+14:24 
+
+14:24 layer x i l minus one so x i l minus1 is
+14:29 
+
+14:29 input from here I will generate all the
+14:31 
+
+14:31 query Keys whatever
+14:33 
+
+14:33 right so x i l minus one will be
+14:39 
+
+14:39 multiplied with this query Matrix right
+14:43 
+
+14:43 at L layer H
+14:46 
+
+14:46 head right this will produce what this
+14:49 
+
+14:49 will produce the
+14:51 
+
+14:51 query isn't
+14:53 
+
+14:53 it
+14:55 
+
+14:55 then how do you get the key so for to
+14:60 
+
+14:60 obtain the key now there are so how many
+15:04 
+
+15:04 keys are there for the for this query
+15:08 
+
+15:08 I I number of keys right and this and
+15:12 
+
+15:12 this this Matrix will be will be used
+15:15 
+
+15:15 here of course for L minus one at player
+15:18 
+
+15:18 right
+15:19 
+
+15:19 so x l minus one less than equals to I
+15:26 
+
+15:26 right this is the input for calculating
+15:29 
+
+15:29 the key and I will I should also have a
+15:32 
+
+15:32 key Matrix right L uh
+15:37 
+
+15:37 LH
+15:39 
+
+15:39 okay all right now let's look at the
+15:42 
+
+15:42 dimension and based on that we'll decide
+15:44 
+
+15:44 whether I need a transpose or not here I
+15:46 
+
+15:46 need a transpose I'm telling you okay so
+15:48 
+
+15:48 let's look at the dimension first then
+15:50 
+
+15:50 you'll realize
+15:52 
+
+15:52 so so the dimension of this guy is 1 *
+15:57 
+
+15:57 D what is the dimension of
+15:59 
+
+15:59 this one this is D times DH what is DH
+16:06 
+
+16:06 DH is the size of the
+16:09 
+
+16:09 head so the H the H that I mentioned
+16:13 
+
+16:13 right this is basically DH d h is not
+16:16 
+
+16:16 same as
+16:18 
+
+16:18 D okay clear what is the dimension of
+16:23 
+
+16:23 this this is I cross
+16:28 
+
+16:28 d what is the dimension of this D cross
+16:34 
+
+16:34 DH okay so from I cross D and D cross DH
+16:38 
+
+16:38 I will get I cross
+16:41 
+
+16:41 DH okay and this will be transposed so I
+16:44 
+
+16:44 get I will get DH cross
+16:48 
+
+16:48 I right and here I have uh 1 cross
+16:53 
+
+16:53 DH right and I 1 cross DH and DH cross I
+16:57 
+
+16:57 will be multiply you get one cross
+16:60 
+
+16:60 I what is 1 cross I 1 cross I is
+17:03 
+
+17:03 basically a vector corresponding to I
+17:06 
+
+17:06 number of previous tokens and these are
+17:08 
+
+17:08 attention
+17:09 
+
+17:09 scores so we are good so
+17:12 
+
+17:12 far okay
+17:15 
+
+17:15 so now if we modify this little bit if
+17:18 
+
+17:18 we just unfold the
+17:22 
+
+17:22 transpose
+17:24 
+
+17:24 WQ L comma h w k l H
+17:30 
+
+17:30 transpose
+17:33 
+
+17:33 x l minus1
+17:37 
+
+17:37 transpose okay this you see that there
+17:41 
+
+17:41 are there are essentially two matrices
+17:44 
+
+17:44 which are getting multiplied and this is
+17:46 
+
+17:46 called this we denote by a single Matrix
+17:50 
+
+17:50 right which is W uh qk right at the lth
+17:55 
+
+17:55 layer okay uh H head
+18:02 
+
+18:02 WQ w
+18:05 
+
+18:05 k transpose
+18:07 
+
+18:07 right and we call this as query key
+18:16 
+
+18:16 circuit now why suddenly circuit is a
+18:19 
+
+18:19 fancy term I also don't understand why
+18:21 
+
+18:21 these fancy terms are being used but
+18:24 
+
+18:24 essentially you think of it as uh neural
+18:26 
+
+18:26 networks where I mean these are these
+18:29 
+
+18:29 are basically what these are two
+18:31 
+
+18:31 matrices two fully connected matrices
+18:34 
+
+18:34 right I mean uh layers where all the
+18:36 
+
+18:36 neurons are Conn to each other you can
+18:38 
+
+18:38 think of them as you know basically
+18:40 
+
+18:40 neurons which are connected and uh I
+18:43 
+
+18:43 mean you can just assume this is a
+18:44 
+
+18:44 circuit like electrical people would
+18:47 
+
+18:47 love this terminology love or hate I
+18:50 
+
+18:50 don't
+18:52 
+
+18:52 know okay so this is this is called
+18:54 
+
+18:54 query key
+18:56 
+
+18:56 circuit so this is just attention score
+18:59 
+
+18:59 so so this attention score will be
+19:03 
+
+19:03 passed through S
+19:06 
+
+19:06 Max okay which will give a distribution
+19:09 
+
+19:09 and this is the weighted distribution
+19:11 
+
+19:11 weighted
+19:12 
+
+19:12 average there's H Max here now I move
+19:16 
+
+19:16 from attention score to attention actual
+19:19 
+
+19:19 attention
+19:21 
+
+19:21 Vector for that what I need to do I will
+19:23 
+
+19:23 take this one and then I need to
+19:25 
+
+19:25 multiply this with the
+19:27 
+
+19:27 value right
+19:31 
+
+19:31 [Music]
+19:32 
+
+19:32 so now look at here e i right l l h is
+19:38 
+
+19:38 okay l a a i is essentially a
+19:41 
+
+19:41 vector huh so each of this elements can
+19:46 
+
+19:46 be denoted by a i comma
+19:50 
+
+19:50 J huh where J ranges from 1 to one to I
+19:54 
+
+19:54 okay
+19:56 
+
+19:56 so to calculate the actual attention
+20:01 
+
+20:01 Vector let us write in this way J Which
+20:05 
+
+20:05 is less than equals to
+20:08 
+
+20:08 i a i comma
+20:12 
+
+20:12 J LH this is the attention
+20:16 
+
+20:16 score right this will be multiplied with
+20:18 
+
+20:18 what this will be multip with the value
+20:21 
+
+20:21 right how do we get the value so for for
+20:23 
+
+20:23 I what you calculating the value the
+20:26 
+
+20:26 value will come from J
+20:29 
+
+20:29 query has already come from
+20:31 
+
+20:31 I right keys and values will come from J
+20:36 
+
+20:36 so the input for this will be J L minus
+20:40 
+
+20:40 one and I need a value Matrix
+20:43 
+
+20:43 WV
+20:44 
+
+20:44 LH
+20:47 
+
+20:47 right this will give you the output now
+20:50 
+
+20:50 see this what is the dimension of this
+20:53 
+
+20:53 uh this part so
+20:54 
+
+20:54 far so so this is a scalar isn't it a i
+20:59 
+
+20:59 is a scalar huh what is the dimension of
+21:01 
+
+21:01 this is D what is the dimension of uh
+21:05 
+
+21:05 this this is D cross
+21:09 
+
+21:09 DH right so this will produce this will
+21:13 
+
+21:13 produce what this will produce
+21:16 
+
+21:16 a this will produce a this is 1 cross d
+21:21 
+
+21:21 1 cross DH 1 cross D Vector but the in
+21:25 
+
+21:25 the residual stream the size is D the
+21:27 
+
+21:27 size should be D so I need to again
+21:29 
+
+21:29 project it to D so for that I need
+21:32 
+
+21:32 another Matrix which will be multiplied
+21:34 
+
+21:34 here which is call as output Matrix o w
+21:38 
+
+21:38 o l comma H what is the dimension of
+21:42 
+
+21:42 this the dimension is DH *
+21:46 
+
+21:46 D so this will produce 1 cross
+21:51 
+
+21:51 d right so and this we denote by so this
+21:55 
+
+21:55 is my attention attention uh vector
+21:59 
+
+21:59 okay this I denote by a
+22:04 
+
+22:04 ttn lth layer HTH head right x l minus
+22:10 
+
+22:10 one is the
+22:12 
+
+22:12 input yeah okay so for a single
+22:15 
+
+22:15 attention head H I will get a vector of
+22:18 
+
+22:18 size d there are eight number of such
+22:22 
+
+22:22 attention attention
+22:24 
+
+22:24 heads right and each of them will
+22:26 
+
+22:26 produce a vector of size d uh how do we
+22:29 
+
+22:29 combine them uh if we concatenate them
+22:32 
+
+22:32 then the size will be D * H we can't
+22:34 
+
+22:34 concatenate them we can add
+22:36 
+
+22:36 them right so we could have concatenated
+22:39 
+
+22:39 if we had not used this output Matrix
+22:43 
+
+22:43 let's say if we had a so let's see if I
+22:45 
+
+22:45 had produced a vector of size
+22:48 
+
+22:48 DH right and let's say there are there
+22:51 
+
+22:51 are H number of such attention heads if
+22:53 
+
+22:53 we concatenate them let's say h * DH
+22:56 
+
+22:56 should be equals to
+22:57 
+
+22:57 D but we did not do it in here we every
+23:01 
+
+23:01 attention head will produce a vector of
+23:04 
+
+23:04 size d there are each number of such
+23:06 
+
+23:06 attention heads those will be
+23:09 
+
+23:09 added now so this is for a for a
+23:13 
+
+23:13 specific uh head AG so for the final
+23:16 
+
+23:16 attention
+23:18 
+
+23:18 ATN L at the L
+23:21 
+
+23:21 layer input is the same XL
+23:24 
+
+23:24 minus1 less than equal to I this will be
+23:28 
+
+23:28 s simply the
+23:30 
+
+23:30 sum H = to 1 to Capital H right
+23:37 
+
+23:37 attention L comma H right this
+23:41 
+
+23:41 one x l minus
+23:45 
+
+23:45 one
+23:46 
+
+23:46 clear this will produce a vector of size
+23:51 
+
+23:51 d okay now this attention Vector will be
+23:56 
+
+23:56 added to the residual stream and in the
+23:59 
+
+23:59 residual stream there is already this
+24:01 
+
+24:01 Vector x i l minus one which is coming
+24:04 
+
+24:04 in right so through this uh residual
+24:07 
+
+24:07 connection right this will be added so
+24:11 
+
+24:11 this plus x l minus1 i these two things
+24:16 
+
+24:16 will be added and this will
+24:19 
+
+24:19 produce this will produce what this will
+24:21 
+
+24:21 produce the output for the fit forward
+24:25 
+
+24:25 Network layer this will produce the
+24:27 
+
+24:27 input for the fit forward n uh uh F
+24:29 
+
+24:29 forward L block right so I call it as x
+24:32 
+
+24:32 i
+24:35 
+
+24:35 mid right layer l so layer l is not done
+24:40 
+
+24:40 yet okay let me go back to the picture
+24:42 
+
+24:42 again here look at here so so far I have
+24:46 
+
+24:46 calculated this one x i mid L right I
+24:51 
+
+24:51 have calculated the heads added them and
+24:54 
+
+24:54 I produce this
+24:56 
+
+24:56 one I I'm at this position right now
+24:59 
+
+24:59 what I need to do now I need to pass it
+25:01 
+
+25:01 through MLP right so this will be passed
+25:05 
+
+25:05 through an MLP which is denoted by m
+25:08 
+
+25:08 here m is a function which again we'll
+25:11 
+
+25:11 uh segregate
+25:12 
+
+25:12 later and this will this will be added
+25:15 
+
+25:15 with this and this will produce the
+25:18 
+
+25:18 output after the MLP which we denote as
+25:21 
+
+25:21 x i l okay now let's focus on this MLP M
+25:26 
+
+25:26 so we have we have seen two things
+25:29 
+
+25:29 uh in attention right one is called the
+25:32 
+
+25:32 uh query key the query key circuit right
+25:36 
+
+25:36 what is the query key circuit query key
+25:38 
+
+25:38 circuit would look like
+25:39 
+
+25:39 this okay W
+25:43 
+
+25:43 wqk
+25:44 
+
+25:44 LH right there is another circuit which
+25:47 
+
+25:47 was created
+25:50 
+
+25:50 here if you look at this equation again
+25:52 
+
+25:52 you see there are two matrices which are
+25:55 
+
+25:55 getting
+25:57 
+
+25:57 multiplied right we call this output
+26:01 
+
+26:01 value
+26:02 
+
+26:02 circuit output o value V output
+26:06 
+
+26:06 value
+26:09 
+
+26:09 circuit okay and we denote it by
+26:14 
+
+26:14 um
+26:16 
+
+26:16 W
+26:18 
+
+26:18 OV LH which is w
+26:23 
+
+26:23 v LH w o
+26:30 
+
+26:30 LH okay output output value circuit so
+26:33 
+
+26:33 output value circuit is responsible for
+26:36 
+
+26:36 writing things to the residual
+26:37 
+
+26:37 connection residual
+26:39 
+
+26:39 stream to the output Val circuit you
+26:42 
+
+26:42 compute this attention and this will be
+26:44 
+
+26:44 added to the residual stream now later
+26:46 
+
+26:46 on we will use this output value circuit
+26:48 
+
+26:48 extensively remember this notation so in
+26:52 
+
+26:52 feed forward layer as we know there
+26:55 
+
+26:55 are there are two projections right
+26:59 
+
+26:59 so one is this Matrix which is called W
+27:01 
+
+27:01 in which will project to project it to
+27:04 
+
+27:04 one dimension and this will again down
+27:07 
+
+27:07 project it to another dimension this is
+27:10 
+
+27:10 so this weight Matrix w o
+27:13 
+
+27:13 out okay now let's look at this equation
+27:17 
+
+27:17 here x i mid L what is this this is the
+27:21 
+
+27:21 output of the
+27:24 
+
+27:24 attention right this is the output of
+27:26 
+
+27:26 the attention which you obtain from the
+27:28 
+
+27:28 previous layer from the previous
+27:31 
+
+27:31 computation this is fed to W in L the
+27:35 
+
+27:35 first projection layer right and then we
+27:38 
+
+27:38 have some non nonlinearity a normal MLP
+27:41 
+
+27:41 nonlinearity right this will further be
+27:44 
+
+27:44 fed through W
+27:47 
+
+27:47 out right and this will produce the Feit
+27:50 
+
+27:50 forward output and this Feit forward
+27:52 
+
+27:52 output FFN output will be added to the
+27:56 
+
+27:56 to the input through residual connection
+27:59 
+
+27:59 and this will produce the the output for
+28:03 
+
+28:03 the r stream alth although this looks
+28:05 
+
+28:05 like very simple operation but if you if
+28:08 
+
+28:08 you look at it very
+28:10 
+
+28:10 carefully there are there are very
+28:12 
+
+28:12 interesting uh observations that you can
+28:15 
+
+28:15 uh infer out of this equation so what is
+28:19 
+
+28:19 uh again let's focus on the dimension
+28:21 
+
+28:21 right W in L please pay attention to
+28:24 
+
+28:24 this notation okay W in L is this Matrix
+28:28 
+
+28:28 right what is the dimension of
+28:31 
+
+28:31 this the dimension of the input the
+28:34 
+
+28:34 input x i the dimension is 1 * D the D
+28:38 
+
+28:38 Dimension right what is the dimension of
+28:41 
+
+28:41 this this Matrix D * it will projected
+28:45 
+
+28:45 to
+28:46 
+
+28:46 a some some some Dimension right the
+28:49 
+
+28:49 dimension here let let's call it as uh
+28:54 
+
+28:54 DF okay so what is the resultant
+28:56 
+
+28:56 Dimension result Dimension is 1 cross DF
+28:59 
+
+28:59 right what is the what what is the
+29:01 
+
+29:01 dimension of this D out the dimension is
+29:04 
+
+29:04 DF * D if you look at it very carefully
+29:08 
+
+29:08 what is actually happening here is I
+29:10 
+
+29:10 mean we can interpret it in this way
+29:13 
+
+29:13 this is this
+29:14 
+
+29:14 W
+29:16 
+
+29:16 um in Matrix forget about the layer W in
+29:21 
+
+29:21 Matrix where there
+29:25 
+
+29:25 are D if number of
+29:30 
+
+29:30 columns isn't it D if number of
+29:34 
+
+29:34 columns okay and you are multiplying
+29:37 
+
+29:37 this with a vector x
+29:40 
+
+29:40 i so what is going to
+29:43 
+
+29:43 happen so when you multiply this it will
+29:46 
+
+29:46 essentially act like uh some sort of
+29:49 
+
+29:49 pattern
+29:51 
+
+29:51 detector right so it will so depending
+29:56 
+
+29:56 on this input it will essenti ially
+29:58 
+
+29:58 retrieve some sort of pattern out of
+30:00 
+
+30:00 this X in uh W in and and we call this
+30:05 
+
+30:05 Matrix the key
+30:07 
+
+30:07 Matrix now this key and the previous key
+30:10 
+
+30:10 are different this is not the query key
+30:12 
+
+30:12 value this is a this is a key Matrix
+30:14 
+
+30:14 that we discussed in the room
+30:17 
+
+30:17 paper right key value
+30:21 
+
+30:21 memory okay as if there's a key which is
+30:25 
+
+30:25 hidden within this w n w in and you feed
+30:28 
+
+30:28 the input and uh depending on the input
+30:31 
+
+30:31 the pattern will be retrieved from the
+30:33 
+
+30:33 key and remember this is element wise
+30:35 
+
+30:35 operation in the sense like the
+30:38 
+
+30:38 first value of XI will be multiplied
+30:41 
+
+30:41 with the First Column of this Matrix the
+30:44 
+
+30:44 second value will be multiplied with the
+30:46 
+
+30:46 second column of the Matrix and so on
+30:48 
+
+30:48 and so
+30:49 
+
+30:49 forth I'll break it down to this level
+30:52 
+
+30:52 later
+30:54 
+
+30:54 on I I'll break it down to this uh to
+30:57 
+
+30:57 the to the element
+30:59 
+
+30:59 level so this is
+31:02 
+
+31:02 called key
+31:06 
+
+31:06 value memory
+31:08 
+
+31:08 retrieval I have not discussed about
+31:10 
+
+31:10 value so far Ive only said the key part
+31:13 
+
+31:13 so we identify we basically extract the
+31:16 
+
+31:16 key from W in depending on X right so
+31:22 
+
+31:22 and then we pass it through nonlinearity
+31:25 
+
+31:25 G when you pass it through nonlinearity
+31:27 
+
+31:27 it will produce another V
+31:29 
+
+31:29 Vector isn't it it will produce a vector
+31:32 
+
+31:32 of size of size
+31:37 
+
+31:37 DF right this will produce a vector of
+31:39 
+
+31:39 size DF already told you so a pattern of
+31:43 
+
+31:43 size DF will be retrieved from W in this
+31:47 
+
+31:47 is the
+31:48 
+
+31:48 key and that key will be now plugged in
+31:53 
+
+31:53 or that ke will be applied to W out you
+31:56 
+
+31:56 can think of w out as value
+31:60 
+
+31:60 Storer okay W out would look like this
+32:04 
+
+32:04 this is W
+32:05 
+
+32:05 out the dimension is DF * D meaning
+32:09 
+
+32:09 there
+32:10 
+
+32:10 are DF number of
+32:15 
+
+32:15 values okay you
+32:18 
+
+32:18 apply uh this Matrix this this this
+32:21 
+
+32:21 Vector what you that you obtain after
+32:23 
+
+32:23 this activation uh to the value Matrix W
+32:27 
+
+32:27 out Matrix
+32:29 
+
+32:29 and this will produce some value as if
+32:31 
+
+32:31 we are retrieving a row from W out which
+32:36 
+
+32:36 will be
+32:38 
+
+32:38 upweighted which will be upweighted by
+32:42 
+
+32:42 this Vector 1 cross DF because
+32:45 
+
+32:45 ultimately is multiplication right up
+32:47 
+
+32:47 weighted or down weighted whatever let
+32:49 
+
+32:49 me draw this here okay whatever I
+32:52 
+
+32:52 said so this is my w w
+32:57 
+
+32:57 in in W in there are these
+33:00 
+
+33:00 columns
+33:02 
+
+33:02 okay there are these
+33:05 
+
+33:05 columns and you apply
+33:09 
+
+33:09 x i mid here okay it will produce a
+33:16 
+
+33:16 vector of size T
+33:20 
+
+33:20 DF okay this will be passed through
+33:25 
+
+33:25 G this will produce another Vector of
+33:28 
+
+33:28 size
+33:31 
+
+33:31 TF and you have this value Matrix W
+33:36 
+
+33:36 out okay you you multiply this with this
+33:40 
+
+33:40 uh it will basically produce a vector of
+33:43 
+
+33:43 size T now these are all element wise
+33:46 
+
+33:46 operations remember this right these are
+33:48 
+
+33:48 all elements these are elements here
+33:51 
+
+33:51 elements
+33:52 
+
+33:52 here
+33:55 
+
+33:55 right okay so each of the elements will
+33:59 
+
+33:59 be called as neuron essentially the
+34:02 
+
+34:02 values in W out will be upweighted by
+34:05 
+
+34:05 each of the neuron activations these are
+34:08 
+
+34:08 neuron activations now if you break it
+34:10 
+
+34:10 down if you break break the Entre
+34:12 
+
+34:12 computation into uh neuron level
+34:14 
+
+34:14 activation it would look like this so
+34:17 
+
+34:17 fit forward Network right at the lth
+34:20 
+
+34:20 layer the input is X what is input x i
+34:25 
+
+34:25 mid at L layer right
+34:29 
+
+34:29 it would look like
+34:32 
+
+34:32 this U = to 1 to DF what is DF DF is the
+34:36 
+
+34:36 dimension of the intermediate
+34:38 
+
+34:38 intermediate layer
+34:40 
+
+34:40 right
+34:43 
+
+34:43 gu x
+34:45 
+
+34:45 i mid
+34:49 
+
+34:49 L
+34:50 
+
+34:50 W in W is the Matrix and U is the
+34:55 
+
+34:55 corresponding column
+34:58 
+
+34:58 right and W out
+35:02 
+
+35:02 l
+35:04 
+
+35:04 u now ultimately after this activation
+35:08 
+
+35:08 gu we will produce a vector of size DF
+35:12 
+
+35:12 that's what I said right DF so for each
+35:15 
+
+35:15 of these elements I'm looking at each of
+35:17 
+
+35:17 these elements by
+35:19 
+
+35:19 U for each of these elements right how
+35:23 
+
+35:23 do we get each of these elements now x i
+35:26 
+
+35:26 me L the dimension is 1 * d
+35:29 
+
+35:29 W is D * DF and I am only interested in
+35:32 
+
+35:32 the U index of
+35:34 
+
+35:34 it so the dimension is going to be D
+35:37 
+
+35:37 cross one and uh this is uh this is the
+35:41 
+
+35:41 column right so DF cross
+35:44 
+
+35:44 1 or one cross DF doesn't matter because
+35:47 
+
+35:47 this ultimately a
+35:49 
+
+35:49 vector so this is this is the Fe forward
+35:51 
+
+35:51 for feet forward layer operation you can
+35:54 
+
+35:54 think of this operation this entire
+35:56 
+
+35:56 operation you noted you denote it by n u
+36:01 
+
+36:01 l
+36:03 
+
+36:03 okay this is called neuron activation
+36:05 
+
+36:05 this is essentially here this these
+36:08 
+
+36:08 elements isn't it so n u l uh is a
+36:13 
+
+36:13 scalar so
+36:15 
+
+36:15 NL is a d a DF dimensional
+36:20 
+
+36:20 Vector is called a
+36:23 
+
+36:23 vector
+36:25 
+
+36:25 of neuron activation now this operations
+36:30 
+
+36:30 will be will be executed at every layer
+36:34 
+
+36:34 okay now think of the last layer where
+36:37 
+
+36:37 we actually obtain the final output okay
+36:41 
+
+36:41 for the last
+36:42 
+
+36:42 layer for the last layer from where I we
+36:45 
+
+36:45 get the output the L layer the last
+36:49 
+
+36:49 layer what is the input the input is X
+36:54 
+
+36:54 NL right because
+36:59 
+
+36:59 X1 X2 dot dot dot xn right we have all
+37:04 
+
+37:04 these layers right we have all these
+37:07 
+
+37:07 layers and let's say this is the last
+37:09 
+
+37:09 layer l layer and the the corresponding
+37:13 
+
+37:13 output that we obtain from this for this
+37:16 
+
+37:16 xn right this will be fed to the uh to
+37:19 
+
+37:19 the to the un edding uh layer
+37:24 
+
+37:24 W right and this Vector is denoted by X
+37:28 
+
+37:28 x
+37:29 
+
+37:29 uh
+37:31 
+
+37:31 xn
+37:35 
+
+37:35 L
+37:38 
+
+37:38 okay so the final output FX the
+37:42 
+
+37:42 distribution that you obtain is
+37:44 
+
+37:44 essentially xn *
+37:47 
+
+37:47 W un edding
+37:50 
+
+37:50 layer since this is a residual stream
+37:53 
+
+37:53 view all these operations that we have
+37:56 
+
+37:56 done so far are additive
+37:58 
+
+37:58 right so what we have done so far for
+38:01 
+
+38:01 every layer l for every layer l we have
+38:05 
+
+38:05 done this addition each number of heads
+38:08 
+
+38:08 to have been
+38:10 
+
+38:10 added right and we do we we did it for a
+38:14 
+
+38:14 number of
+38:16 
+
+38:16 layers these are all additive operations
+38:18 
+
+38:18 right so for every layer we we have
+38:21 
+
+38:21 added H
+38:23 
+
+38:23 heads already discussed right what are
+38:26 
+
+38:26 the what what are the other elements
+38:28 
+
+38:28 that have been added we also added l
+38:31 
+
+38:31 number of fit forward
+38:34 
+
+38:34 outputs right and xn was the original
+38:38 
+
+38:38 input that also has been added uh to
+38:41 
+
+38:41 this resal stream right so
+38:45 
+
+38:45 xln this is nothing but
+38:52 
+
+38:52 this right and this will be multiplied
+38:56 
+
+38:56 with the embedding uh un edding uh
+38:59 
+
+38:59 Matrix W WN Wu
+39:03 
+
+39:03 okay all right now now of course you can
+39:06 
+
+39:06 multiply W with each of these things
+39:09 
+
+39:09 separately so you if you look at the
+39:11 
+
+39:11 final equation the final equation you
+39:14 
+
+39:14 see that you can actually segregate the
+39:16 
+
+39:16 attention part and the feed forward
+39:22 
+
+39:22 part this is the this is the attention
+39:25 
+
+39:25 part this is the feed forward part let
+39:27 
+
+39:27 me let me tell you why this is needed
+39:29 
+
+39:29 okay now think of a basic neural network
+39:33 
+
+39:33 a basic Transformer without any feed
+39:35 
+
+39:35 forward Network assume that there are
+39:37 
+
+39:37 two layers okay assume that there are
+39:40 
+
+39:40 two layers
+39:42 
+
+39:42 and at layer one right at layer one this
+39:47 
+
+39:47 is the
+39:49 
+
+39:49 stream right uh input is X only one
+39:53 
+
+39:53 token two layers no fit forward Network
+39:57 
+
+39:57 only at
+39:60 
+
+39:60 okay so after the first layer you have
+40:03 
+
+40:03 this attention here after the first
+40:05 
+
+40:05 layer the output is
+40:09 
+
+40:09 X+ and also let's make this thing even
+40:13 
+
+40:13 simpler I already mentioned there are
+40:15 
+
+40:15 two circuits one is query key circuit
+40:18 
+
+40:18 other is output value circuit the output
+40:20 
+
+40:20 value circuit is responsible for writing
+40:22 
+
+40:22 things to the uh to the residual stream
+40:25 
+
+40:25 let us ignore query key uh circuit for
+40:28 
+
+40:28 the time being again making this thing
+40:30 
+
+40:30 simple so essentially we have only done
+40:35 
+
+40:35 one operation which is this output value
+40:37 
+
+40:37 operation right at the first layer for
+40:40 
+
+40:40 the input
+40:43 
+
+40:43 X right and let's call it as X1 so this
+40:47 
+
+40:47 is X1 X1 is nothing but there this this
+40:50 
+
+40:50 wov it went through this wov one and it
+40:54 
+
+40:54 it produced X1 okay similarly you have
+40:58 
+
+40:58 another OV circuit right W2 OV so and
+41:05 
+
+41:05 that will produce the final output F
+41:07 
+
+41:07 right so f of
+41:10 
+
+41:10 x is
+41:12 
+
+41:12 X1 plus
+41:16 
+
+41:16 wov2
+41:18 
+
+41:18 X1
+41:21 
+
+41:21 clear X1 is here I have passed this
+41:24 
+
+41:24 thing through
+41:26 
+
+41:26 wov2 okay okay it will produce this
+41:31 
+
+41:31 one
+41:33 
+
+41:33 clear right so this is my final output
+41:37 
+
+41:37 after two layers with only OB circuit
+41:40 
+
+41:40 without fit forward Network now let us
+41:42 
+
+41:42 expand this so I replace X1 by this
+41:46 
+
+41:46 X Plus
+41:48 
+
+41:48 W1
+41:51 
+
+41:51 X Plus
+41:54 
+
+41:54 W2 x +
+41:59 
+
+41:59 W1 X right which is X plus
+42:05 
+
+42:05 W 1 x 1
+42:09 
+
+42:09 x + W OV 2x +
+42:16 
+
+42:16 W1
+42:19 
+
+42:19 W2 X so this will be multiplied with
+42:25 
+
+42:25 Wu so X W plus wov uh X W1
+42:34 
+
+42:34 Wu x w 2 w x
+42:41 
+
+42:41 w
+42:43 
+
+42:43 OV 1
+42:46 
+
+42:46 W 2
+42:51 
+
+42:51 Wu okay so so if you look at this
+42:56 
+
+42:56 individual operations right what I've
+42:58 
+
+42:58 done so far this is the res stream this
+43:01 
+
+43:01 is X there is this
+43:05 
+
+43:05 W1 right there is this
+43:11 
+
+43:11 wov2 right and then
+43:16 
+
+43:16 W look at the first
+43:20 
+
+43:20 component what is this this is just xw
+43:24 
+
+43:24 input will has been multiplied with the
+43:26 
+
+43:26 UN edding layer
+43:28 
+
+43:28 what is the second component the second
+43:30 
+
+43:30 component is input this has gone through
+43:36 
+
+43:36 W1 and then
+43:38 
+
+43:38 W what is the third one
+43:43 
+
+43:43 input input this has not gone through
+43:48 
+
+43:48 this this has gone through wov2 and then
+43:51 
+
+43:51 W right what is the fourth one fourth
+43:53 
+
+43:53 one is X which has gone through W1 then
+43:56 
+
+43:56 W2 then w
+43:59 
+
+43:59 there are basically four circuits that
+44:01 
+
+44:01 you can think of four effective circuits
+44:04 
+
+44:04 for for this one the circuit would look
+44:07 
+
+44:07 like this
+44:09 
+
+44:09 x Wu for this one this will be
+44:14 
+
+44:14 X
+44:17 
+
+44:17 W1 then Wu for
+44:20 
+
+44:20 this
+44:23 
+
+44:23 x
+44:24 
+
+44:24 wov2 w for this
+44:31 
+
+44:31 W1
+44:33 
+
+44:33 W2
+44:35 
+
+44:35 U okay
+44:38 
+
+44:38 so these has different so these
+44:41 
+
+44:41 components have different
+44:42 
+
+44:42 names the first
+44:44 
+
+44:44 component the first component is this
+44:47 
+
+44:47 one x * W and this is called the direct
+44:52 
+
+44:52 path from X you have a direct path to
+44:56 
+
+44:56 the output through un embedding
+44:58 
+
+44:58 this one and this one these are called
+45:00 
+
+45:00 Full OV
+45:02 
+
+45:02 circuit full output value circuit
+45:04 
+
+45:04 because for each of these one you just
+45:09 
+
+45:09 need
+45:11 
+
+45:11 one one OB circuit right for this one
+45:14 
+
+45:14 you have one this OB circuit for this
+45:16 
+
+45:16 one you have this output value circuit
+45:19 
+
+45:19 right the third one is very interesting
+45:21 
+
+45:21 I'm inan the middle
+45:23 
+
+45:23 one here you see you can think of this
+45:27 
+
+45:27 ov1 ov2 multiplication of two matrices
+45:30 
+
+45:30 two uh two circuits a single attention
+45:34 
+
+45:34 head right because this is ultimately
+45:36 
+
+45:36 MRI multiplication and this is called
+45:38 
+
+45:38 virtual attention head because you can
+45:41 
+
+45:41 think of a single virtual attention
+45:44 
+
+45:44 which encompasses both the
+45:47 
+
+45:47 attentions right so you can replace this
+45:50 
+
+45:50 you can replace this by another virtual
+45:54 
+
+45:54 something like ov12
+45:57 
+
+45:57 so direct path full OB circuits and
+46:00 
+
+46:00 virtual attention head this is also
+46:02 
+
+46:02 called this virtual attention is also
+46:03 
+
+46:03 called V composition these are all fancy
+46:07 
+
+46:07 terms okay now why do we need all these
+46:11 
+
+46:11 things why do we need to decompose and
+46:13 
+
+46:13 attention into so many components
+46:16 
+
+46:16 because this will help you understand
+46:18 
+
+46:18 the inner uh working of Transformer
+46:22 
+
+46:22 better right we look into each of the
+46:24 
+
+46:24 circuits separately and we will we will
+46:27 
+
+46:27 EXP explain how a Transformer model
+46:30 
+
+46:30 works okay and it will also give you a
+46:34 
+
+46:34 localized view of the Transformer
+46:36 
+
+46:36 model you have we have seen we
+46:39 
+
+46:39 essentially segregated the fit forward
+46:41 
+
+46:41 part from the attention
+46:43 
+
+46:43 part which would which would not have
+46:45 
+
+46:45 been possible if you had used the
+46:48 
+
+46:48 traditional Transformer uh you know the
+46:51 
+
+46:51 the the traditional way of describing a
+46:54 
+
+46:54 Transformer okay we stop this uh it's
+46:57 
+
+46:57 stop here next lecture we will uh we
+47:01 
+
+47:01 will discuss the interpretability of the
+47:03 
+
+47:03 Transformer model with the help of the
+47:06 
+
+47:06 concept that we discuss today thank you

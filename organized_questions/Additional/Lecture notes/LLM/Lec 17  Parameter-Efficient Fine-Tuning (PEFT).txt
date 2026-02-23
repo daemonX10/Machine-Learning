@@ -1,0 +1,4525 @@
+00:00 In this uh lecture we we are going to
+00:02 
+
+00:02 talk about a very different topic. So
+00:05 
+
+00:05 far uh we have discussed basic
+00:08 
+
+00:08 architectures of transformer then
+00:10 
+
+00:10 efficient learning and so on and so
+00:11 
+
+00:11 forth. U today we will discuss a topic
+00:15 
+
+00:15 which also comes under LLM efficiency
+00:18 
+
+00:18 right and this topic is very close to me
+00:21 
+
+00:21 because our lab also works in this area.
+00:24 
+
+00:24 So we we in in today's lecture we we
+00:27 
+
+00:27 will discuss PFT parameter efficient
+00:29 
+
+00:29 finetuning and in in the next lecture we
+00:32 
+
+00:32 will continue on the same topic and
+00:34 
+
+00:34 we'll discuss uh other types of LLM
+00:37 
+
+00:37 efficiency including pruning uh
+00:40 
+
+00:40 distillation and so on. Okay.
+00:43 
+
+00:43 Uh before that today's breaking news is
+00:45 
+
+00:45 as follows. So uh in August on August
+00:49 
+
+00:49 31st there's another Chinese company
+00:51 
+
+00:51 they released
+00:53 
+
+00:53 you know um u a new LLM called longat
+00:59 
+
+00:59 right it's a it's a it's a multimodal
+01:03 
+
+01:03 LLM right which uh supports longer
+01:06 
+
+01:06 context better reasoning abilities and
+01:08 
+
+01:08 so on and so forth u I think this is
+01:11 
+
+01:11 open access this is open weight LLM so
+01:15 
+
+01:15 uh this is another competitor So if you
+01:17 
+
+01:17 are interested in developing open source
+01:19 
+
+01:19 model, this can be considered as another
+01:21 
+
+01:21 baseline.
+01:22 
+
+01:22 Okay. So
+01:25 
+
+01:25 some basic statistics to motivate why
+01:29 
+
+01:29 this is important and uh I'm going to
+01:32 
+
+01:32 talk about some of the statistics which
+01:35 
+
+01:35 were borrowed from the GP3 paper. Now
+01:38 
+
+01:38 some of you remember GPD3 was the last
+01:41 
+
+01:41 were the first uh closed sourced model
+01:44 
+
+01:44 that open AAI published right before
+01:47 
+
+01:47 that all other models were open sourced
+01:50 
+
+01:50 and GPD3 paper models were not uh I mean
+01:54 
+
+01:54 the parameters were not very clear the
+01:56 
+
+01:56 setup was not very clear but people
+01:58 
+
+01:58 inferred uh different statistics from
+01:60 
+
+02:00 the model from inference and so on. Now
+02:03 
+
+02:03 some of these statistics are as follows.
+02:05 
+
+02:05 So GPD3 175 billion model right a bit
+02:10 
+
+02:10 old a bit older now but still uh in
+02:13 
+
+02:13 terms of power consumption this model
+02:16 
+
+02:16 consumed uh roughly 1 1200 megawatt hour
+02:19 
+
+02:19 right which is equivalent to running
+02:21 
+
+02:21 London I continuously for over five
+02:23 
+
+02:23 years right uh in terms of GPUs it took
+02:28 
+
+02:28 roughly 355 GPU GPU year on uh on V that
+02:34 
+
+02:34 time V was a very powerful GPU, right?
+02:37 
+
+02:37 And this is again equivalent to running
+02:40 
+
+02:40 uh 10,000 high-end gaming PCs at full
+02:43 
+
+02:43 load for 13 days straight.
+02:46 
+
+02:46 And in terms of water, um, GPD3 required
+02:50 
+
+02:50 roughly 700,000 liters of water, okay,
+02:53 
+
+02:53 for cooling down their system, which is
+02:56 
+
+02:56 equivalent to running a standard shower
+02:58 
+
+02:58 for 6 years non-stop and filling 1.5
+03:01 
+
+03:01 million water bottle each with 500 ml.
+03:05 
+
+03:05 So these numbers are uh interesting and
+03:09 
+
+03:09 all these numbers essentially suggest
+03:11 
+
+03:11 that uh such big models are not suitable
+03:15 
+
+03:15 for our environment. Right? So we need
+03:18 
+
+03:18 uh we need some model which would uh be
+03:21 
+
+03:21 less hungry in terms of resource.
+03:23 
+
+03:23 Resource meaning GPUs
+03:26 
+
+03:26 uh data set and power and so on and of
+03:29 
+
+03:29 course less thrusty for water. Okay. uh
+03:34 
+
+03:34 the other you know the other problem
+03:36 
+
+03:36 that I that I feel is more more
+03:40 
+
+03:40 concerning is that because of this
+03:42 
+
+03:42 high-end GPU uh based research GPU based
+03:45 
+
+03:45 LLM training what is happening is that
+03:48 
+
+03:48 the entire society is getting divided
+03:50 
+
+03:50 into two components one part of the
+03:52 
+
+03:52 society has access to big machines right
+03:56 
+
+03:56 800 800 H200 400 and so on and so forth
+03:60 
+
+03:60 whereas other part of society don't have
+04:02 
+
+04:02 access to even basic computes right so
+04:06 
+
+04:06 in India still falls uh in the uh kind
+04:10 
+
+04:10 of high-end zone you can you can have
+04:12 
+
+04:12 access to 800 800 and so on and so forth
+04:16 
+
+04:16 but you think of this region right or
+04:18 
+
+04:18 maybe this region of course uh some part
+04:21 
+
+04:21 of Russian Russia as well right middle
+04:24 
+
+04:24 east and so on and so forth right
+04:26 
+
+04:26 there's no GPU access at all in fact in
+04:28 
+
+04:28 India if you go to uh you
+04:31 
+
+04:31 Tire two colleges, tire three colleges,
+04:34 
+
+04:34 right? You see there's no no GPU access
+04:36 
+
+04:36 at all, right?
+04:39 
+
+04:39 So the goal is uh now in erm efficiency
+04:44 
+
+04:44 uh on one on on on one hand we are we
+04:46 
+
+04:46 have been talking about u better speed
+04:49 
+
+04:49 up and so on and so forth. Now on the
+04:51 
+
+04:51 other hand we also are uh concerned
+04:54 
+
+04:54 about um the parameter size of the model
+04:58 
+
+04:58 and and training and and an efficient
+05:01 
+
+05:01 training process. So in today's uh class
+05:05 
+
+05:05 we will discuss efficient training
+05:07 
+
+05:07 process right and it is called PFT and
+05:10 
+
+05:10 we will we'll discuss different types of
+05:12 
+
+05:12 PFT methods including adaptive PFT
+05:15 
+
+05:15 selective PFT and reparameter
+05:17 
+
+05:17 reparameterization techniques and in the
+05:20 
+
+05:20 next class u so in in all these methods
+05:23 
+
+05:23 that we'll discuss today they they do
+05:26 
+
+05:26 not touch the actual model right they
+05:31 
+
+05:31 essentially uh uh you know basically
+05:34 
+
+05:34 select some parameters and and only
+05:38 
+
+05:38 fine-tune those parameters for a
+05:39 
+
+05:39 specific task. But in the next class we
+05:42 
+
+05:42 will talk about changing the uh uh
+05:45 
+
+05:45 parametric memory altogether where we
+05:47 
+
+05:47 will drop some of the parameters which
+05:49 
+
+05:49 are not important and uh you know
+05:52 
+
+05:52 retrain those models with uh the updated
+05:55 
+
+05:55 uh setup.
+05:56 
+
+05:56 Okay. All right. Now now think about it.
+06:00 
+
+06:00 you already have got access to a
+06:03 
+
+06:03 pre-trained model right let's say
+06:07 
+
+06:07 llama miss GPT right these models are
+06:10 
+
+06:10 pre-trained and let's assume that these
+06:11 
+
+06:11 models are not fine-tuned yet only
+06:13 
+
+06:13 pre-tuning uh has been done right and
+06:17 
+
+06:17 your task is to adopt uh the pre-trend
+06:20 
+
+06:20 model uh to a specific task right now
+06:23 
+
+06:23 how do we adopt a a pre-turn model for a
+06:25 
+
+06:25 specific task we need to fine-tune the
+06:28 
+
+06:28 model right now in the finetune paradigm
+06:30 
+
+06:30 time we talked about instruction
+06:31 
+
+06:31 finetuning then you know RHF and all
+06:34 
+
+06:34 these alignments and so on and so forth
+06:36 
+
+06:36 but basically you assume that you after
+06:39 
+
+06:39 pre-turning you have some finetuning
+06:40 
+
+06:40 method right and you uh you you have
+06:43 
+
+06:43 domain specific data now the let's say
+06:45 
+
+06:45 the task is summarization or the task is
+06:47 
+
+06:47 sentiment analysis or the task is code
+06:49 
+
+06:49 generation for every task you have a
+06:52 
+
+06:52 domain specific data and you fine-tune
+06:55 
+
+06:55 your model for the specific task right
+06:57 
+
+06:57 now let's say uh somebody has developed
+07:00 
+
+07:00 the pre-turn model. Now there are X YZ
+07:04 
+
+07:04 companies. They want to use this
+07:06 
+
+07:06 pre-turn model. So you have to
+07:08 
+
+07:08 essentially transfer the pre-turn model
+07:10 
+
+07:10 parameters to those companies right
+07:13 
+
+07:13 individually. Now how do we transfer
+07:15 
+
+07:15 these models? You can't get I mean you
+07:17 
+
+07:17 can't transfer through to through pen
+07:19 
+
+07:19 drive for example right or through let's
+07:21 
+
+07:21 say Google drive for example because
+07:22 
+
+07:22 these models are so big right? So u now
+07:28 
+
+07:28 uh instead of this if you if you think
+07:31 
+
+07:31 of a very small subset of parameters
+07:33 
+
+07:33 which are task specific and you only
+07:36 
+
+07:36 fine-tune that specific set of
+07:38 
+
+07:38 parameters for your task and you only
+07:40 
+
+07:40 transfer those parameters to the uh to
+07:42 
+
+07:42 the company right so the company will
+07:45 
+
+07:45 only look at uh those parameters and use
+07:48 
+
+07:48 use them for uh for uh further
+07:50 
+
+07:50 prediction or further analysis right So
+07:56 
+
+07:56 now pre-training followed by fine-tuning
+07:58 
+
+07:58 and then adapting those uh language
+08:00 
+
+08:00 models for specific task. Let's say the
+08:03 
+
+08:03 task can be summarize, summarizing
+08:05 
+
+08:05 something, classifying something,
+08:07 
+
+08:07 generating something and so on and so
+08:09 
+
+08:09 forth. This would always be useful. But
+08:11 
+
+08:11 the problem with this kind of
+08:13 
+
+08:13 fine-tuning is that when you say
+08:15 
+
+08:15 fine-tuning, we full fine-tune the
+08:17 
+
+08:17 entire model. Meaning all the parameters
+08:19 
+
+08:19 of the model get fine-tuned, right? And
+08:21 
+
+08:21 there are millions of such parameters.
+08:23 
+
+08:23 If you if you want to fine-tune all the
+08:25 
+
+08:25 parameters together then it would be
+08:28 
+
+08:28 extremely timeconuming. Not only that
+08:30 
+
+08:30 but also you need uh to have access to a
+08:33 
+
+08:33 lot of data set right preing also you
+08:36 
+
+08:36 have you you needed a lot of data set
+08:38 
+
+08:38 finetuning also you need a lot of data
+08:40 
+
+08:40 set otherwise you won't be able to
+08:41 
+
+08:41 fine-tune all the parame full fine
+08:44 
+
+08:44 tuning is not possible right.
+08:47 
+
+08:47 So
+08:48 
+
+08:48 challenges with full fine-tuning you
+08:50 
+
+08:50 need billions of parameters for
+08:53 
+
+08:53 finetuning since this is full finetuning
+08:56 
+
+08:56 training time is uh quite extensive
+08:59 
+
+08:59 right you uh in in terms of deployment
+09:02 
+
+09:02 it is it is not flexible it increases
+09:05 
+
+09:05 the cost and carbon footprints uh as
+09:08 
+
+09:08 well
+09:10 
+
+09:10 so what is the alternative the
+09:12 
+
+09:12 alternative is that as I mentioned is
+09:14 
+
+09:14 that um uh let's think of a modular
+09:16 
+
+09:16 approach approach where we dedicate a
+09:18 
+
+09:18 specific module for a specific task and
+09:21 
+
+09:21 only fine fine-tune that module for your
+09:23 
+
+09:23 task. Okay? And if you want to transfer
+09:25 
+
+09:25 your uh your model, you only transfer
+09:28 
+
+09:28 that module. You don't need to transfer
+09:30 
+
+09:30 the entire model all together. Okay?
+09:32 
+
+09:32 That's the idea behind uh a modular
+09:35 
+
+09:35 approach which is parameter efficient
+09:36 
+
+09:36 finetuning.
+09:38 
+
+09:38 All right. So u the other way to
+09:41 
+
+09:41 fine-tune a model, right, is in context
+09:44 
+
+09:44 learning, right? The idea is that you
+09:47 
+
+09:47 and I mean not fine-tuning adaptation
+09:50 
+
+09:50 right so you have a pre-ter model you
+09:52 
+
+09:52 teach your model how to um let's say how
+09:55 
+
+09:55 to solve sudugu or how to let's say um
+09:58 
+
+09:58 you know uh how to basically given this
+10:03 
+
+10:03 un unscrambled letters how to rearrange
+10:06 
+
+10:06 the letters so that you get appropriate
+10:08 
+
+10:08 word and so on and so forth right so
+10:10 
+
+10:10 what you do here you use few short
+10:13 
+
+10:13 learning right so you add some examples
+10:16 
+
+10:16 and with a task descriptor and then you
+10:18 
+
+10:18 ask the model to um to uh solve a
+10:22 
+
+10:22 similar kind of problems, right?
+10:24 
+
+10:24 Examples examples and description.
+10:27 
+
+10:27 Good point about this kind of technique
+10:29 
+
+10:29 is that you do not need uh uh finetuning
+10:32 
+
+10:32 at all, right? So ideally ideally
+10:35 
+
+10:35 parameters are not updated. Okay. uh no
+10:38 
+
+10:38 training required fast and flexible. But
+10:40 
+
+10:40 the problem is that u few short learning
+10:43 
+
+10:43 in context learning uh is restricted to
+10:47 
+
+10:47 only the examples that you provide right
+10:50 
+
+10:50 you need to do a lot of bookkeeping to
+10:52 
+
+10:52 essentially identify those examples
+10:54 
+
+10:54 which are required for your task. It
+10:56 
+
+10:56 should be diverse and there are other
+10:58 
+
+10:58 you know other constraints that we
+10:60 
+
+10:60 generally consider in order to uh sample
+11:02 
+
+11:02 examples for a specific task. Right? And
+11:05 
+
+11:05 this is not usually very generalized uh
+11:07 
+
+11:07 across different tasks. So you you would
+11:09 
+
+11:09 be able to get uh accuracy up to a
+11:11 
+
+11:11 certain level but after that u it's not
+11:14 
+
+11:14 that helpful. Right? Fine-tuning is
+11:16 
+
+11:16 always recommended if you have enough
+11:18 
+
+11:18 data but if you do not have uh data if
+11:21 
+
+11:21 you do not have even small amount of
+11:24 
+
+11:24 data you you have to do ICL there's no
+11:27 
+
+11:27 other approach right. So
+11:31 
+
+11:31 and of course uh remember this is
+11:33 
+
+11:33 bounded by the context size. So you
+11:36 
+
+11:36 cannot feed let's say 100 200 examples
+11:39 
+
+11:39 as as your examplers in your prompt
+11:41 
+
+11:41 right because of the uh prompt size uh
+11:44 
+
+11:44 because of the uh context length.
+11:47 
+
+11:47 Okay. So what is the alternative? The
+11:49 
+
+11:49 alternative is that u think of a small
+11:52 
+
+11:52 set of parameters which you want to
+11:54 
+
+11:54 update. Okay. Now uh so this is the
+11:58 
+
+11:58 strategy. So the core model, the core
+12:01 
+
+12:01 pretend model will not be updated. Only
+12:04 
+
+12:04 those selected parameters will be
+12:06 
+
+12:06 updated with your fine-tuned data.
+12:09 
+
+12:09 Right? Now what are the motivations
+12:11 
+
+12:11 behind that? The first motivation is
+12:12 
+
+12:12 that uh it reduces compute, right? less
+12:16 
+
+12:16 uh memory footprint, less carbon
+12:18 
+
+12:18 footprint and uh it allows re
+12:21 
+
+12:21 reusability because uh you know I mean
+12:24 
+
+12:24 you can think of this as as modular
+12:26 
+
+12:26 approach where your entire uh core part
+12:29 
+
+12:29 remains the same. You only
+12:32 
+
+12:32 plug in that module for a specific task,
+12:35 
+
+12:35 right? Then you remove that module, plug
+12:36 
+
+12:36 in another module for another task and
+12:38 
+
+12:38 so on and so forth, right? So you can
+12:40 
+
+12:40 reuse um the entire architecture uh for
+12:44 
+
+12:44 your task right whereas remember for
+12:47 
+
+12:47 full fine-tuning you need to full
+12:49 
+
+12:49 fine-tune you need to fine-tune all the
+12:50 
+
+12:50 parameters. So if you fine-tune all the
+12:52 
+
+12:52 parameters for a specific task now that
+12:55 
+
+12:55 particular model is gone right because
+12:57 
+
+12:57 that particular model is already aligned
+12:59 
+
+12:59 to that specific task. If you uh if you
+13:02 
+
+13:02 fine-tune it for another task, you have
+13:04 
+
+13:04 to take a pre-turn model again, another
+13:06 
+
+13:06 pre-turn model again, then finetune,
+13:07 
+
+13:07 right? It's not reusable as such. Okay.
+13:11 
+
+13:11 Um it this kind of PFT methods also
+13:15 
+
+13:15 helps us
+13:16 
+
+13:16 personalize our uh LLM. Why? Because
+13:20 
+
+13:20 then what you do each of these modules
+13:23 
+
+13:23 can be used as a personalized uh module,
+13:26 
+
+13:26 right, for your application. For
+13:28 
+
+13:28 example, let's say let's say you are
+13:30 
+
+13:30 designing a recommener system for
+13:31 
+
+13:31 example, right? And there are n number
+13:33 
+
+13:33 of users. Now, uh you can think of any
+13:36 
+
+13:36 number of such modules, any number of
+13:38 
+
+13:38 such PFT module modules that you want to
+13:42 
+
+13:42 fine-tune and you reuse the main
+13:44 
+
+13:44 architecture of the model and only plug
+13:47 
+
+13:47 and play these modules uh for your task,
+13:52 
+
+13:52 right?
+13:53 
+
+13:53 Uh so the main if you look at the
+13:56 
+
+13:56 categories or you know the bunch of uh
+13:59 
+
+13:59 PFT methods that are already out there
+14:01 
+
+14:01 PFT started I think roughly in 2022 u
+14:06 
+
+14:06 2021 2022
+14:08 
+
+14:08 good papers started coming in in this
+14:10 
+
+14:10 area PFT uh generally it can be
+14:13 
+
+14:13 categorized into three components or
+14:14 
+
+14:14 three buckets. The first one is called
+14:17 
+
+14:17 additive PFT. Additive PFT or the name
+14:21 
+
+14:21 suggests we add new parameters to the
+14:24 
+
+14:24 model right of course the question is uh
+14:26 
+
+14:26 that would increase the size of the
+14:28 
+
+14:28 model right but we are talking about
+14:29 
+
+14:29 parameter efficient finetuning but the
+14:32 
+
+14:32 size of the module is very very less
+14:34 
+
+14:34 right let's say the the original model
+14:37 
+
+14:37 has trillion size parameter but in this
+14:40 
+
+14:40 in this small module we have roughly
+14:42 
+
+14:42 10,000 20,000 parameters which is
+14:44 
+
+14:44 nothing right
+14:46 
+
+14:46 u so this additive method and we will
+14:51 
+
+14:51 talk about methods like adapter prefix
+14:53 
+
+14:53 tuning and prompt tuning. These are
+14:55 
+
+14:55 simple methods. The other method is the
+14:58 
+
+14:58 other types of method is called
+14:59 
+
+14:59 selective methods where we will not add
+15:02 
+
+15:02 any parameters. We will select some of
+15:05 
+
+15:05 the parameters from the existing
+15:06 
+
+15:06 parametric memory right and only
+15:09 
+
+15:09 fine-tune those parameters. Now how do
+15:11 
+
+15:11 you select those parameters? That is
+15:13 
+
+15:13 something we'll discuss.
+15:15 
+
+15:15 So this is called selective method. The
+15:17 
+
+15:17 good part about selective method is that
+15:19 
+
+15:19 the parameter uh the parameter size will
+15:21 
+
+15:21 not increase right but at the same time
+15:24 
+
+15:24 the bad part is that the architecture
+15:27 
+
+15:27 right um the core component is roughly
+15:31 
+
+15:31 destroyed right because some of the
+15:33 
+
+15:33 parameters within that core component
+15:35 
+
+15:35 gets updated.
+15:37 
+
+15:37 The third one is called
+15:39 
+
+15:39 reparameterization techniques. In
+15:41 
+
+15:41 reparameterization what we do we
+15:43 
+
+15:43 reexpress the parameter uh the the
+15:45 
+
+15:45 parametric matrix right in a different
+15:48 
+
+15:48 way right and we will here we will
+15:50 
+
+15:50 discuss methods like u like uh lora q
+15:54 
+
+15:54 lura dora and so on and so forth right
+15:57 
+
+15:57 and we will also discuss some of our uh
+15:60 
+
+15:60 you know our research in the area of
+16:02 
+
+16:02 selective methods and uh
+16:05 
+
+16:05 reparameterization.
+16:08 
+
+16:08 Okay. So here is the rough timeline you
+16:10 
+
+16:10 if you look at it here. So
+16:14 
+
+16:14 methods like uh you know dropout right
+16:18 
+
+16:18 prefix tuning ptuning uh spot right uh
+16:23 
+
+16:23 PST okay uh koda now this is a branch of
+16:28 
+
+16:28 uh methods in the additive uh
+16:31 
+
+16:31 parameterization reparation additive PFT
+16:34 
+
+16:34 direction right this is another branch
+16:37 
+
+16:37 in the direction of reparameterization
+16:39 
+
+16:39 where you see methods like Laura Right.
+16:42 
+
+16:42 Um and then adalora right and illura u
+16:48 
+
+16:48 you know um Laura FA and we we'll also
+16:51 
+
+16:51 discuss Dora
+16:54 
+
+16:54 right and and so on and so forth.
+16:58 
+
+16:58 So this is another branch which
+17:01 
+
+17:01 basically uh is related to selective
+17:04 
+
+17:04 parameterization. Uh and we'll talk
+17:06 
+
+17:06 about bit fit right uh fish mask right
+17:12 
+
+17:12 and and so on and so forth right we'll
+17:14 
+
+17:14 also discuss one of our recent methods
+17:16 
+
+17:16 called ID3 which also falls in this in
+17:19 
+
+17:19 this direction. uh here we will discuss
+17:22 
+
+17:22 one of our recent methods called Monte
+17:25 
+
+17:25 Laura
+17:27 
+
+17:27 L right which which falls under uh
+17:30 
+
+17:30 reparameterization and so on and so okay
+17:34 
+
+17:34 okay so let's get started with the core
+17:36 
+
+17:36 part additive methods as I mentioned
+17:40 
+
+17:40 additive methods what we do we add a new
+17:42 
+
+17:42 module right and the idea and the idea
+17:46 
+
+17:46 of adapter uh came I think in 2020 uh uh
+17:50 
+
+17:50 2021 2020 2021 I guess 2020 or 2021. So
+17:56 
+
+17:56 the idea here is that you insert
+17:59 
+
+17:59 insert an adapter layer right a new
+18:02 
+
+18:02 layer you insert a a new uh new layer in
+18:06 
+
+18:06 between the layers of the transformer
+18:09 
+
+18:09 right. So in transformer we have
+18:12 
+
+18:12 multiated attention followed by feed
+18:14 
+
+18:14 forward network and then you add another
+18:16 
+
+18:16 module called adapter block. Right?
+18:19 
+
+18:19 Similarly you see here after feed
+18:21 
+
+18:21 forward network you add another block
+18:23 
+
+18:23 called the adapter block. Right? And how
+18:25 
+
+18:25 how does this adapter block look like?
+18:27 
+
+18:27 We'll discuss later, right? You think of
+18:30 
+
+18:30 it as a plugandplay uh kind of module
+18:33 
+
+18:33 which you use for uh for a specific
+18:35 
+
+18:35 domain.
+18:37 
+
+18:37 So you have a pre-trend model. All the
+18:40 
+
+18:40 layers are already pre-trained. You only
+18:42 
+
+18:42 plug in uh add this adapter layer to
+18:45 
+
+18:45 your pre-trend model. When you
+18:46 
+
+18:46 fine-tune, all your other parameters
+18:49 
+
+18:49 will remain frozen. Only the adapter
+18:51 
+
+18:51 parameters will be updated. Right? So
+18:54 
+
+18:54 that's the idea.
+18:56 
+
+18:56 Now the it's a small memory right which
+18:60 
+
+18:60 basically can store task specific
+19:02 
+
+19:02 information task specific nuances right.
+19:05 
+
+19:05 What's the disadvantage? The
+19:07 
+
+19:07 disadvantage is that you will slightly
+19:08 
+
+19:08 increase the memory size. Right? The
+19:12 
+
+19:12 other problem is that uh not a
+19:14 
+
+19:14 disadvantage but the other decision uh
+19:17 
+
+19:17 kind of process is that where to add
+19:19 
+
+19:19 this adapter. Should I add this to the
+19:21 
+
+19:21 first layer or second layer or last
+19:22 
+
+19:22 layer or middle layer of where right
+19:24 
+
+19:24 this is something that we need to
+19:26 
+
+19:26 discuss and there are also some other
+19:27 
+
+19:27 hyperparameters that you you need to
+19:29 
+
+19:29 choose
+19:32 
+
+19:32 so this is the structure of the adapter
+19:34 
+
+19:34 module right you see here
+19:38 
+
+19:38 so um now let's let's assume that I'm
+19:42 
+
+19:42 talking about this adapter okay so the
+19:44 
+
+19:44 input is coming from the feed forward
+19:45 
+
+19:45 layer right so input is coming from the
+19:48 
+
+19:48 feed forward layer now this is the input
+19:50 
+
+19:50 obtained from the feed forward layer and
+19:52 
+
+19:52 this is my adapter. Okay. And this is
+19:54 
+
+19:54 very simple. This is actually a
+19:55 
+
+19:55 multi-layer procept right you have a
+19:58 
+
+19:58 feed forward down projection layer which
+20:01 
+
+20:01 will down project a d vector d size
+20:04 
+
+20:04 vector for example to a let's say dx2
+20:06 
+
+20:06 size vector right and then we have a
+20:08 
+
+20:08 nonlinearity here and then we then you
+20:11 
+
+20:11 again are project it and you uh you make
+20:13 
+
+20:13 a d size vector
+20:16 
+
+20:16 as simple as that. It's a two- layer
+20:17 
+
+20:17 perceptron right uh down sampling
+20:22 
+
+20:22 followed followed by down projection
+20:24 
+
+20:24 followed by up projection right and this
+20:26 
+
+20:26 is called the bottleneck structure
+20:28 
+
+20:28 remember this kind of structure is
+20:30 
+
+20:30 called bottleneck structure
+20:34 
+
+20:34 okay now why
+20:36 
+
+20:36 now why suddenly down projection
+20:38 
+
+20:38 followed by up position why not up
+20:40 
+
+20:40 position followed by down projection
+20:43 
+
+20:43 what do you think
+20:45 
+
+20:45 if we do like Yes. So in feed forward
+20:48 
+
+20:48 network we what what we do we do up up
+20:51 
+
+20:51 position then down position right why
+20:53 
+
+20:53 why not here
+20:56 
+
+20:56 if we do that this would increase the
+20:57 
+
+20:57 size of the parameter right we're
+20:60 
+
+20:60 talking about
+21:04 
+
+21:04 that's what I'm saying it if we if we do
+21:06 
+
+21:06 if we do this kind of shape right this
+21:09 
+
+21:09 would increase the size of the parameter
+21:10 
+
+21:10 size right so uh to reduce the size of
+21:13 
+
+21:13 the parameters in the adapter block we
+21:15 
+
+21:15 do downsampling followed by up uh down
+21:18 
+
+21:18 projection followed by up projection and
+21:20 
+
+21:20 we also have a residual connection.
+21:21 
+
+21:21 Remember this is residual connection is
+21:24 
+
+21:24 very very important otherwise you keep
+21:26 
+
+21:26 forgetting the input itself right so
+21:29 
+
+21:29 they tested it with B large model and
+21:32 
+
+21:32 they showed that
+21:34 
+
+21:34 uh you know it is with only 3.6%
+21:38 
+
+21:38 additional parameters it can achieve up
+21:40 
+
+21:40 to 99.6% 6% performance of the full
+21:43 
+
+21:43 fine-tuning method. Right? So full
+21:45 
+
+21:45 finetuning you you're fine-tuning 100%
+21:48 
+
+21:48 of the parameters. Now here here you are
+21:50 
+
+21:50 fine tuning only uh 3.6% of the
+21:52 
+
+21:52 parameters.
+21:55 
+
+21:55 Okay. So this is simple uh but here
+21:58 
+
+21:58 there are different design choices. For
+22:01 
+
+22:01 example, what would be the size of uh
+22:03 
+
+22:03 the the the down projection matrix down
+22:06 
+
+22:06 projection uh layer, right? Where to add
+22:08 
+
+22:08 adapter and so on and so forth. These
+22:10 
+
+22:10 are design choices and you have to
+22:12 
+
+22:12 decide it depending on the task. Okay.
+22:16 
+
+22:16 The other simple technique is called
+22:18 
+
+22:18 prefix tuning. Now here also you add
+22:20 
+
+22:20 more parameters. So uh in prefix tuning
+22:23 
+
+22:23 what we do is that we add parameters to
+22:27 
+
+22:27 the u so so here is this right? So you
+22:30 
+
+22:30 have layer 1, layer two,
+22:34 
+
+22:34 layer three and so on and so forth. Now
+22:37 
+
+22:37 whatever output that you obtain from
+22:39 
+
+22:39 layer one let's say this is the output
+22:41 
+
+22:41 of layer 1 right you prepend something
+22:44 
+
+22:44 prepend prepend another vector small
+22:48 
+
+22:48 vector right before this input and then
+22:51 
+
+22:51 you pass it to the next layer if you
+22:53 
+
+22:53 pass it to the next layer your key and
+22:56 
+
+22:56 value matrix would also be affected
+22:58 
+
+22:58 because this is your input okay so and
+23:01 
+
+23:01 then again in the next layer in the next
+23:04 
+
+23:04 layer you have another uh uh prepended
+23:06 
+
+23:06 get this kind of prepended you know uh
+23:10 
+
+23:10 vector and that basically gets
+23:13 
+
+23:13 propagated from one layer to the another
+23:14 
+
+23:14 layer right so and what you do now you
+23:18 
+
+23:18 can think of this part as a task
+23:20 
+
+23:20 specific adop adoption for a specific
+23:22 
+
+23:22 task you have a specific uh prepended
+23:25 
+
+23:25 vector right and only that I mean when
+23:28 
+
+23:28 you when you back propagate your loss
+23:30 
+
+23:30 right uh end to end only this part only
+23:34 
+
+23:34 this vector will be updated
+23:38 
+
+23:38 Okay. Now you prepare this with every
+23:41 
+
+23:41 input and that would affect the uh key
+23:43 
+
+23:43 and uh value matrix accordingly.
+23:47 
+
+23:47 So prefix tuning is uh as simple as
+23:50 
+
+23:50 that. Uh so then people thought that uh
+23:53 
+
+23:53 let's make it even simple. Okay, let's
+23:56 
+
+23:56 not pre prepend these vectors to every
+23:60 
+
+23:60 layer. you prepend only one vector to
+24:03 
+
+24:03 the input to the original input that you
+24:05 
+
+24:05 feed to the transformer model.
+24:08 
+
+24:08 Right? So the difference between prefix
+24:11 
+
+24:11 and prompt tuning is that so here this
+24:14 
+
+24:14 is your input you prepend something here
+24:16 
+
+24:16 that's all. So your in the input size
+24:20 
+
+24:20 will be increased but you don't need
+24:22 
+
+24:22 this prepended vector for every layer
+24:24 
+
+24:24 separately. Right? Now for task one you
+24:27 
+
+24:27 have a prepended vector. For task two,
+24:29 
+
+24:29 you have another prepended vector. For
+24:31 
+
+24:31 task three, you have another prepended
+24:33 
+
+24:33 vector and so on and so forth. And what
+24:34 
+
+24:34 you can do actually is that you think of
+24:38 
+
+24:38 a batch where you have instances for
+24:41 
+
+24:41 different tasks,
+24:43 
+
+24:43 right? So actually when you feed the the
+24:47 
+
+24:47 entire batch, you uh prepend that
+24:50 
+
+24:50 particular vector uh with the instance
+24:54 
+
+24:54 of a specific task, right? and that uh
+24:57 
+
+24:57 that gets updated every time.
+25:02 
+
+25:02 So uh the advantage as I mentioned is
+25:04 
+
+25:04 that only very few parameters less than
+25:07 
+
+25:07 01% of the parameters gets gets updated.
+25:10 
+
+25:10 But disadvantage is that um it's not
+25:13 
+
+25:13 very effective when you have uh less
+25:16 
+
+25:16 amount of data. Right?
+25:19 
+
+25:19 So these are adapt adaptive methods. Now
+25:22 
+
+25:22 let's talk about selective methods.
+25:24 
+
+25:24 adopt adaptive methods are not very
+25:26 
+
+25:26 popular these days. Uh let's look at
+25:27 
+
+25:27 selective methods.
+25:30 
+
+25:30 So as I mentioned earlier the idea
+25:32 
+
+25:32 behind selective methods is that you
+25:34 
+
+25:34 identify a set of parameters which need
+25:36 
+
+25:36 to be fine- tuned right from the
+25:38 
+
+25:38 existing batch from the existing
+25:39 
+
+25:39 parameter set. Okay.
+25:42 
+
+25:42 Now there are two types of uh selective
+25:45 
+
+25:45 methods. One is called structured
+25:47 
+
+25:47 method. This unstructured method in
+25:49 
+
+25:49 structured method what we do we select
+25:53 
+
+25:53 let's say the entire FFN layer in layer
+25:57 
+
+25:57 one you look you only you select the
+25:59 
+
+25:59 entire FFN layer and you finetune the
+26:01 
+
+26:01 enter block FN block or let's say you
+26:04 
+
+26:04 layer in layer two you select only the
+26:06 
+
+26:06 attention weight and you finetune that
+26:09 
+
+26:09 uh attention weight keeping the other
+26:11 
+
+26:11 things frozen so you basically select a
+26:14 
+
+26:14 block and the block gets updated whereas
+26:16 
+
+26:16 in case of unstructured selective method
+26:21 
+
+26:21 from a matrix you select some parameters
+26:23 
+
+26:23 haphazardly or based on some uristics of
+26:26 
+
+26:26 course right but is not the case that
+26:28 
+
+26:28 the entire matrix gets updated
+26:32 
+
+26:32 you see the difference between them
+26:33 
+
+26:33 right selective so structured method is
+26:36 
+
+26:36 more structured method is uh you know
+26:41 
+
+26:41 more friendly uh for uh for uh the
+26:46 
+
+26:46 hardware because you need to do CUDA
+26:48 
+
+26:48 level things, right? Uh it is more
+26:50 
+
+26:50 friendly whereas unstructured method is
+26:52 
+
+26:52 less less friendly in terms of hardware.
+26:54 
+
+26:54 But unstructured method is uh you know
+26:58 
+
+26:58 it is easy or or sometimes it requires
+27:01 
+
+27:01 less number of parameters for selection.
+27:03 
+
+27:03 If you select a specific block versus
+27:06 
+
+27:06 only few parameters of a block uh that
+27:09 
+
+27:09 is that is more flexible. Okay. So we
+27:14 
+
+27:14 will mostly discuss uh unstructured
+27:17 
+
+27:17 selective method. This is unstructured
+27:19 
+
+27:19 selective method is more popular.
+27:21 
+
+27:21 The first one is called beat fit
+27:24 
+
+27:24 2022 paper I guess or 23. Uh and the
+27:28 
+
+27:28 idea is very simple. Idea is that in in
+27:30 
+
+27:30 in selective method what you do you only
+27:34 
+
+27:34 update the bias terms.
+27:37 
+
+27:37 That's all. So for example this is your
+27:39 
+
+27:39 query key and value. This is your query
+27:42 
+
+27:42 projection and a bias, key projection
+27:44 
+
+27:44 and bias, value projection and bias. You
+27:47 
+
+27:47 only update or you you only fine-tune uh
+27:50 
+
+27:50 the bias matrix or the bias matrices.
+27:54 
+
+27:54 Okay. So now look at this equation here.
+27:57 
+
+27:57 So query key value. Now you pass I mean
+28:01 
+
+28:01 you you complete your attention part
+28:04 
+
+28:04 self attention part and from self
+28:06 
+
+28:06 attention module you let's say you get
+28:08 
+
+28:08 h2
+28:10 
+
+28:10 right the hidden representation of uh of
+28:13 
+
+28:13 the input after self attention and a l
+28:15 
+
+28:15 layer right now if you remember the
+28:18 
+
+28:18 transformer block we have self attention
+28:22 
+
+28:22 right multi-headed self attention okay
+28:24 
+
+28:24 you have different heads and what you do
+28:26 
+
+28:26 after that what you do After that let's
+28:30 
+
+28:30 say the size the input size is d but
+28:34 
+
+28:34 here you have k number of heads. So each
+28:36 
+
+28:36 of them is d by k d by k. What you do
+28:38 
+
+28:38 then either you concatenate them or you
+28:42 
+
+28:42 can pass them to to another another
+28:44 
+
+28:44 layer and we call this layer output
+28:46 
+
+28:46 layer right and it is denoted generally
+28:49 
+
+28:49 it is denoted by WO right and this
+28:52 
+
+28:52 output layer will
+28:54 
+
+28:54 will basically project it down to D
+28:59 
+
+28:59 right so D and then after that what we
+29:01 
+
+29:01 have so output layer and then what we
+29:04 
+
+29:04 have layer known and residual connection
+29:08 
+
+29:08 Right? And then you pass it through feed
+29:10 
+
+29:10 forward. In feed forward there are two
+29:12 
+
+29:12 layers. Right? Up position down position
+29:15 
+
+29:15 and then uh and then another layer norm
+29:17 
+
+29:17 and residual. Right? So this is exactly
+29:20 
+
+29:20 uh is the operations showing in this uh
+29:23 
+
+29:23 slide here. So W M1 is the is the is the
+29:30 
+
+29:30 output matrix right? So
+29:34 
+
+29:34 so this is output matrix. uh the input
+29:37 
+
+29:37 is the input. Sorry, this is H1. Sorry,
+29:40 
+
+29:40 this is H1. So input is coming from the
+29:42 
+
+29:42 attention attention block which is H1
+29:46 
+
+29:46 and you project it through this output
+29:48 
+
+29:48 matrix uh and you get H2
+29:51 
+
+29:51 right now H2 and then what would happen?
+29:54 
+
+29:54 H2 will be passed through ADN not right.
+29:57 
+
+29:57 So here you see uh residual connection
+30:01 
+
+30:01 right and then normalization
+30:04 
+
+30:04 and remember sometimes the normalization
+30:07 
+
+30:07 layer is also parameterized
+30:10 
+
+30:10 right now we have this bias term bias
+30:12 
+
+30:12 here bias here right now H3 is the
+30:15 
+
+30:15 output obtained from the adnorm layer
+30:19 
+
+30:19 right and then you pass it through the
+30:21 
+
+30:21 feed forward uh layer and there are two
+30:25 
+
+30:25 matrices one is this W m2 WM3 right? So
+30:29 
+
+30:29 we pass it through first matrix first
+30:31 
+
+30:31 layer then followed by nonlinearity
+30:33 
+
+30:33 right second matrix then drop out right
+30:36 
+
+30:36 and this will give you the uh output
+30:39 
+
+30:39 after feed forward network and then you
+30:41 
+
+30:41 we have uh residual connection and adno
+30:48 
+
+30:48 colored
+30:49 
+
+30:49 matrices are the bias matrices right
+30:52 
+
+30:52 which are which will only be updated
+30:54 
+
+30:54 whereas blue color matrices will not be
+30:56 
+
+30:56 updated
+30:58 
+
+30:58 remember. So
+31:01 
+
+31:01 very simple idea, extremely lightweight
+31:04 
+
+31:04 and the but the problem here is that uh
+31:08 
+
+31:08 in many architectures including llama we
+31:11 
+
+31:11 do not consider bias terms at all
+31:15 
+
+31:15 right so this is not this is not
+31:17 
+
+31:17 architectural agnostic so in those cases
+31:21 
+
+31:21 where there is no bias term you cannot
+31:23 
+
+31:23 use bit fit and the question is uh is it
+31:27 
+
+31:27 dependent on the is it also applicable
+31:30 
+
+31:30 to cross domain setup right uh
+31:35 
+
+31:35 yeah so I don't think this is very
+31:37 
+
+31:37 suitable for that yeah this is my hunch
+31:40 
+
+31:40 I mean this is my uh assumption or my my
+31:43 
+
+31:43 feeling right because um
+31:47 
+
+31:47 I mean if you look at all selective
+31:49 
+
+31:49 methods right selective methods are
+31:52 
+
+31:52 mostly not suitable for domain
+31:54 
+
+31:54 adaptation because as I mentioned
+31:55 
+
+31:55 earlier selective methods change or
+31:58 
+
+31:58 selective methods work with the existing
+31:60 
+
+31:60 parameter set not like adapters or other
+32:03 
+
+32:03 additive methods right whereas if you
+32:06 
+
+32:06 look at the reparameter techniques lora
+32:09 
+
+32:09 kind of methods there you can again see
+32:11 
+
+32:11 that they can be used for uh I mean they
+32:14 
+
+32:14 can they can be used across domains so
+32:16 
+
+32:16 selective methods additive methods are
+32:18 
+
+32:18 not very popular because of these kind
+32:20 
+
+32:20 of reasons
+32:23 
+
+32:23 okay so bit fit what they showed is that
+32:26 
+
+32:26 uh the again empirically they showed
+32:30 
+
+32:30 that u the biases associated with the
+32:34 
+
+32:34 second MLP layer
+32:37 
+
+32:37 right uh and query vectors right so this
+32:42 
+
+32:42 is the query vector bias and this is the
+32:45 
+
+32:45 second MLP layer bias
+32:49 
+
+32:49 right these two uh uh bias matrices are
+32:53 
+
+32:53 more important
+32:55 
+
+32:55 empirically
+32:56 
+
+32:56 Right?
+32:58 
+
+32:58 the bias matrix associated with key this
+33:01 
+
+33:01 is not that important empirically
+33:04 
+
+33:04 there's no justification behind this but
+33:06 
+
+33:06 at least in this heat map they showed
+33:08 
+
+33:08 that these three matrices are more
+33:10 
+
+33:10 important okay let's proceed these are
+33:13 
+
+33:13 simple ways fish mask fish mask is the
+33:16 
+
+33:16 follow-up work and the idea here is that
+33:20 
+
+33:20 u uh we will use fisher information
+33:23 
+
+33:23 right fisher metrics uh for selecting
+33:27 
+
+33:27 parameters measures for updation. Right?
+33:30 
+
+33:30 So, so the idea here is as follows. So,
+33:34 
+
+33:34 now think of this selective measures.
+33:38 
+
+33:38 Beat fit comes under what? Beat fit
+33:40 
+
+33:40 comes under uh
+33:43 
+
+33:43 uh structured or unstructured.
+33:48 
+
+33:48 Structured, right? Uh but fish mask
+33:51 
+
+33:51 comes under unstructured. Okay? And in
+33:53 
+
+33:53 unstructured uh uh unstructured PFT
+33:57 
+
+33:57 unstructured selective PFT the idea is
+33:60 
+
+33:60 that you have to have some hypothesis or
+34:02 
+
+34:02 some uristics to choose the importance
+34:05 
+
+34:05 of a parameter. Right? Now in fish mask
+34:07 
+
+34:07 what they said is that
+34:10 
+
+34:10 the importance of a parameter can be
+34:13 
+
+34:13 considered by looking at the extent the
+34:17 
+
+34:17 parameter changes the model's output.
+34:20 
+
+34:20 Okay. Let's say what is this? So let's
+34:23 
+
+34:23 say theta is a parameter set. X is the
+34:25 
+
+34:25 input, Y is the output, output is the
+34:28 
+
+34:28 next word, right? That you have
+34:29 
+
+34:29 predicted, right? And this is this is
+34:31 
+
+34:31 log likelihood.
+34:33 
+
+34:33 Now if you plot up your parameter space
+34:36 
+
+34:36 slightly, let's say from theta to theta
+34:38 
+
+34:38 + del theta, right? What happens to the
+34:42 
+
+34:42 output? Right? So you look at the kale
+34:45 
+
+34:45 divergence between the original
+34:48 
+
+34:48 distribution
+34:49 
+
+34:49 and the distribution obtained after
+34:52 
+
+34:52 parting a specific parameter
+34:55 
+
+34:55 and the idea is that if the kale
+34:57 
+
+34:57 diversity is very high uh for a specific
+34:59 
+
+34:59 parameter perturbation so that parameter
+35:02 
+
+35:02 would be important. Okay. And in the
+35:04 
+
+35:04 limiting case if if this uh delta
+35:08 
+
+35:08 uh delta noise that you add to the
+35:11 
+
+35:11 parameter it tends to zero then this is
+35:13 
+
+35:13 equivalent to a feature information
+35:14 
+
+35:14 matrix. Now what is feature information
+35:16 
+
+35:16 matrix? Now this is the definition of a
+35:18 
+
+35:18 feature feature fisher information
+35:20 
+
+35:20 matrix. Don't need to go into details of
+35:22 
+
+35:22 that but the idea is that
+35:25 
+
+35:25 I mean this is the ideal fisher
+35:27 
+
+35:27 information matrix irrespective of uh
+35:29 
+
+35:29 PFT. So u you sample an input X right
+35:36 
+
+35:36 from the distribution right. So
+35:38 
+
+35:38 expectation over
+35:41 
+
+35:41 a sample input sampled from the
+35:44 
+
+35:44 probability a sample output uh word w
+35:48 
+
+35:48 sampled from the uh from the resultant
+35:50 
+
+35:50 distribution right log likelihood of
+35:54 
+
+35:54 that specific word given to uh given the
+35:58 
+
+35:58 input and you take the gradient of the
+36:01 
+
+36:01 log likelihood and you take the gradient
+36:03 
+
+36:03 of the that specific I the same
+36:06 
+
+36:06 component but the transpose
+36:10 
+
+36:10 Let me repeat again. You sample an input
+36:13 
+
+36:13 from the distribution.
+36:15 
+
+36:15 You sample an output from the output
+36:17 
+
+36:17 distribution. You check the lo
+36:18 
+
+36:18 likelihood of that output given the
+36:20 
+
+36:20 input. Right? And you basically
+36:23 
+
+36:23 multiply. Now this can be now if you if
+36:26 
+
+36:26 you think of theta as a vector then this
+36:28 
+
+36:28 would also give you a vector. This would
+36:30 
+
+36:30 also give you a vector. Then it would
+36:31 
+
+36:31 basically give you a matrix.
+36:35 
+
+36:35 Now this is this is a fer important
+36:37 
+
+36:37 matrix but ideally this is expectation
+36:40 
+
+36:40 over all possible inputs which is not
+36:42 
+
+36:42 possible right. So what is what is the
+36:45 
+
+36:45 way out? How do we do that? This kind of
+36:47 
+
+36:47 expectation
+36:49 
+
+36:49 expectation is not possible. Uh you know
+36:52 
+
+36:52 ideally empirically expectation
+36:54 
+
+36:54 calculation is not possible. So we do
+36:56 
+
+36:56 Monte Carlo right. So we do sampling. So
+36:59 
+
+36:59 what what what we are saying here is
+37:01 
+
+37:01 that we look at n number of inputs
+37:04 
+
+37:04 right and then for every input x i you
+37:07 
+
+37:07 choose an output y and then you take
+37:09 
+
+37:09 this log like gradient of the log
+37:11 
+
+37:11 likelihood and the gradient of the same
+37:13 
+
+37:13 log likelihood but here I will not
+37:16 
+
+37:16 multiply them I will not uh create this
+37:19 
+
+37:19 matrix what I do I just dotproduct them
+37:23 
+
+37:23 so this is the approximation of a fusion
+37:25 
+
+37:25 matrix right so for every theta
+37:29 
+
+37:29 You compute this and then you rank theta
+37:33 
+
+37:33 based on this uh based on this number
+37:36 
+
+37:36 and you essentially select. So this is
+37:39 
+
+37:39 the algorithm right? So you compute
+37:41 
+
+37:41 fisher score for the weight matrix. You
+37:44 
+
+37:44 select top k% as your as the trainable
+37:47 
+
+37:47 matrix and you keep the remaining as
+37:49 
+
+37:49 frozen.
+37:52 
+
+37:52 Okay.
+37:54 
+
+37:54 So uh the disadvantage of this kind of
+37:58 
+
+37:58 method is that u it requires a lot of
+38:00 
+
+38:00 computation.
+38:05 
+
+38:05 The next one is puffy and these are
+38:07 
+
+38:07 actually incremental. You see the method
+38:08 
+
+38:08 is not uh very complex. The third one is
+38:12 
+
+38:12 puffy and here the idea is very simple.
+38:15 
+
+38:15 The idea is that you look at the
+38:17 
+
+38:17 magnitude of the weight. You don't need
+38:19 
+
+38:19 to do any fisher or any computation. you
+38:22 
+
+38:22 just look at the magnitude of the weight
+38:24 
+
+38:24 and you select
+38:26 
+
+38:26 k percent of the of the u of the weight
+38:30 
+
+38:30 or the of the parameters. So you so for
+38:33 
+
+38:33 every parameter you have a weight right
+38:35 
+
+38:35 you look at bottom k% of the parameters
+38:38 
+
+38:38 with less weights
+38:41 
+
+38:41 right and you only train those
+38:43 
+
+38:43 parameters
+38:45 
+
+38:45 fine-tune those parameters. Now what is
+38:47 
+
+38:47 the idea? The idea is that top uh so
+38:50 
+
+38:50 parameters with high weights those
+38:52 
+
+38:52 parameters are important parameters
+38:53 
+
+38:53 which may store a lot of information
+38:56 
+
+38:56 about the pretend data. Whereas those
+38:59 
+
+38:59 parameters which have less weights they
+39:01 
+
+39:01 are not that important or they do not
+39:03 
+
+39:03 carry enough information about the
+39:05 
+
+39:05 pre-tended data. So if we only fine-tune
+39:08 
+
+39:08 those parameters we will have both
+39:10 
+
+39:10 pretend knowledge and a fine-tuned
+39:11 
+
+39:11 knowledge.
+39:13 
+
+39:13 That's their assumption. Okay. But you
+39:16 
+
+39:16 can actually actually think of the other
+39:17 
+
+39:17 way around. You can say that no I will
+39:20 
+
+39:20 look at those parameters which have high
+39:22 
+
+39:22 magnitude right and I because those
+39:25 
+
+39:25 parameters are important for me and I
+39:27 
+
+39:27 will find only those parameters. So
+39:28 
+
+39:28 instead of taking bottom K person
+39:30 
+
+39:30 parameters you can take top K%
+39:32 
+
+39:32 parameters right but in their paper they
+39:34 
+
+39:34 said bottom K person parameters are more
+39:38 
+
+39:38 useful because of this reason.
+39:42 
+
+39:42 Now coming to our work and this is a
+39:44 
+
+39:44 recent work that we published in tackle.
+39:47 
+
+39:47 So what we did we uh we essentially
+39:52 
+
+39:52 looked at both the components. So one
+39:54 
+
+39:54 component is that so one component is
+39:58 
+
+39:58 the
+40:01 
+
+40:01 is the magnitude of the parameter which
+40:02 
+
+40:02 is same as puffy right now this is my
+40:05 
+
+40:05 huristics. So the huristics is inversely
+40:08 
+
+40:08 proportional to the magnitude of the
+40:10 
+
+40:10 parameter and directly proportional to
+40:12 
+
+40:12 the gradient of the parameter. What is
+40:14 
+
+40:14 the gradient of a parameter? So you you
+40:17 
+
+40:17 have the loss function. You calculate
+40:19 
+
+40:19 the gradient of that loss function with
+40:21 
+
+40:21 respect to your parameter the parameter
+40:23 
+
+40:23 that you want to choose for example and
+40:24 
+
+40:24 you get a number right and you take the
+40:26 
+
+40:26 magnitude of the number. So that's the
+40:28 
+
+40:28 gradient. So the idea here is that uh if
+40:33 
+
+40:33 the magnitude
+40:35 
+
+40:35 of a parameter is less that means that
+40:38 
+
+40:38 parameter can be trained further that
+40:42 
+
+40:42 has not been trained enough. Therefore
+40:44 
+
+40:44 the magnitude is not high. Right? We
+40:46 
+
+40:46 will utilize that particular parameter.
+40:48 
+
+40:48 But at the same time during back
+40:51 
+
+40:51 propagation the the change of the
+40:55 
+
+40:55 magnitude should also be high.
+41:01 
+
+41:01 Okay. Very simple. And then we also have
+41:04 
+
+41:04 you know some hyperparameters to control
+41:07 
+
+41:07 corner cases. For example divided by
+41:09 
+
+41:09 zero case we wanted to avoid other
+41:11 
+
+41:11 things we wanted to avoid. Right.
+41:14 
+
+41:14 So now the other the other beauty of
+41:17 
+
+41:17 this method we call this ID3. The other
+41:19 
+
+41:19 beauty is that uh uh unlike
+41:23 
+
+41:23 uh puffy or bit right which calculated
+41:29 
+
+41:29 all these parameters all the selective
+41:31 
+
+41:31 parameters beforehand beforehand in the
+41:33 
+
+41:33 sense like in one pass they calculated
+41:36 
+
+41:36 all these things right in our case we we
+41:39 
+
+41:39 basically do it incrementally. What does
+41:41 
+
+41:41 it mean? Let's say I have a budget.
+41:43 
+
+41:43 Let's say the budget is
+41:46 
+
+41:46 Let's say the budget is uh K, right?
+41:49 
+
+41:49 What is K? K is the K number of
+41:51 
+
+41:51 parameters that I I am allowed to uh I
+41:54 
+
+41:54 am allowed to select. Okay, this is my
+41:56 
+
+41:56 budget in puffy or bit what they do they
+42:01 
+
+42:01 in first go they select K number of
+42:03 
+
+42:03 parameters right and and then you are
+42:05 
+
+42:05 done. In our case what we do uh in every
+42:09 
+
+42:09 iteration let's say there are t number
+42:10 
+
+42:10 of iterations that we want to perform at
+42:13 
+
+42:13 every iteration we we select k byt
+42:16 
+
+42:16 number of parameter so pass one first
+42:20 
+
+42:20 pass complete k byt parameters are
+42:23 
+
+42:23 selected right second pass complete
+42:25 
+
+42:25 another k byt parameters are selected
+42:27 
+
+42:27 third pass complete another k byt
+42:29 
+
+42:29 parameters selected right and then when
+42:31 
+
+42:31 we reach the budget we stop now what is
+42:35 
+
+42:35 Uh what's the advantage of this?
+42:40 
+
+42:40 What is the advantage of this?
+42:44 
+
+42:44 Tell me.
+42:46 
+
+42:46 The advantage is that there are two
+42:48 
+
+42:48 advantages. The first advantage that is
+42:50 
+
+42:50 that effectively how many parameters or
+42:53 
+
+42:53 effectively how many times you are
+42:54 
+
+42:54 fine-tuning
+43:00 
+
+43:00 because so you are so over the
+43:03 
+
+43:03 iterations you are gradually unfolding
+43:06 
+
+43:06 the parameters right it is not that all
+43:08 
+
+43:08 k parameters are fine- tuned every time
+43:12 
+
+43:12 number one number two is that can you
+43:16 
+
+43:16 tell me what's the other advantage of
+43:20 
+
+43:20 So in bit feed or puffy let's say
+43:26 
+
+43:26 let's say you have this k budget right
+43:30 
+
+43:30 but uh when you select let's say 10
+43:32 
+
+43:32 parameters and fine-tune them right it
+43:36 
+
+43:36 may happen that these parameters
+43:40 
+
+43:40 affect other parameters as well
+43:43 
+
+43:43 right it may happen because this is all
+43:46 
+
+43:46 information propagation
+43:48 
+
+43:48 So what here what we are doing is that
+43:50 
+
+43:50 after every iteration when we have this
+43:53 
+
+43:53 k now k by t parameter selected in the
+43:56 
+
+43:56 next finetuning time from the other
+43:59 
+
+43:59 batch of parameters which have not been
+44:01 
+
+44:01 selected so far right we look at what
+44:04 
+
+44:04 what what are the k by I mean what are
+44:07 
+
+44:07 the other k byt parameters that we can
+44:09 
+
+44:09 choose now
+44:11 
+
+44:11 so what what would end up happening is
+44:13 
+
+44:13 that let's say the 10 parameter that you
+44:15 
+
+44:15 have chosen in iteration
+44:17 
+
+44:17 that may have affected other parameters
+44:20 
+
+44:20 which you would not have obtained if you
+44:23 
+
+44:23 had you know if you had selected all of
+44:26 
+
+44:26 them together at one go.
+44:30 
+
+44:30 Is it clear
+44:32 
+
+44:32 sort of sequence sequential but uh uh
+44:37 
+
+44:37 the cascading effect has not been
+44:39 
+
+44:39 captured in the previous cases but here
+44:40 
+
+44:40 we're also casc capturing the cascading
+44:43 
+
+44:43 effect.
+44:46 
+
+44:46 So uh now this is a results we compared
+44:50 
+
+44:50 uh
+44:51 
+
+44:51 we compared ID3 with bit fit uh fish
+44:55 
+
+44:55 mass puffy full finetuning and so on. Um
+44:57 
+
+44:57 the red line indicates full finetuning
+44:60 
+
+44:60 x-axis indicates number of parameters
+45:02 
+
+45:02 that you want to fine-tune with. This is
+45:04 
+
+45:04 basically the budget right y-axis is the
+45:07 
+
+45:07 accuracy and uh you see here sometimes
+45:11 
+
+45:11 with with more budget PFT can even beat
+45:14 
+
+45:14 a full fine-tuning method
+45:17 
+
+45:17 right and of course uh other methods uh
+45:21 
+
+45:21 specifically beat fit uh
+45:25 
+
+45:25 bit fit is uh worse uh worst compared to
+45:29 
+
+45:29 other methods.
+45:32 
+
+45:32 Okay. So and then we applied. Now the
+45:36 
+
+45:36 good part about this selective methods
+45:37 
+
+45:37 is you know you can apply these methods
+45:40 
+
+45:40 to even even Lora right this lura
+45:46 
+
+45:46 matrix you can also apply selective
+45:48 
+
+45:48 methods to lura also.
+45:51 
+
+45:51 So we we looked at uh Lura we compared
+45:55 
+
+45:55 this with so we we we tested on Llama
+45:58 
+
+45:58 and Llama and Quinn and with different
+46:01 
+
+46:01 budget uh we compared with Puffy uh with
+46:05 
+
+46:05 Laura ID3 with Laura and so on and so
+46:07 
+
+46:07 forth and these are the results you look
+46:09 
+
+46:09 at the results not very important
+46:13 
+
+46:13 okay let's discuss reparameterization
+46:15 
+
+46:15 techniques now
+46:19 
+
+46:19 in reparation the idea idea is that um
+46:22 
+
+46:22 so I have this parameter matrix W the
+46:25 
+
+46:25 original parameter matrix W and I want
+46:30 
+
+46:30 to add
+46:31 
+
+46:31 a new set of parameters which are fine-
+46:33 
+
+46:33 tuned
+46:35 
+
+46:35 right and this so here the addition
+46:37 
+
+46:37 means what the addition is not like
+46:39 
+
+46:39 adding a block
+46:42 
+
+46:42 you are adding some numbers to the
+46:44 
+
+46:44 existing parameter values
+46:46 
+
+46:46 right now
+46:49 
+
+46:49 if you want to add another matrix of
+46:51 
+
+46:51 frame size that would be too heavy right
+46:54 
+
+46:54 that means you are you are learning a
+46:56 
+
+46:56 new set of parameters a new set of
+46:58 
+
+46:58 parameters altogether right so what they
+47:00 
+
+47:00 said is that you can decompose this uh
+47:04 
+
+47:04 into lurang matrices a and b
+47:07 
+
+47:07 right u and
+47:10 
+
+47:10 then in case of lura uh let's say here
+47:14 
+
+47:14 let's say the size of this matrix is d
+47:16 
+
+47:16 cross d so a can be d cross r b can be R
+47:21 
+
+47:21 cross D where R is much much lesser than
+47:24 
+
+47:24 D.
+47:26 
+
+47:26 Right? So ideally you are adding uh uh
+47:30 
+
+47:30 less number of parameter. Okay. Now what
+47:34 
+
+47:34 is this A and B? A and B are two
+47:36 
+
+47:36 parameters which you are learning
+47:38 
+
+47:38 two two uh matrices that you are
+47:41 
+
+47:41 learning.
+47:43 
+
+47:43 Right? So now when you I mean when we
+47:48 
+
+47:48 learn a specific weight or or a specific
+47:50 
+
+47:50 matrix you have to you you start with
+47:53 
+
+47:53 some initialization of the matrix right.
+47:55 
+
+47:55 So this is called lura a matrix and this
+47:58 
+
+47:58 is called lura b matrix remember the
+47:60 
+
+47:60 term.
+48:02 
+
+48:02 So generally lura a matrix lura stands
+48:05 
+
+48:05 for low rank adaptation. Okay, Lura A
+48:08 
+
+48:08 matrix is initialized uh with a gshian
+48:11 
+
+48:11 prior right a goshian prior with mean
+48:13 
+
+48:13 zero and variance sigma square whereas
+48:16 
+
+48:16 the b matrix is initialized with all
+48:18 
+
+48:18 zero
+48:21 
+
+48:21 okay um
+48:24 
+
+48:24 so this is the idea
+48:28 
+
+48:28 so so instead of instead of so x is the
+48:33 
+
+48:33 input right w is the original matrix
+48:37 
+
+48:37 that you multiply with x. Now here
+48:40 
+
+48:40 instead of multiplying w0 what you do
+48:43 
+
+48:43 you have this
+48:45 
+
+48:45 delta w which is nothing but b * a and
+48:48 
+
+48:48 this is your updated uh updated uh
+48:52 
+
+48:52 projection.
+48:55 
+
+48:55 Is this clear any query here?
+48:60 
+
+48:60 Okay. So what are the advantages of
+49:02 
+
+49:02 reparameterization? The advantages is
+49:03 
+
+49:03 that the advantage of that the
+49:05 
+
+49:05 advantages are that
+49:08 
+
+49:08 um you can essentially again think of
+49:10 
+
+49:10 plug and play right. So this w uh delta
+49:14 
+
+49:14 w can be task specific uh matrix right
+49:17 
+
+49:17 and um and you are not remember you are
+49:23 
+
+49:23 not hampering the original matrix. Your
+49:25 
+
+49:25 original matrix is w always you are just
+49:28 
+
+49:28 adding this two things right.
+49:32 
+
+49:32 uh and uh
+49:35 
+
+49:35 it was shown that if you use this kind
+49:37 
+
+49:37 of uh reparametrication method this is
+49:40 
+
+49:40 this can produce even uh uh quite
+49:43 
+
+49:43 comparable results um with respect to
+49:45 
+
+49:45 full finetuning limitation is that
+49:48 
+
+49:48 difficult to determine the rank R okay
+49:54 
+
+49:54 um it is sensitive to hyperparameters
+49:57 
+
+49:57 very sensitive meaning that if you
+49:60 
+
+49:60 change learning rate or if you change
+50:02 
+
+50:02 number of epochs that would change the
+50:03 
+
+50:03 accuracy significantly right and there
+50:05 
+
+50:05 are there are theoretical results that
+50:07 
+
+50:07 we showed in one of our papers I will
+50:09 
+
+50:09 talk about it later that why uh such
+50:12 
+
+50:12 methods are prone to um uh
+50:16 
+
+50:16 hyperparameters or sensitive to
+50:18 
+
+50:18 hyperparameters
+50:20 
+
+50:20 so in adalora paper now that was lura
+50:23 
+
+50:23 now following that there was a paper
+50:25 
+
+50:25 called adalora
+50:27 
+
+50:27 adaptive lura so in adaptive lura what's
+50:30 
+
+50:30 the idea The idea is that
+50:34 
+
+50:34 uh the idea is that uh now think of
+50:38 
+
+50:38 Laura right w plus b * a right and when
+50:45 
+
+50:45 you do that you are considering all your
+50:48 
+
+50:48 parameters equally important
+50:52 
+
+50:52 right you are not considering explicitly
+50:55 
+
+50:55 what what is the importance of a
+50:57 
+
+50:57 parameter because you are just computing
+50:59 
+
+50:59 a and b and and you are adding them in
+51:02 
+
+51:02 addon paper what they said is that uh it
+51:07 
+
+51:07 is not the case that all the parameters
+51:10 
+
+51:10 are equally important right it is also
+51:12 
+
+51:12 not the case that every time when you
+51:15 
+
+51:15 compute a a and b it would be
+51:17 
+
+51:17 independent of the layers it may happen
+51:20 
+
+51:20 that for layer one you have one type of
+51:24 
+
+51:24 b and a matrix for layer two you have
+51:27 
+
+51:27 another type of bn matrix and so on and
+51:28 
+
+51:28 so forth so this show empirically that
+51:31 
+
+51:31 Lora now this is Lora result.
+51:34 
+
+51:34 Now you if you apply Lora on if you
+51:38 
+
+51:38 apply Lora to the query uh the query
+51:41 
+
+51:41 matrix WQ you get certain accuracy. If
+51:45 
+
+51:45 you apply it to the feed forward layer
+51:48 
+
+51:48 second layer matrix you get better
+51:50 
+
+51:50 accuracy
+51:53 
+
+51:53 right. Similarly layer 1 2 3 if you
+51:57 
+
+51:57 apply Lora to layer layer 1 to three you
+51:59 
+
+51:59 get little accuracy but you apply if you
+52:01 
+
+52:01 apply Lora to 10 11 12th layer you get
+52:04 
+
+52:04 better accuracy right so the intuition
+52:08 
+
+52:08 is that not all layers are equally
+52:10 
+
+52:10 important right you need to adaptively
+52:12 
+
+52:12 choose uh layers you need to adaptively
+52:14 
+
+52:14 choose now choosing a layer is
+52:16 
+
+52:16 equivalent to choosing parameter right
+52:18 
+
+52:18 you need to adaptively choose which
+52:19 
+
+52:19 parameters are important and accordingly
+52:21 
+
+52:21 you uh have to do your PFT
+52:24 
+
+52:24 or your uh uh low rank adaptation.
+52:27 
+
+52:27 Okay. So what is the idea here? Idea is
+52:30 
+
+52:30 simple.
+52:31 
+
+52:31 The idea is that so earlier we had w =
+52:35 
+
+52:35 to w + delta w, right? And then you
+52:39 
+
+52:39 decompose it into a and b. Now you are
+52:41 
+
+52:41 saying that I will decompose this with
+52:44 
+
+52:44 with using using svd.
+52:47 
+
+52:47 I will do SBD on on W uh delta W and I
+52:52 
+
+52:52 will get P lambda Q right SBD we know
+52:56 
+
+52:56 SBD right where P and Q are orthogonal
+52:60 
+
+52:60 matrices and lambda is the diagonal
+53:02 
+
+53:02 matrix
+53:04 
+
+53:04 consisting of singular values right with
+53:07 
+
+53:07 decreasing order
+53:10 
+
+53:10 but we will not do SVD by the way so we
+53:13 
+
+53:13 are assuming that we will do SVD but we
+53:16 
+
+53:16 will train P, Q and uh lambda although
+53:20 
+
+53:20 all of them are trainable parameters
+53:22 
+
+53:22 similar to B and A they are also
+53:25 
+
+53:25 trainable parameters. So ideally it is
+53:28 
+
+53:28 not happening that you are first
+53:30 
+
+53:30 computing delta W and then you are doing
+53:31 
+
+53:31 SVD
+53:33 
+
+53:33 right you are only training P Q and
+53:36 
+
+53:36 lambda
+53:38 
+
+53:38 right but of course we need to remember
+53:40 
+
+53:40 that P and Q are orthogonal right
+53:43 
+
+53:43 therefore during your training objective
+53:45 
+
+53:45 there should be a constant like P prpose
+53:49 
+
+53:49 minus I should be minimized right or Q
+53:52 
+
+53:52 qranspose minus I should be minimized
+53:56 
+
+53:56 and so on and so forth. So all these
+53:57 
+
+53:57 constants need to be added to the
+53:58 
+
+53:58 objective function but ultimately you
+54:01 
+
+54:01 will train P lambda and Q
+54:05 
+
+54:05 right now think about it let's say your
+54:07 
+
+54:07 PQ lambda trend right now it's not very
+54:11 
+
+54:11 simple by the way the training is not
+54:13 
+
+54:13 very simple you look if you look at the
+54:14 
+
+54:14 paper there are other nitty-g gritties
+54:16 
+
+54:16 but I'm not discussing those things so
+54:19 
+
+54:19 this lambda matrix which is a singular
+54:20 
+
+54:20 value matrix so the singular values
+54:23 
+
+54:23 indicate the importance of the of the
+54:26 
+
+54:26 specific. Now, now you have P, lambda,
+54:29 
+
+54:29 Q. Now, from this this so there are
+54:33 
+
+54:33 three matrices, right? So from these
+54:35 
+
+54:35 three matrices, you can actually get
+54:38 
+
+54:38 tpples or triplets. So triplets look
+54:41 
+
+54:41 like this. G1, G2, G3 where G1 is P1,
+54:47 
+
+54:47 lambda 1, Q1, right? What is G2? P2
+54:51 
+
+54:51 lambda 2 q2. Right? You are essentially
+54:56 
+
+54:56 extracting triplets
+54:58 
+
+54:58 and then what you are saying that this
+55:01 
+
+55:01 lambda values they indicate the
+55:03 
+
+55:03 importance of the parameters
+55:06 
+
+55:06 right you select the threshold of lambda
+55:10 
+
+55:10 you only choose those triplets which
+55:13 
+
+55:13 cross the threshold which are above the
+55:14 
+
+55:14 threshold and you look at corresponding
+55:16 
+
+55:16 P and Q and the corresponding weight
+55:18 
+
+55:18 weight corresponding weight layers in W
+55:21 
+
+55:21 right that's
+55:24 
+
+55:24 And they said that this is layer
+55:25 
+
+55:25 dependent because it is dependent on W
+55:28 
+
+55:28 matrix because when we write the
+55:30 
+
+55:30 objective function it is dependent on W.
+55:34 
+
+55:34 So uh you need you need an explicit
+55:37 
+
+55:37 importance score for that right and as I
+55:40 
+
+55:40 mentioned you uh decomposite is you I
+55:42 
+
+55:42 mean as if you decompose this lambda uh
+55:45 
+
+55:45 this delta W using SVD. uh once you do
+55:48 
+
+55:48 that you have triplet of the form gi
+55:51 
+
+55:51 which has pi lambda i qi and then you uh
+55:56 
+
+55:56 decide uh a threshold right and you only
+55:60 
+
+55:60 choose that triplet those triplets which
+56:03 
+
+56:03 are above the threshold right and then
+56:05 
+
+56:05 you reparameterize this okay so
+56:08 
+
+56:08 advantage is that it is more expressive
+56:11 
+
+56:11 right better performance um under tight
+56:14 
+
+56:14 parameter constraint but disadvantage is
+56:16 
+
+56:16 that It's a little bit little bit
+56:18 
+
+56:18 complex and it is also sensitive to
+56:21 
+
+56:21 different hyperparameters right
+56:24 
+
+56:24 so in Adelora we saw that the update
+56:27 
+
+56:27 matrix right which is which is uh delta
+56:30 
+
+56:30 w this can be decomposed into p lambda q
+56:34 
+
+56:34 uh is v type de composition where p
+56:37 
+
+56:37 lambda q all these three matrices need
+56:40 
+
+56:40 to be learned okay and we give uh
+56:44 
+
+56:44 importance code to individual
+56:46 
+
+56:46 individual neuron right and then we
+56:49 
+
+56:49 decide which neurons are important which
+56:51 
+
+56:51 are not up to a certain threshold. So if
+56:54 
+
+56:54 the important score is important score
+56:56 
+
+56:56 can be considered I mean the the
+56:58 
+
+56:58 singular values can be considered as
+57:00 
+
+57:00 important score and if a neuron has
+57:05 
+
+57:05 important score of greater greater than
+57:06 
+
+57:06 the threshold then you keep it otherwise
+57:08 
+
+57:08 you uh remove it right. So in the later
+57:13 
+
+57:13 um
+57:15 
+
+57:15 experiment right in in in another
+57:17 
+
+57:17 research called Dora right. So if you
+57:19 
+
+57:19 look at the evolution so kora came uh
+57:22 
+
+57:22 where we decomposed uh this uh delta
+57:25 
+
+57:25 matrix into a and b then adalora we
+57:29 
+
+57:29 decomposed it into a uh into pq lambda.
+57:33 
+
+57:33 In Dora paper they they found a very
+57:36 
+
+57:36 interesting um observation right the
+57:38 
+
+57:38 observation is that
+57:40 
+
+57:40 now we all know that a vector can can be
+57:44 
+
+57:44 decomposed into two parts one is the
+57:46 
+
+57:46 magnitude is the direction similarly a
+57:49 
+
+57:49 matrix can also be decomposed into two
+57:51 
+
+57:51 parts right let's say this is if this is
+57:53 
+
+57:53 the matrix you can decompose it into two
+57:55 
+
+57:55 parts the m is the magnitude right which
+57:58 
+
+57:58 is a vector right and um and this is the
+58:03 
+
+58:03 direction
+58:05 
+
+58:05 which is a matrix right so M is a
+58:09 
+
+58:09 magnitude and V so this is normalized V
+58:13 
+
+58:13 right because it's a it's a unit vector
+58:16 
+
+58:16 direction right so this is a so this is
+58:19 
+
+58:19 a matrix and this is a vector so every
+58:21 
+
+58:21 vector can be decomposed into a
+58:24 
+
+58:24 magnitude magnitude matrix magnitude
+58:26 
+
+58:26 vector and a direction matrix
+58:29 
+
+58:29 so what this what they observed is that
+58:32 
+
+58:32 so we all know that fine-tuning always
+58:35 
+
+58:35 fine-tuning is always better than any um
+58:38 
+
+58:38 any any reparameter or any PFT
+58:41 
+
+58:41 techniques. So if you look at full fine
+58:43 
+
+58:43 tuning
+58:45 
+
+58:45 and if you plot the direction and
+58:48 
+
+58:48 magnitude right of the matrices right in
+58:52 
+
+58:52 full finetuning across different layers.
+58:55 
+
+58:55 Now these dots indicates different
+58:57 
+
+58:57 layers right there is essentially no
+58:60 
+
+58:60 pattern or no correlation between
+59:01 
+
+59:01 magnitude and direction. What does it
+59:03 
+
+59:03 mean? It means that magnitude captures
+59:08 
+
+59:08 one aspect and direction captures
+59:10 
+
+59:10 another aspect right and they are not at
+59:13 
+
+59:13 all correlated. So, so in in full fine
+59:17 
+
+59:17 tuning magnitude and direction they are
+59:19 
+
+59:19 not correlated
+59:21 
+
+59:21 right but in case of lura they saw that
+59:24 
+
+59:24 they are actually correlated. So, so
+59:27 
+
+59:27 their hypothesis was that two these two
+59:30 
+
+59:30 things should capture two different
+59:32 
+
+59:32 aspects altogether. They should not be
+59:33 
+
+59:33 correlated. If one is correlated with
+59:35 
+
+59:35 other then there's no point in capturing
+59:37 
+
+59:37 those right both of them. So uh so what
+59:41 
+
+59:41 they did so in in case of Lora I mean
+59:45 
+
+59:45 unlike LoRa where we train where we
+59:48 
+
+59:48 learned A and B matrices here we
+59:50 
+
+59:50 basically learn M and V matrices
+59:54 
+
+59:54 right and the learning process is almost
+59:56 
+
+59:56 the same but this is not a lowerend de
+59:59 
+
+59:59 composition as such right because this
+60:01 
+
+60:01 is essentially uh capturing two
+60:04 
+
+60:04 different aspects all together
+60:06 
+
+60:06 so the advantage here is that it
+60:08 
+
+60:08 improves so they showed empirically that
+60:10 
+
+60:10 it improves generalizability, it reduces
+60:12 
+
+60:12 overfitting. But the problem here is
+60:14 
+
+60:14 that
+60:16 
+
+60:16 um uh
+60:19 
+
+60:19 it it sometimes underperforms right when
+60:21 
+
+60:21 the magnitude actually carries the key
+60:24 
+
+60:24 task signals. Again, these are all
+60:26 
+
+60:26 empirical observations, but this is
+60:29 
+
+60:29 something to consider. So, Laura,
+60:31 
+
+60:31 Adalora, Dura, these are these are some
+60:33 
+
+60:33 of the methods that people always
+60:35 
+
+60:35 consider for PFT.
+60:38 
+
+60:38 Now this is the uh this is the plot for
+60:41 
+
+60:41 Dora although you see that uh there is
+60:44 
+
+60:44 some correlation but not as correlated
+60:46 
+
+60:46 as Laura right you see the correlation
+60:50 
+
+60:50 is not that much in the paper they also
+60:53 
+
+60:53 reported the value of correlation but
+60:54 
+
+60:54 that's not much
+60:56 
+
+60:56 okay so all these PFT methods Dora lura
+60:60 
+
+60:60 adalora all of them are uh are very
+61:04 
+
+61:04 sensitive to hyperparameters I mentioned
+61:06 
+
+61:06 last I I me me me me me me me me me me
+61:07 
+
+61:07 me me me me me me me me me me me me me
+61:08 
+
+61:08 
+
+61:08 me me me me me me me me me me me me me
+61:08 me me me me mentioned earlier um
+61:09 
+
+61:09 sensitive to number of epochs batch size
+61:12 
+
+61:12 and so on. So in one of our recent
+61:14 
+
+61:14 papers we observed this thing and if you
+61:18 
+
+61:18 look at the empirical result here let's
+61:19 
+
+61:19 say the glue task on the glue benchmark
+61:22 
+
+61:22 task if you do full finetuning lura fine
+61:25 
+
+61:25 tuning right so this blue bars
+61:28 
+
+61:28 correspond to full fine tuning and and
+61:31 
+
+61:31 this indicates the error right so you
+61:34 
+
+61:34 see that full fine tuning and and lot of
+61:37 
+
+61:37 finetuning both of them
+61:39 
+
+61:39 are
+61:41 
+
+61:41 you know sensitive because the error bar
+61:44 
+
+61:44 is quite significant. Right? And now
+61:46 
+
+61:46 this this is this is apparent in case of
+61:50 
+
+61:50 glue benchmark. This glue small and glue
+61:53 
+
+61:53 large also you see that error is error
+61:56 
+
+61:56 bar is quite quite big. Right? So u
+62:01 
+
+62:01 again I'm not going into the details of
+62:03 
+
+62:03 this paper. So we came up with a new
+62:05 
+
+62:05 method called multiclora
+62:08 
+
+62:08 which both analytically and empirically
+62:11 
+
+62:11 showed that
+62:13 
+
+62:13 um I mean you you can think of a better
+62:16 
+
+62:16 version of lura which is less sensitive
+62:18 
+
+62:18 to hyperparameters and the idea is that
+62:22 
+
+62:22 so if you remember the lura matrix right
+62:24 
+
+62:24 we had a matrix and b matrix um so
+62:30 
+
+62:30 right and a is initialized uh by some uh
+62:35 
+
+62:35 gshian prior right and B is initialized
+62:39 
+
+62:39 with uh zero right I hope you remember
+62:44 
+
+62:44 so what we said here is that now all the
+62:47 
+
+62:47 parameters in A and B are um learnable
+62:51 
+
+62:51 we need to learn everything A and B
+62:53 
+
+62:53 right so what we said very simple idea
+62:55 
+
+62:55 the idea is that instead of considering
+62:58 
+
+62:58 everything as uh as my parameters what I
+63:02 
+
+63:02 do I I will consider some prior and this
+63:05 
+
+63:05 is basian reperation right basian prior.
+63:08 
+
+63:08 So what is the prior for example in in
+63:10 
+
+63:10 in our case? So we only considered lura
+63:14 
+
+63:14 lura a matrix not lura b m matrix for
+63:17 
+
+63:17 number one. Number two we assume that
+63:22 
+
+63:22 lura a mat matrix parameters are not
+63:25 
+
+63:25 sampled from a single gossian but a
+63:28 
+
+63:28 mixture of gossian. Okay. So mixture of
+63:31 
+
+63:31 gaussian with you can think of either
+63:34 
+
+63:34 zero zero mean or some sort of
+63:38 
+
+63:38 mean mu that you learn. So mu in case of
+63:40 
+
+63:40 mixture of gossian this is the mean
+63:43 
+
+63:43 right mean vector that you learn right
+63:46 
+
+63:46 and you have this coariance matrix
+63:48 
+
+63:48 right.
+63:50 
+
+63:50 You can further assume that this
+63:52 
+
+63:52 coariance matrix is also learnable right
+63:54 
+
+63:54 and which is coming from another
+63:56 
+
+63:56 distribution in in in our case we
+63:58 
+
+63:58 consider wizard distribution as the
+64:01 
+
+64:01 prior for um this um this variance right
+64:04 
+
+64:04 coariance right now um now the wizard
+64:08 
+
+64:08 distribution has its own learnable
+64:10 
+
+64:10 parameters and that that we will learn
+64:11 
+
+64:11 right for example here this lambda we
+64:14 
+
+64:14 will learn and since this is a gossian
+64:16 
+
+64:16 mixture model we have this mixing
+64:18 
+
+64:18 parameter which is also which can also
+64:21 
+
+64:21 be thought of as some sort of prior
+64:24 
+
+64:24 right for example in our case we assume
+64:26 
+
+64:26 that there's an underlying digital
+64:28 
+
+64:28 distribution and from there we sample
+64:31 
+
+64:31 parameters in um uh sample things for
+64:35 
+
+64:35 for the mixing parameter. So now you see
+64:38 
+
+64:38 how many parameters we we need to learn
+64:40 
+
+64:40 here. we need to need to learn the
+64:43 
+
+64:43 gshian the uh the the the mean mu right
+64:47 
+
+64:47 u now for the covariance we also assume
+64:50 
+
+64:50 that there's a distribution right now
+64:52 
+
+64:52 the the so the prior for this
+64:55 
+
+64:55 distribution we needs to be learned
+64:57 
+
+64:57 which is lambda right and uh for the
+64:60 
+
+64:60 mixing parameter also we need to learn
+65:02 
+
+65:02 this uh prior right pi
+65:05 
+
+65:05 now these are basically vectors if you
+65:08 
+
+65:08 think of it carefully there's no matrix
+65:10 
+
+65:10 all of them are vectors
+65:11 
+
+65:11 Now number of vectors that I mean number
+65:14 
+
+65:14 of parameters that you need to learn to
+65:17 
+
+65:17 initialize lura a is much much lesser
+65:20 
+
+65:20 than the actual lora sites right and in
+65:24 
+
+65:24 you know if you look at basian history
+65:26 
+
+65:26 uh it is almost proven that basian
+65:29 
+
+65:29 method is always more stable than a
+65:31 
+
+65:31 nonbeigian kind of counterpart right
+65:36 
+
+65:36 so uh again it's a theoretically heavy
+65:38 
+
+65:38 paper I'm not going into the details of
+65:40 
+
+65:40 any of this theory Okay. Uh but I mean
+65:43 
+
+65:43 you can we we we we proved that Monte
+65:45 
+
+65:45 Laura is a Monte approximation of Lora.
+65:49 
+
+65:49 This is uh this is this is an unbiased
+65:52 
+
+65:52 estimator of the output generated by uh
+65:55 
+
+65:55 the lura uh method which basically means
+65:58 
+
+65:58 that whatever bias the lura method uh uh
+66:01 
+
+66:01 incorporates Monte Laura also has the
+66:03 
+
+66:03 same bias right so there is uh there is
+66:06 
+
+66:06 no um there is no additional bias as
+66:09 
+
+66:09 such right uh similarly you can prove
+66:11 
+
+66:11 that Monte Laura updates update is
+66:14 
+
+66:14 equivalent to adding a goshian noise
+66:16 
+
+66:16 right to each lura parameter and so on
+66:18 
+
+66:18 and so forth So I'm again these are
+66:20 
+
+66:20 something that you can read from the
+66:23 
+
+66:23 paper these are not very important. So
+66:25 
+
+66:25 coming to the result if you so we
+66:27 
+
+66:27 considered we compared lura with adalora
+66:29 
+
+66:29 lura and full fine-tuning across
+66:31 
+
+66:31 multiple tasks right on two different
+66:34 
+
+66:34 matrices was on two different metrics.
+66:37 
+
+66:37 The first one was accuracy. The second
+66:39 
+
+66:39 one was um negative log likelihood. And
+66:43 
+
+66:43 you see that you know more or less uh in
+66:46 
+
+66:46 many cases MonteL outperforms um even
+66:49 
+
+66:49 sometimes full fine tuning. For example
+66:50 
+
+66:50 here you see Monteora out outperforms
+66:53 
+
+66:53 full finetuning. Uh some cases it is um
+66:57 
+
+66:57 second rank method and so on and so
+66:59 
+
+66:59 forth. Right? So in general our
+67:01 
+
+67:01 observation was that Monte Laura is
+67:03 
+
+67:03 better than Adelora uh and and this is
+67:05 
+
+67:05 the relation uh you know lura Monte
+67:08 
+
+67:08 Laura followed by Adelora followed by
+67:10 
+
+67:10 Laura.
+67:13 
+
+67:13 So and we also tested now this was this
+67:15 
+
+67:15 was on robot benchmark robata
+67:18 
+
+67:18 you know language model and then we
+67:20 
+
+67:20 tested on on on um other uh LLMs
+67:24 
+
+67:24 specifically llama and these are some of
+67:26 
+
+67:26 the results again across different data
+67:28 
+
+67:28 sets.
+67:30 
+
+67:30 So um
+67:32 
+
+67:32 for examples specifically for common
+67:35 
+
+67:35 common sense reasoning and GSM8K humanal
+67:38 
+
+67:38 data sets our methods performed uh
+67:40 
+
+67:40 significantly well right. So what is the
+67:43 
+
+67:43 summary? The summary is we discussed
+67:45 
+
+67:45 three types of PFT methods additive
+67:49 
+
+67:49 selective and reparameterization. We
+67:51 
+
+67:51 discussed adapter prompt tuning prefix
+67:53 
+
+67:53 tuning which come under additive. We
+67:55 
+
+67:55 discussed bit fit um fist mask and puffy
+67:59 
+
+67:59 uh ID3. These four methods come under
+68:02 
+
+68:02 selective and then we have lura adalora
+68:05 
+
+68:05 dura montura. Qura I did not discuss q
+68:08 
+
+68:08 laura is essentially a quantized version
+68:10 
+
+68:10 of lura. So where you
+68:14 
+
+68:14 when you store values into your
+68:16 
+
+68:16 parameters you quantize and then um and
+68:19 
+
+68:19 then you process
+68:22 
+
+68:22 right so that's it about PFT these days
+68:26 
+
+68:26 when we talk about fine-tuning nobody
+68:29 
+
+68:29 does full finetuning people do PFT the
+68:33 
+
+68:33 lora kind of methods but I think what
+68:35 
+
+68:35 what is important is that you should
+68:37 
+
+68:37 choose a method which is not only
+68:39 
+
+68:39 accurate but also stable because
+68:41 
+
+68:41 stability is a very important factor.
+68:43 
+
+68:43 Right? With this I stop and next day
+68:45 
+
+68:45 we'll discuss um uh other types of
+68:49 
+
+68:49 methods uh for designing small models,
+68:52 
+
+68:52 efficient models including pruning and
+68:54 
+
+68:54 uh knowledge distillation. Thank you.

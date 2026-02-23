@@ -1,0 +1,324 @@
+00:02 hello everyone I'm yatin and uh you know just a couple of years ago I was on the other side of the table and I just hope
+00:09 that today I'm able to do justice when I'm on this side uh currently I'm working as a research scientist with IBM
+00:15 research so this is our team in uh in in in guro uh so we focus on conversational
+00:22 Ai and various aspects of making llm useful for for our clients right so you
+00:27 will hear from three of us uh from me from gan from DH in this lecture series
+00:33 and DH is our manager here and Sachin is the senior manager okay so uh let's get started so
+00:40 in the last couple of lectures you have been focusing on Transformer based architectures and the llm race that it
+00:48 started right so one uh crucial paradigm shift that happened in NLP with
+00:54 Transformer based architecture is that of pre-training and fine-tuning that is
+00:59 earlier you would take a model train it for a specific task from scratch right
+01:05 and then use it for that specific task now on the other hand what we have is that we have huge models which are
+01:11 trained by big corporates and big groups we can't even think of pre-training them with the resources that we have in in an
+01:18 educational institute right but then once we have it we have various fine-tuning techniques to you know uh
+01:25 use it for the specific task that we have there are various parameter efficient fine tuning techniques
+01:31 right which which makes it possible for us even to use it in in a in a low resource setup right so this paradig
+01:38 already existed uh in computer vision right so in computer vision we had BGG net or reset which were trained on a
+01:45 huge image net Corpus and if we had to finetune it on a specific task then we would take the same backbone
+01:51 architecture right we'll take its embeddings up till a particular layer and then add a classifier on top of it
+01:57 right so that existed already in computer vision and this Transformer based architectures started that race and started that kind of uh made it
+02:04 popular right ping and fine tning now let's look at uh relatively size of the
+02:09 models you know and the evolution of these models so when first uh Transformer based architecture robera or
+02:15 Bert came in the largest Vision model was vggg net which was 144 million
+02:21 parameters and uh robera at that time itself was 355 million right just double
+02:27 the size of that and then came gpt2 which again more than double the size
+02:32 more than three times the size it's 1.5 billion parameters and then we have gpt3 which is 175 billion parameters right so
+02:40 now the question is so so here I'm showing approximate time that it takes
+02:45 and the resources that it takes to pre-train these networks so for example robota would take 410 a00 days right if
+02:53 you were to train robota on just a single a00 it will take 410 days and they are alternatively you can use 4 10
+03:00 gpus and 20 single day and gpt3 would take 60,800 days right so with 2,800 it
+03:09 would take roughly a month right so now if we have to take it forward and
+03:16 train a 1.6 trillion Transformer how would you do it and what are the resources that it will take right if I
+03:23 simply extrapolate that even on 2,800 it will take 9 months to train a big model
+03:31 right so is this feasible is this efficient how should we go about it how should we do this right so but before we
+03:39 talk about it let's quickly look at why do we even care about model size why are we why do we want what is this race
+03:44 about why do we want to increase the model size right so the answer there lies in the neural scaling laws you guys
+03:51 will discuss and and and study this in a separate lecture uh on on scaling laws
+03:56 but I will just motivate mixture of experts using this so this graph that you see here on the on the x axis you
+04:03 know you have the number of parameters and on the y axis you have the the loss
+04:09 right so it says that as you increase the number of parameters your test loss is gradually
+04:15 decreasing right irrespective of the model so here when you are not restricted by the data size and the
+04:20 compute and the model size sorry data data size and the compute right you're
+04:26 increasing the model size and you are using whatever resources it takes to train that model efficiency L whatever model size that it takes using those
+04:33 those many compute and whatever training data that it takes right so this is the reason that we worry about increasing
+04:39 the model size because empirically we have seen that uh increasing the model size improves the performance
+04:45 monotonically reduces the graph right so this these we have similar curves when we plot them with respect to the compute
+04:52 that we have or the data size data set size keeping the other two you know unrestricted and another interesting
+04:59 observation that this paper made is that if you have a fixed compute then what should you choose should you train a
+05:06 smaller model for more number of iterations or should you train a larger
+05:11 model for small number of iterations right again you will discuss this I'll just tell you the conclusion that uh it
+05:18 is more efficient to train a larger model for small number of steps given
+05:24 fixed compute right and that is why uh the whole Community is kind of focused
+05:29 about increasing the model size and trying to see what is the what is the limit right so but now the question is
+05:37 how do we efficiently increase the model size right if you just keep on going this way we saw that it's going to take
+05:43 more than 9 months so the answer lies in mixture of expert concept which we will study today
+05:50 and uh at a very high level the idea is that we have a lot of parameters but we
+05:56 will not activate all of them when we are using it even neither during training nor during inference right so
+06:03 at any point in time only a subset of all the parameters are going to be active for a given input
+06:11 right so this concept of mixture of experts is not new it was introduced in
+06:17 1991 by Jeff hinton's group right and uh let's first look at uh what is the idea
+06:24 of mixture of experts right as a model so typically you have a neural network or or any model right we we'll call it
+06:33 expert uh an expert in this lecture it takes an input X and gives you an output
+06:39 y right now in mixture of experts instead of one model we have n models or
+06:48 n experts these could be simple MLPs or you know nsvm layer separately right or
+06:57 whatever in addition to these we have a gating Network now when an input X comes the
+07:04 gating Network selects which experts should be activated right for example in
+07:10 this figure expert 2 and expert n minus one are active so these two experts will compute their respective outputs Y2 and
+07:17 YN minus one and we will multiply them with the gating probabilities right so G
+07:23 of X2 is the probability of routing to X2 and G of xn minus one is the
+07:28 probability of routing it to expert n minus one we multiply it with that and
+07:34 adding them gives us the output right so this is the whole idea of mixture of
+07:39 experts that we replace one expert with n experts we add a gating Network right
+07:46 the job of the gating network is to select an expert or multiple experts for
+07:52 uh an input right and and the output is nothing but the convex sum of uh the
+07:60 individual expert outputs right and this is the case when uh you know all the experts are active so this is this is
+08:06 the architecture which was introduced in 1991 their idea was not to reduce the
+08:11 you know the computation cost but to increase the capacity of the model so what they do is that they get uh an
+08:18 input X this gating Network computes the probability of routing to all the experts so this G Sigma X is a soft Max
+08:26 that means it gives you a probability of each expert getting select Ed right you
+08:31 will pass the input through all of the experts and then the output is going to be simply a convex sum of the output of
+08:38 different experts right so uh this mixture of
+08:43 expert models as as we so let's look at the chronology of you know how how it progressed first introduced in 1991 here
+08:50 each expert could be even a neural network or an spvm or gion mixture and
+08:56 then in 2013 ional used Moe as a layer
+09:01 in deep learning right uh then in 2021
+09:07 uh Google in Google brain they created switch Transformer
+09:13 wheree layer was used in a Transformer based large language model right and
+09:20 then came mixl in 2023 24 uh which you know uh made a lot of models public so
+09:27 their most popular one was 8 cross 7 billion which had uh eight Experts of 7 billion sizes right and uh the good
+09:35 thing there is that it's you know it is its license is commercial friendly which
+09:40 means we can also use it and it surpasses uh GPT 3.5 turbo Claude Gemini
+09:45 Pro L Lama 270 billion on on many human benchmarks right so this created a buzz in the
+09:51 market now let us see how we use mixture of experts as a layer in the Transformer
+09:59 based architecture right so on the left hand side you see a a normal dense Transformer block uh first we have an
+10:07 attention layer right so this this is the attention layer then we have um you
+10:13 know we add which acts as a a residual connection and then normalize then pass it through the feed forward Network
+10:19 right this Blue Block is the feed forward Network and then we again add a normalize now uh let's uh run through an
+10:26 example a very simple example where this input X is a sequence more parameters it has two tokens first token is X1 which
+10:34 is more and the second token is X2 which is parameters we add the positional embeddings it goes through the self
+10:41 attention layer where embedding of each token is getting you know impacted by its neighborhood right now we add a
+10:49 normalize this is the residual connection now each embedding right embedding of both more as well as
+10:56 parameters will pass separately and independently through the router this router is going
+11:05 to this router is going to assign probability of selecting an expert right
+11:11 for both the tokens independently right so for example for
+11:17 the token more it selects expert 2 with the probability 65 and uh for the token
+11:24 parameters it select the expert one uh with probability point8 right
+11:30 and uh then we multiply with the probabilities and then pass it through the residual Network and uh Right add
+11:36 and normalize again this add and normalize is is is applied on each
+11:42 embedding independently right independ in embedding of more as well as parameters independently and we get the
+11:48 corresponding embeddings y1 and Y2 right and how are we reducing the
+11:53 computational cost here we reducing the computational cost because for an
+11:59 embedding for an input token only one of the four experts are active right so the
+12:05 computational cost is exactly same as what we have in the dens except for the router part which is negligible anyway
+12:12 right so what what is what is the increase in the computation cost it is that routing to the it's essentially
+12:19 passing through a linear layer and doing a soft Max for the number of for each token right uh so this uh block is Moe
+12:27 layer and on the left we have a dense Transformer block and on the right we call it as partially activated mixture
+12:34 of expert Transformer block so the question is that uh why is training
+12:40 faster using M what is happening underneath right so I think this is this is a fundamental question why what is
+12:47 happening underneath uh earlier when mixture of experts were introduced right they were
+12:53 not introduced for speeding up the training they were introduced to increase the model capacity size they
+12:59 wanted to increase the model capacity right uh so therefore they created n
+13:04 experts and at the input level itself at the at the at the initial layer itself
+13:11 they would the router would choose to which model should it go right here training is not becoming
+13:18 efficient at all right however when we are using mixture of expert as a
+13:25 layer so this again on the left hand side here this is one
+13:30 one Transformer block right the entire model will have multiple such blocks
+13:37 right in general 32 blocks right so this is first and the input sequence will
+13:42 come from here this is the input sequence more
+13:48 parameters right this is the input sequence that is coming here this routing earlier was happening at the
+13:53 input level the entire input mode parameters would go either to one model or to the other model one expert or the
+13:59 other expert this can happen at the token level as well in one input right who says that we need to do it at the
+14:05 sequence level we can do it at the token level as well right so that is what is happening here we have let's say 10,000
+14:13 tokens in a batch right and we have
+14:18 100 experts right it may happen that you know if if there's a uniform
+14:24 distribution then you know each expert will get 100 tokens only
+14:30 right which expert will get which token that depends on the router right and that assignment can be
+14:37 different in different layers right so in each of this layer we have we have a feed forward layer right we are
+14:44 replacing this feed forward layer with this mixture of expert right in first
+14:49 layer this token more got assigned to feed forward Layer Two in the next layer
+14:57 it may get assigned to Fourth expert right so this token uh
+15:04 more this may get assigned here right so the key idea is using it
+15:11 as a layer in a deep Network and stack it on top of each other does that make
+15:18 sense right and why are the number of parameters increasing because 80% of the
+15:23 parameters in a Transformer architecture lie in feed forward Network attention layers correspond to only you know 20%
+15:30 of the parameters and we are scaling that up if we have eight experts that we have increased the model size by eight
+15:39 roughly right and why is training efficient
+15:45 right because let's say each feed forward layer is one hypothetically 1
+15:51 million parameters right we have increase the number of parameters to 8 million right but only one of them is
+15:58 active for any at any point in time right the number of computations that are happening is only one matrix
+16:04 multiplication not eight matrix multiplication for an input right so that's what is giving it efficiency that
+16:11 is called conditional activation an expert right now uh let's quickly see
+16:18 how the back propagation work in in mixture of experts right and for that
+16:24 for a moment let's go back to the dense model right here all the experts are
+16:30 active uh so this gating network will give us the uh distribution probability
+16:39 for each token for a token X we will have the distribution probability right uh probability of selecting an
+16:46 expert uh output y for a given token is going to be convex sum of the output of
+16:52 each expert right and so we calling each of this this this output as Yi
+16:60 right and to see how back propagation Works let's look at the computational graph right so here uh Y is the output
+17:08 and uh for each token and it is computed as the sum of the output from each
+17:14 expert right so y i here is nothing but G of XI into e of XI right gxi is the
+17:22 probability of selecting the I expert and E of EI of X is the uh output of expert I right uh
+17:30 and when we back propagate we will get the derivative of the loss of the of the
+17:36 loss with respect to the output y from the layer above it right uh this will
+17:41 get passed on to each of the experts output right y i so derivative of the
+17:47 loss with respect to each expert Yi is exactly same right you can see from from this equation right so if you apply
+17:53 chain rule to this y equal to this you will get derivative of loss with respect to each of this y i is derivative of
+17:58 loss with respect to Y into derivative of y with respect to y i which is this
+18:04 is one right simple chain rule gives us that the derivative of the loss with
+18:09 respect to each of the expert is nothing but the derivative of the loss with respect to the output that we get from
+18:15 the above and uh again a simple chain rule here would give you that the
+18:20 derivative of the loss with respect to EI of X right so here uh I mean again we
+18:26 can do the chain we can apply the chain rule right so y i is G of x i into EI I
+18:33 of X and derivative of the loss with respect to uh e i of X is going to be
+18:41 derivative of the loss with respect to uh with respect to Yi multiplied by
+18:48 the derivative of this um yeah so derivative of e of I with
+18:56 respect to Y derivative of y I with respect to e of I sorry right and this
+19:01 is nothing but uh G of XI right so so this is simple chain rule um and
+19:09 similarly for the for for G of XI which is the router probability we get the
+19:15 derivative of loss as uh expert output transpose the derivative of loss with
+19:20 respect to Y right so we can you can easily match the dimensions and see that uh you know this is this is correct and
+19:26 this is nothing but simple chain rule that we have applied this is the case case you know when we have a dense uh
+19:32 Moe where all the experts are active right now to introduce sparcity what we
+19:38 have to do we have to greedily select an expert and uh what switch Transformer
+19:43 does is that instead of selecting all the experts it does an argmax it takes
+19:48 the the you know the expert to which Maximum probability is assigned we are calling it iar and the output is nothing
+19:56 but the probability of the uh the maximum probability into the output
+20:02 of that specific expert right and similarly we can get the the derivatives
+20:08 with uh using the chain rule here right and all the other derivatives are zero
+20:14 right so this speeds up the back propagation as well right other than iar which is the maximum which is the expert
+20:21 which got the maximum probability everything else is zero all the derivatives are zero right so this
+20:27 introduces sparcity right uh this specific uh sparse mixture of expert was
+20:33 used in switch Transformers and uh there are other ways
+20:39 as well of introducing sparcity so for example uh one of them is noisy top K gating this was introduced by Norm
+20:45 chisar in you know in Ane architecture which was using lstms which came before
+20:52 switch Transformers and there they chose you know two experts instead of one uh uh so
+21:00 what how does noisy topk gating works so well so h of XI here is the logic that
+21:05 we get from the uh from the gate from the gating router right and
+21:13 uh earlier we had G of X which was the routing probability which we obtained by doing a soft Max over these Logics right
+21:20 so now they introduced some noise on the Logics right and the amount of noise is
+21:27 also controlled and learnable right so this is a learnable parameter
+21:33 which we had earlier as well and they introduce another learnable parameter for the noise for right uh to control
+21:39 the amount of noise uh which is W noise here and this is kind of predicting the standard deviation in some sense and
+21:46 standard deviation has to be always positive therefore we pass it through soft plus activation which is nothing
+21:53 but a smoother version of Rao right so this ensures that the standard deviation is always positive
+21:59 and now the question is why do we add this noise well we will not go into the details here but they claim that uh this
+22:08 improves the learnability and makes the learning more stable of the mixture of experts right maybe we can cover this in
+22:16 in tomorrow's lecture but for now we will U hold it here right and then they
+22:23 have a top keep top K operator which is you know just selecting top K logics and
+22:30 putting everything else to minus infinity this minus infinity will ensure that once you do a soft Max it will get
+22:36 zero probabilities right so we compute the logits for an input so the way it works
+22:42 is that we compute the logits H of X which is noisy there are two parameters
+22:47 there one for the mean the other for the noise uh we pass it to top top K which
+22:53 ensures that uh only K are active others are set to minus infinity and then we do
+22:59 a soft Max over this so right so this gives us a sparse layer if we select
+23:05 let's say k equal to two then we have only two active uh experts right so
+23:13 yeah now uh now we have looked at you know how
+23:18 mixture of experts work in this uh in deep learning and in Transformers let's
+23:24 try to do some analysis on top of it and let's see uh you know what is actually happening underneath how is the learning
+23:30 progressing and all of that right so one question is that uh you know why do these experts not
+23:39 collapse in practice why do you think that you know these
+23:46 experts okay so now uh let us see you know so there are some practical
+23:52 considerations when we are training AES right so one question is that why should these experts not collapse right I mean
+23:59 you're training it through back propagation all of the experts have been initialized using the same scheme
+24:04 randomly though right they are trained using the same Optimizer it is possible that all of them will learn the same
+24:10 weights how will you ensure that they are learning different weights right so
+24:17 uh there is a work uh which is towards understanding the mixture of expert
+24:23 layer in deep learning they analyze this question and to answer this they consider a synthetic
+24:30 setup they create data synthetically now what they do is that they create data in this fashion so there are uh four
+24:37 clusters and these are the four clusters and each cluster is linearly separable
+24:43 right so this is this can be separated using this so you can have one expert ideally what should happen that any data
+24:50 point which is coming from this cluster should get assigned to this expert right
+24:56 and this this linear classifier expert should be able to distinguish between the positives and the negatives right so this these are the positives and these
+25:02 are the negatives right and if a data point is coming from this uh cluster
+25:08 then router should assign it to uh this expert expert corresponding to this
+25:14 cluster and then a linear classifier so this is in high dimension this is linear
+25:19 in in high dimension right this is a two- dimensional representation uh right
+25:24 it'll get assigned to this uh this cluster and similarly if a sample is coming from this cluster it should get
+25:30 assigned to this expert which should be able to classify it linearly and similarly for this right now this is the data that they
+25:37 create synthetically and they train us mix they create a mixture of expert
+25:42 model and first they consider mixture of linear experts now this is how it gets
+25:48 initialized here uh color of the dot is telling you the expert to which that
+25:54 data point got assigned right and uh the lines are the boundary curves learned by different by
+26:00 four experts and when they trained this they fig they found that
+26:06 first the router has not learned meaningfully right for example in this
+26:11 cluster you see that uh you know this green expert is also getting
+26:19 routed here right and blue as well and red as well right so it has not learned
+26:27 properly on the other hand when they changed their expert to a nonlinear
+26:33 expert they introduced some nonlinearity on top of the linear layer what they observe is very
+26:39 interesting which is that there is a clear separation right the router has
+26:45 learned perfectly each data point is getting assigned to the right expert
+26:50 right so what is what is happening here right so they prove theoretically as
+26:56 well that nonlinearity here is essential what is happening is that uh
+27:03 if you have a linear layer your loss function becomes convex and uh you know
+27:09 all the experts even though they initialize from different random points they all converts to the same Minima or
+27:17 similar Minima right on the other hand if you have nonlinearity then even if you start from
+27:23 similar points right if even if experts are initialized in a similar fashion nonlinear kind of ensures that they
+27:31 diverge to different points in the space right so this was an interesting
+27:37 experiment and uh then they go on to study the Dynamics of the learning
+27:43 dynamics of the expert and the router right so what happens what do you think uh what will get trained first will the
+27:49 expert get trained first and then the router will learn to assign each data
+27:55 point to the appropriate expert or do you think that first the router will learn once the data points have been
+28:02 assigned correctly to each of the experts then the corresponding expert will start uh to train and you know
+28:09 we'll learn the classifier boundary right so what happens uh when you train this right and uh they show empirically
+28:18 that learning ofes happen in two stages one uh first is the exploration stage
+28:27 right where router is nearly untrained it is R it
+28:33 randomly assigns data points to each of the experts and the experts start to
+28:40 diverge right so these each expert will go to different points in the parameter space and once that happens when each
+28:48 expert is getting a different you know U is at a different space then router
+28:54 starts to learn right and how do they quantify and how do they see whether the r is routing to the right expert right
+29:00 so they for that they use the notion of entropy right at a very intuitive level
+29:07 entropy uh quantifies the amount of Randomness so if a router is routing is
+29:12 assigning equal probability to all the experts then the entropy is going to be very high whereas if the router is
+29:18 routing to only one expert one data point then entropy is going to be low
+29:23 right so they Define they use uh the data statistics of which sample is
+29:30 getting routed to which expert and they know a priority the cluster from which it belongs right remember that it's a
+29:35 synthetic setup right and they This Is How They Define um entropy and when they
+29:41 plot entropy with respect to the training epox they see that initially you know
+29:49 here entropy is quite High meaning that the router is routing equally to
+29:58 all the EXP right it's randomly uh it's sending almost equal probabilities to all the experts for a given token and
+30:04 then uh as the learning progresses the entropy reduces this reduction in the
+30:10 entropy essentially demonstrates that now the router is routing a given sample
+30:16 to only one of the expert right so um yeah so uh you know we
+30:25 discussed about uh the architecture of MI of experts how does the back propagation works and uh we also looked
+30:32 at some theoretical analysis of uh what is happening beneath why are the rout
+30:38 the experts not collapsing and uh you know how the learning of the router and
+30:44 the experts going on right so now and and we of course there are certain pros
+30:49 of a mixture of expert layer and that's why we are studying it right so we wanted to increase the number of
+30:55 parameters efficiently that that is one plus point that we get right we are able to increase the model parameters but
+31:03 thanks to the conditional activation we are able to keep the uh the compute
+31:10 restricted right uh we have efficient pre-training due to conditional uh or
+31:16 spars computations and similarly because of spars computation inference is also
+31:21 quick is also fast right but then there are certain issues as well that we need
+31:27 to handle right so the first and the foremost issue is the unstable training U of of
+31:35 experts right uh we I mean in practice many of times
+31:41 we see that a random run you know can result in the Divergence of the law so for example uh
+31:48 this is a graph from one of the papers where on the left hand side you see a
+31:53 diverge a run training run which diverges right uh training laws suddenly
+31:59 uh spikes up in the left curve and on the right we training the same architecture difference is random
+32:05 initialization and here we see that it is converging right so so uh designing a
+32:13 stable mixt training right for mixture of experts is very crucial and that's where the Innovation lies that's why it
+32:20 took you know from 1991 till now to make them uh useful right and these are the
+32:25 tricks and uh tricks of the trade that we will discuss maybe in the next uh lecture right we'll go through various
+32:31 papers and we will see what are the nuances and that those guys have introduced right
+32:39 uh so and another issue that can happen because of which we may have unstable training is the router collapse right uh
+32:49 what if so earlier we saw why experts are not collapsing right nonlinearity is
+32:54 helping there now what if the router collapses meaning that the the the function that
+33:02 the linear function which it is learning it routes all the tokens to only one
+33:07 expert right then we have a very big Network where with let's say we have
+33:13 eight experts then we have eight times the size of the network but seven of them are useless they're just sitting idle they're never getting activated
+33:20 right so that's useless so how do we uh take care of router
+33:25 collapse right so this is again something which we will uh look at in the next lecture there are a lot of
+33:32 modifications to the loss functions that we do to avoid this router
+33:37 collapse and then another issue is that of very high memory
+33:44 requirement right uh see we we saw that
+33:49 this conditional activation is able to reduce the number of compute number of flops that we are doing right but still
+33:56 we need to keep all the experts in the memory right we can't uh keep them off the GPU
+34:01 and load them only when the router routes to a particular expert right so we need to keep them all in the
+34:08 memory right so even though we have been able to make the compute efficient
+34:13 memory requirements GPU memory requirements Still Remains very high right and uh of course I don't think
+34:20 that there is any other alternative to that we what we can do is we can use we will also discuss this in the lecture
+34:26 tomorrow that uh what are the efficient ways of doing that if you have multiple gpus how do you Shard a particular model
+34:33 or expert layers on different gpus and ensure that uh you know you're able to load such a big model and train it as
+34:41 well right so I think that's it for today tomorrow we will go through
+34:46 various papers and we will see what different uh you know what are the different tricks of the trade that makes
+34:53 uh mes usable right that's it thank you

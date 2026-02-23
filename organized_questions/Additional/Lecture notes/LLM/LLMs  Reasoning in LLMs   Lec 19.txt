@@ -1,0 +1,4753 @@
+00:04 so today uh we going to talk about
+00:06 
+
+00:06 reasoning in nland uh lastly in the
+00:09 
+
+00:09 context of natural language okay uh so
+00:13 
+
+00:13 reasoning is uh hot and uh uh is is
+00:16 
+
+00:16 becoming even more uh important and
+00:20 
+
+00:20 trendy uh this year's ACL 2024 keynote
+00:24 
+
+00:24 was uh one of the Keynotes was about uh
+00:27 
+
+00:27 can llm reason and plan if you look at
+00:30 
+
+00:30 all the recent uh uh Publications if you
+00:34 
+
+00:34 look at this year's emlp or
+00:38 
+
+00:38 e or nscl naal NSL or or your
+00:43 
+
+00:43 neurs uh icml iclr you'll see that every
+00:47 
+
+00:47 year from starting from 2022 onwards a
+00:52 
+
+00:52 lot of papers on reasoning you know a
+00:55 
+
+00:55 lot actually
+00:57 
+
+00:57 unprecedently uh lot and people claiming
+01:01 
+
+01:01 so there are two types of uh resource
+01:03 
+
+01:03 that's going on one is the claim that
+01:05 
+
+01:05 yeah llms can do reason and look at this
+01:08 
+
+01:08 and look at that and the other kind of
+01:11 
+
+01:11 uh research that's going on is that no
+01:13 
+
+01:13 they are not really reasoning and this
+01:16 
+
+01:16 is the reasons why they are not
+01:18 
+
+01:18 reasoning okay so we'll look into both
+01:21 
+
+01:21 of that but before that we want to
+01:23 
+
+01:23 understand a little bit about what uh
+01:25 
+
+01:25 exactly is
+01:28 
+
+01:28 reason Okay so
+01:30 
+
+01:30 uh uh so drawing from uh uh you know
+01:35 
+
+01:35 let's say in in in philosophy or uh in
+01:39 
+
+01:39 in in logics in mathematical uh Logics
+01:43 
+
+01:43 you know um the one description of
+01:46 
+
+01:46 reasoning is that it has to infer
+01:49 
+
+01:49 something that's new you know uh so a
+01:52 
+
+01:52 new assertion uh where an assertion can
+01:55 
+
+01:55 be a specific fact about uh certain
+02:00 
+
+02:00 status of an of an object or an entity
+02:04 
+
+02:04 so infer a new assertion from a set of
+02:06 
+
+02:06 assertions right so that can be one
+02:09 
+
+02:09 description another description can be
+02:12 
+
+02:12 that if not an assertion you can also
+02:14 
+
+02:14 infer an action from goals and knowledge
+02:18 
+
+02:18 so let's say that you have this is more
+02:20 
+
+02:20 to do with planning so let's say you
+02:22 
+
+02:22 have a goal you have a final goal and
+02:25 
+
+02:25 you have some domain knowledge so can
+02:27 
+
+02:27 you figure out a particular
+02:30 
+
+02:30 sequence of actions or a policy in in
+02:33 
+
+02:33 the fance of reinforcement learning and
+02:36 
+
+02:36 if you are able to figure out an optimal
+02:38 
+
+02:38 a series of action or sequence of action
+02:40 
+
+02:40 then uh you are able to do reasoning
+02:44 
+
+02:44 right in contrast what isn't reasoning
+02:48 
+
+02:48 so if you are just directly experiencing
+02:52 
+
+02:52 something and just stating that out
+02:55 
+
+02:55 through direct
+02:57 
+
+02:57 experience then that uh is not not
+03:00 
+
+03:00 reasoning so which means that if you
+03:02 
+
+03:02 already have access to a particular uh
+03:07 
+
+03:07 assertion which is there in your
+03:09 
+
+03:09 database and you're just retrieving it
+03:12 
+
+03:12 then that's not reasoning okay so
+03:15 
+
+03:15 reasoning has to be something that is
+03:18 
+
+03:18 innate that is not explicit and you are
+03:22 
+
+03:22 deducing it or inducing it in some
+03:25 
+
+03:25 particular reasoning way we are going to
+03:28 
+
+03:28 look into that and finally stating that
+03:32 
+
+03:32 right so that would be uh reasoning in
+03:36 
+
+03:36 NLP uh uh it has to be more than
+03:40 
+
+03:40 understanding so it has to be more than
+03:41 
+
+03:41 NL natural language understanding so um
+03:45 
+
+03:45 you know something related to slow
+03:47 
+
+03:47 thinking uh which means you pause you
+03:51 
+
+03:51 you you think through the solution and
+03:54 
+
+03:54 then you try to finally come up with the
+03:57 
+
+03:57 answer right so as an example let's say
+03:60 
+
+03:60 multihop question answering so
+04:02 
+
+04:02 essentially before you know you know
+04:05 
+
+04:05 what you do is what the model does is
+04:07 
+
+04:07 the model stops or restrains itself from
+04:11 
+
+04:11 from straight away giving an answer so
+04:14 
+
+04:14 instead of straight away giving an
+04:16 
+
+04:16 answer to a question the model breaks
+04:17 
+
+04:17 the question and gives some intermediate
+04:20 
+
+04:20 answers and then finally arrives to the
+04:22 
+
+04:22 final answer right so that's sort of
+04:25 
+
+04:25 mimicking what we call as slow
+04:27 
+
+04:27 thinking uh also common sense reasoning
+04:31 
+
+04:31 uh would be another kind of reasoning in
+04:33 
+
+04:33 NLP what is not reasoning in the in the
+04:36 
+
+04:36 context of NLP would be memorize and
+04:38 
+
+04:38 look up or retrieve what I just said or
+04:41 
+
+04:41 match information like as an example
+04:43 
+
+04:43 Tech summarization is not uh should not
+04:46 
+
+04:46 be considered as uh uh reasoning uh
+04:50 
+
+04:50 style transfer should not be considered
+04:52 
+
+04:52 as as as reasoning right so so if I have
+04:56 
+
+04:56 to com we have to combine these two
+04:59 
+
+04:59 ideas one from philosophy and one from
+05:02 
+
+05:02 NLP then Pro perhaps arguably and again
+05:06 
+
+05:06 I'm stressing on the word
+05:08 
+
+05:08 arguably uh you know one can say that uh
+05:12 
+
+05:12 reasoning is a dynamic process to
+05:14 
+
+05:14 integrate uh multiple knowledge and by
+05:17 
+
+05:17 multiple knowledge what we mean is
+05:18 
+
+05:18 knowledge which are external uh which
+05:21 
+
+05:21 can be found on the web or some other
+05:23 
+
+05:23 kind of database or uh a search engine
+05:27 
+
+05:27 to get new conclusions uh rather than
+05:30 
+
+05:30 direct recourse to memorized or provided
+05:32 
+
+05:32 firsthand information right so that is
+05:35 
+
+05:35 important so if you just uh fetching uh
+05:39 
+
+05:39 a particular assertion that's not
+05:41 
+
+05:41 reasoning but if you're fetching certain
+05:44 
+
+05:44 kind of premises and then based on the
+05:46 
+
+05:46 premises you're deducing or inferring
+05:49 
+
+05:49 something then that would be considered
+05:51 
+
+05:51 as
+05:53 
+
+05:53 reasoning so the key point to note over
+05:57 
+
+05:57 here is that a new assertion as in Phil
+05:60 
+
+05:60 philosophy versus slow thinking right so
+06:02 
+
+06:02 that's uh the key thing and uh if any of
+06:07 
+
+06:07 you have not read this particular book
+06:10 
+
+06:10 uh by Dan canaman uh please uh grab hold
+06:14 
+
+06:14 of this one from the library and it's a
+06:18 
+
+06:18 really good book it's on this in
+06:20 
+
+06:20 specific think about what's the the two
+06:23 
+
+06:23 types of thinking one is fast thinking
+06:25 
+
+06:25 and one is slow thinking so you'll get
+06:28 
+
+06:28 to understand some good you know deal of
+06:31 
+
+06:31 uh slow thinking from a cognitive
+06:33 
+
+06:33 science point of
+06:35 
+
+06:35 view
+06:37 
+
+06:37 uh now uh uh there are three types of
+06:41 
+
+06:41 conclusion that one can draw uh using a
+06:43 
+
+06:43 reasoning process uh one is basically
+06:48 
+
+06:48 new assertion as an example if you are
+06:50 
+
+06:50 given a premise by premise it means
+06:52 
+
+06:52 known something that is a known
+06:55 
+
+06:55 statement which is which is true which
+06:57 
+
+06:57 you assume to be true and let's say that
+07:01 
+
+07:01 one of the premises cat is animal the
+07:03 
+
+07:03 other the second premise is animal can
+07:06 
+
+07:06 breathe uh and therefore let's say that
+07:08 
+
+07:08 you conclude that cat can breathe so
+07:10 
+
+07:10 that would be reasoning why because cat
+07:12 
+
+07:12 can breathe is not an assertion that was
+07:15 
+
+07:15 explicitly in the database or in the
+07:18 
+
+07:18 knowledge base right that's something
+07:20 
+
+07:20 that you inferred so that would be one
+07:23 
+
+07:23 kind of conclusion uh another kind of
+07:26 
+
+07:26 conclusion is where you actually
+07:27 
+
+07:27 conclude a particular event that was not
+07:30 
+
+07:30 there but you can infer that as an
+07:32 
+
+07:32 example let's say there there is an
+07:34 
+
+07:34 already given event which is a which you
+07:37 
+
+07:37 be which you Ed like a premise uh such
+07:39 
+
+07:39 as John was shot and then let's say
+07:42 
+
+07:42 there's another event there are people
+07:44 
+
+07:44 around and then there's a third event uh
+07:47 
+
+07:47 third information rather doctor can save
+07:49 
+
+07:49 lives so and let's say that the system
+07:52 
+
+07:52 infers John will be sent to a
+07:55 
+
+07:55 doctor so that inference uh is inference
+07:60 
+
+07:60 of an event of a new event which you
+08:03 
+
+08:03 infer from already
+08:05 
+
+08:05 existing uh common sense and domain
+08:08 
+
+08:08 information and uh the existing event
+08:13 
+
+08:13 the Third Kind of conclusion can be when
+08:16 
+
+08:16 you actually come up with a new action
+08:18 
+
+08:18 or a new set of actions or a new plan uh
+08:21 
+
+08:21 as an example uh if if you have one
+08:25 
+
+08:25 promise that Mary is in the living room
+08:28 
+
+08:28 uh by the way there's the typo in the in
+08:32 
+
+08:32 in the paper I mean it should be Mary
+08:34 
+
+08:34 not Mary but yeah so Mary is in living
+08:38 
+
+08:38 room Mary feels uh it is hot uh and uh
+08:43 
+
+08:43 let's say remote control for air
+08:44 
+
+08:44 conditioner is in the bedroom and the
+08:47 
+
+08:47 system comes up with this plan go to the
+08:50 
+
+08:50 room take the remote control come back
+08:51 
+
+08:51 and turn on the air conditioning so that
+08:55 
+
+08:55 would be another kind of uh conclusion
+08:58 
+
+08:58 that one deres from from a reasoning
+09:01 
+
+09:01 process
+09:03 
+
+09:03 right so what does not count as
+09:06 
+
+09:06 reasoning so this is a good way of uh
+09:09 
+
+09:09 sort of uh trying to understand uh and
+09:13 
+
+09:13 this was kind of like very recently
+09:15 
+
+09:15 proposed by this group of people from
+09:17 
+
+09:17 the Chinese University of Hong Kong and
+09:20 
+
+09:20 hamstad University in this really
+09:23 
+
+09:23 wonderful survey people that came out
+09:25 
+
+09:25 very
+09:26 
+
+09:26 recently uh and what they and it's it's
+09:29 
+
+09:29 a interesting way of looking at it you
+09:31 
+
+09:31 know trying to understand what does not
+09:33 
+
+09:33 sort of uh count as
+09:36 
+
+09:36 reasoning and one uh example what they
+09:39 
+
+09:39 said is that entity linking you know uh
+09:42 
+
+09:42 like as an example if you have been
+09:45 
+
+09:45 given an input they performed Kashmir
+09:47 
+
+09:47 Kashmir is a song by the way and they
+09:49 
+
+09:49 perform Kashmir written by P and plant
+09:51 
+
+09:51 and if the output example is Kashmir
+09:53 
+
+09:53 should be mapped to Kashmir the song
+09:56 
+
+09:56 page should be mapped or linked to Jimmy
+09:59 
+
+09:59 Page and plant should be mapped to
+10:01 
+
+10:01 Robert Plant uh this mapping uh is
+10:06 
+
+10:06 should not be considered according to
+10:08 
+
+10:08 them should not be considered as
+10:09 
+
+10:09 reasoning and the reason being that you
+10:12 
+
+10:12 know it's just aligning known entities
+10:15 
+
+10:15 without producing new assertions so it's
+10:18 
+
+10:18 not that it's actually coming up with
+10:21 
+
+10:21 new information it's just like mapping
+10:25 
+
+10:25 two known entities together right so
+10:29 
+
+10:29 that's why it's not reasoning according
+10:32 
+
+10:32 to them another uh example would be
+10:37 
+
+10:37 let's say that you are given this three
+10:40 
+
+10:40 um uh you know key phrases or key words
+10:44 
+
+10:44 dog frisbe catch and throw and you asked
+10:47 
+
+10:47 to describe a daily scenario using these
+10:51 
+
+10:51 Concepts uh and let's say that the model
+10:54 
+
+10:54 comes up with this statements a sentence
+10:57 
+
+10:57 saying a dog leaps to catch a throne
+10:59 
+
+10:59 frisbee and that's also not reasoning uh
+11:03 
+
+11:03 the reasoning being the reason being
+11:05 
+
+11:05 that uh it's a new text but it's neither
+11:08 
+
+11:08 claim true assertions or events or
+11:10 
+
+11:10 generate
+11:11 
+
+11:11 actions so so in other words it it is
+11:15 
+
+11:15 what what it is not claiming the system
+11:17 
+
+11:17 is not claiming that oh this is a true
+11:19 
+
+11:19 statement all the system is doing is
+11:21 
+
+11:21 that oh this is a sentence I've
+11:23 
+
+11:23 generated a sentence now don't ask me
+11:25 
+
+11:25 whether this sentence is a true sentence
+11:27 
+
+11:27 or or false sentence because that's
+11:30 
+
+11:30 that's a guarantee that I'm not able I
+11:32 
+
+11:32 won't give you because I have not
+11:34 
+
+11:34 deduced it so it's do the sentence has
+11:38 
+
+11:38 not come through a a series of deduction
+11:41 
+
+11:41 or logical deduction or logical
+11:44 
+
+11:44 induction and that's why I can't
+11:46 
+
+11:46 guarantee you that this statement will
+11:48 
+
+11:48 be true all I can say that this is this
+11:51 
+
+11:51 is a viable statement this is a
+11:53 
+
+11:53 statement that has some meaning but
+11:56 
+
+11:56 whether this is true I I don't I don't
+11:58 
+
+11:58 guarantee right so that's why it's not
+12:01 
+
+12:01 reasoning so generating sentences just
+12:05 
+
+12:05 uh in the S sake for the sake of
+12:07 
+
+12:07 generating sentences is not really
+12:09 
+
+12:09 reasoning uh according to this uh this
+12:13 
+
+12:13 uh the you know this survey and the
+12:16 
+
+12:16 third example would be uh open doain
+12:18 
+
+12:18 question answering so like as an example
+12:20 
+
+12:20 what color was John wil's boot wil's
+12:23 
+
+12:23 boots hair and let's say you are given a
+12:26 
+
+12:26 context and the context is he stood 5' 8
+12:29 
+
+12:29 in allll had jet black hair and let's
+12:32 
+
+12:32 say that the answer is jet black uh is
+12:35 
+
+12:35 is the hair color now why is this not uh
+12:39 
+
+12:39 uh reasoning because the answer is
+12:42 
+
+12:42 already in the in the context provided
+12:46 
+
+12:46 you are just extracting the the answer
+12:49 
+
+12:49 out of the context so if you're just
+12:51 
+
+12:51 extracting the answer out of the context
+12:53 
+
+12:53 and not creating any new assertion then
+12:56 
+
+12:56 it should not be considered as reasoning
+13:01 
+
+13:01 right so moral of the story is that not
+13:04 
+
+13:04 every NLP or nlu task should be
+13:07 
+
+13:07 considered as
+13:08 
+
+13:08 reasoning right so whatever your llms
+13:11 
+
+13:11 are doing not everything that your llms
+13:13 
+
+13:13 are doing should be considered as
+13:18 
+
+13:18 reasoning and this is for you to think
+13:21 
+
+13:21 about that whether entity linking to
+13:24 
+
+13:24 should be considered as reasoning or not
+13:27 
+
+13:27 according to the survey is not but but
+13:30 
+
+13:30 uh well one can also argue that the link
+13:34 
+
+13:34 was missing it was not known that
+13:37 
+
+13:37 Kashmir is actually Kashmir the song and
+13:40 
+
+13:40 page is actually Jimmy the page Jimmy
+13:42 
+
+13:42 Page so uh since that information was
+13:46 
+
+13:46 missing and now since you have deduced
+13:49 
+
+13:49 or sort of like come up with that
+13:51 
+
+13:51 assertion so maybe entity linking is is
+13:54 
+
+13:54 reasoning and you can always argue for
+13:56 
+
+13:56 it as well so I'm just playing The
+13:58 
+
+13:58 Devil's Advocate
+14:00 
+
+14:00 here okay so very quickly so to sum it
+14:05 
+
+14:05 up you know you will be you know for for
+14:07 
+
+14:07 for a reasoning to happen you have to
+14:09 
+
+14:09 have some
+14:10 
+
+14:10 propositions uh which are just
+14:13 
+
+14:13 statements that are supposed to be true
+14:16 
+
+14:16 and you have some
+14:17 
+
+14:17 premises which is statements that you
+14:20 
+
+14:20 use for the inference procedure so not
+14:24 
+
+14:24 all of the propositions you will be
+14:25 
+
+14:25 using for for your reasoning so you will
+14:28 
+
+14:28 be using some of the propositions for
+14:30 
+
+14:30 your reasoning and those propositions
+14:32 
+
+14:32 that you use for your reasoning they are
+14:34 
+
+14:34 called premise and then finally you can
+14:36 
+
+14:36 come up with some intermediate
+14:38 
+
+14:38 conclusion and then build over it build
+14:41 
+
+14:41 on top of it and to come up with the
+14:43 
+
+14:43 final conclusion so next example uh
+14:46 
+
+14:46 again this is one another example where
+14:48 
+
+14:48 we clear where they try to clear about
+14:51 
+
+14:51 what is not a reasoning as an example
+14:54 
+
+14:54 all human will die andless said the
+14:56 
+
+14:56 model says death is waiting for every
+14:59 
+
+14:59 human so that's just paraphrasing right
+15:01 
+
+15:01 so that's not some new assertion that
+15:04 
+
+15:04 you got out of it right so that's uh but
+15:07 
+
+15:07 if I say that there is another statement
+15:10 
+
+15:10 or or and which you are using as a
+15:11 
+
+15:11 premise let's say Aristotle is a human
+15:14 
+
+15:14 and then if you uh say aristel will die
+15:18 
+
+15:18 one day that is reasoning because that
+15:23 
+
+15:23 assertion uh Aristotle will die one day
+15:26 
+
+15:26 was not there before right it's not some
+15:30 
+
+15:30 paraphrasing or rephrasing the an
+15:33 
+
+15:33 information that was already there again
+15:35 
+
+15:35 you know Aristotle was a Greek born in
+15:38 
+
+15:38 384
+15:40 
+
+15:40 BC uh from there if you just say
+15:42 
+
+15:42 Aristotle was a Greek is just shortening
+15:45 
+
+15:45 the the statement it's not a new
+15:47 
+
+15:47 statement that you came up with right so
+15:49 
+
+15:49 that's not
+15:52 
+
+15:52 reasoning so three types of uh sort of
+15:55 
+
+15:55 neat I like to call them neat reasoning
+15:59 
+
+15:59 uh one is deduction which you have
+16:01 
+
+16:01 always done in
+16:02 
+
+16:02 mathematics uh most of the proofs that
+16:04 
+
+16:04 you do in mathematics is deductive in
+16:07 
+
+16:07 nature so as an example Aristotle is a
+16:11 
+
+16:11 human uh and you have a rule All Humans
+16:14 
+
+16:14 will die it's a general rule and then
+16:16 
+
+16:16 let's say Aristotle will die so from
+16:18 
+
+16:18 Fact
+16:19 
+
+16:19 one and you add the rule and you get
+16:22 
+
+16:22 Fact Two so that's deduction right uh
+16:27 
+
+16:27 induction would be very you actually
+16:29 
+
+16:29 start with uh specific instances as
+16:33 
+
+16:33 truth and then you try to generalize on
+16:36 
+
+16:36 top of that and uh one a neat way of
+16:41 
+
+16:41 doing that is what you would do in
+16:43 
+
+16:43 mathematics through in inductive
+16:45 
+
+16:45 reasoning or proof by induction right so
+16:48 
+
+16:48 that's what but even uh if you're not
+16:50 
+
+16:50 doing uh something as neat as proof
+16:53 
+
+16:53 proof by induction uh you may also try
+16:57 
+
+16:57 to probabilistically make a general
+16:59 
+
+16:59 generalized statement you know using
+17:02 
+
+17:02 some sort of uncertainty involved but
+17:04 
+
+17:04 you can make a generalized statement
+17:05 
+
+17:05 using induction like you know with let's
+17:08 
+
+17:08 say with 80% probability uh if I combine
+17:12 
+
+17:12 Fact one and Fact Two which means if I
+17:14 
+
+17:14 combine Aristotle is the human Aral will
+17:17 
+
+17:17 die then with 80% probability it would
+17:20 
+
+17:20 mean that all humans will die let's say
+17:23 
+
+17:23 or 70% probability it means that all
+17:25 
+
+17:25 human will die so that would be
+17:28 
+
+17:28 induction AB abduction is a bit
+17:31 
+
+17:31 different and abduction is more about if
+17:34 
+
+17:34 I give you the fact less a fact two that
+17:38 
+
+17:38 that Aristotle will die then what is the
+17:41 
+
+17:41 most plausible
+17:43 
+
+17:43 explanation for that fact to be true so
+17:47 
+
+17:47 if you assume that Aristotle will die
+17:49 
+
+17:49 then what is the most plausible reason
+17:51 
+
+17:51 or explanation for that and if you come
+17:54 
+
+17:54 up to that thing that okay the most
+17:56 
+
+17:56 plausible reason being that Aristotle is
+17:59 
+
+17:59 is a human and the fact that all humans
+18:02 
+
+18:02 will die that is the explanation that
+18:04 
+
+18:04 Aristotle will die so
+18:07 
+
+18:07 essentially U abductive inferences to
+18:10 
+
+18:10 infer probable knowledge as the best
+18:12 
+
+18:12 explanation or the best cause or of
+18:15 
+
+18:15 something that you are already observing
+18:17 
+
+18:17 or
+18:18 
+
+18:18 seeing so there's a fourth kind as well
+18:22 
+
+18:22 and it's called diffusible reasoning
+18:24 
+
+18:24 it's particular kind of non- monotonic
+18:26 
+
+18:26 reasoning and let me just give you an
+18:28 
+
+18:28 example to uh to to make you understand
+18:31 
+
+18:31 what it means so let's say birds can fly
+18:34 
+
+18:34 right so that's a statement that's given
+18:36 
+
+18:36 it's very you know very common example
+18:39 
+
+18:39 let's say Twitty is a bird uh which
+18:43 
+
+18:43 means you you would now deduce that TWY
+18:45 
+
+18:45 can fly so that's
+18:49 
+
+18:49 deduction uh then you came to realize
+18:51 
+
+18:51 that TWY is a penguin and Penguins don't
+18:54 
+
+18:54 fly so then you retract or you def
+18:59 
+
+18:59 defeat your previous defeat code and
+19:01 
+
+19:01 code defeat your previous conclusion
+19:03 
+
+19:03 that TW uh can fly and you reach and you
+19:07 
+
+19:07 modify it and you see that therefore Twi
+19:10 
+
+19:10 is sad since she can fly right and this
+19:14 
+
+19:14 is this goes through over time which
+19:16 
+
+19:16 means you keep on seeing new new
+19:19 
+
+19:19 information and if you and you modify
+19:21 
+
+19:21 your previous conclusions it doesn't
+19:24 
+
+19:24 happen in classical deductive reasoning
+19:27 
+
+19:27 where once you have already established
+19:30 
+
+19:30 um a conclusion you stick to that
+19:32 
+
+19:32 conclusion you think that the conclusion
+19:34 
+
+19:34 is always going to be valid but that's
+19:36 
+
+19:36 not true for diffusible
+19:39 
+
+19:39 reasoning
+19:41 
+
+19:41 so uh so the difference being that
+19:44 
+
+19:44 deductive inference will always be valid
+19:47 
+
+19:47 while uh this would be probably valid
+19:51 
+
+19:51 sort of so the inference relation being
+19:54 
+
+19:54 that you know you're always going to you
+19:56 
+
+19:56 know whatever inferencing you're doing
+19:58 
+
+19:58 you're basically finally supporting the
+20:00 
+
+20:00 final conclusion the final conclusion
+20:02 
+
+20:02 while over here you are just
+20:05 
+
+20:05 strengthening or sometimes even
+20:07 
+
+20:07 weakening or sometimes even rebutting or
+20:10 
+
+20:10 retracting your previous conclusion so
+20:12 
+
+20:12 that can happen uh an important uh
+20:15 
+
+20:15 aspect of uh deductive inference is that
+20:18 
+
+20:18 you cannot do deductive inference unless
+20:20 
+
+20:20 you you have a bounded set of aums or
+20:23 
+
+20:23 what we call as domain knowledge right
+20:25 
+
+20:25 so unless you have this Bounder set of
+20:27 
+
+20:27 premises or a
+20:29 
+
+20:29 uh you can't do deductive inference
+20:31 
+
+20:31 where whereas the interesting thing
+20:33 
+
+20:33 about diffusible uh inference is that
+20:36 
+
+20:36 you can keep you are flexible which
+20:39 
+
+20:39 means that even in the future you you
+20:41 
+
+20:41 allow new information to sort of
+20:44 
+
+20:44 unsettle your previous conclusions and
+20:48 
+
+20:48 you're willing to be open enough to new
+20:52 
+
+20:52 information and to change your opinions
+20:55 
+
+20:55 so so that's uh what unbounded would
+20:58 
+
+20:58 mean
+20:59 
+
+20:59 okay so now comes the interesting thing
+21:02 
+
+21:02 I mean this uh you know uh what we call
+21:05 
+
+21:05 as national language inferencing
+21:07 
+
+21:07 nli sometimes also called as RTE or uh
+21:13 
+
+21:13 um or basically identifying um textual
+21:18 
+
+21:18 entailment so uh so so this is very old
+21:22 
+
+21:22 standard NLP task that has been even
+21:26 
+
+21:26 before we were all you know
+21:29 
+
+21:29 going around and talking so much about
+21:32 
+
+21:32 llms and reasoning and so on and so
+21:34 
+
+21:34 forth so let's have a closer look at
+21:37 
+
+21:37 whether nli is reasoning or not right so
+21:41 
+
+21:41 as an example let's say the paraphrase
+21:44 
+
+21:44 of um case which is two doctors perform
+21:48 
+
+21:48 surgery on patient and one
+21:51 
+
+21:51 nli
+21:53 
+
+21:53 uh hypothesis would be doctors are
+21:55 
+
+21:55 performing surgery right but that's not
+21:59 
+
+21:59 reasoning that's just paraphrasing
+22:01 
+
+22:01 that's not a new assertion that's not a
+22:03 
+
+22:03 new statement that you got it's an
+22:05 
+
+22:05 entailment in some sense but the
+22:08 
+
+22:08 entailment doesn't lead to any new
+22:10 
+
+22:10 assertion so that's why it can't be
+22:12 
+
+22:12 considered as reasoning uh let's say the
+22:15 
+
+22:15 second uh situation uh you know where
+22:19 
+
+22:19 you have two women are embracing uh
+22:22 
+
+22:22 while holding to holding to go packages
+22:25 
+
+22:25 let's say and you come to this
+22:28 
+
+22:28 conclusion that two women are holding
+22:30 
+
+22:30 packages uh also two women are
+22:34 
+
+22:34 embracing uh now that again uh is not
+22:37 
+
+22:37 and that's an entailment definitely but
+22:40 
+
+22:40 that again is not not not reasoning
+22:42 
+
+22:42 because that's not adding any new
+22:44 
+
+22:44 assertion to the knowledge base uh
+22:47 
+
+22:47 reasoning would be like a soccer game
+22:49 
+
+22:49 with multiple player males playing let's
+22:51 
+
+22:51 say soccer is a sport and that's an
+22:53 
+
+22:53 implicit knowledge that is there and
+22:56 
+
+22:56 some men are playing a sport now when
+22:59 
+
+22:59 you say that some men are playing a
+23:01 
+
+23:01 sport uh um and where you add up these
+23:04 
+
+23:04 two assertions that soccer is a sport
+23:07 
+
+23:07 and a soccer a soccer game with multiple
+23:09 
+
+23:09 player males playing leads entails this
+23:12 
+
+23:12 then then you can say that yeah this
+23:15 
+
+23:15 this third case is actually a case of
+23:17 
+
+23:17 reasoning so moral of the story is not
+23:20 
+
+23:20 all
+23:21 
+
+23:21 nli uh problems can be considered as
+23:25 
+
+23:25 reasoning uh only a few of those n cases
+23:29 
+
+23:29 can be considered a reasoning right so
+23:32 
+
+23:32 so that's the that's the
+23:35 
+
+23:35 thing
+23:38 
+
+23:38 so so again um so just to remind you
+23:42 
+
+23:42 that it's integrating multiple knowledge
+23:44 
+
+23:44 to get new conclusions uh rather than
+23:47 
+
+23:47 direct Rec to memorized or provided
+23:49 
+
+23:49 firsthand information
+23:52 
+
+23:52 right okay there are some special cases
+23:55 
+
+23:55 of all these four kinds what are the
+23:57 
+
+23:57 four kinds uh did inductive inductive
+24:01 
+
+24:01 abductive and
+24:03 
+
+24:03 diffusible so there are four kinds four
+24:06 
+
+24:06 special kinds uh uh sorry there are a
+24:09 
+
+24:09 few special cases of these four kinds
+24:11 
+
+24:11 arithmetic reasoning being one of them
+24:13 
+
+24:13 and they are mostly deductive
+24:15 
+
+24:15 statistical inference uh is mostly
+24:18 
+
+24:18 inductive in
+24:20 
+
+24:20 nature uh Common Sense reasoning is
+24:23 
+
+24:23 mostly
+24:24 
+
+24:24 abductive uh where you are mostly
+24:27 
+
+24:27 interested in the explanation or the
+24:29 
+
+24:29 cause of something uh let's say that if
+24:33 
+
+24:33 one F morning you see the grass wet so
+24:36 
+
+24:36 you probably uh you your explanation
+24:39 
+
+24:39 might be that oh there must have been
+24:42 
+
+24:42 rain yesterday night and that's why the
+24:44 
+
+24:44 grass is laying so that's abductive
+24:47 
+
+24:47 reasoning uh and many times it's also
+24:49 
+
+24:49 inductive reasoning as as as well in in
+24:52 
+
+24:52 common sense reasoning and then there is
+24:54 
+
+24:54 facial reasoning uh uh sorry for the
+24:57 
+
+24:57 typo is mostly
+24:59 
+
+24:59 deductive in nature and but at the same
+25:02 
+
+25:02 time there's a lot of inductive special
+25:04 
+
+25:04 reasoning as well and then there is
+25:06 
+
+25:06 temporal reasoning which is deductive
+25:08 
+
+25:08 inductive as well as you you see a lot
+25:10 
+
+25:10 of abductive abductive reasoning as well
+25:13 
+
+25:13 temporary reasoning would be uh let's
+25:15 
+
+25:15 say which which event occurred first you
+25:18 
+
+25:18 know which event occurred next which
+25:20 
+
+25:20 event overlaps these two events and so
+25:23 
+
+25:23 on and so forth those sort of
+25:25 
+
+25:25 reasoning uh special reasoning is uh
+25:29 
+
+25:29 pretty much the same sort of similar
+25:31 
+
+25:31 thing but at a at a locational
+25:34 
+
+25:34 geolocational uh frame level so whether
+25:37 
+
+25:37 uh two events are occurring at the same
+25:40 
+
+25:40 place or occurring side by side
+25:43 
+
+25:43 geolocation and and so on
+25:46 
+
+25:46 um okay uh just a closer look at
+25:50 
+
+25:50 statistical inference and this is not
+25:52 
+
+25:52 something that a lot of people talk
+25:54 
+
+25:54 about these days uh but I um and I'm a
+25:58 
+
+25:58 bit
+25:59 
+
+25:59 fan of this guy his name is Julia Pearl
+26:01 
+
+26:01 I am very sorry that I did not put the
+26:04 
+
+26:04 name uh his name over there uh uhing
+26:08 
+
+26:08 teing a uh and one of the proponents of
+26:11 
+
+26:11 causal causal reasoning and he came up
+26:15 
+
+26:15 with this framework and he said that
+26:17 
+
+26:17 okay uh what's really uh going on if you
+26:21 
+
+26:21 have to understand reasoning is that
+26:23 
+
+26:23 there are three ladders or three sort of
+26:26 
+
+26:26 uh levels of of reasoning and what we
+26:30 
+
+26:30 are currently doing with llms or machine
+26:32 
+
+26:32 learning models is the very first level
+26:35 
+
+26:35 the very basic level and that's
+26:37 
+
+26:37 Association so what is Association is
+26:40 
+
+26:40 basically as simple as uh trying to
+26:43 
+
+26:43 understand the conditional probability
+26:44 
+
+26:44 and you have already understood that how
+26:46 
+
+26:46 llms work or language model work is
+26:48 
+
+26:48 basically conditional uh Association is
+26:51 
+
+26:51 uh where you're trying to understand
+26:53 
+
+26:53 that okay if you have already
+26:55 
+
+26:55 observed a random variable to be X then
+26:58 
+
+26:58 what what is the probability that the
+27:00 
+
+27:00 other the outcome variable will be y
+27:04 
+
+27:04 right and is as simple as that but it
+27:08 
+
+27:08 does not tell you anything more than
+27:10 
+
+27:10 Association so it does not tell you
+27:12 
+
+27:12 anything about the causality or anything
+27:14 
+
+27:14 else as such so that's uh pretty much
+27:17 
+
+27:17 what ml
+27:19 
+
+27:19 does uh then you have uh a little bit
+27:23 
+
+27:23 Advanced more higher up where you are
+27:25 
+
+27:25 saying that what if I
+27:29 
+
+27:29 intervene and what if I change the
+27:32 
+
+27:32 random
+27:33 
+
+27:33 variables uh the input the input random
+27:36 
+
+27:36 variables input uh value to X and then
+27:42 
+
+27:42 after doing that if I see this even
+27:45 
+
+27:45 Z then what is the probability that y
+27:48 
+
+27:48 will happen as an outcome as a
+27:51 
+
+27:51 followup so if I
+27:54 
+
+27:54 intervene uh let's say that it let's say
+27:57 
+
+27:57 that the variable capital x was
+27:60 
+
+27:60 something else and I intervened and I
+28:02 
+
+28:02 changed that to Small X and because of
+28:06 
+
+28:06 that I saw this new event happening
+28:08 
+
+28:08 which is z Now what is the probability
+28:12 
+
+28:12 that as a followup y will
+28:16 
+
+28:16 happen right so that's uh and I'm not
+28:20 
+
+28:20 going into the details of that but if
+28:21 
+
+28:21 you're interested you can see there's
+28:23 
+
+28:23 something called do calculus and so on
+28:25 
+
+28:25 and so forth so uh it's it's more and
+28:27 
+
+28:27 this is what EI planners do you know
+28:31 
+
+28:31 where they always try to figure out uh
+28:34 
+
+28:34 whether this is a a viable uh action and
+28:39 
+
+28:39 sometimes they backtrack you know if
+28:42 
+
+28:42 they don't see certain things uh to be a
+28:45 
+
+28:45 viable action down the line the
+28:47 
+
+28:47 backtrack and then again try to move
+28:50 
+
+28:50 into a different you know take a
+28:51 
+
+28:51 different plan and in order to reach the
+28:54 
+
+28:54 final goal so so that's the intervention
+28:57 
+
+28:57 part so you you you can only get to know
+28:59 
+
+28:59 it when you do it you won't get to you
+29:02 
+
+29:02 know there's no training data as such
+29:04 
+
+29:04 that can help you to to to decide for it
+29:07 
+
+29:07 despite all the training data you have
+29:09 
+
+29:09 to do the thing in order to really see
+29:11 
+
+29:11 that Z actually happened right and then
+29:15 
+
+29:15 you can talk about why the third uh
+29:18 
+
+29:18 thing is uh extremely important and
+29:20 
+
+29:20 that's where the final level is it's
+29:23 
+
+29:23 called
+29:24 
+
+29:24 counterfactuals and what it means is
+29:26 
+
+29:26 that uh if I
+29:30 
+
+29:30 imagine that let's say capital x uh and
+29:35 
+
+29:35 let's say that if I imagine that capital
+29:37 
+
+29:37 x the random
+29:38 
+
+29:38 variable takes up the value of x Prime
+29:42 
+
+29:42 that's not what happened but I'm just
+29:44 
+
+29:44 imagining that what if x becomes X Prime
+29:49 
+
+29:49 and what if as a result the outcome y
+29:52 
+
+29:52 becomes y
+29:54 
+
+29:54 Prime okay and now if that is so then if
+29:60 
+
+29:60 I change X from X Prime to X small X
+30:05 
+
+30:05 then what is the probability that y will
+30:08 
+
+30:08 change from y Prime to
+30:11 
+
+30:11 y capital Y will change from y Prime to
+30:14 
+
+30:14 Y so the idea is that if if if if
+30:17 
+
+30:17 capital Y was y Prime and uh if capital
+30:21 
+
+30:21 x was X prime or if I imagine that to be
+30:25 
+
+30:25 like that and then if I change if I
+30:27 
+
+30:27 imagine that X Prime becomes X then what
+30:29 
+
+30:29 is the probability that y Prime becomes
+30:32 
+
+30:32 y so that's uh that's and usually that's
+30:36 
+
+30:36 dealt with some sort of structured
+30:38 
+
+30:38 causal models and there are different
+30:40 
+
+30:40 types of structured causal models I'm
+30:42 
+
+30:42 not going to go into that but if you are
+30:44 
+
+30:44 interested to get a easy reading then
+30:47 
+
+30:47 this particular book uh the book of why
+30:51 
+
+30:51 uh by Julia and Dan McKenzie uh is is
+30:55 
+
+30:55 really interesting you should just grab
+30:58 
+
+30:58 it and just go through a few some part
+31:01 
+
+31:01 of it and it's really
+31:03 
+
+31:03 interesting okay so
+31:05 
+
+31:05 uh so now uh the the techniques right so
+31:10 
+
+31:10 we talked about what is reasoning uh the
+31:13 
+
+31:13 varieties of reasoning so now the
+31:15 
+
+31:15 techniques the contenders so natural
+31:18 
+
+31:18 language reasoning uh um has three
+31:22 
+
+31:22 different uh broadly very broadly
+31:25 
+
+31:25 speaking three different techniques one
+31:26 
+
+31:26 is end to endend reasoning which
+31:29 
+
+31:29 you most of the cases which you see uh
+31:33 
+
+31:33 most much of the literature is about end
+31:35 
+
+31:35 to end reasoning uh I I'll I'll give you
+31:39 
+
+31:39 a very easy example of what uh that is
+31:42 
+
+31:42 and how that differs from the other
+31:45 
+
+31:45 category which is forward
+31:46 
+
+31:46 reasoning uh and then then there's this
+31:49 
+
+31:49 third category which is uh which is
+31:52 
+
+31:52 backward reasoning right so uh end to
+31:55 
+
+31:55 end reasoning uh usually you see that
+31:58 
+
+31:58 like a black box you don't really have a
+32:01 
+
+32:01 stepwise procedure as to uh you know why
+32:06 
+
+32:06 certain things happened and why you
+32:08 
+
+32:08 concluded certain things so that
+32:10 
+
+32:10 intermediate thought process or thinking
+32:13 
+
+32:13 it loud you know is uh is not there in
+32:17 
+
+32:17 end to end reasoning right forward
+32:20 
+
+32:20 reasoning is uh it's more
+32:22 
+
+32:22 interpretable uh but the biggest problem
+32:25 
+
+32:25 is that as you will see um the search
+32:28 
+
+32:28 space is increases because uh you have
+32:31 
+
+32:31 to open up all the possibilities and
+32:34 
+
+32:34 then search through all the
+32:35 
+
+32:35 possibilities and then uh in order to
+32:38 
+
+32:38 give that interpretation which means in
+32:39 
+
+32:39 order to show the entire path of final
+32:44 
+
+32:44 the to leading to the final conclusion
+32:45 
+
+32:45 you have to open up or unfold all the
+32:48 
+
+32:48 paths that and then show and then you
+32:51 
+
+32:51 negate saying that oh this won't lead to
+32:53 
+
+32:53 the final conclusion this won't lead to
+32:54 
+
+32:54 the final conclusion and then you narrow
+32:56 
+
+32:56 down to one specific path and then you
+32:59 
+
+32:59 explain that path but in order to do
+33:01 
+
+33:01 that in order to do that elimination you
+33:03 
+
+33:03 have to unfold that entire possibility
+33:05 
+
+33:05 set of possibilities and then so that
+33:08 
+
+33:08 that's why it's uh
+33:10 
+
+33:10 computationally uh quite
+33:13 
+
+33:13 expensive and backward reasoning uh one
+33:16 
+
+33:16 major problem is that you go backwards
+33:18 
+
+33:18 it's just the opposite of forward
+33:19 
+
+33:19 reasoning so you start from the end and
+33:22 
+
+33:22 then you uh come to the beginning sort
+33:25 
+
+33:25 of and I'll see you show you an example
+33:28 
+
+33:28 and because it you always start from the
+33:30 
+
+33:30 end it becomes too tied up to the goal
+33:33 
+
+33:33 to that one particular goal which means
+33:35 
+
+33:35 that uh the same sort of reasoning you
+33:37 
+
+33:37 cannot generalize for similar kind of
+33:40 
+
+33:40 goals you know which means you take one
+33:42 
+
+33:42 goal and you come backward and while you
+33:45 
+
+33:45 come backward to the uh you are able to
+33:49 
+
+33:49 explain sort of why you know how you
+33:52 
+
+33:52 reach that goal but it's very difficult
+33:55 
+
+33:55 to generalize this sort of uh and this
+33:58 
+
+33:58 sort of reasoning process okay so uh uh
+34:02 
+
+34:02 how did it differ so so let's say that I
+34:05 
+
+34:05 asked this question who is older Obama
+34:08 
+
+34:08 or Michelle uh and then uh the model
+34:12 
+
+34:12 straight away gives me this answer the
+34:14 
+
+34:14 answer is Obama that would be end to
+34:17 
+
+34:17 then which means the model did not tell
+34:19 
+
+34:19 me um several things you know which
+34:22 
+
+34:22 probably the model used uh as a part of
+34:25 
+
+34:25 the latent information that the model
+34:27 
+
+34:27 has already learned or being train on
+34:29 
+
+34:29 trained on as an example Obama was born
+34:32 
+
+34:32 in 1961 Michelle was born in 1964 1961
+34:36 
+
+34:36 is early than 1964 but it's all hidden
+34:40 
+
+34:40 so it's all hidden from us from the user
+34:43 
+
+34:43 so that's why all we get to know is that
+34:46 
+
+34:46 we give this input question and we get
+34:48 
+
+34:48 the output and this would be like an end
+34:51 
+
+34:51 to end and we train such a model let's
+34:53 
+
+34:53 say that we are able we trying to train
+34:55 
+
+34:55 such a model a question answering system
+34:57 
+
+34:57 and we are just trying to figure out a
+34:60 
+
+34:60 function which is this hidden function
+35:03 
+
+35:03 and we just takes this as an input and
+35:05 
+
+35:05 Maps this to the to the answer now how
+35:08 
+
+35:08 that really works exactly how what is
+35:11 
+
+35:11 the ingredient how the ingredients are
+35:13 
+
+35:13 getting combined we have no clue we
+35:16 
+
+35:16 can't interpret that that would be end
+35:19 
+
+35:19 to end right and then you have the
+35:21 
+
+35:21 forward uh um the forward chain or the
+35:25 
+
+35:25 or the forward reasoning so again the
+35:28 
+
+35:28 same question who is older Obama or
+35:30 
+
+35:30 Michelle so what you do is you expand
+35:33 
+
+35:33 you expand the possibilities and you say
+35:35 
+
+35:35 that okay all right so one uh important
+35:38 
+
+35:38 thing is that I first need to answer the
+35:41 
+
+35:41 first question which is the first part
+35:43 
+
+35:43 of the question which is that the age of
+35:45 
+
+35:45 Obama so let me answer that so Obama
+35:48 
+
+35:48 born in 1961 I'm going to answer the
+35:51 
+
+35:51 next part of the question which is i'
+35:54 
+
+35:54 you know the the birth date of Michelle
+35:57 
+
+35:57 and and I said that okay I got the
+35:59 
+
+35:59 answer Michelle born in 1964 I combined
+36:02 
+
+36:02 these two and I then uh say that Obama
+36:06 
+
+36:06 was older than Michelle and then finally
+36:09 
+
+36:09 I give the answer the answer is Obama
+36:12 
+
+36:12 and this is all um you know shown to the
+36:16 
+
+36:16 user which means this is not hidden from
+36:19 
+
+36:19 the user so you are actually step by
+36:21 
+
+36:21 step you know working out your thought
+36:24 
+
+36:24 you know kind of very similar to Chain
+36:26 
+
+36:26 of Thought reasoning uh I'll show you
+36:28 
+
+36:28 one paper which actually does this sort
+36:31 
+
+36:31 of thing um the very first paper on sort
+36:34 
+
+36:34 of one of the very first papers on Chain
+36:36 
+
+36:36 of
+36:37 
+
+36:37 Thought by Google brain uh so this is
+36:40 
+
+36:40 forward reasoning backward reasoning
+36:42 
+
+36:42 would be just the opposite where uh what
+36:45 
+
+36:45 you do is you you take a question and
+36:48 
+
+36:48 this is a particular kind of backward
+36:50 
+
+36:50 reasoning which involves breaking the
+36:52 
+
+36:52 question or decomposing the question so
+36:56 
+
+36:56 you say okay so who is old Obama or
+36:59 
+
+36:59 Michelle and you break it up into two qu
+37:01 
+
+37:01 further questions when was Obama born
+37:03 
+
+37:03 when was Michelle born so you are
+37:06 
+
+37:06 actually breaking up into further
+37:07 
+
+37:07 subqueries or sub questions explicit
+37:11 
+
+37:11 questions which you did not do in
+37:12 
+
+37:12 forward there was no exp explicit sub
+37:15 
+
+37:15 questions that that was generated and
+37:18 
+
+37:18 then you answer those sub questions 1961
+37:21 
+
+37:21 1964 and then you again form a new
+37:24 
+
+37:24 question which one is earlier 1961 and
+37:28 
+
+37:28 1964 and you g answer so it's almost
+37:31 
+
+37:31 like a a soli it's almost like a
+37:34 
+
+37:34 monologue you know and you are asking
+37:36 
+
+37:36 yourself some questions and you're
+37:37 
+
+37:37 answering you know back sort of so which
+37:41 
+
+37:41 one is earlier 1961 or 1964 and you
+37:44 
+
+37:44 answer yourself 1961 and therefore you
+37:47 
+
+37:47 say that the answer is
+37:51 
+
+37:51 Obama okay so um so note the difference
+37:55 
+
+37:55 between forward and backward so in in
+37:58 
+
+37:58 forward you don't form intermediate
+37:60 
+
+37:60 questions and then answer back that
+38:02 
+
+38:02 question and then move forward that's
+38:04 
+
+38:04 not how we
+38:05 
+
+38:05 work okay
+38:07 
+
+38:07 uh uh one uh uh specific example of
+38:12 
+
+38:12 forward reasoning is a chain of thorn
+38:13 
+
+38:13 prompting so standard prompting would be
+38:16 
+
+38:16 as as an example you know you ask this
+38:19 
+
+38:19 question Roger has five tennis balls uh
+38:22 
+
+38:22 he buys two more cans of tennis balls uh
+38:25 
+
+38:25 each ball each can has three tennis
+38:27 
+
+38:27 balls how many tennis balls does he have
+38:29 
+
+38:29 now and U let's say that you give an
+38:33 
+
+38:33 example in the promt which is a
+38:34 
+
+38:34 demonstration and you give one example
+38:36 
+
+38:36 let's say this is this case of one shot
+38:39 
+
+38:39 so in the case of one shot you you give
+38:41 
+
+38:41 the example answer is 11 and then you
+38:43 
+
+38:43 ask this question the query uh the
+38:46 
+
+38:46 cafeteria has 23 apples if they used 20
+38:48 
+
+38:48 to make lunch and bought six more how
+38:51 
+
+38:51 many apples do they have and let's say
+38:54 
+
+38:54 that the model outputs and this is what
+38:56 
+
+38:56 they saw that the model actually
+38:58 
+
+38:58 in a uh gave the wrong answer and in the
+39:01 
+
+39:01 wrong answer in this case is 27 but the
+39:04 
+
+39:04 moment they did it through a chain of
+39:06 
+
+39:06 thoughts out of a prompting where they
+39:08 
+
+39:08 not only just in the example they did
+39:11 
+
+39:11 not just give the answer but they also
+39:13 
+
+39:13 give that forward process you know so
+39:16 
+
+39:16 that graph the the forward graph they
+39:19 
+
+39:19 actually put that in as a part of the
+39:21 
+
+39:21 prompt as in the case of Roger started
+39:24 
+
+39:24 with five balls two kinds of three balls
+39:26 
+
+39:26 each in six tennis balls 5 + 6 = to 11
+39:29 
+
+39:29 the answer is 11 right so that's how
+39:32 
+
+39:32 they gave that so they give that graph
+39:34 
+
+39:34 sort of as a part of the prompt and then
+39:37 
+
+39:37 they asked the next question and you
+39:40 
+
+39:40 know the model started following that
+39:42 
+
+39:42 sort of a graph procedure as like the
+39:45 
+
+39:45 example and gave the right answer and
+39:49 
+
+39:49 they try to experiment that uh and this
+39:52 
+
+39:52 is a new rips 2022 paper uh by Google
+39:55 
+
+39:55 brain and they try to explain in
+39:58 
+
+39:58 experiment that with um with gpt3 175
+40:02 
+
+40:02 billion and palm 540 billion and they
+40:07 
+
+40:07 looked at pal 540 billion is lot lot
+40:10 
+
+40:10 bigger and they looked into the uh
+40:14 
+
+40:14 without the I mean with the standard
+40:16 
+
+40:16 prompting just normal plain simple
+40:18 
+
+40:18 vanilla standard prompting and then they
+40:20 
+
+40:20 did the Chain of Thought The Chain of
+40:22 
+
+40:22 Thought is in red uh the standard
+40:24 
+
+40:24 prompting is in yellow and you see this
+40:26 
+
+40:26 big bump in terms of the math word
+40:28 
+
+40:28 problems which is there in the
+40:31 
+
+40:31 GSM uh Benchmark data set and the
+40:35 
+
+40:35 solving rate uh improves uh
+40:38 
+
+40:38 significantly as you can see so 57
+40:41 
+
+40:41 correct answers out of 100 questions so
+40:43 
+
+40:43 every time it asks 100 questions so
+40:45 
+
+40:45 these are math problems arithmetic plain
+40:48 
+
+40:48 simple arithmetic problems the example
+40:50 
+
+40:50 that you see over here okay so uh now an
+40:54 
+
+40:54 example of backward reason reasoning you
+40:57 
+
+40:57 know or backward chaining so this is uh
+41:01 
+
+41:01 a paper uh you know it talks about this
+41:04 
+
+41:04 model called iner This is a paper by ai2
+41:08 
+
+41:08 uh Allan Institute uh published in 2022
+41:13 
+
+41:13 and again uh what they do was that let's
+41:15 
+
+41:15 say that this is the question do plants
+41:17 
+
+41:17 require CO2 to make their own food they
+41:19 
+
+41:19 break it up into two possible
+41:23 
+
+41:23 subqueries uh plants require uh you know
+41:26 
+
+41:26 hypothesis rather plant require CO2 to
+41:29 
+
+41:29 make their own food plants do not
+41:31 
+
+41:31 require CO2 to make their own food and
+41:33 
+
+41:33 from there they start generating uh
+41:36 
+
+41:36 entailments and one example entailment
+41:39 
+
+41:39 is something like this where they say
+41:41 
+
+41:41 that paper let's say that paper clip uh
+41:43 
+
+41:43 conducts uh
+41:46 
+
+41:46 electricity and uh which is further uh
+41:49 
+
+41:49 broken down into two uh hypothesis a
+41:54 
+
+41:54 paper clip is made of metal and metals
+41:57 
+
+41:57 conduct ELC electricity and again paper
+41:60 
+
+41:60 clip is made of metal is again then
+42:02 
+
+42:02 further broken down into smaller uh
+42:05 
+
+42:05 paths or which are again forms as the
+42:08 
+
+42:08 premise of the H you know which is a
+42:10 
+
+42:10 paper clip is made of steel and steel is
+42:12 
+
+42:12 a metal right and and so on and so forth
+42:16 
+
+42:16 right so basically what it what it does
+42:17 
+
+42:17 is that it takes a u a particular um uh
+42:23 
+
+42:23 a particular premise which is paper clip
+42:25 
+
+42:25 conducts electricity and then it go goes
+42:28 
+
+42:28 downwards it it generates the smaller
+42:32 
+
+42:32 premises from the bigger premise so uh
+42:36 
+
+42:36 it's sort of like top down and it
+42:38 
+
+42:38 generates downwards sort of so uh these
+42:41 
+
+42:41 two green nodes that you can see so if I
+42:46 
+
+42:46 uh so if I break down in the two green
+42:48 
+
+42:48 nodes are the smaller premises right the
+42:52 
+
+42:52 the the shorter promises and if I if I
+42:55 
+
+42:55 see that this shorter promises the
+42:56 
+
+42:56 probability is one is of 0.9 and one has
+42:60 
+
+42:60 8 so the joint probability would become
+43:02 
+
+43:02 72 so I revise 75 and I overwrite 75 to
+43:08 
+
+43:08 to make it 72 and then again I break it
+43:11 
+
+43:11 down one step further uh into the next
+43:15 
+
+43:15 uh two so it's like top down the next
+43:18 
+
+43:18 two premises the sub premises sort of
+43:21 
+
+43:21 and if I again I try to understand what
+43:23 
+
+43:23 is the probability of the sub promises
+43:25 
+
+43:25 and if it turns out to be point 6 and8
+43:29 
+
+43:29 so my 0.9 is then revised to 29 and then
+43:35 
+
+43:35 29 and 28 will again get revised you
+43:39 
+
+43:39 know and 72 will get revised uh
+43:41 
+
+43:41 accordingly and so on and so forth and
+43:44 
+
+43:44 finally uh I will have the final sort of
+43:47 
+
+43:47 a proof uh with certain score or certain
+43:51 
+
+43:51 probability of that of that proof and
+43:54 
+
+43:54 let's say that probability turns out to
+43:56 
+
+43:56 be 081 so um so that's how I keep
+43:59 
+
+43:59 updating and the while generating the
+44:02 
+
+44:02 proof I also generate all the sub
+44:05 
+
+44:05 premises and the sub promises will uh
+44:08 
+
+44:08 will constitute my
+44:10 
+
+44:10 explanation in in in other words I I say
+44:15 
+
+44:15 that the topmost node or the topmost
+44:18 
+
+44:18 premise is true because the next two
+44:20 
+
+44:20 things the next two nodes are true
+44:22 
+
+44:22 because the next three nodes are two
+44:25 
+
+44:25 true the child nodes are true because
+44:28 
+
+44:28 their children are true with certain
+44:31 
+
+44:31 probability so that's how I you know you
+44:35 
+
+44:35 know sort of
+44:38 
+
+44:38 uh look into this uh entire thing and uh
+44:42 
+
+44:42 and I cross out definitely I cross out
+44:44 
+
+44:44 those sort of Twigs uh which are very
+44:47 
+
+44:47 low probability and I only take those
+44:49 
+
+44:49 ones which are which have higher
+44:51 
+
+44:51 probability and that's how I say that
+44:54 
+
+44:54 okay plants require CO2 to make their
+44:56 
+
+44:56 own food which would mean that plants
+44:58 
+
+44:58 require CO2 for photosynthesis that
+45:00 
+
+45:00 that's one sub premise which I found to
+45:03 
+
+45:03 have a higher probability the other sub
+45:05 
+
+45:05 premises photosynthesis makes food for
+45:07 
+
+45:07 the plant which is which also has a
+45:09 
+
+45:09 higher sub higher probability a sub
+45:12 
+
+45:12 premise and I uh put them together to
+45:16 
+
+45:16 finally uh
+45:19 
+
+45:19 justify my original uh hypothesis that
+45:23 
+
+45:23 plants require CO2 to make their own
+45:25 
+
+45:25 food however the other branch plants do
+45:28 
+
+45:28 not require sec to make their own food
+45:31 
+
+45:31 that automatically automatically got got
+45:33 
+
+45:33 canceled out because the sub branches or
+45:36 
+
+45:36 the sub promises could not gather enough
+45:39 
+
+45:39 probability in terms of uh you know how
+45:42 
+
+45:42 much possibility they have being true so
+45:46 
+
+45:46 they could not gather enough probability
+45:49 
+
+45:49 to push that up upwards towards the the
+45:52 
+
+45:52 other node and that's why that got
+45:54 
+
+45:54 canceled out so that's the idea
+45:58 
+
+45:58 okay so the the results were like you
+46:01 
+
+46:01 know when they just did direct versus
+46:04 
+
+46:04 when they tried tried ENT tailor and
+46:07 
+
+46:07 they always got a better result on these
+46:10 
+
+46:10 two data sets the OB QA data sets and
+46:12 
+
+46:12 the quarts data set uh in terms of uh uh
+46:17 
+
+46:17 this
+46:18 
+
+46:18 technique uh so how do we know that
+46:21 
+
+46:21 these llms are good in re good at
+46:24 
+
+46:24 reasoning uh so there are a standard
+46:26 
+
+46:26 Benchmark there
+46:28 
+
+46:28 uh tasks or data sets uh for all these
+46:32 
+
+46:32 uh different types of reasoning
+46:33 
+
+46:33 classical logical reasoning natural
+46:35 
+
+46:35 language inference multihop question
+46:37 
+
+46:37 answering Common Sense reasoning complex
+46:39 
+
+46:39 reasoning and some others uh as an
+46:42 
+
+46:42 example logical reasoning you have all
+46:44 
+
+46:44 these uh um data sets uh mostly to do
+46:48 
+
+46:48 with your improving but some are also to
+46:50 
+
+46:50 do with uh
+46:52 
+
+46:52 inference and these are mostly synthetic
+46:55 
+
+46:55 synthetic means uh these are automated
+46:60 
+
+46:60 uh automatically generated through some
+47:02 
+
+47:02 seed data because these are just logical
+47:05 
+
+47:05 statements so you can actually uh
+47:08 
+
+47:08 generate uh true and false statements
+47:10 
+
+47:10 using smaller Clauses that are either
+47:13 
+
+47:13 true and
+47:15 
+
+47:15 false uh uh and there one of the most
+47:19 
+
+47:19 famous uh most used ones is Babel Babel
+47:23 
+
+47:23 15 uh but then there's another one
+47:26 
+
+47:26 called logic glue which is also um quite
+47:30 
+
+47:30 quite famous in this uh in in this
+47:32 
+
+47:32 challenge which is logical reasoning
+47:35 
+
+47:35 challenge then uh there is uh uh a
+47:38 
+
+47:38 diffusible reasoning task which is uh
+47:41 
+
+47:41 deductive reasoning but can be
+47:42 
+
+47:42 diffusible which means you can there is
+47:45 
+
+47:45 a possibility that you backtrack or you
+47:47 
+
+47:47 retrack or you change your conclusion
+47:49 
+
+47:49 previous conclusion so there's uh there
+47:52 
+
+47:52 are data setes on that one is Babel 16
+47:54 
+
+47:54 and another uh quite uh uh used data set
+47:60 
+
+47:60 is deal then then there is a diffusible
+48:03 
+
+48:03 nli so these are uh that sort of uh data
+48:08 
+
+48:08 sets uh so so just to remind you what is
+48:14 
+
+48:14 diffusible
+48:16 
+
+48:16 intering uh so nli again there are lots
+48:21 
+
+48:21 actually there are loss it started with
+48:23 
+
+48:23 snli uh back then in 2018 and then
+48:27 
+
+48:27 uh you now have lot of different types
+48:30 
+
+48:30 of recently you have the scientific Tale
+48:32 
+
+48:32 the science tale and the science science
+48:34 
+
+48:34 NL so these are also very uh very
+48:38 
+
+48:38 standard uh data sets that's that's used
+48:41 
+
+48:41 for uh uh reasoning uh at the nli level
+48:45 
+
+48:45 you know or or rather entailment level
+48:48 
+
+48:48 but entailment which can be considered
+48:50 
+
+48:50 as reasoning as I said you remember that
+48:53 
+
+48:53 not all entailments can be considered as
+48:55 
+
+48:55 reasoning
+48:58 
+
+48:58 so multihop query uh again uh basically
+49:02 
+
+49:02 uh all this sort of uh data sets are
+49:05 
+
+49:05 there uh two very uh important data set
+49:09 
+
+49:09 one is hot Hotpot QA and one is
+49:13 
+
+49:13 music uh I give you one example so uh uh
+49:18 
+
+49:18 the first one on the left is uh hot hot
+49:22 
+
+49:22 pot keyway uh that came up in emlp 2018
+49:26 
+
+49:26 uh and the question data set looks
+49:28 
+
+49:28 something like this as an example
+49:30 
+
+49:30 armagan in retrospect was written by the
+49:33 
+
+49:33 author who was best known for what 1969
+49:37 
+
+49:37 satire novel and the answer is Slaughter
+49:41 
+
+49:41 House 5 uh let's say the question is and
+49:44 
+
+49:44 the followup question is who is the
+49:46 
+
+49:46 author of armagan in retrospect and the
+49:50 
+
+49:50 first intermediate answer is Kurt vot uh
+49:53 
+
+49:53 the second question is what 1969 satire
+49:56 
+
+49:56 Noel
+49:57 
+
+49:57 was uh A1 Prime which is the answer the
+50:02 
+
+50:02 pre intermediate answer the previous
+50:04 
+
+50:04 answer best known for and then you come
+50:06 
+
+50:06 up with the uh SL the the final answer
+50:10 
+
+50:10 which is Slaughter House 5 why it is
+50:12 
+
+50:12 multi hop because as you could see that
+50:15 
+
+50:15 the question was broken down into two
+50:17 
+
+50:17 hops the first hop which gave you the
+50:20 
+
+50:20 intermediate answer and then the next to
+50:23 
+
+50:23 now the context over here is uh
+50:26 
+
+50:26 basically Ally uh the overall uh uh you
+50:30 
+
+50:30 know information from where you gather
+50:33 
+
+50:33 the answer and uh but then uh in
+50:38 
+
+50:38 contrast music uh uh came up with this
+50:41 
+
+50:41 idea that no you should not give the
+50:43 
+
+50:43 answer in the context you should hide it
+50:45 
+
+50:45 from the context and uh so that it
+50:48 
+
+50:48 becomes a more challenging uh data set
+50:51 
+
+50:51 to the uh and these sort of things come
+50:53 
+
+50:53 up so as an example in music so so what
+50:56 
+
+50:56 music is saying is that this uh so this
+50:60 
+
+50:60 Kurt bonard most famous for satial novel
+51:03 
+
+51:03 so the satial word is already there in
+51:05 
+
+51:05 the context so what it is doing probably
+51:07 
+
+51:07 it is just extracting that connecting
+51:09 
+
+51:09 that with the answer slaughter house 5
+51:12 
+
+51:12 and it's able to the model is able to do
+51:14 
+
+51:14 that so don't do it so what it is saying
+51:17 
+
+51:17 is that don't use the word sat artical
+51:18 
+
+51:18 in the context take it out and then try
+51:21 
+
+51:21 to challenge the
+51:23 
+
+51:23 model okay so then there is a common
+51:26 
+
+51:26 sense reasoning open book question
+51:28 
+
+51:28 answering which is more about what kind
+51:30 
+
+51:30 of questions like this is an example of
+51:32 
+
+51:32 a what question uh so you give some
+51:36 
+
+51:36 multiple choice options you give a fact
+51:39 
+
+51:39 you give some common knowledge and uh
+51:42 
+
+51:42 then you ask a question uh then there is
+51:45 
+
+51:45 what if and why questions a bit more
+51:47 
+
+51:47 challenging and this is very very uh
+51:50 
+
+51:50 popular data set uh the swag and the H
+51:53 
+
+51:53 swag data set uh one example of H data
+51:57 
+
+51:57 site I have given you in the inset um
+52:01 
+
+52:01 where you know you have you pose a event
+52:04 
+
+52:04 and then you ask what if uh let's say as
+52:07 
+
+52:07 an example over here what if the woman
+52:10 
+
+52:10 who was outside with a bucket and a dog
+52:12 
+
+52:12 and the dog was running around uh trying
+52:14 
+
+52:14 to avoid a bath and what if she then
+52:17 
+
+52:17 does this versus this versus C versus D
+52:21 
+
+52:21 which one makes more sense
+52:24 
+
+52:24 so um so so that's sort of the Common
+52:28 
+
+52:28 Sense
+52:30 
+
+52:30 reasoning and then the how there is
+52:32 
+
+52:32 another kind of Common Sense which is
+52:34 
+
+52:34 more to do with the physics the physics
+52:36 
+
+52:36 of the environment you know the physics
+52:38 
+
+52:38 of our environment so that is the p uh
+52:41 
+
+52:41 data set and uh as an example this is
+52:46 
+
+52:46 a this was the paper the P paper came up
+52:48 
+
+52:48 in triple 2020 so two SE to separate egg
+52:52 
+
+52:52 whites from Yol using a water bottle you
+52:54 
+
+52:54 should so they give two options A and B
+52:58 
+
+52:58 and then uh you have to choose which one
+53:01 
+
+53:01 so they saw that the model was not able
+53:04 
+
+53:04 to at that time they saw that the models
+53:06 
+
+53:06 were not able to do very good over there
+53:08 
+
+53:08 over
+53:09 
+
+53:09 here and then there are some mixed ones
+53:12 
+
+53:12 uh like uh
+53:15 
+
+53:15 csq2 um uh and something an example of
+53:21 
+
+53:21 csq2 uh which was published in new 2021
+53:24 
+
+53:24 was uh this sort of uh an example where
+53:28 
+
+53:28 uh you compose an example multiple
+53:31 
+
+53:31 examples and you ask the model to answer
+53:35 
+
+53:35 and uh then you do a offline
+53:40 
+
+53:40 validation and then there are other kind
+53:42 
+
+53:42 of complex reasoning data sets lots of
+53:45 
+
+53:45 complex reasoning data sets and
+53:47 
+
+53:47 recently uh some multitask complex
+53:50 
+
+53:50 reasoning data sets like MML MML and big
+53:55 
+
+53:55 bench uh
+53:57 
+
+53:57 we talked about big bench when we when
+53:59 
+
+53:59 we discuss scaling laws if you remember
+54:01 
+
+54:01 so they also have come up with their own
+54:04 
+
+54:04 very very challenging data sets you know
+54:06 
+
+54:06 big bench and MML is considered to be
+54:09 
+
+54:09 really
+54:10 
+
+54:10 challenging now the final part uh I'm
+54:14 
+
+54:14 going to try to be as quick as possible
+54:16 
+
+54:16 so is reasoning reasonably
+54:19 
+
+54:19 reasoning so uh so this is where uh kind
+54:24 
+
+54:24 of like uh and uh an eye opener sort of
+54:28 
+
+54:28 that I wanted to give you guys so one
+54:30 
+
+54:30 important thing is very recently in iclr
+54:34 
+
+54:34 you know 2024 this year this paper uh
+54:38 
+
+54:38 was published called the reversal curse
+54:41 
+
+54:41 you know llm Trin on a is B fails to
+54:45 
+
+54:45 learn B is a so as an example and they
+54:48 
+
+54:48 did did it with this parent child sort
+54:50 
+
+54:50 of a relationship so if this they ask
+54:52 
+
+54:52 this question and they train or they
+54:54 
+
+54:54 find you in the model on like this kind
+54:56 
+
+54:56 of question like who is Tom Cruz's
+54:57 
+
+54:57 mother and let's said the answer is Tom
+54:60 
+
+54:60 Cruz's mother is Mary Lee cifer and then
+55:03 
+
+55:03 they ask after training on or fine
+55:05 
+
+55:05 tuning on these sort of questions then
+55:07 
+
+55:07 they ask the model the reverse question
+55:09 
+
+55:09 like who is Mary Le uh plyer son and
+55:13 
+
+55:13 unfortunately the models could not
+55:16 
+
+55:16 answer back so the re the models were
+55:19 
+
+55:19 not able to rever answer the reverse
+55:21 
+
+55:21 question which is basically uh which
+55:24 
+
+55:24 leaves us questioning that whether the
+55:29 
+
+55:29 models actually did reason or do do they
+55:32 
+
+55:32 really have the reasoning ability is at
+55:35 
+
+55:35 all or not right so so this was uh
+55:40 
+
+55:40 tested on GPT 3.5 turbo llama 7B Lama
+55:44 
+
+55:44 30b and Lama
+55:46 
+
+55:46 65b um
+55:48 
+
+55:48 another uh uh test that was recently
+55:52 
+
+55:52 done in in published a paper published
+55:54 
+
+55:54 in knle 2024 by some bunch of people at
+55:58 
+
+55:58 MIT and Boston University is like they
+56:00 
+
+56:00 created a a counterfactual world now
+56:03 
+
+56:03 this counterfactual world don't uh so
+56:06 
+
+56:06 this is something that is possible so
+56:08 
+
+56:08 it's not an very imaginary sort of a
+56:11 
+
+56:11 counterfactual world but something that
+56:12 
+
+56:12 is absolutely possible and very simple
+56:16 
+
+56:16 counterfactuals like as an example if I
+56:18 
+
+56:18 say what is 2 + 2 you would say four but
+56:22 
+
+56:22 that is you assume that the base is 10
+56:25 
+
+56:25 right so what if I change the base to 9
+56:28 
+
+56:28 then what would be 2 + 2 so as simple as
+56:31 
+
+56:31 that right so uh so what they did was
+56:35 
+
+56:35 that when they did that uh and they saw
+56:37 
+
+56:37 that it drastically the performance
+56:39 
+
+56:39 drastically dropped and they tested it
+56:41 
+
+56:41 on
+56:42 
+
+56:42 gp4 and let's say for arithmetic you can
+56:44 
+
+56:44 see the blue is what they usually did
+56:47 
+
+56:47 but when that tweak that counterfactual
+56:50 
+
+56:50 tweak uh after doing that coun of
+56:52 
+
+56:52 factual TW let's just base 10 to base 9
+56:56 
+
+56:56 uh
+56:57 
+
+56:57 it it drastically dropped the accuracy
+56:59 
+
+56:59 drastically dropped the same thing for
+57:02 
+
+57:02 code
+57:02 
+
+57:02 execution uh you know where the array
+57:06 
+
+57:06 doesn't start from zero but the array
+57:09 
+
+57:09 starts from one let's say the index the
+57:12 
+
+57:12 array index so they just Chang that and
+57:15 
+
+57:15 uh again the performance drop uh basic
+57:18 
+
+57:18 syntax where subject verb so English is
+57:21 
+
+57:21 a
+57:23 
+
+57:23 SBO language but what if you change
+57:26 
+
+57:26 there VI into some other order surface
+57:29 
+
+57:29 uh order and can they again after after
+57:34 
+
+57:34 doing that can they detect the subject
+57:36 
+
+57:36 of the object and when they did that
+57:38 
+
+57:38 they saw that no they cannot uh most of
+57:41 
+
+57:41 most of the time they cannot of course a
+57:43 
+
+57:43 bit better than arithmetic or or code
+57:46 
+
+57:46 execution but not but still dropped
+57:49 
+
+57:49 logic also uh uh U sort of uh dropped so
+57:55 
+
+57:55 so essentially that leaves us
+57:57 
+
+57:57 questioning uh the ability of the llms
+57:60 
+
+57:60 to reason through counterfactuals or in
+58:02 
+
+58:02 other words do they even have reasoning
+58:04 
+
+58:04 capability because if they did they
+58:07 
+
+58:07 should not have been
+58:09 
+
+58:09 fooled uh blah by such kind of very easy
+58:14 
+
+58:14 counterfactuals and finally this is a
+58:16 
+
+58:16 very interesting uh uh problem I know
+58:20 
+
+58:20 very this is just just recent you know
+58:23 
+
+58:23 so they didn't haven't yet published in
+58:25 
+
+58:25 a particular uh place but
+58:28 
+
+58:28 it's it's done by this lion Ai
+58:31 
+
+58:31 and lab and University of Bristol and
+58:35 
+
+58:35 what they did was they said they just
+58:37 
+
+58:37 said this that okay there they they
+58:39 
+
+58:39 asked this question Alice has n brothers
+58:41 
+
+58:41 and she also has M sisters mind the word
+58:44 
+
+58:44 she how many sisters does Alice's
+58:46 
+
+58:46 brother have right so that's the
+58:49 
+
+58:49 question that they are asking and uh the
+58:52 
+
+58:52 question would be basically uh m+ one
+58:55 
+
+58:55 Including Alice because Alice is she
+58:58 
+
+58:58 right so and then they did all these
+59:00 
+
+59:00 variations basically the variations is
+59:02 
+
+59:02 just basically you know changing the
+59:05 
+
+59:05 value of N and M and what they found out
+59:10 
+
+59:10 uh and this was the prompt so they they
+59:13 
+
+59:13 give a standard prompt and then they
+59:15 
+
+59:15 also give a thinking or kind of like a
+59:17 
+
+59:17 Chain of Thought sort of a prompt as
+59:19 
+
+59:19 well uh so you know like slow thinking
+59:22 
+
+59:22 sort of so before providing answer to
+59:25 
+
+59:25 this think carefully and double check
+59:26 
+
+59:26 the path to the correct solutions for
+59:28 
+
+59:28 any mistakes provide that final answer
+59:30 
+
+59:30 and so it's kind of like slow thinking
+59:32 
+
+59:32 sort of thing and uh uh and what
+59:36 
+
+59:36 happened was that when they uh did this
+59:39 
+
+59:39 experiment and they did this experiment
+59:41 
+
+59:41 across almost all the state-ofthe-art
+59:46 
+
+59:46 llms all of them you know they did not
+59:48 
+
+59:48 leave anything including GPD 40 the most
+59:51 
+
+59:51 recent one GPD 40 mini CLA uh CLA 3 opus
+59:57 
+
+59:57 right and what they found out was that
+60:00 
+
+60:00 uh
+60:02 
+
+60:02 um you know the the the the the response
+60:06 
+
+60:06 the correct response rate was not really
+60:08 
+
+60:08 very good and it was somewhere around uh
+60:12 
+
+60:12 six somewhere around six in the interval
+60:15 
+
+60:15 some interval of six uh out of 10 uh six
+60:19 
+
+60:19 correct ones for GPT 40 right so that's
+60:23 
+
+60:23 the that's the best one over there and
+60:27 
+
+60:27 uh when they try to uh go for the
+60:29 
+
+60:29 variations which is the AIW plus they
+60:32 
+
+60:32 call it which is all these uh all these
+60:35 
+
+60:35 variations right so when they went for
+60:37 
+
+60:37 the variations they saw that it dropped
+60:39 
+
+60:39 like anything you know everybody
+60:42 
+
+60:42 drastically dropped U the correct
+60:44 
+
+60:44 response rate and uh when uh they tried
+60:49 
+
+60:49 to look at it uh in terms of the
+60:51 
+
+60:51 fluctuations between the correct and the
+60:53 
+
+60:53 wrong they saw uh there's a lot of
+60:56 
+
+60:56 fluctuations between when they were
+60:58 
+
+60:58 correct and when they were wrong so
+60:59 
+
+60:59 there's not real consistency in terms of
+61:02 
+
+61:02 how they performed across the different
+61:05 
+
+61:05 variations right so that's also kind of
+61:07 
+
+61:07 uh leaves us wondering um you know
+61:11 
+
+61:11 whether there is really any reasoning
+61:13 
+
+61:13 going on or not and
+61:16 
+
+61:16 uh uh and and then the most important
+61:19 
+
+61:19 thing is that all these models come up
+61:23 
+
+61:23 at a very uh you know uppish level in
+61:26 
+
+61:26 you know the red quadrant that I have
+61:28 
+
+61:28 marked over there so all these models
+61:31 
+
+61:31 are uh doing really good in the
+61:35 
+
+61:35 MML uh Benchmark and the mlu is a very
+61:39 
+
+61:39 very challenging Benchmark and all these
+61:40 
+
+61:40 models are doing really good up there
+61:43 
+
+61:43 but the moment uh you do this a
+61:48 
+
+61:48 AIW uh trick you know the Alis and
+61:50 
+
+61:50 Wonderland Tri they are not able to go
+61:54 
+
+61:54 beyond two out of 10
+61:57 
+
+61:57 uh correct in the xaxis if you look at
+61:58 
+
+61:58 it they are not able to go beyond two
+62:01 
+
+62:01 out of 10 so although they are doing
+62:03 
+
+62:03 very good in the MML task they're not
+62:05 
+
+62:05 able to do any better in this very
+62:09 
+
+62:09 simple task right and it's only GPD 4 uh
+62:14 
+
+62:14 40 uh which is doing some where you find
+62:18 
+
+62:18 something happening at least so uh so
+62:23 
+
+62:23 that's the I you know that's the major
+62:25 
+
+62:25 problem and you know these models are
+62:27 
+
+62:27 actually doing really good even in the
+62:28 
+
+62:28 GSM task and the GSM task is a math task
+62:32 
+
+62:32 is a math benchmark and you know they
+62:34 
+
+62:34 are doing very good in the math
+62:35 
+
+62:35 benchmark and yet they are doing not so
+62:37 
+
+62:37 good in this very simple
+62:39 
+
+62:39 task right so that's uh that's the
+62:43 
+
+62:43 concern and uh but then you know when uh
+62:47 
+
+62:47 they when they change she to female Al
+62:50 
+
+62:50 and when they made it explicit that
+62:52 
+
+62:52 Alice is a female then suddenly the
+62:55 
+
+62:55 model started doing better right so
+62:59 
+
+62:59 basically that's quite uh uh quite a
+63:03 
+
+63:03 thing you know but anyway some some key
+63:06 
+
+63:06 takeaways is that you know smaller
+63:08 
+
+63:08 models of course perform worse that's
+63:10 
+
+63:10 for sure largest Large Scale Models like
+63:13 
+
+63:13 gbd4 and cl sometimes they show correct
+63:16 
+
+63:16 reasoning but still fail in terms of
+63:21 
+
+63:21 consistency and then do we have some
+63:23 
+
+63:23 time more time otherwise I won't go into
+63:26 
+
+63:26 this
+63:27 
+
+63:27 but this is something that's Talk of the
+63:29 
+
+63:29 Town today you know that was we started
+63:32 
+
+63:32 out with this talk which is the planning
+63:35 
+
+63:35 ability which is another aspect of
+63:37 
+
+63:37 reasoning so the very uh just
+63:39 
+
+63:39 concentrate on the first three uh
+63:42 
+
+63:42 questions so basically can llm come up
+63:44 
+
+63:44 with valid plans that will achieve a
+63:46 
+
+63:46 specific goal so this is the first point
+63:49 
+
+63:49 can llms come up with plans that are
+63:50 
+
+63:50 optimal so first of all come up with the
+63:53 
+
+63:53 plan doesn't forget about whether it is
+63:55 
+
+63:55 optimal or not that's first question the
+63:57 
+
+63:57 second question is can you now come up
+63:59 
+
+63:59 with an optimal plan okay in terms of
+64:01 
+
+64:01 minimizing the cost if the actions if
+64:05 
+
+64:05 every action has cost Associated and
+64:08 
+
+64:08 then uh plan verification can if I give
+64:10 
+
+64:10 an llm a plan then can the llm say that
+64:13 
+
+64:13 yes this plan actually leads to the
+64:15 
+
+64:15 final goal you know which means will the
+64:19 
+
+64:19 llm be able to verify the plan so
+64:22 
+
+64:22 basically in this comes from the world
+64:24 
+
+64:24 of classical planning and uh basically
+64:28 
+
+64:28 something like that that you take a is
+64:30 
+
+64:30 there in one room it picks up the balls
+64:32 
+
+64:32 from that room and goes to the other
+64:34 
+
+64:34 room and drops those balls in the other
+64:35 
+
+64:35 room let's say that's the problem right
+64:38 
+
+64:38 so the objects would be two rooms four
+64:40 
+
+64:40 balls two robot arms you know then then
+64:43 
+
+64:43 there's certain predicates like X which
+64:46 
+
+64:46 means the relationship between the
+64:48 
+
+64:48 objects you know in terms of their
+64:51 
+
+64:51 truthness whether the object is related
+64:53 
+
+64:53 to the other object or not initial state
+64:57 
+
+64:57 which means where where are all the
+64:59 
+
+64:59 objects located and how they are located
+65:01 
+
+65:01 to each other um the goal specification
+65:03 
+
+65:03 what is the final goal and the actions
+65:06 
+
+65:06 which is or in this case what the robots
+65:09 
+
+65:09 can do and what the robot cannot
+65:11 
+
+65:11 do so they use this particular uh
+65:15 
+
+65:15 language for called PDL which is a
+65:18 
+
+65:18 formal language to uh to describe such
+65:22 
+
+65:22 problems uh planning problems and
+65:26 
+
+65:26 it looks something like this it's very
+65:28 
+
+65:28 simple basically so you say objects and
+65:30 
+
+65:30 then in pddl language you'll write it
+65:33 
+
+65:33 like that and then you have predicates
+65:36 
+
+65:36 and in pddl you write the predic
+65:38 
+
+65:38 predicates up like this and then you
+65:41 
+
+65:41 have some initial State and again uh in
+65:44 
+
+65:44 pddl you write this initial States up
+65:48 
+
+65:48 and then finally you put the and then
+65:50 
+
+65:50 you have the actions and all of those
+65:52 
+
+65:52 things and then you finally put the goal
+65:53 
+
+65:53 specification and in PD p DL you put the
+65:57 
+
+65:57 goal and you write the goal like that
+65:58 
+
+65:58 and then you give it to a classical
+65:60 
+
+65:60 planner and the classical planner just
+66:02 
+
+66:02 gives plans through it uh and gives the
+66:05 
+
+66:05 final final set of actions that the most
+66:08 
+
+66:08 optimal set of
+66:10 
+
+66:10 actions so uh what these guys did you
+66:14 
+
+66:14 know basically Professor sub's group at
+66:18 
+
+66:18 ASU and uh also at Colorado uh State
+66:23 
+
+66:23 University uh and this came up in new
+66:26 
+
+66:26 2023 they said that okay what we are
+66:27 
+
+66:27 going to do is we are going to test this
+66:29 
+
+66:29 language models by giving such pddl but
+66:32 
+
+66:32 we will translate the pddl into natural
+66:34 
+
+66:34 language put it into a prompt and then
+66:36 
+
+66:36 give the prompt to the llm and ask the
+66:39 
+
+66:39 llm to to give me the sequence of
+66:41 
+
+66:41 actions as simple as that I'm just uh
+66:44 
+
+66:44 conver you know like condensing this
+66:46 
+
+66:46 entire architecture into this U so so
+66:50 
+
+66:50 this would be something like this so
+66:51 
+
+66:51 giving you know zero shot one shot all
+66:55 
+
+66:55 sorts of P
+66:56 
+
+66:56 uh pidl
+66:58 
+
+66:58 prompts so a prompt would look something
+67:01 
+
+67:01 like this so uh so this is like the PDL
+67:05 
+
+67:05 translated into English put it inside
+67:08 
+
+67:08 the prompt and this is how the prompts
+67:10 
+
+67:10 will look like right so the final
+67:12 
+
+67:12 question would be what is the plan to
+67:14 
+
+67:14 achieve my goal just give the actions in
+67:17 
+
+67:17 the plan so that would be the final
+67:20 
+
+67:20 question after giving after you give all
+67:23 
+
+67:23 this uh descriptions of the problem
+67:26 
+
+67:26 what they found out was that it's it's
+67:30 
+
+67:30 quite bad you know all these models you
+67:32 
+
+67:32 know including gp40 jpd 40 mini they
+67:36 
+
+67:36 were not really very good even for those
+67:39 
+
+67:39 plans that are feasible plans you know
+67:41 
+
+67:41 feasible plans mean plans that are
+67:43 
+
+67:43 actually correct plans so when they gave
+67:46 
+
+67:46 the correct plans translated that into
+67:48 
+
+67:48 English and asked for what should be the
+67:50 
+
+67:50 sequence they could not get it back and
+67:53 
+
+67:53 this was for two types of data sets one
+67:55 
+
+67:55 is the blocks world where all the
+67:58 
+
+67:58 objects are known all the states are
+68:01 
+
+68:01 known and then then and then there are
+68:02 
+
+68:02 some mystery block where what they do is
+68:04 
+
+68:04 that they actually uh you know off Fus
+68:08 
+
+68:08 skate certain uh objects in the OR
+68:12 
+
+68:12 certain States kind of like certain
+68:15 
+
+68:15 intermediary objects or intermediary
+68:17 
+
+68:17 States they obus skate or maybe uh
+68:21 
+
+68:21 remove them or maybe change their name
+68:24 
+
+68:24 and make the name something else
+68:26 
+
+68:26 because sometimes what happens in
+68:28 
+
+68:28 LMS because it's actually a language
+68:31 
+
+68:31 model so when they get to see the name
+68:33 
+
+68:33 they start associating the name with the
+68:36 
+
+68:36 action and they might start giving the
+68:38 
+
+68:38 action so what if you change let's say
+68:40 
+
+68:40 what if I change my name from Sage to X
+68:44 
+
+68:44 but the action will still the plan will
+68:45 
+
+68:45 still remain the same if I have to move
+68:47 
+
+68:47 out of uh bti building right so it's
+68:50 
+
+68:50 like that so what if I change the name
+68:52 
+
+68:52 of bti to Y the building to Y but the
+68:55 
+
+68:55 plan of action should remain the same so
+68:57 
+
+68:57 what if I abstract it out or change it
+68:60 
+
+68:60 and what if I do that's basically the
+69:01 
+
+69:01 mystery block world and what happens is
+69:04 
+
+69:04 that they you know if you can look at if
+69:06 
+
+69:06 you see this they
+69:08 
+
+69:08 dramatically uh drop down you know even
+69:11 
+
+69:11 the best models like GPT 40 is just
+69:15 
+
+69:15 28.3% correct of the time correct when
+69:17 
+
+69:17 it comes to uh the planning problem
+69:21 
+
+69:21 right so uh so this is what happens you
+69:25 
+
+69:25 know when uh so and obviously this was
+69:28 
+
+69:28 quite intuitive that as the plant length
+69:31 
+
+69:31 in the x-axis as the plant length
+69:33 
+
+69:33 increases it becomes more and more
+69:35 
+
+69:35 complex so that the accuracy the
+69:37 
+
+69:37 correctness goes down uh and the blue
+69:41 
+
+69:41 one is basically 01 uh
+69:45 
+
+69:45 gp01 that's the blue one while the at
+69:48 
+
+69:48 the top uh the dotted orange is the
+69:52 
+
+69:52 classical planner that always does it
+69:55 
+
+69:55 correct because there's no probabalistic
+69:57 
+
+69:57 there's nothing problemistic about it it
+69:59 
+
+69:59 just plans things out and gets the
+70:01 
+
+70:01 correct optimal uh plan out so basically
+70:04 
+
+70:04 that's uh that's fast downward that's a
+70:07 
+
+70:07 planner a classical planner so how uh so
+70:11 
+
+70:11 this is what uh what it does so
+70:13 
+
+70:13 basically what uh these people's uh
+70:16 
+
+70:16 point of view is that you should not use
+70:19 
+
+70:19 llm as a planner by itself but you
+70:22 
+
+70:22 should rather use llm as gener ating a
+70:26 
+
+70:26 set of possible candidate plans and then
+70:29 
+
+70:29 you should use a proper planner like a
+70:31 
+
+70:31 classical planner to figure out which
+70:33 
+
+70:33 one is the best one out so you you know
+70:36 
+
+70:36 the llm kind of is like an assistant
+70:39 
+
+70:39 that helps to narrow down the set of all
+70:41 
+
+70:41 possible plans which might be humongous
+70:44 
+
+70:44 and then the planner actually comes in
+70:47 
+
+70:47 and then figures out which one out of
+70:50 
+
+70:50 those possible generated plans should be
+70:53 
+
+70:53 a good plan to work on so the key
+70:56 
+
+70:56 takeaway is this that on closer you know
+70:59 
+
+70:59 this is an Excel from the paper so on
+71:01 
+
+71:01 closer examination many papers claiming
+71:04 
+
+71:04 llms have planning abilities wind up
+71:06 
+
+71:06 confusing General planning knowledge
+71:10 
+
+71:10 okay General planning like wedding plan
+71:12 
+
+71:12 let's say that's a general planning
+71:13 
+
+71:13 knowledge a general planning knowledge
+71:16 
+
+71:16 extracted and this is the thing so if
+71:18 
+
+71:18 they just extract the plan now they are
+71:20 
+
+71:20 not planning it in the sense of planner
+71:23 
+
+71:23 like uh so they are just extracting the
+71:25 
+
+71:25 plan out from the lln you know instead
+71:27 
+
+71:27 of executable plans so when all we are
+71:32 
+
+71:32 looking for our abstract plans such as
+71:34 
+
+71:34 wedding plans with no intention of
+71:35 
+
+71:35 actually executing them it is easy to
+71:37 
+
+71:37 confuse them for complete executable
+71:40 
+
+71:40 plans so in other words when we say
+71:42 
+
+71:42 executable plans you're actually in the
+71:44 
+
+71:44 action of doing it and figuring it out
+71:47 
+
+71:47 and there can be obstacles in your
+71:49 
+
+71:49 environment and environment may not be
+71:52 
+
+71:52 good to you you know and you you know
+71:55 
+
+71:55 you may be blocked you know in in in
+71:58 
+
+71:58 while taking certain actions there can
+71:59 
+
+71:59 be a dead end and you have to come back
+72:01 
+
+72:01 you have to backtrack right so those are
+72:03 
+
+72:03 the actual re planning in action sort of
+72:07 
+
+72:07 so that's what they are trying to say so
+72:08 
+
+72:08 it's not general knowledge that's out
+72:11 
+
+72:11 there and you're just extracting it out
+72:13 
+
+72:13 and it seems apparently that as if these
+72:15 
+
+72:15 models can can plan but actually no the
+72:18 
+
+72:18 plan was already existent as as a form
+72:21 
+
+72:21 of text and you're just extracting it
+72:23 
+
+72:23 it's not the same as planning it out
+72:25 
+
+72:25 while figuring out how the surrounding
+72:28 
+
+72:28 is so my take on that is that is
+72:31 
+
+72:31 reasoning even an NLP or an NL problem
+72:34 
+
+72:34 because you see NLP means uh have you
+72:37 
+
+72:37 been able to process what I just said if
+72:40 
+
+72:40 yes then you are doing NLP have you been
+72:43 
+
+72:43 able to understand what my intent is so
+72:47 
+
+72:47 processing doesn't necessarily mean
+72:48 
+
+72:48 understanding my intention so you may
+72:51 
+
+72:51 have a different interpretation but
+72:53 
+
+72:53 that's not what I wanted to say right so
+72:55 
+
+72:55 that is
+72:56 
+
+72:56 nlu uh but let's say that I understood
+72:60 
+
+72:60 you but I am not able to reason things
+73:03 
+
+73:03 out after all the knowledge that you
+73:05 
+
+73:05 gave me I'm
+73:06 
+
+73:06 stupid well I did nlu very well I did
+73:10 
+
+73:10 NLP very well but does that mean that I
+73:13 
+
+73:13 doing I have to do reasoning very well
+73:16 
+
+73:16 you got the point I mean it's a bit of a
+73:18 
+
+73:18 philosophical point which I'm trying to
+73:20 
+
+73:20 throw you and leave leave this
+73:21 
+
+73:21 discussion today uh so that's the thing
+73:25 
+
+73:25 that probably reasoning is something
+73:27 
+
+73:27 else and when we try to understand LMS
+73:30 
+
+73:30 llm is actually at the end of the day an
+73:33 
+
+73:33 LM a language model so are we asking too
+73:37 
+
+73:37 much so that's something that you guys
+73:40 
+
+73:40 can to wait on

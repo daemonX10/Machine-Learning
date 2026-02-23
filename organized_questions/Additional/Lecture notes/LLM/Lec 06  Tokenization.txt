@@ -1,0 +1,3211 @@
+00:01 Okay. Hi everyone. Uh let's get started.
+00:04 
+
+00:04 So in today's lecture we will discuss
+00:07 
+
+00:07 tokenization strategies, right? And uh
+00:10 
+
+00:10 all of you know that tokenization is a
+00:12 
+
+00:12 very important step in in uh in LLM. The
+00:15 
+
+00:15 reason is that u you know this is the
+00:18 
+
+00:18 input to the model right and
+00:21 
+
+00:21 uh before LLM deep learning era people
+00:24 
+
+00:24 basically used to use uh you know space
+00:26 
+
+00:26 or different delimiters to identify
+00:30 
+
+00:30 tokens tokens tokens were mostly words
+00:33 
+
+00:33 or subwords like mostly words not
+00:35 
+
+00:35 subwords and then we realized that word
+00:39 
+
+00:39 label tokenization may not be uh may not
+00:41 
+
+00:41 be an appropriate way. So we need we
+00:44 
+
+00:44 need a different tokenization all
+00:46 
+
+00:46 together, I'll tell you why this is this
+00:47 
+
+00:47 is needed, the motivation and we'll also
+00:50 
+
+00:50 discuss some of the
+00:52 
+
+00:52 uh important tokenization strategies.
+00:55 
+
+00:55 Okay. Uh but before going to the details
+00:57 
+
+00:57 of the today's lecture, so this is the
+00:58 
+
+00:58 breaking news uh for today, some of you
+01:01 
+
+01:01 know that this GLM series, right?
+01:04 
+
+01:04 uh
+01:06 
+
+01:06 and the Chinese company uh so GLM is one
+01:08 
+
+01:08 of the open source models and recently
+01:12 
+
+01:12 11th of August they released their uh
+01:15 
+
+01:15 recent version GLM 4.5V
+01:18 
+
+01:18 um it again showed as usual this
+01:21 
+
+01:21 benchmark data on on different benchmark
+01:24 
+
+01:24 task they showed state-of-the-art
+01:26 
+
+01:26 performance right compared to others etc
+01:29 
+
+01:29 this is a mixture of expert architecture
+01:32 
+
+01:32 with 106 billion parameters um right um
+01:36 
+
+01:36 of which 12 billions are only activated
+01:39 
+
+01:39 at a time because of this mixture of
+01:41 
+
+01:41 expert setup.
+01:42 
+
+01:42 So if you are interested in open source
+01:44 
+
+01:44 models this is again something that you
+01:46 
+
+01:46 should look at.
+01:48 
+
+01:48 Okay. So uh
+01:51 
+
+01:51 all right so we have been discussing
+01:54 
+
+01:54 about tokenization strate uh different
+01:56 
+
+01:56 tokenization methods right and right
+01:59 
+
+01:59 from the
+02:01 
+
+02:01 what embedding uh methods right let's
+02:04 
+
+02:04 say let's say you use what to make or
+02:06 
+
+02:06 glove or first text right for what
+02:08 
+
+02:08 embedding and so what what happens is
+02:11 
+
+02:11 that so you pass so you basically uh get
+02:14 
+
+02:14 the embeddings from uh what to make
+02:16 
+
+02:16 types methods and then pass those
+02:18 
+
+02:18 embeddings to the model, right? So, so
+02:22 
+
+02:22 tokenization is actually used there. I
+02:24 
+
+02:24 mean, of course, in the in the uh I mean
+02:26 
+
+02:26 when you so so essentially you you first
+02:29 
+
+02:29 tokenize a sentence into into different
+02:32 
+
+02:32 tokens or sequence into different tokens
+02:35 
+
+02:35 and those tokens will be fed to the
+02:38 
+
+02:38 embedding methods. You get the
+02:39 
+
+02:39 embeddings and then you then you pass
+02:41 
+
+02:41 the embeddings to the model.
+02:44 
+
+02:44 Now W level tokenization right? If you
+02:46 
+
+02:46 consider WS as tokens that might not be
+02:49 
+
+02:49 a good idea
+02:51 
+
+02:51 because um uh you know because uh word a
+02:57 
+
+02:57 single word may not specify a different
+03:01 
+
+03:01 aspects of the token. For example,
+03:04 
+
+03:04 let's say um let's say running. Okay.
+03:10 
+
+03:10 Okay. And let's say the word running is
+03:12 
+
+03:12 present in the corpus and in the
+03:14 
+
+03:14 vocabulary, right? But let's say the
+03:16 
+
+03:16 word catching
+03:19 
+
+03:19 is a new word for the model. It's not
+03:21 
+
+03:21 it's not part of the part of your
+03:23 
+
+03:23 training data. Therefore, it's not a
+03:24 
+
+03:24 part of your vocabulary. Right? So, so
+03:28 
+
+03:28 if you if if you if you don't do word
+03:31 
+
+03:31 level tokenization, if you do let's say
+03:33 
+
+03:33 subord tokenization, let's say you
+03:35 
+
+03:35 divide uh you you split this token
+03:38 
+
+03:38 running into two parts. let's say run
+03:40 
+
+03:40 and ing
+03:42 
+
+03:42 right uh and you know using the same
+03:45 
+
+03:45 tokenizer if you also tokenize catch
+03:48 
+
+03:48 catching into two parts catch plus ing
+03:52 
+
+03:52 right so uh since the model knows about
+03:54 
+
+03:54 running and let's say the model also
+03:57 
+
+03:57 knows that this is a present uh
+03:59 
+
+03:59 continuous tense right because ing is
+04:01 
+
+04:01 ing the the the suffix ing is there so
+04:04 
+
+04:04 the model may be able to understand that
+04:07 
+
+04:07 catching is also
+04:09 
+
+04:09 uh also a continuous tense
+04:12 
+
+04:12 right there are also other reasons. So,
+04:15 
+
+04:15 so one is so one extreme is word level
+04:18 
+
+04:18 tokenization other extreme is character
+04:20 
+
+04:20 level tokenization right so where you
+04:22 
+
+04:22 split uh everything into characters
+04:25 
+
+04:25 right 26 characters and then special
+04:27 
+
+04:27 symbols and so on but the problem with
+04:30 
+
+04:30 character level tokenization is that
+04:31 
+
+04:31 it's very limited set is very limited
+04:34 
+
+04:34 okay and it doesn't also make any sense
+04:37 
+
+04:37 so then what's the u what's the remedy
+04:41 
+
+04:41 so people thought that let's do uh
+04:43 
+
+04:43 something in between not word level not
+04:45 
+
+04:45 to get level let's do subord level
+04:48 
+
+04:48 tokenization
+04:50 
+
+04:50 okay now uh and and and as as I
+04:52 
+
+04:52 mentioned here subword level
+04:53 
+
+04:53 tokenization makes more sense because u
+04:56 
+
+04:56 you know you you basically get to know
+04:58 
+
+04:58 many things many different aspects about
+05:00 
+
+05:00 the word
+05:03 
+
+05:03 u the other problem or the other aspect
+05:06 
+
+05:06 in tokenization is that uh u all the
+05:10 
+
+05:10 tokenizers most of the tokenizers uh
+05:12 
+
+05:12 tokenize
+05:14 
+
+05:14 uh words into static set of tokens
+05:18 
+
+05:18 meaning for a given word you will always
+05:22 
+
+05:22 get
+05:24 
+
+05:24 uh same type of tokens I mean it is not
+05:26 
+
+05:26 the case that let's say for the word
+05:28 
+
+05:28 running you will get two different types
+05:30 
+
+05:30 of tokens or two different types of
+05:32 
+
+05:32 splits
+05:33 
+
+05:33 right it is always deterministic not
+05:36 
+
+05:36 probabilistic
+05:37 
+
+05:37 but then people also realized that uh
+05:41 
+
+05:41 sometimes the static tokenization may
+05:44 
+
+05:44 not be a good idea. The tokenization
+05:46 
+
+05:46 strategy or the the split should be
+05:48 
+
+05:48 dependent on the context. Okay, for
+05:50 
+
+05:50 example, let's say
+05:53 
+
+05:53 unlockable,
+05:56 
+
+05:56 not a good example, but this is
+05:58 
+
+05:58 something that I can think of right now.
+06:01 
+
+06:01 Unlockable
+06:03 
+
+06:03 if you split it. Uh so this this token
+06:07 
+
+06:07 can be split into two ways. One is
+06:10 
+
+06:10 unlockable
+06:13 
+
+06:13 and other is unlockable.
+06:17 
+
+06:17 Right? So unlockable is something which
+06:19 
+
+06:19 you can't lock. Unlockable means uh you
+06:23 
+
+06:23 have the ability to unlock
+06:26 
+
+06:26 not a good good example maybe but you
+06:28 
+
+06:28 understand right what I'm saying. So uh
+06:31 
+
+06:31 so therefore people thought that maybe
+06:34 
+
+06:34 depending on the context or depending on
+06:36 
+
+06:36 the corpus you can think of different
+06:38 
+
+06:38 splits. Okay. So in today's uh lecture
+06:41 
+
+06:41 we will discuss the three different
+06:42 
+
+06:42 approaches
+06:44 
+
+06:44 uh for tokenization bite pair encoding
+06:46 
+
+06:46 wordp encoding and unigram language
+06:48 
+
+06:48 model unigram lm tokenization and these
+06:51 
+
+06:51 are standard tokenizers right these are
+06:53 
+
+06:53 very standard tokenizers that people use
+06:55 
+
+06:55 even now.
+06:57 
+
+06:57 So
+06:59 
+
+06:59 first two tokenization strategies are um
+07:02 
+
+07:02 are static tokenizers meaning uh they
+07:05 
+
+07:05 always produce similar tokens or similar
+07:08 
+
+07:08 splits for tokens whereas the the third
+07:11 
+
+07:11 one is a is dynamic probabilistic not
+07:13 
+
+07:13 dynamic probabilistic it splits tokens
+07:16 
+
+07:16 depending on the context
+07:19 
+
+07:19 and
+07:21 
+
+07:21 in each of these three tokenization
+07:22 
+
+07:22 strategies you will see there are two
+07:25 
+
+07:25 modules
+07:26 
+
+07:26 one module is called token learners.
+07:29 
+
+07:29 Token learner module is responsible for
+07:33 
+
+07:33 for for tokenization right for uh for
+07:36 
+
+07:36 basically generating the the resultant
+07:39 
+
+07:39 vocabulary after tokenization right. Um
+07:42 
+
+07:42 so remember when we split words into
+07:45 
+
+07:45 different tokens or subtokens right what
+07:48 
+
+07:48 you do you basically keep on adding
+07:49 
+
+07:49 those tokens to the vocabulary your
+07:51 
+
+07:51 vocabulary will basically grow up right
+07:54 
+
+07:54 whereas uh the other module token se
+07:58 
+
+07:58 segment
+07:60 
+
+07:60 so so basically token segment works
+08:02 
+
+08:02 during the test time
+08:07 
+
+08:07 right and the and the and the purpose is
+08:10 
+
+08:10 essentially uh to tokenize a test uh
+08:14 
+
+08:14 segment into different tokens. So uh
+08:16 
+
+08:16 token learner works during the training
+08:18 
+
+08:18 time, token segment works during the
+08:20 
+
+08:20 test time. Okay.
+08:24 
+
+08:24 And in each of these algorithms we will
+08:27 
+
+08:27 see that we will have two different I
+08:30 
+
+08:30 mean we'll have different types of token
+08:31 
+
+08:31 learners and token segmenters.
+08:34 
+
+08:34 Let's start with bite pair encoding.
+08:35 
+
+08:35 Very simple idea. Uh
+08:39 
+
+08:39 so bite pair encoding was earlier
+08:41 
+
+08:41 proposed for text comp for for the
+08:44 
+
+08:44 purpose of text compression right but um
+08:48 
+
+08:48 um you know these days it is used for
+08:50 
+
+08:50 tokenization uh GPD GPT2 uh roba debat
+08:55 
+
+08:55 bot uh all these models use bite pair
+08:58 
+
+08:58 encoding right
+09:02 
+
+09:02 okay uh let's not look at this algorithm
+09:05 
+
+09:05 let's look at the concept
+09:08 
+
+09:08 So in all the algorithms that we're
+09:10 
+
+09:10 going to discuss the first two steps are
+09:12 
+
+09:12 the same. The first step what is the
+09:15 
+
+09:15 first step? The first step is
+09:16 
+
+09:16 pre-tokenization.
+09:18 
+
+09:18 In pre-tokenization what we do? We clean
+09:21 
+
+09:21 up the corpus. Remember the input to the
+09:23 
+
+09:23 tokenizer is the raw corpus. Right? So
+09:26 
+
+09:26 we clean up the corpus.
+09:29 
+
+09:29 We uh remove unwanted symbols etc etc.
+09:33 
+
+09:33 And then uh then what we do we split
+09:36 
+
+09:36 words words not tokens split words into
+09:40 
+
+09:40 um I mean we basically we basically
+09:42 
+
+09:42 segregate words properly let's say based
+09:44 
+
+09:44 on the space or punctuations and so on
+09:46 
+
+09:46 and so forth right
+09:50 
+
+09:50 and um and and what you do then um uh
+09:54 
+
+09:54 now now this this clean um the clean
+09:57 
+
+09:57 document or clean set of words will be
+10:00 
+
+10:00 fed to the next step and the next step
+10:02 
+
+10:02 is the base vocabulary generation. What
+10:04 
+
+10:04 is the base vocabulary generation? So
+10:06 
+
+10:06 base vocab generation essentially
+10:10 
+
+10:10 includes um uh the the seed set of
+10:14 
+
+10:14 tokens that you want to include to the
+10:17 
+
+10:17 vocabulary.
+10:19 
+
+10:19 Okay. Now remember the terminology. I
+10:22 
+
+10:22 will use word the term word to indicate
+10:26 
+
+10:26 actual words present in the sentence and
+10:28 
+
+10:28 token to indicate u uh maybe a subword
+10:32 
+
+10:32 maybe a word maybe a a character right
+10:35 
+
+10:35 so tokens will be included to the
+10:38 
+
+10:38 vocabulary not the word okay if word is
+10:42 
+
+10:42 a token then the word will be added to
+10:43 
+
+10:43 the vocabulary
+10:46 
+
+10:46 so
+10:48 
+
+10:48 in the base vocabulary uh what you do is
+10:50 
+
+10:50 that let's say For a given word hello, h
+10:52 
+
+10:52 e l o you split it into characters.
+10:56 
+
+10:56 So, so the characters are h e l. So you
+10:59 
+
+10:59 have list of cleaned words, right? And
+11:03 
+
+11:03 then you identify unique characters
+11:05 
+
+11:05 present in the in those word, right? And
+11:08 
+
+11:08 then you add all the characters uh you
+11:10 
+
+11:10 know in your list.
+11:14 
+
+11:14 The third step what you do is that
+11:18 
+
+11:18 you merge
+11:21 
+
+11:21 Right? You mar uh characters. You
+11:25 
+
+11:25 basically take a pair of characters and
+11:27 
+
+11:27 you merge them. Okay? And you check how
+11:30 
+
+11:30 many times this paired character. Let's
+11:32 
+
+11:32 say let's say you have this paired
+11:34 
+
+11:34 characters H E L L right you can also
+11:39 
+
+11:39 think of other pairs as well right and
+11:41 
+
+11:41 you check how many times uh such pairs
+11:45 
+
+11:45 appear in the document.
+11:47 
+
+11:47 I'll give an example. Okay. And based on
+11:50 
+
+11:50 that you decide whether to consider that
+11:52 
+
+11:52 pair as a as a final token to the list
+11:55 
+
+11:55 or not to the vocabulary or not. Okay.
+11:58 
+
+11:58 Now let's see. So so throughout the
+12:00 
+
+12:00 process what we will see we will see
+12:02 
+
+12:02 that the number of tokens will grow in
+12:04 
+
+12:04 the vocabulary. Right? And when you stop
+12:07 
+
+12:07 the process you stop the process when
+12:09 
+
+12:09 you you you basically reach a certain
+12:11 
+
+12:11 threshold of the size of the vocabulary.
+12:14 
+
+12:14 Right? Let's give an example and then
+12:16 
+
+12:16 we'll realize.
+12:18 
+
+12:18 So, so this is an example.
+12:21 
+
+12:21 Let's say the words are this cat, bat,
+12:23 
+
+12:23 bag, tag, and cats. Okay. And these are
+12:26 
+
+12:26 the frequencies uh of words in the in in
+12:29 
+
+12:29 in your training data.
+12:32 
+
+12:32 So, what is what is the part of the base
+12:35 
+
+12:35 vocabulary the part? So, we'll basically
+12:38 
+
+12:38 include all the characters unique
+12:40 
+
+12:40 characters. How many unique characters
+12:41 
+
+12:41 are there? A B C G S T.
+12:45 
+
+12:45 Okay.
+12:48 
+
+12:48 So these are the characters present in
+12:51 
+
+12:51 your base vocabulary. They have already
+12:53 
+
+12:53 been added.
+12:55 
+
+12:55 Okay.
+12:57 
+
+12:57 Okay. Now the merging stage uh stage
+12:59 
+
+12:59 starts. So
+13:02 
+
+13:02 so let's let's now make pairs. Uh let's
+13:06 
+
+13:06 say CA is a pair. A T is a pair. B A is
+13:09 
+
+13:09 a pair. A G is a pair and so on and so
+13:12 
+
+13:12 forth. Let's say CA. How many times C
+13:14 
+
+13:14 this pair CA appears? The pair CA
+13:16 
+
+13:16 appears here 10 times and here five
+13:19 
+
+13:19 times. So total 15 80 here it appears 10
+13:24 
+
+13:24 times. Here it appears five times and
+13:26 
+
+13:26 here it appears five times. So 20 and so
+13:29 
+
+13:29 on and so forth.
+13:31 
+
+13:31 So you do this for all possible pairs.
+13:34 
+
+13:34 All possible pairs. Okay.
+13:39 
+
+13:39 and uh uh and and then you check which
+13:44 
+
+13:44 for which pair right for example here u
+13:48 
+
+13:48 the so so so which pair has the highest
+13:50 
+
+13:50 frequency so here the pair 80 has
+13:53 
+
+13:53 highest frequency so you add a you
+13:56 
+
+13:56 basically add to the vocabulary okay and
+13:60 
+
+13:60 you add a rule so we basically curate
+14:03 
+
+14:03 rules right uh in different steps so we
+14:06 
+
+14:06 add these rules a comma t goes to
+14:09 
+
+14:09 to your rule book.
+14:12 
+
+14:12 Okay. So, simultaneously, so you you
+14:16 
+
+14:16 basically expand your vocabulary set and
+14:18 
+
+14:18 you also expand the rule. Okay.
+14:21 
+
+14:21 Then what you do once you are done with
+14:23 
+
+14:23 this, you identified you you realize
+14:25 
+
+14:25 that a is going to be a token. You
+14:27 
+
+14:27 replace all the instances of a comma t
+14:30 
+
+14:30 by a t.
+14:33 
+
+14:33 So you see here this this is a new split
+14:36 
+
+14:36 A comma 80 A C comma 80 B comma 80 right
+14:39 
+
+14:39 C comma 80 comma S and so on and so
+14:41 
+
+14:41 forth and frequency will remain the same
+14:45 
+
+14:45 okay and this is your base vocabulary
+14:47 
+
+14:47 now
+14:52 
+
+14:52 right the same step will be applied
+14:55 
+
+14:55 we'll again merge things right so A G uh
+14:58 
+
+14:58 now you can basically merge C and A
+15:00 
+
+15:00 which will produce T A
+15:03 
+
+15:03 you can merge uh B and A which will
+15:06 
+
+15:06 produce B A and so on and so forth and
+15:08 
+
+15:08 similarly you check the frequency right
+15:11 
+
+15:11 again you choose the one which has
+15:12 
+
+15:12 highest frequency right let's say you
+15:14 
+
+15:14 choose AG right with the rule A comma G
+15:17 
+
+15:17 goes to Ag right this is your rule this
+15:20 
+
+15:20 is your new uh vocabulary and so on and
+15:22 
+
+15:22 so forth very simple process
+15:26 
+
+15:26 right and when do you stop you stop when
+15:29 
+
+15:29 u uh uh okay so Now you see here that uh
+15:33 
+
+15:33 so again you tokenize right and u
+15:37 
+
+15:37 uh uh maybe the next uh I don't know it
+15:41 
+
+15:41 should be it should be b comma a e I
+15:43 
+
+15:43 guess but u
+15:45 
+
+15:45 it doesn't matter I mean don't go by
+15:48 
+
+15:48 this numbers let's say let's assume that
+15:49 
+
+15:49 the next next split is a comma ca a t
+15:53 
+
+15:53 right so your um your your vocabulary
+15:57 
+
+15:57 entry will be c a t right new entry and
+15:60 
+
+15:60 the new frequency is this and so on.
+16:04 
+
+16:04 So we keep on we keep iterating through
+16:06 
+
+16:06 the through these steps until the
+16:08 
+
+16:08 vocabulary reaches the desired size.
+16:12 
+
+16:12 Okay. So uh now this is greedy as you as
+16:16 
+
+16:16 all all of us understood right this is
+16:17 
+
+16:17 greedy algorithm. Um
+16:20 
+
+16:20 now let's see what happens um in the
+16:23 
+
+16:23 test time right so in the test time
+16:26 
+
+16:26 let's say you encounter the word B A G S
+16:32 
+
+16:32 so what you do first you first split it
+16:34 
+
+16:34 into characters right so characters are
+16:37 
+
+16:37 B A G S B comma A comma G comma S and
+16:41 
+
+16:41 then you apply the rules so so you have
+16:43 
+
+16:43 already curated the rules right at
+16:45 
+
+16:45 different steps at at every step you
+16:47 
+
+16:47 curated rules Right? So you have a
+16:49 
+
+16:49 sequence of rules in order
+16:52 
+
+16:52 in order. Right? So when uh you see this
+16:57 
+
+16:57 what you do you apply this this the
+17:00 
+
+17:00 sequence of rules in order.
+17:04 
+
+17:04 Right? So we first got this rule then
+17:07 
+
+17:07 this rule and then this rule. Right? So
+17:09 
+
+17:09 we apply this rules in order. It will
+17:11 
+
+17:11 not be the case that you apply this rule
+17:13 
+
+17:13 first and this rule first and so on.
+17:15 
+
+17:15 Right? So, so you see so the first rule
+17:18 
+
+17:18 a comma t goes to a it is not applied
+17:21 
+
+17:21 here right then a comma g goes to ag it
+17:24 
+
+17:24 will be applied here so after applying
+17:27 
+
+17:27 this rule you will have a uh b a g and s
+17:34 
+
+17:34 right and then you check the next one
+17:36 
+
+17:36 this this can't be applied now this is
+17:38 
+
+17:38 your resultant uh tokenizers or tokens
+17:45 
+
+17:45 Right.
+17:46 
+
+17:46 And uh you see that the word B sorry the
+17:49 
+
+17:49 token B the token AG the token A all of
+17:53 
+
+17:53 them are present all of them are present
+17:55 
+
+17:55 in the training uh you know you know in
+17:57 
+
+17:57 the in the in the vocabulary that you
+17:59 
+
+17:59 created right after your training stage
+18:02 
+
+18:02 during your training stage. So it means
+18:04 
+
+18:04 that all the tokens that you obtained in
+18:07 
+
+18:07 in the test time are valid tokens
+18:10 
+
+18:10 because they already part of the
+18:11 
+
+18:11 vocabulary.
+18:14 
+
+18:14 Okay.
+18:16 
+
+18:16 And if a token is a part of the
+18:17 
+
+18:17 vocabulary, that means you already you
+18:19 
+
+18:19 already know the embedding of the token.
+18:22 
+
+18:22 From the training stage, you already
+18:24 
+
+18:24 curated the vocabulary. And then let's
+18:26 
+
+18:26 say we let's assume that you also ran um
+18:29 
+
+18:29 let's say fast text kind of method,
+18:31 
+
+18:31 right? And already obtained the subord
+18:33 
+
+18:33 level embeddings.
+18:36 
+
+18:36 But the point is what happens if if a
+18:40 
+
+18:40 token is not present in the vocabulary
+18:43 
+
+18:43 that we already obtained.
+18:46 
+
+18:46 Okay. For example, the word uh
+18:50 
+
+18:50 uh so here I think the word mug m u
+18:55 
+
+18:55 uh matt matt let's say m a t. Okay. So m
+19:01 
+
+19:01 let's go back m a t m comma a comma t.
+19:07 
+
+19:07 So
+19:09 
+
+19:09 you can apply this rule right and you'll
+19:11 
+
+19:11 get a t. So m comma a t and that's all
+19:15 
+
+19:15 you can't apply any further rules. But
+19:16 
+
+19:16 if you look at m is not part of your
+19:19 
+
+19:19 vocabulary
+19:21 
+
+19:21 right? So what we do you use ank. So u n
+19:24 
+
+19:24 k some of you know u n k is is called
+19:28 
+
+19:28 unknown. It's a new token right that we
+19:32 
+
+19:32 use uh to uh represent any unknown token
+19:34 
+
+19:34 or any unknown word right. So ank for
+19:38 
+
+19:38 ankh you already have an embedding right
+19:40 
+
+19:40 remember ank is always a part of your
+19:42 
+
+19:42 vocabulary
+19:45 
+
+19:45 ank should always be a part of your
+19:46 
+
+19:46 vocabulary. So these are the these are
+19:49 
+
+19:49 some of the tokens useful tokens that we
+19:51 
+
+19:51 always use ankp
+19:53 
+
+19:53 right separator
+19:55 
+
+19:55 uh in b we mention another token what is
+19:58 
+
+19:58 what is that? CLS
+19:59 
+
+19:59 >> CLS right these are the use use useful
+20:01 
+
+20:01 tokens useful special tokens
+20:05 
+
+20:05 so if you look at GPT so this is all
+20:06 
+
+20:06 about BP
+20:08 
+
+20:08 if you look at GPT GPD2 and Roberta they
+20:12 
+
+20:12 actually did something interesting they
+20:14 
+
+20:14 did not consider English tokens they
+20:17 
+
+20:17 actually went to the bite level
+20:19 
+
+20:19 tokenization beat bite level
+20:21 
+
+20:21 tokenization right so they they use the
+20:23 
+
+20:23 same concept but in the bite level okay
+20:26 
+
+20:26 so and the base vocal size was 256 and
+20:30 
+
+20:30 so on and so forth. If you want you can
+20:32 
+
+20:32 look at the their paper for that. Okay.
+20:35 
+
+20:35 So this is about BP very simple. Let's
+20:37 
+
+20:37 move on to the next part which is what
+20:39 
+
+20:39 piece tokenization
+20:47 
+
+20:47 any query.
+20:52 
+
+20:52 How many of you have gone through this
+20:54 
+
+20:54 lecture uh in the last year?
+20:59 
+
+20:59 1 2 3 four but at least for others this
+21:02 
+
+21:02 is new right or or you guys already know
+21:04 
+
+21:04 this you know right because I taught it
+21:05 
+
+21:05 in the NLP class what about you
+21:09 
+
+21:09 have some idea and others
+21:12 
+
+21:12 everyone has idea about this oh very
+21:14 
+
+21:14 nice
+21:16 
+
+21:16 wonderful
+21:18 
+
+21:18 that's why people are not coming to the
+21:19 
+
+21:19 class h
+21:23 
+
+21:23 good
+21:27 
+
+21:27 okay so what piece tokenization.
+21:33 
+
+21:33 Now what is the difference between
+21:35 
+
+21:35 wordpiece and BP?
+21:38 
+
+21:38 The difference is that in case of BP uh
+21:42 
+
+21:42 we we basically looked at the frequency
+21:44 
+
+21:44 in case of what piece we will look at
+21:46 
+
+21:46 likelihood
+21:49 
+
+21:49 that's the major difference okay there
+21:50 
+
+21:50 are some other differences also in what
+21:53 
+
+21:53 piece we will not curate the rules we
+21:56 
+
+21:56 will only curate the vocabulary
+21:59 
+
+21:59 okay and we'll use the vocabulary we use
+22:01 
+
+22:01 our curated vocabulary uh for splitting
+22:04 
+
+22:04 unknown for splitting tokens in the test
+22:06 
+
+22:06 time. Okay.
+22:09 
+
+22:09 So
+22:11 
+
+22:11 now what piece tokenization is used in
+22:13 
+
+22:13 mobile B uh you know funnel transformer
+22:16 
+
+22:16 impinate uh B digital B and so on and so
+22:19 
+
+22:19 forth.
+22:22 
+
+22:22 All right. So let's start uh this one
+22:24 
+
+22:24 the process. So in what piece what we
+22:27 
+
+22:27 do?
+22:28 
+
+22:28 So we are going to use some special
+22:31 
+
+22:31 markers
+22:33 
+
+22:33 to indicate whether uh uh you know
+22:37 
+
+22:37 whether a a specific token is the
+22:41 
+
+22:41 beginning token of a word or or an
+22:44 
+
+22:44 intermediate token
+22:46 
+
+22:46 right when you split let's say the word
+22:48 
+
+22:48 let's say the word uh
+22:52 
+
+22:52 let's say the word BT okay so in case of
+22:55 
+
+22:55 in case of BP what we did earlier we
+22:57 
+
+22:57 split we first split it into B comma E
+22:60 
+
+22:60 comma R comma T right but here what
+23:02 
+
+23:02 we'll do here I'll split it into these
+23:06 
+
+23:06 tokens B double hash so in in the B
+23:09 
+
+23:09 paper they use this double uh uh symbol
+23:12 
+
+23:12 okay E#
+23:17 
+
+23:17 R and # T
+23:22 
+
+23:22 just to indicate that E R and T are not
+23:26 
+
+23:26 the initial token of the word or in
+23:28 
+
+23:28 initial character of the word and we'll
+23:30 
+
+23:30 see why this is useful later. Okay. So
+23:33 
+
+23:33 the to the word token will be split into
+23:35 
+
+23:35 T hash O hash K hash E hash M
+23:40 
+
+23:40 at every stage what we will do for
+23:43 
+
+23:43 merging for merging two tokens what we
+23:46 
+
+23:46 will do we will compute a score and the
+23:48 
+
+23:48 score is u you know some of you know
+23:51 
+
+23:51 this some some of you are aware of
+23:54 
+
+23:54 mutual information pointwise mutual
+23:56 
+
+23:56 information right is same so we look at
+23:58 
+
+23:58 the frequency of the pair of characters
+24:00 
+
+24:00 that we are planning to merge Right? And
+24:03 
+
+24:03 how would be the frequency of this pair
+24:06 
+
+24:06 if they appear independently?
+24:10 
+
+24:10 And how do you measure whether this they
+24:12 
+
+24:12 appear independently? We look at the
+24:14 
+
+24:14 individual uh probability and multiply
+24:16 
+
+24:16 them. The same idea here. So the score
+24:19 
+
+24:19 of a pair is the frequency of the pair
+24:22 
+
+24:22 divided by frequency of the first token
+24:25 
+
+24:25 and frequency of the second token.
+24:29 
+
+24:29 Okay. and let let's see and then based
+24:31 
+
+24:31 on this score we will merge
+24:37 
+
+24:37 so as I mentioned while BP merges most
+24:41 
+
+24:41 frequent symbol um most sequent symbol
+24:44 
+
+24:44 pair at each step piece basically
+24:46 
+
+24:46 chooses the symbols that maximize the
+24:48 
+
+24:48 likelihood of the training data right
+24:51 
+
+24:51 and then uh merging criteria is
+24:53 
+
+24:53 basically choose the the one which
+24:55 
+
+24:55 maximizes the training likelihood of the
+24:57 
+
+24:57 training data and then we keep on
+24:59 
+
+24:59 listing doing doing this thing and you
+25:00 
+
+25:00 update the vocal. Let's let's look at
+25:03 
+
+25:03 example.
+25:05 
+
+25:05 So let's say these are the words
+25:08 
+
+25:08 sunflower sunflower flow etc etc. Okay.
+25:12 
+
+25:12 And these are the frequencies. Again,
+25:14 
+
+25:14 please don't go by the numbers and
+25:16 
+
+25:16 calculations. Calculations may be wrong,
+25:18 
+
+25:18 but concept should be clear.
+25:21 
+
+25:21 Okay. So, I split sunflower into this S
+25:24 
+
+25:24 hash UN etc etc. Right? Sun s U N and so
+25:30 
+
+25:30 on.
+25:33 
+
+25:33 So to start with, so we need a base
+25:35 
+
+25:35 vocabulary, right? So what is the base
+25:38 
+
+25:38 vocabulary? Based in base vocabulary all
+25:40 
+
+25:40 unique characters should should be
+25:41 
+
+25:41 present. So how many unique characters
+25:43 
+
+25:43 are here? So unique characters remember
+25:47 
+
+25:47 and has they are two different
+25:49 
+
+25:49 characters. Okay. So as is present hash
+25:52 
+
+25:52 is also present.
+25:54 
+
+25:54 Okay. And then has D etc etc.
+25:59 
+
+25:59 Okay. Now from the base vocabulary now
+26:01 
+
+26:01 we start pairing the tokens. So pairing
+26:04 
+
+26:04 of the token. Let's say we pair up this
+26:07 
+
+26:07 token as and u as and u right so it
+26:12 
+
+26:12 means that u is my intermediate token u
+26:16 
+
+26:16 should be an intermediate token
+26:17 
+
+26:17 intermediate character and a should be
+26:19 
+
+26:19 the initial character right so let's
+26:22 
+
+26:22 look at ACU
+26:24 
+
+26:24 so here ACU is present
+26:26 
+
+26:26 here ACU is present right anyone else
+26:30 
+
+26:30 any other place
+26:32 
+
+26:32 no that's it right so The the numerator
+26:37 
+
+26:37 is going to be three and the denominator
+26:39 
+
+26:39 is going to be the frequency of S and
+26:42 
+
+26:42 the frequency of U. Right? Hash U.
+26:45 
+
+26:45 Remember this frequency of S doesn't
+26:48 
+
+26:48 count this frequency.
+26:50 
+
+26:50 Okay? And frequency of hash again
+26:53 
+
+26:53 frequency of hash U doesn't count the
+26:56 
+
+26:56 case when U is the starting character of
+26:58 
+
+26:58 a word. And let's say the number is 33.
+27:03 
+
+27:03 Okay.
+27:05 
+
+27:05 Is clear right? Clear. Same the same
+27:08 
+
+27:08 strategy only the the the I mean the the
+27:12 
+
+27:12 actual uh equation is different.
+27:17 
+
+27:17 So you do this for all other pairs.
+27:19 
+
+27:19 Okay. And you select the one which has
+27:22 
+
+27:22 the highest u you know highest score.
+27:26 
+
+27:26 The highest score in this case is 33. So
+27:28 
+
+27:28 you essentially merge a and hash u which
+27:31 
+
+27:31 will produce a U. Right? Remember it
+27:35 
+
+27:35 will not produce hash su. Why? Because s
+27:40 
+
+27:40 is already the initial character. So it
+27:41 
+
+27:41 should always produce su. Right? But
+27:44 
+
+27:44 let's say if you ended up let's say if
+27:46 
+
+27:46 you had merged these two characters then
+27:48 
+
+27:48 what would have happened?
+27:51 
+
+27:51 It would have produced hash
+27:53 
+
+27:53 un.
+27:55 
+
+27:55 Okay.
+27:58 
+
+27:58 So now this is your new token in the
+28:00 
+
+28:00 vocabulary
+28:02 
+
+28:02 and
+28:03 
+
+28:03 you replace all the appearances of s,
+28:07 
+
+28:07 hash u by su. So you replace this here,
+28:10 
+
+28:10 replace this here.
+28:12 
+
+28:12 Clear? Uh okay. And you have the
+28:15 
+
+28:15 frequency.
+28:18 
+
+28:18 You repeat the same process.
+28:20 
+
+28:20 All right. You repeat the same process.
+28:22 
+
+28:22 This time you see that
+28:25 
+
+28:25 E and R should be merged uh with high
+28:28 
+
+28:28 score. It has a high score. So you merge
+28:30 
+
+28:30 E and R. But the resultant uh token will
+28:33 
+
+28:33 be hash ER. Okay. So hash ER will be
+28:36 
+
+28:36 added. Right? So all the appearances of
+28:38 
+
+28:38 hash E and H# R will be replaced by hash
+28:40 
+
+28:40 ER and so on and so forth. Right? You
+28:44 
+
+28:44 keep on doing this thing. You keep on
+28:46 
+
+28:46 increasing the size of the vocabulary
+28:47 
+
+28:47 and until your desired vocabulary size
+28:50 
+
+28:50 uh will be reached.
+28:54 
+
+28:54 So,
+28:58 
+
+28:58 so as I mentioned in case of work piece,
+29:00 
+
+29:00 we only return the final vocabulary. We
+29:02 
+
+29:02 will not store any merge rules, marging
+29:05 
+
+29:05 rules, right?
+29:08 
+
+29:08 But during the test time, how do you how
+29:11 
+
+29:11 do you uh let's say how do you um
+29:14 
+
+29:14 tokenize a word? Let's say the word is
+29:16 
+
+29:16 fused f u s e d, right? And you already
+29:19 
+
+29:19 know the vocabul. So, so this is your
+29:21 
+
+29:21 vocabulary.
+29:25 
+
+29:25 Okay.
+29:27 
+
+29:27 So, what you do, you start from the
+29:29 
+
+29:29 beginning. The first character is F and
+29:32 
+
+29:32 you check what's going to be the longest
+29:34 
+
+29:34 sub word
+29:36 
+
+29:36 which is present in your vocabulary.
+29:40 
+
+29:40 Right? So,
+29:45 
+
+29:45 right. So let's say the word f.
+29:49 
+
+29:49 
+
+29:49 F if f if f if f if f if f if f if f if
+29:49 f if f if is present in the vocabulary.
+29:51 
+
+29:51 f is present in the vocabulary right?
+29:54 
+
+29:54 What about fu? fu is not there right? So
+29:59 
+
+29:59 therefore we split f u s e d into f
+30:04 
+
+30:04 comma u s e d. Now this is done.
+30:09 
+
+30:09 Of course this is hash. It should be
+30:10 
+
+30:10 hash. Huh? Now let's look at h has u a c
+30:14 
+
+30:14 and let's start from u and see what's
+30:17 
+
+30:17 the longest
+30:19 
+
+30:19 sub word. Okay what's the longest sub
+30:21 
+
+30:21 word? So hash u is present in the
+30:23 
+
+30:23 vocabulary hash u is present. What about
+30:26 
+
+30:26 h has us s
+30:29 
+
+30:29 is not there right? So it it will be
+30:32 
+
+30:32 split further. It will be f hash u
+30:35 
+
+30:35 right? Uh hash s e d.
+30:40 
+
+30:40 What about hash S? Hash S is present,
+30:43 
+
+30:43 right? What about H# AC?
+30:47 
+
+30:47 Hash AC is also not present. So it will
+30:49 
+
+30:49 be if hash U#
+30:52 
+
+30:52 S hash E
+30:57 
+
+30:57 is present. Yes, it is present. Right?
+30:59 
+
+30:59 So this is my resultant tokens.
+31:02 
+
+31:02 Okay. And all of all these tokens are
+31:04 
+
+31:04 present in the vocabulary. So there's no
+31:06 
+
+31:06 problem.
+31:07 
+
+31:07 But let's say hash it is not present in
+31:10 
+
+31:10 the vocabulary.
+31:12 
+
+31:12 Right? So we split the word into these
+31:14 
+
+31:14 three tokens if U and S and then this is
+31:17 
+
+31:17 the resultant part and the resultant
+31:19 
+
+31:19 part is not present in the vocabulary.
+31:20 
+
+31:20 Even not even not hash E is also not
+31:23 
+
+31:23 present. Right? If hash E is present
+31:26 
+
+31:26 then you can further split it into hash
+31:28 
+
+31:28 E and hash D. Right? Let's say hash E is
+31:31 
+
+31:31 also not present.
+31:34 
+
+31:34 Okay? Then then this is unknown.
+31:37 
+
+31:37 So in case of uh BP what you did we
+31:41 
+
+31:41 replace this by unk. In case of work
+31:45 
+
+31:45 piece what we do we replace the entire
+31:47 
+
+31:47 word by unk.
+31:51 
+
+31:51 If if one of the tokens is not present
+31:54 
+
+31:54 in the vocabulary I replace the entire
+31:56 
+
+31:56 word by unk.
+31:59 
+
+31:59 Okay. Now
+32:04 
+
+32:04 for example funny. Okay. um
+32:08 
+
+32:08 hash Y is not present in my vocabulary.
+32:11 
+
+32:11 Okay. So what I do I replace the entire
+32:14 
+
+32:14 word by unk in case of what piece. Yeah.
+32:31 
+
+32:31 >> No. So we can't replace because we can't
+32:34 
+
+32:34 replace because this is I mean as per
+32:36 
+
+32:36 what piece of course you can think of
+32:38 
+
+32:38 your own algorithm at first as per what
+32:41 
+
+32:41 piece you you should start from the
+32:43 
+
+32:43 first uh first token and you check
+32:46 
+
+32:46 whether the longest part is available or
+32:48 
+
+32:48 not.
+32:51 
+
+32:51 >> Yeah it's very high. It's very high.
+32:55 
+
+32:55 Remember tokenization is an offline
+32:57 
+
+32:57 process. It's an offline process. It's
+32:60 
+
+32:60 not an online process. Right? So you can
+33:02 
+
+33:02 tokenize things beforehand. If you have
+33:04 
+
+33:04 if you have training data, you can
+33:06 
+
+33:06 tokenize things beforehand.
+33:09 
+
+33:09 Good.
+33:11 
+
+33:11 Okay. Let's move on to the last one. And
+33:12 
+
+33:12 this is a bit tricky. Interesting. This
+33:15 
+
+33:15 is a unic tokenization is the is a
+33:18 
+
+33:18 tokenization strategy which produces two
+33:20 
+
+33:20 different tokens for the same character
+33:22 
+
+33:22 for the same word. Okay. But the other
+33:24 
+
+33:24 two other two are deterministic.
+33:26 
+
+33:26 Remember this. This is not deterministic
+33:28 
+
+33:28 probabilistic.
+33:30 
+
+33:30 Okay. So,
+33:33 
+
+33:33 so what is the idea? The idea as I
+33:35 
+
+33:35 mentioned earlier that there exist
+33:37 
+
+33:37 ambiguities in subword segmentation,
+33:40 
+
+33:40 right? As a single word or a sentence
+33:42 
+
+33:42 can be divided into different subwords
+33:44 
+
+33:44 uh depending on the context.
+33:49 
+
+33:49 So, uh BP and WordP don't produce
+33:52 
+
+33:52 different tokenizations uh different
+33:55 
+
+33:55 tokens for a single token. But this can
+33:58 
+
+33:58 do unigram LM.
+34:02 
+
+34:02 So the idea is that this algorithm uses
+34:05 
+
+34:05 expectation maximization. How many of
+34:07 
+
+34:07 you know EM algorithm?
+34:12 
+
+34:12 EM algorithm. Expectation maximization.
+34:14 
+
+34:14 No.
+34:20 
+
+34:20 How many of you know K means algorithm?
+34:24 
+
+34:24 So K means is exponential maximization.
+34:27 
+
+34:27 Why? What happens in K means? So in K
+34:30 
+
+34:30 means what we do? We have data points,
+34:33 
+
+34:33 right? We first select the seeds. Let's
+34:35 
+
+34:35 say the K is given. Let's say K is five.
+34:38 
+
+34:38 You first identify seeds. Let's say you
+34:41 
+
+34:41 identify seeds randomly. Identify seeds,
+34:43 
+
+34:43 right? You start with five seeds.
+34:46 
+
+34:46 And then what you do? You identify uh
+34:49 
+
+34:49 you look at other data points and which
+34:52 
+
+34:52 data points are closer to the seeds,
+34:54 
+
+34:54 right?
+34:56 
+
+34:56 For every data point, you measure the
+34:58 
+
+34:58 distance between that data point and
+34:59 
+
+34:59 five seeds and you assign that point to
+35:02 
+
+35:02 the corresponding seeds cluster, right?
+35:05 
+
+35:05 And then once all the assignments are
+35:07 
+
+35:07 done, you get five different clusters.
+35:10 
+
+35:10 Then you again measure the mean of the
+35:12 
+
+35:12 cluster, right? And that's going to be
+35:14 
+
+35:14 your new seed. Again, you do the
+35:17 
+
+35:17 assignment. So it is essentially
+35:19 
+
+35:19 assignment. So you are you are you you
+35:22 
+
+35:22 are maximizing your you you're
+35:24 
+
+35:24 maximizing your objective what's your
+35:26 
+
+35:26 objective here minimizing the distance
+35:29 
+
+35:29 right so that's the maximization stage
+35:32 
+
+35:32 and what is expectation stage the
+35:33 
+
+35:33 assignment stage
+35:36 
+
+35:36 so two stages are there assignment and
+35:40 
+
+35:40 calculation right recal so calculating
+35:43 
+
+35:43 the seed and assigning the data points
+35:45 
+
+35:45 to the seed the here also the idea is
+35:48 
+
+35:48 the same so you will see we'll have a
+35:50 
+
+35:50 objective function
+35:51 
+
+35:51 which we want to maximize right in the
+35:53 
+
+35:53 maximization stage and the expectation
+35:55 
+
+35:55 stage we'll try to recalculate the
+35:58 
+
+35:58 vocabulary entries.
+36:00 
+
+36:00 Okay.
+36:02 
+
+36:02 So uh now this is very interesting. How
+36:05 
+
+36:05 many of you know about this algorithm
+36:07 
+
+36:07 unigram tokenization
+36:09 
+
+36:09 sentence piece algorithm? Sentence
+36:11 
+
+36:11 piece. Have you heard of the term
+36:12 
+
+36:12 sentence piece? So this is sentence
+36:14 
+
+36:14 piece. This is used in sentence piece.
+36:17 
+
+36:17 Okay. And this is a sentence piece and
+36:21 
+
+36:21 unigram LM is used everywhere in in you
+36:23 
+
+36:23 know Albert uh T5 Excelate and so on.
+36:28 
+
+36:28 Okay. So here the idea is different. So
+36:32 
+
+36:32 in BP and work piece we started with the
+36:34 
+
+36:34 limited set of base vocabulary and then
+36:37 
+
+36:37 then we expanded but here we'll start
+36:40 
+
+36:40 with an expanded list of vocabulary and
+36:43 
+
+36:43 then then you squeeze them or shrink the
+36:46 
+
+36:46 vocabulary
+36:48 
+
+36:48 right so we start with an arbitrary
+36:50 
+
+36:50 large uh size vocabulary and then we
+36:53 
+
+36:53 keep on removing those vocabulary
+36:55 
+
+36:55 entries which are useless. Now how do
+36:58 
+
+36:58 you find such arbitrarily large uh uh
+37:01 
+
+37:01 you know vocabulary entries?
+37:04 
+
+37:04 It's up to you. You can think of
+37:05 
+
+37:05 combinations right? I mean given a set
+37:09 
+
+37:09 of characters you can think of
+37:10 
+
+37:10 exponential number of tokens isn't it?
+37:14 
+
+37:14 Or what we say what we can do is that uh
+37:17 
+
+37:17 you first run word piece or bite pair
+37:21 
+
+37:21 right with a large vocabulary size
+37:24 
+
+37:24 limit. You can limit the vocabulary size
+37:26 
+
+37:26 in case of word piece and bite pair bite
+37:28 
+
+37:28 pair right because you know up to that
+37:30 
+
+37:30 limit you you want the vocabulary to
+37:32 
+
+37:32 grow. So you increase the limit you run
+37:35 
+
+37:35 what piece or uh you know bite pair and
+37:38 
+
+37:38 you get an arbitrary large size of the
+37:40 
+
+37:40 vocabulary and then you run this.
+37:44 
+
+37:44 Okay.
+37:46 
+
+37:46 So and then what you do this is unigram
+37:49 
+
+37:49 language model. So in in unigram
+37:51 
+
+37:51 language model what is the assumption?
+37:53 
+
+37:53 The assumption is that all unigs are
+37:55 
+
+37:55 independent of each other.
+37:58 
+
+37:58 Isn't it? So if I tell you what is the
+38:01 
+
+38:01 probability of c a t the word cat a t in
+38:04 
+
+38:04 the unigram language model what you do
+38:06 
+
+38:06 it is probability of c time probability
+38:08 
+
+38:08 of a time probability of t
+38:11 
+
+38:11 all the unigs are independent of each
+38:13 
+
+38:13 other. So we'll use the same strategy
+38:15 
+
+38:15 here. Okay. And then what you do we
+38:18 
+
+38:18 calculate the log likelihood of of the
+38:22 
+
+38:22 log likelihood of the training data with
+38:26 
+
+38:26 respect to the vocabulary. What is log
+38:27 
+
+38:27 likelihood? What is the likelihood?
+38:34 
+
+38:34 What is likelihood? How do you calculate
+38:36 
+
+38:36 likelihood?
+38:38 
+
+38:38 Likelihood is the probability of the
+38:40 
+
+38:40 token. Right? We take the log of the
+38:42 
+
+38:42 probability of the token and then we
+38:45 
+
+38:45 basically we'll do negative log
+38:46 
+
+38:46 likelihood because the log of the
+38:48 
+
+38:48 probability will give you negative
+38:49 
+
+38:49 number and you have minus and minus and
+38:53 
+
+38:53 then we try to maximize this with
+38:56 
+
+38:56 respect to the training data and the
+38:58 
+
+38:58 vocabulary that we have.
+39:01 
+
+39:01 So we will maximize the log likelihood
+39:03 
+
+39:03 of the training data.
+39:06 
+
+39:06 Okay, let's see.
+39:08 
+
+39:08 So uh
+39:12 
+
+39:12 let's say these are my words and these
+39:14 
+
+39:14 are the frequencies
+39:16 
+
+39:16 and these are my vocabulary entries.
+39:21 
+
+39:21 Okay. So
+39:24 
+
+39:24 and this is the expanded let's say this
+39:26 
+
+39:26 is the expanded vocabulary entries and
+39:28 
+
+39:28 you want to remove some of the entries
+39:30 
+
+39:30 which are not useful.
+39:32 
+
+39:32 So to start with we first look at the
+39:35 
+
+39:35 frequency of all the unigs all the
+39:38 
+
+39:38 vocabulary entries right these are all
+39:40 
+
+39:40 vocabulary entries and these are the
+39:42 
+
+39:42 frequencies Actually,
+39:57 
+
+39:57 see
+40:10 
+
+40:10 H
+40:17 
+
+40:17 can you do one thing? Can you just open
+40:19 
+
+40:19 this door?
+40:45 
+
+40:45 So these are the frequencies of the uh
+40:48 
+
+40:48 vocabulary entries right
+40:51 
+
+40:51 then what we do
+40:53 
+
+40:53 we measure the unic frequency and what
+40:55 
+
+40:55 is un frequency simple let's say un
+40:58 
+
+40:58 frequency of r is three by the sum of
+41:01 
+
+41:01 all the numbers
+41:02 
+
+41:02 Okay. And so on and so forth. So these
+41:04 
+
+41:04 are the unic frequencies
+41:07 
+
+41:07 of the entries,
+41:13 
+
+41:13 right? And then what you do,
+41:17 
+
+41:17 let's say the word run. Okay? You think
+41:20 
+
+41:20 of all possible splits for the word run.
+41:24 
+
+41:24 All possible splits. R comma U N R U N R
+41:29 
+
+41:29 U N. These are the three splits that you
+41:31 
+
+41:31 can think of, right?
+41:34 
+
+41:34 And
+41:37 
+
+41:37 uh
+41:39 
+
+41:39 and you also see that
+41:42 
+
+41:42 this uh these tokens right r u n r u u n
+41:47 
+
+41:47 these should also be part of your
+41:48 
+
+41:48 vocabulary. It should not happen that
+41:51 
+
+41:51 you know you split in such a way that
+41:53 
+
+41:53 tokens are not part of your vocabulary.
+41:55 
+
+41:55 Right? So remember this is your
+41:57 
+
+41:57 resultant this is your uh vocabulary to
+41:60 
+
+41:60 start with and it is already very large.
+42:02 
+
+42:02 So you you should not have a fear to you
+42:05 
+
+42:05 know have a token which is not present
+42:06 
+
+42:06 in the vocabulary.
+42:10 
+
+42:10 So now now what is the probability of
+42:13 
+
+42:13 this word? The probability of the word
+42:15 
+
+42:15 is essentially the probability the sum
+42:17 
+
+42:17 of the probability of the splits.
+42:20 
+
+42:20 So what is the probability of this
+42:22 
+
+42:22 split? P r comma u comma n. It's a unig
+42:25 
+
+42:25 probability. So P R * P U * P N.
+42:29 
+
+42:29 Similarly, this one and this one.
+42:33 
+
+42:33 Okay. Now you see among these three
+42:35 
+
+42:35 splits
+42:37 
+
+42:37 which split is more likely these two
+42:40 
+
+42:40 splits are equally likely and higher
+42:42 
+
+42:42 higher than this one. So let's let's
+42:45 
+
+42:45 choose one of the splits randomly. Let's
+42:47 
+
+42:47 choose RU comma N RU comma N as as my
+42:51 
+
+42:51 split, right?
+42:54 
+
+42:54 Now this thing is extremely tedious.
+42:57 
+
+42:57 Why?
+42:59 
+
+42:59 You have so many words, so many
+43:01 
+
+43:01 possibilities and so on. Some of you
+43:03 
+
+43:03 know this VB algorithm. I think I teach
+43:06 
+
+43:06 VB in POS tagging, right? You can use VB
+43:09 
+
+43:09 for uh this segmentation possible
+43:11 
+
+43:11 segmentation.
+43:15 
+
+43:15 Okay. So, so what is now? Now for every
+43:18 
+
+43:18 word, now for every word I know the best
+43:20 
+
+43:20 split. For every word I know the best
+43:23 
+
+43:23 split. For the word run, this is my best
+43:25 
+
+43:25 split. For the word bug, this is the
+43:28 
+
+43:28 best split. And the corresponding score
+43:30 
+
+43:30 you also know. Right? So what is the
+43:32 
+
+43:32 likelihood of what is the log likelihood
+43:35 
+
+43:35 of the what is the log likelihood of my
+43:37 
+
+43:37 trading data? The log likelihood of my
+43:40 
+
+43:40 trading data is the likelihood of
+43:42 
+
+43:42 individual word. And what is the
+43:44 
+
+43:44 likelihood of individual word? The base
+43:47 
+
+43:47 split.
+43:49 
+
+43:49 So the word let's say the word run
+43:51 
+
+43:51 appears three times in the document
+43:54 
+
+43:54 right and and this is the split score
+43:57 
+
+43:57 for the word run. So what is the total
+43:60 
+
+43:60 split score for the word run? Three
+44:02 
+
+44:02 times this. What is the total split
+44:05 
+
+44:05 score for the word bug? Five times this
+44:09 
+
+44:09 and so on and so forth. So what is the
+44:12 
+
+44:12 uh what is the total loss? The total
+44:14 
+
+44:14 loss is uh frequency times the
+44:18 
+
+44:18 probability.
+44:22 
+
+44:22 Right? Now if you do that it basically
+44:25 
+
+44:25 encompasses all the words present in
+44:27 
+
+44:27 your document because you're also
+44:29 
+
+44:29 considering the frequency.
+44:33 
+
+44:33 Clear?
+44:35 
+
+44:35 And then you take the log, right?
+44:37 
+
+44:37 Because this is log loss, right? So log
+44:39 
+
+44:39 of this minus log of this. So the total
+44:41 
+
+44:41 loss is now 66.102
+44:45 
+
+44:45 if you consider this split.
+44:48 
+
+44:48 Okay.
+44:50 
+
+44:50 Now
+44:52 
+
+44:52 the maximization stage. So now let's
+44:54 
+
+44:54 assume let's let's let's assume that you
+44:58 
+
+44:58 want to remove the token un
+45:02 
+
+45:02 you think the the token un is not
+45:04 
+
+45:04 useful. You want to remove the token. So
+45:08 
+
+45:08 if you remove the token then uh what are
+45:11 
+
+45:11 the splits for the word uh run? These
+45:14 
+
+45:14 are the possible splits for the word run
+45:16 
+
+45:16 because un is not there. So what is the
+45:20 
+
+45:20 probability? The same way we measure the
+45:22 
+
+45:22 probability
+45:23 
+
+45:23 right and what is the best probability?
+45:25 
+
+45:25 The best probability is this one. Right?
+45:28 
+
+45:28 Similarly for the other words after
+45:31 
+
+45:31 removing ul from the voc from the
+45:32 
+
+45:32 vocabulary this is the resultant table.
+45:35 
+
+45:35 These are the scores.
+45:37 
+
+45:37 Okay. And after the removal, you again
+45:40 
+
+45:40 calculate the same log loss,
+45:44 
+
+45:44 right? So this is your log loss. Now if
+45:47 
+
+45:47 you look at this number and the previous
+45:49 
+
+45:49 number, they are the same. So it means
+45:52 
+
+45:52 if you remove un it doesn't affect the
+45:54 
+
+45:54 log loss.
+45:57 
+
+45:57 So you can safely remove that token from
+45:59 
+
+45:59 the vocabulary. Any doubt?
+46:06 
+
+46:06 randomly the token right randomly
+46:12 
+
+46:12 right now remember what we haven't done
+46:15 
+
+46:15 yet there's a subtle there's a subtle
+46:18 
+
+46:18 there's a very interesting point
+46:20 
+
+46:20 important point that I that I did not
+46:23 
+
+46:23 mention explicitly
+46:25 
+
+46:25 if you remove un
+46:28 
+
+46:28 your unic frequency will also change
+46:30 
+
+46:30 right
+46:31 
+
+46:31 why because because this is your
+46:34 
+
+46:34 frequency table, right? And you you
+46:38 
+
+46:38 measure the uh uh the the unig
+46:41 
+
+46:41 probability by taking the sum of all the
+46:45 
+
+46:45 frequencies, right? So if you remove un
+46:48 
+
+46:48 the the denominator will change.
+46:52 
+
+46:52 Agreed? So once we decide that un should
+46:55 
+
+46:55 be removed in the next stage you have to
+46:58 
+
+46:58 recmp compute everything,
+47:01 
+
+47:01 right? So, so once you decide that un is
+47:04 
+
+47:04 removed uh
+47:10 
+
+47:10 uh un is removed you need to uh do this
+47:13 
+
+47:13 uh again now the point is that the point
+47:16 
+
+47:16 that he mentioned is that how do you
+47:18 
+
+47:18 choose that which token uh needs to be
+47:20 
+
+47:20 chosen I mean what's what's my target
+47:22 
+
+47:22 token to be removed right actually we
+47:25 
+
+47:25 need to do this calculation for all the
+47:26 
+
+47:26 tokens present in the vocabulary
+47:29 
+
+47:29 now for un I saw for U I saw that this
+47:33 
+
+47:33 is my loss. Similarly for RU I can also
+47:36 
+
+47:36 see this is my loss. For BU this is my
+47:39 
+
+47:39 loss and so on and so forth. So there
+47:41 
+
+47:41 are in fact in this example for this
+47:43 
+
+47:43 example there are many such tokens
+47:48 
+
+47:48 which if removed would result in same
+47:51 
+
+47:51 loss.
+47:53 
+
+47:53 Right? So but it is not the case that
+47:55 
+
+47:55 you remove all these tokens together.
+47:57 
+
+47:57 Right? So you remove tokens one by one.
+47:60 
+
+47:60 So let's say you removed the token un
+48:02 
+
+48:02 right after removal you recomputee this
+48:06 
+
+48:06 table the frequency table the
+48:08 
+
+48:08 probability table frequency table will
+48:10 
+
+48:10 remain the same because you just remove
+48:12 
+
+48:12 that part right but the probability
+48:13 
+
+48:13 table will will be changed
+48:16 
+
+48:16 and you do the same thing again again
+48:18 
+
+48:18 and again
+48:21 
+
+48:21 right for example in the next stage you
+48:24 
+
+48:24 you may see that uh
+48:29 
+
+48:29 now tell me from this table. Uh which
+48:32 
+
+48:32 one should be removed?
+48:34 
+
+48:34 It is written already. I should remove
+48:37 
+
+48:37 either BU or UG. Why?
+48:42 
+
+48:42 Why B1 U?
+48:45 
+
+48:45 >> If you look at the difference between uh
+48:47 
+
+48:47 so the original loss was 66 something
+48:50 
+
+48:50 right likelihood. Now this is 61
+48:53 
+
+48:53 something the difference is high. So you
+48:56 
+
+48:56 should remove them one of them.
+48:59 
+
+48:59 That's it. So this is about unigram
+49:02 
+
+49:02 language model uh uh segmentation. Again
+49:07 
+
+49:07 uh let me summarize what we what we
+49:08 
+
+49:08 discussed in the last the the the
+49:10 
+
+49:10 unigramm part. So we start with an uh
+49:14 
+
+49:14 with an large uh vocabulary uh entries
+49:18 
+
+49:18 right then we uh measure the frequency
+49:21 
+
+49:21 of the vocabulary entries. We measure
+49:24 
+
+49:24 the probability of the vocabulary
+49:25 
+
+49:25 entries, right? And then
+49:29 
+
+49:29 and then we calculate the loss or log
+49:32 
+
+49:32 likelihood of the data of of the
+49:34 
+
+49:34 document, right? And then u you uh you
+49:38 
+
+49:38 select a specific token that you want to
+49:40 
+
+49:40 remove, right? Uh and and then you
+49:43 
+
+49:43 calculate the I mean then then you check
+49:46 
+
+49:46 the possible splits. Based on the
+49:48 
+
+49:48 splits, you calculate the loss, right?
+49:50 
+
+49:50 and you check whether the loss is uh the
+49:53 
+
+49:53 you check the difference between the
+49:55 
+
+49:55 initial loss and the resultant loss and
+49:57 
+
+49:57 you select the entry whose removal will
+49:60 
+
+49:60 basically reduce this significantly.
+50:03 
+
+50:03 All right. Thank you.

@@ -1,0 +1,3754 @@
+00:00 Okay. Hello everyone. I'm Jatin from IBM
+00:02 
+
+00:02 research and uh today we will start a
+00:04 
+
+00:04 new topic on retrieval based language
+00:07 
+
+00:07 models.
+00:09 
+
+00:09 Right. Um okay. So before we start let
+00:14 
+
+00:14 me you know ask a question. Uh for which
+00:18 
+
+00:18 tasks do you guys use language models in
+00:21 
+
+00:21 your day-to-day life? And what are the
+00:23 
+
+00:23 issues that you face when you use the
+00:25 
+
+00:25 language models
+00:27 
+
+00:27 >> for programming? Okay. Programming.
+00:30 
+
+00:30 Uh summarization of
+00:32 
+
+00:32 >> slides
+00:33 
+
+00:33 >> of slides. Good. Okay. I thought slides
+00:35 
+
+00:35 are a summary but good. Uh summarization
+00:40 
+
+00:40 programming
+00:41 
+
+00:41 >> assignments
+00:42 
+
+00:42 >> assignments which is coding. Yeah.
+00:44 
+
+00:44 Programming
+00:50 
+
+00:50 >> rephrasing and changing the code of your
+00:52 
+
+00:52 friend before so you can submit it.
+00:56 
+
+00:56 >> Oh changing the tone of a sentence.
+00:58 
+
+00:58 grammatical errors. Okay. So when you
+01:01 
+
+01:01 use it for programming, do you submit
+01:04 
+
+01:04 the code as it is uh for or uh
+01:08 
+
+01:08 >> most of the time it won't work the first
+01:10 
+
+01:10 time
+01:12 
+
+01:12 >> right? So most of the time it will not
+01:14 
+
+01:14 work for the first time and you have to
+01:15 
+
+01:15 tweak it uh a bit right
+01:18 
+
+01:18 >> you got very specific so you need to
+01:21 
+
+01:21 know you need to know what function you
+01:23 
+
+01:23 want you can't make it think
+01:26 
+
+01:26 but you got what code you want you
+01:29 
+
+01:29 should have
+01:31 
+
+01:31 >> right so you should know the code in
+01:33 
+
+01:33 your mind and you should ask it to
+01:35 
+
+01:35 follow the syntax sort of right okay and
+01:39 
+
+01:39 so now notice in all of these cases is
+01:42 
+
+01:42 you are acting as a verifier
+01:45 
+
+01:45 right the code you will not submit as it
+01:48 
+
+01:48 is even if you're doing it for
+01:49 
+
+01:49 assignment if it is used in critical
+01:52 
+
+01:52 applications then you know it's not that
+01:54 
+
+01:54 it will be unassisted it is used as an
+01:57 
+
+01:57 assistant
+01:58 
+
+01:58 right and the reason is that it can make
+02:02 
+
+02:02 mistakes right so I also use language
+02:06 
+
+02:06 models and recently I started using it
+02:09 
+
+02:09 for preparing the slides
+02:12 
+
+02:12 Right. So
+02:14 
+
+02:14 I asked it to write a pseudo code for
+02:16 
+
+02:16 flash attention. It did the right job. I
+02:20 
+
+02:20 was mainly interested in you know which
+02:22 
+
+02:22 is the outer loop and which is the inner
+02:24 
+
+02:24 loop. So the outer loop has to be on K's
+02:28 
+
+02:28 and V's and the inner loop is on Q's
+02:30 
+
+02:30 right it give the right pseudo code. But
+02:34 
+
+02:34 then you know I asked okay why do you
+02:36 
+
+02:36 have this design? to answer that it said
+02:40 
+
+02:40 something where it was kind of I thought
+02:43 
+
+02:43 it is contradicting with itself for
+02:45 
+
+02:45 example it said that KVs are the
+02:47 
+
+02:47 streaming axis and Q blocks are resident
+02:50 
+
+02:50 I thought K and V's are resident and
+02:53 
+
+02:53 then Q's are streaming inside so then I
+02:55 
+
+02:55 asked it the question why it looks like
+02:58 
+
+02:58 you know there is a mismatch between the
+02:60 
+
+02:60 pseudo code and what you are saying the
+03:01 
+
+03:01 description that you are giving
+03:03 
+
+03:03 okay
+03:05 
+
+03:05 then it agreed with Okay, this is called
+03:08 
+
+03:08 AI hypopensy. will agree to whatever you
+03:10 
+
+03:10 say
+03:12 
+
+03:12 and it untangled it carefully
+03:15 
+
+03:15 and
+03:17 
+
+03:17 you know after that
+03:21 
+
+03:21 it completely changed its sense
+03:24 
+
+03:24 right so it had said two contradictory
+03:26 
+
+03:26 things one was a pseudo code and the
+03:28 
+
+03:28 other was a statement now it is sticking
+03:29 
+
+03:29 to the statement and changing the pseudo
+03:31 
+
+03:31 code now I have query in the outer loop
+03:35 
+
+03:35 and KV in the inner loop
+03:38 
+
+03:38 Right. Okay. And then I again confronted
+03:42 
+
+03:42 that you're confusing me. You are taking
+03:44 
+
+03:44 a U-turn on your own stance. And then it
+03:46 
+
+03:46 says, "No, I'm perfectly clear now.
+03:49 
+
+03:49 Outer loop is Q block and inner loop is
+03:52 
+
+03:52 KV block." Then I thought I can't trust
+03:54 
+
+03:54 it. And I went back and checked the
+03:58 
+
+03:58 paper and looks like its first pseudo
+04:01 
+
+04:01 code was correct.
+04:03 
+
+04:03 And then when I presented the pseudo
+04:05 
+
+04:05 code to it from the paper, it again
+04:08 
+
+04:08 reversed its stance. Now it is saying
+04:11 
+
+04:11 outer loop is KV and inner loop is Q.
+04:14 
+
+04:14 And look at here. And previous slide it
+04:17 
+
+04:17 was again you know swapped.
+04:20 
+
+04:20 So you can't you can't trust these
+04:21 
+
+04:21 language model. Here I was acting as an
+04:23 
+
+04:23 active verifier. I went back and looked
+04:26 
+
+04:26 at the paper to verify. Right? So this
+04:29 
+
+04:29 is one of the biggest issues with using
+04:32 
+
+04:32 the language models. This is called
+04:34 
+
+04:34 hallucination. They will hallucinate
+04:35 
+
+04:35 things right. And uh unfortunately you
+04:40 
+
+04:40 know a lawyer used the citations from a
+04:43 
+
+04:43 language model and presented that in the
+04:45 
+
+04:45 court and it was he was fine because
+04:47 
+
+04:47 they were hallucinated.
+04:49 
+
+04:49 Right. A similar issue occurred with Air
+04:51 
+
+04:51 Canada where one of the consumers, one
+04:54 
+
+04:54 of the customers, he he changed the
+04:56 
+
+04:56 prompt in such a way that it forced the
+04:58 
+
+04:58 language model to say something and then
+05:00 
+
+05:00 it became a binding contract for the
+05:02 
+
+05:02 company to stick to to that. Right? So
+05:05 
+
+05:05 this is one of the major issues
+05:07 
+
+05:07 hallucination. The other issue is
+05:09 
+
+05:09 verifiability.
+05:11 
+
+05:11 You have to verify it. Right? How do you
+05:13 
+
+05:13 verify? And even if you ask it to
+05:15 
+
+05:15 verify. So for this is also a real uh
+05:18 
+
+05:18 example. Two years ago uh I was doing a
+05:22 
+
+05:22 literature survey on a paper and I asked
+05:25 
+
+05:25 it to give me references for whatever it
+05:27 
+
+05:27 is claiming right. It gave a reference
+05:33 
+
+05:33 right
+05:35 
+
+05:35 and also the title of the paper. Look at
+05:38 
+
+05:38 the two. This this is the reference.
+05:39 
+
+05:39 This is the link URL link. And this is
+05:42 
+
+05:42 what it is. uh spec saying that the
+05:44 
+
+05:44 title is pointless mutual information
+05:46 
+
+05:46 for language model. You can't verify
+05:48 
+
+05:48 even if you ask it to verify it can make
+05:50 
+
+05:50 mistakes there as well during the
+05:51 
+
+05:51 verification step itself.
+05:54 
+
+05:54 Right? And then there are knowledge cut
+05:56 
+
+05:56 off issues. Right? These language models
+05:58 
+
+05:58 are static
+05:60 
+
+05:60 uh if you ask a question which is about
+06:02 
+
+06:02 which you know if some information was
+06:04 
+
+06:04 updated after the training of the
+06:05 
+
+06:05 language model then again it'll get
+06:08 
+
+06:08 you'll get incorrect information right.
+06:10 
+
+06:10 So I mean here itself it is
+06:12 
+
+06:12 acknowledging that as of my last update
+06:13 
+
+06:13 in January 2022 uh you know this is the
+06:17 
+
+06:17 information that it has which is
+06:19 
+
+06:19 incorrect.
+06:21 
+
+06:21 Okay. And then of course there are
+06:22 
+
+06:22 learning failures. By learning failures
+06:24 
+
+06:24 I mean that you know every machine
+06:26 
+
+06:26 learning model has its own errors. Its
+06:28 
+
+06:28 accuracy is never 100%. Right? So there
+06:30 
+
+06:30 are always learning gaps. There is a
+06:32 
+
+06:32 difference between generalization and uh
+06:34 
+
+06:34 you know training accuracy. So they it
+06:36 
+
+06:36 may not generalize well as well. Right?
+06:40 
+
+06:40 So what should we do? How should we
+06:42 
+
+06:42 address uh these issues?
+06:45 
+
+06:45 Right? And that is what we will cover uh
+06:49 
+
+06:49 in in this lecture today. And to
+06:54 
+
+06:54 motivate that uh let us you know look at
+06:58 
+
+06:58 how these language models work. Right?
+07:00 
+
+07:00 When you ask it a question, how does it
+07:03 
+
+07:03 work? So for example, if the question is
+07:06 
+
+07:06 the capital city of Ontario is and when
+07:09 
+
+07:09 you ask the language model at the time
+07:10 
+
+07:10 of testing, it will generate a
+07:13 
+
+07:13 probability distribution over the next
+07:14 
+
+07:14 tokens and you will select the one which
+07:16 
+
+07:16 has the highest probability. For
+07:18 
+
+07:18 example, in this case, Toronto with 0.52
+07:20 
+
+07:20 probability, right? And how does it
+07:23 
+
+07:23 know? It knows this because at the time
+07:26 
+
+07:26 of training you showed it a lot of data
+07:29 
+
+07:29 and within that there will be a sentence
+07:31 
+
+07:31 like the capital city of Ontario is
+07:33 
+
+07:33 Toronto and it would have it is learned
+07:36 
+
+07:36 it is trained to maximize the
+07:38 
+
+07:38 probability of the token Toronto in this
+07:40 
+
+07:40 case and that is what you get during
+07:43 
+
+07:43 inference right so during training
+07:46 
+
+07:46 whatever parameters that it has theta
+07:49 
+
+07:49 you started them randomly and then you
+07:52 
+
+07:52 know you arrive at theta
+07:54 
+
+07:54 star the optimal parameters and it is
+07:58 
+
+07:58 answering using the information which is
+08:01 
+
+08:01 encoded in these parameters. At the time
+08:02 
+
+08:02 of testing you have theta star and it
+08:06 
+
+08:06 encodes
+08:09 
+
+08:09 all the information
+08:12 
+
+08:12 right? it is not given this text at the
+08:15 
+
+08:15 time of answering that was used to train
+08:18 
+
+08:18 uh the model right this this sentence is
+08:21 
+
+08:21 coming from this document which was used
+08:25 
+
+08:25 to train the model at the time of
+08:27 
+
+08:27 testing this is not available right so I
+08:30 
+
+08:30 like to think of it as you know closed
+08:34 
+
+08:34 book exam where when you are preparing
+08:36 
+
+08:36 for the exam you have access to the
+08:38 
+
+08:38 books all the knowledge you can read you
+08:41 
+
+08:41 can put it in your memory in the
+08:42 
+
+08:42 parameters in your neurons, right? And
+08:46 
+
+08:46 when you are taking the exam, when you
+08:48 
+
+08:48 are asked the question, you answer from
+08:50 
+
+08:50 your own parametric knowledge, right?
+08:54 
+
+08:54 But there are some openlook exams as
+08:57 
+
+08:57 well where you are allowed to take the
+08:60 
+
+08:60 book,
+09:01 
+
+09:01 you know, use the book in the exam,
+09:04 
+
+09:04 right? And we can call this as
+09:07 
+
+09:07 semiparametric LLMs because there is
+09:09 
+
+09:09 some information which is in the
+09:10 
+
+09:10 parameters of the language model. And
+09:12 
+
+09:12 then there is external information or
+09:14 
+
+09:14 the books which are available to you at
+09:17 
+
+09:17 the time of answering any question just
+09:20 
+
+09:20 like in the open book exam.
+09:22 
+
+09:22 Right? So these are called retrieval
+09:24 
+
+09:24 based LLMs and that is what we will
+09:26 
+
+09:26 study what are the different components
+09:27 
+
+09:27 of this.
+09:29 
+
+09:29 Right?
+09:30 
+
+09:30 uh now before that let's set up a
+09:32 
+
+09:32 framework in which we will you know
+09:33 
+
+09:33 discuss uh all the different language
+09:36 
+
+09:36 models here and we will use the analogy
+09:38 
+
+09:38 of open book exam only right so there
+09:43 
+
+09:43 are primarily three ways in which you
+09:45 
+
+09:45 can use the information in the book
+09:47 
+
+09:47 right one is that okay uh time is
+09:50 
+
+09:50 critical you read the question solve it
+09:54 
+
+09:54 come up with an answer right you have an
+09:57 
+
+09:57 answer and then you use the book to
+09:59 
+
+09:59 verify,
+10:01 
+
+10:01 right? You search for the question in
+10:04 
+
+10:04 the book, right? You get the answers or
+10:08 
+
+10:08 whatever information that you want and
+10:10 
+
+10:10 then you verify whether your answer is
+10:11 
+
+10:11 correct or not and then modify
+10:12 
+
+10:12 accordingly, right? So that we we call
+10:15 
+
+10:15 output interpolation because you're
+10:17 
+
+10:17 getting the output. The language model
+10:20 
+
+10:20 from its parameters theta star is giving
+10:22 
+
+10:22 an output and then we are using the
+10:25 
+
+10:25 information from the book at once you
+10:29 
+
+10:29 have the output from the language model
+10:30 
+
+10:30 right
+10:32 
+
+10:32 another
+10:34 
+
+10:34 alternative is
+10:36 
+
+10:36 that you know you start solving the
+10:38 
+
+10:38 question then you you're not able to
+10:40 
+
+10:40 recall a specific equation you go back
+10:43 
+
+10:43 to the book and fetch that and then
+10:46 
+
+10:46 follow through Right? Then then you
+10:48 
+
+10:48 continue solving. Right? So this is
+10:51 
+
+10:51 essentially intermediate infusion where
+10:54 
+
+10:54 at the time of solving
+10:57 
+
+10:57 you you you take certain steps and then
+10:60 
+
+10:60 you go back to the book and get some
+11:02 
+
+11:02 relevant information and then use that.
+11:03 
+
+11:03 Right? So this is intermediate fusion
+11:06 
+
+11:06 and retro is one of the papers which we
+11:07 
+
+11:07 will discuss here.
+11:09 
+
+11:09 Right? And then the third and the most
+11:13 
+
+11:13 popular one is input augmentation where
+11:16 
+
+11:16 you you read the question
+11:19 
+
+11:19 you have not studied for the exam. So
+11:21 
+
+11:21 you open the book start searching for
+11:24 
+
+11:24 the question or whatever is the relevant
+11:25 
+
+11:25 information you get that you can't read
+11:28 
+
+11:28 the entire book first of all right you
+11:30 
+
+11:30 have to search when you search you get
+11:33 
+
+11:33 some some chap one one chapter or some
+11:35 
+
+11:35 passages let's say you read those
+11:37 
+
+11:37 passages along with the question and
+11:39 
+
+11:39 then try to generate the answer right so
+11:42 
+
+11:42 that is input augmentation where you
+11:44 
+
+11:44 take the query and search the book and
+11:48 
+
+11:48 get the information and pass the
+11:52 
+
+11:52 information and the query to the
+11:53 
+
+11:53 language model to generate the answer.
+11:56 
+
+11:56 Right? So this is the most popular one
+11:59 
+
+11:59 which is uh you know which which is used
+12:02 
+
+12:02 uh more often and then we will look at
+12:05 
+
+12:05 uh two seinal works in this category rag
+12:08 
+
+12:08 and realm right but
+12:12 
+
+12:12 one thing which is common in all the
+12:15 
+
+12:15 three approaches is that you have to
+12:17 
+
+12:17 search right you can't do away without
+12:20 
+
+12:20 searching for the information
+12:23 
+
+12:23 so this is the first step in retrieval
+12:26 
+
+12:26 based language models. So the retrieval
+12:28 
+
+12:28 stands for searching
+12:30 
+
+12:30 uh you know the whatever your query is
+12:33 
+
+12:33 searching for that in the book right
+12:36 
+
+12:36 that is called retrieval and uh let us
+12:40 
+
+12:40 start with
+12:42 
+
+12:42 you know various retrieval techniques
+12:44 
+
+12:44 but but before that let's look at a
+12:46 
+
+12:46 common retrieval pipeline which is you
+12:48 
+
+12:48 know common to all the different
+12:49 
+
+12:49 techniques that we are going to cover uh
+12:51 
+
+12:51 today right so and this is something
+12:54 
+
+12:54 that you will uh do offline, not at the
+12:59 
+
+12:59 time of
+13:01 
+
+13:01 uh exam, not during not in the exam, not
+13:03 
+
+13:03 during the exam, you would have done
+13:04 
+
+13:04 this homework at least
+13:07 
+
+13:07 a priority, right? Making cheat sheets
+13:10 
+
+13:10 and whatever notes and index and all of
+13:13 
+
+13:13 that, right? So the first step there is
+13:16 
+
+13:16 that you know you have the corpus
+13:19 
+
+13:19 of all the documents. This is this is
+13:21 
+
+13:21 the book or multiple books whatever,
+13:24 
+
+13:24 right? So it has a list of documents.
+13:27 
+
+13:27 You need to do some document
+13:28 
+
+13:28 pre-processing.
+13:30 
+
+13:30 So what happens here is that each
+13:32 
+
+13:32 document could be really huge and you
+13:34 
+
+13:34 need to break that into smaller pieces
+13:37 
+
+13:37 which are manageable. Right? So so this
+13:40 
+
+13:40 is the major step here is
+13:43 
+
+13:43 chunking a big
+13:46 
+
+13:46 dock into
+13:50 
+
+13:50 smaller pieces.
+13:53 
+
+13:53 Right? So we call these as chunks
+13:57 
+
+13:57 or passages
+14:00 
+
+14:00 right more often than not these are 512
+14:03 
+
+14:03 tokens because most of the language
+14:05 
+
+14:05 models I mean encoder language models
+14:06 
+
+14:06 initially that were there their context
+14:08 
+
+14:08 length of 512 so so most of the time
+14:10 
+
+14:10 these are 512 chunks and there are a lot
+14:13 
+
+14:13 of strategies for chunking as well
+14:14 
+
+14:14 because if you are given a document a
+14:16 
+
+14:16 big document how should you split right
+14:19 
+
+14:19 is there any uh structure within the
+14:21 
+
+14:21 document that you can use for splitting
+14:24 
+
+14:24 For example, each subsection should be
+14:26 
+
+14:26 within one chunk. If that is big, then
+14:28 
+
+14:28 how do you split? Right? So, there are a
+14:30 
+
+14:30 lot of chunking strategies as well. But
+14:32 
+
+14:32 the core idea is that there is a big
+14:33 
+
+14:33 document and you want to split that into
+14:34 
+
+14:34 smaller chunks. This is document
+14:36 
+
+14:36 pre-processing. And then you may extract
+14:38 
+
+14:38 some metadata, meta information as well
+14:40 
+
+14:40 about these chunks. For example, a name
+14:42 
+
+14:42 of the book or name of the document or
+14:44 
+
+14:44 title of the document from where it
+14:46 
+
+14:46 comes. Right? Okay. So once you have
+14:50 
+
+14:50 that uh you know you need to figure out
+14:54 
+
+14:54 how will you represent these chunks
+14:57 
+
+14:57 these are text right but then ultimately
+14:60 
+
+14:60 you need to somehow represent them while
+15:03 
+
+15:03 storing right so that is the second step
+15:05 
+
+15:05 which is uh representation of this uh of
+15:08 
+
+15:08 of the documents or chunks and we will
+15:11 
+
+15:11 look at different ways of representation
+15:14 
+
+15:14 right okay then uh you have to index
+15:19 
+
+15:19 them. Indexing essentially means that
+15:21 
+
+15:21 you know you need to uh organize them in
+15:24 
+
+15:24 such a way that it is easier for you to
+15:26 
+
+15:26 search. Right? So this is essentially
+15:28 
+
+15:28 what we do in a in a hashmap data
+15:31 
+
+15:31 structure, right? Then you have to
+15:32 
+
+15:32 search and you want to make you know
+15:34 
+
+15:34 search order one. You uh you create a
+15:36 
+
+15:36 you create an index out of it, right?
+15:38 
+
+15:38 You create a hashmap. You can store it
+15:40 
+
+15:40 as a list as well. But then search
+15:42 
+
+15:42 complexity will be order n right? So you
+15:45 
+
+15:45 you index u these chunks and get get the
+15:50 
+
+15:50 index. Now
+15:51 
+
+15:51 >> then
+15:54 
+
+15:54 >> sorry
+15:54 
+
+15:54 >> what is representation?
+15:56 
+
+15:56 >> What is
+15:57 
+
+15:57 >> second step?
+15:59 
+
+15:59 >> Representation. Okay. So uh how do
+16:02 
+
+16:02 language models represent a sentence?
+16:04 
+
+16:04 [clears throat]
+16:05 
+
+16:05 >> Embeddings.
+16:05 
+
+16:05 >> Embeddings. Right. So this is what we
+16:07 
+
+16:07 will cover here. Whenever here you have
+16:10 
+
+16:10 a document which is split into different
+16:13 
+
+16:13 chunks. Now this is one chunk.
+16:16 
+
+16:16 One way of representing is that I just I
+16:18 
+
+16:18 represent it as a list of the uh
+16:22 
+
+16:22 >> tokens
+16:23 
+
+16:23 >> tokens right the cat sat on a mat right
+16:29 
+
+16:29 this is one way of representing it right
+16:32 
+
+16:32 the other way of representing it is
+16:34 
+
+16:34 through embeddings
+16:36 
+
+16:36 right whether we are using the words or
+16:39 
+
+16:39 whether we are using the embeddings
+16:41 
+
+16:41 right so that is document representation
+16:44 
+
+16:44 uh then index ing is again I think clear
+16:48 
+
+16:48 that you need to organize
+16:51 
+
+16:51 those documents in a way that it is
+16:53 
+
+16:53 easier for you to search. Right? Now
+16:57 
+
+16:57 when a query comes
+16:60 
+
+16:60 what you do is that you represent the
+17:02 
+
+17:02 query which is eminable to search these
+17:05 
+
+17:05 two blocks are similar right you have a
+17:09 
+
+17:09 query representation which is let's say
+17:11 
+
+17:11 an embedding then you have to match this
+17:14 
+
+17:14 is the matching algorithm which is uh
+17:16 
+
+17:16 you know which has access to the index
+17:18 
+
+17:18 this is the index it contains all the
+17:21 
+
+17:21 chunks
+17:24 
+
+17:24 this is the query that we are ing and
+17:26 
+
+17:26 matching algorithm will search the top k
+17:31 
+
+17:31 in this case three chunks
+17:36 
+
+17:36 right so this is this is a common
+17:37 
+
+17:37 retriever pipeline and we will study
+17:40 
+
+17:40 different ways of uh retrievers where
+17:44 
+
+17:44 you know uh either the representation
+17:46 
+
+17:46 will change
+17:47 
+
+17:47 right or the matching algorithm will
+17:50 
+
+17:50 change right okay so uh let's let's get
+17:54 
+
+17:54 started here uh with the first u
+17:57 
+
+17:57 retrieval strategy, right? But before we
+18:00 
+
+18:00 continue, let me ask you guys, how do
+18:03 
+
+18:03 you search in a book? Let's say you know
+18:05 
+
+18:05 you have a book, you're not aware of uh
+18:07 
+
+18:07 you know you're not aware of the
+18:08 
+
+18:08 contents in it. There's a query, right?
+18:12 
+
+18:12 And you have to search for something.
+18:13 
+
+18:13 How do you do that?
+18:16 
+
+18:16 >> Index, right? So the back of the book
+18:19 
+
+18:19 there is an index where for each word
+18:22 
+
+18:22 you have the pages on which it appears
+18:26 
+
+18:26 right and then you
+18:28 
+
+18:28 uh get those documents right good that
+18:31 
+
+18:31 is that is the index but then you have
+18:34 
+
+18:34 to somehow once you get that you have to
+18:37 
+
+18:37 somehow
+18:38 
+
+18:38 find how much similar is the document
+18:41 
+
+18:41 whether that is important for you or not
+18:43 
+
+18:43 the word may appear in multiple pages
+18:46 
+
+18:46 right but then for each page you have to
+18:49 
+
+18:49 somehow compute whether
+18:51 
+
+18:51 that page is relevant for us or not.
+18:54 
+
+18:54 Right? So what we do here is
+19:00 
+
+19:00 uh okay so before we begin you know I
+19:03 
+
+19:03 will be using the word document and
+19:05 
+
+19:05 chunk interchangeably because most of
+19:07 
+
+19:07 the time we are interested in fetching
+19:09 
+
+19:09 whatever we are indexing I may call it
+19:12 
+
+19:12 document but it it is I'm essentially
+19:15 
+
+19:15 meaning a chunk whenever I have to
+19:16 
+
+19:16 distinguish between the two I'll
+19:17 
+
+19:17 explicitly mention right okay so here
+19:22 
+
+19:22 what we do is that the way we are
+19:24 
+
+19:24 representing the query right is through
+19:28 
+
+19:28 a bag of words
+19:34 
+
+19:34 model right uh what is a bag of words
+19:36 
+
+19:36 model so essentially the sequence of
+19:38 
+
+19:38 tokens doesn't matter or what matters is
+19:42 
+
+19:42 you know what are the we look at it as a
+19:44 
+
+19:44 set of words essentially right and what
+19:47 
+
+19:47 matters is how many times a particular
+19:48 
+
+19:48 word is appearing in the u in the query
+19:53 
+
+19:53 or in the document Right. So here the
+19:55 
+
+19:55 vector here is of size 1 to mod V. Let's
+19:58 
+
+19:58 say there are mod V let's say 50K tokens
+20:01 
+
+20:01 in our vocabulary.
+20:03 
+
+20:03 Right?
+20:05 
+
+20:05 We represent each query as well as the
+20:08 
+
+20:08 document as a
+20:11 
+
+20:11 V-dimensional vector.
+20:15 
+
+20:15 Each dimension corresponds to a
+20:16 
+
+20:16 particular word. Right? So here for
+20:19 
+
+20:19 example when the query is what is NLP
+20:22 
+
+20:22 uh the dimensions corresponding to what
+20:24 
+
+20:24 is and NLP are non zero and we have
+20:28 
+
+20:28 normalized this the sum to one right
+20:31 
+
+20:31 okay so if it is what is NLP and LP if
+20:34 
+
+20:34 it is coming twice then the weight of
+20:37 
+
+20:37 NLP will increase here because it is now
+20:40 
+
+20:40 coming twice right it will be
+20:45 
+
+20:45 0.5 right yeah Okay, now we have three
+20:51 
+
+20:51 documents. The document one is what is
+20:53 
+
+20:53 life? Candy is life. Document two NLP is
+20:57 
+
+20:57 an acronym for natural language
+20:58 
+
+20:58 processing. And then document three, I
+21:01 
+
+21:01 like to do good research on NLP. We can
+21:04 
+
+21:04 use similar representation, right? This
+21:08 
+
+21:08 is sparse because the dimension here is
+21:11 
+
+21:11 50K or mod V, right? But only few of
+21:15 
+
+21:15 them are going to be non zero, right? So
+21:17 
+
+21:17 therefore this is sparse. This is called
+21:18 
+
+21:18 sparse representation.
+21:20 
+
+21:20 And u once we have the representation of
+21:24 
+
+21:24 each of the documents, how will you
+21:26 
+
+21:26 figure out which one is relevant to the
+21:28 
+
+21:28 query?
+21:30 
+
+21:30 >> Similarity.
+21:31 
+
+21:31 >> Similarity, right? You can compute the
+21:34 
+
+21:34 similarity score or the dot product. And
+21:36 
+
+21:36 when you compute the do product in this
+21:38 
+
+21:38 case only those dimensions will be non
+21:42 
+
+21:42 zero where the word appears in both the
+21:46 
+
+21:46 query and the document. Everywhere else
+21:48 
+
+21:48 it's going to be zero. So only those
+21:50 
+
+21:50 words or tokens will contribute which
+21:52 
+
+21:52 appear in both the query and the the
+21:55 
+
+21:55 document. Right? So here uh
+22:00 
+
+22:00 for the three documents we get the
+22:03 
+
+22:03 similarity scores and how will you
+22:06 
+
+22:06 select the document here?
+22:09 
+
+22:09 The highest similarity, right? And so
+22:11 
+
+22:11 which one is the highest similarity
+22:12 
+
+22:12 here? Document one. Now does that answer
+22:16 
+
+22:16 the question?
+22:18 
+
+22:18 The document is not answering the
+22:20 
+
+22:20 question. Right? So there is definitely
+22:22 
+
+22:22 an issue here. And what is the issue?
+22:26 
+
+22:26 representation
+22:30 
+
+22:30 >> the representation is not perfect. What
+22:32 
+
+22:32 is the issue with the representation
+22:34 
+
+22:34 here? Why is D1 getting selected and not
+22:38 
+
+22:38 D2? D2 is the relevant one, right? What
+22:41 
+
+22:41 is the issue? Why why is the score of D1
+22:43 
+
+22:43 high? There are certain words which are
+22:46 
+
+22:46 not relevant and which are very common
+22:49 
+
+22:49 like in every query questions like you
+22:51 
+
+22:51 know the words like how where is they
+22:55 
+
+22:55 will appear and the similarity between
+22:57 
+
+22:57 question and document one is capturing
+22:59 
+
+22:59 only those words NLP is not even there
+23:02 
+
+23:02 in document one right so the issue here
+23:05 
+
+23:05 is that we want to give importance to
+23:08 
+
+23:08 the rare
+23:09 
+
+23:09 words
+23:11 
+
+23:11 which are actually characterizing the
+23:13 
+
+23:13 query
+23:14 
+
+23:14 Right? And not the common stop words,
+23:18 
+
+23:18 right? Like what is, where, how, are,
+23:22 
+
+23:22 right? So how should we account for
+23:25 
+
+23:25 that,
+23:34 
+
+23:34 right? So looks like people are aware of
+23:36 
+
+23:36 the concept. Uh what we are doing here
+23:38 
+
+23:38 is the this representation is
+23:40 
+
+23:40 essentially term frequency right we are
+23:44 
+
+23:44 looking at each term or each word and
+23:46 
+
+23:46 each and and have the frequency of that
+23:48 
+
+23:48 in the vector right uh the issue is that
+23:52 
+
+23:52 there are certain common words which may
+23:54 
+
+23:54 appear in all the documents and we may
+23:56 
+
+23:56 want to give lower weightage to that
+23:58 
+
+23:58 right so the vector uh you know what
+24:02 
+
+24:02 what we can do is that we can have an
+24:04 
+
+24:04 inverse document frequency term what we
+24:06 
+
+24:06 are doing here is that for each token
+24:08 
+
+24:08 let us say the token what right which
+24:11 
+
+24:11 was a culprit token
+24:13 
+
+24:13 we see in how many document it appears
+24:17 
+
+24:17 right let's say we have the the number
+24:18 
+
+24:18 of documents that we are indexing is
+24:22 
+
+24:22 1,000
+24:24 
+
+24:24 and it appears in 900 of those right so
+24:29 
+
+24:29 its inverse document frequency is going
+24:31 
+
+24:31 to be 1,000 over
+24:34 
+
+24:34 900 right so this is this is
+24:38 
+
+24:38 Is this so uh do we want IDF to be high
+24:40 
+
+24:40 or low?
+24:46 
+
+24:46 High it is inverse. we've already
+24:48 
+
+24:48 inversed right it's inverse document
+24:51 
+
+24:51 frequency right so the representation
+24:53 
+
+24:53 now the vector representation that we
+24:56 
+
+24:56 have uh the dimension corresponding to
+24:59 
+
+24:59 what instead of having just the term
+25:03 
+
+25:03 frequency from the document right
+25:05 
+
+25:05 earlier it was 33 right I want to
+25:09 
+
+25:09 downweigh it if the specific word
+25:12 
+
+25:12 appears
+25:14 
+
+25:14 a lot of times right and this IDF will
+25:17 
+
+25:17 take care of that and so IDF is not a
+25:20 
+
+25:20 function of the document D it's a
+25:22 
+
+25:22 function of the entire corpus D
+25:26 
+
+25:26 right so this this inverse document
+25:28 
+
+25:28 frequency will lower the weightage for
+25:30 
+
+25:30 the word what right and the important
+25:34 
+
+25:34 word here was NLP right now NLP will not
+25:39 
+
+25:39 occur in in all the documents right so
+25:42 
+
+25:42 therefore it's IDF will be so this this
+25:45 
+
+25:45 will be low IDF will be
+25:46 
+
+25:46 Right. So we will when we multiply with
+25:48 
+
+25:48 IDF we will increase the uh
+25:53 
+
+25:53 the corresponding value here. Right. It
+25:55 
+
+25:55 it was.33 earlier. It will
+25:59 
+
+25:59 it will increase. Right? So uh
+26:02 
+
+26:02 >> what are small d and small d?
+26:06 
+
+26:06 >> Good. So d is the document.
+26:12 
+
+26:12 We are representing a document using a
+26:14 
+
+26:14 vector. Right? This is the vector which
+26:16 
+
+26:16 is v dimensional.
+26:19 
+
+26:19 >> T is the corresponding index which is
+26:22 
+
+26:22 which corresponds to the specific token
+26:23 
+
+26:23 which is let's say what
+26:26 
+
+26:26 is at right or whatever NLP if there's
+26:30 
+
+26:30 right. So this is occurring at 10th
+26:33 
+
+26:33 index 20th index 40th index. So T is 10,
+26:37 
+
+26:37 20 or 40, right? T is the token.
+26:40 
+
+26:40 We have one dimension for each token and
+26:42 
+
+26:42 D is the the document for which we are
+26:44 
+
+26:44 computing the vector representation,
+26:48 
+
+26:48 right?
+26:50 
+
+26:50 clearly and earlier it this was the term
+26:54 
+
+26:54 frequency which is which is essentially
+26:56 
+
+26:56 counting how many times a specific token
+26:58 
+
+26:58 let's say what appears in the document
+27:02 
+
+27:02 and we saw what are the issues with that
+27:04 
+
+27:04 because it was weighing each word
+27:05 
+
+27:05 equally. We want to give unequal
+27:08 
+
+27:08 weightage to different words. We want to
+27:11 
+
+27:11 give high weightage to the rare words or
+27:14 
+
+27:14 domain specific words and low weightage
+27:15 
+
+27:15 to common words. And how do we identify
+27:18 
+
+27:18 what are the common words? We look at
+27:20 
+
+27:20 the entire corpus that we are indexing.
+27:22 
+
+27:22 The words which appear in all of the
+27:24 
+
+27:24 documents are essentially common words.
+27:27 
+
+27:27 Right? And therefore we compute the
+27:28 
+
+27:28 inverse document sequencing.
+27:30 
+
+27:30 Right? Okay. So BM25 is uh one of the
+27:34 
+
+27:34 implementations of this. It incorporates
+27:37 
+
+27:37 [clears throat] two more things. One is
+27:40 
+
+27:40 uh you know K1.
+27:43 
+
+27:43 uh the intuition here is that uh let's
+27:46 
+
+27:46 say a specific word is appearing
+27:48 
+
+27:48 multiple times in a document that you
+27:49 
+
+27:49 are searching right so one one document
+27:51 
+
+27:51 is about NLP and the one word NLP is
+27:54 
+
+27:54 appearing thousand times
+27:57 
+
+27:57 right do you want to give that much
+27:58 
+
+27:58 importance to it should the term
+27:60 
+
+27:60 frequency increase linearly with the
+28:02 
+
+28:02 frequency or should it saturate beyond a
+28:05 
+
+28:05 point that you know I want to I don't
+28:07 
+
+28:07 want to give so much importance to one
+28:08 
+
+28:08 any one word right so to saturate it
+28:12 
+
+28:12 this Kh you know behaves like that. This
+28:15 
+
+28:15 this gives a saturation impact beyond a
+28:17 
+
+28:17 particular point we will not keep on
+28:18 
+
+28:18 linearly increasing the term frequency
+28:21 
+
+28:21 right and then uh the other thing is
+28:25 
+
+28:25 that you know uh if a document is really
+28:29 
+
+28:29 big and it has almost all the words in
+28:31 
+
+28:31 the vocabulary then it will appear in
+28:32 
+
+28:32 all the search results right so we want
+28:34 
+
+28:34 to penalize
+28:37 
+
+28:37 document length as well
+28:40 
+
+28:40 in some sense right so this this term
+28:42 
+
+28:42 here uh this is the length of the
+28:45 
+
+28:45 document
+28:47 
+
+28:47 the document and this is the average
+28:51 
+
+28:51 document length in the entire corpus.
+28:53 
+
+28:53 Right? So this term is to penalize for
+28:55 
+
+28:55 that. Right? Okay. So this gives me a
+28:58 
+
+28:58 representation of the
+29:01 
+
+29:01 documents as well as query. This
+29:04 
+
+29:04 representation is a v dimensional
+29:08 
+
+29:08 sparse
+29:11 
+
+29:11 vector.
+29:13 
+
+29:13 Right? While searching we compute the
+29:15 
+
+29:15 similarity or the dot product
+29:21 
+
+29:21 right between between
+29:24 
+
+29:24 uh DI and query for all DI and then pick
+29:29 
+
+29:29 the max right now here uh
+29:35 
+
+29:35 if the number of documents that we are
+29:37 
+
+29:37 indexing is let's say 1 million
+29:40 
+
+29:40 right should you compute this similar
+29:44 
+
+29:44 for all di or can you restrict your
+29:48 
+
+29:48 search space
+29:52 
+
+29:52 and and that's how we started right when
+29:55 
+
+29:55 you said that in a book there is an
+29:56 
+
+29:56 index which tells you what are the pages
+29:60 
+
+29:60 that a specific word appear in right
+30:03 
+
+30:03 only those pages are relevant right so
+30:07 
+
+30:07 here also whatever is the query for
+30:08 
+
+30:08 example what what
+30:12 
+
+30:12 is NLP P I'm interested in only those
+30:16 
+
+30:16 documents where these three words
+30:18 
+
+30:18 appear. Right? So I can look at the
+30:21 
+
+30:21 inverted index and figure out the
+30:23 
+
+30:23 document ids where these words appear
+30:26 
+
+30:26 and compute the similarity score only
+30:29 
+
+30:29 you know over those.
+30:31 
+
+30:31 Right. Okay. So,
+30:35 
+
+30:35 so this is uh the most powerful uh you
+30:40 
+
+30:40 know very competitive retriever BM25
+30:46 
+
+30:46 and uh you know it is still used as a
+30:48 
+
+30:48 baseline even in even in the the era of
+30:51 
+
+30:51 large language models where most of the
+30:52 
+
+30:52 time mostly you use dense representation
+30:56 
+
+30:56 this is still useful right and then you
+30:58 
+
+30:58 will see that most of the papers will
+30:60 
+
+30:60 always have this as a baseline right So
+31:03 
+
+31:03 now let's discuss about what are the
+31:05 
+
+31:05 issues uh with this representation
+31:10 
+
+31:10 of uh of documents and queries
+31:14 
+
+31:14 right so what are the issues
+31:17 
+
+31:17 anyone
+31:24 
+
+31:24 >> space
+31:31 
+
+31:31 >> well we it is sparse So we can have
+31:34 
+
+31:34 sparse representations which will take
+31:35 
+
+31:35 care of it. Uh right. So I don't think
+31:38 
+
+31:38 space is going to be a problem here.
+31:60 
+
+32:00 Say that again. What is not present in
+32:02 
+
+32:02 the document?
+32:12 
+
+32:12 like it has some sort of smaller chunks.
+32:20 
+
+32:20 >> Uh I'm not sure whether I follow but
+32:23 
+
+32:23 we'll we can discuss this later. uh what
+32:26 
+
+32:26 are we searching here when what the
+32:28 
+
+32:28 representation that we have
+32:31 
+
+32:31 it it takes care of only the words as it
+32:34 
+
+32:34 is right
+32:37 
+
+32:37 not synonyms
+32:40 
+
+32:40 right so if there is a document which
+32:44 
+
+32:44 answers the question but doesn't have
+32:46 
+
+32:46 exactly the same words that are used in
+32:48 
+
+32:48 the question and it will never get
+32:49 
+
+32:49 matched
+32:51 
+
+32:51 right so the representation is lexical
+32:57 
+
+32:57 and not
+33:01 
+
+33:01 semantic
+33:03 
+
+33:03 right uh I'm sure you would have covered
+33:05 
+
+33:05 that classic example right of bank
+33:07 
+
+33:07 whether if the word bank is present
+33:09 
+
+33:09 whether it is a river bank or a
+33:11 
+
+33:11 financial bank what does it refer to but
+33:13 
+
+33:13 we can't distinguish
+33:15 
+
+33:15 there right so
+33:19 
+
+33:19 therefore the solution is you know we
+33:21 
+
+33:21 can have a
+33:24 
+
+33:24 contextualized
+33:28 
+
+33:28 representation,
+33:30 
+
+33:30 right? Contextualized representation
+33:32 
+
+33:32 will take care of issues like this river
+33:35 
+
+33:35 bank versus uh
+33:38 
+
+33:38 uh you know financial bank and it will
+33:40 
+
+33:40 also take care of the
+33:43 
+
+33:43 synonyms because we hope and we assume
+33:46 
+
+33:46 that the two tokens will have will be
+33:49 
+
+33:49 you know in the embedding space they
+33:51 
+
+33:51 will be closer together if they have
+33:53 
+
+33:53 same meaning right. So now what we want
+33:56 
+
+33:56 to change we want to change the
+33:58 
+
+33:58 representation of the query and the
+34:01 
+
+34:01 document right okay so uh
+34:07 
+
+34:07 let's use uh out of the box embedding
+34:10 
+
+34:10 model like bird here right uh what we
+34:14 
+
+34:14 can do is that we can pass whatever
+34:16 
+
+34:16 documents that we have one till
+34:19 
+
+34:19 mod d this is the size of my corpus I
+34:22 
+
+34:22 can pass each document through bird or
+34:25 
+
+34:25 some language model right and then I
+34:29 
+
+34:29 will get a
+34:31 
+
+34:31 what what is the dimension whatever uh
+34:35 
+
+34:35 uh you know let's say 512 dimensional
+34:39 
+
+34:39 dense
+34:40 
+
+34:40 representation
+34:43 
+
+34:43 of each document right so this is the
+34:47 
+
+34:47 representation of my document document
+34:50 
+
+34:50 one tell document whatever the size of
+34:53 
+
+34:53 the corpus. Okay, good. And similarly we
+34:58 
+
+34:58 can have a query representation. We get
+34:60 
+
+34:60 the query, we pass it through the model
+35:02 
+
+35:02 bird model and we get corresponding 512
+35:05 
+
+35:05 dimensional
+35:07 
+
+35:07 representation. Okay. Now what do we do
+35:10 
+
+35:10 in retriever next? Once we have the uh
+35:14 
+
+35:14 embeddings right earlier we got the
+35:16 
+
+35:16 sparse embeddings and now we have the
+35:18 
+
+35:18 dense embedding of the query on the
+35:19 
+
+35:19 document. What we have to do is
+35:25 
+
+35:25 similarity search, right? We have to
+35:27 
+
+35:27 compute, we have to find uh the document
+35:30 
+
+35:30 which is most similar to the query,
+35:33 
+
+35:33 right? Now, how do we do that? We do
+35:37 
+
+35:37 that by
+35:46 
+
+35:46 dot product, right? We can use dot
+35:47 
+
+35:47 product to quantify the similarity.
+35:49 
+
+35:49 Okay. So uh right um
+35:59 
+
+35:59 >> are we comparing all the documents with
+36:03 
+
+36:03 or
+36:06 
+
+36:06 >> right so we will cover that whether what
+36:09 
+
+36:09 is the equivalent of inverted index
+36:11 
+
+36:11 because how do you search right search
+36:13 
+
+36:13 is a problem right uh you can't compute
+36:17 
+
+36:17 similarity with all the documents of
+36:19 
+
+36:19 course right so we will cover that how
+36:21 
+
+36:21 do you find uh the similar documents
+36:25 
+
+36:25 right but before that uh
+36:29 
+
+36:29 let us look at you know uh how do you
+36:32 
+
+36:32 encode these queries and uh the
+36:36 
+
+36:36 documents right can you use any out of
+36:38 
+
+36:38 the box language model like BERT or do
+36:40 
+
+36:40 you need specialized
+36:42 
+
+36:42 uh models for this right because yeah so
+36:46 
+
+36:46 this is a question can you use BERT out
+36:48 
+
+36:48 of the box
+36:56 
+
+36:56 Right.
+37:04 
+
+37:04 >> Right. So now notice here that the
+37:06 
+
+37:06 queries are questions.
+37:09 
+
+37:09 Right? Why do you expect the embedding
+37:12 
+
+37:12 of a question will be similar to
+37:15 
+
+37:15 embedding of an answer?
+37:19 
+
+37:19 It's it's not necessary that out of the
+37:23 
+
+37:23 box bird model will give you similar
+37:24 
+
+37:24 embeddings
+37:26 
+
+37:26 for a question and the answer right
+37:29 
+
+37:29 we're not training it to you know to do
+37:32 
+
+37:32 that right so therefore you know we need
+37:36 
+
+37:36 to train both the embedding models we
+37:38 
+
+37:38 need one embedding model for embedding
+37:40 
+
+37:40 the the the queries and one embedding
+37:43 
+
+37:43 model for embedding the documents
+37:46 
+
+37:46 Right. And uh what is the objective
+37:51 
+
+37:51 of training?
+37:53 
+
+37:53 The objective of training is that you
+37:56 
+
+37:56 know when we let's say this is the two
+37:58 
+
+37:58 dimensional representation of the
+37:60 
+
+37:60 embeddings. This is the query
+38:02 
+
+38:02 embeddings. Right? There are two random
+38:05 
+
+38:05 documents D1 and D2.
+38:08 
+
+38:08 To begin with they are going to be
+38:11 
+
+38:11 equidistant from them. And if D1 is the
+38:16 
+
+38:16 gold document which contains the answer
+38:19 
+
+38:19 after training what we want is that the
+38:23 
+
+38:23 embedding of query and the embedding of
+38:25 
+
+38:25 D1
+38:27 
+
+38:27 should be close to each other and the
+38:30 
+
+38:30 documents which are not gold which do
+38:32 
+
+38:32 not contain the answer you know it it is
+38:35 
+
+38:35 further away from it. T2 is here
+38:39 
+
+38:39 right. So in order to train this
+38:42 
+
+38:42 such a system what do we need? We need
+38:46 
+
+38:46 what do we need? We need a query,
+38:49 
+
+38:49 right? And then we need a cor the
+38:52 
+
+38:52 corresponding document which contains
+38:53 
+
+38:53 the answer qi and let's say d i
+38:57 
+
+38:57 right
+38:59 
+
+38:59 okay now when you and and what will you
+39:03 
+
+39:03 do you will compute the embedding of qi
+39:08 
+
+39:08 right so let's say that is eqi
+39:12 
+
+39:12 the model and you will compute its dot
+39:15 
+
+39:15 product with the embedding of document
+39:18 
+
+39:18 the corresponding document I and what do
+39:21 
+
+39:21 you want this to be?
+39:23 
+
+39:23 You want this to be high, right? You
+39:26 
+
+39:26 want this to be high. And what should be
+39:29 
+
+39:29 low?
+39:31 
+
+39:31 All the remaining documents,
+39:33 
+
+39:33 right? For all D not equal to DI, this
+39:38 
+
+39:38 score EQ.
+39:41 
+
+39:41 E D should be
+39:43 
+
+39:43 low. Right? This can be considered
+39:47 
+
+39:47 either as a soft max over one to
+39:52 
+
+39:52 d where d is the number of documents
+39:53 
+
+39:53 that I have
+39:55 
+
+39:55 right for each uh so this is d i right I
+40:01 
+
+40:01 get a score let's say s of i here this s
+40:04 
+
+40:04 of i is nothing but this right and s of
+40:08 
+
+40:08 j here right I can compute the
+40:11 
+
+40:11 probability of selecting d i which will
+40:13 
+
+40:13 be e ^ si Okay. By summation e ^ s j j =
+40:21 
+
+40:21 1 to mod
+40:23 
+
+40:23 d. Right?
+40:26 
+
+40:26 So we want to maximize this.
+40:30 
+
+40:30 Right? Now
+40:34 
+
+40:34 what is an issue in doing this
+40:38 
+
+40:38 in computing this?
+40:51 
+
+40:51 >> Uh-huh.
+40:54 
+
+40:54 >> So we are relying on the given data. We
+40:57 
+
+40:57 are saying that DI
+40:59 
+
+40:59 is the one which is closer to DI QI
+41:02 
+
+41:02 right we will maximize this probability
+41:05 
+
+41:05 if there is another document let's say
+41:06 
+
+41:06 Dash
+41:08 
+
+41:08 which is similar to DI it it it is
+41:13 
+
+41:13 similar to this that is this implies
+41:15 
+
+41:15 that maybe DIA also can can answer query
+41:19 
+
+41:19 QI
+41:21 
+
+41:21 right so it's okay its probability will
+41:23 
+
+41:23 also increase
+41:25 
+
+41:25 right I mean Um
+41:28 
+
+41:28 even in the next token prediction task
+41:30 
+
+41:30 when you have synonyms you are okay with
+41:32 
+
+41:32 the probability of synonyms to be
+41:34 
+
+41:34 similar right that is why you know
+41:36 
+
+41:36 methods like sampling work right so it's
+41:39 
+
+41:39 okay if if there is another document
+41:40 
+
+41:40 which has high similarity that's not a
+41:42 
+
+41:42 problem
+41:47 
+
+41:47 >> sorry
+41:51 
+
+41:51 correct so there may be too many
+41:53 
+
+41:53 documents to compare similarity against
+41:54 
+
+41:54 which means here what we have done is
+41:56 
+
+41:56 that we have computed this probability.
+41:60 
+
+42:00 To compute this probability, we are
+42:02 
+
+42:02 looking at all the documents that we are
+42:04 
+
+42:04 indexing or all the chunks that we are
+42:06 
+
+42:06 indexing which may run in the order of
+42:08 
+
+42:08 millions or billions maybe. Right? So
+42:12 
+
+42:12 computing this denominator is an issue.
+42:17 
+
+42:17 Right? So what we do is that you know
+42:21 
+
+42:21 instead of computing it over all D
+42:25 
+
+42:25 we create a small sample
+42:31 
+
+42:31 whether it is a random sample or not we
+42:32 
+
+42:32 will discuss this but we have a small
+42:35 
+
+42:35 sample let's say you know we get 10 rand
+42:38 
+
+42:38 10 documents
+42:41 
+
+42:41 and then in the denominator we will use
+42:44 
+
+42:44 those 10 documents
+42:46 
+
+42:46 right so that is called you know the
+42:48 
+
+42:48 negative sample. So we are given P plus
+42:51 
+
+42:51 which is the positive sample. We get n
+42:54 
+
+42:54 negative sample which is N is much much
+42:56 
+
+42:56 less than the size of the corpus that I
+42:59 
+
+42:59 have and uh we maximize or or the loss
+43:04 
+
+43:04 that we are minimizing is the soft max
+43:07 
+
+43:07 computed using these n + one samples.
+43:12 
+
+43:12 Right? Right. So this right now the
+43:17 
+
+43:17 question is
+43:22 
+
+43:22 how should you select your negatives?
+43:25 
+
+43:25 Right? Should you select them randomly
+43:32 
+
+43:32 or can you come up with uh some better
+43:36 
+
+43:36 metric for doing that right? Sort and
+43:39 
+
+43:39 the most
+43:41 
+
+43:41 sort according to similarity.
+43:43 
+
+43:43 >> Sort sort according to similarity. Sort
+43:46 
+
+43:46 all the documents
+43:48 
+
+43:48 which is a costly operation. Right? We
+43:51 
+
+43:51 don't want to compute similarity in the
+43:52 
+
+43:52 first place over all the 1 million
+43:55 
+
+43:55 documents that we are indexing.
+43:57 
+
+43:57 That is what we are trying to reduce. We
+43:59 
+
+43:59 want to randomly we want to sample
+44:02 
+
+44:02 uh the documents. So the question is how
+44:04 
+
+44:04 to sample?
+44:08 
+
+44:08 Sorry,
+44:09 
+
+44:09 >> mini batches.
+44:10 
+
+44:10 >> Mini batches, right? So, so that is one
+44:12 
+
+44:12 very popular technique which is that you
+44:14 
+
+44:14 know you are any you you'll anyway have
+44:16 
+
+44:16 a batch and whatever is there in the
+44:18 
+
+44:18 batch other than your own document you
+44:22 
+
+44:22 consider all of them as negative. Right?
+44:24 
+
+44:24 So that is mini batch sampling which is
+44:25 
+
+44:25 good which is almost equivalent to
+44:27 
+
+44:27 random sampling because you're
+44:28 
+
+44:28 constructing the batch randomly. Right?
+44:31 
+
+44:31 Now
+44:33 
+
+44:33 when you are constructing the batch
+44:34 
+
+44:34 randomly let's say the question is about
+44:37 
+
+44:37 NLP and the the second question is about
+44:40 
+
+44:40 astronomy
+44:44 
+
+44:44 right then it is it is very easy for the
+44:46 
+
+44:46 model to distinguish between the two
+44:48 
+
+44:48 right so model will very easily learn it
+44:50 
+
+44:50 will not be able to do fine grain you
+44:53 
+
+44:53 know distinctions between the relevant
+44:55 
+
+44:55 topics
+44:57 
+
+44:57 right let's say there is a uh there is a
+44:60 
+
+44:60 topic there there's a document about NLP
+45:02 
+
+45:02 and then there's a document about CV,
+45:05 
+
+45:05 right? We we want these, you know, we
+45:08 
+
+45:08 want the model to be able to distinguish
+45:10 
+
+45:10 between these two as well when the query
+45:12 
+
+45:12 is about an LP, right? So one of the
+45:16 
+
+45:16 popular technique is uh you know
+45:20 
+
+45:20 you use some retriever that you already
+45:22 
+
+45:22 have take its top 100 outputs most
+45:27 
+
+45:27 similar right and use the remaining one
+45:30 
+
+45:30 as the negatives right so so let's say
+45:32 
+
+45:32 you use BM25 sparse representation you
+45:35 
+
+45:35 get for each for a query Q you get D1 to
+45:38 
+
+45:38 D
+45:40 
+
+45:40 100
+45:42 
+
+45:42 as your 100 documents which are most
+45:45 
+
+45:45 similar to it at least lexically right
+45:48 
+
+45:48 you add your D star if it is not already
+45:51 
+
+45:51 there and then use this
+45:56 
+
+45:56 um for computing the loss right so this
+45:58 
+
+45:58 is this this will give you hard
+45:60 
+
+45:60 negatives
+46:02 
+
+46:02 and then there are some unsupervised
+46:05 
+
+46:05 techniques as well for example contrive
+46:09 
+
+46:09 unsupervised meaning uh that you know
+46:13 
+
+46:13 you don't even have a mapping between a
+46:17 
+
+46:17 query and the positive document. So, so
+46:20 
+
+46:20 here
+46:21 
+
+46:21 we relied on the training data meaning
+46:24 
+
+46:24 that we need to have a data which will
+46:26 
+
+46:26 tell you which is the positive document
+46:28 
+
+46:28 for the uh for the query and then we got
+46:32 
+
+46:32 the negatives
+46:34 
+
+46:34 you know through either random sampling
+46:37 
+
+46:37 or through uh you know BM25 uh method
+46:42 
+
+46:42 right. What if you don't even have these
+46:46 
+
+46:46 uh
+46:49 
+
+46:49 pairs in the first place?
+46:52 
+
+46:52 Right? So what they do I mean here is
+46:55 
+
+46:55 that um they take a passage. Right? Now
+46:60 
+
+46:60 if there are if the query consists of
+47:02 
+
+47:02 two different spans within the passage,
+47:04 
+
+47:04 you want them to get mapped to the same
+47:06 
+
+47:06 passage itself, right? You want to
+47:08 
+
+47:08 search the same passage,
+47:10 
+
+47:10 right? You want the same passage to be
+47:11 
+
+47:11 returned. So what they do is that they
+47:13 
+
+47:13 take two random chunks from the same
+47:15 
+
+47:15 passage here. For example, Apple merged
+47:16 
+
+47:16 with Next and Steve Job became CEO of
+47:19 
+
+47:19 and you consider these two as positives,
+47:23 
+
+47:23 right? So this is
+47:26 
+
+47:26 right
+47:28 
+
+47:28 for for this query,
+47:32 
+
+47:32 right? When you're computing soft max,
+47:35 
+
+47:35 you can think of either this passage as
+47:37 
+
+47:37 a positive document,
+47:41 
+
+47:41 right?
+47:42 
+
+47:42 and and then compute uh you know train
+47:45 
+
+47:45 your embedding models for the query as
+47:46 
+
+47:46 well as the document. So what you're
+47:48 
+
+47:48 ensuring is that the two two
+47:51 
+
+47:51 spans which are from the same document
+47:54 
+
+47:54 they get embedded in the similar space
+47:56 
+
+47:56 closer to each other. Right? Okay. So
+48:01 
+
+48:01 >> in the BM2
+48:10 
+
+48:10 >> what is BM25?
+48:13 
+
+48:13 So basically according to lexical
+48:15 
+
+48:15 similarity it will produce and it will
+48:18 
+
+48:18 create let's say across all documents
+48:21 
+
+48:21 what is the similarity of my partic
+48:30 
+
+48:30 >> how are we searching in BM25
+48:35 
+
+48:35 BM25 will give you the similarity of a
+48:38 
+
+48:38 query and a document right you will get
+48:41 
+
+48:41 the similarity
+48:43 
+
+48:43 Using BM25
+48:45 
+
+48:45 we relied on inverted index
+48:51 
+
+48:51 to get the documents which are where the
+48:54 
+
+48:54 similarity is high.
+48:56 
+
+48:56 >> The the objective of search is to fetch
+48:58 
+
+48:58 those documents which are similar to the
+48:60 
+
+48:60 query. That means we find the similarity
+49:05 
+
+49:05 we can compute the similarity of the
+49:06 
+
+49:06 query with respect to each document and
+49:08 
+
+49:08 you we want to find the arg max here
+49:10 
+
+49:10 right.
+49:13 
+
+49:13 So how do you do ARM max and BM25 or in
+49:15 
+
+49:15 spark retrievers?
+49:21 
+
+49:21 No need. IDF is is part of BM25. We use
+49:24 
+
+49:24 inverted index. We create. Do you
+49:26 
+
+49:26 remember what is inverted index? What is
+49:29 
+
+49:29 inverted index?
+49:30 
+
+49:30 >> Basically, how much times a word appear
+49:32 
+
+49:32 like how many document it appears?
+49:34 
+
+49:34 >> No, you're confusing the two things.
+49:36 
+
+49:36 BM25
+49:38 
+
+49:38 that is inverse document frequency.
+49:41 
+
+49:41 There's a term frequency and then there
+49:43 
+
+49:43 is an inverse document frequency. See in
+49:45 
+
+49:45 BM25 term frequ all of these are used to
+49:48 
+
+49:48 get a representation of the of the query
+49:50 
+
+49:50 or the document right term frequency is
+49:52 
+
+49:52 counting the number of times a
+49:53 
+
+49:53 particular word is occurring and inverse
+49:56 
+
+49:56 document frequency is computing
+49:58 
+
+49:58 >> how many documents contain that together
+50:01 
+
+50:01 they will give me one vector
+50:04 
+
+50:04 representation
+50:06 
+
+50:06 right I have a vector representation of
+50:08 
+
+50:08 each document stored
+50:10 
+
+50:10 somewhere right now I get a query Q
+50:16 
+
+50:16 right my objective is to find the
+50:19 
+
+50:19 documents D1 to D1
+50:22 
+
+50:22 star to D K star which have highest
+50:25 
+
+50:25 similarity with Q
+50:27 
+
+50:27 how do I find those
+50:30 
+
+50:30 can I compute the similarity with all
+50:32 
+
+50:32 the documents for the query I have 1
+50:34 
+
+50:34 million documents let's say
+50:38 
+
+50:38 I can't right so what is a faster way of
+50:42 
+
+50:42 searching
+50:48 
+
+50:48 That is called inverted index. For for
+50:50 
+
+50:50 searching quickly, we use inverted
+50:52 
+
+50:52 index. In inverted index, what do we
+50:55 
+
+50:55 keep? We store keys
+50:58 
+
+50:58 are words,
+51:01 
+
+51:01 right? For example, NLP. Our query
+51:05 
+
+51:05 contain NLP, right?
+51:07 
+
+51:07 For this word NLP,
+51:10 
+
+51:10 we will have the document ID.
+51:15 
+
+51:15 For example, document one, document 10
+51:17 
+
+51:17 and document 23 which contain this word
+51:20 
+
+51:20 NLP.
+51:21 
+
+51:21 That is what you have at the back of the
+51:23 
+
+51:23 book. Right? When you open the back of
+51:25 
+
+51:25 the book, the index that you have, it
+51:27 
+
+51:27 tells you a specific word on which pages
+51:29 
+
+51:29 it appears.
+51:31 
+
+51:31 We create a similar data structure. For
+51:33 
+
+51:33 each word we have the documents for
+51:35 
+
+51:35 which in in the documents in which this
+51:37 
+
+51:37 word NLP is appearing. Right? So now in
+51:41 
+
+51:41 in my query I have three words. What is
+51:44 
+
+51:44 NLP?
+51:46 
+
+51:46 I look at the entry for what in the
+51:48 
+
+51:48 inverted index. It will give me the
+51:51 
+
+51:51 documents. Let's say 1 5 8 10. I look
+51:57 
+
+51:57 for the word is. I get the documents in
+51:59 
+
+51:59 which it appears.
+52:01 
+
+52:01 Right? And then I look for the word NLP
+52:03 
+
+52:03 and the documents in which it appears.
+52:06 
+
+52:06 Right? Then I have a this smaller
+52:08 
+
+52:08 universe of documents
+52:10 
+
+52:10 over which I have to compute the
+52:12 
+
+52:12 similarity.
+52:14 
+
+52:14 Right? Does that make sense? So that is
+52:17 
+
+52:17 what inverted index is. Now when I'm
+52:19 
+
+52:19 using BM25,
+52:21 
+
+52:21 BM25 is giving me a a similarity score
+52:26 
+
+52:26 as well as a way of selecting the
+52:27 
+
+52:27 documents which are most similar for
+52:30 
+
+52:30 which the similarity is maximum.
+52:32 
+
+52:32 >> Right.
+52:32 
+
+52:32 >> Right. So I now I can get top 100
+52:38 
+
+52:38 documents
+52:40 
+
+52:40 that have the highest similarity with
+52:42 
+
+52:42 the query.
+52:44 
+
+52:44 >> Yes. And now those but all of them are
+52:47 
+
+52:47 not gold right I know that for a query Q
+52:50 
+
+52:50 I'm given my D star which is the
+52:53 
+
+52:53 corresponding document but these top 100
+52:56 
+
+52:56 documents are D1 to D 100 let's say that
+52:59 
+
+52:59 I'm getting from BM25
+53:03 
+
+53:03 right I can use these as negatives
+53:07 
+
+53:07 these are hard negatives
+53:10 
+
+53:10 because they are somewhat similar to DAR
+53:13 
+
+53:13 and query Okay.
+53:17 
+
+53:17 But are not the gold
+53:19 
+
+53:19 >> but what like we should use those
+53:21 
+
+53:21 documents which are completely different
+53:23 
+
+53:23 for negative samples. Right.
+53:25 
+
+53:25 >> Definitely. So that is that is that is
+53:26 
+
+53:26 one of the strategies which is inbatch
+53:28 
+
+53:28 sampling which is random sampling. So
+53:31 
+
+53:31 which are completely different that's
+53:33 
+
+53:33 that will be captured in the random
+53:35 
+
+53:35 sampling part.
+53:38 
+
+53:38 Right?
+53:42 
+
+53:42 See if if a document is completely
+53:44 
+
+53:44 different then we don't care much about
+53:46 
+
+53:46 it because model will definitely be able
+53:47 
+
+53:47 to distinguish between the two. If a
+53:49 
+
+53:49 topic is about NLP and the other is
+53:50 
+
+53:50 about psychology then these two will be
+53:54 
+
+53:54 in different space maybe
+53:56 
+
+53:56 right so we don't have to worry about
+53:58 
+
+53:58 that
+53:58 
+
+53:58 >> okay so
+53:59 
+
+53:59 >> model will struggle
+54:00 
+
+54:00 >> random sampling can take care of that
+54:04 
+
+54:04 further
+54:05 
+
+54:05 >> using hard negatives right
+54:10 
+
+54:10 so
+54:12 
+
+54:12 so that is that yeah um that was for
+54:15 
+
+54:15 training of the dense embeddings right
+54:17 
+
+54:17 so Yeah.
+54:18 
+
+54:18 >> So in bird we are saying that we use two
+54:22 
+
+54:22 bird models differently for encoder and
+54:24 
+
+54:24 decoder because we could not train on
+54:26 
+
+54:26 >> we use encoder and decoder in bird. What
+54:28 
+
+54:28 does that mean?
+54:29 
+
+54:29 >> No like a different word for key and a
+54:32 
+
+54:32 different word for query right. So
+54:35 
+
+54:35 >> yes
+54:35 
+
+54:35 >> the document and the query
+54:37 
+
+54:37 >> eq and e d. Yeah.
+54:39 
+
+54:39 >> So we using two words right but with the
+54:42 
+
+54:42 same training objective. If I try and
+54:44 
+
+54:44 know do it on one simple word. So it's
+54:47 
+
+54:47 >> we can do that. We can do that all all I
+54:49 
+
+54:49 mean it's okay we can use single birth
+54:51 
+
+54:51 we can have our query in such a way that
+54:53 
+
+54:53 we append a special token here which
+54:55 
+
+54:55 which kind of you know distinguishes
+54:57 
+
+54:57 between the two for example I can have I
+54:59 
+
+54:59 can have one model only where I have the
+55:02 
+
+55:02 query what is NLP
+55:07 
+
+55:07 right and pass it through the model to
+55:10 
+
+55:10 distinguish between the query and the
+55:12 
+
+55:12 document I use a special token here
+55:14 
+
+55:14 let's say Q or D which distinguishes
+55:17 
+
+55:17 whether I'm encoding a question query or
+55:18 
+
+55:18 a document that is fine we can do that
+55:21 
+
+55:21 right in general we can have two
+55:22 
+
+55:22 different models we can do with one as
+55:25 
+
+55:25 well the changing the input
+55:27 
+
+55:27 >> even without this to
+55:31 
+
+55:31 create some kind of syntax
+55:36 
+
+55:36 right
+55:37 
+
+55:37 >> so I can then use an objective function
+55:39 
+
+55:39 to maximize the similarity
+55:42 
+
+55:42 you know the similar document and the
+55:45 
+
+55:45 similar sentence which I'm putting so
+55:47 
+
+55:47 Why would that?
+55:49 
+
+55:49 So you can train. So basically what is
+55:51 
+
+55:51 what these are right
+55:56 
+
+55:56 >> right? So typically these language
+55:58 
+
+55:58 models give you a contextualized or
+55:60 
+
+55:60 semantic representation of the meaning
+56:02 
+
+56:02 of the document. Right? Meaning of the
+56:03 
+
+56:03 question is different from the meaning
+56:04 
+
+56:04 of the document.
+56:08 
+
+56:08 Right? So so if you're using the same
+56:11 
+
+56:11 model it may not it I mean we can always
+56:14 
+
+56:14 use that right? But there is a
+56:16 
+
+56:16 possibility that that you know you will
+56:17 
+
+56:17 face learnability issues there.
+56:20 
+
+56:20 >> Is that due to the size or structure of
+56:23 
+
+56:23 like structural difference between
+56:24 
+
+56:24 question and answer or the size
+56:27 
+
+56:27 difference question like the
+56:29 
+
+56:29 >> not the size but I mean not the size
+56:32 
+
+56:32 maybe but you know the semantic meaning
+56:34 
+
+56:34 itself is different right? So maybe we
+56:36 
+
+56:36 should take this this discussion
+56:38 
+
+56:38 offline.
+56:39 
+
+56:39 >> Okay. So uh in the dense embeddings you
+56:43 
+
+56:43 know there are two or a single encoder
+56:46 
+
+56:46 that we have query and document
+56:47 
+
+56:47 encoders. The next question is how do we
+56:50 
+
+56:50 search right? We in in the previous
+56:53 
+
+56:53 sparse representation we used BM we use
+56:57 
+
+56:57 inverted index. What what is I mean how
+56:60 
+
+57:00 should we search for a query which is a
+57:03 
+
+57:03 512 dimensional dense vector
+57:10 
+
+57:10 right we have 1 million
+57:14 
+
+57:14 documents here so what is the right way
+57:16 
+
+57:16 and how should we search maybe we can
+57:18 
+
+57:18 start uh from here in the lecture
+57:21 
+
+57:21 tomorrow okay thank

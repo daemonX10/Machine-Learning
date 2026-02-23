@@ -1,0 +1,2881 @@
+00:03 Okay. So first of all, what is
+00:05 
+
+00:05 reasoning? At a very high level,
+00:07 
+
+00:07 reasoning is
+00:09 
+
+00:09 simply the intermediate tokens that you
+00:12 
+
+00:12 generate before you generate a response.
+00:14 
+
+00:14 So there's no very strict definition of
+00:16 
+
+00:16 reasoning. Uh let's say if you're
+00:17 
+
+00:17 solving a math problem anyway, most of
+00:20 
+
+00:20 the time you cannot immediately arrive
+00:22 
+
+00:22 at the solution. If I ask you to solve a
+00:25 
+
+00:25 quadratic equation, you will require to
+00:27 
+
+00:27 generate the intermediate steps, right?
+00:30 
+
+00:30 So any uh so those intermediate steps
+00:32 
+
+00:32 that you need to generate before you
+00:34 
+
+00:34 reach the final solution to a quad
+00:36 
+
+00:36 equation that can be called as reasoning
+00:40 
+
+00:40 or that can be called as chain of
+00:42 
+
+00:42 thought. So uh I will use these two
+00:44 
+
+00:44 terms chain of thought and reasoning
+00:46 
+
+00:46 sort of interchangeably
+00:48 
+
+00:48 and uh now for maths it's clear right
+00:51 
+
+00:51 for maths you will anyway be generating
+00:53 
+
+00:53 those chain of thoughts there nothing
+00:54 
+
+00:54 you can do uh in most cases I mean
+00:57 
+
+00:57 sometimes you can immediately arrive at
+00:59 
+
+00:59 the answer like 2 + 2 is always four
+01:02 
+
+01:02 so so if I have to write it
+01:04 
+
+01:04 mathematically uh I would say let's say
+01:07 
+
+01:07 if pi theta is your language model and y
+01:10 
+
+01:10 is your
+01:13 
+
+01:13 final answer
+01:16 
+
+01:16 and X is your question.
+01:20 
+
+01:20 I will use this question instruction
+01:23 
+
+01:23 query sometimes interchangeably
+01:25 
+
+01:25 changeably. So
+01:27 
+
+01:27 uh your reasoning is something I will
+01:30 
+
+01:30 denote by zed. It's a
+01:34 
+
+01:34 uh so it's a intermediate step that you
+01:37 
+
+01:37 need to reach Y. So your uh network will
+01:42 
+
+01:42 first generate take x generate zed the
+01:44 
+
+01:44 intermediate steps and then generate the
+01:47 
+
+01:47 final response y right
+01:50 
+
+01:50 uh and uh if I have to write the
+01:52 
+
+01:52 distribution I will write it like this
+01:54 
+
+01:54 pi theta z given x * pi theta y given z
+02:02 
+
+02:02 this is your distribution of the
+02:04 
+
+02:04 reasoning or thought and this is your
+02:06 
+
+02:06 distribution of the response given the
+02:08 
+
+02:08 reasoning I thought okay
+02:12 
+
+02:12 so it can be something as simple as the
+02:14 
+
+02:14 steps that reach to solution but if you
+02:17 
+
+02:17 have a more complicated problem uh which
+02:20 
+
+02:20 where looking at the problem it's not
+02:22 
+
+02:22 obvious what the steps can be to an LLM
+02:25 
+
+02:25 let's say it's not obvious what the
+02:26 
+
+02:26 steps so what ideally what would you
+02:28 
+
+02:28 want you would want that it should try
+02:29 
+
+02:29 one way approach find if it does not go
+02:32 
+
+02:32 uh if it does not solve the problem then
+02:35 
+
+02:35 consider other approaches uh consider
+02:38 
+
+02:38 multiple solutions probably verify the
+02:41 
+
+02:41 answer also if it can right so you would
+02:43 
+
+02:43 want that uh the LM would should be able
+02:46 
+
+02:46 to do a bunch of other things while
+02:49 
+
+02:49 arriving at the solution for complex
+02:50 
+
+02:50 mass problem right so that is uh that is
+02:54 
+
+02:54 a more complex form of reasoning which
+02:56 
+
+02:56 the current generation of uh most
+02:59 
+
+02:59 powerful LMS that are there whether it's
+03:00 
+
+03:00 deep sea carbon models the Quinn 3
+03:03 
+
+03:03 models or uh the the Gro four models all
+03:08 
+
+03:08 the recent uh language models are trying
+03:11 
+
+03:11 to incorporate that reasoning uh in
+03:14 
+
+03:14 their in their modeling right okay so
+03:17 
+
+03:17 this is the uh this is the format that
+03:20 
+
+03:20 we'll follow we'll start I mean since
+03:23 
+
+03:23 most of you are already aware of what
+03:24 
+
+03:24 chain of thought is we'll just do a
+03:26 
+
+03:26 quick recap of this thing only a quick
+03:29 
+
+03:29 recap
+03:30 
+
+03:30 and so uh the chain of thought
+03:35 
+
+03:35 uh uh is used only during inference
+03:38 
+
+03:38 Right? Uh you either tell the model that
+03:41 
+
+03:41 let's think step by step or uh uh you
+03:46 
+
+03:46 give some chain of thought uh examples
+03:49 
+
+03:49 uh in the context window right so that
+03:52 
+
+03:52 the model can generate chain of thought
+03:53 
+
+03:53 for the so we'll look at those inference
+03:55 
+
+03:55 time approaches and then we'll see what
+03:57 
+
+03:57 to do during how to incorporate how to
+03:59 
+
+03:59 actually make the model better at not
+04:02 
+
+04:02 only generating those chain of thoughts
+04:04 
+
+04:04 but generating the response given those
+04:06 
+
+04:06 chain of thought. So can so can the
+04:08 
+
+04:08 model learn better thoughts and when I
+04:10 
+
+04:10 say better thoughts I mean that can it
+04:12 
+
+04:12 generate thoughts that uh such that the
+04:15 
+
+04:15 resultant solutions have higher
+04:17 
+
+04:17 accuracy.
+04:19 
+
+04:19 So we look so there are these three
+04:20 
+
+04:20 approaches which try to train the model
+04:27 
+
+04:27 to generate better thoughts.
+04:37 
+
+04:37 The first one is quite simple. It just
+04:40 
+
+04:40 use a supervised tuning on
+04:42 
+
+04:42 self-generated thoughts. We'll discuss
+04:44 
+
+04:44 it in more detail. The second one again
+04:48 
+
+04:48 works with self-generated thoughts and
+04:50 
+
+04:50 instead of supervised fine-tuning SFT uh
+04:53 
+
+04:53 it uses DPO uh preference optimization
+04:57 
+
+04:57 and the last one which is what uh I mean
+05:01 
+
+05:01 which is what revolutionized
+05:03 
+
+05:03 uh reasoning uh is a deepseek R1 work
+05:08 
+
+05:08 which uses reinforcement learning or
+05:10 
+
+05:10 online reinforcement learning and
+05:12 
+
+05:12 specifically it uses GRPO which is a
+05:14 
+
+05:14 type of online reinforcement learning
+05:15 
+
+05:15 algorithm with verifiable reward to
+05:19 
+
+05:19 improve the performance of the models
+05:21 
+
+05:21 drastically on a huge range of I they
+05:24 
+
+05:24 focused mostly on coding and math but
+05:26 
+
+05:26 the later works showed that you can
+05:28 
+
+05:28 using the approach that they provided if
+05:30 
+
+05:30 you scale it further you can improve the
+05:32 
+
+05:32 performance on a wide variety of tasks
+05:34 
+
+05:34 not just math and coding
+05:37 
+
+05:37 and we will talk about that in the later
+05:39 
+
+05:39 slides
+05:43 
+
+05:43 oops
+05:45 
+
+05:45 Okay. So I we'll start with a brief
+05:47 
+
+05:47 recap of what chain of thought prompting
+05:51 
+
+05:51 is which I'm guessing everybody's
+05:53 
+
+05:53 already aware of is I mean is everybody
+05:56 
+
+05:56 aware of what chain of thought is? I'm
+05:58 
+
+05:58 hoping. Okay. All right. So let's do a
+06:00 
+
+06:00 recap of it. So there are two variants
+06:03 
+
+06:03 here. The
+06:05 
+
+06:05 uh that I will talk about. The first one
+06:07 
+
+06:07 is so basically cho again right now
+06:09 
+
+06:09 think it's just the sequence of steps in
+06:12 
+
+06:12 a math problem. let's say uh before you
+06:14 
+
+06:14 can generate the final solution. So if
+06:16 
+
+06:16 the question here is Roger has five
+06:18 
+
+06:18 tennis balls, he buys two more. Each
+06:20 
+
+06:20 cans, each can has three. What is the
+06:23 
+
+06:23 total number of tennis balls? You can
+06:25 
+
+06:25 either generate a solution immediately
+06:27 
+
+06:27 uh 5 + 3 into 2 is equal to 11. Or what
+06:32 
+
+06:32 you can do is uh you can generate this
+06:34 
+
+06:34 intermediate step here
+06:37 
+
+06:37 which so the idea of intermediate step
+06:39 
+
+06:39 is that maybe you have a bias towards a
+06:42 
+
+06:42 certain solution. Maybe you like the
+06:43 
+
+06:43 number 12 and you said 12 at that point.
+06:45 
+
+06:45 But if you write the re write each step
+06:47 
+
+06:47 of your thinking one by one uh then uh
+06:51 
+
+06:51 you will quickly identify where the
+06:53 
+
+06:53 errors in your thinking is and then the
+06:55 
+
+06:55 chance of that error occurring reduces.
+06:57 
+
+06:57 So [snorts] here what uh this in this
+06:60 
+
+06:60 case we give a few examples in the
+07:02 
+
+07:02 context window.
+07:05 
+
+07:05 Uh so in the prompt in the prompt we
+07:07 
+
+07:07 include examples and theam each of the
+07:10 
+
+07:10 example includes a chain of thought
+07:11 
+
+07:11 before you generate the final. solution,
+07:13 
+
+07:13 right? So when we ask the question here,
+07:16 
+
+07:16 the model knows that it has to first
+07:17 
+
+07:17 generate a chain of thought and then the
+07:20 
+
+07:20 solution. So this is your uh this was
+07:23 
+
+07:23 one of the first ways to incorporate
+07:26 
+
+07:26 chain of thought reasoning in the
+07:28 
+
+07:28 earliest LLM uh I mean GP3.
+07:34 
+
+07:34 So after that people thought that do we
+07:35 
+
+07:35 need to provide this chain of thought uh
+07:37 
+
+07:37 these examples in the chain of thought
+07:39 
+
+07:39 uh in the prompt to be able to generate
+07:41 
+
+07:41 chain of thought and uh then there was
+07:44 
+
+07:44 this next paper. Oh, sorry.
+07:48 
+
+07:48 Yeah. So, these are in context examples
+07:49 
+
+07:49 with intermediate steps, right?
+07:54 
+
+07:54 So, the paper let's think step by step.
+07:56 
+
+07:56 Uh what they showed is that you don't
+07:59 
+
+07:59 need to provide these examples uh with
+08:01 
+
+08:01 with explicit chain of thought. All you
+08:02 
+
+08:02 need to do is add this prompt. Let's
+08:06 
+
+08:06 think step by step. That give the
+08:07 
+
+08:07 question and just add this prompt let's
+08:10 
+
+08:10 think step by step. And if you do that,
+08:14 
+
+08:14 the model automatically starts
+08:16 
+
+08:16 generating its thought process before it
+08:19 
+
+08:19 generates the final solution.
+08:22 
+
+08:22 Right? And here uh so this is the
+08:25 
+
+08:25 thought process of the model. And then
+08:27 
+
+08:27 finally you can so this is this is a
+08:29 
+
+08:29 thought process
+08:33 
+
+08:33 and given the thought process you can
+08:35 
+
+08:35 extract
+08:37 
+
+08:37 the answer. So you can you you might uh
+08:41 
+
+08:41 give some instruction to the model that
+08:43 
+
+08:43 the last you can say that the last word
+08:46 
+
+08:46 that you generate should be the uh
+08:49 
+
+08:49 answer. So you need some way of
+08:50 
+
+08:50 extracting the answer from the generated
+08:52 
+
+08:52 response. Right? So you can give some
+08:54 
+
+08:54 formatting instructions to the model for
+08:57 
+
+08:57 generating the solution. Right? You can
+08:59 
+
+08:59 uh common one that we use nowadays is
+09:02 
+
+09:02 that the final answer
+09:04 
+
+09:04 should be within boxed like this. put
+09:07 
+
+09:07 the final answer
+09:11 
+
+09:11 within
+09:14 
+
+09:14 boxed.
+09:17 
+
+09:17 We do this so that whatever is inside
+09:19 
+
+09:19 the box we can extract and then check
+09:21 
+
+09:21 whether the response was correct or not.
+09:23 
+
+09:23 Right? So this is uh zero short chain of
+09:26 
+
+09:26 thought prompting where you don't need
+09:27 
+
+09:27 to provide uh the multiple examples with
+09:31 
+
+09:31 chain of thought.
+09:34 
+
+09:34 Okay. So these these two are inference
+09:36 
+
+09:36 time methods and uh if the if it works
+09:40 
+
+09:40 it works if it doesn't work what to do
+09:42 
+
+09:42 then I mean if let's say I gave the ask
+09:44 
+
+09:44 the model to generate a chain of thought
+09:46 
+
+09:46 it generated some chain of thought but
+09:47 
+
+09:47 the final response was wrong now can I
+09:50 
+
+09:50 improve the model how do I make the
+09:52 
+
+09:52 model better at generating thoughts and
+09:56 
+
+09:56 when I say better at generating thoughts
+09:57 
+
+09:57 I mean that the final solution accuracy
+10:00 
+
+10:00 should also improve right not only the
+10:02 
+
+10:02 thoughts should look good or something
+10:04 
+
+10:04 But the accuracy of the final answer
+10:06 
+
+10:06 should also improve. So if if I ask you
+10:09 
+
+10:09 that okay I want to train a model that
+10:12 
+
+10:12 generates better thoughts and better
+10:13 
+
+10:13 solutions better responses how would you
+10:16 
+
+10:16 go about it right I mean the immediate
+10:18 
+
+10:18 idea that will come to mind is let me
+10:19 
+
+10:19 collect a data set first right let me
+10:21 
+
+10:21 create a data set somehow or collect a
+10:23 
+
+10:23 data set somehow uh of question thought
+10:26 
+
+10:26 and the final solution and [laughter]
+10:28 
+
+10:28 once I have that data I can do uh uh
+10:33 
+
+10:33 training on top of it I can maximize the
+10:35 
+
+10:35 lock probability of thought given the
+10:37 
+
+10:37 question I can maximize the lock
+10:38 
+
+10:38 probability of answer given the thought
+10:40 
+
+10:40 and question those two term uh things I
+10:42 
+
+10:42 can train and then the model will become
+10:45 
+
+10:45 better at generating thoughts but where
+10:47 
+
+10:47 do we get this thought data from
+10:50 
+
+10:50 we can use human annotation some people
+10:52 
+
+10:52 have used human annotation in the past
+10:54 
+
+10:54 but it's very expensive for a human to
+10:56 
+
+10:56 write thought for every answer and then
+10:58 
+
+10:58 the solution it's uh probably not
+11:01 
+
+11:01 something that you want to spend money
+11:02 
+
+11:02 on so uh what uh so the other option is
+11:07 
+
+11:07 that let's try to use thoughts which are
+11:10 
+
+11:10 generated by the model itself. So let's
+11:12 
+
+11:12 try to prompt the model to generate
+11:14 
+
+11:14 thought and then we can use those
+11:17 
+
+11:17 thoughts that result in correct
+11:19 
+
+11:19 solution. If you're working with a math
+11:21 
+
+11:21 problem we can say if the final solution
+11:23 
+
+11:23 is correct I will try to use those
+11:25 
+
+11:25 thought for training. So that's what
+11:27 
+
+11:27 star tries to do that it generates
+11:29 
+
+11:29 thoughts and then tries to use uh
+11:34 
+
+11:34 uh the if the salt final solution is
+11:35 
+
+11:35 correct tries to use those thoughts for
+11:37 
+
+11:37 training.
+11:39 
+
+11:39 [clears throat]
+11:39 
+
+11:39 You can also uh do something like DPO
+11:43 
+
+11:43 where you generate multiple thoughts and
+11:47 
+
+11:47 uh pick the one that is the highest
+11:49 
+
+11:49 reward, pick the one that has the lowest
+11:51 
+
+11:51 reward and make a preference pair out of
+11:54 
+
+11:54 them. So we'll look at that also which
+11:56 
+
+11:56 is your uh TPO work and the deep C R10
+12:02 
+
+12:02 effort [clears throat]
+12:02 
+
+12:02 is basically
+12:05 
+
+12:05 uh you generate multiple thoughts and
+12:07 
+
+12:07 responses solutions or what the
+12:09 
+
+12:09 responses and then verify the
+12:11 
+
+12:11 correctness of the final solution use
+12:13 
+
+12:13 that as a reward and then do
+12:15 
+
+12:15 reinforcement learning that uh that's
+12:18 
+
+12:18 your that's what DeepCar 10 did.
+12:20 
+
+12:20 Finally, if you don't want to use
+12:22 
+
+12:22 self-generated, you can let's say you
+12:24 
+
+12:24 already have a powerful teacher model,
+12:26 
+
+12:26 then you can generate those thoughts
+12:28 
+
+12:28 from the teacher and just use that for
+12:29 
+
+12:29 training. That's uh I mean basically
+12:31 
+
+12:31 then you already have you can easily
+12:33 
+
+12:33 create a data set of this question
+12:35 
+
+12:35 thought answer right and you can do
+12:37 
+
+12:37 distillation. Okay. So let's look at the
+12:39 
+
+12:39 SFT approach which is the star approach.
+12:42 
+
+12:42 So what it does is it takes your uh it
+12:46 
+
+12:46 takes some few short examples with chain
+12:47 
+
+12:47 of thought that we saw earlier in the
+12:49 
+
+12:49 chain of thought prompting uh first
+12:51 
+
+12:51 slide we saw uh few short examples with
+12:53 
+
+12:53 chain of thought and then it takes this
+12:55 
+
+12:55 is your question that you care about.
+12:57 
+
+12:57 This is the question whose answer you
+12:59 
+
+12:59 want
+13:02 
+
+13:02 and so here what can be used to carry a
+13:04 
+
+13:04 small dog swimming pool basket dog show
+13:06 
+
+13:06 backyard own home you feed it to a
+13:08 
+
+13:08 language
+13:10 
+
+13:10 model and it generates okay so in the uh
+13:15 
+
+13:15 uh in the promp in the few short
+13:17 
+
+13:17 examples you have output of the form
+13:20 
+
+13:20 thought solution thought solution for
+13:22 
+
+13:22 right so uh so when you generate answer
+13:25 
+
+13:25 you will also have some thought and Then
+13:27 
+
+13:27 solution let's say a thought might look
+13:29 
+
+13:29 like oh uh because you're talking about
+13:31 
+
+13:31 a dog and the dog is not very big so
+13:34 
+
+13:34 maybe a basket can be used for carrying
+13:36 
+
+13:36 the dog. So [snorts] that's what the
+13:38 
+
+13:38 thought will look like and the solution
+13:39 
+
+13:39 would be B basket.
+13:43 
+
+13:43 So you generate multiple thought
+13:44 
+
+13:44 solution and then you extract the final
+13:48 
+
+13:48 solution that that is there in this case
+13:50 
+
+13:50 the basket let's say or some let's say
+13:52 
+
+13:52 if it is a wrong response can be
+13:54 
+
+13:54 backyard also and you also have the
+13:56 
+
+13:56 ground truth available that uh what is
+13:58 
+
+13:58 the correct solution and you just verify
+14:01 
+
+14:01 which of the matches the ground truth
+14:04 
+
+14:04 and let's say the thought one and
+14:05 
+
+14:05 thought n match the ground truth so now
+14:08 
+
+14:08 you can use these for creating your
+14:12 
+
+14:12 supervised training data so Now your
+14:13 
+
+14:13 data may look like uh let's call this as
+14:16 
+
+14:16 x. So x
+14:19 
+
+14:19 dot one and solution one this might be
+14:22 
+
+14:22 one training data and x2
+14:26 
+
+14:26 n solution this can be another train
+14:29 
+
+14:29 data and you collect your training data
+14:30 
+
+14:30 in this form and now you can do
+14:32 
+
+14:32 supervised training on top of this data.
+14:36 
+
+14:36 Yeah. So this is a very straightforward
+14:39 
+
+14:39 approach of constructing your training
+14:40 
+
+14:40 data and then you can do supervised
+14:41 
+
+14:41 training. Now anybody
+14:44 
+
+14:44 sees a problem with this approach that
+14:45 
+
+14:45 if we just construct our data this way
+14:48 
+
+14:48 uh what might happen? Uh any idea?
+14:54 
+
+14:54 >> So much subjectivity and objective
+14:56 
+
+14:56 problem itself can
+15:00 
+
+15:00 like if it all depends on what the
+15:02 
+
+15:02 element
+15:04 
+
+15:04 >> right I mean that is true I mean uh
+15:06 
+
+15:06 these are all self-generated approaches.
+15:09 
+
+15:09 So all the approaches that you see the
+15:11 
+
+15:11 output will always be generated by LM.
+15:13 
+
+15:13 Now it might be the case you're right
+15:14 
+
+15:14 that LM will not even know the answer to
+15:16 
+
+15:16 this problem. All the solutions are
+15:17 
+
+15:17 wrong. What do you do in that case? In
+15:20 
+
+15:20 that case basically you have to discard
+15:21 
+
+15:21 this data. And uh another issue is this
+15:24 
+
+15:24 is multiple choice. So just by random
+15:26 
+
+15:26 chance even if the thought is completely
+15:28 
+
+15:28 wrong you might end up with a uh correct
+15:31 
+
+15:31 solution and you might end up training
+15:33 
+
+15:33 with a wrong thought. So with multiple
+15:35 
+
+15:35 choice this problem is there. uh then
+15:38 
+
+15:38 nowadays we don't use multiple choice.
+15:40 
+
+15:40 We mostly use uh uh maths problems or
+15:44 
+
+15:44 code problems where the final thing can
+15:46 
+
+15:46 be verified not a multiple choice
+15:48 
+
+15:48 situation. Uh so yeah so both the issues
+15:51 
+
+15:51 are there. Okay. So now the issue is
+15:54 
+
+15:54 here is that we're training the model
+15:55 
+
+15:55 only on examples on which the model
+15:59 
+
+15:59 already knows the answer. So once so it
+16:01 
+
+16:01 might happen that out of 10 generated
+16:03 
+
+16:03 solutions only one is correct but the
+16:05 
+
+16:05 model at least knows the answer right.
+16:07 
+
+16:07 So if the model fails to solve new
+16:10 
+
+16:10 problems [clears throat]
+16:12 
+
+16:12 uh the training will saturate basically
+16:14 
+
+16:14 you're not providing any signal right if
+16:17 
+
+16:17 there is uh let's say uh on so all we
+16:19 
+
+16:19 can do here is that earlier one out of
+16:22 
+
+16:22 10 was correct now maybe 10 out of 10
+16:24 
+
+16:24 will be correct but we're not solving
+16:26 
+
+16:26 any new problem uh that the model
+16:27 
+
+16:27 doesn't already know. So how do you
+16:30 
+
+16:30 train the model? How do you make sure
+16:33 
+
+16:33 that cases where none of the solutions
+16:35 
+
+16:35 are correct also get incorporated?
+16:38 
+
+16:38 Uh so the uh uh idea that this paper
+16:40 
+
+16:40 used the star paper used was to give a
+16:43 
+
+16:43 hint what the correct solution is
+16:46 
+
+16:46 and we'll see how the hint is provided
+16:48 
+
+16:48 and it was hope it hoped that the model
+16:50 
+
+16:50 will somehow take the hint and it will
+16:53 
+
+16:53 be able to reason backwards why that
+16:54 
+
+16:54 hint uh why that answer is correct and
+16:57 
+
+16:57 as a result it's rational will become
+16:59 
+
+16:59 correct. So this is uh self-taught
+17:02 
+
+17:02 reasoner with rational with the hint at
+17:04 
+
+17:04 it. So you can see the hint here. Uh
+17:06 
+
+17:06 [clears throat]
+17:08 
+
+17:08 here we are just the hint basically hint
+17:10 
+
+17:10 is just a word saying correct add it to
+17:14 
+
+17:14 the correct solution. So it's not
+17:16 
+
+17:16 basically a hint. It's actually telling
+17:17 
+
+17:17 the model that something is already
+17:19 
+
+17:19 correct. And uh now now you do the exact
+17:22 
+
+17:22 same thing that you would have done
+17:24 
+
+17:24 otherwise which is uh do a forward pass
+17:28 
+
+17:28 to the LM generate multiple thoughts and
+17:30 
+
+17:30 solutions extract the final answer and
+17:33 
+
+17:33 verify the correctness and then create
+17:35 
+
+17:35 the keep the ones that are correct
+17:37 
+
+17:37 repeat and then perform SFT.
+17:41 
+
+17:41 So it's exactly the same approach. It's
+17:43 
+
+17:43 just that now you have added the hint uh
+17:45 
+
+17:45 as well. And uh another thing that I
+17:47 
+
+17:47 think I missed in the previous slide was
+17:50 
+
+17:50 uh you don't do it only once. You uh
+17:53 
+
+17:53 create this data set of correct triplets
+17:56 
+
+17:56 do the training then again generate the
+17:58 
+
+17:58 same uh same triplets and then do so you
+18:00 
+
+18:00 repeat this loop of creating data set
+18:03 
+
+18:03 and training again and again. And this
+18:04 
+
+18:04 is something that we will see in the
+18:07 
+
+18:07 next uh uh topic that I talk about which
+18:09 
+
+18:09 is third process optimation.
+18:12 
+
+18:12 Okay.
+18:14 
+
+18:14 Uh also one more thing is that
+18:17 
+
+18:17 uh if [clears throat]
+18:19 
+
+18:19 at least one is correct, if at least one
+18:22 
+
+18:22 of the generated uh thought solution
+18:24 
+
+18:24 pair is correct, you don't apply hint.
+18:27 
+
+18:27 One
+18:30 
+
+18:30 solution is correct.
+18:35 
+
+18:35 Don't use hint. But if none of them are
+18:37 
+
+18:37 correct
+18:40 
+
+18:40 then you can use hint. So this uh this
+18:43 
+
+18:43 way they are hoping that the model does
+18:45 
+
+18:45 not overfit to the hint itself. Uh
+18:50 
+
+18:50 if it is if
+18:53 
+
+18:53 none are correct
+18:59 
+
+18:59 use
+19:07 
+
+19:07 Okay. So they tried it on a on some
+19:10 
+
+19:10 simple problem. This is one problem that
+19:12 
+
+19:12 I have taken which is the end digit
+19:13 
+
+19:13 summation problem. And the end digit
+19:14 
+
+19:14 summation problem is that you give two
+19:16 
+
+19:16 ndigit numbers. Let's say 179 plus 84.
+19:21 
+
+19:21 These are three three-digit numbers. And
+19:24 
+
+19:24 now you the model has uh task is it has
+19:26 
+
+19:26 to sum up these numbers but it should
+19:28 
+
+19:28 also generate the steps uh that will
+19:31 
+
+19:31 reach to the final answer. So the step
+19:33 
+
+19:33 would be let's add the unit digit 9 + 3
+19:36 
+
+19:36 12
+19:38 
+
+19:38 2 is the on's position. So and it will
+19:40 
+
+19:40 write all this two is the once is in the
+19:42 
+
+19:42 on's position one is carryover all those
+19:44 
+
+19:44 steps will be the reasoning. So now if
+19:47 
+
+19:47 you uh train the model
+19:50 
+
+19:50 uh without rationalization
+19:55 
+
+19:55 and these are the number of SFT step uh
+19:58 
+
+19:58 number of generation plus SFT
+20:06 
+
+20:06 iterations.
+20:11 
+
+20:11 So, [clears throat] so you can see that
+20:13 
+
+20:13 one digit addition immediately jumps to
+20:15 
+
+20:15 100% because that's that model already
+20:17 
+
+20:17 knows beforehand. Two-digit addition uh
+20:20 
+
+20:20 the performance climbs quickly uh
+20:24 
+
+20:24 uh with uh now if you see look at with
+20:27 
+
+20:27 and without rationalization the with
+20:29 
+
+20:29 rationalization the performance climbs
+20:30 
+
+20:30 much faster compared to without
+20:33 
+
+20:33 rationalization. So if we tell the model
+20:35 
+
+20:35 beforehand which of the solution is
+20:37 
+
+20:37 correct uh it learns tends to learn much
+20:40 
+
+20:40 faster. That's what they observed
+20:43 
+
+20:43 and this is true for uh across the
+20:46 
+
+20:46 digits 1 2 3 4 5. Okay. So now let's
+20:49 
+
+20:49 look at the uh second approach which is
+20:51 
+
+20:51 the third preference optimization. So
+20:52 
+
+20:52 this was the super tuning approach. Now
+20:55 
+
+20:55 let's move to uh preference
+20:57 
+
+20:57 optimization. So it will follow exactly
+20:59 
+
+20:59 the same setup. There will be two
+21:01 
+
+21:01 differences. uh uh one is that instead
+21:04 
+
+21:04 of a verifiable setup where you can
+21:07 
+
+21:07 exactly verify the solution this will be
+21:09 
+
+21:09 a setup where you uh exact verification
+21:11 
+
+21:11 is not possible like writing a poem
+21:13 
+
+21:13 right so you will have a judge and the
+21:15 
+
+21:15 second thing is instead of super tuning
+21:16 
+
+21:16 we'll do DPO that's the only two
+21:18 
+
+21:18 differences also
+21:21 
+
+21:21 uh this paper decided to separate the
+21:24 
+
+21:24 thought part and response part in
+21:26 
+
+21:26 distinct uh chunks that we'll also
+21:30 
+
+21:30 >> [clears throat]
+21:32 
+
+21:32 >> So the idea is that if you uh chain of
+21:33 
+
+21:33 thought these chain of thought
+21:34 
+
+21:34 approaches they work well on math and
+21:36 
+
+21:36 logic. If you say let's verify let's
+21:38 
+
+21:38 think step by step uh models performance
+21:40 
+
+21:40 improves drastically on maths task. But
+21:42 
+
+21:42 if you look at the performance for text
+21:44 
+
+21:44 classification uh actually the
+21:47 
+
+21:47 performance drops for text
+21:48 
+
+21:48 classification. There's a drop in
+21:49 
+
+21:49 performance here. Uh it looks like so in
+21:54 
+
+21:54 many uh so math and symbolic and logic
+21:56 
+
+21:56 the performance improves. So these
+21:58 
+
+21:58 points are basically the points of the
+22:01 
+
+22:01 data set how many of them for how many
+22:05 
+
+22:05 of them the performance improved that
+22:06 
+
+22:06 those will be positive and for how many
+22:08 
+
+22:08 of them the performance decreased those
+22:11 
+
+22:11 will be in the uh negative. Uh so these
+22:13 
+
+22:13 are the performance chain of thought
+22:15 
+
+22:15 reduces performance here
+22:18 
+
+22:18 and for these case a chain of thought
+22:20 
+
+22:20 improves performance.
+22:26 
+
+22:26 So chinto does not help in all the
+22:28 
+
+22:28 situations. It does help in math and
+22:29 
+
+22:29 symbolic logic. And this graph uh this
+22:32 
+
+22:32 circle that you see you can see that the
+22:34 
+
+22:34 this is also the jump in performance
+22:36 
+
+22:36 with and without chain of thought. So
+22:38 
+
+22:38 you can see that for maths it's much
+22:39 
+
+22:39 higher whereas for other tasks it's
+22:42 
+
+22:42 almost zero close to zero right
+22:46 
+
+22:46 for symbolic reasoning also there is
+22:47 
+
+22:47 some jump here.
+22:52 
+
+22:52 [snorts] So other than math and logic,
+22:54 
+
+22:54 can we do something more with chain of
+22:56 
+
+22:56 uh can we generate chain of thoughts?
+22:59 
+
+22:59 That will help for other tasks also.
+23:00 
+
+23:00 That was the focus of this paper. In
+23:02 
+
+23:02 particular, can we do something for
+23:04 
+
+23:04 creative writing? Uh like if I want to
+23:06 
+
+23:06 write a poem, can I uh can I generate a
+23:10 
+
+23:10 thought first that will help me write a
+23:11 
+
+23:11 better poem? Right? Uh similarly, if I'm
+23:14 
+
+23:14 doing instruction following, can the
+23:16 
+
+23:16 thoughts help me understand what the
+23:17 
+
+23:17 user is trying to convey?
+23:23 
+
+23:23 So this is an example of a non-math
+23:25 
+
+23:25 non-logic chain of thought. Write me a
+23:28 
+
+23:28 poem in the style of Naruda. So the
+23:29 
+
+23:29 thought process so the output that uh
+23:32 
+
+23:32 that you want or the output that this
+23:34 
+
+23:34 paper wanted is like this that it should
+23:37 
+
+23:37 first have a thought. Here's my thought
+23:38 
+
+23:38 process that okay Neruda style is known
+23:41 
+
+23:41 to being passionate and evocative. His
+23:43 
+
+23:43 poetry explores themes of love politics
+23:46 
+
+23:46 and then here's my then this is the
+23:47 
+
+23:47 final thing. So this part
+23:50 
+
+23:50 need not be shown to the user at all in
+23:53 
+
+23:53 this case. This is just uh this can this
+23:56 
+
+23:56 can be thought of as a latent thought.
+23:59 
+
+23:59 This part can be kept hidden also.
+24:03 
+
+24:03 Uh right. [cough and clears throat]
+24:06 
+
+24:06 So the way and people have explored
+24:09 
+
+24:09 latent method approaches like variation
+24:12 
+
+24:12 approaches also for generating the
+24:14 
+
+24:14 thoughts but this uh uses DPO. Let me
+24:18 
+
+24:18 show you. Oh, sorry. Yeah.
+24:23 
+
+24:23 So, prompt the model. So, what we want
+24:25 
+
+24:25 is that we want the model to pro always
+24:27 
+
+24:27 generate a thought first before the
+24:28 
+
+24:28 response no matter what the task is. So,
+24:30 
+
+24:30 the prompt looks something like this.
+24:31 
+
+24:31 Respond to the user query in a
+24:33 
+
+24:33 comprehensive and detailed way. Write
+24:35 
+
+24:35 down your thought process before
+24:36 
+
+24:36 responding and uh write your thoughts
+24:39 
+
+24:39 after this. So, you are giving the
+24:40 
+
+24:40 format how the format that you want the
+24:42 
+
+24:42 thought and response to look like. You
+24:44 
+
+24:44 want the thought to come after here's my
+24:46 
+
+24:46 thought process and you want the
+24:47 
+
+24:47 response to come after here's my
+24:49 
+
+24:49 response. So this is generic thought
+24:51 
+
+24:51 prompt and uh they also experimented
+24:54 
+
+24:54 with
+24:55 
+
+24:55 uh specific thought prompt where you
+24:57 
+
+24:57 tell uh this must be exactly what the
+25:01 
+
+25:01 thought should also contain. So here
+25:02 
+
+25:02 they're telling that the thought should
+25:03 
+
+25:03 contain the draft response its
+25:05 
+
+25:05 evaluation and then you begin your final
+25:08 
+
+25:08 response. So in the first one they are
+25:09 
+
+25:09 not telling what the thought should
+25:10 
+
+25:10 contain the second one they are telling
+25:12 
+
+25:12 that also to the model. So does it help
+25:14 
+
+25:14 if you add this prompt that ask the
+25:16 
+
+25:16 model to generate a thought first before
+25:18 
+
+25:18 the response for any task. So initially
+25:21 
+
+25:21 if you just put ask the model what will
+25:23 
+
+25:23 happen is that the model has not seen
+25:24 
+
+25:24 this structure here is my thought
+25:26 
+
+25:26 process then the thought here is my
+25:27 
+
+25:27 response then response specific uh
+25:30 
+
+25:30 especially for generating poems right it
+25:32 
+
+25:32 has never seen this structure in it
+25:34 
+
+25:34 training or it may have seen very rarely
+25:36 
+
+25:36 this kind of structure so the
+25:37 
+
+25:37 performance always drops in the
+25:38 
+
+25:38 beginning you will see two to three
+25:40 
+
+25:40 percentage point drop
+25:42 
+
+25:42 so in initially the responses are going
+25:45 
+
+25:45 to be worse with the thoughts than
+25:48 
+
+25:48 without the thoughts
+25:49 
+
+25:49 But now you can do some training. You
+25:52 
+
+25:52 can train the model
+25:55 
+
+25:55 to learn uh thoughts that lead to better
+25:60 
+
+25:60 responses. So what they do is they use a
+26:03 
+
+26:03 judge model uh reward model basically to
+26:05 
+
+26:05 judge the quality of the final response
+26:08 
+
+26:08 not the thought part. And uh do I why
+26:11 
+
+26:11 not the thought part? Because thoughts
+26:13 
+
+26:13 the judge models have never seen
+26:14 
+
+26:14 thoughts. So the judge models are not
+26:15 
+
+26:15 going to good at judging what the
+26:17 
+
+26:17 thoughts are. They have seen only the
+26:18 
+
+26:18 finals. They have trained only on the
+26:19 
+
+26:19 final outputs. So you show the final
+26:21 
+
+26:21 response let's say the final poem that
+26:23 
+
+26:23 you get to the judge get and scored
+26:26 
+
+26:26 whether the poem is good or not and then
+26:29 
+
+26:29 use that signal to train your uh uh to
+26:32 
+
+26:32 actually use that signal to create your
+26:34 
+
+26:34 preference pairs because they use DPO.
+26:36 
+
+26:36 You can also use non DP approach. You
+26:38 
+
+26:38 can use GRPO, PPO, whatever your
+26:40 
+
+26:40 favorite RL algorithm is but uh these
+26:42 
+
+26:42 guys used iterative version of online
+26:46 
+
+26:46 DPO. online DP basically. So here
+26:49 
+
+26:49 they're rewarding the thought process
+26:50 
+
+26:50 based on the quality of the final
+26:52 
+
+26:52 response. If the final response the
+26:54 
+
+26:54 final poem is good, they will say the
+26:56 
+
+26:56 thought is also good and give a reward
+26:58 
+
+26:58 of plus one to the thought or I mean
+26:59 
+
+26:59 they dp they will I mean they will use
+27:01 
+
+27:01 the thought also for training correspond
+27:03 
+
+27:03 okay so uh this is a prompt generate a
+27:06 
+
+27:06 thought followed by a response write a
+27:08 
+
+27:08 poem on a happy eagle. Okay. And this
+27:11 
+
+27:11 prompt you to feed to your LM. And I'm
+27:14 
+
+27:14 calling this LM as pi theta t. Oh, so
+27:17 
+
+27:17 theta t and this t are the same.
+27:19 
+
+27:19 Unfortunately, the thought but okay,
+27:22 
+
+27:22 I'll keep it like this only for now. T
+27:25 
+
+27:25 is uh the t here
+27:28 
+
+27:28 theta t uh is your is your llm or the
+27:32 
+
+27:32 parameters of the lm
+27:35 
+
+27:35 after t iteration t iterations of
+27:37 
+
+27:37 training.
+27:41 
+
+27:41 So initially it will be theta 0
+27:44 
+
+27:44 uh uh
+27:47 
+
+27:47 and then after each training
+27:51 
+
+27:51 you will have a different lm from which
+27:53 
+
+27:53 you will sample.
+27:59 
+
+27:59 So you start with theta pi theta 0 and
+28:03 
+
+28:03 let's say you sampled
+28:05 
+
+28:05 a bunch of thoughts. Here is my thought
+28:07 
+
+28:07 thought one. Here is my response
+28:08 
+
+28:08 response one. So you get a bunch of
+28:10 
+
+28:10 thoughts and response. So again you can
+28:11 
+
+28:11 see the thought and response everything
+28:12 
+
+28:12 is model generated here. Nothing is uh
+28:14 
+
+28:14 the ground there's no ground truth in
+28:16 
+
+28:16 this case. Actually we not we'll not
+28:18 
+
+28:18 even talk about ground truth here. uh
+28:20 
+
+28:20 we'll use a judge model instead of a
+28:22 
+
+28:22 ground truth and uh you uh so you
+28:25 
+
+28:25 extract the response part uh because
+28:27 
+
+28:27 that's what will be fed to the judge
+28:29 
+
+28:29 model [snorts] and you feed all this
+28:32 
+
+28:32 [clears throat] responses to the reward
+28:34 
+
+28:34 model and the reward model gives you a
+28:36 
+
+28:36 number score associated with each
+28:38 
+
+28:38 response depending on how good that
+28:40 
+
+28:40 response is. So here for example if you
+28:42 
+
+28:42 are writing a poem then the response
+28:45 
+
+28:45 will be actually a poem and you will
+28:46 
+
+28:46 feed each of those poems the judge model
+28:48 
+
+28:48 and then you'll see which of which your
+28:51 
+
+28:51 judge model or your reward model says as
+28:54 
+
+28:54 the best poem and which the judge model
+28:56 
+
+28:56 says as the worst poem. So here this one
+28:59 
+
+28:59 this is the highest uh reward this is
+29:02 
+
+29:02 the lowest reward. Let me put this like
+29:04 
+
+29:04 this. So
+29:07 
+
+29:07 >> y
+29:10 
+
+29:10 >> t is the thought. Yeah. So
+29:14 
+
+29:14 >> we generating the given the response.
+29:20 
+
+29:20 >> We generating the thought and the
+29:22 
+
+29:22 response given the input. Correct.
+29:32 
+
+29:32 Yeah. So now you'll pick this So
+29:35 
+
+29:35 although you're getting reward for the
+29:36 
+
+29:36 response, you're not picking the
+29:38 
+
+29:38 response. You are picking this entire
+29:39 
+
+29:39 generation. Here is my thought one. Here
+29:41 
+
+29:41 is my response small one. This is your
+29:43 
+
+29:43 chosen output
+29:46 
+
+29:46 [clears throat]
+29:47 
+
+29:47 and
+29:50 
+
+29:50 this is your rejected output which on
+29:53 
+
+29:53 which you will train. So we'll train on
+29:55 
+
+29:55 this entire thing. this this entire
+29:57 
+
+29:57 here's my thought here's my response
+30:02 
+
+30:02 and uh you uh collect these preference
+30:06 
+
+30:06 pairs for the uh entire data set of
+30:09 
+
+30:09 prompts and you uh get a huge set of
+30:11 
+
+30:11 preference pairs for training and then
+30:15 
+
+30:15 the next step is so let's say uh xt plus
+30:17 
+
+30:17 y+ is the correct [clears throat]
+30:19 
+
+30:19 triplet
+30:21 
+
+30:21 uh the uh chosen triplet of prompt
+30:25 
+
+30:25 cotton response and xt minus y minus is
+30:26 
+
+30:26 the rejected uh triplet. So then you
+30:30 
+
+30:30 just do dpo uh this is just uh this is
+30:34 
+
+30:34 not an explanation of how dpo works
+30:36 
+
+30:36 because that is already covered and just
+30:38 
+
+30:38 put the slide about. So you will take
+30:40 
+
+30:40 these uh triplets of chosen and
+30:42 
+
+30:42 rejected. You will feed to your lm that
+30:44 
+
+30:44 you are training. This is the one that
+30:46 
+
+30:46 you are training
+30:49 
+
+30:49 and this is the one that is fixed theta
+30:51 
+
+30:51 t. uh you will take the element that is
+30:54 
+
+30:54 fixed and you will compute a reward.
+30:59 
+
+30:59 This is the implicit this is called the
+31:01 
+
+31:01 implicit DPO reward.
+31:04 
+
+31:04 Implicit DPO reward
+31:07 
+
+31:07 is the log probability ratio
+31:11 
+
+31:11 under the model uh between the model
+31:13 
+
+31:13 that you're training and the model from
+31:15 
+
+31:15 which the sample actually came from the
+31:17 
+
+31:17 the model used for generating the sample
+31:18 
+
+31:18 and the model. So this is the model
+31:22 
+
+31:22 that generated the sample right.
+31:26 
+
+31:26 So you take this log probability ratio
+31:28 
+
+31:28 of the thought and the response uh for
+31:31 
+
+31:31 the correct uh pair for the correct
+31:33 
+
+31:33 thought and response and similarly you
+31:34 
+
+31:34 do it for the rejected thought and
+31:36 
+
+31:36 response
+31:38 
+
+31:38 and then you maximize the objective DP
+31:40 
+
+31:40 objective which is simply log sigmoid
+31:42 
+
+31:42 beta* posit reward of positive implicit
+31:45 
+
+31:45 reward of positive minus implicit of
+31:46 
+
+31:46 negative. So if you guys have forgotten
+31:49 
+
+31:49 DPO maybe it will be a good time to uh
+31:51 
+
+31:51 go through the slide.
+31:54 
+
+31:54 So this is the full picture. You start
+31:56 
+
+31:56 [clears throat] with your query or
+31:57 
+
+31:57 instruction. You prepend this the thing
+31:59 
+
+31:59 before responding. Generate a thought
+32:01 
+
+32:01 before generating a response
+32:03 
+
+32:03 and then give it to the LM. The LM
+32:05 
+
+32:05 generates multiple thought response uh
+32:08 
+
+32:08 pairs. You evaluate the response only
+32:11 
+
+32:11 using the judge and uh [clears throat]
+32:14 
+
+32:14 then you based on the reward you pick
+32:17 
+
+32:17 the accepted thought response pair and
+32:19 
+
+32:19 the rejected thought response pair you
+32:20 
+
+32:20 give it to the LM for training and then
+32:22 
+
+32:22 you again repeat this generation process
+32:25 
+
+32:25 and you do it multiple times and how
+32:28 
+
+32:28 many times can you do it so uh let's see
+32:30 
+
+32:30 how uh let's see how many times
+32:34 
+
+32:34 okay uh oh this is the length control
+32:36 
+
+32:36 part uh which
+32:39 
+
+32:39 Professor Tma was referring but it's not
+32:41 
+
+32:41 in the GRP setting. This is in the DPO
+32:42 
+
+32:42 setting. So the issue is that if when
+32:45 
+
+32:45 you keep on doing this thing the problem
+32:47 
+
+32:47 is that these judge many of these judge
+32:48 
+
+32:48 models they tend to prefer longer
+32:51 
+
+32:51 responses. Uh they like coverage rather
+32:54 
+
+32:54 than precision. They like uh recall more
+32:56 
+
+32:56 than precision. Many of these so they
+32:58 
+
+32:58 want that the response should cover all
+32:60 
+
+32:60 aspects. And as a result what happens is
+33:02 
+
+33:02 that your response length or your uh
+33:05 
+
+33:05 tends to grow with each iteration.
+33:08 
+
+33:08 So uh they use a length control the uh
+33:11 
+
+33:11 the authors of this paper while
+33:12 
+
+33:12 selecting the preference pairs. Uh they
+33:16 
+
+33:16 define [clears throat] a normalization
+33:17 
+
+33:17 function which is that given any set of
+33:19 
+
+33:19 rewards or values not just reward given
+33:21 
+
+33:21 any values you just uh uh uh subtract
+33:25 
+
+33:25 the mean and divide by standard
+33:26 
+
+33:26 deviation the standard normalization of
+33:28 
+
+33:28 the score. So you do it for rewards and
+33:31 
+
+33:31 you do it for the length of the samples
+33:33 
+
+33:33 also
+33:34 
+
+33:34 and then you combine the two. The your
+33:37 
+
+33:37 reward is the standard uh normalization
+33:42 
+
+33:42 of the reward minus row which is a
+33:47 
+
+33:47 scaling parameter. And what does this
+33:49 
+
+33:49 row is decide? Row basically says that
+33:51 
+
+33:51 how much weight do you want to give to
+33:53 
+
+33:53 length. Maybe you want to don't not give
+33:54 
+
+33:54 any length. Generally this value is kept
+33:56 
+
+33:56 very small. somewhere between zero to
+33:59 
+
+33:59 0.04.
+34:01 
+
+34:01 Uh [clears throat] so you don't want to
+34:03 
+
+34:03 give too much weight to length. If you
+34:04 
+
+34:04 give too much weight to length, what
+34:05 
+
+34:05 will happen is the model will this is a
+34:07 
+
+34:07 very easy reward to overfeit to right.
+34:09 
+
+34:09 So whenever you give some model an easy
+34:10 
+
+34:10 reward to overfeit to that's what will
+34:12 
+
+34:12 focus on. So it will just say that okay
+34:15 
+
+34:15 if you don't like length I will never
+34:16 
+
+34:16 generate I will generate a zero length
+34:18 
+
+34:18 outputs. So you don't want to give a lot
+34:20 
+
+34:20 of weight to this
+34:23 
+
+34:23 and now you can use this reward for
+34:25 
+
+34:25 creating the preference pairs instead of
+34:27 
+
+34:27 the earlier reward. Yeah. Okay. So you
+34:29 
+
+34:29 can use this new reward for creating
+34:30 
+
+34:30 preference pairs. And uh so so they
+34:34 
+
+34:34 compared it to a direct response
+34:36 
+
+34:36 baseline which is direct response means
+34:37 
+
+34:37 that directly do SFT on
+34:41 
+
+34:41 response part only.
+34:49 
+
+34:49 and they trained on the open assistant
+34:51 
+
+34:51 data set. Uh I don't remember what the
+34:55 
+
+34:55 judge model was here. Yeah. And uh the
+34:58 
+
+34:58 performance uh compared to SFT is better
+35:03 
+
+35:03 not by uh so the performance improved
+35:05 
+
+35:05 on. So these two are uh uh what should I
+35:09 
+
+35:09 say more like
+35:12 
+
+35:12 uh chat bench benchmarks where you ask
+35:15 
+
+35:15 the model uh a question general question
+35:19 
+
+35:19 uh and also provide some instructions
+35:22 
+
+35:22 like the first letter should be begin
+35:25 
+
+35:25 with t or something uh and the the model
+35:29 
+
+35:29 generates and you generate the model
+35:31 
+
+35:31 generates an output and then you
+35:32 
+
+35:32 evaluate it. So these are uh both of
+35:33 
+
+35:33 these uh alpaka eval and arena heart are
+35:36 
+
+35:36 chat benchmarks which are evaluated
+35:38 
+
+35:38 using either humans and most cases using
+35:41 
+
+35:41 LM as a judge GP4 or something
+35:51 
+
+35:51 and this is a performance improvement
+35:53 
+
+35:53 with training iterations. uh uh you can
+35:55 
+
+35:55 see that uh it the performance for
+35:58 
+
+35:58 alpakai well improves till three
+35:60 
+
+35:60 iteration and then starts dropping
+36:03 
+
+36:03 uh somewhat similarly on arena hard also
+36:07 
+
+36:07 the the blue curve is basically your TPO
+36:09 
+
+36:09 curve and the performance sorry the blue
+36:11 
+
+36:11 curve is not the TPO so the orange curve
+36:13 
+
+36:13 is a TPO curve and initially the
+36:16 
+
+36:16 performance is lower than the direct
+36:17 
+
+36:17 baseline and that's because the model
+36:18 
+
+36:18 has never seen thoughts during its
+36:20 
+
+36:20 training and it as a result its
+36:22 
+
+36:22 responses are initially bad but then it
+36:24 
+
+36:24 overtakes uh the SFT baseline but after
+36:28 
+
+36:28 a while it saturates the performance
+36:29 
+
+36:29 does not keep improving so why does this
+36:31 
+
+36:31 performance not keep improving this is
+36:34 
+
+36:34 the category wise breakdown uh uh so the
+36:39 
+
+36:39 performance on creative writ compared to
+36:42 
+
+36:42 SFD on creative writing on game
+36:44 
+
+36:44 development there's not a huge
+36:45 
+
+36:45 improvement in performance on research
+36:48 
+
+36:48 and analysis language translation
+36:51 
+
+36:51 marketing and sales there seems to be a
+36:52 
+
+36:52 huge improvement in performance math
+36:55 
+
+36:55 calculations also
+36:58 
+
+36:58 not [clears throat] huge but there's uh
+36:60 
+
+37:00 some uh uh the model is doing better
+37:02 
+
+37:02 than SFT to some extent not a very large
+37:05 
+
+37:05 difference I would say
+37:09 
+
+37:09 so what happens if we keep on training
+37:10 
+
+37:10 uh why does this performance saturate
+37:13 
+
+37:13 and what happens if we keep on training
+37:14 
+
+37:14 any idea
+37:19 
+
+37:19 so remember we are using a reward model
+37:21 
+
+37:21 and the reward model is trained on its
+37:23 
+
+37:23 own an finite set of data which has its
+37:26 
+
+37:26 own bias. And now if you keep on
+37:28 
+
+37:28 training using that reward model, what
+37:29 
+
+37:29 will happen is that the model will try
+37:32 
+
+37:32 to generate outputs which your reward
+37:34 
+
+37:34 model likes like uh I responsive which
+37:37 
+
+37:37 the reward model likes. Maybe reward
+37:39 
+
+37:39 model has learned some bias that it
+37:41 
+
+37:41 likes outputs that contain a specific
+37:44 
+
+37:44 word and that's what happens a lot of
+37:46 
+
+37:46 many of these reward models carry these
+37:49 
+
+37:49 biases because they uh they have a
+37:51 
+
+37:51 limited uh they trained on limited data
+37:53 
+
+37:53 and they have a limited set of
+37:56 
+
+37:56 parameters anyway. So they cannot
+37:58 
+
+37:58 capture all possible correct and wrong
+37:60 
+
+37:60 solutions. So
+38:03 
+
+38:03 >> reward hacking. So yeah so rewards are
+38:06 
+
+38:06 not perfect. So what will happen is that
+38:08 
+
+38:08 your LM if you keep on training forever
+38:10 
+
+38:10 it will learn to hack the reward model
+38:13 
+
+38:13 and the average reward will still keep
+38:15 
+
+38:15 on improving but your performance on
+38:17 
+
+38:17 benchmark will keep on decreasing. The
+38:19 
+
+38:19 other issue is that we're not changing
+38:21 
+
+38:21 the train data. We always using a set
+38:22 
+
+38:22 same set of prompts generating the
+38:24 
+
+38:24 preference pair and training. So we'll
+38:25 
+
+38:25 overfeit on this data also right and the
+38:28 
+
+38:28 last point is DPU approach picks only
+38:31 
+
+38:31 the pre uh generated and sorry the
+38:34 
+
+38:34 preferred and rejected. throws away
+38:35 
+
+38:35 everything. I actually don't want to
+38:38 
+
+38:38 throw away everything. I want to use all
+38:39 
+
+38:39 the samples also. Let's say so what do I
+38:42 
+
+38:42 do? Uh so let's for the first one reward
+38:46 
+
+38:46 models are not perfect. We have
+38:47 
+
+38:47 discussed this problem before of reward
+38:48 
+
+38:48 hacking. And one solution is let's focus
+38:51 
+
+38:51 only on problems where you know that the
+38:53 
+
+38:53 reward model is going to be very good.
+38:55 
+
+38:55 the reward model is going to be exact
+38:57 
+
+38:57 and the uh that scenario is uh
+38:59 
+
+38:59 verifiable rewards
+39:03 
+
+39:03 also uh the data set keeps getting
+39:06 
+
+39:06 harder uh so if we can use a data set
+39:08 
+
+39:08 that keeps getting harder so that uh we
+39:11 
+
+39:11 don't overfit that will also be good
+39:13 
+
+39:13 we'll not talk about this this is
+39:15 
+
+39:15 curriculum learning maybe in the next
+39:18 
+
+39:18 class we can briefly talk about it and
+39:20 
+
+39:20 then we want an iron method that you can
+39:22 
+
+39:22 use all the samples which is grpo po And
+39:25 
+
+39:25 you have those methods that don't only
+39:27 
+
+39:27 create preference pairs but reward each
+39:29 
+
+39:29 of the output. Right? So the next thing
+39:33 
+
+39:33 we'll talk about we will not cover it
+39:35 
+
+39:35 today. Uh is this gpo uh using gpo for
+39:41 
+
+39:41 reasoning. The

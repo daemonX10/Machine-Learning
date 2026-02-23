@@ -1,0 +1,3658 @@
+00:03 today we will cover uh how we can use
+00:06 
+
+00:06 these llms for modeling long context we
+00:09 
+
+00:09 will see
+00:11 
+
+00:11 uh some changes uh in the attention some
+00:15 
+
+00:15 changes uh in the position embeddings
+00:19 
+
+00:19 that will enable us to use these llms
+00:21 
+
+00:21 for longer context okay uh but before
+00:24 
+
+00:24 that uh can anybody think of what the
+00:28 
+
+00:28 problems would be if you encounter long
+00:30 
+
+00:30 context uh for LMS what what kind of
+00:33 
+
+00:33 issues would one face but let's try to
+00:35 
+
+00:35 think that you're trying to uh train on
+00:39 
+
+00:39 code entire code base which has like
+00:40 
+
+00:40 millions of tokens uh you're trying to
+00:42 
+
+00:42 do inference on top of it you are trying
+00:44 
+
+00:44 to find out whether there's a bug in a
+00:46 
+
+00:46 particular Cod Bas so what kind of
+00:48 
+
+00:48 issues would one face
+00:50 
+
+00:50 with yeah very high inference time right
+00:52 
+
+00:52 because especially what would be the
+00:54 
+
+00:54 most costly operation over there so the
+00:58 
+
+00:58 basically the attention computation the
+00:60 
+
+01:00 attention uh Matrix is a n byn n is the
+01:04 
+
+01:04 number of tokens right that is the issue
+01:05 
+
+01:05 that we'll face and we'll try to see how
+01:07 
+
+01:07 to deal with that issue in the uh in
+01:10 
+
+01:10 this
+01:13 
+
+01:13 presentation okay so this is a rough
+01:15 
+
+01:15 agenda of what I'm uh uh planning to
+01:18 
+
+01:18 cover today uh basically we'll talk
+01:21 
+
+01:21 about uh why we need long context the
+01:24 
+
+01:24 challenges we're dealing with long
+01:26 
+
+01:26 context and we look at some papers that
+01:29 
+
+01:29 have tried to address the problem long
+01:30 
+
+01:30 Contex recently uh many of you might be
+01:33 
+
+01:33 aware that Gemini 1.5 released uh not
+01:37 
+
+01:37 recently while back basically an LM that
+01:40 
+
+01:40 that can handle one 1 million tokens in
+01:44 
+
+01:44 production and one probably around 10
+01:46 
+
+01:46 million tokens in research uh so there's
+01:49 
+
+01:49 this is very active research area and
+01:50 
+
+01:50 lots of people are working trying to
+01:52 
+
+01:52 make these LMS de with very long context
+01:56 
+
+01:56 and uh we'll see one of some of the
+01:58 
+
+01:58 solutions that people have looked at so
+02:00 
+
+02:00 first of all what are the challenges uh
+02:03 
+
+02:03 that one goes about we mentioned one of
+02:05 
+
+02:05 the biggest challenges the uh there is
+02:07 
+
+02:07 this n cross n attention Matrix
+02:09 
+
+02:09 computation and that is very
+02:11 
+
+02:11 expensive uh it's expensive in terms of
+02:13 
+
+02:13 memory and it's expensive in terms of
+02:15 
+
+02:15 compute time also so
+02:19 
+
+02:19 uh the yin and I think Professor Tano
+02:23 
+
+02:23 also have covered uh flash attention I
+02:26 
+
+02:26 guess so uh what does that solve which
+02:29 
+
+02:29 problem is it a to solve is it able to
+02:31 
+
+02:31 reduce the time comp computational time
+02:33 
+
+02:33 complexity or is it able to reduce the
+02:36 
+
+02:36 uh oftion oftion Matrix computation or
+02:40 
+
+02:40 is it able to reduce the memory
+02:41 
+
+02:41 requirement for computing this attention
+02:44 
+
+02:44 Matrix time it does reduce time
+02:46 
+
+02:46 competition because there are a lot of
+02:48 
+
+02:48 that happening but it does not do away
+02:50 
+
+02:50 with the quadratic time competition it's
+02:51 
+
+02:51 still quadratic in the number of tokens
+02:53 
+
+02:53 memory wise it becomes linear it allows
+02:56 
+
+02:56 by dividing the queries and the key into
+02:59 
+
+02:59 blocks it say able to reduce the time uh
+03:01 
+
+03:01 to linear for uh uh not the time the
+03:04 
+
+03:04 memory to linear but the computation
+03:06 
+
+03:06 time still is quadratic although it
+03:08 
+
+03:08 becomes faster because of other uh other
+03:11 
+
+03:11 uh efficient introductions and that okay
+03:15 
+
+03:15 so let's look at that so memory uh so
+03:17 
+
+03:17 let's look at uh first of all why is
+03:20 
+
+03:20 long context desirable to us uh as I
+03:23 
+
+03:23 mentioned if you have a huge book and
+03:25 
+
+03:25 you want to summarize that book entire
+03:26 
+
+03:26 Harry Potter book and if you give it to
+03:28 
+
+03:28 an LM uh it won't be able to sum right
+03:31 
+
+03:31 now it has been trained on all the
+03:32 
+
+03:32 tokens so it can summarize it but if it
+03:34 
+
+03:34 had never seen that book and you try to
+03:36 
+
+03:36 give the entire book to uh it cannot it
+03:40 
+
+03:40 does not have that big context right and
+03:42 
+
+03:42 similarly if you want to generate an
+03:44 
+
+03:44 entire book with a particular store it
+03:45 
+
+03:45 cannot do that but more importantly uh
+03:48 
+
+03:48 you want to do inference over long
+03:50 
+
+03:50 videos you have uh uh let's say tens of
+03:53 
+
+03:53 thousands of frames and each frames has
+03:55 
+
+03:55 around let's say you have 100 tokens per
+03:57 
+
+03:57 frame then it's basically uh around a
+03:60 
+
+03:60 million tokens and you cannot do
+04:01 
+
+04:01 inference over such a long video uh with
+04:04 
+
+04:04 these LMS that we that can use 2K or 4K
+04:06 
+
+04:06 context length simly for code bases
+04:09 
+
+04:09 these uh the code bases that uh that are
+04:12 
+
+04:12 there in companies they're pretty big
+04:14 
+
+04:14 right and if you want to find out where
+04:17 
+
+04:17 how to solve an issue in this code
+04:19 
+
+04:19 base it these small uh language models
+04:22 
+
+04:22 won't be able to achieve they will you
+04:24 
+
+04:24 can something you can do rag you might
+04:25 
+
+04:25 have seen rag where you retrieve some
+04:27 
+
+04:27 portions of the code and try ret some
+04:29 
+
+04:29 portion document and try to uh edit that
+04:33 
+
+04:33 uh try to uh make changes based on that
+04:35 
+
+04:35 uh but if you want to feed the entire
+04:37 
+
+04:37 code base as is you cannot do
+04:39 
+
+04:39 that and as I mentioned the rack setting
+04:42 
+
+04:42 so uh in rack generally you require that
+04:45 
+
+04:45 the retriever should be good enough that
+04:46 
+
+04:46 it the top 10 documents that it
+04:48 
+
+04:48 retrieves should contain the answer
+04:49 
+
+04:49 otherwise there is no way uh I I guess
+04:52 
+
+04:52 rag has already been covered right so
+04:53 
+
+04:53 you be aware that so what is rag first
+04:56 
+
+04:56 of all you given a query you try to find
+04:58 
+
+04:58 out the documents that are to theer and
+05:01 
+
+05:01 you uh put that in the context window
+05:04 
+
+05:04 and try to answer the query based on
+05:06 
+
+05:06 those documents so if you have query and
+05:09 
+
+05:09 in a retri do given a query first of all
+05:12 
+
+05:12 what you do is you try to retrieve 10 or
+05:15 
+
+05:15 20 documents from some Corpus put those
+05:17 
+
+05:17 document inside your context
+05:19 
+
+05:19 window and then uh use the query to from
+05:24 
+
+05:24 those documents will happen if the
+05:26 
+
+05:26 document that contains the is not
+05:28 
+
+05:28 present in those documents
+05:31 
+
+05:31 it won't be able to answer right so you
+05:33 
+
+05:33 require that the retriever should be
+05:34 
+
+05:34 good in order for rack to work right but
+05:37 
+
+05:37 if you uh uh if your context window is
+05:40 
+
+05:40 large enough maybe you can feed uh
+05:42 
+
+05:42 thousands of documents into the context
+05:44 
+
+05:44 window and then you don't require the
+05:45 
+
+05:45 retriever to be accurate
+05:50 
+
+05:50 right and also uh probably you won't
+05:54 
+
+05:54 require fine tuning uh on your task
+05:57 
+
+05:57 specific fine tuning uh for the model
+05:59 
+
+05:59 you you can simply feed all the examples
+06:01 
+
+06:01 all the input output pairs for the task
+06:03 
+
+06:03 let's say these are uh some task
+06:05 
+
+06:05 specific input output Pairs and you can
+06:08 
+
+06:08 simply feed them into your
+06:10 
+
+06:10 llm and uh just do in context learning
+06:14 
+
+06:14 you don't need to fine tune the model if
+06:15 
+
+06:15 you have a very large uh language model
+06:18 
+
+06:18 very large context window okay so we
+06:20 
+
+06:20 have looked at uh why is it desirable to
+06:24 
+
+06:24 have a long long context uh model the
+06:27 
+
+06:27 question is uh why is it a problem why
+06:30 
+
+06:30 uh why can't we just uh instead of
+06:34 
+
+06:34 having a 4 context L let's make it a
+06:35 
+
+06:35 400k context for uh llama models and
+06:39 
+
+06:39 just train it uh so the biggest
+06:42 
+
+06:42 problem basically if you try to increase
+06:44 
+
+06:44 the Contex length everything increases
+06:46 
+
+06:46 but the thing that incre blows up the
+06:48 
+
+06:48 most is the self attention vation so
+06:51 
+
+06:51 suppose you have a sequence of end
+06:54 
+
+06:54 tokens and uh you want to uh compute uh
+06:58 
+
+06:58 basically uh you want to compute
+06:60 
+
+06:60 attention Matrix for these end tokens so
+07:02 
+
+07:02 how will the attention Matrix look like
+07:05 
+
+07:05 you will
+07:06 
+
+07:06 have n key
+07:08 
+
+07:08 vectors and you will have n query
+07:10 
+
+07:10 vectors right uh one key Vector for each
+07:15 
+
+07:15 of the token and similarly one query
+07:17 
+
+07:17 Vector for each of the token and so
+07:20 
+
+07:20 totally you will have n cross n uh
+07:23 
+
+07:23 attention computations
+07:25 
+
+07:25 required so this blows up very easily
+07:27 
+
+07:27 right if you have let's say 1 million
+07:28 
+
+07:28 token this will be of the order of so if
+07:30 
+
+07:30 you have 10 to^ six tokens uh the number
+07:34 
+
+07:34 of competitions will be approximately 10
+07:37 
+
+07:37 12
+07:38 
+
+07:38 right and uh this is what we will try to
+07:41 
+
+07:41 address we try we'll look at some
+07:43 
+
+07:43 approaches that try to address this in
+07:45 
+
+07:45 this uh in the rest of
+07:49 
+
+07:49 slides okay so I I'll cover four
+07:52 
+
+07:52 different approaches uh uh the first one
+07:56 
+
+07:56 uh tries to decrease the complexity of
+07:59 
+
+07:59 attention
+08:01 
+
+08:01 uh whereas the remaining do not look at
+08:03 
+
+08:03 from a computation
+08:05 
+
+08:05 complex deal with that but they try to
+08:08 
+
+08:08 uh see that how we can use uh llms that
+08:12 
+
+08:12 are trained for smaller with smaller
+08:14 
+
+08:14 context but uh we want to do inference
+08:17 
+
+08:17 on using longer context right like if
+08:19 
+
+08:19 you have a llama model trained on 4K
+08:21 
+
+08:21 context length how do you use for 32k
+08:23 
+
+08:23 context length uh that's what the rest
+08:26 
+
+08:26 of the three papers rest of the two Ali
+08:28 
+
+08:28 and po interpretation will look and
+08:30 
+
+08:30 finally lost in the middle we'll talk
+08:31 
+
+08:31 about problems uh when these Lang
+08:35 
+
+08:35 more can when can these language models
+08:38 
+
+08:38 even
+08:39 
+
+08:39 focus uh when uh you have a long cont
+08:43 
+
+08:43 and they find out the correct uh
+08:45 
+
+08:45 information correct position of the
+08:46 
+
+08:46 information in a long context that's the
+08:48 
+
+08:48 last
+08:49 
+
+08:49 paper Okay so let's look at uh how to
+08:52 
+
+08:52 decrease the computational complexity so
+08:54 
+
+08:54 you have end tokens uh and uh so what
+08:58 
+
+08:58 long net does is that it divides
+09:00 
+
+09:00 segments these nend tokens into w n by W
+09:04 
+
+09:04 segments and each segment has a length
+09:06 
+
+09:06 of w tokens right so this is one
+09:12 
+
+09:12 segment and then each segment comput its
+09:16 
+
+09:16 squ uh uh it attention Matrix
+09:18 
+
+09:18 independently so for each segment you
+09:20 
+
+09:20 have key vectors and similarly for each
+09:23 
+
+09:23 segment you have query vectors right and
+09:26 
+
+09:26 each segment computes uh the attention
+09:28 
+
+09:28 Matrix uh uh
+09:30 
+
+09:30 independently so now earlier uh the cost
+09:34 
+
+09:34 of comp of attention Matrix was order of
+09:36 
+
+09:36 n squar where n is the number of tokens
+09:39 
+
+09:39 uh now given there are uh there are uh
+09:42 
+
+09:42 sorry how many n byw segments uh so what
+09:46 
+
+09:46 would be the cost of
+09:47 
+
+09:47 computation uh since each of these are
+09:49 
+
+09:49 computed independently uh this will be W
+09:52 
+
+09:52 Square for this W Square for this W for
+09:55 
+
+09:55 this and W Square for this the total
+09:57 
+
+09:57 cost competion will be number times w
+09:59 
+
+09:59 Square which is order of so it's uh uh
+10:05 
+
+10:05 assum that the length of the segment is
+10:07 
+
+10:07 constant this is linear in the number of
+10:10 
+
+10:10 uh tokens this is a very simple idea and
+10:15 
+
+10:15 uh some version of it you might have
+10:16 
+
+10:16 seen in long form Professor T talked
+10:18 
+
+10:18 about long format and this is also based
+10:21 
+
+10:21 on a similar
+10:23 
+
+10:23 idea now uh the segment level attention
+10:26 
+
+10:26 metric competition is further the
+10:28 
+
+10:28 competition complexity of this is
+10:29 
+
+10:29 further improved by uh introducing
+10:32 
+
+10:32 introducing dilation and in dilation uh
+10:35 
+
+10:35 what is done is that not every token
+10:38 
+
+10:38 does not attend on every token so we say
+10:41 
+
+10:41 this is T token one token two token
+10:44 
+
+10:44 three and token four and let's say this
+10:46 
+
+10:46 is also T1 T2 T3 and
+10:50 
+
+10:50 T4 T2 attends
+10:53 
+
+10:53 itself and T4 similarly T4 intends on
+10:58 
+
+10:58 itself uh T2 and T4 and all the other
+11:01 
+
+11:01 values uh uh attention
+11:05 
+
+11:05 not yeah attention are not comp computed
+11:07 
+
+11:07 so basically you have a much
+11:10 
+
+11:10 smaller uh attention metrics to compute
+11:13 
+
+11:13 and uh how many positions you skip uh is
+11:18 
+
+11:18 determined by the spcification factor so
+11:19 
+
+11:19 in this figure above the spcification
+11:21 
+
+11:21 factor is two which means that uh every
+11:24 
+
+11:24 second token uh is uh attended on uh
+11:29 
+
+11:29 yeah so so now if you uh do this the
+11:34 
+
+11:34 cost of competition uh is further
+11:36 
+
+11:36 reduced and uh what would be the cost of
+11:39 
+
+11:39 competition now uh can ibody uh think of
+11:42 
+
+11:42 what would the
+11:44 
+
+11:44 cost so let's look at how many segments
+11:47 
+
+11:47 we have we still have n by W
+11:49 
+
+11:49 segments and now
+11:52 
+
+11:52 uh uh basically uh you not only W by R
+11:59 
+
+11:59 is a length W by R is the number of
+12:01 
+
+12:01 tokens here so w by
+12:04 
+
+12:04 R uh squar is the cost of this
+12:07 
+
+12:07 competition and so this would be the uh
+12:10 
+
+12:10 total uh competition cost will be order
+12:14 
+
+12:14 of n w by
+12:20 
+
+12:20 r² so the more you spfy your attention
+12:24 
+
+12:24 competition uh the cost will drop even
+12:26 
+
+12:26 further okay now all this we are doing
+12:28 
+
+12:28 we are doing segment we are doing
+12:30 
+
+12:30 spcification can somebody think of
+12:32 
+
+12:32 problems with this why is this
+12:34 
+
+12:34 problematic and is there are there any
+12:36 
+
+12:36 some obvious problems here the segments
+12:38 
+
+12:38 will never if they never Talk Amongst
+12:40 
+
+12:40 each other then how is the information
+12:41 
+
+12:41 even flowing it's like independent
+12:43 
+
+12:43 blocks right uh uh so you want the
+12:46 
+
+12:46 information from one segment to flow to
+12:48 
+
+12:48 the other segment and uh that uh what is
+12:52 
+
+12:52 done is that okay before we go into that
+12:56 
+
+12:56 uh this is how what the conditions look
+12:58 
+
+12:58 like by the way you have uh you have
+13:00 
+
+13:00 this scarified dilated attention Matrix
+13:04 
+
+13:04 computed here Q is the query of the uh
+13:09 
+
+13:09 after specification query vector and K
+13:11 
+
+13:11 is the query Vector after specification
+13:13 
+
+13:13 you get the output Vector from this so
+13:15 
+
+13:15 this will give you the output Vector of
+13:16 
+
+13:16 only these two tokens here what do about
+13:19 
+
+13:19 the output vectors of the remaining
+13:20 
+
+13:20 tokens so this these you can get right
+13:24 
+
+13:24 let's call this
+13:25 
+
+13:25 as a11 so this a11 you can fill here and
+13:30 
+
+13:30 similarly a12 you can fill here and
+13:34 
+
+13:34 using this tension Matrix you can
+13:35 
+
+13:35 compute the output vectors also but for
+13:39 
+
+13:39 the places uh for the uh for the
+13:42 
+
+13:42 remaining tokens the outut are simply
+13:44 
+
+13:44 filled with zero you simply uh it with
+13:47 
+
+13:47 zero so here this output output Vector
+13:51 
+
+13:51 that you get will have few some of them
+13:54 
+
+13:54 Zer in the vector yeah so as uh we
+13:59 
+
+13:59 discussed now that if we just divide it
+14:01 
+
+14:01 into segments and don't allow any
+14:02 
+
+14:02 interaction between them it's basically
+14:04 
+
+14:04 same as training individual segments so
+14:07 
+
+14:07 how uh the way this paper deals with
+14:09 
+
+14:09 this problem is that they divide uh they
+14:12 
+
+14:12 use various uh segment lengths and
+14:15 
+
+14:15 various spcification
+14:17 
+
+14:17 rates for example in the uh
+14:21 
+
+14:21 uh for the same uh set sequence of
+14:24 
+
+14:24 tokens of this uh first attention Matrix
+14:28 
+
+14:28 that you see uh uses a segment length of
+14:30 
+
+14:30 four right this is a segment length of
+14:32 
+
+14:32 four and there's no dilation there's no
+14:34 
+
+14:34 spcification whatsoever inside uh within
+14:37 
+
+14:37 the segments in the second attention
+14:40 
+
+14:40 Matrix the uh segment length is eight
+14:43 
+
+14:43 and uh your dilation rate is two that
+14:46 
+
+14:46 you are skipping every second token for
+14:48 
+
+14:48 the second and in the third addition
+14:50 
+
+14:50 Matrix you have a segment length of 16
+14:52 
+
+14:52 and the dilation rate is four that mean
+14:55 
+
+14:55 you uh attending only every fourth token
+14:59 
+
+14:59 you're skipping basically uh four to
+15:01 
+
+15:01 canel time and uh you compute the output
+15:05 
+
+15:05 Matrix using uh this uh segmentation
+15:08 
+
+15:08 this will let's call this that this
+15:09 
+
+15:09 gives you uh
+15:14 
+
+15:14 o11 similarly you compute the uh output
+15:18 
+
+15:18 Vector using this attention Matrix this
+15:20 
+
+15:20 gives you o R2 W2 and this uhx gives you
+15:26 
+
+15:26 R2 r33 so you compute the out put uh
+15:30 
+
+15:30 using each of these three different
+15:32 
+
+15:32 attention block attention mass and then
+15:35 
+
+15:35 you sum it up sum all the outputs that
+15:38 
+
+15:38 you get and that is the output for one
+15:40 
+
+15:40 token so the output is not of a token is
+15:42 
+
+15:42 not just competed using one uh uh
+15:45 
+
+15:45 segmentation spcification but a mixture
+15:47 
+
+15:47 of segmentation spcifications and uh
+15:49 
+
+15:49 that allows so this uh the output that
+15:53 
+
+15:53 you get here we'll look at only local
+15:56 
+
+15:56 tokens so it will focus more on the
+15:59 
+
+15:59 immediate
+15:60 
+
+15:60 require like after I say he he the word
+16:04 
+
+16:04 is or was uh should come right so these
+16:07 
+
+16:07 are local requirements so this uh this
+16:09 
+
+16:09 attention allows you to look at the
+16:11 
+
+16:11 locally what token can I predict here
+16:14 
+
+16:14 whereas if you look at uh this last uh
+16:17 
+
+16:17 attention metrix this allows uh the
+16:19 
+
+16:19 tokens to focus more on global level
+16:21 
+
+16:21 information like uh where should uh uh I
+16:25 
+
+16:25 mean if suppose a token depends on uh
+16:27 
+
+16:27 some information that was present 100
+16:29 
+
+16:29 tokens far away this attention Matrix
+16:31 
+
+16:31 allows you to look uh uh far apart and
+16:34 
+
+16:34 so you combine the uh outputs from each
+16:36 
+
+16:36 of these attention matrics and you get a
+16:38 
+
+16:38 mixture of local and Global Information
+16:41 
+
+16:41 and how do you combine uh uh the
+16:44 
+
+16:44 information each of these three
+16:46 
+
+16:46 different attention Matrix so if you
+16:49 
+
+16:49 let's go back so uh when we computed the
+16:52 
+
+16:52 output there was a soft soft between
+16:55 
+
+16:55 query and key and we use the denominator
+16:57 
+
+16:57 of this soft m to weigh each of the
+17:01 
+
+17:01 outputs here so S1 is the weight of the
+17:04 
+
+17:04 soft max weight of denominator of the
+17:06 
+
+17:06 soft Max for the first output and SN
+17:10 
+
+17:10 would be the uh uh output of sorry
+17:14 
+
+17:14 denominator of the soft Max in
+17:18 
+
+17:18 the
+17:20 
+
+17:20 competion and com all the different
+17:23 
+
+17:23 outputs but does this make sense to
+17:25 
+
+17:25 anybody that combining the local and
+17:27 
+
+17:27 Global Information and what is the
+17:28 
+
+17:28 advantage of here uh this part is
+17:31 
+
+17:31 expensive right you are trying to you
+17:32 
+
+17:32 for each segmentation and dilation rate
+17:35 
+
+17:35 you are uh you are trying to compute the
+17:37 
+
+17:37 output so you're repeating the output
+17:39 
+
+17:39 competition with a multiple
+17:42 
+
+17:42 times but it's still less than the
+17:45 
+
+17:45 quadratic time it would have taken if
+17:46 
+
+17:46 you uh uh computed the entire attention
+17:50 
+
+17:50 Matrix so you're still not Computing the
+17:51 
+
+17:51 entire attention Matrix if you look at
+17:52 
+
+17:52 this attention Matrix this is not
+17:54 
+
+17:54 quadratic
+17:56 
+
+17:56 right you're still uh but you but by
+17:60 
+
+17:60 choosing your uh uh segment length and
+18:03 
+
+18:03 dilation rate uh you are able to combine
+18:06 
+
+18:06 information from both local and uh
+18:09 
+
+18:09 Global and this shows the time required
+18:13 
+
+18:13 uh for long Net versus vanill tension
+18:15 
+
+18:15 which is quadratic in n and as you can
+18:18 
+
+18:18 see as the context length increases from
+18:21 
+
+18:21 8K to 64k basically time blows up from
+18:26 
+
+18:26 around uh 300
+18:29 
+
+18:29 to even around 6,000 so time blows up 20
+18:33 
+
+18:33 times as you increase the context length
+18:36 
+
+18:36 by eight times right uh and uh whereas
+18:39 
+
+18:39 for dilat tension the time remains
+18:41 
+
+18:41 constant you can uh approximately you
+18:43 
+
+18:43 can choose your segment length and your
+18:47 
+
+18:47 uh and your dilation rate so that the
+18:50 
+
+18:50 time remains uh almost constant or
+18:52 
+
+18:52 linear you can based on your choices you
+18:54 
+
+18:54 can vary uh the time required okay now
+18:58 
+
+18:58 uh you still you're still required to
+18:59 
+
+18:59 train with the uh data with long context
+19:04 
+
+19:04 length uh why because uh we have we not
+19:07 
+
+19:07 talked about that okay uh that's and the
+19:10 
+
+19:10 problem the problem with training with
+19:12 
+
+19:12 long cont length is you have to compute
+19:13 
+
+19:13 the embedding of each token anyway right
+19:15 
+
+19:15 so it's anyway time is going to linear
+19:17 
+
+19:17 going to be linear in the number of
+19:19 
+
+19:19 tokens uh so can we now something else
+19:22 
+
+19:22 can we actually train with uh shorter
+19:25 
+
+19:25 context and do inference with longer
+19:27 
+
+19:27 context uh maybe be trained with only
+19:30 
+
+19:30 248 tokens uh but during inference we
+19:33 
+
+19:33 give it 32k tokens uh and uh is that
+19:37 
+
+19:37 even possible so that's what we will
+19:39 
+
+19:39 look at uh in the uh next few
+19:43 
+
+19:43 slides so uh uh let's go back to our Aim
+19:46 
+
+19:46 so what we want right now is that we
+19:49 
+
+19:49 want to train uh with let's say uh 2K
+19:53 
+
+19:53 tokens we want to difference on using
+19:55 
+
+19:55 32k tokens what can be the problem if we
+19:58 
+
+19:58 that
+19:59 
+
+19:59 uh let's say if I train take a gpg2
+20:02 
+
+20:02 model that was trained using and I to
+20:05 
+
+20:05 try to do inference and try to give 2K
+20:07 
+
+20:07 tokens to it what what kind of problems
+20:09 
+
+20:09 will be run
+20:11 
+
+20:11 into let's say you give so uh let's say
+20:14 
+
+20:14 you take a model which use sinusoidal
+20:16 
+
+20:16 embeddings sinusoidal position
+20:17 
+
+20:17 embeddings right you can give generate a
+20:19 
+
+20:19 sinal position embedding for 1K tokens
+20:21 
+
+20:21 2K tokens but uh will the model be able
+20:24 
+
+20:24 to use those sinos Tings now because
+20:26 
+
+20:26 those sinos Tings never seen during
+20:28 
+
+20:28 training when you give those new s to
+20:31 
+
+20:31 the model the model uh will go hawi uh
+20:35 
+
+20:35 so the problem that happens when you try
+20:38 
+
+20:38 to use more context than that was given
+20:39 
+
+20:39 during training that one of the biggest
+20:41 
+
+20:41 problem is the position embedding the
+20:42 
+
+20:42 position embedding uh whatever you
+20:45 
+
+20:45 trained on uh work but if you try to use
+20:48 
+
+20:48 eddings that you did not train on it
+20:51 
+
+20:51 gives a problem so that's why let's look
+20:53 
+
+20:53 at uh take a quick of position
+20:55 
+
+20:55 embeddings so what uh what is a position
+20:58 
+
+20:58 embedding
+20:59 
+
+20:59 Transformer is uh mostly a set level
+21:02 
+
+21:02 operation except for the addition of the
+21:04 
+
+21:04 positioning coding part so at every at
+21:06 
+
+21:06 the beginning of uh before you feed it
+21:09 
+
+21:09 the tokens to the model you give uh you
+21:12 
+
+21:12 associate a position with the each of
+21:13 
+
+21:13 the token like I am a student so this is
+21:16 
+
+21:16 a position 0 1 2 and you somehow encode
+21:20 
+
+21:20 these
+21:21 
+
+21:21 positions uh here and add it to the
+21:25 
+
+21:25 Token level edings right similarly you
+21:27 
+
+21:27 will incode one somehow and add it to a
+21:29 
+
+21:29 token and you will incode two and add it
+21:31 
+
+21:31 to your token
+21:35 
+
+21:35 right uh and because the model has not
+21:39 
+
+21:39 never seen the position level embeding
+21:41 
+
+21:41 of it was trained for token so it has
+21:43 
+
+21:43 never seen the position embeding of
+21:45 
+
+21:45 1025 and now if I add 1025 uh to a
+21:49 
+
+21:49 certain token the
+21:51 
+
+21:51 PO5 it uh it goes ha and so what we want
+21:56 
+
+21:56 is a model that can that is able to deal
+21:58 
+
+21:58 with
+21:59 
+
+21:59 uh longer context than it was trained on
+22:02 
+
+22:02 that it can uh without the problem of
+22:05 
+
+22:05 dealing with this position
+22:07 
+
+22:07 Bings so this was uh an experiment uh
+22:11 
+
+22:11 done in the Ali paper where what they
+22:12 
+
+22:12 did was they took this models we use
+22:15 
+
+22:15 sinusoidal embeddings sinusoidal means
+22:17 
+
+22:17 that the positions are some s CA
+22:20 
+
+22:20 functions of the sorry the position
+22:21 
+
+22:21 embeddings are sign or C function of the
+22:23 
+
+22:23 position right so they took the cidal
+22:25 
+
+22:25 embeddings for the position the models
+22:27 
+
+22:27 that use sinos embeddings and uh uh the
+22:30 
+
+22:30 uh trained on 1,24 context L on wikit
+22:34 
+
+22:34 text uh with 247 million parameters and
+22:38 
+
+22:38 uh uh what they observe was that the
+22:42 
+
+22:42 perplexity during inference was around
+22:45 
+
+22:45 something like
+22:46 
+
+22:46 20 now they try to increase the number
+22:50 
+
+22:50 of tokens during inference
+22:52 
+
+22:52 time and as you can see as uh so
+22:55 
+
+22:55 generally what do you expect first of
+22:56 
+
+22:56 all generally if you provide more
+22:58 
+
+22:58 context to the model its its perplexity
+23:01 
+
+23:01 should drop why because there might be
+23:03 
+
+23:03 some information that you could not give
+23:04 
+
+23:04 in the24 tokens if you give more number
+23:07 
+
+23:07 of tokens the model uh should be able to
+23:10 
+
+23:10 do better reasoning it should be its
+23:11 
+
+23:11 perplexity it's perplexity basically the
+23:13 
+
+23:13 level of surprise surprise uh leverage
+23:16 
+
+23:16 should decrease but when did this when
+23:18 
+
+23:18 they gave more tokens during inference
+23:21 
+
+23:21 what they observed was that the model
+23:23 
+
+23:23 was became more perplexed the perplexity
+23:26 
+
+23:26 actually blew up drastically as soon as
+23:28 
+
+23:28 they increased
+23:29 
+
+23:29 went from as soon as they moved from
+23:30 
+
+23:30 1024 to 1025 the probity started
+23:33 
+
+23:33 increasing so the model did not
+23:35 
+
+23:35 generalize in terms of positions at all
+23:37 
+
+23:37 right and they repeated the experiment
+23:39 
+
+23:39 with the rotary embeddings uh and again
+23:44 
+
+23:44 uh the perplexity started increasing as
+23:47 
+
+23:47 soon as they increased the number of
+23:52 
+
+23:52 tokens and uh with T5 bias also the
+23:56 
+
+23:56 publicity initially dropped to some
+23:57 
+
+23:57 extent so it was able to generalized to
+23:59 
+
+23:59 some extent but then it again started
+24:01 
+
+24:01 increasing so uh they wanted a model uh
+24:05 
+
+24:05 which they can train on 2048 tokens or
+24:07 
+
+24:07 134 tokens still generalize much Beyond
+24:10 
+
+24:10 it so
+24:12 
+
+24:12 uh so how do you do that so the core
+24:15 
+
+24:15 idea was so so this was their their idea
+24:18 
+
+24:18 the AL idea which ensured that the
+24:20 
+
+24:20 perplexity went down
+24:23 
+
+24:23 slightly uh and but never increased uh
+24:27 
+
+24:27 it may or may not have improved uh uh
+24:29 
+
+24:29 the Improvement in terms of performance
+24:31 
+
+24:31 theity not a lot but at least it did not
+24:34 
+
+24:34 increase
+24:37 
+
+24:37 right so the core idea was to actually
+24:40 
+
+24:40 get rid of the PO embedding all together
+24:42 
+
+24:42 that the position adding the position
+24:44 
+
+24:44 embedding is causing this loss of
+24:45 
+
+24:45 generation so let's get rid of that but
+24:48 
+
+24:48 if you get rid of that what would happen
+24:51 
+
+24:51 uh if I don't give the position
+24:53 
+
+24:53 embedding at all what might happen
+24:60 
+
+24:60 yeah you won't the position information
+25:01 
+
+25:01 is lost and uh now basically the network
+25:04 
+
+25:04 is looking at the to as the tokens as a
+25:06 
+
+25:06 set so basically whether you say the cat
+25:09 
+
+25:09 is running from the dog or the dog is
+25:10 
+
+25:10 running from the cat or the dog cat
+25:13 
+
+25:13 running whatever order you give it's
+25:14 
+
+25:14 model cannot differentiate between these
+25:16 
+
+25:16 set of tokens right so position
+25:17 
+
+25:17 information is needed position embedding
+25:19 
+
+25:19 uh but you still want to get rid of the
+25:21 
+
+25:21 position embedding and so the idea was
+25:22 
+
+25:22 let's put the position information in
+25:25 
+
+25:25 computation of attention when you are
+25:27 
+
+25:27 Computing the attention uh uh the model
+25:30 
+
+25:30 can give more attention to the tokens
+25:32 
+
+25:32 that are closer to it and L attention to
+25:34 
+
+25:34 the tokens that are further away from it
+25:37 
+
+25:37 and let's so as I mentioned uh earlier
+25:42 
+
+25:42 we had token level embeddings we had
+25:45 
+
+25:45 position embeddings we added them
+25:46 
+
+25:46 together to get the uh embeddings with
+25:49 
+
+25:49 position information now Alibi removes
+25:52 
+
+25:52 this position embeddings alt together
+25:53 
+
+25:53 and you don't have this
+25:56 
+
+25:56 now and the position formation get added
+25:60 
+
+25:60 to the attention Matrix so
+26:02 
+
+26:02 uh this is how a typical attention
+26:05 
+
+26:05 Matrix looks
+26:15 
+
+26:15 like and uh you compute the query Vector
+26:18 
+
+26:18 for token you compute the key Vector for
+26:19 
+
+26:19 each token and the inner prod do the in
+26:22 
+
+26:22 product to get the attention value this
+26:24 
+
+26:24 is how standard attention looks like now
+26:27 
+
+26:27 the core idea was that when when I'm
+26:29 
+
+26:29 Computing this attention uh between
+26:31 
+
+26:31 query and
+26:33 
+
+26:33 key let me modify this so that uh if you
+26:37 
+
+26:37 are attending on close uh nearby tokens
+26:40 
+
+26:40 the attention is higher and as you move
+26:42 
+
+26:42 away uh the attention gets lower which
+26:45 
+
+26:45 is somewhat mimics uh how humans do
+26:49 
+
+26:49 right we uh when we when we trying to
+26:51 
+
+26:51 say a sentence my immediate attention is
+26:53 
+
+26:53 on the token that U or uh that I just
+26:56 
+
+26:56 said right after saying I I have to say
+26:58 
+
+26:58 and am I cannot say is so this there
+27:01 
+
+27:01 strong correlation the nearby tokens
+27:04 
+
+27:04 right uh so the idea was very simple
+27:08 
+
+27:08 that let's create an addition Matrix uh
+27:11 
+
+27:11 which simply is simply M minus n or IUS
+27:16 
+
+27:16 J let me say it IUS
+27:18 
+
+27:18 J where I uh so uh you have this
+27:23 
+
+27:23 triangular Matrix uh which computes the
+27:27 
+
+27:27 uh distance between the two tokens and
+27:28 
+
+27:28 you
+27:29 
+
+27:29 multiply Matrix with
+27:32 
+
+27:32 M and what is m m is just a uh scalar a
+27:36 
+
+27:36 linear Factor uh that basically decides
+27:39 
+
+27:39 how much uh how much you want to
+27:43 
+
+27:43 decrease the attention so suppose you
+27:44 
+
+27:44 want that okay as soon as I go beyond
+27:46 
+
+27:46 two tokens my attention should drop
+27:48 
+
+27:48 drastically then you can keep M large or
+27:50 
+
+27:50 you if you want to say that uh I don't
+27:53 
+
+27:53 want the attention to decrease
+27:54 
+
+27:54 drastically but I want I want the
+27:56 
+
+27:56 attention to decrease thousand tokens
+27:58 
+
+27:58 then you can keep M very small so
+28:00 
+
+28:00 basically if m is large you won't be
+28:03 
+
+28:03 your context window becomes very small
+28:04 
+
+28:04 because you because your attention uh
+28:06 
+
+28:06 value will immediately uh become minus
+28:09 
+
+28:09 infinity or become very low right you
+28:11 
+
+28:11 won't be able to attend uh Beyond
+28:13 
+
+28:13 certain uh width and if m is small you
+28:16 
+
+28:16 can attend to a longer width now ideally
+28:19 
+
+28:19 you want to uh you want to mix of
+28:20 
+
+28:20 everything you want to attend locally
+28:22 
+
+28:22 but you also want to be able to attend
+28:24 
+
+28:24 globally so what these authors did is
+28:28 
+
+28:28 that that you have multiple attention
+28:30 
+
+28:30 heads right uh in Transformer uh they
+28:34 
+
+28:34 decided that let's use different value
+28:35 
+
+28:35 of M
+28:38 
+
+28:38 for different heads some heads might
+28:41 
+
+28:41 look look attend only local so for them
+28:44 
+
+28:44 I uh so local local attention means the
+28:48 
+
+28:48 M should large so if some heads want to
+28:50 
+
+28:50 look only locally then we can keep M
+28:52 
+
+28:52 large for
+28:53 
+
+28:53 them and if you want to uh look more
+28:57 
+
+28:57 globally M should be
+28:59 
+
+28:59 small and now you will add these uh uh
+29:03 
+
+29:03 uh
+29:04 
+
+29:04 these uh uh positional differences uh
+29:08 
+
+29:08 and with the Inu between query and key
+29:11 
+
+29:11 and apply soft Max so the so if you you
+29:14 
+
+29:14 can see right if this uh distances
+29:16 
+
+29:16 become very large then the value here
+29:19 
+
+29:19 will become very it will become very
+29:21 
+
+29:21 negative like minus 100us th000 and the
+29:24 
+
+29:24 soft M will go to uh soft will go to
+29:27 
+
+29:27 zero right so as soon as uh the tokens
+29:30 
+
+29:30 are very far apart the attention drops
+29:32 
+
+29:32 to
+29:35 
+
+29:35 zero so as I mentioned uh when if since
+29:38 
+
+29:38 you have multiple heads you can use a
+29:40 
+
+29:40 different value of M for different heads
+29:43 
+
+29:43 so this uh uh M for example for head
+29:48 
+
+29:48 zero here the m is defined as 1 upon 2^
+29:51 
+
+29:51 8 by n and n is the number of uh the
+29:58 
+
+29:58 context length that you have so let's
+30:00 
+
+30:00 say oh wait n is the n is the number of
+30:03 
+
+30:03 attention sorry yeah so if you have
+30:05 
+
+30:05 eight attention hats uh this m will be n
+30:09 
+
+30:09 equal to 8 implies m is equal to 1x 2
+30:14 
+
+30:14 here n = 8 implies m
+30:19 
+
+30:19 = 1 by
+30:22 
+
+30:22 4 here n = 8
+30:25 
+
+30:25 implies m = 1 upon and this becomes m 1
+30:30 
+
+30:30 by2 right
+30:32 
+
+30:32 so uh this particular this head n has a
+30:36 
+
+30:36 m set as 1 upon 2^ 8 so it can focus on
+30:39 
+
+30:39 2 to^ 8 tokens without much drop uh in
+30:43 
+
+30:43 the attention scores attention scores
+30:45 
+
+30:45 remain approx not change drastically
+30:48 
+
+30:48 whereas for this uh uh the first the
+30:51 
+
+30:51 attention had zero uh the attention
+30:53 
+
+30:53 scores drop as soon as you go beyond two
+30:56 
+
+30:56 tokens okay so this looks this is a more
+30:58 
+
+30:58 local attention uh head and this is more
+31:01 
+
+31:01 of a global attention and you combine
+31:03 
+
+31:03 the information from all the different
+31:04 
+
+31:04 attention heads uh to get mixture of
+31:07 
+
+31:07 local and Global Information now what is
+31:09 
+
+31:09 the advantage of this we have totally
+31:11 
+
+31:11 gotten rid of positional embeddings
+31:13 
+
+31:13 right so we can train with
+31:15 
+
+31:15 the24 tokens and when we do in Fr all
+31:19 
+
+31:19 that will let's say if we go beyond4
+31:21 
+
+31:21 what will happen all that might happen
+31:24 
+
+31:24 in the worst case is that the token at
+31:26 
+
+31:26 the 248 location may not be able to
+31:29 
+
+31:29 attend a token at a24 location the
+31:31 
+
+31:31 attention might go to zero but it it it
+31:33 
+
+31:33 won't be seeing any new information just
+31:36 
+
+31:36 attention might go to zero so it does
+31:37 
+
+31:37 not completely solve the problem of
+31:39 
+
+31:39 attending Beyond a certain Contex L but
+31:42 
+
+31:42 it allows you to fit more tokens without
+31:44 
+
+31:44 a perplexity increasing they won't any
+31:45 
+
+31:45 increase in perplexity if you are adding
+31:47 
+
+31:47 more tokens right because there's no new
+31:49 
+
+31:49 signal that it has not seen during
+31:50 
+
+31:50 training why does the sell because
+31:52 
+
+31:52 there's no extra information not seen
+31:54 
+
+31:54 during training that is is being
+31:56 
+
+31:56 provided right and the problem with this
+31:58 
+
+31:58 is that it still not be able to attend
+32:01 
+
+32:01 tokens which are very far apart because
+32:02 
+
+32:02 the attention between far apart tokens
+32:04 
+
+32:04 might go to zero still as you as you
+32:06 
+
+32:06 increase the Contra
+32:08 
+
+32:08 strength so it will not attemp but the
+32:10 
+
+32:10 so the popity may not improve but also
+32:12 
+
+32:12 not
+32:14 
+
+32:14 drop okay so this is where the next uh
+32:18 
+
+32:18 uh solution proposed comes to the
+32:21 
+
+32:21 picture so the idea was that okay as the
+32:24 
+
+32:24 number of tokens increase uh we will
+32:26 
+
+32:26 want we still want to keep position
+32:27 
+
+32:27 eding and as the number of tokens
+32:29 
+
+32:29 increase I still want to be able to
+32:31 
+
+32:31 attend the tokens that are far
+32:33 
+
+32:33 away uh and that attention value should
+32:36 
+
+32:36 not drop to zero so let's interpolate
+32:38 
+
+32:38 between the positions what do mean uh
+32:40 
+
+32:40 the interpolation if you think of the
+32:41 
+
+32:41 position embeddings right you are
+32:43 
+
+32:43 trained with position embedding of 01
+32:45 
+
+32:45 two you have trained the model with up
+32:46 
+
+32:46 to position embeding 1224 right now if
+32:49 
+
+32:49 you take these position embeddings and
+32:51 
+
+32:51 you want to create position eding from 0
+32:52 
+
+32:52 to 2048 how would you do
+32:55 
+
+32:55 it very naive thing you have this poing
+32:58 
+
+32:58 let's say you have a p Bing for 0o and
+32:59 
+
+32:59 one that's all your train model now if
+33:02 
+
+33:02 you if I say that no I want a p bending
+33:04 
+
+33:04 for 0 1 2 and three uh how would you
+33:07 
+
+33:07 interpolate between uh those embeddings
+33:09 
+
+33:09 and the new set of embeddings that you
+33:10 
+
+33:10 want keyword is interpolation uh I want
+33:13 
+
+33:13 you to think in terms of interpolate
+33:15 
+
+33:15 that you have this embedding e e0
+33:17 
+
+33:17 embedding E1 and I want you to create
+33:19 
+
+33:19 embedding for e0 E1 E2 and E3 so you can
+33:22 
+
+33:22 just draw a line between these two
+33:23 
+
+33:23 embeddings and just uh uh put three
+33:28 
+
+33:28 point in between that you will get four
+33:29 
+
+33:29 segments now you will basically get now
+33:30 
+
+33:30 four potion edings so that's that idea
+33:34 
+
+33:34 is what is being what what we discuss
+33:36 
+
+33:36 it's a very simple idea and it works
+33:39 
+
+33:39 quite well as I mentioned uh in Alibi
+33:41 
+
+33:41 the attention heads can have very narrow
+33:43 
+
+33:43 Vision there are some attention heads
+33:44 
+
+33:44 that cannot look Beyond two tokens there
+33:46 
+
+33:46 are some ATT that cannot look Beyond
+33:48 
+
+33:48 four tokens the attention scores drop
+33:50 
+
+33:50 dramatically right so model is
+33:52 
+
+33:52 effectively even though you are able to
+33:54 
+
+33:54 scale to 248 tokens without droing
+33:56 
+
+33:56 perity the model is not looking at
+33:58 
+
+33:58 tokens the model is just ignoring those
+33:60 
+
+33:60 tokens so the uh so instead of uh uh the
+34:05 
+
+34:05 model instead of uh putting bias in the
+34:07 
+
+34:07 attention let's inter the position
+34:09 
+
+34:09 embeddings so you have this let's say
+34:11 
+
+34:11 you have this PO Vector for 0 1 two and
+34:15 
+
+34:15 three uh during and this is what you
+34:17 
+
+34:17 trained uh use during training and uh
+34:20 
+
+34:20 you want to get a new set of Po
+34:22 
+
+34:22 embeddings what uh what you can do is
+34:25 
+
+34:25 you can take this position embedding and
+34:27 
+
+34:27 this position and take the average this
+34:30 
+
+34:30 very uh this is not what is done we'll
+34:32 
+
+34:32 talk about what to what is done but
+34:34 
+
+34:34 naively what you can do is you can take
+34:36 
+
+34:36 the average of these two to get a
+34:39 
+
+34:39 position embedding for uh uh let's call
+34:43 
+
+34:43 it position point five and similarly
+34:45 
+
+34:45 here and here and you get a buch of
+34:48 
+
+34:48 embeddings right and now instead of four
+34:52 
+
+34:52 po embeddings you have 1 2 3 4 5 6 seven
+34:54 
+
+34:54 seven potion embeddings just by
+34:56 
+
+34:56 interpolation but now what you want to
+34:57 
+
+34:57 do is you want to do it for rotary
+34:60 
+
+34:60 position embeddings the idea in rotary
+35:02 
+
+35:02 position embedding is that you have this
+35:04 
+
+35:04 uh Vector uh uh X it can query Vector it
+35:08 
+
+35:08 can be a key Vector but you have this
+35:09 
+
+35:09 Vector X and you want to incorporate the
+35:13 
+
+35:13 position information is adding something
+35:15 
+
+35:15 you want to rotate it and so uh let's
+35:19 
+
+35:19 look at this you have this Vector X KN
+35:23 
+
+35:23 X1 xn minus1 up to
+35:26 
+
+35:26 xn now think think of these as a
+35:29 
+
+35:29 collection of two dimensional vectors
+35:33 
+
+35:33 okay you can think that the the so this
+35:37 
+
+35:37 D I should say D minus one D this is a
+35:39 
+
+35:39 collection of D by2 two dimensional
+35:42 
+
+35:42 vectors and uh based on the position of
+35:45 
+
+35:45 this particular token so this
+35:47 
+
+35:47 corresponds to let's say token at
+35:48 
+
+35:48 position three based on this position
+35:51 
+
+35:51 three you want to
+35:52 
+
+35:52 rotate this Vector so this right X X1
+35:56 
+
+35:56 you want to rotate it uh in the 2D plane
+35:59 
+
+35:59 and you want to rotate each of these in
+36:00 
+
+36:00 the 2D plane and you don't want to
+36:02 
+
+36:02 rotate them equally uh you want to let's
+36:06 
+
+36:06 say rotate this
+36:08 
+
+36:08 much uh at a much higher frequency and
+36:10 
+
+36:10 rotate this at a much lower frequency uh
+36:15 
+
+36:15 uh that's but but each of those
+36:17 
+
+36:17 frequencies are dependent on the
+36:18 
+
+36:18 position of this token so this position
+36:21 
+
+36:21 is three so this is what it looks like
+36:23 
+
+36:23 uh this is your
+36:25 
+
+36:25 original uh token uh
+36:28 
+
+36:28 what token vector and
+36:33 
+
+36:33 this this is the angle that you rotate
+36:36 
+
+36:36 the
+36:36 
+
+36:36 token while incorporating position so
+36:39 
+
+36:39 this uh yeah uh is there any question
+36:41 
+
+36:41 about this uh that rotary position
+36:43 
+
+36:43 embeddings it's a very interesting
+36:46 
+
+36:46 concept it's very popular so uh I would
+36:50 
+
+36:50 encourage everybody to look at it more
+36:53 
+
+36:53 uh but the idea is that you divide your
+36:55 
+
+36:55 embedding into two dimensional vectors
+36:57 
+
+36:57 and rotate each of those two dimensional
+36:58 
+
+36:58 vectors based on the position of the
+37:00 
+
+37:00 toen okay okay and not yeah so is three
+37:06 
+
+37:06 here let's say then each of the token
+37:08 
+
+37:08 will be rotated as a function of three
+37:09 
+
+37:09 now okay so m is three here okay now if
+37:14 
+
+37:14 you want to do interpolation for uh
+37:16 
+
+37:16 these uh uh rotatory position eding how
+37:19 
+
+37:19 would you do it earlier we were
+37:21 
+
+37:21 interpolating between uh two vectors now
+37:24 
+
+37:24 we have don't have Vector we have angles
+37:26 
+
+37:26 how do we interpolate between these two
+37:27 
+
+37:27 angles anybody any idea first of all uh
+37:30 
+
+37:30 think of what rotary position embeddings
+37:32 
+
+37:32 are doing they're just rotating your
+37:33 
+
+37:33 embedding vector by certain angle right
+37:35 
+
+37:35 so if you want to interpolate how would
+37:36 
+
+37:36 you do it correct you can simply that's
+37:38 
+
+37:38 what exactly this paper does it just
+37:41 
+
+37:41 says that okay since the rotary position
+37:43 
+
+37:43 embeddings are rotating the uh embedding
+37:46 
+
+37:46 vectors let me uh this let me divide
+37:48 
+
+37:48 this angle into the number of position
+37:51 
+
+37:51 vectors I want to create so if I have
+37:53 
+
+37:53 1,000 position vectors and I want to
+37:54 
+
+37:54 create 4,000 position vectors what I
+37:56 
+
+37:56 will do is I will just take this angle
+37:58 
+
+37:58 put divide into four parts and uh each
+38:01 
+
+38:01 of the new that I will get will be a new
+38:04 
+
+38:04 position Vector so by the way this is a
+38:07 
+
+38:07 uh the expression that is written here
+38:08 
+
+38:08 is just a uh Valu representation of what
+38:14 
+
+38:14 this operation is trying to do uh I just
+38:17 
+
+38:17 as I mentioned you have divided into two
+38:18 
+
+38:18 dimensional vectors so this is the and
+38:20 
+
+38:20 you can write it as a complex number and
+38:23 
+
+38:23 this rotation Matrix can be written in
+38:26 
+
+38:26 this form uh as e to the power I Theta
+38:29 
+
+38:29 you can also write it in Matrix form you
+38:31 
+
+38:31 can write it in this is a more writing
+38:34 
+
+38:34 it in complex form is more uh what
+38:36 
+
+38:36 should I say
+38:37 
+
+38:37 uh better way of representing what this
+38:40 
+
+38:40 operation is doing if you have uh the
+38:44 
+
+38:44 query so so as I mentioned X can be a
+38:47 
+
+38:47 query or a key Vector if you have the
+38:49 
+
+38:49 query Vector uh you can also write the
+38:51 
+
+38:51 query if you have to rotate the query
+38:53 
+
+38:53 Vector for the token at time step M you
+38:57 
+
+38:57 can write it in this form so here Q is
+39:00 
+
+39:00 basically your q0
+39:04 
+
+39:04 q1 Q minus one
+39:06 
+
+39:06 [Music]
+39:08 
+
+39:08 and and similarly for the
+39:11 
+
+39:11 key uh you can compute the uh rotated
+39:16 
+
+39:16 representation of the key and you can
+39:18 
+
+39:18 write it as this is basically key Vector
+39:22 
+
+39:22 for
+39:23 
+
+39:23 token
+39:26 
+
+39:26 at time Step n and then you can compute
+39:30 
+
+39:30 the inner product the basically the
+39:31 
+
+39:31 attention is function of the inner
+39:33 
+
+39:33 product between these two and the inner
+39:36 
+
+39:36 product uh looks something like this you
+39:39 
+
+39:39 have this original query and original
+39:41 
+
+39:41 key vector and this is the uh difference
+39:44 
+
+39:44 of M minus n is the difference in
+39:46 
+
+39:46 position and you get a rotation so you
+39:49 
+
+39:49 get a rotation which is dependent on how
+39:52 
+
+39:52 difference in position of the two tokens
+39:54 
+
+39:54 so if the two tokens are more far apart
+39:56 
+
+39:56 you there's a much more rotation and if
+39:58 
+
+39:58 the two tokens are closer there's a
+39:59 
+
+39:59 smaller rotation of the M of this uh
+40:03 
+
+40:03 this Vector of uh of this uh
+40:11 
+
+40:11 yeah so the attention is a function of
+40:14 
+
+40:14 the product between the query vector and
+40:17 
+
+40:17 the key vector and the angle between the
+40:19 
+
+40:19 position embeddings which is function of
+40:21 
+
+40:21 the difference in
+40:23 
+
+40:23 position and uh let's call this quantity
+40:26 
+
+40:26 uh the inner product between the query
+40:28 
+
+40:28 and key Vector
+40:30 
+
+40:30 HJ so it's a function of HJ and the
+40:33 
+
+40:33 difference in position and if you uh you
+40:37 
+
+40:37 look at this Vector uh this you can
+40:40 
+
+40:40 quickly see that this quantity is if you
+40:42 
+
+40:42 look at the uh absolute value of this
+40:45 
+
+40:45 quantity is going to be bounded uh by
+40:48 
+
+40:48 the max value that this AJ can take
+40:51 
+
+40:51 times how many summing this up and this
+40:55 
+
+40:55 e and this anyway so this you get an
+40:59 
+
+40:59 upper bound to how much the attention
+41:02 
+
+41:02 course can vary right and this is going
+41:05 
+
+41:05 to be important because that okay when I
+41:07 
+
+41:07 do
+41:08 
+
+41:08 interpolation how much the attention
+41:09 
+
+41:09 scores change compared to what attention
+41:12 
+
+41:12 scores that I get okay so as I mentioned
+41:15 
+
+41:15 earlier that when you're doing
+41:17 
+
+41:17 interpolation all you have to do is so
+41:18 
+
+41:18 this was your original uh uh this is the
+41:21 
+
+41:21 original rotated uh represent uh
+41:24 
+
+41:24 representation after adding po formation
+41:26 
+
+41:26 the blue one
+41:28 
+
+41:28 uh
+41:31 
+
+41:31 original
+41:34 
+
+41:34 rotated
+41:36 
+
+41:36 representation and the red one is the
+41:38 
+
+41:38 interpolated rotated representation so
+41:41 
+
+41:41 when you're doing interpolating you are
+41:43 
+
+41:43 just uh dividing the angle between the
+41:46 
+
+41:46 rotated representation and the original
+41:48 
+
+41:48 representation into some parts and uh uh
+41:51 
+
+41:51 that gives you the interpolated uh
+41:54 
+
+41:54 presentation and here uh the original
+41:57 
+
+41:57 number of tokens
+41:58 
+
+41:58 so L is the original number of tokens
+41:60 
+
+41:60 that you trained on and L Das is the new
+42:02 
+
+42:02 number of tokens that you want to do
+42:03 
+
+42:03 inference on for
+42:06 
+
+42:06 inference and here we are assuming that
+42:08 
+
+42:08 L by l d is two so you just divide the
+42:12 
+
+42:12 original angle that you got into two
+42:15 
+
+42:15 parts and uh you can write
+42:19 
+
+42:19 this in this form that the new position
+42:22 
+
+42:22 embedding F Dash uh after interpolation
+42:25 
+
+42:25 is uh the original Ed uh position
+42:27 
+
+42:27 embeding of of uh the token at location
+42:31 
+
+42:31 ml by L Das okay so we the we had
+42:35 
+
+42:35 trained the network with the uh position
+42:37 
+
+42:37 embeddings uh uh where the value of M
+42:41 
+
+42:41 minus n ranged from let's say uh in this
+42:45 
+
+42:45 belong to 0 to let's say
+42:47 
+
+42:47 one24 and now we want to do
+42:50 
+
+42:50 interpolation and now we interf and now
+42:52 
+
+42:52 uh these values can be fractional so
+42:56 
+
+42:56 when you do the attention scores how
+42:58 
+
+42:58 does the how much change does it happen
+43:01 
+
+43:01 to the attention score I mean do they
+43:02 
+
+43:02 become do they go very very widely or do
+43:04 
+
+43:04 they remain almost same and that is
+43:06 
+
+43:06 important because if the attention
+43:07 
+
+43:07 scores change drastically that means the
+43:09 
+
+43:09 model will not be able to do uh
+43:11 
+
+43:11 inference correctly so when I computed
+43:14 
+
+43:14 these uh when we compute these
+43:15 
+
+43:15 interpolated vectors uh does the
+43:18 
+
+43:18 attention scores very very widely or not
+43:21 
+
+43:21 and there's a theorem in the paper which
+43:24 
+
+43:24 shows that uh the attention scores don't
+43:27 
+
+43:27 change that drastically in fact we
+43:29 
+
+43:29 derived the value of the attention score
+43:31 
+
+43:31 right that attention score is less than
+43:32 
+
+43:32 equal to D by2 * Max GJ so this quantity
+43:37 
+
+43:37 with two we DED earlier and uh what this
+43:42 
+
+43:42 paper what this paper shows is that
+43:45 
+
+43:45 interpolation ensures that your
+43:47 
+
+43:47 attention values don't change very
+43:49 
+
+43:49 drastically you don't need to go to the
+43:51 
+
+43:51 uh you know don't need to go through the
+43:52 
+
+43:52 devation but it's just to know that the
+43:54 
+
+43:54 attention scores don't change very
+43:55 
+
+43:55 drastically if the attention score
+43:58 
+
+43:58 before interation had some uh let's say
+44:02 
+
+44:02 some value and after interpolation becom
+44:04 
+
+44:04 very widely that means the models
+44:05 
+
+44:05 because the attention your Model
+44:07 
+
+44:07 Behavior the embeding that it depends on
+44:10 
+
+44:10 the attention values right everything is
+44:11 
+
+44:11 a function of the attention value so
+44:13 
+
+44:13 that means the Model Behavior is going
+44:14 
+
+44:14 to change uh model outputs are going to
+44:16 
+
+44:16 change model embedding Everything Will
+44:17 
+
+44:17 Change and so uh basically your model
+44:20 
+
+44:20 will not be able to perform uh correctly
+44:22 
+
+44:22 in practice even when uh when we do this
+44:25 
+
+44:25 interation even though the vales don't
+44:26 
+
+44:26 change much uh fine tuning is required
+44:30 
+
+44:30 uh and the reason is that you can think
+44:32 
+
+44:32 of is that earlier what the model
+44:34 
+
+44:34 thought of as the token at distance of
+44:37 
+
+44:37 one now that uh same position buing is
+44:40 
+
+44:40 used for token at a distance of two so
+44:43 
+
+44:43 the model uh you still want to make sure
+44:45 
+
+44:45 that the model understands that okay uh
+44:47 
+
+44:47 what was earlier one for you now it has
+44:49 
+
+44:49 become two so you still require some
+44:51 
+
+44:51 fine tuning and you have to uh find unit
+44:53 
+
+44:53 on a fraction of examples and then it
+44:55 
+
+44:55 starts behaving well so this is figure
+44:57 
+
+44:57 which shows that the perplexity earlier
+44:59 
+
+44:59 which was uh which blew up uh ignore the
+45:03 
+
+45:03 red and ignore the yellow uh lines and
+45:05 
+
+45:05 blue is the position inter uh perplexity
+45:08 
+
+45:08 for position
+45:10 
+
+45:10 interpolation
+45:13 
+
+45:13 and the perplexity decreases as you
+45:16 
+
+45:16 increase the number of tokens as as is
+45:18 
+
+45:18 what we expect right in general that you
+45:20 
+
+45:20 if you add more tokens the more
+45:22 
+
+45:22 knowledge it has the perplexity should
+45:24 
+
+45:24 decrease
+45:29 
+
+45:29 and uh this was linear interpolation
+45:31 
+
+45:31 where you just take the angle and divide
+45:32 
+
+45:32 into equal parts people have also looked
+45:35 
+
+45:35 at anti inspired uh interpolations where
+45:37 
+
+45:37 you try to not divide all the uh angles
+45:41 
+
+45:41 equally but use some nonlinear divisions
+45:44 
+
+45:44 okay we will not discuss about them but
+45:47 
+
+45:47 uh they have also become popular now
+45:50 
+
+45:50 aays okay so finally uh we have talked
+45:55 
+
+45:55 so far about uh how we can can uh take
+45:58 
+
+45:58 these models that are trained for short
+45:60 
+
+45:60 context and use them for long context
+46:02 
+
+46:02 what we want to see now is that does it
+46:04 
+
+46:04 even help that if I take these long
+46:06 
+
+46:06 context models and give a lot of data to
+46:09 
+
+46:09 them can they do reasoning over these
+46:12 
+
+46:12 long context at all or not so and that's
+46:15 
+
+46:15 the Lost in the middle paper and the
+46:17 
+
+46:17 idea of this paper is and uh so if this
+46:20 
+
+46:20 is a takeaway from the paper that if you
+46:22 
+
+46:22 give a lot of documents to the uh model
+46:25 
+
+46:25 the model is not going to look at all
+46:26 
+
+46:26 the documents equally the model is going
+46:28 
+
+46:28 to focus on some documents at some
+46:30 
+
+46:30 position some model going to focus at
+46:32 
+
+46:32 some positions and will ignore all the
+46:34 
+
+46:34 other positions so although you are
+46:36 
+
+46:36 creating this large LS which can look at
+46:39 
+
+46:39 large context Windows they are not
+46:41 
+
+46:41 actually giving equal attention to all
+46:43 
+
+46:43 the position they will attend on some
+46:44 
+
+46:44 position and specifically they will
+46:46 
+
+46:46 attend on the starting okay first of all
+46:48 
+
+46:48 if you have to think and if I ask you
+46:50 
+
+46:50 that what positions will these long
+46:52 
+
+46:52 context models be able to attend to and
+46:54 
+
+46:54 what positions will these long Contex
+46:55 
+
+46:55 mod not be able attend to can you think
+46:58 
+
+46:58 uh uh which information might get used
+47:02 
+
+47:02 in the long cont which information will
+47:04 
+
+47:04 not get used the information that is
+47:06 
+
+47:06 given to the llm at the beginning and
+47:09 
+
+47:09 end gets used much more than the
+47:11 
+
+47:11 information and as I mentioned the idea
+47:13 
+
+47:13 of the uh the uh idea of this work is to
+47:17 
+
+47:17 find out if the model is paying equal
+47:18 
+
+47:18 attention to all the positions or is it
+47:20 
+
+47:20 focusing only at few positions okay and
+47:22 
+
+47:22 the way they do is they took a
+47:25 
+
+47:25 question uh and and uh uh they took a
+47:30 
+
+47:30 gold document for the question uh so the
+47:32 
+
+47:32 gold document means it contains the
+47:33 
+
+47:33 answer okay and they added a bunch of
+47:35 
+
+47:35 distractor documents which not contain
+47:38 
+
+47:38 the
+47:39 
+
+47:39 answer but they are also very similar to
+47:42 
+
+47:42 the question in uh in the sense that
+47:44 
+
+47:44 they are obtained L obtained with the
+47:46 
+
+47:46 from a retriever okay and when you feed
+47:49 
+
+47:49 these distracted documents and gold
+47:50 
+
+47:50 documents along with the question and
+47:52 
+
+47:52 now you ask the llm to answer the
+47:54 
+
+47:54 question and you vary the number of
+47:56 
+
+47:56 destructed documents and where is the
+47:57 
+
+47:57 position of the gold document with
+47:59 
+
+47:59 respect to the
+47:60 
+
+48:00 documents so this is an example of a
+48:03 
+
+48:03 question the question is who got the
+48:04 
+
+48:04 first Nobel priz in physics and you have
+48:07 
+
+48:07 a bunch of this is the gold document the
+48:09 
+
+48:09 uh the first Nobel Prize was awarded to
+48:12 
+
+48:12 willham and you have a bunch of
+48:14 
+
+48:14 distructive documents which are also
+48:16 
+
+48:16 talking about Noel priz but not do not
+48:17 
+
+48:17 have the answer so when you do that this
+48:20 
+
+48:20 is what was observed that you have if
+48:22 
+
+48:22 you retrieve 10 documents you have total
+48:23 
+
+48:23 of 10 documents and one gold document uh
+48:27 
+
+48:27 if the position of the gold document is
+48:30 
+
+48:30 if you put the gold document at the
+48:31 
+
+48:31 first position all these models clot uh
+48:34 
+
+48:34 GPD 3.5 all these models give decent
+48:37 
+
+48:37 performance but if you put the gold
+48:39 
+
+48:39 document at the fifth position the
+48:42 
+
+48:42 performance uh of all these different
+48:44 
+
+48:44 models uh drop the per here the
+48:48 
+
+48:48 performance you can measure as the
+48:50 
+
+48:50 accuracy of the answer that is generated
+48:53 
+
+48:53 and if you the gold document at the last
+48:56 
+
+48:56 position the performance improves
+48:59 
+
+48:59 somewhat compared to the middle okay so
+49:02 
+
+49:02 the worst point that uh is this this is
+49:04 
+
+49:04 the for the if you put the gold document
+49:06 
+
+49:06 at the fifth position you get the worst
+49:08 
+
+49:08 performance so which is interesting and
+49:10 
+
+49:10 decided to increase the number of
+49:12 
+
+49:12 documents and this is the figure that
+49:14 
+
+49:14 they that if you put the uh gold
+49:17 
+
+49:17 document at the first position again the
+49:20 
+
+49:20 performance was best but for fifth 10th
+49:24 
+
+49:24 and 15th uh position the performance of
+49:27 
+
+49:27 of the Alm dropped if you put the gold
+49:28 
+
+49:28 of in these
+49:30 
+
+49:30 positions and you can further increase
+49:33 
+
+49:33 the number of documents 30 and you again
+49:35 
+
+49:35 see a similar U-shaped curve uh where
+49:37 
+
+49:37 the if the document is in the middle of
+49:40 
+
+49:40 the LM it the model is not able to do uh
+49:43 
+
+49:43 find the correct documents not able to
+49:45 
+
+49:45 answer using the correct
+49:49 
+
+49:49 liit and the variate the model
+49:52 
+
+49:52 architecture uh the idea is that maybe
+49:55 
+
+49:55 possible that these causal attention
+49:58 
+
+49:58 Mass uh where you are attending only on
+49:60 
+
+49:60 the previous tokens is causing this
+50:01 
+
+50:01 problem so using if you use P Direction
+50:03 
+
+50:03 models the problem uh for Less 10
+50:06 
+
+50:06 documents is somewhat lesser the green
+50:09 
+
+50:09 is uh green is the plan T5 and pink
+50:12 
+
+50:12 sorry red is the FL ul2 so uh the drop
+50:16 
+
+50:16 for the fifth document is not that huge
+50:18 
+
+50:18 but there is still a uh drop but as you
+50:22 
+
+50:22 increase the number of documents trend
+50:23 
+
+50:23 is same as for the unidirectional model
+50:26 
+
+50:26 the causal LMS
+50:27 
+
+50:27 uh that as soon as you put the gold
+50:30 
+
+50:30 document somewhere within uh somewhere
+50:32 
+
+50:32 between the somewhere in the center of
+50:34 
+
+50:34 the llm the model is not able to attend
+50:36 
+
+50:36 to those go documents to generate the
+50:40 
+
+50:40 answer and uh this problem uh remains
+50:45 
+
+50:45 whether you use an instruction tune
+50:47 
+
+50:47 model or you use a pre-train model it
+50:48 
+
+50:48 does not make a lot of
+50:52 
+
+50:52 difference and this is the retriever
+50:54 
+
+50:54 recall versus model performance so
+50:55 
+
+50:55 basically the idea is that if the model
+50:57 
+
+50:57 is not able to attend on documents that
+50:59 
+
+50:59 are in the middle uh if you let's say
+51:02 
+
+51:02 even if you retrieve a lot of documents
+51:04 
+
+51:04 the model may not be able to look at it
+51:05 
+
+51:05 so retrieving more documents does not
+51:07 
+
+51:07 help the performance does not improve as
+51:09 
+
+51:09 you retrieve more document although the
+51:11 
+
+51:11 retriever performance this is the
+51:12 
+
+51:12 retriever performance and this improves
+51:14 
+
+51:14 you are able to retrieve uh find the
+51:16 
+
+51:16 correct document with a much
+51:18 
+
+51:18 High uh
+51:21 
+
+51:21 probability but the performance of the
+51:23 
+
+51:23 LM does not improve
+51:28 
+
+51:28 okay we come to the last slide now but
+51:31 
+
+51:31 we have looked at some ways uh to
+51:33 
+
+51:33 increase uh uh the context window of LM
+51:36 
+
+51:36 we uh also we have looked at days where
+51:39 
+
+51:39 you train on a smaller context and do
+51:41 
+
+51:41 inference on a longer
+51:43 
+
+51:43 context and but we also saw that mod
+51:47 
+
+51:47 even though you are able to incorporate
+51:48 
+
+51:48 have this much long context model might
+51:51 
+
+51:51 ignore the information that is in the
+51:52 
+
+51:52 middle of the context
+51:55 
+
+51:55 window okay f

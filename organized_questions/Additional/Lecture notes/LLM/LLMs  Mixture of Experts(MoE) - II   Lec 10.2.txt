@@ -1,0 +1,654 @@
+00:02 uh hello everyone and welcome to part two of introduction to mixture of experts so yesterday we looked at the
+00:11 motivation of why we need mixture of experts and our motivation came from
+00:16 neural scaning laws which said that if we increase the number of parameters then uh model performance improves right
+00:25 and uh sparts mixture of experts provided us a way of doing that efficiently while keeping the
+00:31 computation low we were able to scale up the model size and that was the motivation of mixture of experts and uh
+00:39 what happens in mixture of expert is that uh so here on the left hand side
+00:44 you have a normal layer right so this is one expert consider this as one layer
+00:50 right or one neural network and input X will come and we'll get an output y
+00:56 right in mixture of expert instead of this one layer we replace it with NX experts so how much has the model size
+01:04 increased right model size has increased n times right and when we are doing a
+01:10 forward pass through this mixture of expert uh we will first use a gating
+01:17 Network the objective of this gating network is to select and assign probabilities to
+01:23 different experts and we can accordingly select the expert so here expert 2 and
+01:28 expert n minus one are are selected right we pass the input X through both
+01:34 expert 2 and expert n minus one independently this gating network is
+01:39 also giving me the probability of selecting that expert we multiply that
+01:44 probability with this output right this multiplication is important because when
+01:49 we are doing back propagation gradient will back will flow from this route only and to train the gating Network right
+01:56 and from this route to train the expert right then we will add the two to get
+02:01 the output now how many computations have increased on the right hand
+02:06 side as compared to the left hand side what are the additional computations that we are
+02:11 doing right so one is getting Network and other is two experts look
+02:19 assume for now that the gating is almost negligible because it's just one matrix multiplication one with a softmax layer
+02:25 so essentially our computation has gone from C to 2 C
+02:32 plus routing computation right whereas our model size
+02:37 has gone from M to approximately n into
+02:44 M right so we are able to increase the model size whereas computation remains
+02:51 almost twice and we can in fact reduce it to one as well if you choose only one expert instead of two experts right and
+02:58 how is this mixture of experts used in Transformers well on the left hand side
+03:04 you have one Transformer block right and in a Transformer based llm you stack
+03:10 these Transformer blocks on top of each other right and an input sequence X comes and then you get the output y here
+03:18 right so what we do when we use mixture of experts as a layer is that in one
+03:24 specific layer one in one specific Transformer block we replace this
+03:30 feet forward layer one neural network with a mixture of expert layer which is
+03:36 in blue box here right so in this example we have increased the model size
+03:43 by approximately M2 approximately increased to 4m and why am I saying 4M because
+03:50 model size includes self attention as well right whereas we have replicated only the uh experts only the feed
+03:58 forward Network this self attention remains exactly the same number of parameters remain exactly the same so
+04:04 right that's why it's approximately 4M it's slightly less than 4M and uh how has the computation
+04:11 increased so considering only uh computation of the MLPs we are going
+04:17 from C2 in this case where we are selecting only one
+04:23 expert C right so it's c plus routing cost right which is again negligible so
+04:31 here we are able to keep uh computation almost similar while also increasing the
+04:37 model size which and and model size helps in improving the performance of the model right and this is this example
+04:43 is from uh switch Transformer and this is what they call name as switch Transformer where only one expert is
+04:50 active before this mostly people argued that you know we need to activate at least two experts so that there is a
+04:57 comparison between two experts and the router you know gets to learn by
+05:02 contrasting between the two choices for a given token right but they questioned it here and they simplified the
+05:09 architecture and in today's uh work we will you know in today's lecture we will focus mainly on switch Transformers and
+05:16 innovations that it brought in right so this was I think switch Transformer was amongst the first paper which introduced
+05:22 mixture of experts in Transformers okay so we looked at what
+05:27 are the pros and cons of uh this of expert as a layer in Transformers We
+05:33 want pros of course we wanted to increase model parameters we are able to do that we wanted efficient pre-training
+05:39 we achiev that due to conditional activation right because only one expert is active conditionally we are
+05:44 activating the neurons and therefore we get faster inference as well but then on
+05:49 the flip side we observed that the I mean this may result in unstable
+05:55 training we looked at uh the issue of uh expert collapse where all experts may
+06:02 get trained for the same May collapse to the same weights we saw nonlinearity helps in avoiding that but then router
+06:08 May collapse which means that you know router simply learns to send to the same expert so we have unnecessarily
+06:14 increased the model size for which we will need more GPU but effectively only one expert is active always right and
+06:22 see this is one layer right and this layer is getting
+06:29 stacked on top of each other and there the router is also
+06:35 different in each l so there are different parameters for routers right
+06:41 so how many experts are there in in the entire Transformer if let us say in this case in one layer we get four experts
+06:48 then how many experts are there in total it's four times the number of layers right it's not four it's four times
+06:54 let's say 32 then four cross 32 is the total number of experts and how many path exists for
+07:00 token if you have if you if you have four let's say you're routing only to a single expert then at every layer you
+07:07 have four choices so how many paths can exist how many paths uh a token can take from
+07:14 bottom to the top layer it's 4 to the power 32 right so there are so many
+07:20 choices that it has to learn essentially what is the optimal path right so both
+07:26 arear because both are learnable definitely a token can can get routed to different layers different
+07:32 experts and different layers right okay
+07:37 so yeah uh so so uh unstable training is the first issue that we will need to
+07:43 handle and that is what we will discuss primarily today and then there is high memory requirement which we can't uh
+07:49 avoid right so let us start with a discussion on switch Transformer layer
+07:55 and what is so this switch Transformer layer was Again by Google Brak and uh in their abstract they highlight
+08:03 three issues that they are trying to address complexity they're trying to reduce the complexity of mes they want
+08:09 to reduce the communication cost we will see what is what does it mean and they want to address the training instability
+08:16 of the M Moes right and uh so what is the idea behind switch Transformer what
+08:22 is the definition of switch Transformer they Define it as an expert mixture of expert layer which routes only to a
+08:29 single uh expert instead of two experts right so greedy routing to only one expert
+08:36 that is the definition right now uh let's first look at you know some
+08:44 architecture details how do they how does it happen and how are they uh you know training such large experts so
+08:50 right on the left hand side you again have one uh Transformer block where all
+08:57 the experts this this is a mixture of expert layer and here all the experts are on the same
+09:03 GPU so this is one GPU one or one device let's not call it GPU because they were
+09:09 using tpus for it so this is device zero and all the experts are on this layer right now if you incre keep on
+09:15 increasing the number of experts it becomes infusible to put them all on a single device right so what they do is
+09:23 that they have they scale it with the number of devices so if there are e experts right they will create create
+09:30 they will use e devices so this is Shard one which which is on device one and this is on device e right in all the
+09:40 devices the sweet forward layer is different this is an expert all experts
+09:46 are divided right the other layers are replicated so this attension layer and this
+09:52 multi-headed they are exactly the same you replicate the attention layers right
+09:58 and sharp the experts so this is some sort of an expert parallelism and the
+10:04 policy that they following here is that each expert will lie on a particular
+10:09 device right and of course uh this will increase the communication cost as well
+10:15 right because uh if a token is going to expert one then you know for the next uh
+10:22 computation we need to collect collect back right so there is all to all communication that is happening right
+10:28 depending upon where the input in is right so this is this is uh a special
+10:34 case of model parallelism we will look at that as well um yeah so now uh how does their entire
+10:43 architecture looks like in switch Transformer they do not replace all the
+10:48 ffns with M Moes rather they do it in alternate layers right so so this block
+10:55 for example this hase here they have a single feed forward Network right and this uh this
+11:03 entire block has two Transformer blocks and this is replicated n by two times to
+11:09 get n layers right because there are two layers two blocks in in one right on the
+11:14 left hand side we have an architecture where everything is on a single device
+11:20 meaning all the experts are lying here on the single device on the right hand
+11:26 side experts are on different devices so expert one expert
+11:31 e right and there is an all to all combination communication that will
+11:37 happen Okay so right so uh let's start with the
+11:45 broad level results and the claims that the paper makes we will again delve into how do they achieve that later on this
+11:51 will give us the big picture right so so this is again uh you know what are we
+11:58 plotting here right so we saw neural scaling laws earlier this is similar to that on the
+12:04 x-axis they are increasing the sparse model parameters right and on the y- axis we
+12:11 have the test loss right now they are so remember you
+12:17 know so so here at least this point is the base T5 model which has 223 million
+12:23 parameters and there is only one expert the base case right the dense model and
+12:29 uh the the rightmost point here has 256 experts right so each token has a has to
+12:37 choose between 256 experts in each layer in each in every alternate layers in their architecture and this results in
+12:43 14.7 billion model the model size is increasing right however they are
+12:50 ensuring that uh computation remains almost similar right and how are they do
+12:56 doing that so they uh basically have match flops per token what does it mean
+13:01 that because each token is passing through only one expert so number of activated neurons are almost the same
+13:08 there is additional overhead communication cost but approximately computation cost is same as we move
+13:15 along the line right so we have been able to keep the computation cost almost the same while reducing the uh the test
+13:23 loss from 6 to let's say 4.8 here right and remember we saw neural scaling laws
+13:30 right on on the right hand side and here also we are increasing the number of parameters and we saw that the loss is
+13:36 reducing monotonically the difference here is that here the flops were
+13:41 unrestricted right we were changing only the number of parameters and we said that whatever it takes to train a model
+13:47 with that parameters right whatever data it takes to achieve the best model with those
+13:53 parameters right whatever compute it takes we don't worry about the flops so for example if I take a point here
+13:60 versus a point here obviously the number of flops used for training the best model are going to be different in both
+14:06 the cases right so this model with this many parameters May achieve uh saturation early on will give may give
+14:12 be the best performance whereas I may have to train this model with these many parameters for more number of flops
+14:18 right whereas on the left hand side we are ensuring that the flops are matched even though parameters are increasing
+14:25 we're ensuring compute remains almost similar and that is the whole idea of
+14:30 mixture of experts right so we the journey is from this to this in this
+14:35 case right so uh
+14:42 okay and so so this is with respect to the model parameters and now what about
+14:47 the sample efficiency right sample efficiency is defined as you know in a fixed number of steps right and when you
+14:54 process fixed number of tokens what is the test loss or what is the performance that you you are able to achieve right
+15:01 so for example if I take a cross-section here I'm saying that we have 30,000 uh
+15:06 yeah 30 30k steps we'll train every model for 30k steps right and we will see how the negative log perplexity uh
+15:14 changes so so we we all know the concept of perplexity right we want when we are training a model we want perplexity to
+15:21 be low right and negative perplexity to be high right so higher the better and
+15:28 here we see that you know if we are this is the base model with only one
+15:34 expert and we can see that it the spars models are much more sample efficient as
+15:40 well right so given the fixed compute we should train a sparse model right so
+15:45 although the advantage that we are getting that the returns are diminishing as we increase the disparity right so
+15:50 this is with 16 experts and this is with 128 expert so the difference from 16 to
+15:57 128 is you know less than the difference from one expert to 16 experts right so
+16:03 there are diminishing returns but clearly sparity helps right now here on
+16:09 the x-axis we have training steps right now one may ask that uh what about
+16:15 training time because you have overhead computations you have to you have
+16:21 routing then because you are using expert parallelism you need you know communication across experts that also
+16:28 adds up to time computation time so
+16:34 here we look at the graph where you know on the x-axis we have training
+16:39 time right and we are plotting the perplexity as the training time
+16:45 increases as the clock time increases and with respect to the base model right this is this is base T5
+16:53 base to achieve the same level of perplexity right so this is the level of same level of perplexity on if I put a
+17:00 horizontal line so it's 1 uh what 55us
+17:05 1.55 right uh T5 took 350 whatever unit
+17:12 that is right 350 unit whatever that unit is uh our switch base with 128
+17:18 expert is able to achieve that in roughly 50 units of time right so there
+17:24 is 7x Improvement in the uh
+17:30 time as well right so we okay now this question was asked earlier as well that
+17:37 you know what about comparison with a larger dense model right so here for example in expert parallel what we are
+17:44 doing is that we are anyway increasing the number of resources yeah we are using instead of one GPU we are using
+17:49 egpus right and how are we using these egpus we are just sharting the experts
+17:56 only FFN one FFN e right to whereas all all other parameters are
+18:02 repeated right now what if you know so there is concept of model parallelism
+18:09 right so here the mixture of expert itself is modular and therefore we are able to Shard it right it it has n
+18:15 modular components and you're able to keep each modular component into a different device right well we can do
+18:22 that for a tensor as well let's say we have one big feed forward layer can I split one big feed forward layer into e
+18:30 devices we have true that you know it is not sparse computation so computations
+18:35 will increase number of active units will be much more that's fine but at least we have we using the same number
+18:42 of devices right so there there I mean in fact today all the models are trained
+18:48 using that concept right of of parallelism uh right so they use
+18:54 multiple because we cannot train on a single GPU right we have to train on multiple gpus right so for even for
+18:60 Roberta which was a smaller model we trained on multiple gpus and what we did there was we used data parallelism right
+19:08 so in data parallelism we what we have is that we have different input examples
+19:13 different batches all of them will back propagate all of them will be used for
+19:18 training on different devices right where on different devices model weights are replicated and there is another
+19:25 Paradigm which is uh model parallelism which is typically used for large dense model let's quickly look at that right
+19:32 so that you understand uh you know how do we train a larger model if we have multiple devices right so one simple is
+19:40 pipeline parallelism right in pipeline parallelism what we do is that we Shard the model layer by layer on layer one
+19:46 layer one will be on one GPU layer second layer will be on another GPU and
+19:52 so on and so forth right so this is called pipeline parallelism where we are sharting a model layer by layer right
+19:60 and another mechanism is tensor parallelism and again in tensor parallelism there are two ways one is
+20:07 column wise splitting so let us see how it works right so in any uh feed forward
+20:13 layer we are typically doing Matrix multiplications right so let us say this is uh what we have to do is a cross B
+20:19 right so this is let's say the input and these are the weights right this is how we typically
+20:26 do it in in a non-distributed fashion so each element here C11 will be this
+20:32 a 1 in A1 into this row
+20:41 B1 right so this is A1 into this B1 will be C11 right in column wise splitting
+20:50 what we do is that we split this weight into two parts by by The Columns right
+20:56 so half of the columns these will be on first GPU right so uh this and and a is
+21:05 replicated so the data is sent to both the devices on first device first half of B is reiding right here uh we have
+21:14 the entire column B1 which we multiply with row A1 to get C
+21:21 C11 right and uh again A1 is multiplied by B2 which is the second column of B to
+21:28 get C12 right and then on the other
+21:34 device right we have the second half of B right here so this is
+21:42 B3 multiplying with a 1 we get C1 3
+21:49 right so C1 1 and C12 are computed on device 1
+21:54 and C13 and c14 are computed on so the A1 multiplied by B 4 will give you c14
+22:01 this they computed on device two right so this is one way of Shing one uh
+22:07 tensor similarly there is another way which is called rowwise splitting right so in rowwise splitting what we are
+22:13 doing is this again this is input and this is uh the weight Matrix
+22:19 right we will cut this by rows right so on GPU 1 we have this
+22:28 row right and now to compute uh this let's say this
+22:34 C11 what we need to do we need to multiply this uh a 1 1 a12 A14 with
+22:43 let's say B uh sorry uh so this is how can I let
+22:50 me go back okay so this is this is C11 here this is the output right and we are
+22:56 multiplying this a 1 1 A1 2 a13 and A14 with let's say
+23:06 B W1 1 W2 1 W 31 and
+23:15 w41 right so what is what is C11 here C11 is a11 into w11 + a12 into W 2 1 + a
+23:29 13 into w31 + A14 into
+23:34 w41 right so the idea in rowwise splitting is that we are splitting the
+23:39 weight matrix by rows so this computation this part which is which
+23:45 involves this multiplied with this right will be done on GPU 1 right and this
+23:54 part will be done on GPU 2 right and we need to add them
+24:01 right so this is true for all uh for for all the uh elements in the output Vector
+24:08 right for for any CI this is true right so this is what happens we have on on
+24:15 gpu0 we have to cut the input as well now right because these two are getting multiplied with these two only this
+24:21 happens on G1 this gets multiplied with this and this gets multiplied with this
+24:26 and we need to add the two so this is the output one GPU and this is the output on another GPU we add the two to
+24:32 get the final output right so this is rowwise splitting and this is also part of tens parallelism right so we have
+24:38 looked at expert parallelism first which we get in mixture of experts right
+24:44 because by virtue of its modular design we can use that but however even in the
+24:49 dense model if a matrix is Big we can use tensor parallelism to split uh split
+24:54 that into uh you know multiple gpus right and and train with if you have
+25:01 more gpus then you can use train a denser model as well using those right so that's what we do for T5 large right
+25:07 so we use model parallelism to split the model larger version of the model which
+25:14 which is 770 million on E experts right notice here that uh number
+25:21 of flops will increase this is kind of an unfair comparison because number of flops are increasing right model is
+25:27 dense we have to compute even even though we are sharding we have to activate all of the shards right whereas
+25:33 INE only one of The Shard was active so flops increase right and if you look at the
+25:40 training steps with respect to training steps we see that we get comparable sample efficiency between of the two
+25:47 models so this is uh this is the base model that we have and this is the 64
+25:53 expert version of the base model the blue line and this is our large model
+25:60 right so these two curves are almost close to each other almost similar however still if we look at the clock
+26:06 time right there is still 2.5x speed up in the clock time with respect to the
+26:12 den model right so there is so I think this was the question which was asked yesterday as well that if I mean if
+26:18 you're using extra resources anyway then why not train a dense model why are we going to spar mod right so this is the
+26:24 answer to that it is while sample efficiency is almost similar we see speed ups with respect to clock
+26:32 time right while while training spars models and again this is of an unfair
+26:38 comparison as well because uh you know these are not flop matched computations
+26:43 are also increasing in t T5 large right okay so uh in the switch
+26:51 Transformer layer they claim that these are the things that they are addressing right
+26:56 complexity ofes and communication cost well both of these are addressed by a
+27:02 simple design Choice which is to Route only to a single expert right so when you're routing let's say you route to
+27:08 two experts which are deciding on different uh different gpus or different devices
+27:16 then to get the output for that specific token you need to collect them right because output for a token is the sum of
+27:22 the output of different experts right so then that increases the communication cost right so just this simple design
+27:31 Choice reduces the communication cost and it also reduces the complexity as well by by definition right uh so yeah
+27:40 uh stop one greedy routing and and I think they were the first one to challenge the belief that we need to
+27:46 route to at least two experts okay so for to address the
+27:52 training instability they uh introduced multiple things right so first of them
+27:59 is differentiable load balancing loss right so this this existed already I
+28:05 mean uh the work by Noam Sher prior to this which was using noisy top two
+28:11 routing and used mixture of experts in lstm layers they also had uh this some
+28:17 load balancing law but that was very complicated and they simplified it right so intuitively what this is doing uh is
+28:26 that it is basically changing the loss function to ensure that all experts are
+28:35 activated almost equally right so when we say that all experts are activated equally we are not saying that of course
+28:41 for one token one expert is getting activated right but when we are training we train with a batch of tokens let's
+28:47 say we have 10,000 tokens in one batch or 1 million tokens in one batch let's say we would what we want is that on an
+28:55 average all of the experts should get activated if there are 100 experts then
+29:01 each expert should get on an average 100 tokens there should be some uniform distribution of tokens to experts while
+29:07 training right but this will not happen automatically I mean routers can collapse and can always go to a state
+29:14 where they are routing each token to one particular expert So to avoid that what what do we typically do right so the
+29:21 most common idea is to have an auxiliary loss term which will minimize only when this
+29:29 routing is uniform right so we need to design a loss term which will get minimized when we are routing to all the
+29:35 experts uniformly right so this is this is the idea and uh let us see how do they do
+29:41 that so so these are certain terms we have total n experts let's say and there
+29:47 is a batch B and there are t tokens so T let's say is one 10,000 let's right and
+29:54 uh fi is the fraction of tokens dispatched to expert I so what we are doing is that we are counting right
+30:01 which token is getting routed to which expert right and fi is that so so let's
+30:09 uh if I draw here okay so let's
+30:15 say this is token 1 to token n right
+30:21 this is expert token one to token T sorry we have t tokens and expert one to
+30:27 expert n right token one is getting routed to let's say expert 5 right and
+30:36 in this column we will record which all tokens are getting routed to expert 5 so let's say this token 10 also gets routed
+30:43 to expert 5 token 12 also gets out to expert 5 and token T also gets out to expert 5 so we will count all of this
+30:51 right and this count uh so fi is this
+30:56 sum over total number of tokens that we have to right so this is the fraction of
+31:02 tokens getting routed to expert five right so F of five is this
+31:08 right so yeah so this is the expression for that um now what is pi now think of
+31:15 Pi is the expected probability of selecting an expert I right so again uh
+31:22 what we have is that for each token one to for for a token I
+31:29 right consider an expert e here I'm I'm using the letter e routing probability will
+31:37 give me uh for this for this particular uh token I we have P of e let's say
+31:46 given XI right so this is what we get this is probability of routing to expert
+31:51 e given XI right and now so this is p of e given x i now if you have to compute P
+31:60 of e what is p of e this is the probability on an average right
+32:07 expected probability of routing to e expert right so how will you do that you
+32:13 have conditional probability how will you compute this P of e if you have P of e given
+32:21 XI right so yeah so we have we multiply it with P of XI and take the sum
+32:29 right where XI has to be sampled from the entire universe right now this is
+32:35 the exact value right and if you have to empirically estimate it how do we do that if you have to empirically estimate
+32:40 so this is essentially you can think of it as mean of this this is the expected value with respect to some distribution
+32:46 of selecting the token XI of probability of the token XI in the entire Corpus
+32:52 right so this is nothing but expected value of P of e given X expectation is
+32:57 with respect to X is sampled from let's say the entire Corpus right now how do we compute
+33:03 expectations when we cannot compute the probabil is exactly probability of
+33:08 selecting a token let's say what do we do right so this is the exact expanation of expectation right so
+33:16 if you have to empirically estimate what we do if you have to empirically estimate the um expected
+33:23 value right so typically what we do right if you have to estimate the
+33:28 average of anything mean of anything right you sample randomly right you take
+33:35 a sample and you select some iids right you select uh
+33:40 let's say uh thousand samples and take simple average of those thousands right
+33:46 and here we have t samples you can say that we have X12 XT right we have three
+33:53 tokens right so how will we compute this what will be an empirical estimate of this
+34:01 so 1 by T into the the first sample that we are
+34:07 drawing is p e of X1 what is the second sample we are
+34:13 drawing P of X2 right so till p e of x t and 1 by is
+34:21 the average right so whatever whatever probabilties that we have here right we take an average Ian this
+34:28 is this is standard right this is what we do typically if you cannot estimate the mean exactly if you cannot if you do
+34:33 not know the exact probabilities right then we draw a sample IID and then take
+34:40 the sample mean right so this is what we are doing P of e is the expected
+34:45 probability of selecting the expert e right and this is we estimating it as an
+34:50 average of this column what is this column this first row has P of selecting e given X1 and so so for
+34:59 right so again coming back to the notation here uh P of this is the term P of I
+35:06 which is the expected probability of selecting the expert I right and this is
+35:11 how it is being calculated right and uh what was Fi Fi
+35:17 was the exact what decisions that those were taken in that particular Mo layer right fractions of the tokens that were
+35:25 actually passed on to that particular expert right and uh the loss that they
+35:32 Define is simply a DOT product of F and P right and we have to minimize this
+35:37 loss right so let us intuitively see why minimizing this will ensure uniform
+35:43 probability so this is fub1 P1 + FS2 P2 plus f
+35:49 n p n right now if F1 is high that means
+35:56 a lot of rout a lot of tokens are going to export one to minimize this what what
+36:02 should happen What should happen to P ofi should reduce so if if if if a lot
+36:09 of tokens are routed to First expert if you're minimizing this loss what we should do is that the the optimizer
+36:16 should reduce P ofi right and we know that some of these
+36:21 probabilities is one right P1 to PN it sums to one and F also sums to one and
+36:27 so if this goes low then something has to increase right and Optimizer what should
+36:34 Optimizer increase the increase without affecting the total without increasing the total
+36:39 sum the one which has the lowest F right so if F1 had the highest F uh fraction
+36:46 and let's say n expert was the one which got the lowest number of tokens right so
+36:53 if you want to reduce this you should take the value from here because sum has to be one right so intuitively so where
+36:59 will the equilibrium lie equilibrium will lie when all of these FIS are 1 byn and all of these P become one by then
+37:06 that then that will be an equilibrium then you cannot move in any direction right so this is a simplified
+37:12 uh load balancing loss uh that they add and uh the advantage is that it prevents
+37:18 router collapse and improves training efficiency by using all the devices equally right so remember this is
+37:23 important right all our experts are on different devices if everything is going to one expert then you know some other
+37:28 devices idle sitting idle right okay so another Improvement that they do is
+37:35 selective prision again I will quickly go through this because there is I mean these are all empirical experimentation
+37:41 that they did but this result is very interesting so typically when we are training these models we train it in B
+37:48 float 16 right so B which reduces the memory print by half instead of using
+37:54 floating Point 32 we will use B float 16 right uh but this increases instability
+38:01 because you know your errors are going to be more right you're using you're doing computation in lower Precision
+38:07 that will increase the error and uh typically even when we are training dense Network what we do is that we do
+38:15 conditional uh spcification or or conditional uh you know H SP
+38:20 quantization this is called quantization right selective quantization that is uh
+38:26 that uh you know weights will be in B float 16 but Optimizer will be in B float 32 floating Point 32 right we keep
+38:35 optimizers in higher precision and weights in lower Precision similarly they also observed
+38:41 that uh if they use selective Precision here so what are they doing in selective
+38:47 Precision all the experts are in 16 B FL 16 but the router is in
+38:53 fp32 and why is that important because router has to decide the probability of routing and they want to reduce the
+38:59 error there right and and there is an soft Max in the routing right so there
+39:05 is an exponentiation that is happening and exponentiation is sensitive to computation errors as well right I mean
+39:12 difference if if the logic changes from 0.1 to point2 exponent will see a much I
+39:18 mean the derivative is higher right so the the output is can change drastically there right so um what they observe is
+39:26 that uh the you know when they are training in B float 16 everything the training
+39:32 diverged actually right and to convert the training they had to use selective
+39:38 Precision so this this was crucial but this is again you know this needs a lot of empirical experimentation and thought
+39:44 before you come up with this and how are they measuring the quality they're measuring it with negative lock
+39:49 probability and negative lock perplexity so basically higher is better right and
+39:54 look at the speed there is I mean rout is almost negligible computation cause
+40:00 with respect to the other uh computations right so practically the speed that the get is almost the same so
+40:08 they're able this is kind of a free operation that they are getting right
+40:13 okay uh another thing that the triade was reduced initialization scale again I
+40:19 mean this is again uh something which is empirical there is no justification for this why is it happening but this is how
+40:26 we typically initialize a parameters we sample with mean zero and with with standard division square root of 1 by D
+40:32 where D is the dimension right input Dimension um and they just reduced the
+40:39 standard deviation to 0.1 and they found that this red this you know gives us
+40:44 better stability of the training right so this also improves the model and uh
+40:50 the training runs are also better you can look at the standard deviation here right so they train the model three times and then they check the standard
+40:56 deviation across those three numbers right so here we see a lot of Divergence
+41:02 the quality is also low and the standard division is also High whereas when you just change the initialization uh
+41:09 standard devation is also less right which means that all the runs are almost similar all the runs are
+41:15 converging there's not much difference between different runs okay so then uh another idea that
+41:22 they tried is higher regularization of experts so so again uh typically there
+41:31 is a uniform Dropout that is used right to regularize the model and typically that value is
+41:37 0.1 right but then there are they're increasing the model size right uh MO is
+41:44 increasing the model size so there are more chances of overfitting this is what
+41:49 this is machine learning 101 that if you model increases then you need more regularization to avoid overfitting
+41:55 right so what they they do to solve this is that they increase the expert Dropout
+42:00 for increased regularization so what they're increasing is number of experts only and therefore uh they introduce
+42:06 extra Dropout there and in in only the experts right so here the last row is
+42:12 where Dropout everywhere else is .1 whereas in the expert layers the Dropout
+42:17 is 0.4 and uh this is while fine tuning and they uh on on different fine-tuning
+42:23 tasks different benchmarks they achieve the best performance with this configuration here right so yeah this is
+42:29 these are the improvements that they made to improve the training uh instability right so to address the
+42:35 training and stability so the question is that uh you know on one hand we say
+42:42 that we want each input to be routed to only one expert right so remember we did
+42:48 we studied a synthetic experiment where we had data coming from four different clusters right and we said that the if a
+42:57 data example is coming from this specific cluster uh C1 it should get to
+43:03 classifier this classifier right and if it is coming from this cluster two it should be assigned to this expert this
+43:08 expert one expert two and let's say if this is the decision boundary expert three and similarly expert four
+43:16 right now here we are saying that you know first of all here we are routing
+43:21 each each input X so input is a vector only to the entire model and we are
+43:27 routing each input to one of the experts on one hand we are saying that this distribution should be
+43:33 skewed right right so that means that if an
+43:41 input X comes to a router right let's say input X1 comes to a router it the distribution should be
+43:48 let's say like this it goes to expert one right if an input X2 comes to a
+43:55 router this should also be it should go to expert
+44:01 3 right now if I take all the inputs together let's say I have x
+44:10 10,000 it goes to the router and for this also I expect it
+44:17 should go to a specific expert which is let's say expert 2 for each input I want
+44:23 this to be skewed now from this entire data if I compute what is the probability of
+44:29 selecting an expert one if I select a an input randomly from the universe of 10,000
+44:37 inputs what is the probability of selecting an expert one how will you compute this and uh let us say we had
+44:43 this 10,000 here we had uh 2500 from this we had 2500 from this
+44:51 2500 samples from this and 2500 samples from this right and let us assume that
+44:57 the router is perfect it is routing the samples from this cluster to expert one only right so what should be the
+45:04 probability for expert one what is the probab if I look at the it collectively what should be the
+45:10 probability of expert one one by 4 what should be the probability of exp two 1X 4 so there is
+45:18 uniformity here at the bigger picture for the Entre
+45:24 when we look at the entire data together whereas for each token we want it to be
+45:31 as skewed as possible right so so this is the idea of load balancing law we are applying it on the entire batch which is
+45:38 a sub sample of the entire Corpus right we cannot do it for the entire Corpus of tokens we have to do it at the batch
+45:45 level right okay good so uh let's continue where we um yeah okay so uh so
+45:57 we looked at uh you know the distributed implementation of switch Transformer right so each expert is on different
+46:04 gpus right so typically uh so these guys are from Google and they trained it on
+46:09 tpus using mesh tensor flow and uh what
+46:14 is the advantage there it it you know it facilitates efficient model parallel architectures but there is a
+46:20 disadvantage as well which is that the entire computation graph is static
+46:27 right so typically when you are coding let's say in py right you have a
+46:35 weight Matrix right it gets multiplied with some input
+46:42 X1 right and you get the output y1 right
+46:48 so when you compile in pyot when you code you create a layer which will correspond to this W weight Matrix right
+46:55 and when you are actually using this what you do is you create a batch
+47:01 of inputs X1 to XT let's say there are t tokens in the batch right this is one batch and then
+47:09 you are doing this W into the entire
+47:15 batch right this is batch operation and you get all the outputs y1 to YT simultaneously right in
+47:22 pytorch this batch can be of dynamic size you can have one batch which is of
+47:28 10,000 tokens and in the other batch you can have 500 tokens as
+47:34 well right this is this is called dynamic because it creates a dynamic computational graph right whereas tensor
+47:42 flow what it does is that it creates the entire computation graph is pre compiled meaning that you have to
+47:48 specify that if I have a weight metrix w what is the back size that you're
+47:54 going to use for uh with this with this weight
+47:59 Matrix right so This Bat size T number of tokens in the bat size has to be pre
+48:05 predefined right now do you see an issue when we are using mixture of experts in this specific case so the issue is that
+48:14 we cannot ensure uniform distribution of
+48:20 tokens right to different experts it may happen that let's let's say my bat size
+48:26 is 10,000 right and uh I have to
+48:32 predefine U you know how many tokens Can an expert take right let's say I have
+48:37 expert 1 till expert, the th experts right so uniform
+48:44 distribution would mean 10 tokens X1 to X10 here right so
+48:51 10 tokens to each expert we have to AI fix this right let us say we fix that
+48:58 right so we fix 10 tokens will go to each expert but then what if
+49:07 X1 X2 and X20 till X let's the first 20 tokens all of that all of them gets
+49:13 routed to expert one what will happen how will we compute that right so this
+49:19 is this is a practical issue right uh so here we have already introduced some
+49:24 terms this 10 is is called the capacity Factor what is the
+49:30 capacity uh that we are giving that we are freezing for each expert how many
+49:35 tokens Can it process right uh but the question is how do you set the capacity
+49:41 Factor right here uh when I'm assuming uniform distribution and I'm setting the
+49:49 capacity Factor as you know I'm Distributing the back size uniformally right so this is called capacity factor
+49:56 of one so this is this is with capacity factor of one right if I keep some buffer let's
+50:03 say I say that each expert can take not 10 but uh 15 tokens right so each expert
+50:10 W1 can get I can I will reserve space for let's say X1 till
+50:18 X15 right so this is capacity
+50:24 Factor 1.5 right capacity Factor one is essentially when I distribute the entire
+50:30 batch of 10,000 tokens uniformly amongst all the experts that is capacity Factor
+50:35 one and I keep the bat size of each expert as that that is I I have to freeze that right I have to freeze the
+50:41 computation graph so I'm allowing only those many uh tokens to be processed by each expert right so uh yeah so expert
+50:50 capacity is tokens per batch which was T and number of experts is e so in our
+50:58 earlier example we had 10,000 tokens and we had 1,000 experts right so we had
+51:05 expert capacity of 10 right so this is this is UN this is uniform distribution
+51:12 if you do this and then we introduce another parameter which is capacity Factor right so in when I'm in the
+51:19 earlier case if we keep instead of 10 this is this is capacity Factor 1 if I keep 15 that is capacity Factor 1.5
+51:26 right so this is how expert capacity is calculated and uh so this is a schematic
+51:32 diagram for this and here you know in this diagram we are assuming that there are the bat size is six there are six
+51:39 tokens right and uh these arrows are telling you the the router the the
+51:47 expert which router selects right so in this case uh this
+51:52 token gets routed to expert one here this token also gets routed to expert
+51:58 one right now this token is also getting outed to expert one but we can't do
+52:04 anything about it right so this is called token drop token drop in right
+52:10 and there is another issue here which is this expert is now empty because I mean we have assumed uniform distribution if
+52:16 there is an overflow somewhere there's going to be underflow in some other expert so this is an this is wasted
+52:22 capacity and this this is the dropped this is the dropped token
+52:27 okay now if I increase capacity factor to 1.5 right now that means earlier for six
+52:35 tokens on three devices I was Distributing uniformly I was keeping capacity as two right expert capacity as
+52:43 two with capacity Factor one with 1.5 I increase it to three tokens right now here token is not
+52:54 getting dropped this token which was getting dropped earlier we have a capacity for this right but then there
+52:60 are three slots wasted now right of course there going to be wastage in this case right so now you know what is the
+53:08 routing strategy that you should follow right so they interestingly they observe
+53:13 that you know you should drop the token you should not try to fix it uh some in
+53:19 some other place right so the divise a strategy called no token Left Behind which is a two-stage routing in stage
+53:26 one you route to the highest probability expert you route every token to the
+53:31 highest probability expert right and if that particular expert is full already so for example here it is when you are
+53:37 routing this it is full it is not able to route right in stage two what you do is that you
+53:43 see the second best expert which the router assigned to this
+53:49 particular token right so let's say this expert one was the had probability P of
+53:55 E1 here was let's say say 0 5 right but it could not get selected
+54:02 here then we see what is the second best let's say that was expert two with probability. 3 so you route this to
+54:09 expert two right and you can iteratively do this till you have placed every token
+54:15 right but this they stop at stage two and interestingly they observe that it doesn't work empirically right now again
+54:23 there are I mean we can hypothesize why it is not working but there is no solid theoretical proof in in such cases right
+54:29 so intuitively the idea is that when you're dropping the token it is kind of a Dropout right and it is helping the
+54:35 model regularize better this is one hypothesis that they provide that why it doesn't work right so yeah and then here
+54:44 they are uh you know benchmarking this versus mixture of expert so I'm calling
+54:51 I'm using noisy top two for mixture of experts because this is what was what existed before switch Transformer came
+54:57 right so in this table they are comparing against mixture of experts let's you know let's skip this for now
+55:03 and here they show that uh you know uh when you have capacity factor of two
+55:10 right when you have capacity factor of two that is kind of uniform capacity for for Fore base because capacity there
+55:17 you're you're routing to two routers right whereas in in switch base there's
+55:23 going to be empty slot even if there's uniform distribution right and uh interestingly they observe
+55:30 that in this case is better because there is better utilization of the space and in in
+55:36 switch BS you know a lot of slots are empty uh now reducing the capacity factor helps so it's kind of maybe
+55:42 introducing more uh regularization and therefore they see when they reduce the capacity factor to 1.25 the quality
+55:49 which they measure as negative lock perplexity after 100,000 steps this is
+55:54 this setup achieves the best capacity factor and it also improves the uh time
+56:00 to Quality threshold so this this column is essentially what they're measuring here is that they want to achieve a
+56:06 perplexity of 1.5 whatever time it takes right to achieve that so base model is
+56:11 not able to achieve this and uh time to this quality threshold of one negative 1.5 perplexity uh it reaches in 65 hours
+56:19 right and uh yeah so let's skip this uh
+56:25 okay so here we end the disc session on uh switch Transformers and now let's
+56:30 quickly this very quickly within 5 10 minutes we will focus on uh mixture of experts because this is this created
+56:36 actual buzz in the market right uh again I'm highlighting uh the important points
+56:43 in the abstract they introduced an 8 cross 7 billion model right so they
+56:48 first created a 7 billion dense model this which is called mistal 7 billion right and they created
+56:57 a corresponding mixture of expert model where they had this replicated eight
+57:02 times right so what should be the size of this if this is 7 billion and what should be the size of 8 cross 7
+57:10 billion 56 okay uh but remember that there are
+57:16 other layers as well which are shared right you're replicating eight
+57:21 times only the the feed forward layer right attention layer exactly the same right
+57:28 so this is that's not 56 that's 47 billion size is 47 billion mod right but
+57:35 uh the whole idea of sparcity is adaptive computation reducing the comp
+57:40 the computational uh footsteps uh the number of active parameters at any point
+57:46 in time are only 13 million right it's not uh yeah so so even though we have
+57:52 been able to increase the model size to 47 billion we activate only 13 billion that's what gives us faster computation
+57:59 right uh so this is uh you know this table is from their paper only and
+58:05 they're choosing top two routing so I want you to focus on these numbers these hyper parameters they have 32 layers of
+58:13 Transformer blocks and unlike switch Transformer they have eight experts in every layer switch Transformer had it in
+58:19 alternate layers right uh they're using top two experts instead of top one right
+58:26 switch was greedy they're using two and they have eight experts um and this is
+58:33 how their router looks like uh they do not have noisy Top cating This is
+58:38 simple right linear layer and topk ensur that only K only two k is two so only
+58:45 two logits are nonzero and then they do a soft Max over it uh their final output
+58:51 is you know so yeah so here they are using an interesting layer which is Swig
+58:56 glue instead of a linear layer they're using linear with soft linear layer with
+59:01 nonlinear activation they're using a sigo layer the sigue layer is a combination of two things switch
+59:09 activation and gated linear units right so what is it so this essentially it has
+59:15 an inbuilt gating mechanism right so for example look at this so this is the this
+59:22 is the input X right this operat sigmoid beta * X is
+59:29 Computing the probability of choosing the input only so so it's like this so
+59:34 there is some transformation that is happening which is WX + B right and
+59:40 input X is going here now they have a sigmoid here gate this is the
+59:45 gate X goes to the gate and gives me the sigmoid of beta * X this gives me
+59:55 the probability of selecting of using X right so with this probability X is getting Chosen and with
+60:04 probability 1 minus sigmoid of beta * X the output this output Y is getting
+60:11 chosen right so this is this is uh Swig glue layer and people found that this uh
+60:18 is better than using simple feed forward there right so again there is a gate there is an inherent gating mechanism
+60:25 here gating is between whether we want to do the transformation or not right if this sigmoid is one that means I mean we
+60:33 are not uh doing any transformation in the router right okay
+60:39 so right so now the paper you know it's very short unlike switch Transformer
+60:44 this is only 8 to 13 Pages paper and they report some interesting studies on
+60:50 the analysis right they're trying to see what is actually going on underneath right so one hypothesis is in general
+60:57 this hypothesis is true that uh the feed forward layer store domain
+61:03 knowledge and the attention layer store the reasoning and the algorithms part of
+61:11 the Transformer architecture right so again this is a hypothesis no one can prove it uh theoretically right and to
+61:18 test this hypothesis what they doing is that they are comparing mistal which is
+61:24 a dense this mistal this is the dense model dense 7 billion with the sparse
+61:30 its corresponding sparse counterpart right in the spars counterpart we have increased the number
+61:36 of parameters in the feed forward layer but we are keeping the activation almost similar right computation almost similar
+61:42 and on the knowledge intensive task they find that indeed the gap between these two is actually huge right this is the
+61:48 gap between these two right whereas on the other reasoning and comprehension
+61:53 tasks the Gap is not much here right so again they are just trying to empirically see if this hypothesis that
+62:01 uh parameters in the feed forward layer store knowledge is true or not so this is one experiment that they did and uh
+62:09 now they are also trying to interpret the routing decisions right so typically
+62:14 you know attention provides a window into the interpretation of the model right so what we do we when we are
+62:19 predicting a token we try to see so let's say this is the input sequence X
+62:25 and we are in this token right when we comput it self attention we try to see where all is it attending right and we
+62:32 try to interpret that maybe you know it is focusing on this part of the input to predict this whether it is right or wrong right so this gives us some uh
+62:40 intuition about the interpretability of the model now we have a router which is choosing an expert right
+62:49 now can that also act as a tool for interpretation right to see you know
+62:54 which token is getting routed to which expert is it true that all the tokens
+63:00 corresponding to let's say mathematical operations or numbers they're getting routed to a specific expert is there any
+63:07 specialization that is happening on the expert sites right so uh this is the
+63:13 graph that they have uh the data set that they are using here is a validation split of pile uh data set which they are
+63:20 using for training as well uh so this file data set has a lot of uh it's a
+63:25 collection of various data sets right this these are the different data set that it has and
+63:31 uh what they're doing is that they at layer zero right they are seeing so these are
+63:38 different experts right so for the first
+63:43 expert let's say they're seeing that if a token which belongs to
+63:48 Archive uh data set versus a token that belongs to mathematics data set right so this red
+63:55 is the archive and is the mathematics data set right is there any difference
+64:01 between uh their distribution right so this uh this horizontal line is actually
+64:06 the uniform distribution of 1x 8 right so in layer zero we see that you know
+64:13 there is no not much difference all the this routing probability is almost
+64:18 uniform right whereas in in the middle layer where we expect that there is some
+64:23 semantic thing going on right we see that this expert 3 right a lot of mathematics related
+64:31 tokens are getting routed to this expert so maybe this expert is focusing on can we say that this expert is focusing on
+64:38 mathematics related tasks right I don't know I mean this is just one study that
+64:43 they're doing I don't know whether we can say that or not but definitely this distribution is not uniform definitely
+64:50 uh if a token is coming from archive data set it is not getting routed to expert 3 right in this
+64:57 layer and then there's another study which they do that you know is there any relationship between routing of two
+65:03 consecutive tokens if a particular token is getting routed to an expert I then what about the next token is it also
+65:11 getting routed to the same expert I and again they find that uh in layer zero
+65:17 they closer to uniform uniform is 12.5 right whereas in layer 15 it is not
+65:24 uniform it is actually very far from uniform so that means that there is some uh there is some relationship right
+65:31 there is some contiguity if particular token is getting routed to one expert then its neighbor likelihood of its
+65:37 neighbor getting routed to that is also right and uh this is the final analysis
+65:42 that they show that you know which experts are active for different types of tokens so they have three examples
+65:48 from three different data set one is coding question answer the second is from an arithmetic question and then McQ
+65:55 question right and each color here depicts uh different
+66:01 expert right and the only observation that they make is that for example these
+66:07 digits are getting routed to the same expert right again I don't know how to
+66:12 read this uh right so this again was U
+66:18 something which was put on the on Twitter uh what someone found was that
+66:25 so what they doing is that you know they're trying to figure out how much an expert is
+66:30 important right so what they're doing is that they're dropping an expert and then trying to see how the performance on a
+66:37 specific task on on mmu changes right and they see that if they
+66:42 drop expert three right then the performance drops to zero it's 65% here and this is
+66:51 63% right and then this this was the meme which was circulated that all the are just setting Idol and expert 3 is
+66:57 the one which is which is working hard right maybe I can do a quick recap of
+67:03 what we actually did uh study in this right so first we motivated uh mixture
+67:11 of experts our motivation was that uh was coming from neural scaling laws that as we increase the model size uh model
+67:20 parameters training test loss reduces performance improves but then we we saw
+67:26 that you know it becomes infeasible to train dense large models and we were
+67:32 asking the question that is there a possibility of increasing the model size while keeping the
+67:37 computations uh limited and then we discussed we we proposed spars mixture
+67:43 of experts for that mixture of what does that essentially mean that for one layer
+67:49 for one feed forward layer we will have n experts or n feed forward layers so we
+67:54 increase the model size by n but when we are actually doing the forward pass we will not pass
+68:01 it through all the expert but we will activate only one of the expert right so total number of computation remains same
+68:07 and this gives us the benefit right then we looked at uh some synthetic
+68:12 experiments where we were trying to see what is you know how is it learning why are the experts not collapsing right and
+68:19 there we found that nonlinearity helps right if uh if we have linear experts
+68:26 then the con then the loss function is convex and all the experts even though initialized differently May collapse to
+68:32 the same Minima right whereas if you have nonlinear nonlinearity then even if
+68:38 you're starting from similar points nonlinearity will help them to diverge right then we saw that uh how is
+68:45 router getting trained and there we saw that there are two stages of learning one was the exploration stage right
+68:54 where uh it was assigning almost uniform probability router was assigning almost
+68:60 uniform probability to all experts we are measuring it with entropy intuitive idea of entropy is that entropy is highest for uniform distribution and
+69:06 lowest for skewed distribution so in the beginning we see that uh you know the
+69:12 entropy entropy was quite high this is the exploration stage where router has
+69:18 not learned much but experts are diverging and once experts have diverged then you know entropy reduces that means
+69:25 now router is learning it is uh learning to route to the right expert right and
+69:31 then uh yeah so after this we in in today's lecture we looked at uh what are
+69:38 the issues while training a sparts mixture of experts those are mostly related to uh you know training
+69:45 instabilities and we saw what switch Transformers paper proposed to address those training instabilities right uh
+69:54 then we also looked at you know how are we achieving this uh you know tremendous
+70:00 increase in the model size right because it's not feasible to put all the model weights on one expert so on on one GPU
+70:07 or one device so we saw the concept of expert parallelism where we use as many
+70:12 devices as the number of experts and put each expert on a different uh GPU and then we also compared it with the its
+70:19 corresponding dense model where we use model parallelism to split up larger dense model and we saw that even then
+70:26 switch Transformers have uh you know saves a lot of time even though sampling efficiency is same uh we save a lot of
+70:33 time uh we saw 2.5x speed up right and then we looked at uh mixture of experts
+70:39 uh the the latest paper that is out there and uh you know what are the different analysis and what is the performance that it
+70:45 achieves so yeah uh that's it from my side thank you

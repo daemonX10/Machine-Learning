@@ -1,0 +1,3991 @@
+00:00 Hi everyone, welcome to this course
+00:02 
+
+00:02 again. So we have been discussing LM
+00:05 
+
+00:05 efficiency. So last lecture we discussed
+00:08 
+
+00:08 model pruning where we discussed
+00:10 
+
+00:10 different different types of pruning
+00:11 
+
+00:11 techniques. Generally there are three
+00:13 
+
+00:13 ways for model compression. One is model
+00:16 
+
+00:16 pruning, other is model distillation and
+00:18 
+
+00:18 other is model quantization. Right? So
+00:21 
+
+00:21 in in this course we will we will only
+00:24 
+
+00:24 cover we are planning to cover model uh
+00:28 
+
+00:28 pruning and model distillation. We will
+00:30 
+
+00:30 not cover model quantization. In the
+00:32 
+
+00:32 last lecture last year's lecture we
+00:34 
+
+00:34 briefly talked about quantization but
+00:36 
+
+00:36 this year we will not cover
+00:37 
+
+00:37 quantization. So in today's class we
+00:38 
+
+00:38 will discuss distillation. We'll see
+00:40 
+
+00:40 different types of distillation methods
+00:42 
+
+00:42 and uh you know the pros and cons of
+00:45 
+
+00:45 different uh different methods and we'll
+00:48 
+
+00:48 try to interpret or try to explain
+00:50 
+
+00:50 distillation methods uh very briefly.
+00:53 
+
+00:53 But before that this is today's breaking
+00:55 
+
+00:55 news on September 12 uh Quinn 3 next ATB
+01:01 
+
+01:01 A3B model was released. This is Quinn's
+01:06 
+
+01:06 first first model on the next generation
+01:08 
+
+01:08 foundational models and they are saying
+01:11 
+
+01:11 that this is optimized for extreme
+01:14 
+
+01:14 context length and a large scale
+01:16 
+
+01:16 parameter efficiency.
+01:18 
+
+01:18 So
+01:20 
+
+01:20 in the model they came up with these two
+01:22 
+
+01:22 modifications. The first one is gated
+01:25 
+
+01:25 delta and the second one is gated
+01:27 
+
+01:27 attention. Right? uh get a delta net
+01:30 
+
+01:30 some of you know u it basically looks at
+01:33 
+
+01:33 u the delta difference between two
+01:36 
+
+01:36 representation outputs. So look at if
+01:38 
+
+01:38 you look at two consecutive layers and
+01:40 
+
+01:40 their outputs right uh you you you can
+01:44 
+
+01:44 measure the delta right the difference
+01:45 
+
+01:45 between two representations and the
+01:47 
+
+01:47 model tries to learn the difference not
+01:49 
+
+01:49 the representation the actual
+01:51 
+
+01:51 representation. Now why this is
+01:52 
+
+01:52 important? Because you can quickly learn
+01:54 
+
+01:54 the delta um uh in comparison with uh
+01:59 
+
+01:59 the entire representation and they said
+02:01 
+
+02:01 that if you use [snorts]
+02:03 
+
+02:03 [clears throat]
+02:04 
+
+02:04 delta net that can uh improve the uh you
+02:08 
+
+02:08 know um uh speed quite significantly and
+02:12 
+
+02:12 the other one is gated attention. Some
+02:14 
+
+02:14 of you know been gated attention there.
+02:18 
+
+02:18 So what we do is that we uh you know
+02:21 
+
+02:21 similar to LSTM kind of mechanisms right
+02:23 
+
+02:23 we here also we incorporate gated
+02:26 
+
+02:26 mechanism during the attention
+02:28 
+
+02:28 computation right so what you do is
+02:30 
+
+02:30 let's say when you uh so attention is
+02:32 
+
+02:32 nothing but the weighted sum of values
+02:34 
+
+02:34 right so after I mean once you get the
+02:36 
+
+02:36 weighted sum of values you put an
+02:38 
+
+02:38 attention on top you you put a gate on
+02:40 
+
+02:40 top of that right and that would control
+02:43 
+
+02:43 uh you know the the the attention
+02:46 
+
+02:46 mechanisms it is not that it is not that
+02:50 
+
+02:50 uh you know maybe for a specific token
+02:53 
+
+02:53 some tokens are not that important
+02:55 
+
+02:55 although attention inherently captures
+02:56 
+
+02:56 that but using gate you can even better
+02:59 
+
+02:59 control that mechanism right maybe some
+03:01 
+
+03:01 tokens are not uh at all useful for the
+03:03 
+
+03:03 given token and so on and so forth so
+03:05 
+
+03:05 they said if you use that gated
+03:07 
+
+03:07 attention that would improve
+03:09 
+
+03:09 [clears throat]
+03:10 
+
+03:10 the performance so you can look at it co
+03:13 
+
+03:13 as usual is a open source model uh you
+03:15 
+
+03:15 can use it for your project.
+03:18 
+
+03:18 Okay.
+03:20 
+
+03:20 So, model pruning we discussed last
+03:22 
+
+03:22 class model distillation. Okay. In
+03:24 
+
+03:24 today's class, what model distillation?
+03:26 
+
+03:26 What is model distillation? So, the idea
+03:29 
+
+03:29 is that
+03:31 
+
+03:31 you have a large um you know, you have a
+03:35 
+
+03:35 larger teacher model and a smaller
+03:37 
+
+03:37 student model, right? Let's say you have
+03:39 
+
+03:39 a 175 billion uh model which is called
+03:43 
+
+03:43 teacher model, right? And you have a
+03:45 
+
+03:45 small model. Let's say 7 billion model.
+03:47 
+
+03:47 We call it student model. Right? And
+03:50 
+
+03:50 this uh student teacher paradigm is a
+03:54 
+
+03:54 unique paradigm in knowledge
+03:56 
+
+03:56 distillation. So it is called teacher
+03:58 
+
+03:58 student paradigm. By default
+04:01 
+
+04:01 we know that this uh teacher model since
+04:05 
+
+04:05 it's a big model it knows many things
+04:07 
+
+04:07 better than a student model. uh in a
+04:10 
+
+04:10 classroom setup you can think of teacher
+04:12 
+
+04:12 right assumption is that teacher knows
+04:14 
+
+04:14 better than a student right sometimes
+04:16 
+
+04:16 this assumption may not hold but uh the
+04:19 
+
+04:19 in general that's the assumption and uh
+04:23 
+
+04:23 and again in a normal classroom setup a
+04:26 
+
+04:26 teacher teaches students so basically a
+04:29 
+
+04:29 knowledge flows from the teacher to the
+04:31 
+
+04:31 student right here also we have some
+04:34 
+
+04:34 mechanism called the knowledge
+04:35 
+
+04:35 distillation through that we will
+04:37 
+
+04:37 distill or uh kind of transfer knowledge
+04:41 
+
+04:41 from a teacher to a student. It sounds
+04:43 
+
+04:43 like a a sci-fi movie but it's not a
+04:45 
+
+04:45 sci-fi nothing sci-fi as such but this
+04:48 
+
+04:48 is actually very simple but in the last
+04:52 
+
+04:52 three four five years people have been
+04:54 
+
+04:54 developing on this and some of you know
+04:57 
+
+04:57 when uh whenever people release these
+04:59 
+
+04:59 days whenever big companies release this
+05:01 
+
+05:01 models big models right coen lama uh GPT
+05:05 
+
+05:05 they also release a quantized uh
+05:07 
+
+05:07 distilled version of their large model
+05:09 
+
+05:09 right so we'll discuss different
+05:12 
+
+05:12 distillation methods
+05:13 
+
+05:13 in today's uh class.
+05:16 
+
+05:16 Okay. So, distillation knowledge
+05:17 
+
+05:17 distillation
+05:19 
+
+05:19 idea behind knowledge distillation was
+05:21 
+
+05:21 proposed by J. Filton in 2015 the first
+05:25 
+
+05:25 paper on distillation and the idea was
+05:28 
+
+05:28 very straightforward. The idea was that
+05:31 
+
+05:31 you know that time there was no
+05:32 
+
+05:32 transformer there was no um LLM as such.
+05:36 
+
+05:36 So they used so uh Jran used a simple
+05:40 
+
+05:40 CNN right let's say the task is to
+05:42 
+
+05:42 classify an image input is an image and
+05:45 
+
+05:45 you have a teacher model which is a deep
+05:46 
+
+05:46 neural network deep deep CNN for example
+05:50 
+
+05:50 and [clears throat]
+05:52 
+
+05:52 let's say it's a simple binary
+05:53 
+
+05:53 classification problem dog or not right
+05:56 
+
+05:56 and so the model produces uh some
+05:59 
+
+05:59 distribution over dog and not not dog
+06:02 
+
+06:02 right so you have a logic distribution
+06:04 
+
+06:04 of dog and not dog Right? Similarly,
+06:08 
+
+06:08 you have another u another model which
+06:10 
+
+06:10 is a student model, a small model,
+06:12 
+
+06:12 right? Let's say a salon neural network.
+06:15 
+
+06:15 Right? And again, if you give the same
+06:17 
+
+06:17 input to the student model, it also
+06:20 
+
+06:20 produces a distribution over uh dog or
+06:22 
+
+06:22 non-dog. Right? Now here the logic
+06:25 
+
+06:25 distribution and the logic distribution
+06:27 
+
+06:27 here they are different.
+06:29 
+
+06:29 Right? And the distillation what is the
+06:31 
+
+06:31 target of the distillation? The target
+06:33 
+
+06:33 is to basically minimize the difference
+06:36 
+
+06:36 between two distributions.
+06:38 
+
+06:38 Right? So the idea is that the more you
+06:40 
+
+06:40 minimize the difference between two
+06:42 
+
+06:42 distributions, the closer the student
+06:45 
+
+06:45 model basically uh you know uh be
+06:48 
+
+06:48 towards the teacher model. So what's the
+06:50 
+
+06:50 what's the uh loss? So the loss is as
+06:54 
+
+06:54 follows. You see no yhat t yhat t is the
+06:59 
+
+06:59 logit uh of the teacher model and yhat s
+07:03 
+
+07:03 is the logit of the student model right
+07:06 
+
+07:06 and you pass it through sortmax and that
+07:08 
+
+07:08 will give you a distribution it's a
+07:10 
+
+07:10 distribution this is also a distribution
+07:12 
+
+07:12 and you minimize the let's say L2 norm
+07:16 
+
+07:16 right between the two
+07:18 
+
+07:18 simple idea right but the only point
+07:21 
+
+07:21 here is once you calculate the loss so
+07:24 
+
+07:24 this is your loss the loss gets
+07:27 
+
+07:27 propagated only through the student
+07:28 
+
+07:28 model. The teacher model remains uh
+07:32 
+
+07:32 frozen.
+07:34 
+
+07:34 Okay. So only the student model gets
+07:36 
+
+07:36 updated and uh and over the iterations
+07:40 
+
+07:40 uh the this loss uh difference gets
+07:42 
+
+07:42 reduced and the student model comes
+07:44 
+
+07:44 closer to the teacher model. Simple
+07:46 
+
+07:46 idea. Then later on uh in 2019 right
+07:51 
+
+07:51 this tiny board paper came. Some of you
+07:53 
+
+07:53 remember the paper tiny bot, right? And
+07:56 
+
+07:56 there they said that KD loss. So this is
+07:60 
+
+07:60 called KD loss. Remember this term KD
+08:02 
+
+08:02 loss, knowledge distillation loss,
+08:04 
+
+08:04 right? So they said that KD loss is
+08:07 
+
+08:07 fine. But we should also look at layer
+08:10 
+
+08:10 wise loss.
+08:12 
+
+08:12 Okay, let's say your so this is your
+08:14 
+
+08:14 teacher model. This is your student
+08:16 
+
+08:16 model, right? And teacher model has 12
+08:18 
+
+08:18 layers. Student model has uh six layers,
+08:22 
+
+08:22 right? Let's say B large and B small,
+08:24 
+
+08:24 right? And you look at the
+08:27 
+
+08:27 representation coming from let's say
+08:30 
+
+08:30 layer I layer I here and layer I here,
+08:34 
+
+08:34 right? And this is the representation of
+08:37 
+
+08:37 layer uh layer I of the teacher model.
+08:39 
+
+08:39 This is representation of layer I of the
+08:41 
+
+08:41 student model. And then you minimize the
+08:44 
+
+08:44 uh the
+08:46 
+
+08:46 uh difference. Right? Now here the
+08:49 
+
+08:49 question is number of layers is
+08:51 
+
+08:51 different. Right? For the teacher model
+08:52 
+
+08:52 or the student model for teacher models,
+08:55 
+
+08:55 there are 12 layers. Student model there
+08:56 
+
+08:56 are six layers. So how do you make a
+08:58 
+
+08:58 correspondence between teacher if
+09:00 
+
+09:00 teacher layer and if student layer so
+09:03 
+
+09:03 what they said is that you don't need to
+09:05 
+
+09:05 look at all the layers. You only look at
+09:07 
+
+09:07 top four layers for example or top five
+09:09 
+
+09:09 layers right or top three layers and
+09:12 
+
+09:12 then you compute this loss again. So
+09:15 
+
+09:15 they suggested that along with the KD
+09:17 
+
+09:17 loss you compute this layer wise loss
+09:21 
+
+09:21 layer wise loss
+09:24 
+
+09:24 and you take the sum of them and then
+09:26 
+
+09:26 then you back propagate this loss only
+09:28 
+
+09:28 through the student model.
+09:31 
+
+09:31 So and over the time u
+09:35 
+
+09:35 people have uh proposed different other
+09:38 
+
+09:38 loss functions. For example, since these
+09:40 
+
+09:40 are two different distributions
+09:43 
+
+09:43 teacher distribution and the student
+09:45 
+
+09:45 student distribution, you can use Kale
+09:47 
+
+09:47 divergence loss for example, right? So
+09:49 
+
+09:49 normal K scale divergence loss can be
+09:51 
+
+09:51 used. People also said that Kuh normal K
+09:56 
+
+09:56 uh K divergence loss has certain
+09:58 
+
+09:58 limitations. they uh they they proposed
+10:01 
+
+10:01 reverse scale divergence loss. So normal
+10:03 
+
+10:03 scale divergence loss or the forward
+10:05 
+
+10:05 scale divergence where let's say there
+10:07 
+
+10:07 are two distributions P and Q right? So
+10:09 
+
+10:09 this is PT log P by PT by QT. Right? Now
+10:13 
+
+10:13 let's say P PT is a distribution of the
+10:16 
+
+10:16 uh uh teacher model. QT is a
+10:19 
+
+10:19 distribution of the student model. Then
+10:20 
+
+10:20 you take the K divergence between
+10:22 
+
+10:22 teacher and student. The reverse case K
+10:25 
+
+10:25 divergence is the the just the reverse
+10:27 
+
+10:27 one. Right? So QT log QT by uh PT.
+10:32 
+
+10:32 You can also use Jensen Son you know
+10:35 
+
+10:35 divergence and so on and so forth for
+10:38 
+
+10:38 layer layer wise uh distance calculation
+10:40 
+
+10:40 you can use L2 normal norm cross entropy
+10:43 
+
+10:43 and so on and so forth right all these
+10:45 
+
+10:45 types of loss functions were used in
+10:47 
+
+10:47 different methods
+10:50 
+
+10:50 but if you look at broadly uh KD in
+10:53 
+
+10:53 general right broadly you can classify
+10:55 
+
+10:55 KD methods into three buckets
+10:59 
+
+10:59 okay the first bucket is called white
+11:02 
+
+11:02 box k method. What is white box k
+11:05 
+
+11:05 method? In white box k you assume that
+11:08 
+
+11:08 the teacher model is white box
+11:11 
+
+11:11 meaning you know the uh you know the
+11:14 
+
+11:14 layers, you know the uh uh intermediate
+11:16 
+
+11:16 representations, you know the logic, you
+11:18 
+
+11:18 know everything right and u accordingly
+11:22 
+
+11:22 you calculate the loss and uh back
+11:24 
+
+11:24 propagate the loss through student
+11:26 
+
+11:26 model. Blackbox KD you assume that you
+11:29 
+
+11:29 do not know anything about u the teacher
+11:33 
+
+11:33 models configuration you only know the
+11:34 
+
+11:34 output right now from the output how do
+11:37 
+
+11:37 you then distill and this is very
+11:39 
+
+11:39 difficult so blackbox k is not a very
+11:42 
+
+11:42 popular approach in between white box
+11:45 
+
+11:45 and black blackbox
+11:47 
+
+11:47 there is another method called meta k
+11:50 
+
+11:50 meta knowledge distillation what is the
+11:52 
+
+11:52 idea here the idea here is
+11:57 
+
+11:57 uh the idea here is teacher will so you
+12:02 
+
+12:02 the so the student model distills
+12:04 
+
+12:04 knowledge from the teacher model but
+12:06 
+
+12:06 there might be an intermediate teacher
+12:08 
+
+12:08 model or a meta teacher model right
+12:11 
+
+12:11 which will guide the entire distillation
+12:14 
+
+12:14 process
+12:16 
+
+12:16 right now think of again a classroom
+12:18 
+
+12:18 setup uh let's say there there's a
+12:21 
+
+12:21 teacher there there are students and
+12:23 
+
+12:23 there is let's a class monitor or class
+12:26 
+
+12:26 representative. Right? The task of this
+12:28 
+
+12:28 class representative is to first assess
+12:31 
+
+12:31 the uh the the overall knowledge of the
+12:34 
+
+12:34 students and uh the representative will
+12:37 
+
+12:37 talk to the teacher saying that look you
+12:39 
+
+12:39 know out of uh 50 students 30 students
+12:42 
+
+12:42 know about linear algebra
+12:45 
+
+12:45 remaining 20 students don't know about
+12:47 
+
+12:47 linear algebra and so on and so forth.
+12:49 
+
+12:49 So uh you teach uh students accordingly.
+12:53 
+
+12:53 Okay. So there's a concept of meta
+12:55 
+
+12:55 teacher and meta teacher guides the
+12:57 
+
+12:57 teacher model uh how to distill
+12:59 
+
+12:59 knowledge from teacher to student.
+13:02 
+
+13:02 So we'll discuss white box and meta
+13:05 
+
+13:05 teacher meta kd here.
+13:08 
+
+13:08 Okay. So the first paper uh after uh
+13:12 
+
+13:12 Hilton's paper in 2015 the next paper
+13:14 
+
+13:14 came in 2016. Uh and here the idea is
+13:17 
+
+13:17 simple. The idea is that now remember I
+13:20 
+
+13:20 forgot one point. Um
+13:23 
+
+13:23 when you measure the logic difference
+13:25 
+
+13:25 here right how do you uh so you measure
+13:29 
+
+13:29 the logic difference with respect to the
+13:31 
+
+13:31 ground truth
+13:35 
+
+13:35 what do you mean by this let's say the
+13:37 
+
+13:37 task is uh sequence generation problem
+13:40 
+
+13:40 right let's say your ground truth says
+13:42 
+
+13:42 that the next sequence is going to be I
+13:45 
+
+13:45 am
+13:46 
+
+13:46 I am I am hungry
+13:49 
+
+13:49 right so ideally you should generate
+13:52 
+
+13:52 this sequence right this is the ground
+13:54 
+
+13:54 truth but it may happen that the teacher
+13:57 
+
+13:57 model also doesn't generate I this this
+13:59 
+
+13:59 specific sequence student model also
+14:01 
+
+14:01 doesn't generate this specific sequence
+14:03 
+
+14:03 right so once you find the logit
+14:06 
+
+14:06 distribution from the teacher model
+14:10 
+
+14:10 you look at the logit for I you look at
+14:12 
+
+14:12 the logic for M you look at the logic
+14:15 
+
+14:15 for hungry from the teacher similarly
+14:18 
+
+14:18 you look at the logit from uh student
+14:20 
+
+14:20 for these three tokens and then you
+14:22 
+
+14:22 measure this difference.
+14:27 
+
+14:27 Okay.
+14:28 
+
+14:28 So, so this is the default distillation
+14:31 
+
+14:31 process. The default distillation
+14:33 
+
+14:33 process says that you have a ground
+14:34 
+
+14:34 truth. You look at the corresponding
+14:36 
+
+14:36 logic from the teacher, you retrieve the
+14:39 
+
+14:39 corresponding logic from the student and
+14:40 
+
+14:40 you minimize the difference between
+14:42 
+
+14:42 these two logits.
+14:44 
+
+14:44 So in 2016 paper they said that uh
+14:50 
+
+14:50 the ground truthbased uh KD may not be
+14:54 
+
+14:54 ideal. We should look at the teacher's
+14:56 
+
+14:56 output
+14:58 
+
+14:58 right because after all the task is the
+15:02 
+
+15:02 the target is to move the student closer
+15:04 
+
+15:04 to the teacher. So whatever the teacher
+15:07 
+
+15:07 articulates the student should also
+15:09 
+
+15:09 articulate that.
+15:11 
+
+15:11 Forget about what is the ground truth.
+15:13 
+
+15:13 This is the idea here. Right? So here
+15:16 
+
+15:16 what we will do here we will not measure
+15:19 
+
+15:19 or here we will not retrieve the logits
+15:21 
+
+15:21 corresponding to ground truth. We will
+15:23 
+
+15:23 retrieve logits corresponding to the
+15:26 
+
+15:26 output generated by the teacher model.
+15:29 
+
+15:29 But what is the problem here? That is
+15:32 
+
+15:32 okay. But what's the problem here? The
+15:34 
+
+15:34 problem here is that for that you
+15:36 
+
+15:36 actually need to do some sort of
+15:39 
+
+15:39 decoding. Let's say beam search for
+15:40 
+
+15:40 example otherwise how do you how do you
+15:43 
+
+15:43 generate the sequence from the teacher
+15:45 
+
+15:45 model you need to so so once all the
+15:48 
+
+15:48 layers are processed right at the end
+15:51 
+
+15:51 you need to do some sort of beam search
+15:52 
+
+15:52 otherwise how do you generate the
+15:54 
+
+15:54 sequence right and beam search is
+15:56 
+
+15:56 extremely timeconuming
+15:59 
+
+15:59 but that's fine they said that uh you uh
+16:02 
+
+16:02 do not rely on ground truth because uh
+16:05 
+
+16:05 during the uh test time you will not
+16:07 
+
+16:07 have any ground truth as such So better
+16:10 
+
+16:10 you retrieve the logits of the sequences
+16:14 
+
+16:14 generated by the teacher model and then
+16:16 
+
+16:16 you minimize the logits of teacher model
+16:18 
+
+16:18 and the student model.
+16:21 
+
+16:21 Okay. So as I mentioned beam search is
+16:24 
+
+16:24 computationally expensive right.
+16:28 
+
+16:28 Uh so uh and and the other problem is
+16:31 
+
+16:31 that uh
+16:33 
+
+16:33 it may happen that the teacher generates
+16:35 
+
+16:35 a wrong sequence right. So ideally in a
+16:39 
+
+16:39 normal classroom setup right uh I mean
+16:43 
+
+16:43 whatever a teacher articulates should be
+16:46 
+
+16:46 correct right and uh it should also
+16:49 
+
+16:49 follow some textbook for example right
+16:51 
+
+16:51 let's assume that the text textbook is a
+16:53 
+
+16:53 ground truth for us
+16:56 
+
+16:56 but it may happen that in sometimes a
+16:58 
+
+16:58 teacher articulates something else
+16:59 
+
+16:59 something wrong and that should not be
+17:01 
+
+17:01 uh propagated to the to to to the
+17:04 
+
+17:04 students right so uh the error may also
+17:07 
+
+17:07 provocate.
+17:09 
+
+17:09 Okay.
+17:11 
+
+17:11 So in 2023 uh now let's look at some of
+17:14 
+
+17:14 the loss functions. Um
+17:18 
+
+17:18 so as I mentioned the default loss
+17:20 
+
+17:20 function is the KD uh the K divergence
+17:22 
+
+17:22 loss between the teacher and the student
+17:25 
+
+17:25 and this is called forward K divergence
+17:27 
+
+17:27 right. So look at here let's say is a
+17:29 
+
+17:29 prompt X right I mean some input right
+17:32 
+
+17:32 and you get the logit from student which
+17:35 
+
+17:35 is Q theta and you get the logit from
+17:38 
+
+17:38 teacher which is P and then you measure
+17:40 
+
+17:40 the kale divergence between P and Q
+17:44 
+
+17:44 right so
+17:46 
+
+17:46 the problem in this paper so in the in
+17:49 
+
+17:49 in the minim paper that what they showed
+17:52 
+
+17:52 is that if you use forward kale
+17:53 
+
+17:53 divergence
+17:55 
+
+17:55 the problem is that the student models
+17:59 
+
+17:59 starts overestimating the low
+18:01 
+
+18:01 probability region. What does it mean?
+18:04 
+
+18:04 Let's say your ground truth distribution
+18:07 
+
+18:07 looks like looks like this. This is a
+18:09 
+
+18:09 ground truth distribution. Okay. Now, if
+18:12 
+
+18:12 you use forward k divergence, you see
+18:15 
+
+18:15 that the model will start learning a
+18:17 
+
+18:17 distribution like this.
+18:22 
+
+18:22 Now these are the these are the uh low
+18:25 
+
+18:25 probability region but the model
+18:27 
+
+18:27 overestimates the low this low
+18:29 
+
+18:29 probability region.
+18:31 
+
+18:31 Right? So they analytically and
+18:34 
+
+18:34 empirically showed that if you use
+18:36 
+
+18:36 reverse scale divergence which is scale
+18:38 
+
+18:38 divergence between Q and P that would
+18:40 
+
+18:40 solve this problem. Right? So you you
+18:43 
+
+18:43 may end up basically uh you know u u
+18:48 
+
+18:48 learning a sample learning a
+18:50 
+
+18:50 distribution like this
+18:53 
+
+18:53 like this.
+18:56 
+
+18:56 Okay.
+18:59 
+
+18:59 Now in the followup paper 2024 this GKD
+19:02 
+
+19:02 paper
+19:04 
+
+19:04 in GKD paper they said that in in case
+19:08 
+
+19:08 of uh in case of this paper right in
+19:10 
+
+19:10 here in in this model they argued that
+19:13 
+
+19:13 we should not use ground truth we should
+19:15 
+
+19:15 use the sequence generated by the
+19:17 
+
+19:17 teacher model but in the GKD paper they
+19:20 
+
+19:20 said we should not use the uh sequence
+19:23 
+
+19:23 generated by the teacher model we should
+19:24 
+
+19:24 use the sequence generated by the
+19:26 
+
+19:26 student model
+19:29 
+
+19:29 right and what is the logic behind this?
+19:31 
+
+19:31 The logic is that so the logic is as so
+19:35 
+
+19:35 so the logic is as follows. So what they
+19:37 
+
+19:37 are saying is that during the test time
+19:40 
+
+19:40 we will not have any teacher model we'll
+19:43 
+
+19:43 have only the student model. So the task
+19:46 
+
+19:46 is that whatever the student model
+19:49 
+
+19:49 articulates
+19:50 
+
+19:50 we should try to rectify that
+19:53 
+
+19:53 articulation.
+19:55 
+
+19:55 It is not that the teacher model the the
+19:59 
+
+19:59 student model will start mimicking the
+20:02 
+
+20:02 teacher model. It is so so the the ideal
+20:05 
+
+20:05 case it should be whatever the student
+20:07 
+
+20:07 model articulates the KD method should
+20:11 
+
+20:11 refine that articulation
+20:13 
+
+20:13 right so it means that let's say let's
+20:15 
+
+20:15 say the student model generates uh let's
+20:17 
+
+20:17 say the ground truth is I am hungry
+20:21 
+
+20:21 right and the teacher and the student
+20:23 
+
+20:23 model generates I am I am I am rich
+20:30 
+
+20:30 okay
+20:32 
+
+20:32 ideally If the teacher model is good,
+20:36 
+
+20:36 the the probability corresponding to
+20:38 
+
+20:38 reach should be low,
+20:41 
+
+20:41 right? And the probability corresponding
+20:43 
+
+20:43 to IM and should be high. Right? But for
+20:46 
+
+20:46 the student model, this is high. This is
+20:48 
+
+20:48 also high. This is also high. Therefore,
+20:50 
+
+20:50 the model generated the sequence. Right?
+20:53 
+
+20:53 Again, we need a beam search.
+20:56 
+
+20:56 The beam search problem is still there.
+20:58 
+
+20:58 So they then they said that you minimize
+21:01 
+
+21:01 these two these two uh distributions.
+21:06 
+
+21:06 Okay. Now in the figure you see here in
+21:09 
+
+21:09 the figure you see here that they said
+21:12 
+
+21:12 that they said that if you use GKD right
+21:15 
+
+21:15 uh so this is the performance of GKD and
+21:18 
+
+21:18 GKD with uh with different variations
+21:20 
+
+21:20 with one policy with mixed policy with
+21:23 
+
+21:23 supervised KD and so on. Uh GKD always
+21:25 
+
+21:25 outperforms other. The follow paper 2024
+21:28 
+
+21:28 as you see all the papers are recent
+21:29 
+
+21:29 papers right now what is AIO aio is
+21:33 
+
+21:33 called selfgenerated output
+21:35 
+
+21:35 self-generated output is the output
+21:37 
+
+21:37 generated by the student model
+21:41 
+
+21:41 so in the distlm the recent paper
+21:44 
+
+21:44 adaptive SGO self-generated output in
+21:47 
+
+21:47 this paper they said that as you rightly
+21:50 
+
+21:50 mentioned that we need both the ground
+21:53 
+
+21:53 truth and the teachers and the students
+21:56 
+
+21:56 response right from the ground truth the
+22:00 
+
+22:00 student gradually learns what to
+22:03 
+
+22:03 articulate right from the from the
+22:05 
+
+22:05 students response and if we minimize
+22:08 
+
+22:08 students response and the teacher's
+22:10 
+
+22:10 response the student model will learn uh
+22:14 
+
+22:14 how to mimic a teacher model so both
+22:16 
+
+22:16 these things are needed okay so what
+22:19 
+
+22:19 they said is that let's say you know I
+22:22 
+
+22:22 have a fixed data set D and this data
+22:25 
+
+22:25 set is a round two data for me. Okay.
+22:28 
+
+22:28 And we will use another data set or we
+22:30 
+
+22:30 will curate over the iteration we will
+22:33 
+
+22:33 curate another data set and we call the
+22:35 
+
+22:35 data set um you know uh replay buff
+22:37 
+
+22:37 buffer.
+22:39 
+
+22:39 So dr. So we have dr and we have d right
+22:43 
+
+22:43 initially dr is empty
+22:46 
+
+22:46 right. What's what is going to be added
+22:49 
+
+22:49 to dr?
+22:51 
+
+22:51 The students responses will be added to
+22:52 
+
+22:52 dr.
+22:54 
+
+22:54 Okay. over the time. So initially
+22:57 
+
+22:57 initially the distillation happens with
+22:59 
+
+22:59 respect to ground truth and over the
+23:01 
+
+23:01 time you will not use ground truth. You
+23:03 
+
+23:03 will start using the students response
+23:06 
+
+23:06 for distillation. Right? So as you see
+23:08 
+
+23:08 here this is random variable U. Right?
+23:12 
+
+23:12 You sample the value of random variable
+23:14 
+
+23:14 between 0 to one from a range from a
+23:17 
+
+23:17 uniform distribution
+23:19 
+
+23:19 ranging between 0 to one. If the value
+23:22 
+
+23:22 of the random variable is below a
+23:24 
+
+23:24 threshold. So five is a threshold. If
+23:26 
+
+23:26 your value is below the threshold, you
+23:30 
+
+23:30 look at this deer, right? And you sample
+23:34 
+
+23:34 instances from deer and you u
+23:38 
+
+23:38 you know retrieve the logic from the
+23:40 
+
+23:40 teacher, you retrieve the logic from the
+23:41 
+
+23:41 student and you calculate the kale
+23:43 
+
+23:43 divergence, right? But if u is greater
+23:46 
+
+23:46 than equals to 5, then you uh then you
+23:49 
+
+23:49 essentially retrieve uh the ground truth
+23:52 
+
+23:52 data, right? And you do the same thing,
+23:55 
+
+23:55 right? And over the time uh this
+23:58 
+
+23:58 threshold value five, right? The
+23:60 
+
+23:60 threshold value uh gets reduced
+24:04 
+
+24:04 meaning that you know uh over the
+24:06 
+
+24:06 iterations you uh you start retrieving
+24:09 
+
+24:09 only the students responses not the
+24:11 
+
+24:11 ground truth. In 2025 a recent paper uh
+24:15 
+
+24:15 they showed uh that uh both the forward
+24:20 
+
+24:20 kale divergence and the backward kale
+24:22 
+
+24:22 divergence both are important right and
+24:24 
+
+24:24 look at this visualization these
+24:26 
+
+24:26 visualizations are very interesting.
+24:28 
+
+24:28 So they showed that now this this gray
+24:31 
+
+24:31 distribution this is my ground truth
+24:33 
+
+24:33 distribution. Okay. Now if you use
+24:36 
+
+24:36 forward kale divergence as I mentioned
+24:38 
+
+24:38 it basically
+24:40 
+
+24:40 it it will produce a a a smoothen
+24:43 
+
+24:43 distribution right which will
+24:45 
+
+24:45 overestimate the u the low confident
+24:49 
+
+24:49 region right whereas if you use
+24:53 
+
+24:53 reverse scale divergence or the backward
+24:55 
+
+24:55 scale divergence it would produce this
+24:57 
+
+24:57 kind of distribution
+24:59 
+
+24:59 which will you know rightly uh identify
+25:03 
+
+25:03 the peak Right? But at the same time,
+25:06 
+
+25:06 this kind of distribution fails to
+25:09 
+
+25:09 identify u uh low probability zones.
+25:12 
+
+25:12 Right? Meaning it underestimates the low
+25:16 
+
+25:16 probability zones,
+25:18 
+
+25:18 right? So what they said is that you
+25:21 
+
+25:21 know if you do some sort of alpha
+25:24 
+
+25:24 weightage of the reverse scale
+25:27 
+
+25:27 divergence you will start you you will
+25:30 
+
+25:30 start seeing a distribution which is
+25:32 
+
+25:32 kind of uh mix of this right but ideally
+25:37 
+
+25:37 what should what I mean what what should
+25:40 
+
+25:40 be needed is that some sort of alpha
+25:42 
+
+25:42 beta combination of kale divergence and
+25:44 
+
+25:44 and reverse kale divergence right they
+25:47 
+
+25:47 said that You do alpha beta weighted. So
+25:49 
+
+25:49 alpha time forward kale divergence plus
+25:52 
+
+25:52 beta time backward the reverse scale
+25:55 
+
+25:55 divergence where alpha beta is not a
+25:57 
+
+25:57 convex sum. It's not like alpha 1 minus
+25:60 
+
+25:60 alpha right. So if you do that you will
+26:03 
+
+26:03 you will be able to get this kind of
+26:05 
+
+26:05 distribution right which would which
+26:07 
+
+26:07 would uh uh less overestimate the low
+26:11 
+
+26:11 probability zone and less under uh less
+26:15 
+
+26:15 underestimate the high probability zone.
+26:19 
+
+26:19 Okay.
+26:21 
+
+26:21 All right. So so till 2025 all these
+26:24 
+
+26:24 models were proposed.
+26:27 
+
+26:27 But if you look at all these models, the
+26:29 
+
+26:29 basic problem here is that the
+26:31 
+
+26:31 distillation process is always
+26:33 
+
+26:33 unidirectional. What does it mean?
+26:36 
+
+26:36 Meaning that the teacher model does not
+26:40 
+
+26:40 know anything about the students
+26:41 
+
+26:41 capacity. There is a KD loss. You can
+26:45 
+
+26:45 use scale divergence or reverse scale
+26:47 
+
+26:47 divergence. And there is this layer wise
+26:49 
+
+26:49 loss, right? You minimize this loss and
+26:52 
+
+26:52 you back propagate the loss through the
+26:54 
+
+26:54 student model. The teacher model doesn't
+26:56 
+
+26:56 know anything about the student model.
+26:58 
+
+26:58 The teacher model remains frozen.
+27:01 
+
+27:01 So the basic limitation is that the
+27:03 
+
+27:03 knowledge sharing is unidirectional.
+27:05 
+
+27:05 Teacher is not aware of students
+27:07 
+
+27:07 capacity.
+27:09 
+
+27:09 To address this in 2022 right another
+27:13 
+
+27:13 paradigm of distillation started
+27:15 
+
+27:15 emerging called meta distillation.
+27:19 
+
+27:19 So the idea behind meta distillation is
+27:21 
+
+27:21 that we will teach the teacher model how
+27:23 
+
+27:23 to teach
+27:26 
+
+27:26 Okay, it's called teaching a teacher.
+27:30 
+
+27:30 So here the idea is simple. The idea is
+27:32 
+
+27:32 that let's say you have now this paper
+27:35 
+
+27:35 in this paper what they said is that
+27:37 
+
+27:37 let's say you have a teacher model T and
+27:39 
+
+27:39 a student model S
+27:42 
+
+27:42 and let's assume that it's a uh it's a
+27:45 
+
+27:45 white box teacher model right so what
+27:47 
+
+27:47 you do first you first replicate the
+27:50 
+
+27:50 student model you have S dash sd dash is
+27:53 
+
+27:53 just a replica of s because I don't want
+27:56 
+
+27:56 to touch s for the time being I
+27:58 
+
+27:58 therefore I create a replica of s which
+28:00 
+
+28:00 is sd dash Okay,
+28:03 
+
+28:03 first what you do, you do a simple KD,
+28:08 
+
+28:08 right? A simple KD means you have a KD
+28:10 
+
+28:10 loss here,
+28:12 
+
+28:12 right? A KD loss plus layer layer loss,
+28:14 
+
+28:14 layer wise loss if you want. You measure
+28:16 
+
+28:16 this KD and layer wise KD, right? And
+28:20 
+
+28:20 this loss gets gets propagated only
+28:22 
+
+28:22 through the this replicated student
+28:25 
+
+28:25 model.
+28:27 
+
+28:27 A simple approach, simple GD approach,
+28:30 
+
+28:30 right? So far teacher doesn't know
+28:32 
+
+28:32 anything about the student.
+28:34 
+
+28:34 Only student model gets updated. Only
+28:36 
+
+28:36 the replica of the student model gets
+28:38 
+
+28:38 updated. The actual student model is
+28:40 
+
+28:40 still untouched. Okay. In the second
+28:43 
+
+28:43 step, what you do? In the second step,
+28:45 
+
+28:45 now look at here.
+28:48 
+
+28:48 In the second step, I use another data
+28:51 
+
+28:51 and I call this data quiz data. A quiz
+28:54 
+
+28:54 data. Right? And what is the purpose of
+28:57 
+
+28:57 the quiz data? The purpose of the quiz
+28:59 
+
+28:59 data is that I will I'll give this quiz
+29:02 
+
+29:02 question to the teacher to the student
+29:05 
+
+29:05 right. I will see how the student how
+29:08 
+
+29:08 students perform and I will check their
+29:11 
+
+29:11 scripts
+29:12 
+
+29:12 their answers and from the answers I
+29:15 
+
+29:15 will try to rectify myself or update
+29:18 
+
+29:18 myself.
+29:20 
+
+29:20 Right? So far the teacher has not seen
+29:23 
+
+29:23 the answer of the student. Now what I'm
+29:26 
+
+29:26 saying is that I will introduce a new
+29:28 
+
+29:28 data called the quiz data. I'll give the
+29:31 
+
+29:31 quiz to the students. The student
+29:32 
+
+29:32 produce the the students uh write the
+29:36 
+
+29:36 answer
+29:38 
+
+29:38 you measure the loss or the error and
+29:42 
+
+29:42 that error gets back propagated end to
+29:45 
+
+29:45 end through teacher through student till
+29:48 
+
+29:48 teacher.
+29:51 
+
+29:51 Okay. Now this loss this cross entropy
+29:54 
+
+29:54 loss is the loss on the quiz data based
+29:58 
+
+29:58 on the performance of the student model
+30:01 
+
+30:01 right this loss gets back propagated end
+30:04 
+
+30:04 to end to teacher
+30:10 
+
+30:10 in fact this is a bit tricky step the
+30:12 
+
+30:12 reason is that u so in this stage what I
+30:17 
+
+30:17 do I basically calculate two losses one
+30:20 
+
+30:20 is the loss based bas on the quiz data
+30:22 
+
+30:22 other is a loss based on the training
+30:24 
+
+30:24 data a normal training data. So I have a
+30:27 
+
+30:27 KD loss. I have a cross entropy loss.
+30:29 
+
+30:29 The KD loss only gets back propagated u
+30:32 
+
+30:32 uh to to student right but the cross
+30:36 
+
+30:36 entropy loss gets back propagated
+30:39 
+
+30:39 through student till teacher
+30:45 
+
+30:45 right. So at this stage the teacher
+30:47 
+
+30:47 knows what the student uh uh where the
+30:50 
+
+30:50 students made mistakes right and the
+30:53 
+
+30:53 their uh parameters get updated
+30:55 
+
+30:55 according accordingly. Now the third
+30:58 
+
+30:58 step. So the third step what you do you
+31:01 
+
+31:01 repeat the same KD process again
+31:04 
+
+31:04 a same KD uh a normal regular KD and
+31:08 
+
+31:08 here when you measure the KD remember
+31:11 
+
+31:11 the teacher model already gets updated
+31:13 
+
+31:13 already got updated previously
+31:16 
+
+31:16 right so the logic that the teacher
+31:18 
+
+31:18 model produces here would be very
+31:20 
+
+31:20 different from the logic that it it
+31:22 
+
+31:22 produced at the beginning
+31:26 
+
+31:26 right now here again you do KD And that
+31:29 
+
+31:29 gets back propagated to student. But
+31:31 
+
+31:31 here remember this is actual S actual
+31:33 
+
+31:33 student model. Till this part we had a
+31:35 
+
+31:35 replica of S right? But now we have an
+31:38 
+
+31:38 actual student model.
+31:41 
+
+31:41 So [clears throat] the actual student
+31:42 
+
+31:42 model
+31:44 
+
+31:44 gets fine-tuned
+31:46 
+
+31:46 with respect to the updated teacher
+31:49 
+
+31:49 model.
+31:52 
+
+31:52 That's the difference.
+31:56 
+
+31:56 Is clear? So this is called teacher
+31:59 
+
+31:59 this is called student error
+32:01 
+
+32:01 distillation.
+32:04 
+
+32:04 Now this was proposed in 2022
+32:07 
+
+32:07 in our lab last year. We showed that
+32:12 
+
+32:12 this is not enough. Teacher student hour
+32:15 
+
+32:15 distillation is not enough
+32:18 
+
+32:18 because
+32:19 
+
+32:19 uh a teacher a student distillation only
+32:23 
+
+32:23 gives you the flexibility that the
+32:24 
+
+32:24 teacher gets refined based on the output
+32:28 
+
+32:28 of the student. But there are some other
+32:30 
+
+32:30 aspects also. What are the other
+32:32 
+
+32:32 aspects? The other aspect is in a usual
+32:36 
+
+32:36 classroom setup
+32:38 
+
+32:38 the so so far all the KD method that I
+32:41 
+
+32:41 mentioned there is always a
+32:43 
+
+32:43 collaboration between a teacher and a
+32:45 
+
+32:45 student right because the the teacher
+32:49 
+
+32:49 tries to rectify themselves based on the
+32:52 
+
+32:52 feedback right the student also tries to
+32:54 
+
+32:54 rectify themselves based on the
+32:56 
+
+32:56 teacher's feedback there's always a
+32:58 
+
+32:58 collaboration there's no competition as
+32:60 
+
+32:60 such but if you think of auh normal
+33:02 
+
+33:02 classroom setup.
+33:05 
+
+33:05 There are students there are few
+33:07 
+
+33:07 students who are who ask a lot of
+33:10 
+
+33:10 questions to the teacher and sometimes
+33:12 
+
+33:12 the teacher model sometime the teacher
+33:14 
+
+33:14 also is not able to respond to the
+33:16 
+
+33:16 questions in the class right and the
+33:18 
+
+33:18 questions are tricky. So what we said is
+33:21 
+
+33:21 that
+33:23 
+
+33:23 in the distillation process let us
+33:25 
+
+33:25 incorporate the notion of healthy
+33:27 
+
+33:27 competition between a teacher and a
+33:29 
+
+33:29 student along with the collaboration.
+33:33 
+
+33:33 Okay, I said healthy because it's it is
+33:37 
+
+33:37 not the case that the student will
+33:38 
+
+33:38 always try to beat a teacher or a
+33:40 
+
+33:40 teacher will always try to beat a
+33:42 
+
+33:42 student, right? But it's a it's a
+33:45 
+
+33:45 healthy competition meaning that uh the
+33:48 
+
+33:48 two factors collaboration and the uh and
+33:51 
+
+33:51 the competition is balanced in some ways
+33:56 
+
+33:56 and we call this method MP distill right
+33:59 
+
+33:59 student aware meta distillation process
+34:03 
+
+34:03 and this method has four steps
+34:07 
+
+34:07 first two steps are simple and the usual
+34:10 
+
+34:10 steps and let's look at the step the
+34:12 
+
+34:12 first step is teacher finetuning. What
+34:15 
+
+34:15 is teacher finetuning? Again, we assume
+34:16 
+
+34:16 that
+34:19 
+
+34:19 the teacher model is a white box model.
+34:21 
+
+34:21 Okay.
+34:23 
+
+34:23 So, we have the data set. We have the
+34:25 
+
+34:25 ground truth data, right? We calculate
+34:27 
+
+34:27 the loss
+34:29 
+
+34:29 of the teacher model with respect to the
+34:31 
+
+34:31 ground truth and that loss gets
+34:34 
+
+34:34 propagated only through the teacher.
+34:38 
+
+34:38 Now I have not mentioned this step in
+34:40 
+
+34:40 the uh in in the previous models but
+34:43 
+
+34:43 this step is always important if you
+34:46 
+
+34:46 have the flexibility to fine-tune your
+34:48 
+
+34:48 teacher model also for the specific task
+34:52 
+
+34:52 right you should do that
+34:56 
+
+34:56 okay now it can be a lora finetuning a
+34:58 
+
+34:58 simple lura fine tuning or only one
+34:60 
+
+34:60 layer finetuning whatever data sets you
+35:02 
+
+35:02 have you should fine-tune your teacher
+35:04 
+
+35:04 model with respect to the task specific
+35:06 
+
+35:06 data set first Okay.
+35:09 
+
+35:09 So this is t this is teacher fine
+35:11 
+
+35:11 tuning. So the now after this stage the
+35:13 
+
+35:13 teacher knows about the task.
+35:17 
+
+35:17 Step two. Step two is student
+35:20 
+
+35:20 distillation. Again this is the usual
+35:21 
+
+35:21 process. I have the teacher. I have the
+35:24 
+
+35:24 student.
+35:25 
+
+35:25 I have the task specific training data.
+35:28 
+
+35:28 Right? And the loss function that I
+35:30 
+
+35:30 calculate here is what? This is u
+35:35 
+
+35:35 this is u a simple student's loss. Now
+35:39 
+
+35:39 look at this logic. This is right. This
+35:42 
+
+35:42 is student loss with respect to the data
+35:45 
+
+35:45 set right? Um and what is this? This is
+35:48 
+
+35:48 KD right
+35:51 
+
+35:51 simple KD loss. And what is this?
+35:57 
+
+35:57 This is layer wise loss between layers.
+35:60 
+
+35:60 So this is task specific loss of the
+36:02 
+
+36:02 student. This is KD loss between teacher
+36:05 
+
+36:05 and student. And this is layer wise loss
+36:07 
+
+36:07 between teacher and student. And we have
+36:09 
+
+36:09 some alpha 1 minus alpha beta weightage.
+36:12 
+
+36:12 Right?
+36:14 
+
+36:14 And remember this loss only uh this loss
+36:18 
+
+36:18 will be back propagated only through
+36:19 
+
+36:19 student.
+36:21 
+
+36:21 Step three. Step three is most
+36:23 
+
+36:23 important. So in step three we introduce
+36:26 
+
+36:26 a concept of meta teacher.
+36:30 
+
+36:30 What is a meta teacher?
+36:32 
+
+36:32 A meta teacher is a simple multi-layer
+36:36 
+
+36:36 perceptron. You see a simple multi
+36:38 
+
+36:38 multi-layer perceptron. And what is the
+36:40 
+
+36:40 task of the meta teacher? The task of
+36:42 
+
+36:42 the meta teacher? The the meta teacher
+36:44 
+
+36:44 is a is a stricter version of a teacher.
+36:48 
+
+36:48 Meaning it will always prefer the
+36:50 
+
+36:50 teacher model.
+36:53 
+
+36:53 Right? A teacher can be lenient, but a
+36:56 
+
+36:56 meta teacher is always strict.
+36:58 
+
+36:58 Right now let's look at this meta
+37:01 
+
+37:01 teacher and the input. So the input is
+37:04 
+
+37:04 so input to this meta teacher is there
+37:08 
+
+37:08 are two inputs. The first input is the
+37:10 
+
+37:10 representation of the student model. So
+37:12 
+
+37:12 you have teacher model student model you
+37:14 
+
+37:14 retrieve the last layer representation
+37:16 
+
+37:16 from the teacher. Last layer
+37:17 
+
+37:17 representation of the student and these
+37:19 
+
+37:19 two representations will be given to the
+37:21 
+
+37:21 meta teacher. Right? And what would the
+37:23 
+
+37:23 meta teacher do?
+37:26 
+
+37:26 Don't worry about this equation. Right?
+37:27 
+
+37:27 Just follow what I'm saying. So the meta
+37:30 
+
+37:30 teacher will calculate this loss.
+37:33 
+
+37:33 Look at the first loss. The first loss
+37:35 
+
+37:35 is called the collaborative loss.
+37:39 
+
+37:39 If you look at this equation here,
+37:42 
+
+37:42 right? What is this equation? What what
+37:44 
+
+37:44 is this component?
+37:48 
+
+37:48 This is the log logit of teacher. What
+37:51 
+
+37:51 is this? This is the log logit of
+37:53 
+
+37:53 student. Basically the logit of teacher
+37:55 
+
+37:55 and logic of student. You take the sum
+37:57 
+
+37:57 of teacher and students logic, right?
+37:60 
+
+37:60 And you want to maximize this.
+38:03 
+
+38:03 Now you see this minus because I want to
+38:05 
+
+38:05 minimize the minus of that which is
+38:07 
+
+38:07 which means I maximize the teacher's
+38:10 
+
+38:10 loss, the teacher's logic and the
+38:12 
+
+38:12 students log it. What does it mean?
+38:16 
+
+38:16 What does [clears throat] it mean? What
+38:17 
+
+38:17 is the meaning of this loss?
+38:22 
+
+38:22 If I maximize both the logics, what the
+38:24 
+
+38:24 what does it mean? I prefer both teacher
+38:27 
+
+38:27 and student and this is called
+38:29 
+
+38:29 collaborative loss. You collaborate
+38:32 
+
+38:32 right? At the same time there is another
+38:34 
+
+38:34 loss called the competitive loss.
+38:37 
+
+38:37 And what is this competitive loss? You
+38:39 
+
+38:39 only look at this part. So this is
+38:41 
+
+38:41 teacher teacher's logit and this is
+38:44 
+
+38:44 students logit and you you take the
+38:46 
+
+38:46 difference between teacher and students
+38:48 
+
+38:48 logic and you want to maximize this.
+38:51 
+
+38:51 What does it mean? Either you maximize
+38:54 
+
+38:54 the teacher's logit or you minimize the
+38:56 
+
+38:56 students logic then only the difference
+38:58 
+
+38:58 gets maximized. It means you give
+39:00 
+
+39:00 preference more preference to the
+39:02 
+
+39:02 teacher.
+39:05 
+
+39:05 Okay. So you have a collabor you have a
+39:07 
+
+39:07 competitive loss and you have a
+39:08 
+
+39:08 collaborative loss. Now either you can
+39:11 
+
+39:11 add them and do some alpha beta
+39:13 
+
+39:13 weightage or you can play with them
+39:15 
+
+39:15 separately
+39:17 
+
+39:17 based on your task.
+39:20 
+
+39:20 So the third so after the third stage
+39:24 
+
+39:24 you obtain a meta teacher which is a
+39:27 
+
+39:27 simple perceptron right which will give
+39:30 
+
+39:30 preference to the teacher model.
+39:33 
+
+39:33 Fourth stage so now what you have you
+39:36 
+
+39:36 have a meta teacher and a student. I
+39:39 
+
+39:39 don't need a teacher anymore because I
+39:41 
+
+39:41 use teacher to train this meta teacher.
+39:43 
+
+39:43 So this is my meta teacher
+39:46 
+
+39:46 and this is my student.
+39:49 
+
+39:49 I have a quiz data right based on the
+39:52 
+
+39:52 quiz data I look at the performance of
+39:54 
+
+39:54 the student model with respect to the
+39:57 
+
+39:57 meta teachers output
+39:59 
+
+39:59 otherwise you can't calculate the loss
+40:01 
+
+40:01 right so so this is my loss with respect
+40:04 
+
+40:04 to the quiz data right and what I will
+40:07 
+
+40:07 do now I will refine my student model so
+40:10 
+
+40:10 far I have not refined my student model
+40:13 
+
+40:13 have I refined no right I only refined
+40:16 
+
+40:16 my teacher model at the beginning But I
+40:19 
+
+40:19 sorry I refined the student model here.
+40:21 
+
+40:21 But here the in in in in second stage I
+40:24 
+
+40:24 only considered three facts three
+40:27 
+
+40:27 losses. The first one was KD loss. The
+40:29 
+
+40:29 first one was task specific loss. Second
+40:31 
+
+40:31 one was KD loss and the third one was
+40:34 
+
+40:34 layer specific loss. Based on that I
+40:36 
+
+40:36 refined student model there. At step
+40:39 
+
+40:39 four I will refine the student model
+40:41 
+
+40:41 again. And how do you do that this time?
+40:44 
+
+40:44 So here I incorporate a policy learner.
+40:49 
+
+40:49 The policy learner we all know right? We
+40:51 
+
+40:51 have seen policy learn policy learning
+40:53 
+
+40:53 in alignment right. So I incorporate a
+40:56 
+
+40:56 policy learner.
+40:58 
+
+40:58 It's again a simple perceptron.
+41:01 
+
+41:01 And what is this policy learner doing
+41:03 
+
+41:03 here? The t so this policy learner is
+41:06 
+
+41:06 also called a curriculum learner. How
+41:09 
+
+41:09 many of you know curriculum curriculum
+41:11 
+
+41:11 learning in machine learning? Have you
+41:13 
+
+41:13 heard of curriculum learning heard? You
+41:15 
+
+41:15 haven't heard of curriculum before?
+41:20 
+
+41:20 So in curriculum learning what we do is
+41:23 
+
+41:23 that we give uh simple uh instances
+41:27 
+
+41:27 right uh simple instances meaning those
+41:30 
+
+41:30 instances which can be easily classified
+41:32 
+
+41:32 right to the model and then gradually
+41:34 
+
+41:34 increase the complexity of the instances
+41:36 
+
+41:36 right. So you first start training the
+41:38 
+
+41:38 model with simple instances and then you
+41:40 
+
+41:40 increase the complexity of the
+41:42 
+
+41:42 instances.
+41:44 
+
+41:44 It is like let's say you want to learn
+41:46 
+
+41:46 LLM right you are given a curriculum you
+41:49 
+
+41:49 first learn linear algebra and then
+41:52 
+
+41:52 machine learning and then NLP and then
+41:55 
+
+41:55 LM there's a curriculum right so you
+41:57 
+
+41:57 first learn easy easy easy tasks easy
+41:60 
+
+41:60 courses and then you learn difficult
+42:02 
+
+42:02 course same idea here so
+42:06 
+
+42:06 so here this policy model what this this
+42:10 
+
+42:10 policy learner what it does it. So let's
+42:14 
+
+42:14 say I'm interested in the task sentiment
+42:17 
+
+42:17 analysis. This is the task for which I
+42:20 
+
+42:20 want to distill my student model. The
+42:22 
+
+42:22 task that that I have that I've been
+42:24 
+
+42:24 given. I also know other number of
+42:28 
+
+42:28 tasks. Now what are these task? These
+42:30 
+
+42:30 tasks are ready made task available in
+42:33 
+
+42:33 the literature. Let's say emotion
+42:35 
+
+42:35 detection, machine translation, uh NLI,
+42:39 
+
+42:39 right? These are the
+42:41 
+
+42:41 >> existing tasks which are already out
+42:42 
+
+42:42 there for which the data data is already
+42:44 
+
+42:44 given.
+42:46 
+
+42:46 So the policy learner will choose
+42:50 
+
+42:50 tasks from the task bench one by one.
+42:54 
+
+42:54 Right? And the student model is trained
+42:59 
+
+42:59 based on the task.
+43:02 
+
+43:02 [cough]
+43:04 
+
+43:04 So so the so you have n number of tasks
+43:07 
+
+43:07 here. any number of tasks here. The
+43:10 
+
+43:10 policy learner will choose one task from
+43:12 
+
+43:12 the task bench. That task data set will
+43:15 
+
+43:15 be given to the student model. Student
+43:17 
+
+43:17 model gets refined, right? And again uh
+43:21 
+
+43:21 perform the quiz task, the the actual
+43:24 
+
+43:24 quiz, right? Then you measure the error,
+43:27 
+
+43:27 right? The error will will basically be
+43:30 
+
+43:30 used as a reward,
+43:33 
+
+43:33 right? For this policy learner.
+43:37 
+
+43:37 And then now the circle is complete.
+43:38 
+
+43:38 Right? So let me again summarize the
+43:42 
+
+43:42 last stage. You have a meta teacher. You
+43:45 
+
+43:45 have a student model. Right? You see the
+43:48 
+
+43:48 performance of the student model with
+43:49 
+
+43:49 respect to the quiz data. Right?
+43:53 
+
+43:53 You get some sort of error of the
+43:55 
+
+43:55 student model. That error will act as a
+43:58 
+
+43:58 reward for the policy learner. So this
+44:01 
+
+44:01 will be fed to the policy learner. The
+44:03 
+
+44:03 policy learner will try to understand
+44:05 
+
+44:05 which task to be chosen for the student
+44:08 
+
+44:08 model. The policy learner will choose
+44:10 
+
+44:10 that task. That task will be given to
+44:12 
+
+44:12 the student model. The student model
+44:14 
+
+44:14 gets refined. Again the student model
+44:17 
+
+44:17 appears for the quiz.
+44:19 
+
+44:19 Calculate that again you measure the
+44:21 
+
+44:21 error. Error will be given to the uh
+44:23 
+
+44:23 curriculum learner. The policy learner.
+44:25 
+
+44:25 Policy learner gets updated. Again based
+44:28 
+
+44:28 on that policy learner will choose
+44:29 
+
+44:29 another task. that task will be given to
+44:31 
+
+44:31 the student model and the model gets
+44:33 
+
+44:33 defined and this process will go on and
+44:36 
+
+44:36 on until unless let's say you have some
+44:38 
+
+44:38 convergence criteria let's say after n
+44:40 
+
+44:40 number of iterations or let's say you
+44:42 
+
+44:42 know you stop when the uh the the error
+44:44 
+
+44:44 with respect to the quiz data uh you
+44:46 
+
+44:46 know comes below a threshold and so on
+44:49 
+
+44:49 and so forth
+44:52 
+
+44:52 so this is the idea so we incorporated
+44:54 
+
+44:54 two factors one is this meta teacher and
+44:56 
+
+44:56 the other is this curriculum learner
+44:60 
+
+44:60 I yes
+45:01 
+
+45:01 >> why is the meta teacher needed the
+45:03 
+
+45:03 >> so the very good idea so very good
+45:05 
+
+45:05 question why is the meta meta teacher
+45:07 
+
+45:07 needed here
+45:09 
+
+45:09 because can you tell me can somebody
+45:12 
+
+45:12 tell me why the meta teacher is needed
+45:13 
+
+45:13 here
+45:21 
+
+45:21 h
+45:23 
+
+45:23 what do you
+45:30 
+
+45:30 What do you think?
+45:32 
+
+45:32 If you do not use meta teacher, how do
+45:34 
+
+45:34 you incorporate the notion of
+45:36 
+
+45:36 collaboration and competition at the
+45:37 
+
+45:37 same time?
+45:39 
+
+45:39 So meta teacher is trained on these two
+45:42 
+
+45:42 different loss functions.
+45:44 
+
+45:44 How do you incorporate the notion of
+45:46 
+
+45:46 competition in the model?
+45:50 
+
+45:50 I need some intermediary uh model which
+45:53 
+
+45:53 will take care of this factor
+45:58 
+
+45:58 that teacher also
+46:00 
+
+46:00 requires output from teacher and student
+46:04 
+
+46:04 to go.
+46:04 
+
+46:04 >> Yes. Yes. Here step three. So they're
+46:07 
+
+46:07 identifying
+46:18 
+
+46:18 output to meta teacher in the fourth
+46:19 
+
+46:19 step or to
+46:20 
+
+46:20 >> in the fourth step. So in the fourth
+46:22 
+
+46:22 step uh what you do you uh uh so given
+46:26 
+
+46:26 this quiz data so you have a quiz data
+46:28 
+
+46:28 right you the the quiz data is given to
+46:30 
+
+46:30 the teacher right the teacher's output
+46:32 
+
+46:32 will be passed to the meta teacher the
+46:34 
+
+46:34 meta teacher will produce a
+46:36 
+
+46:36 representation right and the student
+46:37 
+
+46:37 also produce a representation and you
+46:39 
+
+46:39 measure the difference
+46:44 
+
+46:44 >> also in this like when we are doing this
+46:48 
+
+46:48 first we are fine on a task right but
+46:50 
+
+46:50 then we in the policy learner to
+46:53 
+
+46:53 diversify across tasks and train the
+46:55 
+
+46:55 students. So doesn't that somehow lead
+46:57 
+
+46:57 to forgetting of the
+46:59 
+
+46:59 >> No, that's the very good point. In fact,
+47:02 
+
+47:02 we observed that if you do this kind of
+47:04 
+
+47:04 curriculum learning, this would help you
+47:07 
+
+47:07 uh improve cases where your test sample
+47:11 
+
+47:11 comes from out of distribution samples,
+47:13 
+
+47:13 out of distribution uh region,
+47:16 
+
+47:16 right? and it would always diversify a
+47:19 
+
+47:19 student's a student's capacity a
+47:21 
+
+47:21 student's capability. We also showed
+47:23 
+
+47:23 that if you use this kind of curriculum
+47:25 
+
+47:25 learning
+47:27 
+
+47:27 you need very small amount of data task
+47:29 
+
+47:29 specific data for fine-tuning the
+47:30 
+
+47:30 student model at the beginning.
+47:33 
+
+47:33 Now so all these things are good the but
+47:36 
+
+47:36 the but the most impressive output or
+47:38 
+
+47:38 the most impressive result is as
+47:40 
+
+47:40 follows. So I'm showing don't worry
+47:43 
+
+47:43 about the table right. So the impressive
+47:46 
+
+47:46 output here is
+47:48 
+
+47:48 so we tested our method on glue
+47:50 
+
+47:50 benchmark, super glue benchmark, big
+47:52 
+
+47:52 bench and so on across uh you know whole
+47:54 
+
+47:54 24 30 tasks. There are some tasks where
+47:60 
+
+47:60 a student model actually beats a teacher
+48:02 
+
+48:02 model.
+48:04 
+
+48:04 Now think about it. So the goal of a
+48:06 
+
+48:06 student model is not to beat a teacher
+48:08 
+
+48:08 model, right? What is the goal? The goal
+48:11 
+
+48:11 is to come closer to the teacher model.
+48:14 
+
+48:14 But we have seen that due to all these
+48:16 
+
+48:16 modifications here and there. Now now
+48:18 
+
+48:18 these numbers these numbers indicate now
+48:21 
+
+48:21 if the number is negative
+48:24 
+
+48:24 that means u so the number indicates the
+48:27 
+
+48:27 the the result the performance
+48:29 
+
+48:29 difference between the teacher and the
+48:32 
+
+48:32 student between the student and the
+48:34 
+
+48:34 teacher.
+48:36 
+
+48:36 Student and the teacher right students
+48:38 
+
+48:38 output minus students performance minus
+48:41 
+
+48:41 teacher's performance. So if the numbers
+48:43 
+
+48:43 are negative that means teacher is
+48:45 
+
+48:45 better
+48:47 
+
+48:47 right? But if you look at here
+48:51 
+
+48:51 the number is zero the number is
+48:54 
+
+48:54 positive number is positive positive
+48:55 
+
+48:55 positive
+48:58 
+
+48:58 it means that the student model is
+49:01 
+
+49:01 better than a teacher model which is
+49:04 
+
+49:04 extremely counterintuitive.
+49:08 
+
+49:08 Right? Currently we are trying to
+49:11 
+
+49:11 understand why this is happening right
+49:14 
+
+49:14 when I presented this work in different
+49:16 
+
+49:16 forums people said that this is this may
+49:19 
+
+49:19 happen because of overfeitting but there
+49:20 
+
+49:20 is no chance of overfeitting we cross
+49:22 
+
+49:22 check in fact we are diversifying the
+49:25 
+
+49:25 model right with different task so there
+49:27 
+
+49:27 is no chance of overfeitting uh and so
+49:31 
+
+49:31 we also do not know why this happens we
+49:33 
+
+49:33 are currently working on that
+49:36 
+
+49:36 okay so now so we have looked at
+49:40 
+
+49:40 white box distillation meta
+49:41 
+
+49:41 distillation. Now let's try to
+49:43 
+
+49:43 understand u
+49:45 
+
+49:45 what distillation uh implies right and
+49:49 
+
+49:49 this is again this year's ACL paper our
+49:51 
+
+49:51 ACL paper so we showed that
+49:56 
+
+49:56 it is it is well known that the
+49:58 
+
+49:58 distillation process always improves the
+50:01 
+
+50:01 generalization ability of the model but
+50:03 
+
+50:03 what we are trying to understand is
+50:05 
+
+50:05 whether u after distillation the the
+50:09 
+
+50:09 student actually mimics the teacher or
+50:11 
+
+50:11 or or what right and what are the key
+50:15 
+
+50:15 key drivers which influences the
+50:17 
+
+50:17 distlation process altogether
+50:20 
+
+50:20 so to do that
+50:23 
+
+50:23 we took different pairs of uh teacher
+50:26 
+
+50:26 student models right let's say and here
+50:28 
+
+50:28 uh I'm I'm showing the result uh for the
+50:31 
+
+50:31 quen model so let's say we have a
+50:33 
+
+50:33 teacher model of 14 billion quen model
+50:36 
+
+50:36 and we have different student models.5
+50:38 
+
+50:38 billion 1.5 billion
+50:41 
+
+50:41 uh 3 billion,
+50:44 
+
+50:44 7 billion and so on and so forth. And
+50:46 
+
+50:46 what is the agreement? Agreement is the
+50:49 
+
+50:49 uh overlap between the final output of
+50:51 
+
+50:51 the two models, right? Let's say uh
+50:53 
+
+50:53 let's say math reasoning task. If both
+50:55 
+
+50:55 the outputs of the teacher and student
+50:57 
+
+50:57 agrees, right? If they agree, if they
+50:59 
+
+50:59 are same, then they agree otherwise not.
+51:03 
+
+51:03 Let's a simple mathing task. Let's say
+51:05 
+
+51:05 GSM 8K math math arithmetic, right? add
+51:09 
+
+51:09 some all all of them are math math
+51:11 
+
+51:11 related tasks right so if both of them
+51:14 
+
+51:14 produce the same result then we they
+51:15 
+
+51:15 agree otherwise not right
+51:19 
+
+51:19 so we observed that uh if you look at
+51:22 
+
+51:22 the difference so the blue line blue
+51:25 
+
+51:25 line is before KD and the red line is
+51:28 
+
+51:28 after KD
+51:31 
+
+51:31 now if you look at the gap between blue
+51:33 
+
+51:33 and red here and blue and red uh here
+51:37 
+
+51:37 right this is more prominent
+51:39 
+
+51:39 What does it mean?
+51:42 
+
+51:42 It means that if the the size difference
+51:46 
+
+51:46 between the teacher and student is
+51:48 
+
+51:48 larger, then you see more gain compared
+51:51 
+
+51:51 to this,
+51:53 
+
+51:53 which is intuitive. It is saying that
+51:57 
+
+51:57 if your student model is really small,
+52:00 
+
+52:00 the KD always benefits.
+52:04 
+
+52:04 Okay, let's now look at two other simple
+52:07 
+
+52:07 metrics. The first one is called the
+52:09 
+
+52:09 fidelity. The fidelity between teacher
+52:11 
+
+52:11 and student. What does it mean?
+52:14 
+
+52:14 Let's say you give a reasoning task to a
+52:16 
+
+52:16 teacher model and a student model. The
+52:18 
+
+52:18 teacher model produces a uh
+52:22 
+
+52:22 a reasoning trace. The student model
+52:24 
+
+52:24 also produces a reasoning trace, right?
+52:27 
+
+52:27 You not only look at the last output,
+52:30 
+
+52:30 right, but also looks at the step. You
+52:33 
+
+52:33 look at the step, right? the steps that
+52:35 
+
+52:35 they that they produce and also the
+52:37 
+
+52:37 output. So the output you have you have
+52:39 
+
+52:39 already checked before in the agreement
+52:41 
+
+52:41 plot right now you look at the steps
+52:45 
+
+52:45 right. So it may happen very
+52:47 
+
+52:47 interestingly it may happen that the
+52:51 
+
+52:51 agreement is very high the meaning the
+52:54 
+
+52:54 final output is the same but the steps
+52:56 
+
+52:56 are different
+52:59 
+
+52:59 right it may also happen the the other
+53:01 
+
+53:01 way around can also happen meaning the
+53:04 
+
+53:04 steps are the same but the final outputs
+53:06 
+
+53:06 are different meaning at this last stage
+53:09 
+
+53:09 maybe the model makes some mistakes
+53:13 
+
+53:13 for example if you look at here
+53:20 
+
+53:20 the steps.
+53:22 
+
+53:22 I mean how do you measure the steps? I
+53:25 
+
+53:25 mean we we we did a simple approach. We
+53:27 
+
+53:27 just looked at the uh representation the
+53:29 
+
+53:29 embedding of the of the trace reasoning
+53:32 
+
+53:32 traces and measure the similarity.
+53:33 
+
+53:33 Right? So here you see if you look at
+53:36 
+
+53:36 the steps steps are the same but the
+53:39 
+
+53:39 outputs are different. Right? So high
+53:42 
+
+53:42 agreement but low fidelity here same uh
+53:46 
+
+53:46 so here you see that
+53:50 
+
+53:50 uh so here I think low fidelity here
+53:52 
+
+53:52 here high fidelity right uh but the
+53:55 
+
+53:55 wrong answer uh the answer is the wrong
+53:57 
+
+53:57 answer is wrong and here uh the same
+54:01 
+
+54:01 answers are produced right but the
+54:04 
+
+54:04 reasoning steps are different this is
+54:05 
+
+54:05 just a sample example
+54:08 
+
+54:08 so now let's look at some of the
+54:10 
+
+54:10 drivers.
+54:13 
+
+54:13 I mentioned earlier at the beginning
+54:15 
+
+54:15 that if you if you have capacity to uh
+54:18 
+
+54:18 fine-tune your teacher model that will
+54:20 
+
+54:20 always be useful right if you have data
+54:23 
+
+54:23 set to fine-tune your teacher model even
+54:25 
+
+54:25 one layer or a lower finetuning that
+54:27 
+
+54:27 would be beneficial right so here we
+54:29 
+
+54:29 showed that let's say you have two types
+54:32 
+
+54:32 of teacher models one teacher model
+54:35 
+
+54:35 is a generic chat GBD kind of model
+54:38 
+
+54:38 other teacher model is let's say a 175
+54:40 
+
+54:40 billion uh opensource model which is
+54:43 
+
+54:43 fine-tuned on the task, right? You
+54:46 
+
+54:46 should always choose this one, not this
+54:48 
+
+54:48 one. So, generic generic highly capable
+54:53 
+
+54:53 model is not good enough compared to a
+54:56 
+
+54:56 task specific teacher model. Right? You
+54:59 
+
+54:59 see this blue bars indicate uh KD with
+55:04 
+
+55:04 teacher aware or a task a teacher and
+55:07 
+
+55:07 orange bars indicate KD without task a
+55:10 
+
+55:10 teacher.
+55:12 
+
+55:12 And with task our teacher is always
+55:14 
+
+55:14 better than without.
+55:19 
+
+55:19 Then what we did we started we started
+55:22 
+
+55:22 injecting noise to the logit.
+55:25 
+
+55:25 Right? We have the logic distribution.
+55:26 
+
+55:26 Right? Now you start injecting noise and
+55:29 
+
+55:29 we see we we we try to understand how
+55:31 
+
+55:31 much or till how long the model can
+55:34 
+
+55:34 tolerate this noise. Right? So we
+55:38 
+
+55:38 sampled noise from a distribution from a
+55:40 
+
+55:40 gshian distribution and u and you
+55:44 
+
+55:44 observe that it can tolerate noise up to
+55:46 
+
+55:46 certain level but suddenly we see a drop
+55:49 
+
+55:49 right
+55:52 
+
+55:52 the third one is I hope you remember the
+55:55 
+
+55:55 temperature parameter right we used it
+55:57 
+
+55:57 in in the in the short max right e to
+55:59 
+
+55:59 the z by t right or tow
+56:04 
+
+56:04 and let's look at this importance of
+56:06 
+
+56:06 this temperature parameter in KD, right?
+56:09 
+
+56:09 Some of you know that if if you increase
+56:12 
+
+56:12 the temperature, what would happen in
+56:14 
+
+56:14 the distribution?
+56:16 
+
+56:16 Huh?
+56:19 
+
+56:19 What does it mean? I mean in terms of
+56:20 
+
+56:20 smoothness, what would happen? Uniform,
+56:23 
+
+56:23 right? If you increase the temperature,
+56:25 
+
+56:25 the curve, you know, tends to become
+56:29 
+
+56:29 kind of uniform, right?
+56:31 
+
+56:31 Whereas if you decrease the temperature
+56:34 
+
+56:34 it will it will it will show some sort
+56:36 
+
+56:36 some sort of spike.
+56:38 
+
+56:38 So we observed that if you increase the
+56:41 
+
+56:41 temperature parameter right
+56:45 
+
+56:45 the recall of the student model will
+56:47 
+
+56:47 increase.
+56:51 
+
+56:51 Is it intuitive?
+56:56 
+
+56:56 If you increase the teacher, if you
+56:58 
+
+56:58 increase the temperature parameter, the
+56:60 
+
+56:60 curve gets smooth and uniform. What does
+57:02 
+
+57:02 it mean?
+57:05 
+
+57:05 It will increase the recall precision.
+57:08 
+
+57:08 Tell me.
+57:15 
+
+57:15 It will always increase recall.
+57:17 
+
+57:17 Right? If you decrease the temperature,
+57:20 
+
+57:20 it will start picking. It will start
+57:23 
+
+57:23 identifying the spikes. Right? Meaning
+57:26 
+
+57:26 that highly probable high high probable
+57:29 
+
+57:29 outputs will be returned. Right? And
+57:31 
+
+57:31 whatever you return will be correct.
+57:35 
+
+57:35 Meaning the precision will increase.
+57:38 
+
+57:38 And if you if you make the curve
+57:40 
+
+57:40 smoothen, you will return many things,
+57:44 
+
+57:44 right? Which will improve the recall.
+57:47 
+
+57:47 What is recall? Out of all the correct
+57:50 
+
+57:50 answers, how many how many have been
+57:52 
+
+57:52 returned,
+57:53 
+
+57:53 right? So if you if you return many
+57:56 
+
+57:56 things because this is getting uniform
+57:59 
+
+57:59 you are not able to
+58:01 
+
+58:01 distinguish between tokens you distingu
+58:04 
+
+58:04 between classes or whatever output you
+58:06 
+
+58:06 return many things that will improve the
+58:08 
+
+58:08 recall
+58:11 
+
+58:11 that's it right so uh now this is the KD
+58:16 
+
+58:16 paradigm in general this is still a very
+58:18 
+
+58:18 active research area uh
+58:21 
+
+58:21 and the good part about this this area
+58:24 
+
+58:24 is that uh there are not many people
+58:28 
+
+58:28 working in this area
+58:30 
+
+58:30 although it's a very interesting
+58:32 
+
+58:32 important uh area because you know
+58:34 
+
+58:34 whenever as I mentioned whenever every
+58:36 
+
+58:36 you know this kind of big models come it
+58:38 
+
+58:38 always comes with a distilled version
+58:42 
+
+58:42 okay so we stop here and next day we
+58:44 
+
+58:44 move to the next chapter thank It's

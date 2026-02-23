@@ -1,0 +1,1370 @@
+00:03 hello everyone I am an I am a pH student
+00:06 at I Deli advised by Professor tan and
+00:09 today I will be talking about
+00:10 interpretability of LMS so as we all
+00:14 know this llms are basically blackbox
+00:18 systems at least we perceive them as
+00:20 blackbox systems we should know how llm
+00:24 work to actually use it in real world
+00:26 settings because there are issues with
+00:28 safety there are issues with all this
+00:30 buyers and stuff so if if we don't know
+00:33 how this works we cannot actually uh use
+00:37 it um as a safe and trustable
+00:42 system so for any system to be uh
+00:46 deployed in a real world scale the
+00:49 control should be at our hand
+00:51 right so the field of NLP
+00:54 interpretability is actually quite nent
+00:56 compared to uh the whole history of NLP
+01:01 um so NLP Debs back to a long ago since
+01:04 I think you can talk about Eliza and
+01:06 stuff like
+01:07 that but this NLP inter mainly started
+01:12 around 2016 maybe I shouldn't use the
+01:15 word started but actually started to
+01:19 gain traction around
+01:21 2016 when uh researchers were primarily
+01:24 studying uh recurrent architectures like
+01:26 lstn and how they function and
+01:29 interestingly enough in 2017 Transformer
+01:32 was released so when this field of
+01:34 interpretability was growing Transformer
+01:36 drops in and then Transformers we don't
+01:40 understand how they works we just know
+01:41 their
+01:43 architecture so this coincidence kind of
+01:46 led to a boom in this interpretability
+01:49 community so much so that in 2018 the
+01:52 first blackbox NLP Workshop was held in
+01:55 an
+01:57 conference and uh as it drops it becomes
+02:00 one of the popular conferences
+02:02 ofcl and uh as more and more uh Works
+02:06 started to come
+02:08 in actually Incorporated this new uh
+02:13 track called interpretability analysis
+02:15 in their
+02:18 conference so if we broadly classify the
+02:21 interpretability techniques um obviously
+02:24 it's tough to classify interpret
+02:26 techniques but uh mostly we see there
+02:28 are two broad cations one is behavior
+02:32 localization another is information
+02:35 decoding so in Behavior localization
+02:38 what do we do is we try to localize the
+02:41 behavior of each
+02:42 component right so if you remember in
+02:45 the last lecture we were talking about
+02:47 this uh residual stream perspective of
+02:50 Transformers where we saw how we kind of
+02:53 disentangled
+02:54 the the role of each of the component
+02:57 and try to localize how each component
+02:59 is contributing towards the output in
+03:03 information decoding uh our goal is
+03:08 to uh kind of uh decode or kind of learn
+03:12 or kind of interpret from the
+03:14 information within the model say the
+03:16 hidden States or the
+03:18 activations how these activations or
+03:21 hidden States contributes towards a
+03:23 particular tasks so in Behavior
+03:25 localization uh there are two main
+03:27 categories one in input attribution
+03:29 which kind of tries to model what is the
+03:32 role of a particular input token towards
+03:35 the generation of a particular output in
+03:37 model component attribution as the name
+03:39 suggests the role is to understand how a
+03:42 particular model component influences
+03:44 the
+03:46 output and we will uh see different
+03:49 categories of it like logic attribution
+03:51 probably we will not discuss about logic
+03:53 attribution we will discuss about causal
+03:54 intervenes and circuit analysis we'll
+03:57 also discuss about probing we'll discuss
+03:59 about decoding in vocabulary space and
+04:02 if time permits we will uh look into
+04:05 dictionary
+04:07 learning before this new era of uh kind
+04:12 of which uh this interpretively field
+04:15 kind of boomed initially people were
+04:18 also using more simple simpler
+04:21 techniques I would say like distribution
+04:23 semantics and representational
+04:25 similarity like we all know when this
+04:27 what to dropped there is this notion of
+04:30 Vector space analogy where we say ke um
+04:33 the embedding of say king is to queen is
+04:36 proportional to man is to it will get
+04:38 give and that was a kind of start of
+04:42 interpretability using Vector space uh
+04:45 analogical reasoning what was happening
+04:47 within the vector
+04:48 space then just like in computer vision
+04:51 people use Salan c maps and stuff like
+04:53 that which are easy to visualize uh in
+04:56 interpretability a normal Choice was
+04:59 attention Maps
+05:00 so uh people were trying to visualize
+05:03 attention maps to see uh which tokens
+05:06 are receiving the more attention which
+05:08 kind of translates to a particular
+05:11 output then there was neuron analysis uh
+05:14 so basically which we will talk in a
+05:16 maybe a different uh test but actually
+05:20 it's the same concept neural analysis
+05:22 basically analyzing how a particular
+05:24 neuron is responsible for the um output
+05:27 and component analysis and Pro in we
+05:30 will see
+05:31 next so first discuss let's discuss
+05:34 probing because uh I think this is the
+05:36 most simplest uh technique one can use
+05:40 to start with
+05:42 interpretability so what probing does is
+05:44 suppose you have
+05:46 a any model it's a n layer Transformers
+05:51 model let us
+05:52 assume we want to understand what a
+05:55 particular layer learns what kind of
+05:58 information it contains
+06:00 so what we do is we train a classifier
+06:04 on top of the Hidden state of the
+06:07 layer let's let us name the classifier G
+06:11 which maps The Hidden state of the L
+06:13 layer to some feature level now this
+06:16 feature level is for some linguistic
+06:19 task which we want to understand for
+06:21 example suppose we have a b model we
+06:24 want to understand how B encodes the
+06:26 syntactic and semantic understanding of
+06:29 a task so what we will do is to
+06:32 understand the syntax part of speech
+06:34 tagging is a good proxy so part of
+06:37 speech tagging can be chosen as our
+06:40 probe task and we can train a classifier
+06:42 which will try to predict the part of
+06:44 speech tags from the U hidden state of a
+06:49 layer and similarly you can design
+06:52 probes for semantic information like say
+06:54 cor reference resolution or t task like
+06:57 that so what is essentially a Pro Plus
+06:60 if we
+07:01 doing if we look into it carefully what
+07:04 is trying to model is the um Mutual
+07:08 information between
+07:11 the hidden State and the random variable
+07:15 which are the properties of Z so suppose
+07:18 this Z random variable represents the
+07:21 information required to uh assess the
+07:25 part of speech tag and H Capital H is
+07:28 the random variable which denotes the
+07:31 representations of hidden state so if
+07:34 there is any Mutual information so if we
+07:37 go back a little bit so what does mutual
+07:39 information say like if we say Mutual
+07:41 information between X and Y two random
+07:44 variables it will say how much
+07:45 information can we tell about X if we
+07:49 know y right how much y can give
+07:51 information about X similarly in this
+07:54 case we are trying to see how much
+07:56 hidden State can give us information
+07:58 about a separate task
+08:00 Zed uh which can be any linguistic task
+08:04 like part spech
+08:06 typ so this is the basic motivation of
+08:10 probe task that is uh when we train a
+08:12 classifier we are trying to predict a
+08:14 property of the input text based on the
+08:17 representation H as I said so we are
+08:20 trying to see if the property is encoded
+08:22 somewhere within it right if we cannot
+08:24 train the classifier now if we cannot
+08:27 train the classifier there are they can
+08:29 be two
+08:30 either there is no information or there
+08:34 can be a nonlinear information maybe we
+08:36 need a more sophisticated classifier
+08:38 maybe we need a deeper MLP for
+08:41 that so that is so that is where one of
+08:44 the uh kind
+08:46 of uh challenges of probing comes in so
+08:50 before going to that uh as I discussed
+08:52 uh the approach of probing is uh for
+08:55 every layer you freeze the layer so you
+08:58 don't fine tune or train the layers the
+09:01 model is freezed you only train the
+09:03 classifier to predict a linguistic
+09:07 property so the question is should we
+09:11 use Simple probes or should we use
+09:12 complex probes by simple probes we mean
+09:15 say a two layer MLP by complex probe say
+09:18 we mean a 15 layer MLP so suppose I have
+09:22 a task I use a pro of Layer Two MLP of
+09:27 Layer Two I train it I see
+09:30 uh there is no improvement uh in the
+09:33 sense the accuracy is very low on the
+09:35 particular task part of spech tech but
+09:38 when I use a complex probe I see the
+09:39 suddenly the accuracy increases so what
+09:42 do I say do I say the model contains the
+09:44 information or is it the property of the
+09:47 probe or the uh which helps in that
+09:50 accuracy so this is a very um
+09:53 challenging thing of probing and that's
+09:55 why uh in one of the papers they propos
+09:58 the idea of control s so what control
+10:01 task do is suppose your probe is part of
+10:05 speech taging this is your probe
+10:08 task now you define a control task which
+10:12 is basically for every token you define
+10:15 a random number Suppose there are 40
+10:19 part of speech tags
+10:21 right now you have labels from 0 to
+10:25 39 and you randomly label the um tokens
+10:31 from 0 to
+10:32 39 so for this example the cat ran
+10:35 quickly I suppose randomly level cat as
+10:39 37 quickly and dog as 15 Randa as 10 and
+10:43 something like that so this information
+10:46 has no structure in it so ideally an MLP
+10:49 shouldn't be able to learn this because
+10:51 this is randomized the only way an MLP
+10:54 can do good at it is through
+10:56 memorization so this is what I discussed
+10:58 like how to design the control task this
+10:60 CV is basically your randomized um any
+11:03 kind of randomized task and you uh for X
+11:07 i2t you just lbel this randomly right
+11:11 now look at this uh this is basically a
+11:15 real world example from part of spech
+11:17 taging from a paper just look at the
+11:19 accuracy when I use a two layer MLP the
+11:22 control task accuracy is somewhere
+11:25 around
+11:26 35% but the part of speech task which is
+11:29 our probing task the accuracy is around
+11:32 some
+11:33 85% I increase the MLP units gradually
+11:38 and I make it th000 MLP units suddenly
+11:41 the uh control task accuracy jumps up to
+11:45 86% and this is around this also
+11:47 increases from 85% to around
+11:49 92% but look at the difference this
+11:52 difference we call it
+11:54 selectivity so possibly what is
+11:56 happening here is the MLP is memorizing
+11:58 the levels
+12:01 so ideally the pro uh classifier should
+12:05 be such that its accuracy on the control
+12:08 task is low and its accuracy on the
+12:12 probe task is high that is your
+12:15 selectivity is high so this is one of
+12:18 the way to control that
+12:21 challenge so this was before all like
+12:25 2020 21 before 2020 this was where was
+12:30 people was doing and suddenly in 2020
+12:33 this terms drops in which we call
+12:35 mechanistic interpretability which is
+12:37 kind of going very famous these days
+12:39 people are working on it a lot of people
+12:41 are working on it primarily because it
+12:43 doesn't require a lot of computation
+12:45 resources to start with so academicians
+12:47 a lot of academicians are working on it
+12:49 uh I myself and working on it so I'm
+12:51 myself a criminal of this but uh so the
+12:54 question is is it a new paradigm or are
+12:57 we just pouring the old wine a new
+12:59 bottle are you just naming it a new
+13:02 thing so uh there's an interesting paper
+13:05 uh in this year's emlp this is a
+13:07 position paper the paper's name is
+13:09 mechanistic so what is mechanistic we
+13:12 don't really know what is mechanistic no
+13:14 one defines what is
+13:16 mechanistic but interestingly uh the
+13:19 authors uh actually classify the The
+13:23 Works which call themselves mechanistic
+13:24 interpretability Works can be primarily
+13:27 categorized into four categories one is
+13:29 the narrow technical definition by
+13:31 mechanistic interpretability as a very
+13:34 narrow term what people mean is causal
+13:37 mechanisms that is they try to interpret
+13:40 what caused a particular output what
+13:43 model component actually caused a
+13:45 particular output what is the causal
+13:47 mechanism of the model that is the most
+13:48 narrow
+13:49 definition in a more broader field any
+13:52 research that uh uses the internals of
+13:55 the models uses the activations and the
+13:57 Ws and try to interpret from it people
+13:60 call it
+14:01 mechanistic from a cultural point of
+14:03 view on the other hand there is this
+14:05 bunch of people who call themselves that
+14:07 we are the Mi Community uh and then the
+14:10 papers coming out from them are mostly
+14:12 in the uh mechanistic
+14:15 interpretability uh line of Works
+14:19 interestingly enough a lot of criticisms
+14:21 has been there uh of this Mi Community
+14:24 many people argue that uh people who are
+14:27 working in mi mi community uh They Don't
+14:30 Really site the previous CL stuff
+14:33 computational linguistic stuff which
+14:34 were there already maybe in a different
+14:36 name just like probing it was there from
+14:39 around 2016 but uh it is kind of
+14:42 reinvented in the mechanistic
+14:44 interpretability era and uh the most
+14:47 broader cultural definitions is you do
+14:49 any interpretability in AI you call that
+14:51 mechanistic interpretability the paper
+14:53 cells so yeah so but what is mechanistic
+14:57 interpret then how do you know
+14:58 interpretability is mechanistic
+14:60 interpretability or not how do you tell
+15:02 it so the interesting words which comes
+15:06 here is the reverse
+15:08 engineer the first paper which uh talks
+15:12 about mechanistic interpretability in
+15:14 the context of Transformer language
+15:17 models uh is from
+15:19 anthropic and that is the paper we were
+15:22 discussing in the previous class kind of
+15:24 this mathematical framework of
+15:26 Transformer circuits where they call
+15:28 this residual perspective and stuff like
+15:30 that so there they Define um the field
+15:34 of mechanistic interpretability as
+15:36 attempting to reverse engineer the
+15:38 computations of a
+15:40 transformer the mechanistic inter
+15:42 Community has grown and now icml 2024
+15:45 had a great mechanist inability workshop
+15:48 and they use the similar terminologies
+15:50 they basically we are trying to reverse
+15:52 engineer the algorithms implemented by
+15:54 neural networks into human
+15:56 understandable
+15:57 mechanisms so maybe this is the
+15:59 definition we can go go
+16:03 with so how does this term mechanistic
+16:06 interpretability
+16:07 emerged so let us uh go a step back and
+16:11 look into general science so when we
+16:14 talk about General Science when we talk
+16:16 about complex systems how do you
+16:18 understand how do scientists understand
+16:19 how a complex system work how do we
+16:22 understand how a uh material performs
+16:25 whether a material is electrical how is
+16:28 the electrical conductivity of the
+16:29 material how do you analyze it we go
+16:31 into the atoms study the atoms uh look
+16:34 at its uh enthalpy entropy and stuff
+16:37 like that and from that we predict what
+16:39 is the electrical property what is the
+16:41 magnetic conductivity and stuff like
+16:44 that U
+16:46 similarly so basically this is zooming
+16:48 in we are going into the model looking
+16:50 at the atoms looking at the electrons
+16:52 what is the uh en enthalpy stuff like
+16:55 that and predicting is it's different uh
+16:58 materialist
+16:59 properties similarly neural networks at
+17:02 the end of the day are complex systems
+17:04 so let us take a leaf out of the book of
+17:07 Science and look into the atoms of
+17:09 neural networks so what are neural
+17:11 network consist of what are the atoms of
+17:13 neural networks they are
+17:15 neurons so this is the key idea behind
+17:17 mechanistic interpretability we look at
+17:19 the atoms of the neural networks we look
+17:21 at the neurons and kind of try to
+17:25 reverse engineer how that output may
+17:27 have happened
+17:30 this is not a concept which was first
+17:32 used to NLP this again is something we
+17:35 borrow from Vision right so they have
+17:38 taken Transformer from us we take
+17:40 something from them uh so chrola when he
+17:43 was at uh open AI he he actually coined
+17:47 this term mechanistic interpretability
+17:49 and when he started looking into CNN's
+17:52 um networks like reset to understand uh
+17:56 what kind of neurons
+17:57 actually uh contribute towards a certain
+18:02 um pattern matching of stuff like
+18:05 that and the same paper the paper's name
+18:08 is zoom in and introduction to circuits
+18:10 this uh term circuit was introduced
+18:13 which we already uh introduced in the
+18:16 last
+18:18 class the circuit is basically a
+18:20 computational subgraph of a neural
+18:22 network what is a computational subgraph
+18:24 so basically the neurons acts at the
+18:27 nodes and the RS which transfers the
+18:31 activations or the output of one neuron
+18:33 to the
+18:33 other they act at the edges so we can
+18:38 represent any neural network as a
+18:40 computation graph and circuits are
+18:43 basically a SRA of this which
+18:46 contributes towards a particular task
+18:49 the hypothesis is that for a particular
+18:51 task not all neurons are required only a
+18:53 part of the neurons in the network
+18:56 actually contributes towards a for a
+18:59 particular task we'll see
+19:01 how look at this example this is called
+19:05 a car detecting neuron right so the role
+19:08 of this neuron is is to detect whether
+19:11 the uh images image is a car or not so
+19:14 they kind of found that this neuron
+19:17 helps in detecting the car but this is a
+19:20 catch in here when you give the windows
+19:23 of the car the upper part of the neurot
+19:26 excites this is basically a collection
+19:28 this kind of a
+19:29 uh you can consider it as a map like a
+19:33 filter in convolution
+19:36 right when you give the car body almost
+19:40 the whole neuron excites but the bottom
+19:43 part of the neuron of the map or the
+19:45 filter excites the most when you give
+19:48 the wheels the upper part is inhibited
+19:50 and the bottom is excited what does this
+19:54 tells us this tells us that a particular
+19:57 neuron is not encoding a only single
+20:01 property rather it is uh encoding
+20:04 multiple properties of the input for
+20:08 example here it is looking at the
+20:11 windows car body and the wheels all
+20:13 three are handled by single neuron right
+20:16 so when uh we try to interpret why the
+20:20 output is say a car it detects it is a
+20:24 car say so why it does that we cannot
+20:28 seg that this neuron is responsible for
+20:30 the wheel part this neuron is
+20:32 responsible the car body we cannot
+20:34 segregate that and that is a major
+20:35 problem that's why these neurons are
+20:38 called polysemantic
+20:41 neurons and this is a big challenge when
+20:44 we do uh this kind of interpretability
+20:47 that a single neurons captures multiple
+20:50 properties so we cannot dangle them as
+20:52 humans we cannot understand how this
+20:54 happens so there are three claims in
+20:57 this paper uh they made made first is
+20:60 features so features acts as the
+21:02 fundamental units of neural networks
+21:04 just like cells in a human body features
+21:07 are the fundamental units in a neural
+21:08 network circuits are basically features
+21:11 connected by ws and uh universality
+21:15 claims that analogous features and
+21:17 circuits form across models and task
+21:20 this is a very uh ambitious claim I
+21:22 would say because a lot of criticism of
+21:24 mechanistic interpretive research has
+21:26 been the lack of generalizability across
+21:29 models and tasks so that is still a
+21:32 challenge so now moving from computer
+21:34 vision to NLP so first let us understand
+21:39 what is an ioi task ioi stands for
+21:42 indirect object
+21:44 identification so suppose I give you a
+21:47 sentence John and
+21:51 Mary went to the
+21:56 market John gave
+21:60 the pen
+22:03 two so here uh you have to the model has
+22:08 to predict the task is to predict what
+22:10 should come here so basically from the
+22:12 sentence we can understand that Mary
+22:14 should come in this place so Mary is
+22:17 basically called a indirect
+22:21 object and a task of the model is to
+22:23 predict this indirect object or to
+22:25 identify the indirect object
+22:29 so
+22:30 um this paper interpretability in the
+22:33 wild they first tried to find circuits
+22:37 in gpd2 for these ioi
+22:40 tasks so uh as you can see there's a
+22:43 similar sentence when Mary and John went
+22:44 to the store John G a drink to and to
+22:47 predict the next
+22:49 one and this orange uh whatever color
+22:53 you are seeing these components actually
+22:55 look into the circuit but we will see
+22:56 how circuits work and stuff like that
+22:59 we'll go into that so how will you find
+23:01 circuit so basically there are three
+23:03 steps we'll go on them one by one first
+23:06 is you have to isolate a particular task
+23:10 you have to observe a behavior and
+23:12 create a data set that repr reproduces
+23:14 the behavior in question and Define a
+23:17 metric how do you measure the
+23:18 performance of the task let's look at an
+23:20 example for example in this ioi task the
+23:25 metric can be the logic difference
+23:27 between John and Mary the two uh objects
+23:29 in the uh input prompt right so whether
+23:34 it is predicting John or Mary the logic
+23:35 difference can act as a performance of
+23:37 the model and there are different kind
+23:40 of tasks like Doc string which tries to
+23:42 predict what is the next parameter from
+23:44 the um input function there is this
+23:49 trasure tasks uh which are basically a
+23:52 kind of
+23:53 compiler and there's a induction task
+23:56 which
+23:57 uh which the the task is to basically
+23:60 predict the next token where the token
+24:02 already arrives before in the similar
+24:06 context so these are some of the typical
+24:09 tasks which are used for uh circuit
+24:12 identification in uh mechanistic
+24:15 interpretability the second step is to
+24:18 define the scope of the interpretation
+24:20 like I said we will construct
+24:22 computation graphs so what will be the
+24:24 nodes of those computation graphs are
+24:26 those be attention heads are those MLP
+24:30 MLPs or they are more uh complex in the
+24:34 sense are they the residual stream state
+24:37 after certain layers so what is the
+24:39 granularity in which you are going to
+24:41 break down the
+24:43 model so that is your scope of
+24:46 interpretation uh obviously you will
+24:49 represent the model as a computational
+24:51 directed cyclic graph and uh as I said
+24:55 what is the obstruction label in fact
+24:56 you can go into more granular label uh
+24:58 choose query key and value activations
+25:00 as separate nodes and work with
+25:05 that the step three is the uh most I
+25:10 would say interesting or most critical
+25:12 for finding circuits so U if I go a
+25:16 little back so the step three is you
+25:20 have to perform a series of extensive
+25:22 patching experiments we will see what is
+25:24 patching is and try to prune uh the
+25:28 unnecessary or the not useful components
+25:31 in the computational graph so we end up
+25:34 with the subgraph which actually is
+25:36 important for the task in
+25:40 hand so we call this activation patching
+25:43 what activation patching does is for
+25:47 every node in the graph for the
+25:49 activation of every node in the graph it
+25:52 overwrites the activation value using a
+25:54 corrupted
+25:55 activation and runs a forward path
+25:57 through the model
+25:59 and compare the output values for the
+26:01 Clean Run and the corrupted run we will
+26:04 see how so suppose we have a statement
+26:09 John and Mary we make it corrupt by
+26:12 changing a single token John with
+26:15 Bob right and we see how the output
+26:18 Logics
+26:21 differ for a more uh real world example
+26:25 consider that the Clean Run is
+26:29 the iel tower is in right so the output
+26:32 should be
+26:35 Paris and the corrupt run is we just
+26:39 replace the Eiffel Tower with
+26:44 colosium
+26:46 now we do two forward passes initially
+26:51 one with the Clean Run that is the I
+26:52 Tower is in with this input set of input
+26:55 tokens we do a forward pass uh we get a
+27:00 Logic for say the Clean Run output is r
+27:05 and the corrup Run output is R Dash so
+27:07 we get a logic for R and a logic for R
+27:10 Dash with the cren run right similarly
+27:13 we do with the corrupt run and get the
+27:16 Logics and now we patch each of the
+27:19 components for example suppose we want
+27:22 to see whether the attention head
+27:25 whether the say fifth attention head of
+27:28 the first layer so we it as a1. 5 so it
+27:32 is the attention of the first layer
+27:34 Fifth Head whether it is a part of the
+27:38 circuit which is responsible for the
+27:40 task or not what we do
+27:43 is we have this corrupt run right we
+27:47 replace
+27:49 the a15 of corrupt with a15 of
+27:54 clean and see how much the change in the
+27:58 Logics happen so basically if we replace
+28:03 the corrupted input batching with the
+28:08 clean input patching the idea is the
+28:12 Logics of R Dash or R Prime should
+28:16 decrease and that of R should increase
+28:19 gradually if it is important if not they
+28:22 would the
+28:23 same so how will we measure this so
+28:26 basically what we want to measure is the
+28:28 logic difference between R and R Das in
+28:30 each case in this case the logit of
+28:33 Paris and the logit of Rome right let us
+28:36 uh take an
+28:40 example suppose uh this is
+28:44 my Paris output and this is my uh Rome
+28:50 output
+28:51 right so uh the activation here is say a
+28:56 dash this is our component of interest
+28:59 for now forget just imagine we are
+29:01 working with a single component and we
+29:04 are here the activation is a we have
+29:07 already cached
+29:09 this now for a patch run what we do is
+29:13 this for the corrupt run Remains the
+29:15 Same in the patch run what we do is only
+29:18 in place of a we replace it with a bar
+29:22 we replace it with a okay so suppose
+29:25 this input
+29:26 is x i up to here and here it is X1
+29:30 Prime so this is X1 Prime everything
+29:34 comes the same only we change the
+29:36 activation at a particular
+29:38 component and we check how much the
+29:41 logic difference
+29:43 varies if this logic difference is
+29:46 greater than a
+29:47 threshold we will see we will say that
+29:49 this component is important if it is
+29:53 close to zero we'll prune this from the
+29:55 graph and say this is not important for
+29:58 the task
+29:59 can So based on this idea this SDC
+30:03 algorithm was proposed which is
+30:05 basically an automatic circuit Discovery
+30:07 algorithm so what it does is suppose you
+30:11 have a computational graph G it it first
+30:14 sorts the graph in Reverse topological
+30:16 order so we start from the
+30:20 output and move towards the
+30:23 input that's how we prune it and then
+30:27 for every every
+30:30 component we remove the candidate Edge
+30:34 and see here they are using kale
+30:35 Divergence so this is basically a choice
+30:38 you can either use scale Divergence or
+30:40 you can use logic difference it it's up
+30:42 to you best on the task attemp so they
+30:44 are using the kale Divergence between
+30:46 the probity distributions when we use G
+30:49 and when we remove one Edge from G which
+30:51 is H new H H new is basically when you
+30:54 remove one Edge from G check the
+30:57 distribution you keep it check the
+30:59 distribution this removal is basically
+31:01 patching
+31:03 right and when you do this
+31:06 iteratively uh at the end of the
+31:08 algorithm you are left with a
+31:11 subg as you can see this is a very
+31:15 computationally expensive algorithm if
+31:17 we go for each uh computational graph
+31:22 like for every component of the
+31:23 computational graph one by one two
+31:25 activation patching so for Activation
+31:28 patching how many runs do you require
+31:30 just imagine one is the complete forward
+31:33 passs through the clean one is the
+31:35 complete forward bus using the corrupted
+31:37 and again for every component you do
+31:39 patching and do a forward pass two
+31:41 patching so if there are n components
+31:43 apart from those two forward passes for
+31:46 every end component you have to patch
+31:47 and do a forward pass and it's basically
+31:50 a huge number of forward passes through
+31:52 a model which is very
+31:54 expensive but can be an alternative
+31:56 solution to it so uh this is basically a
+32:00 representation of what we already talked
+32:02 about
+32:03 in this example of a circuit maybe I
+32:06 should so U alternative attribution
+32:10 patching what attribution patching tries
+32:12 to do is it tries to
+32:16 approximate uh this uh difference uh I
+32:21 we will see how as a linear
+32:24 approximation let's see how suppose uh
+32:27 we have a model Which models I is the
+32:29 input space the clean input space and L
+32:31 is our uh logic space and we have a
+32:35 specific activation uh which goes from I
+32:37 to an activation space a
+32:41 right so what we were doing is
+32:43 activation patching
+32:46 was for a output M so the output M right
+32:51 we have this model pasted model where we
+32:55 are running with this R is our corrupted
+32:57 input
+32:58 and a is the
+33:01 activation which we will patch
+33:05 right so this m and we were measuring it
+33:08 using a m using any metric P this P can
+33:12 be logic difference this P can be kale
+33:14 Divergence that is based on our choice
+33:17 and we were iteratively replacing this a
+33:21 with the clean activation AC right
+33:25 so this p
+33:29 I comma a what is it let us understand
+33:32 this is the our model this is the clean
+33:36 input and this is the activation let us
+33:39 represent it as a function fa I
+33:44 Comm so our logic difference this is
+33:47 basically a logic this p is logic
+33:49 difference for now forget K this is a
+33:51 logic difference between the clean
+33:53 output and the corrupted output Logics
+33:56 right this function
+33:59 basically represents that logic
+34:01 difference based on your
+34:03 input and the activation you are trying
+34:06 to
+34:06 patch right so if for attention head
+34:10 fifth attention head of the first layer
+34:12 you're trying to see whether it is
+34:13 important or not previously we were
+34:15 doing patching and then doing a forward
+34:18 pass now without doing the forward pass
+34:21 can we approximate that that logic
+34:24 difference because ultimately what we're
+34:25 doing is we are thresholding on the
+34:27 logic difference and pruning it right so
+34:29 this fa what we were doing let us go
+34:33 step by step we were first taking the
+34:36 corrupted activation corrupted input
+34:40 right and it had an
+34:43 activation and we were replacing this
+34:46 activation with the clean activation
+34:49 that is what we were doing and we were
+34:51 checking what was this fa and we are
+34:53 thresholding on it right so basically we
+34:56 are interested in
+34:58 the difference between this fa when we
+35:01 have
+35:02 a corrupted activation and a clean
+35:05 activation now tell us his extension of
+35:08 FX for at a point a at a point where X
+35:12 is FX is differentiable can be written
+35:14 as F A plus f- a by 1 factorial into x -
+35:19 A plus f- a by 2 factorial into x - a²
+35:25 plus dot
+35:26 dot so if this difference xus a is small
+35:30 enough if this difference is small we
+35:33 generally neglect this higher order
+35:34 terms as they go towards
+35:37 zero now the assumption is that when you
+35:40 alter just a single uh activation within
+35:44 the model there a single attention
+35:48 head typically for a big model like gpt2
+35:52 which is a sufficiently big model the
+35:54 the difference between the activation
+35:57 should not be should not be much it's
+35:59 not of very high order that will blow up
+36:02 right it's typically very small so we
+36:06 can approximate it
+36:08 linearly this is basically a linear
+36:10 approximation so this F
+36:13 ax ignore the r because the input is the
+36:16 same in both cases we are patching the
+36:18 activations remember the input is the
+36:20 same so F ax can be written as for at
+36:24 any point a can be written as fa Plus
+36:29 Dow F A by da a into xus
+36:35 right now now what activation we are
+36:38 patching we patching the activation of
+36:41 the so what is this a this a is our
+36:45 activation which we will patch with
+36:46 another Activation so our activation is
+36:50 from the corrupted input R whatever
+36:53 activation a we are getting so this a is
+36:55 basically a r r is remember the Ed input
+36:58 the colosium is in
+37:01 right so F ax can be written as f a
+37:07 r plus Dow F A by da a xus
+37:14 A or F
+37:19 ax minus f a a
+37:23 r is basically Dow F by da a
+37:28 at a = to a r into
+37:33 xus not what we are interested in you
+37:36 are interested in how the logic
+37:38 difference changes when we replace AR
+37:41 with SE the clean Activation so if we
+37:44 put X is equal to the clean
+37:47 activation then this term becomes F
+37:51 AAC this becomes AC so F AAC minus f a a
+37:56 r this is the term we were interested in
+37:59 we were previously doing using a forward
+38:01 pass now if we assume that uh these are
+38:05 small numbers this doesn't change a lot
+38:08 for a single token what it becomes
+38:13 is we have a
+38:17 approximation for this difference we
+38:19 were previously doing using a full
+38:21 forward pass now let's see how many
+38:23 forward passes this needs obviously you
+38:26 need one forward pass for the clean run
+38:28 and one for the corrupted run so two
+38:30 forward passes you
+38:31 need after two forward passes you
+38:34 already have this AC minus for every
+38:37 component
+38:38 right what remains is the derivative of
+38:42 uh this function with respect to a the
+38:45 activation so this can be done by single
+38:47 back propagation right for the
+38:51 activation uh the derivative of this
+38:53 function with respect to each activation
+38:55 can be done by single back Prof using
+38:58 this fa as the kind of loss function
+39:00 right so this attribution patching works
+39:04 with two forward pass and one single
+39:06 back Prof so instead of n forward passes
+39:09 it is doable in a single back Prof so it
+39:11 kind of reduces the computation
+39:14 complexity by a lot but the challenge is
+39:17 here is this only works number one when
+39:20 you change a single token uh you cannot
+39:23 change multiple token and stuff like
+39:25 that second is you are working with a
+39:27 lower gan granular level it's like
+39:29 attention heads if you work with say
+39:32 residual streams after a layer after the
+39:34 whole layer or after two layers then
+39:37 this approximation that this xus a will
+39:40 be very less may not
+39:42 hold so these are some of the uh things
+39:45 you have to keep in mind that this the
+39:47 main assumption over here is that the
+39:50 activations don't change much when we
+39:51 patch a single token at a certain
+39:53 granity level but uh this scales well
+39:57 and um as I said it can be done with
+39:60 single clean forward pass corrupted
+40:01 forward pass and a corrupted backward
+40:03 pass and it's scalable so uh that is the
+40:07 positives of attribution patching so now
+40:10 we have covered causal interventions
+40:12 activation patching attribution patching
+40:14 and discussed uh how do you find
+40:17 circuits uh automatically right
+40:22 okay now what are some the uses how do
+40:26 you use this in the real world uh are
+40:28 there some Works which use this and find
+40:31 something it turns out there are a lot
+40:32 of works but I chose two of them um to
+40:37 two such uh Works which are related to
+40:40 the topics already discussed in the
+40:42 course one is induction heads so this
+40:46 induction head is said to be one of the
+40:48 primary source of Inc context
+40:51 learning what induction head does is
+40:53 what is induction head induction is head
+40:55 is basically a circuit what kind of
+40:58 circuits it consists of two heads the
+41:01 first
+41:02 head attends the previous token what
+41:05 does it mean suppose you have a sequence
+41:06 a b dot do dot a right so you have to
+41:09 predict the next token the input is a
+41:12 b a and you to predict the next token
+41:17 right so those who you of you who are
+41:20 doing project one uh this is something
+41:22 you were looking into
+41:24 right the task of the first head is to
+41:27 look in at the previous token so for
+41:30 predicting this token the previous token
+41:33 is a so the first head looks where is
+41:36 this a present elsewhere in the context
+41:39 right and the second head uses the
+41:42 information to find tokens preceded by
+41:44 the present token
+41:47 so to predict this
+41:49 token the first head goes and finds
+41:52 what's the previous token and the next
+41:54 token what it does is it copies the next
+41:57 uh
+41:58 whatever is present next token is
+41:60 present for the output it's kind of a
+42:03 Byram
+42:05 searching so they found at least in the
+42:09 two layer attention only modules so a
+42:11 typical uh way of doing mechanistic
+42:13 interpretability starting with toy
+42:15 models you play around with toy models
+42:17 find some phenomena and look whether it
+42:19 works for large scale models or not so
+42:21 what the find is U this is again from
+42:24 the anthropic team so what they find is
+42:27 this induction heads Implement such a
+42:29 pattern coping
+42:32 behavior for an example uh this is an uh
+42:36 input from Harry Potter and
+42:40 uh the context were Mr and Mrs DL OB
+42:44 something something something and
+42:46 then again here dle was uh arriving so
+42:52 it was seen that uh for when we are
+42:55 dealing with this token
+42:58 Earth for predicting Le the attention
+43:01 heads were looking into uh the similar
+43:06 uh previous token hours so this uh red
+43:09 actually says you what is the attention
+43:11 is where the attention is on and then
+43:14 other head is uh looking into lay right
+43:17 so there are lot of examples maybe you
+43:20 can go through the article and see it's
+43:22 a long article but uh this example kind
+43:25 of is one example where it illustrates
+43:26 key look this is happening what we
+43:28 hypothesize what we see by algorithmic
+43:30 tasks basically they prove it using
+43:32 algorithmic task and then show look for
+43:35 even for um this kind of natural
+43:37 language inputs same thing is happening
+43:42 right we also uh in one of the lectures
+43:45 studied about emerging properties where
+43:48 uh after a certain point suddenly in
+43:52 context learning emerges it so happens
+43:55 that uh this in cont text learning score
+43:58 is basically the defined at the loss at
+44:00 the 50th token minus loss at the 500th
+44:03 token now you may say what is it how
+44:05 does it uh qualify to be a performance
+44:09 for induction uh for in context core so
+44:13 the assumption is that when you are
+44:14 taking on the loss for the prediction of
+44:16 the 500 token suppose this is a
+44:20 512 uh input context length so 500 token
+44:24 is almost toward the end of the context
+44:28 so when you're predicting the 500 token
+44:30 the model has already seen almost the
+44:32 whole context so if in context learning
+44:35 works this loss should be
+44:38 low compared to predicting the 50th
+44:41 token when it is towards the start of
+44:43 the context it has not seen much uh in
+44:46 context learning of course cannot happen
+44:49 because it has not seen anything in the
+44:50 context so if in context learning really
+44:53 happens uh this 500 token loss
+44:56 prediction loss should be
+44:58 low when you use a one layer model
+45:01 remember a one layer model cannot have
+45:03 attention head from two layers so
+45:05 induction circuits cannot emerge we see
+45:08 that this score this l50 minus
+45:11 l500 is almost uh parallel to the
+45:16 x-axis compared to when we do two layer
+45:19 and three layer and other more layer
+45:21 models after a certain point after some
+45:25 2.5 into 10^ 9 training to suddenly this
+45:29 loss
+45:31 drops and the interesting thing is at
+45:35 the same time the emergence of the
+45:37 induction heads comes
+45:38 up in this phase of loss dropping so
+45:42 though we uh in other lectures we say
+45:45 that look emergence is dependent on uh
+45:48 this metrics you choose maybe I am kind
+45:51 of contradicting that but uh what we see
+45:54 is uh
+45:57 at least in case of in context
+45:59 learning the emergence of the induction
+46:03 heads and the this sudden decrease in
+46:06 loss happens at the same uh training
+46:09 time so uh how do you measure that this
+46:13 induction heads are emerging we measure
+46:15 it using something called prefix
+46:16 matching score so basically we see uh
+46:20 whether it matches with the prefix or
+46:21 not in simple terms uh it's just the um
+46:25 attention weight of the prefix and the
+46:27 difference between that right the
+46:29 fraction of that
+46:31 insurent and the second work uh is from
+46:34 our lab at Delhi where uh we worked on
+46:38 the mechanistic understanding of Co it
+46:39 was the first work which talked about
+46:42 how do you uh interpret coot from a
+46:44 mechanistic point of view um so this was
+46:46 recently published in tmlr and there
+46:49 what we saw was that uh for a particular
+46:54 task when we are doing coot uh there are
+46:57 three subtask the model is kind of
+46:60 algorithmically doing the first is the
+47:02 decision key which uh this is basically
+47:05 a fiction and alogy data set so uh this
+47:08 data set doesn't make sense it's just
+47:10 the entities are randomized kind of a
+47:12 thing it's like a is b b is C is a is C
+47:16 or not true or false that kind of
+47:18 inductive reasoning based on some
+47:20 fictional ontologies right so for that
+47:24 uh what we saw was there are three
+47:27 subtask subtask one where the model has
+47:30 to make the decision which entity to
+47:32 choose subtask two where it just copies
+47:35 from the context similar to induction
+47:37 heads it copies from the context uh
+47:39 suppose it chooses Max and then for the
+47:42 sub 2 it will search where is Max okay
+47:44 here is Max then we'll copy
+47:46 isus and the third is this induction
+47:49 induction here not in the sense of
+47:51 induction head it is of induction
+47:52 reasoning where it has a entity and a uh
+47:57 kind of uh suffix to it uh something a
+48:01 reason associated with it you have to it
+48:04 has to reason whether given a entity and
+48:08 its role for two entities but can it
+48:11 reason from two statements right there
+48:13 are three subtasks which are been
+48:15 implemented and uh to give a brief
+48:18 overview we see that there are multiple
+48:20 neural Pathways that uh that are
+48:22 deployed to uh basically compute the
+48:25 answer and basically there is a
+48:27 functional ripped in the model in
+48:28 between where the first half of the head
+48:30 is first half of the models is more uh
+48:34 associated with moving the information
+48:36 within the residual stream and second
+48:38 half of the model is more about coming
+48:40 up with the answers there are more to it
+48:42 about the for each attention is does
+48:44 what maybe we should give a read to the
+48:45 paper to understand
+48:49 it uh next what I said uh in
+48:54 that classification of interpret
+48:56 techniques was decoding in the
+48:58 vocabulary space so what does that
+49:00 mean so this is another again easier
+49:03 technique of doing
+49:04 interpretability um when you have a
+49:07 intermediate residual stream State Excel
+49:10 and uning Matrix WV uh what this logic
+49:14 lens does is it
+49:16 simply projects this uh hidden St Excel
+49:21 into the vocabulary Space by multiplying
+49:23 with woup so suppose you multiply W with
+49:26 Excel what it will give is your
+49:28 distribution over the uh vocabulary when
+49:31 you take s Max right so basically what
+49:34 it tells is how uh or what tokens are
+49:38 kind of pushed at each layer of the
+49:40 model so you can understand at what
+49:41 hidden State the model is pushing which
+49:43 tokens in the vocabulary uh and how this
+49:46 kind of tells you how particular output
+49:49 is gradually forming within the model as
+49:52 the input as a forward pass
+49:55 happens uh interestingly this is also
+49:58 applied to Vision language models where
+50:00 given the input images um you have to
+50:03 generate some caption or stuff like that
+50:05 and uh they use the UN edding Matrix at
+50:09 each point to see uh at each layer how
+50:12 much is uh each pixel categorized into
+50:15 so suppose each pixel you have to
+50:17 categorize into couch and table so when
+50:19 you apply the uning Matrix it kind of
+50:22 tells you okay uh this part of the image
+50:24 contains couch and table this part of
+50:26 the image
+50:27 contains cat and things like that you
+50:30 can gradually understand whether when
+50:31 you break because image is also kind of
+50:34 tokenized when you give it to F Vision
+50:35 language models so it tells you how each
+50:39 token is treated within the
+50:40 model and this can further be used for
+50:43 editing uh Vision language models which
+50:45 we will not go into in this
+50:49 lecture one more um tool in this
+50:53 category of projecting in the vocabulary
+50:57 space each path Scopes relationally by
+51:00 Google so path Scopes basically gives
+51:03 you a more generalized framework for
+51:06 probing uh so for probing what we were
+51:09 doing was we're taking a single
+51:13 model we are applying a classifier on
+51:16 top of that say the classifier is a and
+51:19 trying to predict our output Zed right
+51:23 so here there's a single model M and a
+51:26 single activation or single layer
+51:28 whatever you call it pass Scopes makes
+51:31 it more generalized more generalized in
+51:33 the sense it uses two
+51:35 models model M and model M
+51:39 Dash now suppose you want to interpret
+51:42 what what this particular activation
+51:45 stores uh which we previously seeing the
+51:48 mutual information between X and Zed we
+51:51 were seeing in probing a similar thing
+51:53 um it applies a function f on it and
+51:57 patches this um output of F into the
+52:04 token of the next
+52:05 Model A different model right so for
+52:09 example why I say this is a generalized
+52:11 case of probing so if I have m equal to
+52:15 M Dash right this function is say
+52:19 identity
+52:21 function and this layer where you patch
+52:23 it if it is in the last layer last layer
+52:27 L then it's basically probing because
+52:30 when it's the same model here and
+52:33 here you patch it from layer l to layer
+52:38 l to layer capital L which capital L is
+52:41 the last layer then the last layer if
+52:44 you patch it what it will do is after
+52:46 that it will just apply the uning Matrix
+52:49 like
+52:50 so that is what logit LS
+52:53 does and similar thing you can do with
+52:56 uh
+52:57 for a probing classifier like here we
+52:59 are not training it different
+53:00 differently so this is kind of a more
+53:03 broader view of probing in the sense you
+53:05 know you don't need to train it but you
+53:08 are looking into what information does
+53:09 that the uh objective is the same to
+53:12 look into what information does that
+53:14 state contain but you don't need to
+53:16 train a classifier so from these pass
+53:18 Scopes um when m equal to M Dash and
+53:22 this layer l in the second model L Dash
+53:24 is equal to last layer it becomes log
+53:27 lens there is interesting use cases of
+53:29 this P Scopes like you may ask when we
+53:32 will We may use a different model
+53:34 suppose we have a model which is not
+53:36 powerful enough
+53:38 right so from the first model suppose we
+53:41 have a input the largest river of India
+53:46 is gangas something like that right now
+53:49 what we do is we want to test whether a
+53:52 particular activation can extract The
+53:54 Entity information within the input
+53:57 so what we do is suppose here from the
+54:00 first model we take the activation
+54:02 corresponding to India right for the
+54:06 second model the input prompt is
+54:08 different it can be different it's your
+54:10 choice for logic lens it would be the
+54:12 same but suppose uh the input prom for
+54:16 the second model this suppose this is a
+54:17 more powerful model the input PR the
+54:19 second model is suppose the largest city
+54:22 of X is right so the large
+54:27 largest city of X is this is the inut pr
+54:32 to model M Dash over here and the input
+54:35 from to here was the largest
+54:40 river of
+54:42 India
+54:44 is right now what we do is we take the
+54:47 input
+54:48 activation not input activation
+54:50 activation a particular layer say a l
+54:53 from this model right and we patch it
+54:58 suppose we apply a function f to adjust
+54:60 for the uh model sizes and stuff like
+55:02 that and we patch it
+55:05 over uh in place of X so X had an
+55:12 activation we passed it with this
+55:16 Al and we try to see whether the model
+55:19 can give the right output or not as a
+55:22 answer like we already know the largest
+55:24 city of India is something something and
+55:27 uh we want to compare whether that
+55:29 output say the gold output is C we want
+55:32 to compare that the output which this
+55:35 gives after patching Al whether it is
+55:37 same as C or not if it can that means
+55:39 this model m in its activation Al was
+55:43 storing entity information of India it
+55:46 is capturing India if it is not then it
+55:49 is not storing entity information so in
+55:52 this way this can be an extended thing
+55:54 one more thing which is dictionary
+55:55 learning I just uh give a brief overview
+55:58 of it in five minutes and then we'll
+55:59 wrap
+56:01 up so uh one thing which I told
+56:04 initially was this poly semanticity that
+56:07 every neuron has multiple Concepts
+56:10 within it which we don't really
+56:14 understand so these are not
+56:17 interpretable human these are not human
+56:19 interpretable at least so um there is
+56:22 this thing called linear representation
+56:24 hypothesis um maybe you can go and read
+56:27 it uh later but I will give the brief
+56:30 intuition behind it so it says that
+56:32 interpretable features are represented
+56:34 represented as linear directions in the
+56:36 some latent space whether uh it can be
+56:38 an embedding space or whatever and when
+56:41 um these features are activated only
+56:45 when uh the embeddings you have align
+56:48 with these directions so suppose you
+56:50 have a basis you have space and you have
+56:53 a basis within that basis to have these
+56:57 feature vectors pointing to some linear
+56:59 directions right so now you give an
+57:02 input the features are only activated if
+57:04 your input embedding is aligned with
+57:08 this feature
+57:09 vectors this is linear representation
+57:11 hypothesis basically right and uh
+57:15 because there are a
+57:16 superposition individual features may
+57:18 not be informative because there are a
+57:20 lot of things windows I give that
+57:22 example of car detective neuron because
+57:24 very hard to disentangle the
+57:26 representation within the
+57:28 space so there is this concept of
+57:31 privileged basis first privileged basis
+57:34 basically tells is is incentivizes the
+57:37 features to alignance with the basis
+57:39 Dimension the normal basis which we see
+57:43 in word embeddings or transform residual
+57:45 stream there is no incentive there is no
+57:47 explicit in incentive for the features
+57:50 to be aligned with the bases they can be
+57:52 different like this can be your basis
+57:54 and these are your features they not may
+57:56 not be align
+57:57 but privilege basis uh explicitly kind
+58:00 of guarantees that the feature will be
+58:02 aligned to the basis vector and this is
+58:05 what happens in Transformer MLPs and
+58:07 also in con
+58:09 neurons and from there this comes these
+58:12 concepts of inductive biases and stuff
+58:13 like that right and uh in the super
+58:17 position
+58:19 hypothesis we see key features can't
+58:21 align with the bases why because the
+58:24 model embeds more features than
+58:27 the dimension of the Subspace so suppose
+58:29 it's a 512 dimensional Vector
+58:33 activation and the number of features
+58:36 which are embedded in it is a, so how
+58:39 can the features align with the bases if
+58:41 it is more than uh the number of uh the
+58:44 dimension of the Subspace it
+58:47 can't so here where Spar s encoders
+58:50 comes in it is also called dictionary
+58:52 learning so what it does is for every
+58:55 activation X
+58:57 right The Spar set encoders up projects
+59:01 it into intermediate activation
+59:05 fix so this is the encoder W
+59:09 encoder so when you multiply
+59:12 x with the encoded Matrix sum it over
+59:16 all I at the basis whatever you want and
+59:21 this gives you
+59:23 fix the dimension of this fix is higher
+59:27 right and this di is basically your
+59:30 decoder um so this FX then it passes
+59:33 through a decoder and this reconstruct X
+59:36 Prime so how do you train this pars out
+59:38 encoders so the idea is this FX has a
+59:41 higher Dimension than x
+59:43 right so how do you train the out
+59:46 encoders you give the Reconstruction
+59:48 loss and you
+59:51 explicitly uh give a
+59:54 penalty uh over the uh
+59:57 uh L1 Norm of F1 fi so basically we are
+60:02 U giving a penalty on the magnitude of
+60:04 fi uh so that uh fi is less that is some
+60:09 components of fi tends to zero ensuring
+60:11 it is parse right this this is basically
+60:14 Spar ensuring sparsity sparity loss and
+60:17 this is the Reconstruction loss just
+60:19 like we train AO encoder so clearly the
+60:21 training of Auto encoders is completely
+60:23 unsupervised
+60:26 so what uh is done is just uh for an
+60:30 example suppose the activation is 52
+60:33 Dimension uh it is the features the
+60:35 sparse features learn to sparse encoders
+60:39 can go like in the paper we talking
+60:41 about towards monos semanticity there
+60:43 they go up to 131,000 so that is approx
+60:47 256 times of 512 so when you go into
+60:51 such a large Subspace the chances like m
+60:56 LP normally launched this privileged
+60:58 basis so now um the features have a
+61:01 chance to at least align with the basis
+61:05 vectors right uh the idea is if it
+61:09 aligns with the basis vectors uh the
+61:11 features are embedded we can maybe
+61:13 interpret it we can dis disentangle them
+61:17 uh so this is what is done in Spar or
+61:19 encoders to give an example
+61:22 um they kind of extracted millions of
+61:24 features this was CLA 3 Sonet model for
+61:27 cloud 3 Sonet model they extracted the
+61:29 features which
+61:31 um which affects each part different
+61:35 kinds of uh properties in the output
+61:38 like buyers like uh different kind of
+61:42 hateful comments and things like that
+61:44 and they identified the features where
+61:47 each feature contributes to particular
+61:49 property of the output and they showed
+61:52 that the obviously this is again very
+61:55 competition expensive have a lot of uh
+61:57 Power there computational power then
+61:59 only you can do it but uh they
+62:01 identified this
+62:02 feature uh which was responsible for
+62:05 gender bias right after this they
+62:09 disentangle them learn the spars of
+62:11 encoders and um do all the stuff
+62:15 they identify that this feature
+62:17 responsible for gender bias and they
+62:20 manually then increase or decrease the
+62:22 specific feature or maybe remove that
+62:24 and then they see that uh this biases in
+62:28 the output are controlled by controlling
+62:31 this feature so though this is still a
+62:35 very nent field uh it's like uh
+62:39 2023 paper I guess end of 2023 start of
+62:43 2024 or if I'm not wrong it is May 2024
+62:46 paper so it is very on Nation field is
+62:49 just starting but s seem to have a lot
+62:52 of Promise in them for um learning human
+62:55 interpretable features and controlling
+62:57 them for uh B uh for basically AI safety
+63:02 right so with this uh I will stop thank
+63:06 you

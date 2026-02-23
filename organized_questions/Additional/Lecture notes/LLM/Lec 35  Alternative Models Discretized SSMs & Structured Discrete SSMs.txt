@@ -1,0 +1,7048 @@
+00:00 My attempt is to cover
+00:03 
+
+00:03 uh discretized state space machines and
+00:08 
+
+00:08 then move on to
+00:11 
+
+00:11 uh two different types of uh discretized
+00:14 
+
+00:14 state space machines. One is S4 and the
+00:18 
+
+00:18 other one which gained a lot of
+00:20 
+
+00:20 popularity which is uh Mamba. But just
+00:23 
+
+00:23 for some recap sake, what we started on
+00:28 
+
+00:28 with when we, you know, discussed state
+00:30 
+
+00:30 space machines as an alternative
+00:33 
+
+00:33 uh way of modeling language, we looked
+00:36 
+
+00:36 at language as a diffusive field, right?
+00:40 
+
+00:40 So, so instead of uh looking at the in a
+00:44 
+
+00:44 sequential model, let's say like raco or
+00:48 
+
+00:48 tin and style models. So instead of
+00:50 
+
+00:50 looking at uh the updates that's the
+00:54 
+
+00:54 information update that happens at every
+00:56 
+
+00:56 time step when a new word comes in uh
+01:00 
+
+01:00 you know which is discrete we look at it
+01:02 
+
+01:02 more like there's a continuous evolving
+01:05 
+
+01:05 flow of the different aspects of
+01:08 
+
+01:08 semantics
+01:10 
+
+01:10 as a new word comes in. So the standard
+01:16 
+
+01:16 uh SSM OD or the ordinary differential
+01:19 
+
+01:19 equation is that if you have a state
+01:22 
+
+01:22 let's say X X is the state uh which is
+01:25 
+
+01:25 or the history let's say the memory the
+01:28 
+
+01:28 memory that is continuously evolving and
+01:31 
+
+01:31 if you have to look at the change the
+01:34 
+
+01:34 rate of change of that memory that is
+01:36 
+
+01:36 given by this equation a XT
+01:40 
+
+01:40 plus where A is a A is a a
+01:44 
+
+01:44 transformation matrix and uh it's and
+01:49 
+
+01:49 it's added to B UT where U is the update
+01:54 
+
+01:54 information the new information that is
+01:56 
+
+01:56 coming in right so XT is the latent
+01:59 
+
+01:59 semantic field uh uh ext means how that
+02:04 
+
+02:04 field drips or decays uh not and again
+02:07 
+
+02:07 it may not necessarily decay all the
+02:09 
+
+02:09 time it can shoot up as Well, b is how
+02:15 
+
+02:15 the current state nudges or perturbs
+02:18 
+
+02:18 this this particular field. So I gave
+02:21 
+
+02:21 you that analogy of imagine that this
+02:24 
+
+02:24 room is filled up with fluid with
+02:26 
+
+02:26 different viscosity and density at
+02:28 
+
+02:28 different places and you are trying to
+02:30 
+
+02:30 swim. You're drifting through this this
+02:32 
+
+02:32 room and how you would drift at
+02:35 
+
+02:35 different time steps at at different
+02:36 
+
+02:36 positions. So think of it like that. So,
+02:39 
+
+02:39 so or another way of looking at it is
+02:41 
+
+02:41 that as I am speaking, there's a thought
+02:43 
+
+02:43 process going on. You're trying to
+02:45 
+
+02:45 understand me, but this thought process
+02:47 
+
+02:47 is continuous. Even if I pause, your
+02:50 
+
+02:50 thought process is still moving and
+02:52 
+
+02:52 you're trying to figure out what next,
+02:54 
+
+02:54 what next, what next. Right? And you're
+02:56 
+
+02:56 trying to and the more I speak, the more
+02:58 
+
+02:58 you will be able to associate that
+03:00 
+
+03:00 thought process, the direction of that
+03:02 
+
+03:02 thought process towards what I'm going
+03:03 
+
+03:03 to say next.
+03:07 
+
+03:07 So
+03:09 
+
+03:09 uh and uh then uh once you uh model the
+03:16 
+
+03:16 the uh the state then you look at the
+03:20 
+
+03:20 contextual embedding which is yt as yet
+03:24 
+
+03:24 another matrix called c uh which cxt and
+03:29 
+
+03:29 uh dut uh where d is
+03:34 
+
+03:34 a learnable uh matrix. applied on the uh
+03:39 
+
+03:39 the incoming new input. Right? So
+03:44 
+
+03:44 uh
+03:46 
+
+03:46 so uh so the goal uh is to express x t +
+03:52 
+
+03:52 delta which is what is that what is you
+03:55 
+
+03:55 know if if there is a delta shift in in
+03:57 
+
+03:57 in time step what would be the new uh
+04:01 
+
+04:01 new state the new state is xt plus delta
+04:04 
+
+04:04 right in terms of xt and in terms of u
+04:08 
+
+04:08 and then later on obtain a per token
+04:11 
+
+04:11 update which is the discretized version.
+04:14 
+
+04:14 Right?
+04:16 
+
+04:16 So if you solve the continuous SSM OD,
+04:20 
+
+04:20 you would get uh this solution, this
+04:24 
+
+04:24 closed form solution. So x of t plus
+04:28 
+
+04:28 delta is e raised a delta xt plus an
+04:33 
+
+04:33 integration over e raised a toa where to
+04:37 
+
+04:37 is the history then trajectory.
+04:40 
+
+04:40 uh B
+04:43 
+
+04:43 multiplied by B of U of T + delta minus
+04:46 
+
+04:46 the T to integrated over 0 to delta
+04:50 
+
+04:50 which means that particular delta U uh
+04:54 
+
+04:54 that particular delta uh interval
+04:58 
+
+04:58 and where E of a delta XT should be
+05:01 
+
+05:01 understood as the drift of the existing
+05:03 
+
+05:03 memory. The integral is the accumulated
+05:06 
+
+05:06 input effect over the interval.
+05:09 
+
+05:09 Right. So this is the continuous uh
+05:12 
+
+05:12 solution. I gave you know I'm not going
+05:15 
+
+05:15 to go through this but I uh last time I
+05:18 
+
+05:18 discussed a little bit about how to
+05:20 
+
+05:20 solve this. In this lecture, in this
+05:22 
+
+05:22 slide also I have given a a slightly
+05:26 
+
+05:26 neater and cleaner version of how to how
+05:29 
+
+05:29 to solve uh this particular equation and
+05:33 
+
+05:33 how to from from the original uh OD mix
+05:37 
+
+05:37 how do you get the the final uh the
+05:41 
+
+05:41 final closed form solution over here
+05:44 
+
+05:44 down there you know that's basically the
+05:46 
+
+05:46 dual's formula
+05:49 
+
+05:49 and but then this is continuous time
+05:52 
+
+05:52 right okay you can go through it later
+05:54 
+
+05:54 on I mean it's pretty pretty simple uh
+05:57 
+
+05:57 calculus
+05:59 
+
+05:59 uh and also we discussed last time that
+06:02 
+
+06:02 you know how to interpret the structure
+06:04 
+
+06:04 of a so if we assume that a is
+06:08 
+
+06:08 diagonalizable
+06:10 
+
+06:10 right then we can
+06:13 
+
+06:13 uh decompose a into
+06:18 
+
+06:18 v which is the
+06:22 
+
+06:22 U matrix and the diagonal matrix lambda
+06:26 
+
+06:26 and V inverse
+06:28 
+
+06:28 and uh but then uh uh the on value what
+06:34 
+
+06:34 is the meaning of the value lambda uh
+06:38 
+
+06:38 the meaning is that it reflects a
+06:40 
+
+06:40 particular uh intensity of a particular
+06:44 
+
+06:44 aspect semantic aspect that is captured
+06:47 
+
+06:47 by a uh or a semantic uh direction that
+06:53 
+
+06:53 is captured within the particular
+06:55 
+
+06:55 history that is captured by it. So the
+06:56 
+
+06:56 history has all different aspects. So
+06:58 
+
+06:58 let's say if I say John loves Mary who
+06:60 
+
+06:60 lives in New York then as you approach
+07:04 
+
+07:04 who there is a meaning drift that is
+07:06 
+
+07:06 going on from John to loves to Mary and
+07:09 
+
+07:09 so on. But then the meaning itself has
+07:12 
+
+07:12 all different sorts of aspects. One
+07:13 
+
+07:13 aspect can be the uh proper nouns, how
+07:17 
+
+07:17 the proper nouns are flowing. Another
+07:19 
+
+07:19 aspect can be the the the the verb
+07:22 
+
+07:22 phrases, how the verb phrases are
+07:23 
+
+07:23 flowing, you know, whether their
+07:26 
+
+07:26 intensity or whether their influence
+07:28 
+
+07:28 going forward is dying down or
+07:30 
+
+07:30 increasing or whatever, right? So there
+07:33 
+
+07:33 are all different aspects. So that each
+07:36 
+
+07:36 aspect is are the on vectors and the
+07:39 
+
+07:39 corresponding intensity and or how that
+07:42 
+
+07:42 actually evolves over time would be the
+07:45 
+
+07:45 flux the flux in the value right.
+07:50 
+
+07:50 So
+07:53 
+
+07:53 and if you uh we also saw this that if
+07:56 
+
+07:56 you uh understand the value as a complex
+08:02 
+
+08:02 number with a real part alpha and an
+08:04 
+
+08:04 imaginary part beta then you can rewrite
+08:08 
+
+08:08 e lambda it t for a particular aspect
+08:11 
+
+08:11 for a particular uh aspect or uh i and
+08:15 
+
+08:15 you can rewrite e alpha it t as lambda
+08:20 
+
+08:20 it t as e alpha i t cos beta i t plus i
+08:24 
+
+08:24 sin uh beta t right and we also
+08:28 
+
+08:28 discussed that the real part which is
+08:31 
+
+08:31 the alpha part uh tells you how whether
+08:36 
+
+08:36 you know it's an exponential growth
+08:37 
+
+08:37 right and whether it's sorry it's an
+08:39 
+
+08:39 exponential uh change and the change can
+08:42 
+
+08:42 be a growth or a decay of whatever is
+08:45 
+
+08:45 the amplitude and the imaginary part is
+08:48 
+
+08:48 uh or the beta part will tell you the
+08:51 
+
+08:51 oxillation and by oxillation what we
+08:53 
+
+08:53 mean is the recurrence of a particular
+08:56 
+
+08:56 pattern. So whether the semantic pattern
+08:59 
+
+08:59 will again occur reoccur over time. So
+09:02 
+
+09:02 that is what the oxillation would mean.
+09:05 
+
+09:05 Uh you know ideally we would love alpha
+09:09 
+
+09:09 i to be less than zero in the sense that
+09:13 
+
+09:13 the memory should decay the memory
+09:16 
+
+09:16 should eventually fade. But this word
+09:19 
+
+09:19 eventually is very important and please
+09:21 
+
+09:21 note that it should not drastically
+09:23 
+
+09:23 decay. It should eventually decay.
+09:26 
+
+09:26 Right? So if alpha is equals to zero
+09:30 
+
+09:30 that would mean that memory persists. It
+09:34 
+
+09:34 just remains the same. Right? If alpha i
+09:37 
+
+09:37 is greater than zero it would be like
+09:39 
+
+09:39 it's booming. It's almost like you know
+09:42 
+
+09:42 it's and if that happens then what
+09:44 
+
+09:44 happens is down the line it will
+09:46 
+
+09:46 suppress all other aspects
+09:49 
+
+09:49 right you know it becomes the dominating
+09:51 
+
+09:51 semantic uh information and if beta is
+09:54 
+
+09:54 not zero which means if lambda happens
+09:58 
+
+09:58 to be complex then there is a recurrence
+10:01 
+
+10:01 of theme let's say the subject verb
+10:03 
+
+10:03 object pattern is recurring
+10:07 
+
+10:07 many times and so
+10:10 
+
+10:10 So together I each value encodes how
+10:13 
+
+10:13 fast and how rhythmically meaning
+10:15 
+
+10:15 evolves. So that's the interpretation of
+10:18 
+
+10:18 continuous state space machines.
+10:22 
+
+10:22 So but then if you look at it you see
+10:25 
+
+10:25 that by definition a is time invariant
+10:29 
+
+10:29 which means whatever you have within a
+10:32 
+
+10:32 that doesn't evolve over time right but
+10:35 
+
+10:35 then we are all all the time talking
+10:37 
+
+10:37 about evolution right we are al always
+10:39 
+
+10:39 saying that okay how uh how the semantic
+10:45 
+
+10:45 uh you know the semantic uh drift is
+10:49 
+
+10:49 evolving over time which means how
+10:50 
+
+10:50 lambda and all of that is evolving over
+10:53 
+
+10:53 time. So how can it be if a is time
+10:56 
+
+10:56 invariant then your lambda and v is also
+10:59 
+
+10:59 time invariant right? So how what do
+11:02 
+
+11:02 what do we really mean by by evolution
+11:05 
+
+11:05 over here? So,
+11:09 
+
+11:09 so, so if you look at it, you'll see
+11:11 
+
+11:11 that
+11:12 
+
+11:12 uh the igon values and the igon vectors
+11:15 
+
+11:15 they don't change. They are fixed
+11:17 
+
+11:17 because a is time invariant. But what
+11:20 
+
+11:20 really changes is this uh particular
+11:23 
+
+11:23 factor which is e lambda e ra lambda i
+11:27 
+
+11:27 t. Why? Because of t because there is
+11:30 
+
+11:30 this t or delta associated. So changes
+11:33 
+
+11:33 with time. So time appears in the
+11:35 
+
+11:35 exponential and this drives the decay of
+11:37 
+
+11:37 the oxillation. Okay, this is called the
+11:39 
+
+11:39 mode.
+11:41 
+
+11:41 So while lambda for a particular a
+11:44 
+
+11:44 doesn't change but since the tt is
+11:46 
+
+11:46 evolving over time that will that drift
+11:50 
+
+11:50 is seen.
+11:53 
+
+11:53 Okay. So and thereby because that
+11:56 
+
+11:56 happens thereby all the associated
+11:58 
+
+11:58 coefficients like the real part and the
+12:00 
+
+12:00 imaginary part associated with that t
+12:03 
+
+12:03 will also you know will will push that
+12:06 
+
+12:06 drift to happen.
+12:09 
+
+12:09 So how state evolves? Uh so if A is
+12:13 
+
+12:13 diagonalizable
+12:15 
+
+12:15 which means A equals to let's say Q or V
+12:18 
+
+12:18 whatever notation you you you
+12:21 
+
+12:21 choose to use uh and if you define them
+12:26 
+
+12:26 which means you make a change of basis.
+12:28 
+
+12:28 So if you define the model coordinates
+12:30 
+
+12:30 in a way which is basically change of
+12:32 
+
+12:32 basis and you instead you use ZT uh as
+12:38 
+
+12:38 the same as what happens if you do uh if
+12:43 
+
+12:43 you apply an inverse transformation
+12:46 
+
+12:46 uh on XT then the the initial
+12:52 
+
+12:52 you know X dot T which is dx dx by dt
+12:58 
+
+12:58 that equation changes to Z.T = to lambda
+13:04 
+
+13:04 ZT + Q inverse B UT. Now this is
+13:08 
+
+13:08 important and you might be saying why am
+13:09 
+
+13:09 I even doing this change of bas basis
+13:12 
+
+13:12 I'm writing the same thing why why
+13:14 
+
+13:14 should I even be bothered about doing
+13:16 
+
+13:16 this we'll look at it later like why
+13:19 
+
+13:19 this helps
+13:21 
+
+13:21 so but one thing very interesting that
+13:24 
+
+13:24 has happened is instead of using a you
+13:28 
+
+13:28 are using the diagonalized
+13:32 
+
+13:32 version which is the diagonal matrix of
+13:34 
+
+13:34 a you know after the decomposition
+13:36 
+
+13:36 happens of Of course here what is the
+13:38 
+
+13:38 assumption that A is diagonalizable
+13:41 
+
+13:41 right so so in the Z form in the change
+13:45 
+
+13:45 of basis form you you don't have to deal
+13:46 
+
+13:46 with the entire A as such you are only
+13:49 
+
+13:49 dealing with the diagonalized matrix
+13:51 
+
+13:51 which is lambda
+13:55 
+
+13:55 okay so change of basis separates memory
+13:58 
+
+13:58 into independent modules because it's a
+14:00 
+
+14:00 diagonalizable it's a diagonal matrix
+14:03 
+
+14:03 right so is the and the and the and the
+14:06 
+
+14:06 diagonal matrix will will contain what
+14:08 
+
+14:08 the igon uh the the the the values of
+14:13 
+
+14:13 each of the vectors right so that's what
+14:14 
+
+14:14 it represents and uh they are
+14:18 
+
+14:18 independent so it kind of separates out
+14:21 
+
+14:21 those independent modes and by uh and
+14:25 
+
+14:25 each value lambda I defines a distinct
+14:29 
+
+14:29 time scale
+14:32 
+
+14:32 and the inputs enter via B uh and and
+14:36 
+
+14:36 are projected on into these model
+14:38 
+
+14:38 directions through Q inverse B.
+14:41 
+
+14:41 So that's the interpretation.
+14:45 
+
+14:45 So, so dynamics of each mode for mode I
+14:48 
+
+14:48 extract the ayat component you can do
+14:50 
+
+14:50 that and that would be like the capital
+14:54 
+
+14:54 V you are extracting each of the uh each
+14:58 
+
+14:58 of the row vectors of those of that B uh
+15:03 
+
+15:03 sorry the the column vectors of the B
+15:05 
+
+15:05 and then you are essentially
+15:08 
+
+15:08 that changes that that Z form changes
+15:11 
+
+15:11 into lambda I zit plus VI transpose UT
+15:16 
+
+15:16 where BI transpose UT would be EI
+15:18 
+
+15:18 transpose
+15:21 
+
+15:21 Q inverse B
+15:23 
+
+15:23 right so it gives you a much neater
+15:27 
+
+15:27 version of that OD in terms of Z and
+15:31 
+
+15:31 then you can uh uh if you integrate over
+15:36 
+
+15:36 on both sides you'll get zit equals to
+15:39 
+
+15:39 the the solution uh the closed form
+15:41 
+
+15:41 solution e lambda t minus t0 0
+15:46 
+
+15:46 I T0 plus
+15:50 
+
+15:50 E lambda I t minus T to B I transpose E
+15:55 
+
+15:55 to over T 0 to T and you can set T0 at
+15:60 
+
+16:00 whatever time point you want which and
+16:02 
+
+16:02 this T minus T 0 is the delta
+16:07 
+
+16:07 so E ra lambda I t minus T0 is basically
+16:12 
+
+16:12 that drift
+16:14 
+
+16:14 during that time time interval. So how
+16:18 
+
+16:18 existing memory decays or oxalates
+16:21 
+
+16:21 and bi transpose you to would be how new
+16:25 
+
+16:25 input excise mode I.
+16:30 
+
+16:30 Now one important thing to understand
+16:32 
+
+16:32 over here is when we say U toao we not
+16:37 
+
+16:37 only mean the particular U or the input
+16:40 
+
+16:40 at that time point the current time time
+16:43 
+
+16:43 step but we also mean what all input has
+16:49 
+
+16:49 happened over the trajectory so far.
+16:54 
+
+16:54 So uttow represents while ut represents
+16:57 
+
+16:57 a particular time step but uta would
+16:59 
+
+16:59 represent the entire trajectory and you
+17:01 
+
+17:01 are bounding the trajectory between t
+17:03 
+
+17:03 minus t0. So that's what has happened.
+17:07 
+
+17:07 So we are only interested what has
+17:10 
+
+17:10 happened between tn minus t0 or you know
+17:13 
+
+17:13 in terms of the u
+17:17 
+
+17:17 so accumulation uh and you know if you
+17:21 
+
+17:21 if you uh if you if you unroll uh the
+17:24 
+
+17:24 particular uh uh integration factor
+17:28 
+
+17:28 you'll see there's an accumulation of
+17:29 
+
+17:29 the dynamics over time which which would
+17:32 
+
+17:32 mean that what you are uh what you are
+17:35 
+
+17:35 doing is you are basically saying that
+17:37 
+
+17:37 the this t minus t 0 can be written as
+17:41 
+
+17:41 let's say delta t and then you can look
+17:46 
+
+17:46 at the you know integration from from
+17:49 
+
+17:49 this point of view where you know it's a
+17:52 
+
+17:52 summation over k = 0 to t minus one e
+17:56 
+
+17:56 lambda i delta of t - 1 - k multiplied
+18:00 
+
+18:00 by
+18:02 
+
+18:02 b i
+18:04 
+
+18:04 transpose of u A right so we'll we'll
+18:09 
+
+18:09 see uh how how this works out but again
+18:13 
+
+18:13 it's the the interpretation being the
+18:15 
+
+18:15 same like e the uh e raised lambda i
+18:19 
+
+18:19 delta t minus 1 minus k would represent
+18:24 
+
+18:24 the fading eco from all the past tokens
+18:26 
+
+18:26 in that time interval within that time
+18:28 
+
+18:28 interval and b i transpose uk
+18:32 
+
+18:32 strongly token uk particular that token
+18:35 
+
+18:35 Look at that time step K excites mode I
+18:39 
+
+18:39 this is for one mode or one feature
+18:42 
+
+18:42 right so there are multiple such
+18:44 
+
+18:44 features or modes
+18:49 
+
+18:49 so and then you can reconstruct
+18:52 
+
+18:52 uh you know everything uh by multiplying
+18:57 
+
+18:57 ZT with uh Q which is the linear
+18:60 
+
+18:60 transformation of ZT
+19:02 
+
+19:02 by Q would give back give you back xt
+19:06 
+
+19:06 and then yt would be uh capital cxt
+19:09 
+
+19:09 which is basically cqy or zit
+19:14 
+
+19:14 over all the all the modes or features.
+19:20 
+
+19:20 So again the linguistic representation
+19:23 
+
+19:23 would be uh the igon vector uh are the
+19:28 
+
+19:28 semantic axis of the directions like
+19:30 
+
+19:30 topic phrase
+19:32 
+
+19:32 connect connectors are the like who what
+19:35 
+
+19:35 so those sort of connectors directions
+19:37 
+
+19:37 and so on and so forth. Uh lambda i is
+19:41 
+
+19:41 how fast or how rhythmically the
+19:43 
+
+19:43 semantic race speeds are oxalates. B B B
+19:46 
+
+19:46 B B B B B B B B B B B B B B B B B B B B
+19:46 
+
+19:46 B B B B B B B B B B B B B B B B B B I
+19:47 
+
+19:47 transpose UT would be how much the
+19:49 
+
+19:49 current world word injects energy into
+19:52 
+
+19:52 the semantic into that particular
+19:54 
+
+19:54 semantic index or semantic axis I and Z
+19:58 
+
+19:58 it would be current strength of that
+20:01 
+
+20:01 particular memory mode.
+20:04 
+
+20:04 uh e lambda i over that t minus t0 which
+20:09 
+
+20:09 is the delta that is the memory
+20:10 
+
+20:10 persistence or decay or recurrence
+20:13 
+
+20:13 whatever that is over that time
+20:15 
+
+20:15 interval.
+20:17 
+
+20:17 So why discretization is needed? Now
+20:20 
+
+20:20 this is all continuous.
+20:22 
+
+20:22 So if you look at how language works
+20:25 
+
+20:25 which we discussed last time also
+20:27 
+
+20:27 language works in in discrete uh the the
+20:30 
+
+20:30 U or the input comes in discrete time
+20:33 
+
+20:33 intervals right like when you say John
+20:36 
+
+20:36 loves Mary who lives in New York City
+20:38 
+
+20:38 the the discrete tokens come at discrete
+20:41 
+
+20:41 time steps right so
+20:44 
+
+20:44 if when we say that we need to
+20:46 
+
+20:46 discretise a continuous SSM what we
+20:49 
+
+20:49 really mean is we don't go back into the
+20:52 
+
+20:52 world of Rau or LSTM. No, that's not
+20:55 
+
+20:55 what we are trying to do. What we are
+20:57 
+
+20:57 trying to do is we trying to it's almost
+20:59 
+
+20:59 as good as saying that okay there is a
+21:01 
+
+21:01 continuous flow of semantic drift
+21:03 
+
+21:03 happening with new and new input coming
+21:06 
+
+21:06 in but the problem with continuous SSMs
+21:09 
+
+21:09 are continuous SSMs
+21:12 
+
+21:12 assume that your input is also going to
+21:14 
+
+21:14 be continuous
+21:16 
+
+21:16 over that continuous drift. So you're
+21:18 
+
+21:18 you're continuously
+21:20 
+
+21:20 uh as if like I'm continuously speaking
+21:23 
+
+21:23 or your signal that is coming in is also
+21:26 
+
+21:26 continuous.
+21:28 
+
+21:28 So that's but then that's not how
+21:30 
+
+21:30 language model work language works
+21:33 
+
+21:33 right. [snorts] So then what we do is
+21:35 
+
+21:35 imagine that while the memory is
+21:37 
+
+21:37 continuously drifting we are taking
+21:40 
+
+21:40 snapshots like snap picss at different
+21:43 
+
+21:43 time steps and then we are updating that
+21:46 
+
+21:46 snap and then let it flow and then again
+21:50 
+
+21:50 taking a snap. So basically what we are
+21:52 
+
+21:52 doing is sampling
+21:55 
+
+21:55 right. So, so, so, so we let the
+21:59 
+
+21:59 continuous flow to happen. We let the
+22:01 
+
+22:01 drift to happen but we sample
+22:06 
+
+22:06 uh that particular state uh you know at
+22:10 
+
+22:10 every time step. So,
+22:13 
+
+22:13 so what we want to do is instead of
+22:17 
+
+22:17 writing xt
+22:19 
+
+22:19 uh you know dx by dt as a xt plus you
+22:24 
+
+22:24 know b u t we want to write uh xt + 1
+22:30 
+
+22:30 which is the ne you know what is going
+22:32 
+
+22:32 to be the state at the next step we want
+22:34 
+
+22:34 to convert that equation the od into
+22:37 
+
+22:37 this update equation that is what we
+22:40 
+
+22:40 want to do and we will See how we do it
+22:42 
+
+22:42 right? X which is XT + 1 + A bar some A
+22:46 
+
+22:46 bar which will give you that snapshot of
+22:49 
+
+22:49 A the snapshot of of A at that
+22:51 
+
+22:51 particular time point a bar XT plus B
+22:55 
+
+22:55 bar U that the B bar is also the
+22:57 
+
+22:57 snapshot at that particular t right
+23:01 
+
+23:01 where A bar is equals to E A delta T
+23:05 
+
+23:05 preserves semantic drift and
+23:06 
+
+23:06 oscillation. Okay. So we so the yeah so
+23:10 
+
+23:10 this is what we uh what we do not want
+23:13 
+
+23:13 because that's not how language works.
+23:15 
+
+23:15 You know the expectation that there will
+23:17 
+
+23:17 be always a smooth input flow right and
+23:20 
+
+23:20 that is why the discretization is
+23:22 
+
+23:22 needed. Okay.
+23:25 
+
+23:25 And what we are doing is we are
+23:28 
+
+23:28 sampling.
+23:31 
+
+23:31 So so the trick uh we call a zero order
+23:36 
+
+23:36 hold. So the trick is that we you know
+23:39 
+
+23:39 as we said that earlier on we used to
+23:42 
+
+23:42 look at U toao as whatever input has
+23:45 
+
+23:45 happened over the entire trajectory the
+23:47 
+
+23:47 entire continuous U in you know the
+23:50 
+
+23:50 supply of U over that entire trajectory
+23:53 
+
+23:53 to we look at that as no no no no that
+23:56 
+
+23:56 is as good as saying what has happened
+23:58 
+
+23:58 what is happening right now. So we
+24:01 
+
+24:01 approximate that to UT
+24:05 
+
+24:05 you know over the time interval t to t
+24:07 
+
+24:07 plus delta. So the toao that was going
+24:09 
+
+24:09 on from between t to t plus delta we say
+24:13 
+
+24:13 that no if delta is small enough we can
+24:16 
+
+24:16 approximate that toao to whatever just
+24:20 
+
+24:20 happened right now. So this
+24:23 
+
+24:23 approximation is called zero order hold.
+24:26 
+
+24:26 Okay. And then if we plug that ut
+24:31 
+
+24:31 instead of uta, it now becomes ut. So
+24:35 
+
+24:35 then we can bring that ut outside the
+24:37 
+
+24:37 integral
+24:39 
+
+24:39 over there in the in that dml's closed
+24:41 
+
+24:41 form for formula. And then it becomes uh
+24:45 
+
+24:45 and then we just write e of a delta xt
+24:49 
+
+24:49 as a a bar. And we write the that that
+24:54 
+
+24:54 in that integration as b bar
+24:57 
+
+24:57 you know the integration part only not
+24:60 
+
+24:60 ut just the integration as b bar. And
+25:02 
+
+25:02 then what we do we then have uh if we uh
+25:07 
+
+25:07 if and then we can get this particular
+25:10 
+
+25:10 update update form which is xt + 1 is as
+25:14 
+
+25:14 good as saying a bar xt plus b bar ut
+25:20 
+
+25:20 right that comes straight from dolman's
+25:22 
+
+25:22 formula but we just plug it's
+25:24 
+
+25:24 straightforward we just make that
+25:26 
+
+25:26 assumption of zero order whole and we
+25:29 
+
+25:29 just get this Okay.
+25:33 
+
+25:33 So,
+25:35 
+
+25:35 so now uh what we got was from flow uh
+25:40 
+
+25:40 we got a token level discrete sampling
+25:44 
+
+25:44 right. So we got discrete updates. So
+25:47 
+
+25:47 basically uh if we again look at what
+25:51 
+
+25:51 happens in the model model level because
+25:54 
+
+25:54 why we wanted model again because we
+25:56 
+
+25:56 instead of a we love the the the lambda
+26:00 
+
+26:00 or the diagonal matrix more because that
+26:02 
+
+26:02 is a cleaner way of understanding what
+26:04 
+
+26:04 really is going on and easy to compute
+26:06 
+
+26:06 as well because it's just a diagonal
+26:08 
+
+26:08 matrix. So, so we, so if we have to
+26:11 
+
+26:11 write it from a diagonal matrix point of
+26:13 
+
+26:13 view, we have to again go back to the
+26:14 
+
+26:14 changed basis or the Z form, right? So,
+26:17 
+
+26:17 we then basically what that Z form
+26:19 
+
+26:19 becomes is that ZT + 1 is equals to E
+26:21 
+
+26:21 lambda where lambda is the diagonal uh
+26:24 
+
+26:24 the diagonal matrix after you do the
+26:27 
+
+26:27 decomposition and multiply by delta ZT
+26:31 
+
+26:31 plus Q inverse V prime sorry V bar UT.
+26:34 
+
+26:34 So that's what happens for a particular
+26:38 
+
+26:38 uh uh aspect or mode uh component wise
+26:42 
+
+26:42 which means it becomes this.
+26:45 
+
+26:45 Okay. So now if you have to have a
+26:49 
+
+26:49 numerical solution of this
+26:52 
+
+26:52 then how would you solve it?
+26:54 
+
+26:54 You know, you just use the matrix
+26:57 
+
+26:57 version of the tailor expansion of the
+26:59 
+
+26:59 tailaylor series. And a prime would be a
+27:03 
+
+27:03 bar would be e a delta that is e l delta
+27:06 
+
+27:06 would be i the identity matrix plus a
+27:09 
+
+27:09 delta plus a² delta square by 2
+27:12 
+
+27:12 factorial and so on and b and there
+27:15 
+
+27:15 therefore b bar would be which is the
+27:18 
+
+27:18 integration of a you know e raised a to
+27:21 
+
+27:21 b d to which is going to be this.
+27:26 
+
+27:26 One important thing to understand that B
+27:29 
+
+27:29 is dependent on A. If you look at the
+27:34 
+
+27:34 the equation of B, B is not independent
+27:36 
+
+27:36 of A. B is dependent on on on A. So how
+27:40 
+
+27:40 the new input is going to affect the old
+27:44 
+
+27:44 memory is all is going to be influenced
+27:49 
+
+27:49 by how the old memory is being captured.
+27:54 
+
+27:54 how the essences of that memory is being
+27:56 
+
+27:56 captured which is inside A.
+27:60 
+
+27:60 Okay.
+28:03 
+
+28:03 So B accumulates input influence within
+28:06 
+
+28:06 the step.
+28:14 
+
+28:14 So this is just a you know if if you do
+28:18 
+
+28:18 not for some people if you do not
+28:21 
+
+28:21 understand how this is working and I
+28:22 
+
+28:22 gave you some some uh
+28:27 
+
+28:27 um some some notes sort of like you know
+28:32 
+
+28:32 how this works. So
+28:36 
+
+28:36 so what exactly is discrete evolution?
+28:40 
+
+28:40 So as I said tokens arrive at discrete
+28:43 
+
+28:43 time steps in language. So t would be
+28:46 
+
+28:46 zero then delta then 2 delta then 3
+28:50 
+
+28:50 delta and so on. So each token samples
+28:53 
+
+28:53 uh this continuous semantic flow and but
+28:58 
+
+28:58 but if the question is that how does
+28:59 
+
+28:59 this sampling affect the evolution
+29:01 
+
+29:01 encoded by lambda= to a or alpha + i
+29:05 
+
+29:05 beta because that is continuous right?
+29:08 
+
+29:08 So, so that was under the assumption
+29:10 
+
+29:10 that everything is continuous. So, when
+29:13 
+
+29:13 we move from the continuous evolution of
+29:15 
+
+29:15 E lambda t to its discrete version which
+29:19 
+
+29:19 is E lambda delta, we don't really lose
+29:22 
+
+29:22 much you know. So, the sampling does not
+29:25 
+
+29:25 affect the semantic dynamics.
+29:28 
+
+29:28 So because if you if you say lambda
+29:31 
+
+29:31 lambda bar is equals to e lambda delta
+29:33 
+
+29:33 instead of e lambda e lambda t you would
+29:37 
+
+29:37 end up getting this right uh this this
+29:41 
+
+29:41 this uh this form uh you know if you
+29:46 
+
+29:46 consider that lambda can be a complex
+29:48 
+
+29:48 number as well and the interpretation is
+29:50 
+
+29:50 that e raised a or alpha delta is how
+29:55 
+
+29:55 much meaning is retained or forgotten
+29:57 
+
+29:57 between two words or two tokens cos B uh
+30:02 
+
+30:02 or beta delta plus I sin beta delta is
+30:04 
+
+30:04 that that fluctuation basically
+30:08 
+
+30:08 uh because it's a sinusal curve right
+30:11 
+
+30:11 uh or the recurrence and delta is a
+30:15 
+
+30:15 sampling interval between tokens you can
+30:18 
+
+30:18 consider delta to be to be one for
+30:21 
+
+30:21 language model
+30:26 
+
+30:26 so values Those dynamics are preserved
+30:28 
+
+30:28 in the sampled form.
+30:34 
+
+30:34 So why not be happy with now a question
+30:37 
+
+30:37 can come okay we are done probably we
+30:41 
+
+30:41 are done. So we have a full form
+30:43 
+
+30:43 solution. We have a
+30:46 
+
+30:46 a a numerical solution. We can just plug
+30:49 
+
+30:49 that in code and we are done in terms of
+30:52 
+
+30:52 getting contextual embeddings and then
+30:54 
+
+30:54 we can put a a head over that and do
+30:57 
+
+30:57 whatever next word prediction or
+30:58 
+
+30:58 classification whatever that is. So long
+31:00 
+
+31:00 we get a Y which is basically the
+31:02 
+
+31:02 contextual embedding at every time step
+31:04 
+
+31:04 we can we can finish the story here. Why
+31:08 
+
+31:08 do we even move forward right? So,
+31:13 
+
+31:13 so uh if we for for now for for the for
+31:17 
+
+31:17 the discussion's sake if you just say
+31:20 
+
+31:20 that okay we will just take to yt is
+31:23 
+
+31:23 equals to cxt uh and we leave the dut
+31:27 
+
+31:27 aside because the dut term uh you know
+31:31 
+
+31:31 doesn't you know it's just basically the
+31:34 
+
+31:34 static meaning of that word not the
+31:36 
+
+31:36 contextual meaning it's not linked up
+31:39 
+
+31:39 with the with
+31:41 
+
+31:41 with the memory. It's just that
+31:43 
+
+31:43 particular word coming at the particular
+31:45 
+
+31:45 time only. See C is linked up with XT. C
+31:48 
+
+31:48 is linked up with the memory. So if you
+31:51 
+
+31:51 just look at what's going on over there.
+31:54 
+
+31:54 So each new token UT UT that that comes
+31:58 
+
+31:58 up at particular time point uh uh is
+32:02 
+
+32:02 basically updating uh a a prime XT via B
+32:07 
+
+32:07 B prime or sorry B bar because B bar is
+32:11 
+
+32:11 again associated with A bar right so so
+32:15 
+
+32:15 ultimately you are updating the memory
+32:17 
+
+32:17 via A bar only because uh as I said um
+32:23 
+
+32:23 just so that you don't forget. So B bar
+32:27 
+
+32:27 is basically your you know is dependent
+32:30 
+
+32:30 on a bar a A bar only right. So
+32:32 
+
+32:32 basically what you're doing here
+32:35 
+
+32:35 >> is
+32:37 
+
+32:37 uh you are updating through a A bar. But
+32:43 
+
+32:43 this recurrence is inherently sequential
+32:46 
+
+32:46 which means you can't work
+32:49 
+
+32:49 uh you can't update xt if you do not
+32:52 
+
+32:52 update xt minus one and you can't update
+32:56 
+
+32:56 xt minus one if you do not update xt
+32:58 
+
+32:58 minus 2. So it has to you know one has
+33:02 
+
+33:02 to follow the other. So it's sequential
+33:04 
+
+33:04 right? We must process one token at a
+33:08 
+
+33:08 time. So this hides how much influence
+33:10 
+
+33:10 each earlier token still has. Which
+33:13 
+
+33:13 means the the strength of let's say the
+33:18 
+
+33:18 conditional independence that you were
+33:20 
+
+33:20 assuming in transformer based self
+33:22 
+
+33:22 attention based models where John can
+33:25 
+
+33:25 independently come and influence
+33:28 
+
+33:28 uh who you know that is kind of going
+33:33 
+
+33:33 because you are you're constantly saying
+33:36 
+
+33:36 that no who is who is going to be
+33:39 
+
+33:39 influenced by the state the previous
+33:42 
+
+33:42 state
+33:43 
+
+33:43 which encompasses or accumulates John
+33:46 
+
+33:46 loves Mary all together like compressed
+33:50 
+
+33:50 together right and what you're seeing is
+33:53 
+
+33:53 that who is influenced by that
+33:54 
+
+33:54 compressed debt state so which means
+33:57 
+
+33:57 that there can be a possibility that
+33:60 
+
+33:60 John fades away and John never gets to
+34:03 
+
+34:03 influence who right so
+34:09 
+
+34:09 so this may hide how much influence is
+34:12 
+
+34:12 earlier tokens still has because it's an
+34:14 
+
+34:14 accumulation. It's like a snowball.
+34:16 
+
+34:16 So the same same problem that LSTMs also
+34:20 
+
+34:20 would would have.
+34:24 
+
+34:24 So what you do is you you you translate
+34:27 
+
+34:27 the sequential memory into what we call
+34:29 
+
+34:29 a convolutional memory. It's a trick.
+34:32 
+
+34:32 It's a bas basic algebraic trick.
+34:34 
+
+34:34 Simple. So what do you say? You said
+34:36 
+
+34:36 that okay XT if you unfold or unroll XT
+34:41 
+
+34:41 you'll see that XT is basically a
+34:43 
+
+34:43 summation of all the prior uh A T -1
+34:48 
+
+34:48 minus I B prime B bar UI
+34:52 
+
+34:52 right because XT contains Xtus one you
+34:54 
+
+34:54 can rewrite XT minus one in terms of A
+34:57 
+
+34:57 bar B bar that again contains Xtus 2 and
+35:01 
+
+35:01 you can keep on doing that and keep on
+35:03 
+
+35:03 going till the beginning right so again
+35:05 
+
+35:05 you unroll that and you can go till i =
+35:09 
+
+35:09 to0
+35:11 
+
+35:11 till the previous point right and you
+35:13 
+
+35:13 can write rewrite xt as this summation
+35:16 
+
+35:16 right and if you uh now
+35:20 
+
+35:20 um you know and then you can rewrite
+35:23 
+
+35:23 that summation as uh ut minus you know
+35:27 
+
+35:27 you can just you know change the
+35:30 
+
+35:30 subscript and you can say that ui you
+35:32 
+
+35:32 write ui as u t minus k where k is equal
+35:35 
+
+35:35 = to 1 to t and you get this really nice
+35:40 
+
+35:40 neat form of a bar raised k minus one b
+35:44 
+
+35:44 bar and then what you do you plug that
+35:49 
+
+35:49 uh into your c xt
+35:53 
+
+35:53 so you have the c matrix and then uh in
+35:58 
+
+35:58 x in instead of x you plug this uh
+36:01 
+
+36:01 summation so c multiplied by the
+36:05 
+
+36:05 summation Now you can bring the summ C
+36:07 
+
+36:07 inside the summation which is what you
+36:08 
+
+36:08 are seeing over there. So C multiplied
+36:11 
+
+36:11 by this summation and you can bring the
+36:13 
+
+36:13 sum C inside the summation. So you get C
+36:16 
+
+36:16 A prime A K raised to K minus one B
+36:23 
+
+36:23 bar not prime T minus K
+36:27 
+
+36:27 this
+36:29 
+
+36:29 summation is called the convolution.
+36:34 
+
+36:34 Okay. So this is called the convolution
+36:36 
+
+36:36 memory. This this entire summation,
+36:40 
+
+36:40 right? So this operation is called
+36:42 
+
+36:42 convolution.
+36:47 
+
+36:47 And in short you write it as K with that
+36:52 
+
+36:52 with the convolution operator U on till
+36:55 
+
+36:55 that time point T. So yt which is the
+36:58 
+
+36:58 contextual embedding at that time point
+37:01 
+
+37:01 you know the contextual embedding of the
+37:03 
+
+37:03 word at that time point would be the
+37:07 
+
+37:07 kernel key.
+37:11 
+
+37:11 You just
+37:13 
+
+37:13 make a short I mean you just make a a
+37:17 
+
+37:17 shortcut note or or a notation of of
+37:20 
+
+37:20 that uh of of this kernel which is C A
+37:24 
+
+37:24 bar raised to K minus one B bar you just
+37:28 
+
+37:28 say that okay let that be K of K
+37:32 
+
+37:32 basically till that time point K. So for
+37:36 
+
+37:36 every time point you have such a K. So
+37:39 
+
+37:39 when k is equals to 0, k= to 1, you have
+37:44 
+
+37:44 c b bar. When k is equ= to 2, you have c
+37:49 
+
+37:49 a bar b bar. When k is equals to 3, you
+37:52 
+
+37:52 have c a² bar
+37:57 
+
+37:57 and so on. So these are so you get a
+37:60 
+
+37:60 whole bunch of kernels for every time
+38:03 
+
+38:03 step prior time steps. So, so, so these
+38:07 
+
+38:07 are the kernels that you have. So, when
+38:09 
+
+38:09 for John you have a particular kernel
+38:12 
+
+38:12 for loves you have a particular kernel
+38:15 
+
+38:15 for Mary you have a particular kernel
+38:17 
+
+38:17 and when who comes in who looks at each
+38:20 
+
+38:20 of these kernels picks them up and then
+38:24 
+
+38:24 what it does it uses that kernel and
+38:28 
+
+38:28 sums them over for every
+38:32 
+
+38:32 u which means he sums. So John's kernel
+38:35 
+
+38:35 gets multiplied with John
+38:38 
+
+38:38 John's embedding plus
+38:42 
+
+38:42 love's kernel get multiplied with love's
+38:44 
+
+38:44 embedding plus
+38:47 
+
+38:47 uh Mary's kernel get multiplied with
+38:50 
+
+38:50 Mary's embedding
+38:51 
+
+38:51 and you sum that up and that would be
+38:55 
+
+38:55 and then you multiply that that entire
+38:57 
+
+38:57 thing with C. So, so this is uh what we
+39:02 
+
+39:02 call as the convolution and we in order
+39:06 
+
+39:06 to write it neatly we use the kernel
+39:10 
+
+39:10 key. Now if you look at it very you know
+39:14 
+
+39:14 something very interesting is going on.
+39:16 
+
+39:16 So so so
+39:18 
+
+39:18 if if so so why to translate it into a
+39:21 
+
+39:21 kernel form. So uh so basically it's a
+39:24 
+
+39:24 very neat way of encoding how the effect
+39:28 
+
+39:28 what is the effect of a token k uh k
+39:30 
+
+39:30 steps ago decays or oxillates uh before
+39:34 
+
+39:34 reaching the present. So that's
+39:35 
+
+39:35 basically what the kernel would mean. So
+39:38 
+
+39:38 what's this effect? What's this
+39:39 
+
+39:39 influence? Now if you look at so as I
+39:43 
+
+39:43 was saying so K0 would be uh let's say
+39:47 
+
+39:47 this you know you end you reach till the
+39:49 
+
+39:49 end John loves Mary who lives in New
+39:51 
+
+39:51 York City now when you are at city
+39:54 
+
+39:54 that's K0
+39:55 
+
+39:55 and then you go back then you have K1 K2
+39:59 
+
+39:59 and you keep on going back and you have
+40:01 
+
+40:01 K3 K6 and so on
+40:04 
+
+40:04 right
+40:06 
+
+40:06 now one important thing is that if you
+40:10 
+
+40:10 look at this equation
+40:12 
+
+40:12 uh
+40:14 
+
+40:14 yeah if you look at this equation you
+40:16 
+
+40:16 see there's an uncanny resemblance
+40:22 
+
+40:22 you know with what happens in
+40:24 
+
+40:24 transformers in self attentions so if
+40:27 
+
+40:27 you look at self attentions you'll see
+40:28 
+
+40:28 that you know and if you try to compare
+40:31 
+
+40:31 this equation with self attention you'll
+40:33 
+
+40:33 see that in self attention what is going
+40:35 
+
+40:35 on like there is a percentage that is
+40:37 
+
+40:37 applied to the value or the V and you
+40:40 
+
+40:40 sum that over all the V's. Now V is
+40:44 
+
+40:44 basically your neighboring or or the
+40:47 
+
+40:47 word that is coming the words that are
+40:50 
+
+40:50 associated or the clo I mean basically
+40:52 
+
+40:52 the words that are neighboring to that
+40:54 
+
+40:54 particular one word. Now if you look at
+40:56 
+
+40:56 a causal model then you only take what
+40:60 
+
+40:60 all the words that have happened so far
+41:02 
+
+41:02 which means all the backward words and
+41:04 
+
+41:04 you take the percentage of every word
+41:07 
+
+41:07 that has happened so far and you add
+41:10 
+
+41:10 them up into the new to get the new
+41:12 
+
+41:12 contextual embedding of the new word.
+41:14 
+
+41:14 Right? Think of this k subscript k as
+41:19 
+
+41:19 that percentage
+41:22 
+
+41:22 for each of the words. So what is what
+41:25 
+
+41:25 is that percentage influence coming from
+41:27 
+
+41:27 John? What is that percentage influence
+41:29 
+
+41:29 coming from loves? What is that
+41:31 
+
+41:31 percentage influence coming from Mary
+41:34 
+
+41:34 and so on into let's say city of New
+41:37 
+
+41:37 York City. So what all the incoming ages
+41:40 
+
+41:40 so this summation essentially
+41:44 
+
+41:44 which is the convolution
+41:46 
+
+41:46 it has a very neat analogy
+41:49 
+
+41:49 with what happens in self attention. The
+41:53 
+
+41:53 only difference being the way we do self
+41:56 
+
+41:56 attention. The key over there the kernel
+41:59 
+
+41:59 for self attention is basically a dot
+42:01 
+
+42:01 product between the query and the key.
+42:04 
+
+42:04 Over here you don't have that concept.
+42:07 
+
+42:07 You're just using the A matrix and the B
+42:11 
+
+42:11 matrix the discretized version of them
+42:14 
+
+42:14 in order to create this kernel. So again
+42:17 
+
+42:17 going back
+42:19 
+
+42:19 the kernel is basically this
+42:24 
+
+42:24 where
+42:26 
+
+42:26 all right and because of the
+42:28 
+
+42:28 exponentiation you know because you
+42:30 
+
+42:30 because you you know you see that as you
+42:32 
+
+42:32 go back in time it becomes a square a
+42:35 
+
+42:35 cube and so on. So basically the effect
+42:38 
+
+42:38 is sort of trying it's trying to
+42:40 
+
+42:40 decrease the effect
+42:44 
+
+42:44 in an exponential manner.
+42:47 
+
+42:47 Right? So as you go back,
+42:49 
+
+42:49 but the B
+42:52 
+
+42:52 can inject that information back again.
+42:56 
+
+42:56 So kind of like what Rafu was trying to
+42:58 
+
+42:58 do with the alpha and the beta where
+43:01 
+
+43:01 alpha was doing the exponential decay
+43:03 
+
+43:03 and beta which is update kit was trying
+43:06 
+
+43:06 to again bring back some of the
+43:08 
+
+43:08 information if it is required.
+43:14 
+
+43:14 So computing this is going to be
+43:17 
+
+43:17 expensive. Why? Because that for every
+43:19 
+
+43:19 yt you would need to do this summation
+43:22 
+
+43:22 right and there are so many yts. So for
+43:25 
+
+43:25 each one of the yts if you do one
+43:27 
+
+43:27 summations there are two loops going on
+43:29 
+
+43:29 right. So basically it becomes we go of
+43:31 
+
+43:31 t² where t capital d is the sequence.
+43:35 
+
+43:35 So can we do it faster? So this is the
+43:41 
+
+43:41 the the real deal. So instead of looking
+43:44 
+
+43:44 at you know so so one way of looking at
+43:48 
+
+43:48 every word is like you know every word
+43:51 
+
+43:51 is like an eco.
+43:53 
+
+43:53 So just like how I'm speaking so as I
+43:56 
+
+43:56 speak one word at a time there's let's
+43:59 
+
+43:59 say there's a eco going on in your in
+44:02 
+
+44:02 your thought process. So which means you
+44:04 
+
+44:04 are not really forgetting the word that
+44:07 
+
+44:07 I'm saying right now but eventually you
+44:10 
+
+44:10 will forget some of the words that I am
+44:11 
+
+44:11 saying in in my earlier part of my
+44:14 
+
+44:14 discussion.
+44:16 
+
+44:16 So you will only attend to the most
+44:18 
+
+44:18 recent set of words but at the same time
+44:21 
+
+44:21 you won't forget the theme of this
+44:24 
+
+44:24 entire talks when it when this when this
+44:27 
+
+44:27 discussion started. So think of it like
+44:29 
+
+44:29 there is a eco of every single aspect of
+44:33 
+
+44:33 the words that I spoke before. Although
+44:36 
+
+44:36 you may not be remembering concretely
+44:38 
+
+44:38 what those words are but you remember
+44:41 
+
+44:41 the essence. Essence means the
+44:45 
+
+44:45 on vectors
+44:49 
+
+44:49 and how much you would remember is is
+44:51 
+
+44:51 how the values are fluctuating in terms
+44:54 
+
+44:54 of the mode. Right?
+44:57 
+
+44:57 So, so this is this is the time domain.
+45:01 
+
+45:01 So, so long as you are in the time
+45:02 
+
+45:02 domain, you cannot get past the
+45:04 
+
+45:04 quadratic complexity.
+45:07 
+
+45:07 Okay? You know you know so what we do is
+45:11 
+
+45:11 we say that okay let us first look at
+45:14 
+
+45:14 let us first imagine embedding as a
+45:16 
+
+45:16 signal
+45:18 
+
+45:18 that is being you know injected into the
+45:21 
+
+45:21 overall larger signal of memory like how
+45:25 
+
+45:25 the thought is evolving
+45:28 
+
+45:28 so let's look at so it's almost like
+45:31 
+
+45:31 just like I am talking and you are
+45:33 
+
+45:33 processing it think of the model as
+45:36 
+
+45:36 looking at a text and processing it.
+45:39 
+
+45:39 There is a thought going on inside the
+45:41 
+
+45:41 model. So think of it like that. You
+45:43 
+
+45:43 know, maybe that will be use helpful to
+45:46 
+
+45:46 understand what's going on. And now
+45:47 
+
+45:47 every embedding that is getting
+45:49 
+
+45:49 injected, think of it like a signal
+45:53 
+
+45:53 that is being injected, you know, new
+45:55 
+
+45:55 signal getting added to the already
+45:57 
+
+45:57 existing signal. Now there's a whole lot
+45:59 
+
+45:59 of eco going on right now because
+46:02 
+
+46:02 different words with the different
+46:03 
+
+46:03 aspects having their own eco. So it's
+46:06 
+
+46:06 like an eco chamber. So everybody it's
+46:09 
+
+46:09 like a conference and everybody is
+46:11 
+
+46:11 trying to talk with everyone. So think
+46:13 
+
+46:13 of that situation.
+46:15 
+
+46:15 Just imagine for now. Then what we can
+46:18 
+
+46:18 do if we can imagine that situation like
+46:21 
+
+46:21 you know in a wave way if we can start
+46:23 
+
+46:23 thinking in a wave way then we can apply
+46:26 
+
+46:26 something very interesting which is the
+46:28 
+
+46:28 4year transformation.
+46:31 
+
+46:31 So, so every signal or waves we can look
+46:34 
+
+46:34 at it as a at a fiery point of view and
+46:38 
+
+46:38 we can now convert the eco to a rhythm
+46:41 
+
+46:41 and we can split this rhythms.
+46:46 
+
+46:46 So the overall signal we can split it up
+46:48 
+
+46:48 and we can split it up like this. Let's
+46:50 
+
+46:50 say that u is one particular
+46:54 
+
+46:54 uh signal you know the eco and we can
+46:57 
+
+46:57 split U into its corresponding
+46:59 
+
+46:59 frequencies sort. so to say but every
+47:02 
+
+47:02 frequency is a particular aspect of the
+47:05 
+
+47:05 mean of that particular word. So every
+47:08 
+
+47:08 word has all sorts of aspects right in
+47:10 
+
+47:10 terms of uh the linguistic meaning. So
+47:13 
+
+47:13 what you are doing is you are splitting
+47:15 
+
+47:15 these aspects which earlier used to be
+47:17 
+
+47:17 the igen vectors you imagine where you
+47:20 
+
+47:20 know there were so many different types
+47:22 
+
+47:22 of lambdas and you were splitting the
+47:24 
+
+47:24 lambdas for every single component. So
+47:27 
+
+47:27 this is this omega is one such
+47:29 
+
+47:29 component. But now look we are looking
+47:31 
+
+47:31 at that component from a
+47:35 
+
+47:35 wave point of view. Right? So so c omega
+47:40 
+
+47:40 would be how strong the rhythm is and e
+47:43 
+
+47:43 raised to i omega t would be the
+47:45 
+
+47:45 frequent you know the uh the particular
+47:50 
+
+47:50 u discrete u the discrete uh
+47:53 
+
+47:53 transformation. And if you sum it up,
+47:56 
+
+47:56 you should be getting the original UT
+47:58 
+
+47:58 back. So that is the pia transform,
+48:01 
+
+48:01 right?
+48:04 
+
+48:04 So
+48:06 
+
+48:06 so making the quadratic convolution
+48:08 
+
+48:08 fast. Now what you do you actually then
+48:11 
+
+48:11 you apply a particular you know
+48:14 
+
+48:14 technique called the fast food transform
+48:18 
+
+48:18 you know which converts your convolution
+48:20 
+
+48:20 into a a simple multiplication. So this
+48:23 
+
+48:23 convolution right now what you have in
+48:27 
+
+48:27 blue. So this is that's the convolution
+48:29 
+
+48:29 that's the summation right the summation
+48:31 
+
+48:31 of all the ks.
+48:33 
+
+48:33 So you can rewrite that as in terms of
+48:37 
+
+48:37 the fast food year transformation of the
+48:39 
+
+48:39 k which is the kernel the u you come you
+48:44 
+
+48:44 multiply that you know like a hadabard
+48:47 
+
+48:47 multiplication and then you get back the
+48:49 
+
+48:49 y using the inverse fast period period
+48:54 
+
+48:54 transformation right so in time domain
+48:57 
+
+48:57 you have to do the summing but the
+48:59 
+
+48:59 moment you get into the frequency domain
+49:01 
+
+49:01 you can do this fft t and by by just
+49:04 
+
+49:04 multiplying the rhythms which is much
+49:06 
+
+49:06 faster and will give you something like
+49:08 
+
+49:08 a t log t complexity instead of a t
+49:12 
+
+49:12 square complexity
+49:14 
+
+49:14 and uh if I have to move into like you
+49:20 
+
+49:20 know like how this happens I mean which
+49:23 
+
+49:23 is basically the fft operation
+49:25 
+
+49:25 uh then if this is the convolution the
+49:28 
+
+49:28 one in blue then
+49:32 
+
+49:32 What you do is you just say that okay
+49:34 
+
+49:34 your your 4 year for a particular
+49:37 
+
+49:37 component omega would be across all the
+49:41 
+
+49:41 time steps would you know would be u t e
+49:44 
+
+49:44 of e ra minus i 2 pi omega t by t which
+49:48 
+
+49:48 is the uh which is the uh basically the
+49:54 
+
+49:54 every time step can be thought of like
+49:57 
+
+49:57 the time period across Right? And then
+50:01 
+
+50:01 you try to understand whether it's a
+50:03 
+
+50:03 it's going to be a high frequency wave
+50:06 
+
+50:06 across the time period or it's going to
+50:08 
+
+50:08 be a low frequency wave. And uh the idea
+50:12 
+
+50:12 is if it is a low frequency wave then
+50:15 
+
+50:15 your your that particular memory
+50:18 
+
+50:18 persists
+50:20 
+
+50:20 over time. But if it is a high frequency
+50:22 
+
+50:22 wave then your memory will not persist
+50:26 
+
+50:26 that much over time. Right? So whatever
+50:29 
+
+50:29 you want to remember through time that
+50:32 
+
+50:32 you know the frequency should be should
+50:35 
+
+50:35 be lower. So that is the idea. So
+50:44 
+
+50:44 so this is the element wise
+50:46 
+
+50:46 multiplication and you apply the inverse
+50:49 
+
+50:49 to that to get yt.
+50:54 
+
+50:54 So replaces the t² complexity with t log
+50:58 
+
+50:58 t complexity.
+50:60 
+
+50:60 Uh
+51:03 
+
+51:03 so fftu how what is the linguistic
+51:06 
+
+51:06 interpretation? This is I guess the most
+51:07 
+
+51:07 important part that you should take uh
+51:09 
+
+51:09 you know note of. Uh so FFTU is
+51:14 
+
+51:14 basically decomposing the sentence in
+51:16 
+
+51:16 the semantic rhythms like slow rhythm as
+51:18 
+
+51:18 I said to capture topics because topics
+51:21 
+
+51:21 you have to remember you can't forget
+51:23 
+
+51:23 the main the main topic. So like John
+51:25 
+
+51:25 Mary so those are those would should
+51:28 
+
+51:28 have ideally slow rhythms fast rhythms
+51:31 
+
+51:31 capture short syntactic ripples like in
+51:34 
+
+51:34 who and so on.
+51:36 
+
+51:36 FFTK what does that mean? It means that
+51:38 
+
+51:38 it encodes the model sensitivity to each
+51:41 
+
+51:41 rhythm. So which means it will decide
+51:45 
+
+51:45 how much of the amplitude I need to have
+51:47 
+
+51:47 for every frequency you can increase or
+51:49 
+
+51:49 decrease the amplitude. Right? So FFTK
+51:53 
+
+51:53 would decide on the amplitude.
+51:56 
+
+51:56 So there are two knobs. One is the
+51:59 
+
+51:59 frequency knob and one is the amplitude
+52:00 
+
+52:00 knob. So the frequency knob is decided
+52:03 
+
+52:03 by FFTU and the amplitude knob is
+52:06 
+
+52:06 decided by FFTK or the kernel right so
+52:10 
+
+52:10 which is that percentage that's coming
+52:13 
+
+52:13 that's the amplitude basically so
+52:16 
+
+52:16 whether to amplify or to damp right and
+52:20 
+
+52:20 that's the beauty of it you know because
+52:22 
+
+52:22 otherwise if you look at LSDM rau or
+52:25 
+
+52:25 others I mean there was no guarantee
+52:27 
+
+52:27 that it will always be a decay there was
+52:30 
+
+52:30 no way to figure out how to also
+52:32 
+
+52:32 increase if needed. Now over here you
+52:34 
+
+52:34 can increase because even John can have
+52:37 
+
+52:37 a very strong influence to let's say New
+52:40 
+
+52:40 York City
+52:42 
+
+52:42 if it's K FFTK is high.
+52:47 
+
+52:47 Okay.
+52:50 
+
+52:50 So, so and the analogy that I found was
+52:54 
+
+52:54 like rather than replaying every eco
+52:57 
+
+52:57 word by word,
+52:60 
+
+52:60 you do an FFT which lets the model play
+53:03 
+
+53:03 the whole harmony of context at once at
+53:07 
+
+53:07 one go
+53:08 
+
+53:08 and you can look at the derivation later
+53:11 
+
+53:11 on. I mean I have given you some
+53:13 
+
+53:13 derivation as I like how do you even get
+53:15 
+
+53:15 to that uh you know uh from the discrete
+53:20 
+
+53:20 uh from the discrete convolution which
+53:22 
+
+53:22 is the summation form how do you even
+53:24 
+
+53:24 get to that FFT form so that that
+53:29 
+
+53:29 derivation is given over here it's not a
+53:30 
+
+53:30 very it's quite a simple uh derivation
+53:35 
+
+53:35 it's just that you have to make sure
+53:36 
+
+53:36 that FFT is circular in nature so you
+53:39 
+
+53:39 have to break the circle uh by adding
+53:42 
+
+53:42 some padding so that you make it causal.
+53:45 
+
+53:45 Why? Because the standard FFT will also
+53:48 
+
+53:48 look ahead.
+53:50 
+
+53:50 A causal language model cannot look
+53:52 
+
+53:52 ahead, right? What is upcoming, it
+53:54 
+
+53:54 cannot it should not see what is the
+53:55 
+
+53:55 upcoming words. So you just have to put
+53:57 
+
+53:57 up put some padding. So basically when
+54:00 
+
+54:00 when we say FFT of K and FFT of U, we
+54:03 
+
+54:03 pad it up and then do the FFT, right?
+54:06 
+
+54:06 But the derivation you can look at over
+54:09 
+
+54:09 here. It's a very simple theory of how
+54:11 
+
+54:11 uh how we get to that FFT of Y is the
+54:15 
+
+54:15 same as FFT of K uh had a mod FFT of U.
+54:22 
+
+54:22 [snorts] So now uh the igon values as
+54:26 
+
+54:26 you know are basically what is the
+54:28 
+
+54:28 relationship between the values that we
+54:30 
+
+54:30 we used to see before right versus this
+54:33 
+
+54:33 omega. So the kernel, if you look at the
+54:36 
+
+54:36 kernel, the kernel is C A bar raised K B
+54:41 
+
+54:41 bar. And if you look at the if you
+54:44 
+
+54:44 replace that with the with the U form
+54:49 
+
+54:49 which is uh the the the lambda form of
+54:54 
+
+54:54 of the Q which is Q E lambda delta Q in
+54:59 
+
+54:59 Q inverse. And if you just plug that a
+55:02 
+
+55:02 bar with this, you get this, right? And
+55:05 
+
+55:05 which means your your kernel is directly
+55:08 
+
+55:08 proportional to the the the
+55:14 
+
+55:14 real part alpha and the imaginary part
+55:18 
+
+55:18 beta in this manner
+55:23 
+
+55:23 if you if [clears throat] you look at
+55:24 
+
+55:24 it. So basically that's the equival
+55:26 
+
+55:26 that's sort of the relationship between
+55:28 
+
+55:28 the frequency version and the time
+55:32 
+
+55:32 version.
+55:35 
+
+55:35 So the frequency domain view would be
+55:37 
+
+55:37 now. So for key from a frequency point
+55:40 
+
+55:40 of view which is omega point of view
+55:42 
+
+55:42 would be c e of i omega the identity
+55:46 
+
+55:46 matrix i minus
+55:49 
+
+55:49 a bar whole inverse of b bar.
+55:55 
+
+55:55 Okay. So whatever is the imaginary part
+55:57 
+
+55:57 which is the beta part that corresponds
+56:00 
+
+56:00 to the frequency omega in the 4year
+56:04 
+
+56:04 space whatever was alpha which is the
+56:06 
+
+56:06 real part that is basically the decay
+56:09 
+
+56:09 that still remains the interpretation is
+56:11 
+
+56:11 just the same and the vector whatever
+56:14 
+
+56:14 was the vector qi that is that gives you
+56:18 
+
+56:18 the sematic direction of the oscillation
+56:19 
+
+56:19 that also remains the same
+56:22 
+
+56:22 okay
+56:24 
+
+56:24 so putting it all together you'll have
+56:27 
+
+56:27 uh this
+56:29 
+
+56:29 that's the connection to the FFT
+56:33 
+
+56:33 right okay so again we you know just so
+56:38 
+
+56:38 that you understand where we started off
+56:40 
+
+56:40 with so this is the continuous
+56:42 
+
+56:42 continuous version and uh so this was
+56:47 
+
+56:47 the continuous OD form
+56:53 
+
+56:53 and
+56:55 
+
+56:55 The igon vectors and values would mean
+56:59 
+
+56:59 this right. So the real part would mean
+57:02 
+
+57:02 the rate of memory decay or and the
+57:04 
+
+57:04 imaginary part where how memory rec
+57:06 
+
+57:06 recurs over time.
+57:10 
+
+57:10 So discretization we saw uh what we uh
+57:14 
+
+57:14 how to do the discretization the zero
+57:16 
+
+57:16 order hold assumption
+57:20 
+
+57:20 and
+57:22 
+
+57:22 we then said that we don't uh want the
+57:26 
+
+57:26 sequential memory we want to rewrite it
+57:28 
+
+57:28 by unfolding or unrolling as a
+57:31 
+
+57:31 convolutional memory then we get this
+57:33 
+
+57:33 beautiful nice analogy with self
+57:36 
+
+57:36 attention the summation of the kernel
+57:38 
+
+57:38 multiplied by the do right that form
+57:43 
+
+57:43 and then we say that okay if we are to
+57:45 
+
+57:45 make it even faster we can actually do
+57:48 
+
+57:48 that instead of summing it up we can
+57:51 
+
+57:51 convert we can look at everything as a
+57:53 
+
+57:53 wave and then we can convert it
+57:57 
+
+57:57 uh into a 4year transform and then we
+58:02 
+
+58:02 can do this inverse 4year past 4 year
+58:04 
+
+58:04 transformation to get the y back right
+58:07 
+
+58:07 so this is a neat relation relationship
+58:09 
+
+58:09 FFT of Y is the same FFT of K had a mod
+58:14 
+
+58:14 FFT of U.
+58:19 
+
+58:19 So now the question is that is FFTbased
+58:23 
+
+58:23 kernelized discrete SSM enough? Should
+58:25 
+
+58:25 we stop here? Again the same question,
+58:28 
+
+58:28 right? So we got it right. So why not
+58:31 
+
+58:31 just stop here?
+58:34 
+
+58:34 So,
+58:37 
+
+58:37 so the uh so the point the pro the
+58:41 
+
+58:41 problem that we have to you know kind of
+58:44 
+
+58:44 the concern that we should have at this
+58:46 
+
+58:46 point is that okay we got a bar we got b
+58:50 
+
+58:50 bar but we don't know how to create that
+58:54 
+
+58:54 a bar and b bar we we know at least one
+58:57 
+
+58:57 thing that it has to be diagonalizable
+58:59 
+
+58:59 the a bar has to be otherwise we won't
+59:00 
+
+59:00 get the the lambda matrix or the
+59:03 
+
+59:03 diagonal matrix So it has to be
+59:04 
+
+59:04 diagonalizable, right? So that's all we
+59:07 
+
+59:07 know. But we don't know how to
+59:08 
+
+59:08 diagonalize and you know we either
+59:11 
+
+59:11 whether we should should just do a
+59:13 
+
+59:13 straightforward
+59:15 
+
+59:15 decomposition will will that be good
+59:17 
+
+59:17 enough or whether we should do something
+59:19 
+
+59:19 more than that. Right? So the answer to
+59:23 
+
+59:23 a straightforward decomposition is like
+59:26 
+
+59:26 no, it's not good enough. uh it's never
+59:29 
+
+59:29 going to guarantee you uh stability in
+59:33 
+
+59:33 the sense that uh you you do get the
+59:38 
+
+59:38 discization. So you do get how we should
+59:41 
+
+59:41 step forward as we go over time. So how
+59:44 
+
+59:44 the changes happen that we understand
+59:47 
+
+59:47 from this equation but what we don't
+59:50 
+
+59:50 understand is that whether each step
+59:53 
+
+59:53 whether each word that is coming in
+59:55 
+
+59:55 whether that would
+59:59 
+
+59:59 maintain the gradients whether the
+60:01 
+
+60:01 gradient should not vanish or whether
+60:03 
+
+60:03 the gradient should not explode whether
+60:05 
+
+60:05 those things are going to be maintained
+60:08 
+
+60:08 or guaranteed that is not guaranteed
+60:11 
+
+60:11 and we'll look at why that is not
+60:14 
+
+60:14 guaranteed. Okay. So let's say the
+60:16 
+
+60:16 instability in terms of learning the ABC
+60:18 
+
+60:18 matrices.
+60:20 
+
+60:20 So even after you have done this
+60:22 
+
+60:22 discretization,
+60:24 
+
+60:24 right? So the stability condition if you
+60:26 
+
+60:26 look at it, what is the stability
+60:27 
+
+60:27 condition that your lambda of your E bar
+60:31 
+
+60:31 you know the magnitude of lambda should
+60:33 
+
+60:33 be less than one otherwise it starts you
+60:37 
+
+60:37 know uh it can explode. It can explode.
+60:42 
+
+60:42 So but during training there's no way I
+60:46 
+
+60:46 mean because if you just do an de
+60:48 
+
+60:48 composition based uh modeling there's no
+60:51 
+
+60:51 way your de composition doesn't
+60:53 
+
+60:53 necessarily guarantee that your lambda
+60:54 
+
+60:54 has to be you know the magnitude of
+60:57 
+
+60:57 lambda has to be less than one there's
+60:59 
+
+60:59 no there's no real guarantee right so
+61:01 
+
+61:01 your gradient based training on
+61:03 
+
+61:03 unconstrained ABC can easily push the
+61:05 
+
+61:05 values outside that unit
+61:08 
+
+61:08 circle
+61:13 
+
+61:13 So exploding
+61:16 
+
+61:16 uh it can it can easily explode or and
+61:19 
+
+61:19 and sometimes it can also vanish you
+61:22 
+
+61:22 know uh vanish we will look at the cases
+61:25 
+
+61:25 where it can also vanish but it can
+61:27 
+
+61:27 easily explode as an example like some
+61:30 
+
+61:30 words may dominate memory endlessly life
+61:33 
+
+61:33 as if like the eco is happening or you
+61:35 
+
+61:35 know is continuously happening John John
+61:37 
+
+61:37 John and so on and it's can kind of uh
+61:41 
+
+61:41 if you look at it from the pya point of
+61:44 
+
+61:44 view that that wave is so much
+61:47 
+
+61:47 predominant and the other ways are
+61:49 
+
+61:49 getting suppressed.
+61:51 
+
+61:51 So so so that should not happen.
+61:56 
+
+61:56 So now the uh the other problem that can
+61:60 
+
+61:60 happen is that uh if if lambda i is less
+62:04 
+
+62:04 than one also still the memory decays
+62:07 
+
+62:07 exponentially
+62:09 
+
+62:09 because it's e ra lambda i delta
+62:13 
+
+62:13 multiply by delta right so that e ra
+62:15 
+
+62:15 lambda i it can exponentially
+62:19 
+
+62:19 uh decay and then thereby what will
+62:21 
+
+62:21 happen is your gradients will vanish. So
+62:25 
+
+62:25 discretetization does not remove this
+62:27 
+
+62:27 exponential sensitivity whether growth
+62:30 
+
+62:30 or decay both ways right. So so so the
+62:36 
+
+62:36 linguistic analogy is that you know Mary
+62:38 
+
+62:38 can very quickly fade instead of
+62:41 
+
+62:41 gradually fading.
+62:45 
+
+62:45 So the f the third problem is the
+62:48 
+
+62:48 computational cost of the
+62:50 
+
+62:50 diagonalizability. You know if you have
+62:52 
+
+62:52 to make a diagonalizable you have to
+62:56 
+
+62:56 diagonalize it that has its own
+62:59 
+
+62:59 computation. These are not small
+63:00 
+
+63:00 matrices
+63:02 
+
+63:02 right?
+63:05 
+
+63:05 So, so although it looks like oh your
+63:08 
+
+63:08 FFT just takes t log t time but in order
+63:11 
+
+63:11 to get to the diagonalized version of it
+63:14 
+
+63:14 the which is the lambda version of it
+63:17 
+
+63:17 that itself will take some time and then
+63:20 
+
+63:20 only you can apply the because the the
+63:22 
+
+63:22 fft is applied on the kernel the kernel
+63:25 
+
+63:25 comes from the a right or the lambda
+63:28 
+
+63:28 whatever
+63:32 
+
+63:32 so
+63:33 
+
+63:33 so I The composition alone will not
+63:36 
+
+63:36 help. That is the thing because
+63:40 
+
+63:40 you know the V or the Q whatever that
+63:43 
+
+63:43 notation you use uh is not necessarily
+63:46 
+
+63:46 be orthogonal.
+63:50 
+
+63:50 They they might be independent but they
+63:51 
+
+63:51 not necessarily be orthogonal. What you
+63:53 
+
+63:53 want is orthogonality. What you want is
+63:55 
+
+63:55 that every aspect should be independent
+63:57 
+
+63:57 of each other completely independent
+63:60 
+
+63:60 without uh I mean every so every aspect
+64:05 
+
+64:05 should have a different direction of
+64:08 
+
+64:08 drift
+64:10 
+
+64:10 and should not have a component on each
+64:12 
+
+64:12 other. So that's what you you would you
+64:14 
+
+64:14 would want.
+64:16 
+
+64:16 So instead of that what if you can do
+64:19 
+
+64:19 something like a spectral decomposition
+64:22 
+
+64:22 but for that you need to have an
+64:25 
+
+64:25 additional
+64:26 
+
+64:26 condition that your a must also be a
+64:29 
+
+64:29 norm a norm matrix which means a a
+64:34 
+
+64:34 conjugate should be equal to a conjugate
+64:36 
+
+64:36 a. So that in the in the complex space
+64:39 
+
+64:39 or at least in the real space the
+64:41 
+
+64:41 transpose a a transpose should be equal
+64:43 
+
+64:43 to a transpose a. So that uh condition
+64:46 
+
+64:46 has to be there only then you can do you
+64:49 
+
+64:49 can make sure that if you do the
+64:51 
+
+64:51 spectral decomposition which is a
+64:52 
+
+64:52 particular
+64:54 
+
+64:54 which is a particular form of value de
+64:57 
+
+64:57 composition decomposition but where you
+64:59 
+
+64:59 can now
+65:01 
+
+65:01 guarantee that your vectors will be
+65:04 
+
+65:04 perpendicular to each other. So if you
+65:06 
+
+65:06 do that so basically you need yet
+65:08 
+
+65:08 another thing which is you need to make
+65:11 
+
+65:11 your a norm but how to do that now.
+65:16 
+
+65:16 So, so you need to have this norm.
+65:22 
+
+65:22 So the takeaway is that structure is
+65:25 
+
+65:25 still needed which means you cannot just
+65:27 
+
+65:27 leave a to God's will and make a get
+65:33 
+
+65:33 trained via the data because there's no
+65:38 
+
+65:38 way you can guarantee these things not
+65:40 
+
+65:40 to happen and you will again fall into
+65:43 
+
+65:43 the complaints that you used to get with
+65:46 
+
+65:46 LSTMs and RLN style models that oh the
+65:49 
+
+65:49 gradients are exploding or vanishing and
+65:52 
+
+65:52 so on and so forth, you will again get
+65:53 
+
+65:53 the same set of complaints. So if you
+65:56 
+
+65:56 just leave it just like that and leave
+65:58 
+
+65:58 it for training. So what you're doing is
+65:60 
+
+66:00 you're saying that okay, we need some
+66:01 
+
+66:01 sort of a regularization.
+66:03 
+
+66:03 So we need a structured
+66:07 
+
+66:07 designed with values guaranteed to stay
+66:10 
+
+66:10 within the stability region
+66:14 
+
+66:14 and we need efficient spectral
+66:16 
+
+66:16 computation of KK or the kernel
+66:19 
+
+66:19 and that was the motivation for the S4
+66:22 
+
+66:22 model. Right? Again remember what is the
+66:26 
+
+66:26 requirement a past
+66:29 
+
+66:29 the past has to be remembered if it is
+66:31 
+
+66:31 needed and even if it is long time ago
+66:33 
+
+66:33 it still needs to be reme remembered if
+66:36 
+
+66:36 it is re needed without the gradients to
+66:40 
+
+66:40 explode or
+66:42 
+
+66:42 vanish.
+66:44 
+
+66:44 Update the memory online as each token
+66:46 
+
+66:46 arrives. Be efficient on long sequences.
+66:48 
+
+66:48 Be interpretable.
+66:51 
+
+66:51 The final word thing is also very
+66:53 
+
+66:53 important be interpretable. Okay. All
+66:56 
+
+66:56 right. So then you know this paper from
+67:01 
+
+67:01 from Stanford this was I think this was
+67:03 
+
+67:03 published in in ICL 2020 one or two or
+67:08 
+
+67:08 something and uh this paper was came up
+67:11 
+
+67:11 how to train your hippo. So this was
+67:14 
+
+67:14 basically a paper you know the the the
+67:16 
+
+67:16 thing the takeaway from this paper was
+67:18 
+
+67:18 basically uh is basically how to
+67:21 
+
+67:21 structure a so that the values remain in
+67:26 
+
+67:26 the stable region. So they came up with
+67:29 
+
+67:29 this technique called hippo.
+67:32 
+
+67:32 Okay, which is uh a particular way of
+67:36 
+
+67:36 and we will look at that. But but the
+67:38 
+
+67:38 idea is that instead of looking at the
+67:42 
+
+67:42 entire
+67:44 
+
+67:44 past which is uta uttow means the entire
+67:47 
+
+67:47 past sequence. Instead of looking at
+67:50 
+
+67:50 that you sum you make a summary of that.
+67:53 
+
+67:53 So instead of going long past the entire
+67:56 
+
+67:56 long horizon
+67:58 
+
+67:58 because that's too long, you make a
+68:01 
+
+68:01 summary summarized version of the
+68:03 
+
+68:03 information in that entire long me you
+68:05 
+
+68:05 know past sequence. You make a
+68:08 
+
+68:08 summarized version of that. So and then
+68:11 
+
+68:11 what you do you take out the principal
+68:13 
+
+68:13 components
+68:16 
+
+68:16 the principal components
+68:19 
+
+68:19 which ideally should be orthogonal to
+68:21 
+
+68:21 each other which means one component
+68:23 
+
+68:23 should not be a reflection of the other
+68:25 
+
+68:25 component. You take the principal
+68:27 
+
+68:27 components of that summary
+68:31 
+
+68:31 and then you come up with this form of a
+68:34 
+
+68:34 uh a state form you know where the CK is
+68:38 
+
+68:38 let's say the state the running state or
+68:40 
+
+68:40 the running memory the summarized
+68:43 
+
+68:43 version of it and that is approximated
+68:46 
+
+68:46 as U tow multiplied by PK to where PK is
+68:51 
+
+68:51 basically the principal component the
+68:54 
+
+68:54 principal
+68:56 
+
+68:56 U wave components essentially right so
+68:60 
+
+68:60 it's like a smooth wave a smooth shape
+69:03 
+
+69:03 shaped wave where every PK is orthogonal
+69:07 
+
+69:07 to to each other the shapes are chosen
+69:11 
+
+69:11 to be orthogonal which means they don't
+69:12 
+
+69:12 overlap or interfere with with one
+69:14 
+
+69:14 another from a wave point of view
+69:16 
+
+69:16 there's no interference
+69:18 
+
+69:18 okay so
+69:21 
+
+69:21 and C 0 would then be your average
+69:24 
+
+69:24 topics take C1 your more recent ones and
+69:27 
+
+69:27 so on and so forth. So as you increase
+69:29 
+
+69:29 your C at every time point you get more
+69:33 
+
+69:33 finer short-term details. So that is the
+69:36 
+
+69:36 idea. So which means your P 0 is going
+69:39 
+
+69:39 to be the broader topic will represent
+69:41 
+
+69:41 the P 0 wave would represent a broader
+69:43 
+
+69:43 topic. P1 would represent a bit more
+69:46 
+
+69:46 detail. P2 will represent even finer
+69:49 
+
+69:49 details and so on and so forth. Right?
+69:51 
+
+69:51 So [snorts] every P
+69:54 
+
+69:54 uh
+69:55 
+
+69:55 wave which you are integrating over
+69:58 
+
+69:58 represents the detailedness of whatever
+70:01 
+
+70:01 is going on in the memory. Right? But
+70:04 
+
+70:04 it's a summarized version. The
+70:06 
+
+70:06 summarized version is more important.
+70:08 
+
+70:08 Right? So that is how you that is the
+70:11 
+
+70:11 the key philosophy of hippo. Summarize
+70:16 
+
+70:16 the entire past
+70:19 
+
+70:19 with few running summaries. So these are
+70:22 
+
+70:22 the summaries.
+70:25 
+
+70:25 And they should be orthogonal. Your
+70:27 
+
+70:27 summary should be orthogonal
+70:32 
+
+70:32 with specific trend in the past signal.
+70:39 
+
+70:39 Okay.
+70:45 
+
+70:45 So, so hippo are what we call as high
+70:48 
+
+70:48 high order uh polomial projection
+70:50 
+
+70:50 operator. So that's what they proposed
+70:53 
+
+70:53 is basically this harmony.
+70:58 
+
+70:58 So the linguistic interpretation is
+70:60 
+
+70:60 think of hippo as keeping a few dials
+71:02 
+
+71:02 like a clock moving lot of clocks moving
+71:06 
+
+71:06 and one clock the slower clock would be
+71:10 
+
+71:10 about the broader topic.
+71:12 
+
+71:12 The medium one will be for let's say
+71:15 
+
+71:15 phrases noun phrase verb phrase and so
+71:16 
+
+71:16 on and the faster ones will be for the
+71:19 
+
+71:19 connectors.
+71:21 
+
+71:21 So why orthogonal polomials? Again
+71:24 
+
+71:24 memory channels these these clocks
+71:27 
+
+71:27 should not interfere with each other. So
+71:29 
+
+71:29 the memory channel should not interfere.
+71:33 
+
+71:33 So and what happens is because if you
+71:37 
+
+71:37 instead of a if you take a hippo the
+71:39 
+
+71:39 hippo version the version of a then what
+71:43 
+
+71:43 happens is the real part of your lambda
+71:46 
+
+71:46 is always going to be stable.
+71:49 
+
+71:49 So each dimension acts like a different
+71:51 
+
+71:51 memory speed uh I the dimension of the
+71:55 
+
+71:55 component and uh the goal is to design
+71:58 
+
+71:58 this a hippo and thereby the b hippo.
+72:02 
+
+72:02 So all these tracks you know all these
+72:06 
+
+72:06 signals they become the coefficient
+72:09 
+
+72:09 so without reintegrating from scratch.
+72:13 
+
+72:13 So we wish to maintain this and we wish
+72:16 
+
+72:16 to get something like this
+72:17 
+
+72:17 corresponding.
+72:20 
+
+72:20 So the same old principle where instead
+72:23 
+
+72:23 of X they used to call it C for some
+72:26 
+
+72:26 reason you can see think of C as X. So
+72:29 
+
+72:29 XT A hippo XT plus B hippo UT. So now
+72:33 
+
+72:33 everything is hippoized sort of okay
+72:38 
+
+72:38 where a hippo is for a matrix of k cross
+72:42 
+
+72:42 n is going to be something like this you
+72:48 
+
+72:48 know if you u if you look at the
+72:53 
+
+72:53 diagonals
+72:54 
+
+72:54 so it's going to be something so if n is
+72:56 
+
+72:56 less than k then your diagonals will
+72:58 
+
+72:58 look like this if n is equals to k your
+73:00 
+
+73:00 diagonal will look like k + one if n is
+73:04 
+
+73:04 greater than k your diagonals will look
+73:06 
+
+73:06 it will all be zero. So usually your n
+73:10 
+
+73:10 your your your n is uh you know lot uh
+73:17 
+
+73:17 less than k.
+73:20 
+
+73:20 So uh how to get to that? I mean I'm not
+73:24 
+
+73:24 going to go into the details. You can
+73:27 
+
+73:27 look at the steps like how to derive
+73:30 
+
+73:30 this. Uh how do we even get this square
+73:33 
+
+73:33 root of 2k + 1 and 2 n + 1 and so on. So
+73:38 
+
+73:38 you you basically
+73:41 
+
+73:41 you think of this princ you know the
+73:43 
+
+73:43 principal waves as as a loander
+73:47 
+
+73:47 polomial. Yeah. And uh that was how they
+73:51 
+
+73:51 came up with this this thing. They they
+73:54 
+
+73:54 assume that these principal waves which
+73:56 
+
+73:56 are orthogonal to each other they are
+73:57 
+
+73:57 loanders logender polyomials you know
+74:01 
+
+74:01 defined on over minus1 to one. So which
+74:04 
+
+74:04 means that if you integrate each one of
+74:07 
+
+74:07 these uh the key and the ends uh you get
+74:12 
+
+74:12 something like that and then if you
+74:14 
+
+74:14 define it over 0 and one because that is
+74:16 
+
+74:16 our delta.
+74:18 
+
+74:18 you and if you change the variables you
+74:21 
+
+74:21 get uh something like this. And then if
+74:25 
+
+74:25 you normalize for the the normality you
+74:27 
+
+74:27 get every component P becomes P bar and
+74:31 
+
+74:31 that is basically
+74:34 
+
+74:34 this
+74:36 
+
+74:36 and
+74:38 
+
+74:38 and then
+74:40 
+
+74:40 uh
+74:42 
+
+74:42 so you can look at you can look at this
+74:44 
+
+74:44 thing. So, so,
+74:48 
+
+74:48 so the, so then you can, so I'm not I'm
+74:51 
+
+74:51 skipping the the details of the I've
+74:53 
+
+74:53 given you the details of the the
+74:55 
+
+74:55 derivation, but I'm skipping this. Um,
+74:60 
+
+75:00 you can look at finally how everything
+75:03 
+
+75:03 comes to this, you know,
+75:07 
+
+75:07 how everything comes to this, right?
+75:12 
+
+75:12 So,
+75:18 
+
+75:18 But then the problem is it's still
+75:20 
+
+75:20 continuous. We have not discretized
+75:22 
+
+75:22 this. So the next step has to be we have
+75:24 
+
+75:24 to discretize this.
+75:26 
+
+75:26 So it's stable by construction
+75:29 
+
+75:29 but it needs to be discretized. So
+75:31 
+
+75:31 that's why S4 came in. So this paper is
+75:33 
+
+75:33 the S4 paper the IC 2022 paper. And what
+75:37 
+
+75:37 they did was they said that okay we will
+75:41 
+
+75:41 we will take all the good things of
+75:42 
+
+75:42 hippo
+75:44 
+
+75:44 which is a h means a hippo
+75:47 
+
+75:47 but we will
+75:49 
+
+75:49 take the normal form of it right the
+75:52 
+
+75:52 normalized matrix which is a a conjugate
+75:55 
+
+75:55 or a transpose is equals to a transpose
+75:57 
+
+75:57 a so that normal form and we will add a
+75:60 
+
+75:60 low rank matrix to that what that happen
+76:04 
+
+76:04 what what makes that happen is that when
+76:07 
+
+76:07 you move that to the Z form, you only
+76:11 
+
+76:11 get the lambda matrix to deal with
+76:14 
+
+76:14 together with the the low rank the low
+76:19 
+
+76:19 rank version of it which is P tild Q
+76:24 
+
+76:24 conjugate tild, right? where P t is V
+76:28 
+
+76:28 conjugate P and Q t is V conjugate Q
+76:32 
+
+76:32 where V is basically the the
+76:37 
+
+76:37 matrix when you decompose A H
+76:46 
+
+76:46 so so instead of going for a plain
+76:50 
+
+76:50 simple decomposition which can be ill
+76:52 
+
+76:52 condition as I said that there's no
+76:54 
+
+76:54 guarantee of the lambda staying within
+76:57 
+
+76:57 the stability zone. You if you do this
+77:01 
+
+77:01 which is you do a normal plus the low
+77:03 
+
+77:03 rank you then get something which is you
+77:07 
+
+77:07 just work with the diagonal plus the
+77:09 
+
+77:09 lower rank right in the z form when you
+77:13 
+
+77:13 change the basis.
+77:17 
+
+77:17 So
+77:19 
+
+77:19 and then you discretize it.
+77:22 
+
+77:22 uh same technique
+77:25 
+
+77:25 and uh you get
+77:28 
+
+77:28 uh
+77:31 
+
+77:31 and then you apply the FFT
+77:34 
+
+77:34 again the same technique
+77:40 
+
+77:40 and then you know you can in order to
+77:44 
+
+77:44 get the uh you know the Y back you apply
+77:50 
+
+77:50 something what we So as you know this
+77:53 
+
+77:53 you know you apply this fast inverse the
+77:55 
+
+77:55 inverse you can apply v what we is is
+77:58 
+
+77:58 the wood the woodbury result that the
+78:02 
+
+78:02 theorem which is d minus u v transpose
+78:05 
+
+78:05 inverse is the same as d inverse plus d
+78:08 
+
+78:08 inverse u of uh u * i - vrpose d inverse
+78:16 
+
+78:16 u whole inverse v transpose d inverse
+78:20 
+
+78:20 but then you know it looks
+78:21 
+
+78:21 like quite a mouthful but you just you
+78:24 
+
+78:24 are dealing with D inverse all through
+78:28 
+
+78:28 so you just have to compute D inverse
+78:30 
+
+78:30 which is very simple because D is
+78:31 
+
+78:31 diagonal the diagonal matrix so it's
+78:34 
+
+78:34 simple to compute and uh you you are
+78:39 
+
+78:39 just uh dealing with V you have already
+78:42 
+
+78:42 computed because you you have to compute
+78:44 
+
+78:44 B in order to compute D
+78:47 
+
+78:47 and uh you can just do the inverse just
+78:50 
+
+78:50 while doing this plain simple addition.
+78:57 
+
+78:57 So the final contextual embedding would
+78:59 
+
+78:59 be this. And uh
+79:04 
+
+79:04 the S4 architectural pipeline is you
+79:07 
+
+79:07 first do the U you do a spectral
+79:10 
+
+79:10 filtering which is uh over the using the
+79:14 
+
+79:14 FFT but this time you are using the
+79:17 
+
+79:17 kernel as uh you know the E is equals to
+79:21 
+
+79:21 now the lambda which is the diagonal
+79:23 
+
+79:23 matrix. We're just using the diagram
+79:25 
+
+79:25 mystic puzzle low rank and then you may
+79:29 
+
+79:29 have a gate or some normalization layer
+79:32 
+
+79:32 norm batch norm and so on and then you
+79:35 
+
+79:35 finally apply a head and a residual
+79:39 
+
+79:39 uh you can layer it up also multiple
+79:42 
+
+79:42 layers if you want you can do and in
+79:44 
+
+79:44 each layer you do the same thing and
+79:46 
+
+79:46 then uh put a decision head that could
+79:50 
+
+79:50 be a language modeling head which is an
+79:52 
+
+79:52 expert prediction head or can the
+79:54 
+
+79:54 classification or whatever other kind of
+79:57 
+
+79:57 task head
+79:59 
+
+79:59 and the performance comparison was that
+80:02 
+
+80:02 you
+80:04 
+
+80:04 uh so what they did in the paper was
+80:07 
+
+80:07 they compared uh S4 uh with uh with
+80:12 
+
+80:12 other transformerbased models in
+80:15 
+
+80:15 including linear complexity transformer
+80:17 
+
+80:17 based models in terms of what in terms
+80:19 
+
+80:19 of the speed and memory uh across
+80:22 
+
+80:22 different lens
+80:24 
+
+80:24 So they took uh 1024 length context and
+80:27 
+
+80:27 then they also took 4096 length context
+80:31 
+
+80:31 and then they tried to see uh how fast
+80:34 
+
+80:34 S4 is as compared to let's say linear
+80:36 
+
+80:36 transformation which is linear
+80:38 
+
+80:38 transformations are linear time uh and
+80:42 
+
+80:42 then they try to see how good they are.
+80:44 
+
+80:44 It's quite quite comparable as compared
+80:46 
+
+80:46 to the speed, right? And also quite
+80:52 
+
+80:52 comparable
+80:54 
+
+80:54 uh uh as compared to the memory but much
+80:58 
+
+80:58 better than the normal quadratic self
+81:04 
+
+81:04 attention based uh transformers.
+81:08 
+
+81:08 So the insight is that you know in terms
+81:12 
+
+81:12 of the scaling behavior the transformer
+81:14 
+
+81:14 complexity you know it's much better
+81:17 
+
+81:17 than the transformer complexity
+81:19 
+
+81:19 uh it it matches linear transformers in
+81:22 
+
+81:22 speed
+81:23 
+
+81:23 u and the memory advantage it also has a
+81:27 
+
+81:27 constant size state because it just the
+81:30 
+
+81:30 a the a is time invariant right so it it
+81:34 
+
+81:34 it it scores on that
+81:39 
+
+81:39 and if you look at the long range arena
+81:41 
+
+81:41 performance
+81:43 
+
+81:43 again uh now this is more on the
+81:45 
+
+81:45 accuracy side of it so you'll see uh
+81:49 
+
+81:49 that S4 is performing much better than
+81:52 
+
+81:52 many of these long context models like
+81:55 
+
+81:55 big bird reformer linear transformers
+81:58 
+
+81:58 and so on right and uh
+82:04 
+
+82:04 so so so that is sort
+82:06 
+
+82:06 what uh we we have for S4. Now uh where
+82:12 
+
+82:12 the state-of-the-arts uh art models uh
+82:16 
+
+82:16 fall short uh is uh so if you take an
+82:20 
+
+82:20 example let's say that you have this
+82:22 
+
+82:22 sentence John promised Mary uh he would
+82:25 
+
+82:25 not visit Paris yesterday and this is
+82:29 
+
+82:29 important this is the final takeaway
+82:31 
+
+82:31 sort of so each architecture answers
+82:33 
+
+82:33 these questions differently whether it
+82:35 
+
+82:35 is transformer based architecture or RNN
+82:38 
+
+82:38 based architectures or SSM based
+82:40 
+
+82:40 architecture. So some architectures
+82:43 
+
+82:43 remember too much while others forget
+82:46 
+
+82:46 too fast. So that's the problem. So if
+82:48 
+
+82:48 you look at transformers, what's going
+82:50 
+
+82:50 on? So over here every word looks at
+82:52 
+
+82:52 every other word.
+82:54 
+
+82:54 Uh these are plain simple quadratic
+82:57 
+
+82:57 transformers. And if you look at these
+82:60 
+
+82:60 sort of models like MLA, GQA
+83:03 
+
+83:03 uh you know group uh query attention you
+83:07 
+
+83:07 know multiple uh
+83:11 
+
+83:11 uh uh multi head uh attentions and so on
+83:15 
+
+83:15 and so forth. You you find you know like
+83:18 
+
+83:18 what what you find in deep sea v3 lama 4
+83:22 
+
+83:22 and so on. You find that the compress
+83:24 
+
+83:24 the compressor share the key values to
+83:26 
+
+83:26 save memory. So that's these are the
+83:28 
+
+83:28 techniques that you have. Uh
+83:32 
+
+83:32 however if you look at sliding window
+83:34 
+
+83:34 attention that's another technique which
+83:36 
+
+83:36 is also used in gamma 3. Uh it restricts
+83:39 
+
+83:39 the attention to nearby context. So
+83:41 
+
+83:41 that's how they achieve the uh the you
+83:44 
+
+83:44 know the performance. If you look at MOE
+83:47 
+
+83:47 or mix mixture of expert layers, you use
+83:50 
+
+83:50 only a few experts per token, you know,
+83:53 
+
+83:53 which is the actual active learnable and
+83:57 
+
+83:57 the active parameters a lot less than
+83:60 
+
+83:60 the overall parameters and you try to
+84:02 
+
+84:02 make sure that every expert gets to
+84:04 
+
+84:04 understand which uh query to be given to
+84:08 
+
+84:08 whom.
+84:09 
+
+84:09 So the linguistic lens would be like he
+84:12 
+
+84:12 can talk directly to John but every word
+84:15 
+
+84:15 joins the conversation and can dilute
+84:18 
+
+84:18 the effect. So it's costly and it can it
+84:22 
+
+84:22 can potentially be noisy.
+84:25 
+
+84:25 So RNN style you know it's like the idea
+84:28 
+
+84:28 is we read like humans one word at a
+84:31 
+
+84:31 time right. So but then it keeps the
+84:35 
+
+84:35 running summary through time but it
+84:37 
+
+84:37 suffers from banishing or exploding
+84:39 
+
+84:39 gradients which means it forgets long
+84:41 
+
+84:41 long dependencies. So it tries to mimic
+84:44 
+
+84:44 how we read as humans but it has this
+84:47 
+
+84:47 issue. So so let's say that when uh I am
+84:52 
+
+84:52 when the word not comes in like you know
+84:55 
+
+84:55 the original. So what is John promised
+84:58 
+
+84:58 Mary? He would not visit Paris
+84:60 
+
+84:60 yesterday. So when the word not comes in
+85:03 
+
+85:03 uh the memory of promise has already
+85:05 
+
+85:05 faded in. So what are we what is what
+85:08 
+
+85:08 what are we negating is already
+85:11 
+
+85:11 forgotten.
+85:13 
+
+85:13 So the effect of not is not being
+85:15 
+
+85:15 applied effectively.
+85:18 
+
+85:18 Right? So
+85:21 
+
+85:21 so when we look at linear attention so
+85:23 
+
+85:23 linear attention is we keep attention's
+85:25 
+
+85:25 awareness but drop its cost. So
+85:28 
+
+85:28 essentially is we do the k transpose k v
+85:32 
+
+85:32 but we uh apply some sort of uh
+85:37 
+
+85:37 um some sort of uh function over over
+85:41 
+
+85:41 the q so that we uh sort of uh restrict
+85:47 
+
+85:47 how much of the queue we see right so
+85:50 
+
+85:50 quen 3 next kinear many maxim so we
+85:54 
+
+85:54 reflect the softmax with kernel all
+85:57 
+
+85:57 delta net approximations. So that's your
+85:60 
+
+85:60 five over there achieve big O of t
+86:03 
+
+86:03 linear time inference but we see that
+86:06 
+
+86:06 most variants remain structurally
+86:08 
+
+86:08 efficient but semantically they don't
+86:11 
+
+86:11 know when they are you know they don't
+86:13 
+
+86:13 have semantic adaptations in the sense
+86:15 
+
+86:15 that when they are getting new and new
+86:17 
+
+86:17 words coming in in the auto reggressive
+86:19 
+
+86:19 setup they don't know that okay what is
+86:21 
+
+86:21 the meaning of this word and how I
+86:22 
+
+86:22 should apply my fi over there in order
+86:25 
+
+86:25 to do that linear time inference.
+86:31 
+
+86:31 So it's like a speed reader. So which
+86:34 
+
+86:34 skims the text quickly but only
+86:35 
+
+86:35 partially catches the nuance of not or
+86:38 
+
+86:38 Paris. So that's what lean your
+86:40 
+
+86:40 attention would be. Mixture of experts.
+86:44 
+
+86:44 You know I'm going through all this
+86:45 
+
+86:45 because these is what these are all what
+86:47 
+
+86:47 you would be looking at and then you
+86:49 
+
+86:49 might be thinking that well why do we
+86:51 
+
+86:51 even need to think about SSM and S4s and
+86:54 
+
+86:54 all of that. So that's why I'm giving
+86:55 
+
+86:55 you a perspective. So, so, so the MOE
+87:00 
+
+87:00 philosophy is instead of one big brain,
+87:02 
+
+87:02 we may use several smaller brains. So,
+87:07 
+
+87:07 that's the you know the abstract uh
+87:11 
+
+87:11 equation if you if you want. So yt is
+87:15 
+
+87:15 equals to basically a summation of all
+87:17 
+
+87:17 the active experts
+87:19 
+
+87:19 uh for a particular u like deepseek
+87:23 
+
+87:23 version 3 r1 or or I mean llama 4 glm
+87:29 
+
+87:29 4.2 to 4.5 sorry key me K2 so these
+87:32 
+
+87:32 models all are small you know work on
+87:35 
+
+87:35 this small mixture of experts and each
+87:38 
+
+87:38 token activates a handful of specialized
+87:39 
+
+87:39 feed forward experts scaling efficiency
+87:42 
+
+87:42 is there but uh yet routing relies on
+87:46 
+
+87:46 static embeddings it's not evolving
+87:47 
+
+87:47 meaning so when you route to one expert
+87:50 
+
+87:50 with Ricar versus the other expert that
+87:52 
+
+87:52 routing is happening only based on
+87:54 
+
+87:54 static embedding you don't look at what
+87:56 
+
+87:56 is what has what is the new evolved
+87:58 
+
+87:58 contextual meaning of this upcoming word
+88:02 
+
+88:02 and you don't try to decide on the basis
+88:04 
+
+88:04 of that you look at okay which expert
+88:07 
+
+88:07 should I move this towards through this
+88:09 
+
+88:09 two you look at what is the static input
+88:12 
+
+88:12 embering
+88:14 
+
+88:14 right so that is the problem with uh
+88:16 
+
+88:16 most of these movies
+88:19 
+
+88:19 so yeah so it's like a newsroom of
+88:22 
+
+88:22 specialist promised the word promise
+88:25 
+
+88:25 wakes the verb expert
+88:28 
+
+88:28 not should wake up the negation expert
+88:32 
+
+88:32 but they are independent of each other.
+88:33 
+
+88:33 these experts are not thinking as if
+88:36 
+
+88:36 like oh this has been activated first so
+88:38 
+
+88:38 I should now be thinking in a different
+88:41 
+
+88:41 way and uh so so so that doesn't really
+88:45 
+
+88:45 happen so the experts don't talk to each
+88:47 
+
+88:47 other
+88:50 
+
+88:50 so state-of-the-art uh models in terms
+88:53 
+
+88:53 of SSM S4 we just saw S4 the problem is
+88:57 
+
+88:57 it's like an orchestra that keeps
+88:59 
+
+88:59 playing one rhythm even when not should
+89:01 
+
+89:01 invert the tune
+89:04 
+
+89:04 because it's a it's a forward moving
+89:06 
+
+89:06 wave. So even if a knot comes and tries
+89:09 
+
+89:09 to negate some the effect of some
+89:11 
+
+89:11 previous uh word the wave will keep on
+89:14 
+
+89:14 moving over time. So it's very difficult
+89:17 
+
+89:17 to
+89:19 
+
+89:19 demplify sort of the effect of certain
+89:21 
+
+89:21 things as new these sort of negation
+89:24 
+
+89:24 words come in.
+89:27 
+
+89:27 So, so to you know in a nutshell,
+89:32 
+
+89:32 so this is the
+89:34 
+
+89:34 uh this is the landscape so to say.
+89:47 
+
+89:47 So the core common limitation is that
+89:50 
+
+89:50 memory is there everywhere. Everybody is
+89:53 
+
+89:53 dealing with trying to deal with memory.
+89:56 
+
+89:56 Everybody is uh structured driven but
+89:60 
+
+89:60 not meaning driven.
+90:03 
+
+90:03 Okay. So no mechanism that decides
+90:06 
+
+90:06 dynamic dynamically what to keep or
+90:08 
+
+90:08 forget based on the meaning of the new
+90:10 
+
+90:10 word contextual meaning of the new word.
+90:14 
+
+90:14 Right? So it doesn't update or revise
+90:18 
+
+90:18 what it has done so far on the basis of
+90:20 
+
+90:20 the contextual meaning of the new word.
+90:24 
+
+90:24 Okay. So it's like once the momentum has
+90:28 
+
+90:28 been set that momentum keep is so
+90:30 
+
+90:30 forceful that it keeps moving forward
+90:33 
+
+90:33 that wave keeps moving forward. It's
+90:35 
+
+90:35 very difficult to change the course of
+90:36 
+
+90:36 that wave. So it's only that you can go
+90:39 
+
+90:39 with the wind and change a little bit on
+90:42 
+
+90:42 that wind but you cannot completely
+90:44 
+
+90:44 change the course of the wind. So that's
+90:47 
+
+90:47 what happens uh with these models. So
+90:51 
+
+90:51 that's the reason why they came up you
+90:53 
+
+90:53 know in this calm 20 24 people they came
+90:57 
+
+90:57 up with this mamba model it's a very
+91:00 
+
+91:00 very popular model and this should not
+91:02 
+
+91:02 take much time maybe I should just keep
+91:05 
+
+91:05 going maybe 15 minutes
+91:08 
+
+91:08 so S4 the summary of S4 is this that you
+91:12 
+
+91:12 took a SS continuous SSM
+91:15 
+
+91:15 which is a XT plus B UT and then you
+91:18 
+
+91:18 make the contextual embedding of y using
+91:22 
+
+91:22 cxt plus d u t you discretize it at
+91:26 
+
+91:26 token rate delta and make it like that
+91:28 
+
+91:28 you convol convolute it which means you
+91:31 
+
+91:31 don't like uh the sequential memory you
+91:34 
+
+91:34 make it as a summation and then you
+91:37 
+
+91:37 don't like the summation
+91:39 
+
+91:39 you think that there is a better way of
+91:42 
+
+91:42 quick quick doing that quickly so you
+91:44 
+
+91:44 convert everything into
+91:47 
+
+91:47 a 4ear transform form
+91:50 
+
+91:50 right? So you look at this you know
+91:53 
+
+91:53 instead of looking at it more from
+91:56 
+
+91:56 individual
+91:57 
+
+91:57 vector point of view look at it from
+91:59 
+
+91:59 individual frequency point of view and
+92:02 
+
+92:02 then you do this spectral
+92:04 
+
+92:04 um filtering
+92:07 
+
+92:07 and but then the limit is k is all data
+92:10 
+
+92:10 dep data independent
+92:12 
+
+92:12 because a a is data independent that's
+92:15 
+
+92:15 why the k will be data independent right
+92:17 
+
+92:17 a and b are data independent right So,
+92:21 
+
+92:21 so the dynamics do not adapt to token
+92:23 
+
+92:23 content. So, what you do is instead you
+92:25 
+
+92:25 do something very simple. So, you say
+92:27 
+
+92:27 that okay I would I would want to
+92:29 
+
+92:29 preserve the stability and speed of S4
+92:34 
+
+92:34 but I want to make the memory more
+92:36 
+
+92:36 selective.
+92:39 
+
+92:39 Okay. So, or rather selective means
+92:41 
+
+92:41 input aware. So, why selectivity? The
+92:43 
+
+92:43 linguistic intuition would be that at
+92:46 
+
+92:46 the moment the word not comes in, I
+92:49 
+
+92:49 should be able to understand that oh
+92:52 
+
+92:52 this not is negating something that is
+92:54 
+
+92:54 upcoming and also maybe changing
+92:57 
+
+92:57 something that has already happened. So
+92:58 
+
+92:58 I should be able to quickly
+93:01 
+
+93:01 readjust that.
+93:03 
+
+93:03 So named entries let's let's say not
+93:05 
+
+93:05 should quickly suppress some prior
+93:07 
+
+93:07 semantic commitments the commitments
+93:09 
+
+93:09 that I already made. Now the moment I
+93:11 
+
+93:11 see not I should again readjust that and
+93:14 
+
+93:14 named entries paris may need slower
+93:16 
+
+93:16 decay to maintain the discourse topic.
+93:18 
+
+93:18 Discourse markers like however should
+93:21 
+
+93:21 reweigh what gets carried forward
+93:24 
+
+93:24 because you should which means you are
+93:26 
+
+93:26 it's not just a token or a symbol. You
+93:29 
+
+93:29 should know what is the role the
+93:31 
+
+93:31 semantic role of the word however.
+93:35 
+
+93:35 You know however is not the same as and
+93:38 
+
+93:38 both are connectors.
+93:40 
+
+93:40 and is also a connector.
+93:43 
+
+93:43 However is also a connector but however
+93:45 
+
+93:45 has a very different meaning connotation
+93:48 
+
+93:48 you know which rather than and right.
+93:52 
+
+93:52 So John promised Mary he would not visit
+93:55 
+
+93:55 Paris yesterday. So the subject long
+93:58 
+
+93:58 range link needs to be persisted
+94:01 
+
+94:01 negation pivot not should selectively
+94:03 
+
+94:03 attend your visit
+94:06 
+
+94:06 over there. Right? So when you say not
+94:08 
+
+94:08 visit you should know that okay since
+94:11 
+
+94:11 there is not now the upcoming visit has
+94:13 
+
+94:13 to be attenuated accordingly.
+94:16 
+
+94:16 So entity topic like parish should
+94:18 
+
+94:18 persist moderately
+94:20 
+
+94:20 temporal queue like yesterday affects
+94:22 
+
+94:22 temporal interpretation briefly.
+94:26 
+
+94:26 So we want the model to adapt its memory
+94:29 
+
+94:29 update which is a and b
+94:32 
+
+94:32 all of that when these tokens arrive. So
+94:36 
+
+94:36 from fixed to selective dynamics. So
+94:38 
+
+94:38 this is the selective dynamic. What do
+94:40 
+
+94:40 you do? Do do plain very simple there
+94:43 
+
+94:43 was earlier there was no UT. So yellow
+94:47 
+
+94:47 UT you just add up the UT
+94:51 
+
+94:51 with the and created a transformation.
+94:54 
+
+94:54 So A prime let's say something like
+94:55 
+
+94:55 that. So instead of just keeping a you
+94:60 
+
+94:60 create a prime and a prime is always
+95:02 
+
+95:02 dependent upon the current UT that is
+95:04 
+
+95:04 coming up right. So that's the thing. So
+95:08 
+
+95:08 it gears the gears which is the A and
+95:10 
+
+95:10 the B uh and the C. A would
+95:15 
+
+95:15 mostly look at the decay. B is the
+95:18 
+
+95:18 mixing and C is the readout which is the
+95:20 
+
+95:20 final embedding output.
+95:23 
+
+95:23 So you keep on reconfiguring that in
+95:25 
+
+95:25 terms of the UT.
+95:28 
+
+95:28 So in other words like whenever UT is
+95:30 
+
+95:30 not again your A changes to something
+95:33 
+
+95:33 else, B changes to something else you
+95:35 
+
+95:35 know and C changes to something else.
+95:40 
+
+95:40 So then when you uh look at the
+95:44 
+
+95:44 diagonalization
+95:46 
+
+95:46 and when you look at the and everything
+95:49 
+
+95:49 else pretty much remains the same. uh
+95:53 
+
+95:53 then a ut would be minus lambda ut you
+95:58 
+
+95:58 actually use a minus b y because now you
+96:01 
+
+96:01 are adding a ut which is which usually
+96:03 
+
+96:03 could be plus also so essentially you
+96:05 
+
+96:05 try to make sure that your
+96:08 
+
+96:08 so your if your diagonal uh lambdas are
+96:13 
+
+96:13 positive so ultimately you want to make
+96:15 
+
+96:15 your lambda negative less than zero the
+96:18 
+
+96:18 magnitude of lambda should be less than
+96:19 
+
+96:19 zero otherwise it can explode loaded. So
+96:22 
+
+96:22 you keep the minus
+96:25 
+
+96:25 outside the matrix capital lambda and
+96:30 
+
+96:30 then so that your lambda could be
+96:32 
+
+96:32 positive so that your overall lambda
+96:34 
+
+96:34 becomes negative because your negative
+96:36 
+
+96:36 is outside the matrix right. So, so, so
+96:41 
+
+96:41 which means you're now you just made a
+96:44 
+
+96:44 quick change so that your lambda could
+96:45 
+
+96:45 be now your lambda has to be positive
+96:48 
+
+96:48 instead of negative because otherwise
+96:49 
+
+96:49 negative negative will become positive
+96:51 
+
+96:51 and that's the problem. So your lambda u
+96:54 
+
+96:54 lambda i ut is now going to be a soft
+96:58 
+
+96:58 plus.
+96:60 
+
+97:00 You get the point why we did this slight
+97:03 
+
+97:03 trick by keeping the negative negation
+97:05 
+
+97:05 outside because lambda you know because
+97:08 
+
+97:08 when UT comes you have to do something
+97:11 
+
+97:11 like a percentage you have to you know
+97:13 
+
+97:13 create some sort of a percentage out of
+97:15 
+
+97:15 it like a soft plus
+97:18 
+
+97:18 so since that is positive so that's why
+97:22 
+
+97:22 your your uh your negation has to be
+97:24 
+
+97:24 outside the diagonal matrix
+97:27 
+
+97:27 So
+97:30 
+
+97:30 and then you have some weight.
+97:33 
+
+97:33 Okay. So gates basically gates. So how
+97:35 
+
+97:35 to infuse infuse your input? So you say
+97:38 
+
+97:38 that there is a wg
+97:41 
+
+97:41 uh which creates the gate gt right
+97:46 
+
+97:46 and then you have this your lambda t
+97:49 
+
+97:49 which is basically uh w lambda
+97:52 
+
+97:52 multiplied by ut. So it's a transformed
+97:55 
+
+97:55 version of u. So there's a lambda gate
+97:58 
+
+97:58 and then you have BT which is WB
+98:02 
+
+98:02 multiplied by UT which is your uh that
+98:06 
+
+98:06 is what you will look at as BT and then
+98:09 
+
+98:09 CT is WC multiplied by UT and then what
+98:13 
+
+98:13 you do is you plug lambda till T into
+98:17 
+
+98:17 the soft plus you get the lambda T which
+98:20 
+
+98:20 is the
+98:22 
+
+98:22 value of the diagonal matrix and then A
+98:26 
+
+98:26 U T becomes minus because the minus is
+98:29 
+
+98:29 outside minus of diagonal lambda T right
+98:33 
+
+98:33 so that's how you you you get the thing
+98:37 
+
+98:37 and then what do you do this gate that
+98:39 
+
+98:39 you have the GT
+98:41 
+
+98:41 you now use the gate
+98:44 
+
+98:44 to uh to uh hold on yeah so so basically
+98:51 
+
+98:51 then what you do you you have this
+98:53 
+
+98:53 update uh update rule XT + 1 as a a bar
+98:58 
+
+98:58 t plus b bar t u t uh and you have yt
+99:05 
+
+99:05 equals to ct had a xt. So for all
+99:09 
+
+99:09 diagonal a ut
+99:12 
+
+99:12 which is minus of lambda t a bar t would
+99:16 
+
+99:16 be then become e ra minus lambda t delta
+99:19 
+
+99:19 t.
+99:21 
+
+99:21 Okay. So element wise it would be for
+99:22 
+
+99:22 one particular vector it would be minus
+99:26 
+
+99:26 lambda t i delta t and your b bar would
+99:31 
+
+99:31 be an integration of that which will be
+99:34 
+
+99:34 inverse of the diagonal matrix
+99:36 
+
+99:36 multiplied by i minus e raised minus
+99:40 
+
+99:40 lambda t delta t of bt
+99:45 
+
+99:45 okay so the intuition is the bigger the
+99:47 
+
+99:47 lambda or or the step there are two
+99:50 
+
+99:50 knobs
+99:51 
+
+99:51 means faster for getting on that channel
+99:53 
+
+99:53 on that specific channel or that
+99:55 
+
+99:55 specific aspect for that particular
+99:58 
+
+99:58 token. Right?
+100:03 
+
+100:03 So,
+100:05 
+
+100:05 so your uh so you have now this two
+100:09 
+
+100:09 gates
+100:11 
+
+100:11 alpha and beta and what you do is is in
+100:14 
+
+100:14 in mamba is you apply the alpha gate
+100:18 
+
+100:18 which is the forget gate. forget gate on
+100:21 
+
+100:21 XT and you apply the update gate which
+100:24 
+
+100:24 is beta on UT. Simple. This portion is
+100:28 
+
+100:28 simple. So it looks very very close to
+100:30 
+
+100:30 something like GRU or uh or even LSTM.
+100:37 
+
+100:37 So XT + one is basically a forget
+100:40 
+
+100:40 applied on the previous XT and the
+100:44 
+
+100:44 update get applied on the current UT.
+100:47 
+
+100:47 Now the alpha the forget gate comes from
+100:50 
+
+100:50 e ra minus lambda t add mod delta t
+100:55 
+
+100:55 which is
+100:59 
+
+100:59 which is this a prime t
+101:04 
+
+101:04 and beta which is the forget sorry the
+101:07 
+
+101:07 update gate is basically 1 minus that
+101:10 
+
+101:10 lambda t alpha t
+101:12 
+
+101:12 divided by lambda t
+101:16 
+
+101:16 multiplied by the
+101:19 
+
+101:19 B BT where BT is basically
+101:28 
+
+101:28 this is basically WB multiplied by U.
+101:33 
+
+101:33 Now how do how does this uh derivation
+101:36 
+
+101:36 happens? I've given the derivation here
+101:38 
+
+101:38 is very simple uh is if you if you make
+101:42 
+
+101:42 a integration of uh e of raised lambda
+101:46 
+
+101:46 to d to it becomes 1 - 1 by lambda right
+101:50 
+
+101:50 and that and then again you substitute
+101:53 
+
+101:53 that uh I mean you you integrate that
+101:56 
+
+101:56 over to equ= to 0 to delta you get b=
+102:01 
+
+102:01 multiply by b you get 1 minus lambda e
+102:04 
+
+102:04 ra lambda uh delta by lambda in multiply
+102:08 
+
+102:08 by b. So that is how you get that uh u
+102:12 
+
+102:12 update gate beta 1 minus alpha by
+102:15 
+
+102:15 lambda. So that is how you are getting
+102:17 
+
+102:17 that um that equation. So basically it's
+102:20 
+
+102:20 not just it's basically derived from the
+102:24 
+
+102:24 the alpha only
+102:26 
+
+102:26 and uh this and this uh the dual's form
+102:31 
+
+102:31 closed form in discretetized form over
+102:34 
+
+102:34 here the barb wave.
+102:40 
+
+102:40 So, so the gated recurrence the
+102:42 
+
+102:42 interpretation is that not lambda t
+102:45 
+
+102:45 spikes for channels tied to affirmative
+102:48 
+
+102:48 intent. So,
+102:51 
+
+102:51 basically you have to drop that down. If
+102:54 
+
+102:54 there was an affirmative intent, you
+102:56 
+
+102:56 have to drop it down uh the moment not
+102:60 
+
+103:00 comes in. When Paris comes in, lambda t
+103:04 
+
+103:04 smaller should be smaller for entity
+103:06 
+
+103:06 locations channel. um and alpha t should
+103:10 
+
+103:10 be higher for the topic the place topic
+103:14 
+
+103:14 or the location. So that should go up at
+103:17 
+
+103:17 yesterday transient temporal channel
+103:19 
+
+103:19 which is so you should moderate the
+103:22 
+
+103:22 betat which is the how much information
+103:25 
+
+103:25 should be when in when yesterday comes
+103:28 
+
+103:28 in how much of that information
+103:30 
+
+103:30 yesterday information should actually
+103:31 
+
+103:31 get in you should moderate that and then
+103:34 
+
+103:34 there that should be that should also
+103:36 
+
+103:36 have a faster decay.
+103:39 
+
+103:39 So that should be forgotten after some
+103:41 
+
+103:41 time the yesterday information.
+103:43 
+
+103:43 So pronoun he again the state highlights
+103:47 
+
+103:47 the channel that binds back to John. So
+103:49 
+
+103:49 John should persist otherwise that
+103:51 
+
+103:51 binding back won't happen.
+103:54 
+
+103:54 So why is the computation linear time?
+103:58 
+
+103:58 Uh because if you again if you if you
+104:00 
+
+104:00 unfold it this uh this alpha the the
+104:04 
+
+104:04 forget gate with the update gate. If you
+104:07 
+
+104:07 unfold this update u uh equation, you'll
+104:11 
+
+104:11 get this
+104:13 
+
+104:13 this uh this uh projection, right?
+104:18 
+
+104:18 And then uh what you can do is you can
+104:22 
+
+104:22 you know if you look at this I I gave
+104:24 
+
+104:24 you an example why why it's linear time
+104:28 
+
+104:28 because at time point zero you know you
+104:32 
+
+104:32 knew nothing right so your projection
+104:34 
+
+104:34 would be just one the prefix which we
+104:37 
+
+104:37 call as pipix so that is just one and
+104:39 
+
+104:39 let's say your alpha t is.9 so your
+104:42 
+
+104:42 incremental update will be.9 of x0 + 1
+104:47 
+
+104:47 and Then when alpha t becomes let's say
+104:51 
+
+104:51 at time.1 when the new token comes in
+104:53 
+
+104:53 and let's say that alpha t is8 at that
+104:55 
+
+104:55 time which is the forget gate is8. So
+104:58 
+
+104:58 then your previous prefix was 0.9. You
+105:01 
+
+105:01 just look that up. So you don't have to
+105:04 
+
+105:04 basically you don't have to look at
+105:05 
+
+105:05 everybody before you. You just look at
+105:07 
+
+105:07 whatever happened just before just in
+105:10 
+
+105:10 the previous time step. Right? So that's
+105:14 
+
+105:14 what makes this linear linear time.
+105:18 
+
+105:18 Okay. So so if you if you look at the
+105:22 
+
+105:22 token condition uh kernel is effectively
+105:25 
+
+105:25 k which depends on ut minus k v alpha
+105:30 
+
+105:30 beta and c.
+105:32 
+
+105:32 So this becomes data dependent
+105:35 
+
+105:35 isn't it?
+105:39 
+
+105:39 Because your alpha is data dependent
+105:41 
+
+105:41 your which is a forget gate your beta is
+105:43 
+
+105:43 data dependent your forget gate and your
+105:46 
+
+105:46 C thereby your C is bit your your data
+105:50 
+
+105:50 dependent
+105:52 
+
+105:52 it keeps on changing
+105:55 
+
+105:55 as new information comes in right so
+105:58 
+
+105:58 it's a token conditioned kernel it's not
+105:60 
+
+105:60 just a unconditional kernel everything
+106:03 
+
+106:03 remains the same so if you look at S4 is
+106:06 
+
+106:06 a KK multiplied by U T minus K but over
+106:09 
+
+106:09 here your K
+106:11 
+
+106:11 what is the K over here
+106:14 
+
+106:14 whatever I have data dependent weight so
+106:17 
+
+106:17 think of that as the mamba K
+106:21 
+
+106:21 that entire
+106:23 
+
+106:23 whatever is in brace
+106:26 
+
+106:26 inside the summation think of that as
+106:29 
+
+106:29 your mamba K the K for the mamba
+106:33 
+
+106:33 and that is multiplied by UT minus K
+106:35 
+
+106:35 which is the same as S4 so the overall
+106:37 
+
+106:37 form the overall form remains the same.
+106:41 
+
+106:41 It's just that your K
+106:44 
+
+106:44 has become input sensitive.
+106:54 
+
+106:54 So the filter reshapes itself on the
+106:56 
+
+106:56 fly.
+107:01 
+
+107:01 So So it ensures stability. So,
+107:06 
+
+107:06 so because uh because soft plus you're
+107:10 
+
+107:10 applying soft plus to get the lambda.
+107:12 
+
+107:12 So, soft plus will always make it
+107:14 
+
+107:14 positive. So, what happens is you uh and
+107:19 
+
+107:19 that's how your entire diagonal matrix
+107:22 
+
+107:22 will always be negative because of the
+107:23 
+
+107:23 negation that was outside. So, step
+107:26 
+
+107:26 positivity
+107:28 
+
+107:28 uh because your delta t will always be
+107:30 
+
+107:30 positive. So, that is fine. So it's
+107:33 
+
+107:33 bounded because your alpha which is the
+107:36 
+
+107:36 forget gate is always going to be
+107:38 
+
+107:38 between zero and one. So it avoids the
+107:40 
+
+107:40 explosion
+107:42 
+
+107:42 and there is a nice gradient flow. So
+107:45 
+
+107:45 your per per step contraction curves
+107:48 
+
+107:48 exploding gradients
+107:50 
+
+107:50 right because uh because of that alpha t
+107:55 
+
+107:55 you know.
+108:02 
+
+108:02 So the steps are you start from the S4
+108:05 
+
+108:05 stable backbone diagonalize A with the
+108:09 
+
+108:09 DK mode specialized to diagonal A for
+108:12 
+
+108:12 fast uh per dimension recurrences make
+108:16 
+
+108:16 ABC selective
+108:19 
+
+108:19 right and discretetize that to get the
+108:24 
+
+108:24 gates the forget and the update gates
+108:27 
+
+108:27 and then apply the recurrence
+108:30 
+
+108:30 uh using the those gates
+108:32 
+
+108:32 and then do the the algorithm of
+108:35 
+
+108:35 selective scan which means you just keep
+108:39 
+
+108:39 looking at the previous previous alpha
+108:42 
+
+108:42 and the previous beta. You don't have to
+108:44 
+
+108:44 look at every single alpha that you have
+108:47 
+
+108:47 created before. You have to keep it's
+108:49 
+
+108:49 basically linear. You just move forward.
+108:56 
+
+108:56 So the performance comparison was done
+108:59 
+
+108:59 on eight zeros benchmarks like pile
+109:02 
+
+109:02 lambda we talked about that ha swag for
+109:05 
+
+109:05 for rau
+109:07 
+
+109:07 uh what are those benchmarks compared
+109:09 
+
+109:09 against open source transformers
+109:12 
+
+109:12 uh like jupiter uh neoox opt
+109:18 
+
+109:18 etc. The goal was does a linear time
+109:20 
+
+109:20 selective SSM match or outperform
+109:22 
+
+109:22 quadric time attention. That was the
+109:24 
+
+109:24 goal. And they scaled this model which
+109:28 
+
+109:28 is the mamba from smaller mamba to
+109:31 
+
+109:31 larger mamba to see what is the effect.
+109:34 
+
+109:34 And so this was the uh evaluation over
+109:39 
+
+109:39 all these different u different types of
+109:44 
+
+109:44 uh at different uh sizes. So starting
+109:47 
+
+109:47 from 360
+109:49 
+
+109:49 range models to 1 billion range models
+109:53 
+
+109:53 and so on to 1.5 billion range models
+109:56 
+
+109:56 and so on. And they looked at it and
+109:58 
+
+109:58 what the the key highlight was that
+110:01 
+
+110:01 Mamba 370 million would beat Pythia 410
+110:06 
+
+110:06 million and hybrid H3
+110:09 
+
+110:09 million. Mamba 1.4 billion and 2.8
+110:13 
+
+110:13 billion matches transformers near nearly
+110:15 
+
+110:15 twice the size. These are accuracy
+110:17 
+
+110:17 results and mamba 6.7 billion achieved
+110:20 
+
+110:20 state-of-the-art zero short average
+110:22 
+
+110:22 comparable to 13 billion GPT in EOX. So
+110:26 
+
+110:26 much smaller model closing in to much
+110:29 
+
+110:29 higher almost double the size
+110:32 
+
+110:32 transformer based models. So efficiency
+110:35 
+
+110:35 is linear time memory mechanisms
+110:38 
+
+110:38 are not just good and good for scaling.
+110:41 
+
+110:41 They also generalize quite competitively
+110:44 
+
+110:44 across all these baseline benchmarks.
+110:47 
+
+110:47 Benchmarks means these you know like
+110:50 
+
+110:50 Lambardada Helas and so on.
+110:54 
+
+110:54 And if you look at the
+110:57 
+
+110:57 the training efficiency in context, you
+111:00 
+
+111:00 see that uh the the red one is is the is
+111:05 
+
+111:05 what the uh the linear time prefix
+111:08 
+
+111:08 scanning uh of Mamba is and it's pretty
+111:11 
+
+111:11 much is linear
+111:14 
+
+111:14 you know as the sequent length increases
+111:17 
+
+111:17 whereas for others even including flash
+111:19 
+
+111:19 attention you know it starts getting out
+111:22 
+
+111:22 of memory as you increase the uh
+111:25 
+
+111:25 sequence length in terms of the size
+111:28 
+
+111:28 length of the uh the history or the
+111:31 
+
+111:31 length of the sequence
+111:33 
+
+111:33 but mamba very nicely almost linear
+111:37 
+
+111:37 increase when it comes to linear time
+111:40 
+
+111:40 increase uh scaling when it comes to
+111:42 
+
+111:42 increasing the number of uh number of
+111:45 
+
+111:45 tokens.
+111:47 
+
+111:47 So for short sequences all methods are
+111:50 
+
+111:50 more or less comparable as you can see
+111:52 
+
+111:52 like 512 tokens and all there are a lot
+111:55 
+
+111:55 of techniques which are more or less
+111:57 
+
+111:57 comparable but as the sequences grow
+112:01 
+
+112:01 attention cost rises sharply while mamba
+112:03 
+
+112:03 remains near linear.
+112:06 
+
+112:06 uh flash attention to still hits out of
+112:09 
+
+112:09 memory beyond 256 while Mamba stay in
+112:12 
+
+112:12 train stably
+112:14 
+
+112:14 and the scaling property is that the
+112:17 
+
+112:17 training time is roughly directly
+112:20 
+
+112:20 proportional to the sequence length for
+112:21 
+
+112:21 Mamba
+112:23 
+
+112:23 but it squire that for for attention
+112:27 
+
+112:27 and the inference throughput if I look
+112:29 
+
+112:29 at it uh that was this was a result like
+112:33 
+
+112:33 in terms of batch size and the
+112:36 
+
+112:36 throughput which is the number of tokens
+112:38 
+
+112:38 it could process per per second for
+112:42 
+
+112:42 different batch sizes and over there
+112:44 
+
+112:44 also uh uh Mamba 6.9 billion uh version
+112:52 
+
+112:52 is doing sufficiently well and the
+112:56 
+
+112:56 insight is that as bass size increases
+112:58 
+
+112:58 transformer throughutur saturates early
+113:01 
+
+113:01 it's not able to process too many tokens
+113:03 
+
+113:03 per second that much. So, so Mamba
+113:07 
+
+113:07 scales almost linearly with B size.
+113:11 
+
+113:11 Uh both small as well as the larger
+113:13 
+
+113:13 Mamba version outperform comparable uh
+113:17 
+
+113:17 comparable transformers. Uh and the
+113:21 
+
+113:21 reason being that there's no quadratic
+113:22 
+
+113:22 KV caching during inferencing, no
+113:24 
+
+113:24 exponential growth in memory. Uh the
+113:27 
+
+113:27 state updates are constant size.
+113:30 
+
+113:30 Uh because it's just a carryover of the
+113:32 
+
+113:32 same state. You don't have to look back
+113:34 
+
+113:34 every time a new word comes in
+113:38 
+
+113:38 and it's quite GPU friendly because you
+113:41 
+
+113:41 can do a lot of parallelization of the
+113:44 
+
+113:44 GPUs uh
+113:47 
+
+113:47 across because of the FFTs and all that
+113:49 
+
+113:49 you are applying.
+113:52 
+
+113:52 So summarizing u is 40x faster training
+113:56 
+
+113:56 than standard scan the scan that was
+113:59 
+
+113:59 used for uh for mamba the linear scan 5x
+114:04 
+
+114:04 higher inference throughout throughput
+114:07 
+
+114:07 inference throughput than than trans
+114:09 
+
+114:09 transformers and it has a linear compute
+114:13 
+
+114:13 memory scaling.
+114:16 
+
+114:16 uh the qualitative insight being that
+114:19 
+
+114:19 it's efficient from selective recurrence
+114:21 
+
+114:21 not sparse no you know not you don't
+114:24 
+
+114:24 need sparse tricks unlike linear time
+114:27 
+
+114:27 transformers or uh other kind of sparse
+114:31 
+
+114:31 attention kind of stuffs you don't need
+114:34 
+
+114:34 uh it enables ultra long uh sequences
+114:37 
+
+114:37 like more than 250 6,000 tokens without
+114:41 
+
+114:41 out of memory issues
+114:43 
+
+114:43 it's streaming friendly ideal for
+114:46 
+
+114:46 shorter regressive task and it you know
+114:49 
+
+114:49 so so so overall Mamba combines long
+114:52 
+
+114:52 range reasoning with transformeral level
+114:54 
+
+114:54 performance but it runs at linear speed
+114:57 
+
+114:57 and stable memory
+114:60 
+
+114:60 okay so that's the that's the deal
+115:04 
+
+115:04 any questions
+115:10 
+
+115:10 you you have to internalize
+115:14 
+
+115:14 SSM First you know take your time to
+115:17 
+
+115:17 internalize that then you need to
+115:19 
+
+115:19 internalize
+115:21 
+
+115:21 S4
+115:23 
+
+115:23 and then only you know you can
+115:25 
+
+115:25 internalize Mamba. Once you have
+115:27 
+
+115:27 internalized S4 a Mamba is easy because
+115:29 
+
+115:29 it's just a gated version of if you look
+115:32 
+
+115:32 at it from that point of view it's a
+115:34 
+
+115:34 gated version of S4.
+115:36 
+
+115:36 So so yeah so it's it's alternative. I
+115:40 
+
+115:40 wanted to also discuss
+115:43 
+
+115:43 uh can
+115:46 
+
+115:46 commal networks but maybe next time uh
+115:51 
+
+115:51 that's also a very interesting
+115:53 
+
+115:53 alternative model uh
+115:57 
+
+115:57 but Mambai was something that got picked
+115:60 
+
+116:00 up a lot and lot of varants
+116:03 
+
+116:03 uh came out like jamba and all out of
+116:06 
+
+116:06 this so took a there was lot of traction
+116:10 
+
+116:10 for Mamba. So I thought that we should
+116:13 
+
+116:13 do that.
+116:15 
+
+116:15 So there's one final point I want to
+116:18 
+
+116:18 make is that there's no one fit all.
+116:21 
+
+116:21 There are different use cases. It's not
+116:24 
+
+116:24 that oh you should forget transformer
+116:26 
+
+116:26 based models and use mamba style models.
+116:29 
+
+116:29 It's not like that. Uh different use
+116:32 
+
+116:32 cases will need different types of
+116:34 
+
+116:34 models. If you want to model really
+116:37 
+
+116:37 complex long horizon
+116:40 
+
+116:40 uh input sequential input long horizon
+116:42 
+
+116:42 very long horizon and very very complex
+116:46 
+
+116:46 then probably something like state space
+116:48 
+
+116:48 models will help you more you know like
+116:52 
+
+116:52 let's say user interaction trajectories
+116:55 
+
+116:55 not just language but lot of you know
+116:57 
+
+116:57 like uh different types of clicks and
+116:59 
+
+116:59 skips and so on and so forth let's say
+117:01 
+
+117:01 some user is going through YouTube
+117:04 
+
+117:04 shorts
+117:06 
+
+117:06 across a week, a whole week. And
+117:08 
+
+117:08 sometimes he's clicking, sometimes he's
+117:11 
+
+117:11 skipping, sometimes clicking and uh
+117:13 
+
+117:13 watching it for long, sometimes is not
+117:16 
+
+117:16 watching it for long. And even skipping,
+117:19 
+
+117:19 sometimes when when the user is
+117:21 
+
+117:21 skipping, one can be that he doesn't
+117:23 
+
+117:23 like it. Another can be that she uh she
+117:27 
+
+117:27 she has got a better option alternative.
+117:30 
+
+117:30 Another can be reason that she
+117:34 
+
+117:34 has already seen that and that's why
+117:37 
+
+117:37 she's keeping. So it's not that she
+117:38 
+
+117:38 doesn't she's not interested in it but
+117:40 
+
+117:40 she has already seen it. So they get
+117:42 
+
+117:42 your trajectory to could be unlike
+117:47 
+
+117:47 language which just has a linguistic
+117:48 
+
+117:48 drift. So this is a behavioral drift.
+117:52 
+
+117:52 It's a very complex behavioral drift.
+117:56 
+
+117:56 So if you have to model those sort of
+117:57 
+
+117:57 things that probably SSM sort of models
+118:01 
+
+118:01 will work better. But uh the thing is
+118:05 
+
+118:05 that you should study in a way such that
+118:08 
+
+118:08 you understand the use case first.
+118:12 
+
+118:12 You know for very shorter sequences you
+118:14 
+
+118:14 don't need this complex models
+118:20 
+
+118:20 because as you saw that for shorter
+118:23 
+
+118:23 sequences the there's not much of a gain
+118:26 
+
+118:26 or anything like that. So transformer
+118:29 
+
+118:29 based models are pretty much fine.

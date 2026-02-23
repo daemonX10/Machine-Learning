@@ -1,0 +1,2761 @@
+00:00 This is the second lecture on advances
+00:03 
+
+00:03 in large language models. We talked
+00:04 
+
+00:04 about logistics and I tried to give you
+00:07 
+
+00:07 an overview of what has been happening
+00:09 
+
+00:09 in the space of LLM since last six seven
+00:11 
+
+00:11 years. It's very difficult to capture in
+00:14 
+
+00:14 one one day but I kind of tried to give
+00:16 
+
+00:16 you an overview of what we have seen
+00:20 
+
+00:20 uh and every day new things are coming
+00:22 
+
+00:22 in. It's an extremely exciting area
+00:25 
+
+00:25 right uh not for research but also for
+00:27 
+
+00:27 development right I will try to give you
+00:31 
+
+00:31 you know recent updates on LLM's as a
+00:34 
+
+00:34 breaking news in in in my lectures right
+00:38 
+
+00:38 and u and hopefully we'll be able to uh
+00:41 
+
+00:41 you know uh kind of try to uh see the
+00:47 
+
+00:47 development and try to cover those
+00:48 
+
+00:48 development in this course.
+00:52 
+
+00:52 So in the last class I told you that uh
+00:56 
+
+00:56 there is no prerequisite as such uh but
+00:60 
+
+00:60 uh you know we will not teach NLP and
+01:03 
+
+01:03 deep learning in this specific course. I
+01:06 
+
+01:06 offered this course last year also but
+01:09 
+
+01:09 last year uh we started with basics of
+01:12 
+
+01:12 NLP and also covered uh deep learning
+01:14 
+
+01:14 little bit right but this year we are
+01:16 
+
+01:16 not going to cover uh NLP and deep
+01:18 
+
+01:18 learning at all. Right? So
+01:22 
+
+01:22 the prerequisite for this course is
+01:24 
+
+01:24 essentially you need to go through first
+01:25 
+
+01:25 10 10 12 lectures of uh the last year's
+01:29 
+
+01:29 offerings right I hope all of you have
+01:31 
+
+01:31 already gone through uh the lecture
+01:32 
+
+01:32 materials
+01:34 
+
+01:34 and if you have already gone through the
+01:36 
+
+01:36 lecture materials you you should have
+01:38 
+
+01:38 you should already know about let's say
+01:41 
+
+01:41 uh language model what language model is
+01:44 
+
+01:44 right um CNN RNN types models for
+01:47 
+
+01:47 language modeling Um
+01:50 
+
+01:50 and then uh different types of embedding
+01:52 
+
+01:52 techniques like what to make right glove
+01:55 
+
+01:55 and stuff like that right we're not
+01:57 
+
+01:57 going to cover all these things by the
+01:58 
+
+01:58 way but the plan is that so in today's
+02:00 
+
+02:00 lecture I will I will talk about
+02:02 
+
+02:02 language model and neural language model
+02:04 
+
+02:04 in a very very very high level right
+02:06 
+
+02:06 100,000 ft above the sea level right so
+02:10 
+
+02:10 I'll make it very high level so that uh
+02:13 
+
+02:13 you know
+02:15 
+
+02:15 uh uh you have some ideas about it and
+02:17 
+
+02:17 then next class we will start from
+02:20 
+
+02:20 transformer right uh so we'll discuss
+02:24 
+
+02:24 transformer then different pre so one
+02:26 
+
+02:26 class we'll discuss transformer next
+02:28 
+
+02:28 class we'll discuss different
+02:29 
+
+02:29 pre-turning techniques and uh um and
+02:33 
+
+02:33 then uh instruction fine-tuning and and
+02:36 
+
+02:36 uh preference optimization right so in
+02:38 
+
+02:38 two in next three four lectures we will
+02:40 
+
+02:40 finish uh till preference optimization
+02:44 
+
+02:44 right basic preference optimization and
+02:47 
+
+02:47 then the in so let's say in around 14th
+02:50 
+
+02:50 of August or 15th of August we will we
+02:52 
+
+02:52 will start from uh advances in
+02:55 
+
+02:55 preference optimization different
+02:57 
+
+02:57 different uh RLF kind of techniques
+02:60 
+
+02:60 right PPO DPU and stuff like that GRPO
+03:03 
+
+03:03 and so on
+03:05 
+
+03:05 okay so as I mentioned today again we'll
+03:08 
+
+03:08 try to make it very high level very very
+03:10 
+
+03:10 quickly go through some of the basics
+03:13 
+
+03:13 uh
+03:14 
+
+03:14 language model uh as I mentioned last
+03:17 
+
+03:17 class it is basically probability
+03:18 
+
+03:18 distribution over a sequence of tokens
+03:21 
+
+03:21 sequence of tokens can be uh words can
+03:24 
+
+03:24 be characters images and so on right and
+03:27 
+
+03:27 if you model it using uh let's say if
+03:30 
+
+03:30 you want to predict the probability of
+03:32 
+
+03:32 this measure the probability of the
+03:33 
+
+03:33 sequence I like pizza with lots of dash
+03:36 
+
+03:36 right or lots of let's say lots of
+03:38 
+
+03:38 cheese
+03:39 
+
+03:39 right uh your if your language model is
+03:43 
+
+03:43 good it should be able to say that the
+03:45 
+
+03:45 next word is going to be is uh not corn
+03:49 
+
+03:49 for example or not not not it should not
+03:51 
+
+03:51 be tree right so
+03:56 
+
+03:56 so probability of a sequence of tokens
+03:59 
+
+03:59 W1 W2 dotwn can be calculated using
+04:04 
+
+04:04 condition probabilities right you can
+04:06 
+
+04:06 use chain rules and this can be written
+04:08 
+
+04:08 as P of W1 * P of W2 given W1*
+04:16 
+
+04:16 P of W3 given W1 W2 dot dot dot P of W N
+04:21 
+
+04:21 given W1 dot dot dot WN minus one. So
+04:24 
+
+04:24 each of these components except this
+04:26 
+
+04:26 one. All other components you can also
+04:29 
+
+04:29 think of this as conditional
+04:30 
+
+04:30 probabilities but in a different way. So
+04:33 
+
+04:33 all these components are conditional
+04:34 
+
+04:34 probabilities. Right?
+04:37 
+
+04:37 U this is also conditional probability.
+04:39 
+
+04:39 You can write it in this way. P of W1
+04:42 
+
+04:42 given start
+04:44 
+
+04:44 where start is a is a is a marker
+04:48 
+
+04:48 indicating the beginning of a sentence
+04:50 
+
+04:50 or sequence.
+04:51 
+
+04:51 Right? So
+04:54 
+
+04:54 uh now how do you how do you calculate
+04:56 
+
+04:56 these conditional probabilities? U if
+04:58 
+
+04:58 you go back to the to the statistical
+05:00 
+
+05:00 language modeling part
+05:03 
+
+05:03 what we can do we can simply count
+05:06 
+
+05:06 countbased method. So probability of
+05:09 
+
+05:09 let's say going
+05:12 
+
+05:12 I am
+05:14 
+
+05:14 is probability of
+05:17 
+
+05:17 it is pro it is basically count of
+05:22 
+
+05:22 I am going by count of I am right and
+05:25 
+
+05:25 you have access to a huge corpus you
+05:28 
+
+05:28 basically look at the number of times
+05:30 
+
+05:30 the the the sequence I am appears and
+05:32 
+
+05:32 how many times you know the word going
+05:36 
+
+05:36 follows after I
+05:37 
+
+05:37 Right? So and in this way you can
+05:40 
+
+05:40 estimate it.
+05:43 
+
+05:43 The problem here is that uh if you have
+05:47 
+
+05:47 larger sequence so let's say let's let's
+05:49 
+
+05:49 say this one right P of W N given W1 W2
+05:55 
+
+05:55 W N minus one
+05:57 
+
+05:57 and let's say
+05:59 
+
+05:59 so this is called context.
+06:03 
+
+06:03 If a contest length is very long,
+06:06 
+
+06:06 you may end up getting a count of zero,
+06:10 
+
+06:10 right? You will hardly see an occurrence
+06:13 
+
+06:13 of uh a sequence of tokens, right? And
+06:15 
+
+06:15 if one count is zero, if a numerator or
+06:18 
+
+06:18 the denominator is zero, then you'll
+06:20 
+
+06:20 have problem, right? Because ultimately
+06:22 
+
+06:22 you are multiplying probabilities. If
+06:24 
+
+06:24 one if one of the probabilities is zero,
+06:26 
+
+06:26 the entire sequence will be zero,
+06:29 
+
+06:29 right? So what we do we make assumptions
+06:33 
+
+06:33 and we make uh uh you know we take we
+06:35 
+
+06:35 basically use markoff's assumption first
+06:37 
+
+06:37 of the microp process second order of
+06:39 
+
+06:39 the microp process and it says that I
+06:41 
+
+06:41 mean you can think of these tokens
+06:45 
+
+06:45 I am going as different states right and
+06:48 
+
+06:48 then you make assumptions first of the
+06:50 
+
+06:50 assumption says that you know um your
+06:54 
+
+06:54 your um your your movement from one
+06:56 
+
+06:56 state to another state is dependent on
+06:58 
+
+06:58 your current state 0 says that it is not
+07:02 
+
+07:02 dependent on any state right and so on
+07:04 
+
+07:04 and so forth. Similarly, you can think
+07:06 
+
+07:06 of these words as states and then you
+07:08 
+
+07:08 can say that okay uh I will assume first
+07:11 
+
+07:11 order mark assumption or second order
+07:13 
+
+07:13 mark assumption right
+07:16 
+
+07:16 and then all this long context right u
+07:19 
+
+07:19 can be can be essentially reduced to u
+07:23 
+
+07:23 you know a limited uh sequence of tokens
+07:26 
+
+07:26 let's say for example your sequence
+07:28 
+
+07:28 length is so you are always going to
+07:31 
+
+07:31 consider let's say sequence length of
+07:32 
+
+07:32 two context context length 2 right so
+07:37 
+
+07:37 then this probability is going to be P
+07:39 
+
+07:39 of
+07:41 
+
+07:41 W1 * P of W2 given W1 * P of W3 given W1
+07:48 
+
+07:48 W2 so so far look the context length is
+07:51 
+
+07:51 less than equals to two it is okay right
+07:53 
+
+07:53 now the next one is going to be W4 given
+07:56 
+
+07:56 ideally this should have been W1 W2 W3
+07:60 
+
+07:60 but because of this assumption that the
+08:01 
+
+08:01 context length will never be less
+08:04 
+
+08:04 greater than 2 I will basically chop up
+08:06 
+
+08:06 W1 and this will be W P of W4 given W2
+08:12 
+
+08:12 W3
+08:15 
+
+08:15 right and so on and so forth the last
+08:16 
+
+08:16 one will be P of
+08:19 
+
+08:19 W N given W NUS 2 WN minus one and uh
+08:26 
+
+08:26 then you can use chain rule and you know
+08:29 
+
+08:29 all these assumptions and you can easily
+08:30 
+
+08:30 calculate the uh the probability
+08:33 
+
+08:33 okay So the mark of assumption that I
+08:35 
+
+08:35 talked earlier right in NLP this is
+08:38 
+
+08:38 called engram assumption right engram
+08:41 
+
+08:41 assumption
+08:44 
+
+08:44 and the idea is that uh let's say and
+08:48 
+
+08:48 and n and n can be one if n is one this
+08:50 
+
+08:50 is called unig
+08:52 
+
+08:52 if n is two this is called bagram
+08:55 
+
+08:55 and so on and so forth right so if the
+08:59 
+
+08:59 context length is one
+09:02 
+
+09:02 this is called bgram
+09:04 
+
+09:04 Okay, if the contest length is two, it's
+09:07 
+
+09:07 called triagram. So bagram means two
+09:09 
+
+09:09 words, right? Let's say let's say I am
+09:14 
+
+09:14 it's a bagram, right? And when we
+09:16 
+
+09:16 measure the probability, I'll say
+09:18 
+
+09:18 probability of M given I the context
+09:20 
+
+09:20 length is one and I'm I'm considering
+09:23 
+
+09:23 two words at a time. That's why it's
+09:25 
+
+09:25 called bgram.
+09:27 
+
+09:27 Similarly, tri for and so on. Right?
+09:30 
+
+09:30 So, so you see that uh you know in gram
+09:34 
+
+09:34 an engram language model is n minus one
+09:37 
+
+09:37 order marco process. Why?
+09:41 
+
+09:41 Why? Unig mark of so unig language model
+09:44 
+
+09:44 is zero order microp process. Bagram
+09:47 
+
+09:47 language model is first order microp
+09:49 
+
+09:49 process. Right?
+09:51 
+
+09:51 Okay. So the problem with engram model
+09:54 
+
+09:54 is that uh it is not able to capture
+09:57 
+
+09:57 long range dependencies. Let's say this
+10:01 
+
+10:01 is an example. The project which he had
+10:04 
+
+10:04 been working on for months was finally
+10:07 
+
+10:07 approved by the committee. So if let's
+10:10 
+
+10:10 say your task is to predict the word
+10:13 
+
+10:13 here at this position, right? It is
+10:15 
+
+10:15 impossible for a language model to look
+10:18 
+
+10:18 back to the word project and guess the
+10:22 
+
+10:22 next word.
+10:24 
+
+10:24 Why? Because if you do if if you want to
+10:26 
+
+10:26 do that you have to take care of you you
+10:28 
+
+10:28 have to consider the entire
+10:31 
+
+10:31 sequence of words as context right and
+10:33 
+
+10:33 we already said that if you increase the
+10:35 
+
+10:35 length of the context uh you know you
+10:38 
+
+10:38 you may end up getting a probability of
+10:40 
+
+10:40 zero.
+10:41 
+
+10:41 So you you hardly consider the last word
+10:45 
+
+10:45 or or or the uh last two words or last
+10:49 
+
+10:49 three words and so on and so forth. So
+10:50 
+
+10:50 long range dependency is very difficult
+10:52 
+
+10:52 to capture using engram right. So
+10:57 
+
+10:57 so therefore we will see uh so
+10:59 
+
+10:59 statistical language model. So this is
+11:01 
+
+11:01 statistical
+11:03 
+
+11:03 language model is not a uh not an
+11:06 
+
+11:06 advanced solution for language modeling
+11:08 
+
+11:08 objective right. We will actually go to
+11:11 
+
+11:11 go towards neural language model.
+11:16 
+
+11:16 Okay, but before that let us try to
+11:19 
+
+11:19 understand how we evaluate a language
+11:21 
+
+11:21 model. Can can somebody tell me how we
+11:23 
+
+11:23 evaluate a language model? So the
+11:25 
+
+11:25 objective is to pred.
+11:28 
+
+11:28 So how do we evaluate it?
+11:31 
+
+11:31 So one way so there are two ways to
+11:32 
+
+11:32 evaluate a language model. One is
+11:34 
+
+11:34 through extrinsic evaluation.
+11:39 
+
+11:39 Right? In extrinsic evaluation you take
+11:41 
+
+11:41 a task. Let's say the task is let's say
+11:44 
+
+11:44 the task is machine translation
+11:46 
+
+11:46 translating one language to another
+11:48 
+
+11:48 language right. So task
+11:52 
+
+11:52 you apply language model one right you
+11:56 
+
+11:56 get some accuracy accuracy one you apply
+11:59 
+
+11:59 language model 2 you get accuracy A2
+12:02 
+
+12:02 right so if A2 is greater than A1 then
+12:04 
+
+12:04 L2 is L2 is better than L1
+12:09 
+
+12:09 right this is called task based
+12:11 
+
+12:11 evaluation or extrinsic evaluation the
+12:13 
+
+12:13 problem with task based evaluation is
+12:15 
+
+12:15 that you are dependent on the task
+12:19 
+
+12:19 Right? And nobody knows what what is the
+12:23 
+
+12:23 ground truth task that we should
+12:25 
+
+12:25 consider.
+12:26 
+
+12:26 Right? Nobody knows whether machine
+12:28 
+
+12:28 translation is the best task to consider
+12:30 
+
+12:30 or summarization is a task to consider
+12:33 
+
+12:33 or fill in the blanks is a task to
+12:35 
+
+12:35 consider and so on. Right? You can also
+12:38 
+
+12:38 think of task like let's say we have all
+12:40 
+
+12:40 seen you know this G2 types questions
+12:43 
+
+12:43 right
+12:45 
+
+12:45 synonymous word antonym right synonym
+12:47 
+
+12:47 antonym types you can also use language
+12:50 
+
+12:50 model to predict those things
+12:53 
+
+12:53 but this this is task dependent which
+12:55 
+
+12:55 has problem
+12:56 
+
+12:56 therefore people came up with this idea
+12:59 
+
+12:59 called perplexity
+13:02 
+
+13:02 right perplexity is intrinsic metric
+13:07 
+
+13:07 task independent metric. What is
+13:09 
+
+13:09 perplexity? Very simple. Perplexity is
+13:13 
+
+13:13 the probability
+13:19 
+
+13:19 you you measure the probability of a
+13:21 
+
+13:21 sequence w1 w2 wn right and you take the
+13:25 
+
+13:25 nth root of that
+13:28 
+
+13:28 right and one by that part.
+13:34 
+
+13:34 Okay. Now, if you go back to my previous
+13:36 
+
+13:36 lecture, you see that u
+13:40 
+
+13:40 perplexity has a very nice correlation
+13:42 
+
+13:42 with entropy,
+13:45 
+
+13:45 right? But here it is not required,
+13:48 
+
+13:48 right? But you just need to you just
+13:49 
+
+13:49 need to remember that perplexity is a
+13:51 
+
+13:51 measure which we evaluate which we use
+13:54 
+
+13:54 to evaluate the performance of a
+13:56 
+
+13:56 language model. Right? Now, now how do
+13:59 
+
+13:59 we how do we how do we measure this?
+14:03 
+
+14:03 So
+14:06 
+
+14:06 higher the perplexity
+14:09 
+
+14:09 lower the sorry higher the probability
+14:12 
+
+14:12 higher the probability lower the
+14:14 
+
+14:14 perplexity
+14:16 
+
+14:16 right so if a model's perplexity is low
+14:21 
+
+14:21 the model is better
+14:25 
+
+14:25 okay so we always want to minimize
+14:27 
+
+14:27 perplexity
+14:31 
+
+14:31 Right?
+14:33 
+
+14:33 And uh
+14:36 
+
+14:36 and how do we measure this probability?
+14:38 
+
+14:38 So this probability is measured using
+14:39 
+
+14:39 your language model. Right? Let's say
+14:43 
+
+14:43 your language model is a bagram language
+14:44 
+
+14:44 model. So this is going to be one by n
+14:47 
+
+14:47 root of
+14:56 
+
+14:56 right wn given wn minus one. This is
+14:59 
+
+14:59 your uh bagram language model right? If
+15:02 
+
+15:02 it is triagram language model then this
+15:04 
+
+15:04 would be different right and then you
+15:05 
+
+15:05 see for which language model your
+15:07 
+
+15:07 purpose it is minimum and that's going
+15:09 
+
+15:09 to be your best language model.
+15:14 
+
+15:14 Okay clear
+15:17 
+
+15:17 all right let's move on to neural
+15:18 
+
+15:18 language model. Right. So, so in neural
+15:22 
+
+15:22 language model the first assumption is
+15:24 
+
+15:24 that you uh so the input to the neural
+15:27 
+
+15:27 network right a simple neural network
+15:29 
+
+15:29 like let's say let's say a feed forward
+15:31 
+
+15:31 network
+15:33 
+
+15:33 the input to the feed forward network is
+15:36 
+
+15:36 u uh is the embedding
+15:39 
+
+15:39 what is embedding embedding is a vector
+15:43 
+
+15:43 representation of a word if you have not
+15:45 
+
+15:45 gone through the lecture please go
+15:46 
+
+15:46 through uh go through this word to
+15:50 
+
+15:50 Right? I will not cover this or glove
+15:53 
+
+15:53 or fast text.
+15:55 
+
+15:55 So these are the these are some of the
+15:58 
+
+15:58 embedding static embedding methods that
+16:00 
+
+16:00 we generally use to obtain the vector
+16:03 
+
+16:03 representation of a word.
+16:06 
+
+16:06 So far in Ingram language model I have
+16:08 
+
+16:08 never mentioned about embedding right
+16:10 
+
+16:10 but now we need embedding because in the
+16:12 
+
+16:12 neural network the input will be
+16:14 
+
+16:14 numbers. We can't feed a text into
+16:17 
+
+16:17 neural network right. So your input will
+16:19 
+
+16:19 be a number and the numbers basically in
+16:22 
+
+16:22 our case these are vectors.
+16:24 
+
+16:24 Okay. So
+16:29 
+
+16:29 so let's say again the same objective
+16:31 
+
+16:31 next prediction. Uh and this is the
+16:33 
+
+16:33 sentence there. The sentence is as the
+16:36 
+
+16:36 proctors is not clear here. As the
+16:38 
+
+16:38 proctors started the clock the students
+16:41 
+
+16:41 opened their dash.
+16:44 
+
+16:44 Okay. So
+16:49 
+
+16:49 and the model that we're going to
+16:50 
+
+16:50 discuss is called fixed window language
+16:52 
+
+16:52 model. Fixed window neural language
+16:54 
+
+16:54 model where you first need to discuss or
+16:57 
+
+16:57 decide uh the context of the sentence
+17:01 
+
+17:01 that you are uh that you are processing
+17:03 
+
+17:03 right and let's say the context is the
+17:05 
+
+17:05 context size is four. So basically we're
+17:08 
+
+17:08 going to we are going to going to
+17:10 
+
+17:10 consider previous last four words and
+17:13 
+
+17:13 you ignore all other words present uh uh
+17:17 
+
+17:17 before that
+17:19 
+
+17:19 same as engram language model right
+17:24 
+
+17:24 and then then what you do and this is
+17:27 
+
+17:27 essentially a CNN types model.
+17:32 
+
+17:32 So so the embedding of the word da will
+17:35 
+
+17:35 be fed here. This is the embedding of
+17:36 
+
+17:36 the word the. This is the embedding of
+17:38 
+
+17:38 students embedding of opened embedding
+17:40 
+
+17:40 of their
+17:43 
+
+17:43 right. And this fixed wind the fixed
+17:46 
+
+17:46 size window neural network is same as
+17:49 
+
+17:49 CNN where where you decide the size of
+17:53 
+
+17:53 the content
+17:55 
+
+17:55 size of the filter. So here size is the
+17:57 
+
+17:57 context size.
+17:59 
+
+17:59 Okay.
+18:00 
+
+18:00 And then what you do
+18:03 
+
+18:03 then you pass it through a linear layer.
+18:05 
+
+18:05 W is a linear layer, right? Which will
+18:08 
+
+18:08 project all these uh you know embeddings
+18:10 
+
+18:10 to a to a in a kind of a short squeezed
+18:15 
+
+18:15 representation, right? From this linear
+18:17 
+
+18:17 layer, you have another linear layer Y.
+18:21 
+
+18:21 And what this U Y layer does?
+18:25 
+
+18:25 So this is my hidden state, right?
+18:29 
+
+18:29 And what is this linear layer by the
+18:31 
+
+18:31 way? This is a matrix,
+18:34 
+
+18:34 right? It's a matrix. What's the size of
+18:35 
+
+18:35 the matrix? Let's say the size of this
+18:38 
+
+18:38 cumulative embedding vector is M and you
+18:41 
+
+18:41 want to get N. So it's called so so the
+18:45 
+
+18:45 size of W would be M cross N.
+18:50 
+
+18:50 Okay. Okay. And then once we look our
+18:55 
+
+18:55 what your objective our objective is to
+18:57 
+
+18:57 predict the next word
+18:60 
+
+18:60 isn't it? Then what I do I will pass
+19:03 
+
+19:03 this embedding through another layer
+19:06 
+
+19:06 U. This is again a linear projection.
+19:09 
+
+19:09 And this U is called unmbeding layer.
+19:12 
+
+19:12 Remember unmbeding layer.
+19:17 
+
+19:17 And what is the task of this unmbeding
+19:19 
+
+19:19 layer? The task is to project the hidden
+19:21 
+
+19:21 state to a space
+19:24 
+
+19:24 where all possible words are present.
+19:30 
+
+19:30 Right. So, so it will basically project
+19:33 
+
+19:33 this embedding to a distribution
+19:37 
+
+19:37 where for every possible word present in
+19:39 
+
+19:39 the dictionary, I have a probability.
+19:46 
+
+19:46 Okay, this is this is also a vector by
+19:48 
+
+19:48 the way. It's a vector
+19:51 
+
+19:51 where every entry every entry
+19:54 
+
+19:54 corresponds to a word starting from a to
+19:57 
+
+19:57 zoo.
+19:59 
+
+19:59 Right? Let's say 1 million words are
+20:01 
+
+20:01 present present in the dictionary.
+20:03 
+
+20:03 Vector size would be 1 million and every
+20:05 
+
+20:05 entry will indicate the probability of
+20:08 
+
+20:08 that word being the next word.
+20:11 
+
+20:11 Right? The what's the problem here?
+20:15 
+
+20:15 The problem here is that we need to
+20:17 
+
+20:17 decide the window size four five six we
+20:20 
+
+20:20 don't know right number two is
+20:24 
+
+20:24 if we change the window size from let's
+20:27 
+
+20:27 say from four to five
+20:30 
+
+20:30 the the size of the parameters will
+20:34 
+
+20:34 increase by the way how many parameters
+20:36 
+
+20:36 are there in this architecture W and U
+20:41 
+
+20:41 right
+20:42 
+
+20:42 W is a matrix Y is also a matrix uh U is
+20:46 
+
+20:46 also a matrix
+20:49 
+
+20:49 B1 B2 I mean the bias terms we'll ignore
+20:52 
+
+20:52 bias terms for the time
+20:55 
+
+20:55 so if you change window size W will
+20:58 
+
+20:58 increase
+21:00 
+
+21:00 okay so therefore you know uh
+21:05 
+
+21:05 it's not a great uh way to predict next
+21:08 
+
+21:08 word so so we need something which is
+21:12 
+
+21:12 independent of the context size because
+21:15 
+
+21:15 if it is context dependent then W the
+21:18 
+
+21:18 matrix size will increase will will
+21:20 
+
+21:20 basically vary
+21:22 
+
+21:22 we need something which is independent
+21:24 
+
+21:24 of the context size and therefore people
+21:27 
+
+21:27 started using RNN
+21:31 
+
+21:31 for language modeling right and what is
+21:34 
+
+21:34 RNN again I hope all of you have already
+21:37 
+
+21:37 gone through the lecture I'll make it
+21:39 
+
+21:39 very very high level so in RNN Then
+21:43 
+
+21:43 for every word, for every token, right,
+21:46 
+
+21:46 I have a corresponding hidden state,
+21:49 
+
+21:49 right? So your inputs are so so this is
+21:51 
+
+21:51 your input sequence X1, X2, X3, X4,
+21:55 
+
+21:55 right?
+21:57 
+
+21:57 And for every input token, you basically
+22:00 
+
+22:00 calculate a hidden representation,
+22:04 
+
+22:04 right? And how do you do that? Let's say
+22:06 
+
+22:06 H2. H2 is the hidden representation for
+22:10 
+
+22:10 the corresponding to the word X2.
+22:13 
+
+22:13 And how do you calculate that? So H2 is
+22:16 
+
+22:16 a function
+22:18 
+
+22:18 of X2
+22:21 
+
+22:21 and H1.
+22:27 
+
+22:27 Okay. So the next so I if hidden states
+22:30 
+
+22:30 is dependent on I - 1/8 head state and I
+22:33 
+
+22:33 if input and how do you calculate that?
+22:37 
+
+22:37 So so from X2 you basically make a
+22:40 
+
+22:40 projection. So here is a calculation.
+22:43 
+
+22:43 So so this is my X2 right and what is
+22:46 
+
+22:46 E2? E2 is the embedding of X2. So this
+22:49 
+
+22:49 is my embedding vector what to make
+22:52 
+
+22:52 right and what I do here first I first
+22:55 
+
+22:55 project it through an through through a
+22:57 
+
+22:57 linear layer we say that it's a linear
+23:00 
+
+23:00 layer just you just think about is a
+23:02 
+
+23:02 matrix
+23:04 
+
+23:04 okay you pass it through a uh you know
+23:07 
+
+23:07 linear layer right and you get this one
+23:10 
+
+23:10 w uh sorry you get this one we * e
+23:16 
+
+23:16 you also have the previous little state
+23:19 
+
+23:19 H1 you pass it through another uh linear
+23:22 
+
+23:22 layer which is WH
+23:25 
+
+23:25 you get WH * HT minus one
+23:31 
+
+23:31 right and then you have a bias
+23:35 
+
+23:35 and then you add them and then you
+23:38 
+
+23:38 basically pass it through a sigmoid
+23:42 
+
+23:42 and sigmoid will make sure that
+23:45 
+
+23:45 that
+23:49 
+
+23:49 it ranges between 0 to 1.
+23:51 
+
+23:51 So all the entries in the vector in this
+23:53 
+
+23:53 HT ranges between 0 to 1.
+23:58 
+
+23:58 What is interesting here is that uh so
+24:02 
+
+24:02 how many parameters are here? W and WH
+24:05 
+
+24:05 right WH
+24:09 
+
+24:09 what is the size of WH? Let's say the
+24:11 
+
+24:11 hidden state size is 10 let's say. So
+24:14 
+
+24:14 size of WH will be 10 + 10. So this will
+24:18 
+
+24:18 be 10 + 10
+24:20 
+
+24:20 and accordingly we
+24:24 
+
+24:24 okay the important point to note here is
+24:27 
+
+24:27 that you have only one WH
+24:30 
+
+24:30 which you are going to apply for every
+24:32 
+
+24:32 hidden state. The same WH will be the
+24:36 
+
+24:36 same WH is being applied to H1 to H2 H3
+24:41 
+
+24:41 to H4 and so on and so forth.
+24:44 
+
+24:44 It is not the case that you have WH1
+24:47 
+
+24:47 here or WH2 here. It's not the case.
+24:52 
+
+24:52 Right? Similarly, you have the same
+24:56 
+
+24:56 linear layer WA which is being applied
+24:58 
+
+24:58 to all the inputs.
+25:02 
+
+25:02 So now you tell me here. Okay. So let me
+25:05 
+
+25:05 just finish the inter architecture
+25:07 
+
+25:07 first. So you keep on doing this thing,
+25:09 
+
+25:09 right? And the student let's say the
+25:10 
+
+25:10 student opened there and then in the
+25:13 
+
+25:13 last word so let's say here the last
+25:15 
+
+25:15 word is there
+25:17 
+
+25:17 and this is the corresponding hidden
+25:18 
+
+25:18 state you pass it through unmbeding
+25:20 
+
+25:20 layer same way that we did earlier you
+25:24 
+
+25:24 project it to a uh to a
+25:27 
+
+25:27 distribution of tokens right and you get
+25:31 
+
+25:31 the next word how do you get the next
+25:32 
+
+25:32 word by the way so it it is just the it
+25:36 
+
+25:36 is just the uh it will just give you the
+25:39 
+
+25:39 probability of individual token. Then
+25:42 
+
+25:42 what you do?
+25:44 
+
+25:44 >> Either you take the highest one or you
+25:45 
+
+25:45 choose or you sample based on the
+25:48 
+
+25:48 probability. When you sample based on
+25:50 
+
+25:50 the probability, it not it is not
+25:52 
+
+25:52 necessary that you will always end up
+25:53 
+
+25:53 choosing the highest one.
+25:57 
+
+25:57 Right.
+26:01 
+
+26:01 So,
+26:04 
+
+26:04 so the first point so, so here the
+26:06 
+
+26:06 parameters are wh and also u also u.
+26:13 
+
+26:13 So now you tell me here is there any
+26:16 
+
+26:16 concept of context window.
+26:20 
+
+26:20 Have we decided? Have we fixed the
+26:22 
+
+26:22 concept of context window? No. Right. So
+26:26 
+
+26:26 you can basically unroll RNN right on
+26:29 
+
+26:29 top of infinite ideally infinite length
+26:33 
+
+26:33 sentence
+26:35 
+
+26:35 or sequence ideally theoretically
+26:39 
+
+26:39 right. What you just need to do you need
+26:41 
+
+26:41 to you need to learn these three
+26:44 
+
+26:44 parameters parameter matrices
+26:48 
+
+26:48 but it is not that easy by the way
+26:51 
+
+26:51 training the model is not that easy.
+26:55 
+
+26:55 Sometimes we we basically assume that
+26:58 
+
+26:58 this RNN
+26:60 
+
+27:00 is a sequence model. Why it's a sequence
+27:03 
+
+27:03 model? Because it process sequ it
+27:05 
+
+27:05 process it basically processes a a
+27:08 
+
+27:08 sequence token by token. Right? Whereas
+27:10 
+
+27:10 if you look at this one, this is not a
+27:12 
+
+27:12 sequence model. Why?
+27:15 
+
+27:15 Why this is not a sequence model?
+27:16 
+
+27:16 Because once as soon as we fix the
+27:18 
+
+27:18 window, everything is same.
+27:22 
+
+27:22 It's a backup word.
+27:26 
+
+27:26 Right. So RNN is an ideal way of
+27:28 
+
+27:28 handling next prediction because
+27:31 
+
+27:31 ultimately next prediction is a sequence
+27:32 
+
+27:32 leveling problem.
+27:35 
+
+27:35 The problem with RNN is that it's very
+27:37 
+
+27:37 slow. Why this is slow?
+27:41 
+
+27:41 Why this is slow?
+27:44 
+
+27:44 It is slow because you need to you need
+27:46 
+
+27:46 to process uh every token one by one and
+27:49 
+
+27:49 the and the uh and to process token n
+27:52 
+
+27:52 you have to wait till n minus one. You
+27:55 
+
+27:55 can't do this thing in parallel. You
+27:56 
+
+27:56 can't process all the tokens in
+27:57 
+
+27:57 parallel.
+27:59 
+
+27:59 First problem.
+28:01 
+
+28:01 The second problem is more of an
+28:03 
+
+28:03 empirical problem where
+28:07 
+
+28:07 uh uh
+28:11 
+
+28:11 where uh you know we will see that when
+28:14 
+
+28:14 things are again the when it comes to
+28:16 
+
+28:16 long range dependency right let's say uh
+28:19 
+
+28:19 you know you want to predict a word
+28:21 
+
+28:21 which is dependent on another word which
+28:23 
+
+28:23 is very very far from each other right
+28:26 
+
+28:26 uh although theoretically RNN should be
+28:28 
+
+28:28 able to capture everything all the
+28:30 
+
+28:30 tokens Right? Because remember hidden
+28:33 
+
+28:33 state at at nth position is dependent on
+28:36 
+
+28:36 n minus one position. n minus one is
+28:38 
+
+28:38 dependent on n minus2. So ideally at nth
+28:40 
+
+28:40 time you have information of all the n
+28:43 
+
+28:43 minus one tokens present in the
+28:45 
+
+28:45 sequence. Ideally
+28:48 
+
+28:48 right but in practice it doesn't happen.
+28:51 
+
+28:51 Why? We will see later. There is
+28:54 
+
+28:54 something called vanishing gradient
+28:55 
+
+28:55 problem where you know when we uh when
+29:00 
+
+29:00 we uh uh you know back propagate the
+29:02 
+
+29:02 loss end to end from your current state
+29:06 
+
+29:06 to the first state right you see that
+29:09 
+
+29:09 you know previous few states
+29:11 
+
+29:11 dependencies
+29:13 
+
+29:13 uh would affect less to the loss
+29:17 
+
+29:17 right but before that let's try to
+29:19 
+
+29:19 understand how we u how we train RNN
+29:22 
+
+29:22 Right. So we train RN in the same way.
+29:27 
+
+29:27 Uh so so for every token for every token
+29:30 
+
+29:30 we have a loss right and this loss can
+29:32 
+
+29:32 be a cross entropy loss right between
+29:36 
+
+29:36 the word predicted by the model and the
+29:38 
+
+29:38 word which should have been predicted
+29:41 
+
+29:41 right. So for every token for every uh
+29:44 
+
+29:44 position we have a loss. The loss is
+29:46 
+
+29:46 denoted by J. So J1 J2 J3 dot dot dot
+29:49 
+
+29:49 right? And then you uh you know
+29:51 
+
+29:51 accumulate the loss. You basically take
+29:54 
+
+29:54 the sum of all the loss right and this
+29:56 
+
+29:56 loss will be back propagated.
+29:59 
+
+29:59 And how do you back propagate? Back
+30:01 
+
+30:01 propagation. RN back propagation is
+30:03 
+
+30:03 difficult. Okay. This is called back
+30:05 
+
+30:05 propagation through time BTT. Okay.
+30:09 
+
+30:09 Again please go back. I made a very
+30:11 
+
+30:11 explicit detailed uh you know
+30:14 
+
+30:14 presentation last year. Right. Please
+30:16 
+
+30:16 learn BTT.
+30:20 
+
+30:20 back propagation through time. Okay. So
+30:24 
+
+30:24 uh
+30:28 
+
+30:28 now if we if we know how to do BTT right
+30:32 
+
+30:32 we will see that the effect of let's say
+30:35 
+
+30:35 when you take the gradient of this loss
+30:37 
+
+30:37 with respect to H4
+30:40 
+
+30:40 since H4 is dependent on H3 H3 dependent
+30:42 
+
+30:42 on H2 and so on due to chain rule right
+30:46 
+
+30:46 due to chain rule we will we will see
+30:49 
+
+30:49 that each of these components needs to
+30:52 
+
+30:52 be calculated separately
+30:55 
+
+30:55 By the way, what is this? Think about
+30:57 
+
+30:57 it. H is what? H is a vector. All hes
+30:59 
+
+30:59 are the vectors, right? So, you are
+31:02 
+
+31:02 basically taking a derivative of a
+31:04 
+
+31:04 vector with respect to another vector.
+31:06 
+
+31:06 It's not very it's not not a simple
+31:07 
+
+31:07 concept by the way, right? It will
+31:09 
+
+31:09 produce a matrix.
+31:12 
+
+31:12 Okay? And then you then you see that if
+31:16 
+
+31:16 you know the more you move from let's
+31:19 
+
+31:19 say ht to ht minus1 tus2 dot dot dot h0
+31:23 
+
+31:23 right the size or the effect of the
+31:26 
+
+31:26 matrix the initial matrices to the loss
+31:29 
+
+31:29 function will be reduced
+31:33 
+
+31:33 right and therefore the initial tokens
+31:35 
+
+31:35 will not contribute that much to the
+31:38 
+
+31:38 generation of the next token.
+31:42 
+
+31:42 Okay. And this is called vanishing
+31:43 
+
+31:43 gradient problem. The other problem is
+31:45 
+
+31:45 uh exploding gradient problem where you
+31:48 
+
+31:48 know where the size of this matrix is
+31:50 
+
+31:50 too large that uh you know you will not
+31:54 
+
+31:54 be able to handle those large matrices
+31:56 
+
+31:56 right I mean size size mean the
+31:58 
+
+31:58 magnitude right
+32:02 
+
+32:02 not the real size.
+32:05 
+
+32:05 So, so although theoretically RNN should
+32:09 
+
+32:09 be able to capture all the tokens in
+32:12 
+
+32:12 practice it doesn't happen.
+32:15 
+
+32:15 So therefore people thought that let us
+32:17 
+
+32:17 use some other techniques and they came
+32:19 
+
+32:19 up with this concept of getting
+32:23 
+
+32:23 right LSTM and J long short-term memory
+32:27 
+
+32:27 and gated recurrent unit and both these
+32:31 
+
+32:31 techniques are RN by the underlying
+32:33 
+
+32:33 mechanism is RNN but then you have some
+32:35 
+
+32:35 added components
+32:39 
+
+32:39 I'm going very fast by the way okay so
+32:42 
+
+32:42 again the assumption is that you already
+32:43 
+
+32:43 have gone through uh my previous
+32:45 
+
+32:45 lectures.
+32:48 
+
+32:48 Um so in in LSTM what we do here is that
+32:54 
+
+32:54 we now define
+32:56 
+
+32:56 you know
+32:58 
+
+32:58 so in RNN let me draw something.
+33:04 
+
+33:04 Okay. So in RNN what we had we had
+33:10 
+
+33:10 uh only one hidden state
+33:15 
+
+33:15 corresponding to every every entry right
+33:18 
+
+33:18 and here in LSTM we define something
+33:20 
+
+33:20 called a memory.
+33:24 
+
+33:24 Okay we define something called a
+33:25 
+
+33:25 memory.
+33:30 
+
+33:30 Okay. What is memory?
+33:33 
+
+33:33 So
+33:35 
+
+33:35 a memory is again some sort of u
+33:40 
+
+33:40 some sort of hidden state right which is
+33:43 
+
+33:43 protected
+33:45 
+
+33:45 from being accessed from external uh
+33:48 
+
+33:48 external uh sources. What do you mean
+33:50 
+
+33:50 external sources? You cannot use your
+33:52 
+
+33:52 input to access to the memory. And this
+33:55 
+
+33:55 memory is same as our so you think of
+33:57 
+
+33:57 this memory as our uh you know uh as our
+34:00 
+
+34:00 computer memory.
+34:03 
+
+34:03 And this memory is called sales state.
+34:08 
+
+34:08 A new a new a new state we define
+34:11 
+
+34:11 similar to hidden state a new state we
+34:13 
+
+34:13 define here is called sale state
+34:16 
+
+34:16 and that's why memory.
+34:18 
+
+34:18 Okay. So for every input X I have a cell
+34:23 
+
+34:23 state CI
+34:26 
+
+34:26 or XT I have a cell state CT and a H
+34:30 
+
+34:30 state HT
+34:33 
+
+34:33 right and
+34:35 
+
+34:35 and which information by the way cell
+34:37 
+
+34:37 state is also a vector like hidden state
+34:40 
+
+34:40 right and which information I will I
+34:42 
+
+34:42 will basically write to the cell state
+34:46 
+
+34:46 which information I will read from the
+34:48 
+
+34:48 cell state to the hidden
+34:50 
+
+34:50 All these things will be controlled by
+34:51 
+
+34:51 gates and these gates are similar to the
+34:55 
+
+34:55 boolean gates that we are aware of right
+34:57 
+
+34:57 and or
+34:59 
+
+34:59 things like that but the only difference
+35:02 
+
+35:02 is that there we just had 01 here we can
+35:07 
+
+35:07 have probabilities
+35:10 
+
+35:10 okay so the gates the gates will control
+35:13 
+
+35:13 how much information you want to write
+35:15 
+
+35:15 to cell state how much information you
+35:17 
+
+35:17 want to read from cell gate and so on
+35:19 
+
+35:19 and so forth. And there are three
+35:21 
+
+35:21 grates. Forget gate, input gate and
+35:24 
+
+35:24 output gate. Forget gate controls what
+35:27 
+
+35:27 to keep and what to forgotten.
+35:31 
+
+35:31 Just remember this and then I'll
+35:32 
+
+35:32 explain. As the name suggests, forget
+35:34 
+
+35:34 gates. It controls what to keep, what to
+35:37 
+
+35:37 forgotten. Input gate controls what
+35:40 
+
+35:40 parts of your cell content are written
+35:43 
+
+35:43 to the cell. So here I introduce another
+35:46 
+
+35:46 concept called cell content.
+35:49 
+
+35:49 What is cell content? Cell content is an
+35:53 
+
+35:53 intermediate input as an intermediate
+35:57 
+
+35:57 processed input that you want to write
+35:60 
+
+35:60 to your cell state.
+36:04 
+
+36:04 So cell so this is called cell content.
+36:08 
+
+36:08 Cell content is an intermediate
+36:09 
+
+36:09 processed out processed input that I
+36:12 
+
+36:12 want to write to the cell.
+36:16 
+
+36:16 Right? So input gate will control how
+36:18 
+
+36:18 much of my uh cell content will be
+36:21 
+
+36:21 written to the cell.
+36:23 
+
+36:23 And what is output gate? Output gate
+36:26 
+
+36:26 will control how much of my uh uh
+36:30 
+
+36:30 information from cell state will be read
+36:34 
+
+36:34 will be read and written to the hidden
+36:36 
+
+36:36 state. So there are many things
+36:38 
+
+36:38 happening here. So what are things
+36:40 
+
+36:40 happening? Let me again summarize. So
+36:42 
+
+36:42 you have a sale state, sale state, you
+36:45 
+
+36:45 have hidden state, hidden state, you
+36:47 
+
+36:47 have cell content,
+36:50 
+
+36:50 sale content CC. Right? So how much
+36:54 
+
+36:54 information I will read, I will write
+36:57 
+
+36:57 from sale content to cell state will be
+36:59 
+
+36:59 determined by input gate.
+37:03 
+
+37:03 How much information I read from cell
+37:05 
+
+37:05 state to hidden state is determined by
+37:07 
+
+37:07 output gate.
+37:10 
+
+37:10 and how much information I will retain
+37:13 
+
+37:13 from my previous cell state will be
+37:16 
+
+37:16 determined by forget gate
+37:20 
+
+37:20 and let's look at the equation
+37:23 
+
+37:23 by the way all these gates are again
+37:25 
+
+37:25 vectors
+37:28 
+
+37:28 it's a bit complicated concept by the
+37:29 
+
+37:29 way so if you do not know LSTM please go
+37:31 
+
+37:31 back and read okay so sale so so this is
+37:35 
+
+37:35 my sale content c tilda c tilda is a
+37:38 
+
+37:38 function of my previous state the
+37:41 
+
+37:41 current input and I got this
+37:44 
+
+37:44 intermediate processed input.
+37:50 
+
+37:50 So what is CT? CT is the cell state my
+37:52 
+
+37:52 memory.
+37:55 
+
+37:55 So the my memory whatever information I
+37:58 
+
+37:58 want to write to the memory is
+37:60 
+
+37:60 controlled by forget gate and input
+38:03 
+
+38:03 gate. So forget gate you see this get uh
+38:06 
+
+38:06 this element wise dotproduct
+38:10 
+
+38:10 right so so this is my previous cell
+38:13 
+
+38:13 state and the forget gate will determine
+38:16 
+
+38:16 how much of the previous cell state will
+38:17 
+
+38:17 come here so let's say my previous cell
+38:20 
+
+38:20 state ct minus one is8.1.5
+38:25 
+
+38:25 and my forget gate ft is let's say 1 0 0
+38:32 
+
+38:32 so if you do element wise dot
+38:33 
+
+38:33 probability between these two it will
+38:34 
+
+38:34 result in 8 0 0.
+38:38 
+
+38:38 So this part will be moved this part
+38:41 
+
+38:41 will be forgotten.
+38:45 
+
+38:45 Okay. Similarly my input gate will
+38:48 
+
+38:48 control how much of my cell content will
+38:51 
+
+38:51 be will be will be will be written to
+38:54 
+
+38:54 the cell.
+38:56 
+
+38:56 Same operation and then we basically
+38:58 
+
+38:58 take the sum. So you take some
+39:00 
+
+39:00 information from the previous memory and
+39:03 
+
+39:03 some information from your current cell
+39:05 
+
+39:05 content and that's going to be your
+39:08 
+
+39:08 current memory.
+39:11 
+
+39:11 Once the current memory is is ready then
+39:14 
+
+39:14 you basically use your um uh your output
+39:18 
+
+39:18 gate to decide how much information you
+39:21 
+
+39:21 want to read
+39:23 
+
+39:23 from memory and put it to hidden state.
+39:29 
+
+39:29 Right now why I said that uh the cell
+39:32 
+
+39:32 state is protected from outside because
+39:35 
+
+39:35 if you look at the cell state the way
+39:36 
+
+39:36 cell state is being computed
+39:39 
+
+39:39 it is not a function of xt is it a
+39:42 
+
+39:42 function of xt no cell state is a
+39:45 
+
+39:45 function of cell content and cell
+39:47 
+
+39:47 content is a function of xt
+39:50 
+
+39:50 so you can't access to the memory
+39:53 
+
+39:53 directly by using xt
+39:56 
+
+39:56 okay the problem here is that there too
+39:59 
+
+39:59 many parameters. How many parameters are
+40:01 
+
+40:01 there? So for every gate you have
+40:04 
+
+40:04 parameters. So for forget gate you have
+40:07 
+
+40:07 WF, UF and bias. For input gate you have
+40:11 
+
+40:11 WI, UI and bias. You we can't train so
+40:14 
+
+40:14 many parameters. You have limited data.
+40:17 
+
+40:17 Then in later edition you know people
+40:20 
+
+40:20 came up with the idea of GRU right? same
+40:22 
+
+40:22 idea you know GR is almost same as LSTM
+40:26 
+
+40:26 a simplified version of LSTM so there
+40:30 
+
+40:30 they said we don't need any external
+40:32 
+
+40:32 memory as such there's no concept of
+40:33 
+
+40:33 cell state here
+40:36 
+
+40:36 and we don't need three different gates
+40:39 
+
+40:39 we only need two gates one is called
+40:41 
+
+40:41 update gate other is called reset gate
+40:45 
+
+40:45 and I will use my hidden state as my at
+40:47 
+
+40:47 my as my memory
+40:52 
+
+40:52 Okay.
+40:53 
+
+40:53 So, equations are almost the same uh you
+40:56 
+
+40:56 know some differences here and there but
+40:58 
+
+40:58 in practice uh you know I mean in
+41:03 
+
+41:03 general GRU has less parameters than
+41:05 
+
+41:05 LSTM
+41:07 
+
+41:07 but in practice both LSTM and LSTM and
+41:10 
+
+41:10 JU work kind of similar way if you look
+41:12 
+
+41:12 at the accuracy they're more or less the
+41:14 
+
+41:14 similar uh similar. So the idea is that
+41:17 
+
+41:17 you start with JU and then you move to
+41:19 
+
+41:19 LSTM if you have lot of data.
+41:23 
+
+41:23 So there is no thumb rule that you know
+41:25 
+
+41:25 GRU is better or LSTM is better in
+41:27 
+
+41:27 certain cases. No. Okay.
+41:31 
+
+41:31 Okay.
+41:33 
+
+41:33 So,
+41:36 
+
+41:36 so we moved from um from uh Ingram
+41:40 
+
+41:40 language model to neural language model
+41:43 
+
+41:43 where we looked at CNN, RNN, right? And
+41:46 
+
+41:46 the problems in Ingram language model
+41:48 
+
+41:48 was that uh first of all uh this long
+41:51 
+
+41:51 range dependency
+41:53 
+
+41:53 long range dependency is partly
+41:55 
+
+41:55 addressed in RNN
+41:57 
+
+41:57 because you still have some idea about
+41:59 
+
+41:59 all the tokens, right? some idea
+42:03 
+
+42:03 but in statistical language model
+42:05 
+
+42:05 language model you don't have any idea
+42:06 
+
+42:06 about you know tokens which are very far
+42:11 
+
+42:11 but the problem in RNN is that you can't
+42:15 
+
+42:15 first of all it's very slow you can't
+42:18 
+
+42:18 access all the tokens in parallel right
+42:22 
+
+42:22 and there is another problem very subtle
+42:24 
+
+42:24 problem we'll discuss later
+42:27 
+
+42:27 so we will discuss in the next class
+42:31 
+
+42:31 uh an application of RNN in sequence to
+42:34 
+
+42:34 sequence problems for example machine
+42:36 
+
+42:36 translation where you translate one
+42:38 
+
+42:38 sequence to another sequence there's a
+42:40 
+
+42:40 summarization where you summarize one
+42:42 
+
+42:42 sequence to another sequence right so
+42:44 
+
+42:44 all these things come under sequence to
+42:46 
+
+42:46 sequence modeling and we will see how
+42:49 
+
+42:49 RNN can be used uh for
+42:51 
+
+42:51 sequencetosequence uh problems right
+42:54 
+
+42:54 modeling and then we will discuss in
+42:57 
+
+42:57 sequence to sequence we'll see that uh
+43:01 
+
+43:01 you know apart from the fact that RNN
+43:04 
+
+43:04 can't process all tokens in parallel
+43:07 
+
+43:07 there are some other problems for
+43:08 
+
+43:08 example a problem called bottleneck
+43:10 
+
+43:10 problem we'll discuss next day right so
+43:13 
+
+43:13 and then we will see how mechanisms like
+43:16 
+
+43:16 attention addresses the problem of the
+43:20 
+
+43:20 bottleneck problem right and then we
+43:22 
+
+43:22 will look at transformer and we'll see
+43:24 
+
+43:24 how transformer can process all all the
+43:26 
+
+43:26 tokens in parallel right and that would
+43:29 
+
+43:29 address all the problems that the RNN
+43:31 
+
+43:31 kind of models have. Okay. All right.

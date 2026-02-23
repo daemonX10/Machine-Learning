@@ -1,0 +1,2257 @@
+00:00 Hi everyone. Uh let's get started. So so
+00:04 
+
+00:04 last class we we started discussing um
+00:08 
+
+00:08 uh you know language model and neural
+00:11 
+
+00:11 language model. We discussed statistical
+00:13 
+
+00:13 language model in gram and then we also
+00:16 
+
+00:16 discussed RNN and CNN right. Um we also
+00:21 
+
+00:21 discussed different issues of stat
+00:24 
+
+00:24 statistical language model. If you
+00:26 
+
+00:26 remember we talked about
+00:29 
+
+00:29 long range dependencies right and uh we
+00:33 
+
+00:33 saw that uh if we use engram if we fix
+00:36 
+
+00:36 the count of if if you fix the value of
+00:38 
+
+00:38 n then uh if two words are very far
+00:41 
+
+00:41 apart you won't be able to uh get the
+00:43 
+
+00:43 dependency. Uh the other problem is that
+00:47 
+
+00:47 uh in in in statistical language model
+00:51 
+
+00:51 you always need to create this engram
+00:53 
+
+00:53 table right if it is bgram then a
+00:54 
+
+00:54 bgramground table and whenever a new uh
+00:57 
+
+00:57 new document comes in you need to
+00:59 
+
+00:59 recalculate all the bgrams right and you
+01:02 
+
+01:02 know uh repopulate the matrix again.
+01:06 
+
+01:06 Now uh some of the problems uh can be
+01:09 
+
+01:09 addressed with neural neural language
+01:12 
+
+01:12 model um
+01:16 
+
+01:16 I mean if you use CNN for example right
+01:18 
+
+01:18 you you can you also need to fix the
+01:20 
+
+01:20 window size which is the size of your
+01:23 
+
+01:23 candle right and then you um I mean if
+01:27 
+
+01:27 you want you can apply multiple condoms
+01:29 
+
+01:29 right uh with multiple weight matrices
+01:31 
+
+01:31 and so on
+01:33 
+
+01:33 you the the problem with CNN is that
+01:35 
+
+01:35 again uh uh I mean fixing the window
+01:38 
+
+01:38 size is a is a problem and if you
+01:42 
+
+01:42 increase the window size or decrease the
+01:43 
+
+01:43 window size the matrix W matrix will be
+01:46 
+
+01:46 will be changed right
+01:49 
+
+01:49 uh the other problem is again the
+01:50 
+
+01:50 longrange dependency can can't be
+01:52 
+
+01:52 captured using CNN because once we fix
+01:55 
+
+01:55 the window everything we within that
+01:57 
+
+01:57 window all the words within the window
+01:59 
+
+01:59 basically act as a bag of water right so
+02:02 
+
+02:02 uh their
+02:04 
+
+02:04 locations uh you know uh don't matter as
+02:08 
+
+02:08 such because if you change locations you
+02:10 
+
+02:10 know you'll get same representation.
+02:12 
+
+02:12 Then we discussed RNN uh which is a true
+02:15 
+
+02:15 sequence labeling model sequence uh
+02:18 
+
+02:18 labeling uh model where uh ideally you
+02:21 
+
+02:21 basically uh represent uh you know you
+02:25 
+
+02:25 you look at you process every token one
+02:27 
+
+02:27 by one. It's a temporal model. So the
+02:31 
+
+02:31 representation at at the TH time or the
+02:33 
+
+02:33 TH location is uh is is ideally
+02:37 
+
+02:37 capturing the representation of all the
+02:38 
+
+02:38 previous locations right all the
+02:40 
+
+02:40 previous uh hidden states ideally.
+02:43 
+
+02:43 So theoretically it is RNN is able to
+02:46 
+
+02:46 capture the long range dependency but
+02:49 
+
+02:49 empirically it is not because u because
+02:52 
+
+02:52 we have this um gradient uh right uh
+02:55 
+
+02:55 vanishing gradient problem and excluding
+02:57 
+
+02:57 gradient problem. Okay. And to address
+02:60 
+
+02:60 this, we talked about um LSTM and GU
+03:03 
+
+03:03 where we use gated get mechanisms to
+03:06 
+
+03:06 selectively identify which information
+03:08 
+
+03:08 needs to be uh propagated, which
+03:11 
+
+03:11 information needs to be stopped and so
+03:12 
+
+03:12 on and so forth. Right?
+03:15 
+
+03:15 So uh uh and and GRU was just a just an
+03:22 
+
+03:22 extension of LSTM where instead of using
+03:25 
+
+03:25 uh three gates we use two gates and then
+03:27 
+
+03:27 we don't have an explicit concept of
+03:30 
+
+03:30 cell cell state here instead basically
+03:32 
+
+03:32 acts as a cell state and so on and so
+03:34 
+
+03:34 forth. So now we will see
+03:37 
+
+03:37 how we can use RNN right RNN can be LSTM
+03:41 
+
+03:41 how we can use RNN uh for a sequence
+03:44 
+
+03:44 sequence to sequence problem what are
+03:46 
+
+03:46 sequence to sequence problems for
+03:48 
+
+03:48 example you let's say you translate a
+03:51 
+
+03:51 English a English sentence into a
+03:55 
+
+03:55 into a Hindi sentence right or you let's
+03:58 
+
+03:58 say you have a long document right which
+04:00 
+
+04:00 is a long sequence and you translate or
+04:03 
+
+04:03 you basically summarize into a small
+04:05 
+
+04:05 document. Right? This is also a sequence
+04:08 
+
+04:08 to sequence problem. Sequence to
+04:09 
+
+04:09 sequence problems can be of three types,
+04:12 
+
+04:12 right? One is
+04:14 
+
+04:14 many to one, right? Where your input is
+04:18 
+
+04:18 a sequence of many tokens and your
+04:20 
+
+04:20 output is a single token. Can you tell
+04:23 
+
+04:23 me an example of many to one
+04:30 
+
+04:30 sequence to sequence?
+04:35 
+
+04:35 classification problem is not a sequence
+04:37 
+
+04:37 to sequence problem
+04:41 
+
+04:41 is not a sequence sequence problem
+04:44 
+
+04:44 summarization is many to many many
+04:46 
+
+04:46 tokens to many tokens
+04:49 
+
+04:49 >> sentiment is a classification problem
+04:51 
+
+04:51 it's not a sequence problem
+04:56 
+
+04:56 >> now a token again a token can be a a
+04:60 
+
+04:60 token can be a um can be a single word.
+05:03 
+
+05:03 A token can be a can be a
+05:08 
+
+05:08 maybe an entity,
+05:10 
+
+05:10 right?
+05:15 
+
+05:15 Given a text, can we generate an image?
+05:22 
+
+05:22 Right? So image is an entity, single
+05:24 
+
+05:24 entity, right? Of course, you can argue
+05:26 
+
+05:26 that, you know, an image can be
+05:28 
+
+05:28 represented by a matrix and blah blah
+05:29 
+
+05:29 blah, but image is an entity.
+05:32 
+
+05:32 Similarly one to many you can think of
+05:34 
+
+05:34 one to many problem as like image to
+05:36 
+
+05:36 text image to text problem caption
+05:38 
+
+05:38 generation for example many to many
+05:41 
+
+05:41 problem all the all the other problems
+05:42 
+
+05:42 are many to many problems machine
+05:43 
+
+05:43 translation summarization and so on and
+05:45 
+
+05:45 so forth so as you see here
+05:49 
+
+05:49 there are two sequences involved right
+05:51 
+
+05:51 one is the input sequence and there's a
+05:53 
+
+05:53 there's an output sequence right and
+05:55 
+
+05:55 please try to understand the difference
+05:57 
+
+05:57 between a sequence to sequence a a
+05:59 
+
+05:59 sequence leveling problem and a uh
+06:02 
+
+06:02 classification problem. Right? So I'm
+06:04 
+
+06:04 talking about sequence leveling problem.
+06:08 
+
+06:08 So uh uh so we will discuss uh different
+06:11 
+
+06:11 types of sequence leveling problems here
+06:13 
+
+06:13 and how we can model this using um uh
+06:16 
+
+06:16 using uh RLN. Okay. But as I mentioned
+06:20 
+
+06:20 in the last class, I will uh give you an
+06:22 
+
+06:22 idea of what's going on in the LLM
+06:24 
+
+06:24 world. So this is an update uh on August
+06:27 
+
+06:27 1. So coen 3 uh coder flash was released
+06:32 
+
+06:32 in August 1. So it it is claimed that
+06:36 
+
+06:36 coen3 coder is a uh I mean is is is a
+06:40 
+
+06:40 better model with respect to other
+06:43 
+
+06:43 models right uh other existing models.
+06:47 
+
+06:47 So it's basically a variant of co3 co3
+06:50 
+
+06:50 family. Uh it has uh roughly 30 billion
+06:54 
+
+06:54 parameters and it's it's a mixture of
+06:56 
+
+06:56 experts models. So 128 experts are
+06:58 
+
+06:58 there. Okay. And if you look at this
+07:01 
+
+07:01 block here you get an idea of uh you
+07:04 
+
+07:04 know all these performances and their
+07:05 
+
+07:05 benchmarking and so on and so forth.
+07:10 
+
+07:10 All right let's come back to the actual
+07:12 
+
+07:12 problem. So sequence to sequence uh
+07:14 
+
+07:14 leveling problem. So
+07:16 
+
+07:16 let's say you are given a uh you know uh
+07:19 
+
+07:19 an an a non-English sequence right and
+07:24 
+
+07:24 your task is to translate it to English
+07:26 
+
+07:26 right so what we do here is that we
+07:28 
+
+07:28 first use an RNN again the RNN can be
+07:31 
+
+07:31 LTM can be GL can be can be normal RNN
+07:34 
+
+07:34 vanilla RNN and
+07:37 
+
+07:37 this RNN will be called as encoder RNN
+07:41 
+
+07:41 right so encoder RNN will encode every
+07:44 
+
+07:44 token So, so this is my first token.
+07:47 
+
+07:47 This is second token, third token,
+07:48 
+
+07:48 fourth token. And the way we use RNN the
+07:50 
+
+07:50 same way here also we use RNN here. So
+07:53 
+
+07:53 we get the representation hidden
+07:55 
+
+07:55 representation corresponding to every
+07:56 
+
+07:56 token. And the last representation
+08:00 
+
+08:00 will be fed to the output to the to the
+08:03 
+
+08:03 to the next uh next RNN. So so this is
+08:06 
+
+08:06 called encoder RNN. And similarly we
+08:09 
+
+08:09 have a decoder RNN
+08:12 
+
+08:12 right in decoder RNN uh as you see this
+08:15 
+
+08:15 is again RNN so kind of similar
+08:18 
+
+08:18 representation right so when you train
+08:21 
+
+08:21 the model you so during training you are
+08:24 
+
+08:24 given both the non-English sentence and
+08:26 
+
+08:26 the English sentence
+08:29 
+
+08:29 right and uh again here in the decoder
+08:33 
+
+08:33 state for every decoder token you have a
+08:36 
+
+08:36 uh you have a hidden representation
+08:38 
+
+08:38 Right? And the same way we essentially
+08:40 
+
+08:40 uh train the model. So what is the input
+08:43 
+
+08:43 to the decoder model? So this is my
+08:45 
+
+08:45 decoder RNN. Right? And what is the
+08:47 
+
+08:47 input to the decoder RNA? Input to the
+08:49 
+
+08:49 decoder RNN is the final representation
+08:51 
+
+08:51 of the encoder.
+08:54 
+
+08:54 Right? So as if the final represent the
+08:57 
+
+08:57 final hidden states the final hidden
+08:60 
+
+08:60 state knows about the the enter input.
+09:05 
+
+09:05 Right? So this will be given this will
+09:07 
+
+09:07 be fed to the decoder RNN and the
+09:10 
+
+09:10 decoder RNN will uh will will basically
+09:13 
+
+09:13 generate something here. This will be
+09:15 
+
+09:15 fed as an input here. If you so so again
+09:18 
+
+09:18 there are two ways to do that. If you
+09:20 
+
+09:20 feed this as an input here right so
+09:26 
+
+09:26 so then what will happen is that you are
+09:28 
+
+09:28 you are not able to feed the actual
+09:30 
+
+09:30 input to the RNA.
+09:33 
+
+09:33 Right? So if you fit the actual input to
+09:35 
+
+09:35 the RNN it will be called teacher
+09:37 
+
+09:37 forcing.
+09:43 
+
+09:43 Okay. In teacher forcing your your your
+09:46 
+
+09:46 uh
+09:48 
+
+09:48 your output will be fed to the decoder
+09:50 
+
+09:50 RNN directly. Right? It is not the case
+09:53 
+
+09:53 that the output of every decoder state
+09:55 
+
+09:55 will be fed to the next decoder state.
+09:57 
+
+09:57 It is not the case.
+10:01 
+
+10:01 Okay. If you do that then this will this
+10:04 
+
+10:04 will be a normal RN this will this will
+10:06 
+
+10:06 not be a teacher forcing
+10:08 
+
+10:08 during training but during testing you
+10:11 
+
+10:11 will have to do that because during
+10:13 
+
+10:13 testing you don't have the output at all
+10:14 
+
+10:14 right so during test time you will have
+10:17 
+
+10:17 to feed the output of one state to the
+10:19 
+
+10:19 next state
+10:21 
+
+10:21 okay now you keep on doing doing this
+10:24 
+
+10:24 thing until unless you uh end up getting
+10:26 
+
+10:26 a a token like end uh end of a sentence
+10:30 
+
+10:30 or some some some sort of delimiter,
+10:33 
+
+10:33 right?
+10:35 
+
+10:35 So,
+10:38 
+
+10:38 and how do you train this model during
+10:41 
+
+10:41 training? Again, during training time.
+10:42 
+
+10:42 So, how many parameters are there in
+10:44 
+
+10:44 this in this model? So, in the in the
+10:46 
+
+10:46 encoder uh in the encoder model, how
+10:49 
+
+10:49 many parameters are there?
+10:52 
+
+10:52 So uh I mean if we ignore parameters
+10:54 
+
+10:54 associated with the embedding layers if
+10:56 
+
+10:56 we just assume that embedding embeddings
+10:59 
+
+10:59 are directly given to the RNM we have
+11:01 
+
+11:01 only one uh uh parameter matrix which is
+11:05 
+
+11:05 let's say we
+11:08 
+
+11:08 right and how many how many parameters
+11:10 
+
+11:10 are there in the decoder
+11:13 
+
+11:13 two two parameter matrices one is w uh d
+11:18 
+
+11:18 and U
+11:22 
+
+11:22 because unbedding layer is also
+11:23 
+
+11:23 important for every for every uh
+11:26 
+
+11:26 position you produce the uh the word
+11:30 
+
+11:30 right
+11:33 
+
+11:33 and how do you calculate the loss? So
+11:35 
+
+11:35 for every at every position you will
+11:37 
+
+11:37 calculate the loss cross entropy between
+11:39 
+
+11:39 the actual word which needs to be
+11:42 
+
+11:42 predicted and the word that you have
+11:43 
+
+11:43 predicted. For example, here at this
+11:45 
+
+11:45 position, let's say if you predicted I
+11:48 
+
+11:48 and you should have predicted he, so the
+11:50 
+
+11:50 cross entropy between I and he would be
+11:53 
+
+11:53 the loss here,
+11:56 
+
+11:56 right? And you
+11:58 
+
+11:58 essentially uh keep on adding the loss
+12:02 
+
+12:02 uh loss value uh at every state and
+12:05 
+
+12:05 that's going to be your total loss.
+12:09 
+
+12:09 Okay. So the total loss will be this one
+12:11 
+
+12:11 J. And then you need to back propagate
+12:14 
+
+12:14 this loss, right? Using using what? Back
+12:17 
+
+12:17 propagation through time, right? And
+12:19 
+
+12:19 this will be prop back propagated end to
+12:21 
+
+12:21 end. Meaning that all the uh all the
+12:26 
+
+12:26 decoder parameters as well as encoder
+12:28 
+
+12:28 parameters will be updated. So this will
+12:30 
+
+12:30 be back propagated end to end. Remember
+12:34 
+
+12:34 encoder encoder model is not
+12:37 
+
+12:37 contributing to the error to the loss.
+12:39 
+
+12:39 Only decoder model is contributing. Why?
+12:41 
+
+12:41 Because we don't need any output from
+12:43 
+
+12:43 the encoder model. But when we train the
+12:45 
+
+12:45 parameter encoder parameters will also
+12:48 
+
+12:48 be updated. Why? If you do not update
+12:50 
+
+12:50 encoder parameters, you won't be able to
+12:52 
+
+12:52 see the alignment between between two
+12:54 
+
+12:54 languages. We need an alignment, right?
+12:57 
+
+12:57 I am going to school.
+12:60 
+
+12:60 So we should we should understand that
+13:01 
+
+13:01 the model should understand that I
+13:04 
+
+13:04 corresponds to man right going
+13:07 
+
+13:07 corresponds to Jara and so on. So
+13:12 
+
+13:12 okay so now this is RNN this is this is
+13:16 
+
+13:16 sequence to sequence model. Now what are
+13:18 
+
+13:18 the problems in sequence to sequence
+13:19 
+
+13:19 model? What are the major problems?
+13:23 
+
+13:23 The first major problem is called the
+13:25 
+
+13:25 bottleneck problem. Right? What is
+13:27 
+
+13:27 bottleneck problem? The bottom problem
+13:29 
+
+13:29 is that this guy, this hidden state has
+13:33 
+
+13:33 a lot of responsibility to remember the
+13:36 
+
+13:36 entire entire encoder uh uh the entire
+13:39 
+
+13:39 input
+13:41 
+
+13:41 and we all know if the size is a if the
+13:43 
+
+13:43 length of the input is long then uh you
+13:46 
+
+13:46 know the last state the the final state
+13:48 
+
+13:48 will start forgetting uh you know about
+13:51 
+
+13:51 the states which are earlier.
+13:54 
+
+13:54 So this has a lot of lot of
+13:56 
+
+13:56 responsibility. Therefore, there's a
+13:57 
+
+13:57 bottleneck
+14:01 
+
+14:01 and the other problem is still there.
+14:03 
+
+14:03 What's the other problem? The other
+14:04 
+
+14:04 problem is that you can't process tokens
+14:06 
+
+14:06 in parallel.
+14:08 
+
+14:08 That's the problem of of RN, right? To
+14:11 
+
+14:11 address this, we will discuss. So, to
+14:13 
+
+14:13 address the first problem, the
+14:14 
+
+14:14 bottleneck problem, we discuss a
+14:16 
+
+14:16 mechanism called attention.
+14:20 
+
+14:20 Okay? Now, what is attention? Attention
+14:22 
+
+14:22 is just a shortcut.
+14:25 
+
+14:25 a shortcut to access all the encoder
+14:28 
+
+14:28 states from the decoder states.
+14:32 
+
+14:32 Let's say this guy wants to let's say
+14:35 
+
+14:35 this guy wants to access the encoder
+14:38 
+
+14:38 state. Now now if you use the normal
+14:41 
+
+14:41 this framework when when you when you
+14:43 
+
+14:43 are at this position this guy has no
+14:46 
+
+14:46 idea about this this this hidden state
+14:48 
+
+14:48 at all right they're very far.
+14:53 
+
+14:53 Now think of a case where every decoder
+14:56 
+
+14:56 state has access to all the encoder
+14:59 
+
+14:59 states
+15:04 
+
+15:04 right and the access to the encoder
+15:07 
+
+15:07 states are dependent on decoder state
+15:12 
+
+15:12 the way I access is dependent on the
+15:15 
+
+15:15 decoder state itself
+15:18 
+
+15:18 right then we can address this
+15:19 
+
+15:19 bottleneck problem isn't
+15:23 
+
+15:23 Right. So this is attention and let's
+15:25 
+
+15:25 see how we can um what's the vanilla
+15:28 
+
+15:28 setup what's the uh you know default
+15:31 
+
+15:31 setup of the of the attention mechanism.
+15:34 
+
+15:34 So,
+15:40 
+
+15:40 so this is the input
+15:43 
+
+15:43 this is my encoder encoder model right
+15:46 
+
+15:46 this is the first decoder state right
+15:49 
+
+15:49 the first decoder state what is the
+15:51 
+
+15:51 input to the decoder state is the start
+15:52 
+
+15:52 token right now what I do now this
+15:57 
+
+15:57 decoder state
+15:60 
+
+15:60 will attend to all the encoder states
+16:03 
+
+16:03 one by
+16:05 
+
+16:05 Right. What does it mean? It means that
+16:08 
+
+16:08 uh this state
+16:11 
+
+16:11 will try to see how similar the the
+16:16 
+
+16:16 decoder state is with respect to other
+16:18 
+
+16:18 encoder states.
+16:22 
+
+16:22 Okay.
+16:24 
+
+16:24 So now remember this is a vector right
+16:26 
+
+16:26 and all the states are vectors right. So
+16:29 
+
+16:29 what we do first we first take the dot
+16:31 
+
+16:31 product between the decoder state and
+16:34 
+
+16:34 each of the encoder states one by one
+16:37 
+
+16:37 right and this dot product is called
+16:38 
+
+16:38 attention score. So you see this this
+16:41 
+
+16:41 this value. So this is basically a a
+16:44 
+
+16:44 real number a dot product dot product
+16:48 
+
+16:48 between this and this
+16:50 
+
+16:50 right dot product between this and the
+16:52 
+
+16:52 second hidden state second encoder state
+16:55 
+
+16:55 third encoder state and the fourth
+16:56 
+
+16:56 encoder state.
+16:58 
+
+16:58 What what does the dot product mean? A
+17:01 
+
+17:01 dot product indicates the similarity
+17:02 
+
+17:02 between two vectors. Right? So it will
+17:05 
+
+17:05 the attention scores will give you
+17:06 
+
+17:06 similarity between the the uh the
+17:11 
+
+17:11 decoder state and each of the encoder
+17:13 
+
+17:13 states.
+17:15 
+
+17:15 Right? So after attention score what we
+17:17 
+
+17:17 do we will pass this attention. So so
+17:20 
+
+17:20 you can think of this as a vector.
+17:23 
+
+17:23 Okay. But there is no guarantee that dot
+17:25 
+
+17:25 product will lie between 0 to one.
+17:27 
+
+17:27 Right? So what we do we pass it through
+17:29 
+
+17:29 a short max
+17:31 
+
+17:31 and we get a distribution and this
+17:34 
+
+17:34 distribution is called attention
+17:37 
+
+17:37 distribution
+17:39 
+
+17:39 right we all know short max e^x by sum
+17:42 
+
+17:42 of e^x
+17:44 
+
+17:44 x i
+17:47 
+
+17:47 so we get a distribution right now every
+17:50 
+
+17:50 so if you look at the entry in the
+17:51 
+
+17:51 distribution uh
+17:54 
+
+17:54 you see that for the for the first
+17:57 
+
+17:57 position of the decoder right let's say
+17:60 
+
+17:60 this is 8 this is 01 let's say this is
+18:04 
+
+18:04 point uh something right let's say 05
+18:06 
+
+18:06 and so on and so forth right it means
+18:09 
+
+18:09 that with respect to the first decoder
+18:12 
+
+18:12 state the first encoder state is more
+18:15 
+
+18:15 important
+18:17 
+
+18:17 in order to produce the first output
+18:20 
+
+18:20 here first token here you should look at
+18:23 
+
+18:23 the first token of the encoder state
+18:26 
+
+18:26 right probabilistically.
+18:29 
+
+18:29 So from the attention distribution what
+18:31 
+
+18:31 what's the next stage from attention
+18:34 
+
+18:34 distribution what we do is that this
+18:36 
+
+18:36 attention distribution will act as
+18:38 
+
+18:38 weights
+18:39 
+
+18:39 let's say this is 8 this is point.15
+18:46 
+
+18:46 05
+18:48 
+
+18:48 okay and this is my hidden state h1 h2
+18:52 
+
+18:52 h3 h4 there are four hidden states right
+18:56 
+
+18:56 so after so once we obtain the attention
+18:58 
+
+18:58 distribution
+18:59 
+
+18:59 What we do we take the weighted sum
+19:03 
+
+19:03 of the hidden states
+19:06 
+
+19:06 right and weights will come from the
+19:07 
+
+19:07 attention distribution. So weighted sum
+19:12 
+
+19:12 weighted sum so this will be8
+19:16 
+
+19:16 into h1 plus.1
+19:19 
+
+19:19 into h2 plus 05 to h3 plus 05 to h4
+19:27 
+
+19:27 and it will produce what it will produce
+19:29 
+
+19:29 a vector of size same as the state right
+19:33 
+
+19:33 let's call it as h h h h h h h h h h h h
+19:35 
+
+19:35 h h h h h h h h h h h h h h h h h h h h
+19:35 
+
+19:35 h h h h h h h h h d d d d d d d d d d d
+19:35 
+
+19:35 d d d d d d d d d d d d d d d d d d d d
+19:35 
+
+19:35 d d d d d d d d d dash, right? So each
+19:37 
+
+19:37 dash is called attention output. Now
+19:40 
+
+19:40 please remember the terminologies.
+19:42 
+
+19:42 Attention scores are the dot products.
+19:44 
+
+19:44 Attention distribution is the output
+19:46 
+
+19:46 after short max and then attention
+19:48 
+
+19:48 output.
+19:50 
+
+19:50 So what does this attention output mean?
+19:55 
+
+19:55 The attention output indicates
+19:59 
+
+19:59 a summary of the input states
+20:03 
+
+20:03 with respect to the decoder state. It's
+20:06 
+
+20:06 a it's a summary.
+20:09 
+
+20:09 It's a summary of the encoder states,
+20:14 
+
+20:14 right? With why why I said with respect
+20:17 
+
+20:17 to the decoder state because the the the
+20:20 
+
+20:20 weights are calculated with respect to
+20:22 
+
+20:22 the decoder state, right? If if I change
+20:24 
+
+20:24 the decoder state, the weight will be
+20:26 
+
+20:26 different.
+20:28 
+
+20:28 So then what we do? So if we if we did
+20:31 
+
+20:31 not have this attention mechanism what
+20:33 
+
+20:33 we have done previously we basically fed
+20:36 
+
+20:36 this to an un unmbeding matrix and that
+20:39 
+
+20:39 would that that would produce a
+20:40 
+
+20:40 distribution here but here what we do
+20:43 
+
+20:43 here instead of feeding this to the
+20:46 
+
+20:46 unmbeding uh unmbeding uh layer what I
+20:49 
+
+20:49 feed I feed h concatenation of uh sorry
+20:53 
+
+20:53 u conc uh let's say this is this is
+20:56 
+
+20:56 decoder state d1 so d1 concatenation of
+20:60 
+
+21:00 H dash
+21:04 
+
+21:04 right I will concatenate the attention
+21:06 
+
+21:06 output and the first decoder state uh
+21:10 
+
+21:10 representation and then I feed it to
+21:12 
+
+21:12 you. So the size of the U matrix will
+21:15 
+
+21:15 increase
+21:19 
+
+21:19 okay and then we follow the same
+21:21 
+
+21:21 process.
+21:22 
+
+21:22 So now we have now every uh decoder
+21:25 
+
+21:25 state has a direct connection with all
+21:26 
+
+21:26 the encoder states. Similarly I will do
+21:29 
+
+21:29 for the for the next for the next
+21:32 
+
+21:32 decoder state.
+21:34 
+
+21:34 You see here after attention score when
+21:36 
+
+21:36 you get the attention distribution now
+21:38 
+
+21:38 this weight is high that means this guy
+21:41 
+
+21:41 is more important to generate the next
+21:44 
+
+21:44 to generate the second token of the
+21:47 
+
+21:47 decoder state. Right? Similarly for
+21:50 
+
+21:50 third fourth fifth sixth and so on.
+21:58 
+
+21:58 Right. Now tell me how many extra
+22:00 
+
+22:00 parameters I have included.
+22:03 
+
+22:03 I have considered extra parameters in
+22:06 
+
+22:06 computing the attention score attention
+22:08 
+
+22:08 output.
+22:10 
+
+22:10 What are the additional parameters? I I
+22:13 
+
+22:13 need to learn
+22:17 
+
+22:17 forget about you. you okay understand
+22:19 
+
+22:19 but you so you will increase you will
+22:23 
+
+22:23 increase as a byproduct of this but any
+22:25 
+
+22:25 other explicit uh parameters I I have
+22:28 
+
+22:28 considered
+22:31 
+
+22:31 no right that's the beauty of attention
+22:37 
+
+22:37 now of course this is a vanilla version
+22:39 
+
+22:39 of attention there are advanced methods
+22:42 
+
+22:42 where you can include more parameters
+22:44 
+
+22:44 but in a vanilla setup there is no
+22:47 
+
+22:47 additional parameter
+22:48 
+
+22:48 that we include. So uh with the
+22:50 
+
+22:50 attention mechanism we now have
+22:53 
+
+22:53 addressed the problem of bottleneck uh
+22:55 
+
+22:55 bottleneck issues right.
+22:59 
+
+22:59 Okay. So attention is great. Why
+23:00 
+
+23:00 attention is great? Because now with
+23:03 
+
+23:03 attention we can now we have access to
+23:06 
+
+23:06 many more information. For example,
+23:10 
+
+23:10 using this attention distribution, you
+23:13 
+
+23:13 can say I mean you can think of this
+23:15 
+
+23:15 attention the entire attention
+23:16 
+
+23:16 distribution uh for for for for all the
+23:19 
+
+23:19 tokens, right? As a matrix like this.
+23:23 
+
+23:23 So let's say let's say this is your
+23:25 
+
+23:25 input, right? And this is the first
+23:28 
+
+23:28 output token
+23:30 
+
+23:30 and these are the corresponding
+23:32 
+
+23:32 attention distribution. This is the
+23:34 
+
+23:34 second output token from the decoder and
+23:38 
+
+23:38 these are the attention distribution.
+23:40 
+
+23:40 Third output token and the attention
+23:42 
+
+23:42 distribution. Now from the attention
+23:44 
+
+23:44 distribution you can align two
+23:46 
+
+23:46 languages.
+23:48 
+
+23:48 You can say that okay uh
+23:51 
+
+23:51 he is more aligned to the first token of
+23:54 
+
+23:54 the input because the probability is
+23:56 
+
+23:56 high
+23:58 
+
+23:58 with a pi.
+23:60 
+
+23:60 These three tokens are more aligned to
+24:02 
+
+24:02 the last token,
+24:05 
+
+24:05 right? Me is more aligned to the third
+24:08 
+
+24:08 token and so on and so forth.
+24:11 
+
+24:11 So in if you if you go back to the
+24:13 
+
+24:13 statistical machine translation era
+24:16 
+
+24:16 right before this attention mechanism
+24:18 
+
+24:18 came uh in um in 2014 2015 before that.
+24:23 
+
+24:23 So statistical machine translation had a
+24:26 
+
+24:26 long history 20 30 years 40 years people
+24:29 
+
+24:29 have been had been trying different
+24:30 
+
+24:30 different approaches and uh and one of
+24:34 
+
+24:34 the one of the modules of statistical
+24:36 
+
+24:36 machine translation was how to align two
+24:38 
+
+24:38 languages
+24:40 
+
+24:40 right you can translate every word to so
+24:42 
+
+24:42 you can translate things word by word
+24:45 
+
+24:45 right if you have a dictionary you can
+24:47 
+
+24:47 translate things word by word but then
+24:50 
+
+24:50 how do you align let's say I am going to
+24:52 
+
+24:52 school I
+24:53 
+
+24:53 M I don't know uh going j school etc etc
+24:59 
+
+24:59 and then how do you align them because
+25:01 
+
+25:01 it it is not a onetoone correspondence
+25:03 
+
+25:03 right but after attention people realize
+25:06 
+
+25:06 that you do not need an explicit
+25:07 
+
+25:07 alignment as such attention can take can
+25:10 
+
+25:10 take care of this right the second good
+25:13 
+
+25:13 part about this model is that attention
+25:15 
+
+25:15 provides a some sort of interpretability
+25:18 
+
+25:18 although there are many papers uh which
+25:22 
+
+25:22 argue viewed against this statement but
+25:24 
+
+25:24 people still believe that attention will
+25:26 
+
+25:26 give you some interpretability of the
+25:28 
+
+25:28 model.
+25:29 
+
+25:29 Attention helps the attention helps
+25:31 
+
+25:31 address the vanishing gradient problem.
+25:33 
+
+25:33 Why?
+25:35 
+
+25:35 Why? Because now you have access direct
+25:37 
+
+25:37 access from decoder to encoder. The
+25:39 
+
+25:39 gradient can flow from decoder to
+25:41 
+
+25:41 encoder directly. The gradient may not
+25:43 
+
+25:43 need to pass through the normal uh
+25:46 
+
+25:46 sequence. Right?
+25:48 
+
+25:48 And so on and so forth. The other beauty
+25:51 
+
+25:51 about attention is that attention is
+25:54 
+
+25:54 it's not the case that attention is only
+25:56 
+
+25:56 applicable to encoder decoder. Attention
+25:59 
+
+25:59 can be applied to normal RNA a single
+26:02 
+
+26:02 RNA. How? Let's say let's say so this is
+26:07 
+
+26:07 my sing this is my uh RNN model right?
+26:12 
+
+26:12 So in sequence to sequence you need two
+26:14 
+
+26:14 RNs. Let's assume that you have only one
+26:16 
+
+26:16 RN right how can we use attention here
+26:20 
+
+26:20 right so I mean here also you can say
+26:23 
+
+26:23 that okay
+26:26 
+
+26:26 this guy can attend to this this can
+26:29 
+
+26:29 attend to this and this right this can
+26:33 
+
+26:33 attend to this and this in fact this can
+26:36 
+
+26:36 also attend to this can it
+26:42 
+
+26:42 can this guy attend to this
+26:46 
+
+26:46 No. Why? It's a temporal model. It's a
+26:50 
+
+26:50 sequence model. When you when you when
+26:53 
+
+26:53 you have generated this this state,
+26:56 
+
+26:56 right? When you when you when you are
+26:58 
+
+26:58 planning to generate this state, you
+26:60 
+
+26:60 don't have any idea about this state.
+27:03 
+
+27:03 Right? So forward dependency is not
+27:05 
+
+27:05 possible. Backward dependency is
+27:06 
+
+27:06 possible. But anyways, my attention can
+27:09 
+
+27:09 be used in normal RNL setup.
+27:12 
+
+27:12 Okay?
+27:13 
+
+27:13 So the so I mean basically if you look
+27:17 
+
+27:17 at it very carefully attention will give
+27:19 
+
+27:19 you a summary of your input right and uh
+27:25 
+
+27:25 it will always give you a single vector
+27:28 
+
+27:28 irrespective of the length of the input.
+27:34 
+
+27:34 Right? If the length of your input is
+27:37 
+
+27:37 four tokens versus 10 tokens, you will
+27:41 
+
+27:41 always get a single attention vector,
+27:43 
+
+27:43 isn't it? Because ultimately it's a
+27:44 
+
+27:44 weighted sum.
+27:47 
+
+27:47 So attention doesn't depend on the input
+27:50 
+
+27:50 token.
+27:53 
+
+27:53 Okay. So it has many advantages.
+27:57 
+
+27:57 Now we'll move to the other part. So,
+27:60 
+
+27:60 so, so we have addressed the
+28:03 
+
+28:03 bottleneck problem, but we have still
+28:05 
+
+28:05 not addressed the problem of uh parallel
+28:08 
+
+28:08 access to the tokens, right? So, we will
+28:12 
+
+28:12 discuss another mechanism called self
+28:14 
+
+28:14 attention. We'll see that self attention
+28:16 
+
+28:16 can address this problem. But before
+28:18 
+
+28:18 that, let me you know maybe spend more
+28:21 
+
+28:21 time little bit more time to again
+28:22 
+
+28:22 explain some of the important
+28:24 
+
+28:24 terminologies here. So we have seen that
+28:28 
+
+28:28 for every decoder so every decoder
+28:31 
+
+28:31 attends to each of these encoder states
+28:33 
+
+28:33 one by one.
+28:36 
+
+28:36 So in self attention we will use three
+28:39 
+
+28:39 terms query key and value. I would like
+28:42 
+
+28:42 to introduce these terms here here only.
+28:45 
+
+28:45 So the decoder state is called query
+28:51 
+
+28:51 right and each of these encoder states
+28:53 
+
+28:53 are called key.
+28:58 
+
+28:58 Okay. And when we take the dot product
+29:00 
+
+29:00 between encoder and decoder state, it is
+29:03 
+
+29:03 basically a dot product between a query
+29:04 
+
+29:04 and key.
+29:07 
+
+29:07 Right?
+29:09 
+
+29:09 So query key dot product here.
+29:12 
+
+29:12 Then attention distribution. After
+29:15 
+
+29:15 attention distribution what we do
+29:17 
+
+29:17 >> weighted sum of all the all the what all
+29:20 
+
+29:20 the encoder states. Now ideally
+29:24 
+
+29:24 in a vanilla setup in a regular setup
+29:28 
+
+29:28 we take the weighted sum. So so in a in
+29:30 
+
+29:30 a vanular setup we take the weighted sum
+29:32 
+
+29:32 of the keys itself.
+29:36 
+
+29:36 Right? But if you have more data, you
+29:39 
+
+29:39 can also think of another term or
+29:42 
+
+29:42 another entity called value.
+29:45 
+
+29:45 What is value? So ideally attention
+29:48 
+
+29:48 distri attention output should be the
+29:50 
+
+29:50 weighted
+29:52 
+
+29:52 sum of values.
+29:58 
+
+29:58 But in our case values and keys are the
+30:01 
+
+30:01 same
+30:04 
+
+30:04 in the normal RN setup. In the normal
+30:06 
+
+30:06 attention setup, values and keys are the
+30:08 
+
+30:08 same. But later on we will see in self
+30:13 
+
+30:13 attention we introduce uh a an entity
+30:17 
+
+30:17 called values.
+30:20 
+
+30:20 We first take the dot product between
+30:22 
+
+30:22 query and key. Then we uh uh generate
+30:25 
+
+30:25 the weighted sum of values.
+30:29 
+
+30:29 Okay, remember these terms and I will
+30:32 
+
+30:32 tell you the meaning of query key and
+30:33 
+
+30:33 value. uh I mean why I mean you can
+30:36 
+
+30:36 relate query key value with the
+30:38 
+
+30:38 information retrieval uh prospective
+30:42 
+
+30:42 right?
+30:44 
+
+30:44 Yeah.
+30:44 
+
+30:44 >> Instead of taking
+30:48 
+
+30:48 >> max pooling.
+30:50 
+
+30:50 >> No, if you take the if you max pool of
+30:52 
+
+30:52 what?
+30:56 
+
+30:56 >> No. Then then what? Let's say you you
+30:58 
+
+30:58 let's say you take this one.
+30:60 
+
+30:60 >> Yes.
+31:00 
+
+31:00 >> Right. And the value is 0.9 and then and
+31:03 
+
+31:03 then you multiply 0.9 with all the
+31:07 
+
+31:07 >> then what you do?
+31:09 
+
+31:09 Huh?
+31:11 
+
+31:11 >> So you will take 9.9 into h2.
+31:16 
+
+31:16 So then then then you don't have access
+31:18 
+
+31:18 to you don't have you don't have access
+31:20 
+
+31:20 to other uh other representations right
+31:23 
+
+31:23 remember
+31:25 
+
+31:25 in any alignment right
+31:29 
+
+31:29 token to to I mentioned already in any
+31:31 
+
+31:31 alignment token to token uh uh token to
+31:35 
+
+31:35 token correspondence is not explicit for
+31:37 
+
+31:37 example I am going again I'm going to
+31:39 
+
+31:39 school my school
+31:42 
+
+31:42 right am going to
+31:45 
+
+31:45 correspond to what
+31:47 
+
+31:47 Jara
+31:50 
+
+31:50 right so it is not that one token
+31:54 
+
+31:54 one to only one token corresponds one
+31:57 
+
+31:57 token contributes to the generation of
+31:59 
+
+31:59 the the other token in the deposit so in
+32:01 
+
+32:01 in other words in other in in in in
+32:04 
+
+32:04 other terms basically all the tokens are
+32:06 
+
+32:06 contributing in some ways
+32:09 
+
+32:09 so it is important to you know uh
+32:11 
+
+32:11 consider all the tokens yes Okay.
+32:17 
+
+32:17 Any other question? Yes.
+32:24 
+
+32:24 >> Here also have you. Here also have you.
+32:26 
+
+32:26 I mentioned right? I mentioned here.
+32:30 
+
+32:30 >> This is this is U and the input to the
+32:33 
+
+32:33 U. Earlier it was only D1. Now the input
+32:36 
+
+32:36 is D1 concatenated concatenation H1 H
+32:38 
+
+32:38 dash. Okay. Any other query?
+32:44 
+
+32:44 All right. So let's move on.
+32:49 
+
+32:49 Now there are there are different
+32:50 
+
+32:50 variations of attention. So I talked
+32:52 
+
+32:52 about this one. This is called dot
+32:54 
+
+32:54 product attention. You just take the dot
+32:56 
+
+32:56 product between query and key. Right?
+32:58 
+
+32:58 You can also so you can also think of
+33:00 
+
+33:00 advanced attention mechanisms where you
+33:03 
+
+33:03 know in the in the transformer paper
+33:05 
+
+33:05 what they have considered they have
+33:07 
+
+33:07 taken the dot product and they have
+33:08 
+
+33:08 normalized this uh with the size of the
+33:11 
+
+33:11 key
+33:13 
+
+33:13 square root of the size of the key right
+33:16 
+
+33:16 why I don't know they mentioned that if
+33:19 
+
+33:19 you do that it would help stabilize the
+33:21 
+
+33:21 process and so on and so right you can
+33:24 
+
+33:24 also think of you can also if you have
+33:26 
+
+33:26 more data you can also
+33:28 
+
+33:28 add a new parameter matrix W.
+33:32 
+
+33:32 So query is coming from here, key is
+33:34 
+
+33:34 coming from here and then parameter
+33:36 
+
+33:36 matrix here. You project query and key
+33:39 
+
+33:39 through this linear projection. Right?
+33:42 
+
+33:42 If you have even more parameter, you can
+33:45 
+
+33:45 also do the you can also incorporate two
+33:46 
+
+33:46 parameter matrices. For example, what
+33:48 
+
+33:48 you do here is that
+33:51 
+
+33:51 you first concatenate query and Q key,
+33:54 
+
+33:54 right? You are not doing any dot product
+33:57 
+
+33:57 just concatenate query and key pass this
+33:59 
+
+33:59 concatenated vector through W1 which is
+34:02 
+
+34:02 a linear layer right then followed by
+34:05 
+
+34:05 some nonlinearity t and then again you
+34:07 
+
+34:07 pass it through another layer W2 because
+34:09 
+
+34:09 you have a lot of data
+34:12 
+
+34:12 right so there are different variations
+34:14 
+
+34:14 of attention
+34:16 
+
+34:16 okay so uh again so the problem here is
+34:19 
+
+34:19 that attention is not able to uh address
+34:22 
+
+34:22 the uh you
+34:25 
+
+34:25 the parallel processing of tokens. We'll
+34:27 
+
+34:27 discuss sale potential and then
+34:28 
+
+34:28 transform. Okay.

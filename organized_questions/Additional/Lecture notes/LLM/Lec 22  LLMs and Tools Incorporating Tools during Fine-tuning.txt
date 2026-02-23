@@ -1,0 +1,4096 @@
+00:00 Hello everyone. Uh I'm DH. Uh uh I'm a
+00:04 
+
+00:04 senior researcher and manager at IBM
+00:06 
+
+00:06 research. So uh I will cover six
+00:09 
+
+00:09 lectures on AI agents. So to begin with
+00:12 
+
+00:12 uh I'll go back to how this uh
+00:15 
+
+00:15 particular field started where it
+00:17 
+
+00:17 started and then slowly we gradually
+00:20 
+
+00:20 move towards where it is now. So
+00:22 
+
+00:22 probably in the fifth sixth lecture uh
+00:24 
+
+00:24 we'll talk about more recent things but
+00:26 
+
+00:26 until then we'll cover the basics to
+00:28 
+
+00:28 understand why we are here. uh in this
+00:30 
+
+00:30 field.
+00:33 
+
+00:33 So so before going into a agents, I'll
+00:35 
+
+00:35 just briefly introduce my team at IBM
+00:38 
+
+00:38 research. Uh so we we are a team called
+00:41 
+
+00:41 the conversational AI uh group. Uh we
+00:44 
+
+00:44 have two main streams of work in our
+00:46 
+
+00:46 team. Uh one is around agentic AI. How
+00:49 
+
+00:49 do we uh it covers both how do we train
+00:53 
+
+00:53 LLMs for being better agents till how do
+00:56 
+
+00:56 we develop good AI solutions for agents
+00:59 
+
+00:59 right so it covers the entire spectrum
+01:00 
+
+01:00 there are a lot of people in the group
+01:02 
+
+01:02 and the uh the second set of people in
+01:05 
+
+01:05 my team they work on retrieval augmented
+01:07 
+
+01:07 generation again there are multiple
+01:09 
+
+01:09 aspects of rag which yatin might have
+01:11 
+
+01:11 covered in the previous lectures and our
+01:13 
+
+01:13 team works on a few of those aspects uh
+01:17 
+
+01:17 so go in our team He primarily was
+01:20 
+
+01:20 focusing on post- training techniques
+01:22 
+
+01:22 specifically uh alignment phase of large
+01:25 
+
+01:25 language model training and now recently
+01:28 
+
+01:28 he has shifted that focus uh of not just
+01:31 
+
+01:31 doing it for uh reasoning and general
+01:34 
+
+01:34 purpose in alignment but rather how can
+01:36 
+
+01:36 we use RL techniques to improve AI
+01:38 
+
+01:38 agents right so yeah so this is an
+01:41 
+
+01:41 overview of the team now let me get into
+01:45 
+
+01:45 uh the the basics of uh the agent AI. So
+01:50 
+
+01:50 the basic uh the most crucial component
+01:53 
+
+01:53 of an agent AI system uh is its ability
+01:56 
+
+01:56 to call external tools basically to use
+01:59 
+
+01:59 uh nonparametric how can it leverage
+02:01 
+
+02:01 nonparametric knowledge in the whole
+02:03 
+
+02:03 decision making and and and overall
+02:06 
+
+02:06 response generation to the user. Uh so
+02:09 
+
+02:09 let's go back to sort of like a year or
+02:12 
+
+02:12 two ago where LLMs did not have access
+02:15 
+
+02:15 to stools right so people uh so
+02:18 
+
+02:18 everything the LLM did were based on
+02:19 
+
+02:19 what they had in their uh parametric
+02:22 
+
+02:22 knowledge so during uh those times when
+02:25 
+
+02:25 say you ask a model about question about
+02:28 
+
+02:28 a current event like who is the current
+02:30 
+
+02:30 president of India so then the model is
+02:33 
+
+02:33 most likely to answer based on uh what
+02:36 
+
+02:36 until when it was trained Right. So for
+02:38 
+
+02:38 example uh Mistl 8 + 7B model when I
+02:42 
+
+02:42 queried it last year uh it said that
+02:45 
+
+02:45 based on my last update uh the current
+02:47 
+
+02:47 president of India is Ramnad Kind and it
+02:49 
+
+02:49 also gives you a disclaimer that uh uh
+02:53 
+
+02:53 he has been in office since this time
+02:54 
+
+02:54 and and this may not be reliable and
+02:56 
+
+02:56 you'll have to verify it because there
+02:58 
+
+02:58 may be latest changes to this
+02:59 
+
+02:59 information. Right? So it can only give
+03:01 
+
+03:01 you a disclaimer but it can't actually
+03:03 
+
+03:03 solve the problem at hand.
+03:06 
+
+03:06 So, so of course the uh the obvious
+03:09 
+
+03:09 solution to this is that as humans uh we
+03:12 
+
+03:12 we use search engines and then go
+03:14 
+
+03:14 through multiple uh links and then
+03:17 
+
+03:17 figure out where the answer is contained
+03:19 
+
+03:19 and then we sort of understand what the
+03:20 
+
+03:20 answer is. Similarly uh LLM agents LLMs
+03:24 
+
+03:24 were also given access to search tools
+03:27 
+
+03:27 and and and the way they work is that if
+03:30 
+
+03:30 you see how chat GPT works when the
+03:32 
+
+03:32 question is more time dependent or when
+03:35 
+
+03:35 chat GPT feels that it won't be able to
+03:38 
+
+03:38 answer this question from the parametric
+03:40 
+
+03:40 knowledge and it's better to access uh
+03:42 
+
+03:42 other websites then it would sort of
+03:45 
+
+03:45 invoke the search engine or the search
+03:47 
+
+03:47 tool and uh if you see the the first
+03:50 
+
+03:50 three parts
+03:51 
+
+03:51 of how it got to the answer, it has
+03:53 
+
+03:53 created a query called current prime
+03:56 
+
+03:56 minister of India October 2024
+03:58 
+
+03:58 based on the time I called it and then
+04:01 
+
+04:01 based on that search result based on
+04:03 
+
+04:03 using Bing search it sort of got many
+04:06 
+
+04:06 results and then it clicked on these two
+04:08 
+
+04:08 results and based on these two results
+04:10 
+
+04:10 uh the model has generated the response
+04:12 
+
+04:12 right so this is how LLM is able to use
+04:15 
+
+04:15 external tools to to sort of augment its
+04:19 
+
+04:19 parametric knowledge and and then give
+04:20 
+
+04:20 answers to questions which it feels
+04:22 
+
+04:22 cannot be answered just from parametric
+04:24 
+
+04:24 knowledge.
+04:27 
+
+04:27 Uh similarly another issue with LLMs was
+04:31 
+
+04:31 that even though they were really good
+04:32 
+
+04:32 in language specific tasks, they
+04:34 
+
+04:34 achieved superhuman performance in
+04:35 
+
+04:35 language specific tasks, they sort of
+04:38 
+
+04:38 failed many times on very simple
+04:41 
+
+04:41 reasoning and math operations. Right? So
+04:44 
+
+04:44 one example here on a llama uh 2 13
+04:47 
+
+04:47 billion chat model was if you multiply a
+04:50 
+
+04:50 very small number uh tree with a with
+04:53 
+
+04:53 with a seven digit or 8digit number then
+04:55 
+
+04:55 it's it ends up hallucinating a lot. So
+04:58 
+
+04:58 even though there are only uh eight
+05:02 
+
+05:02 digits in the resulting answer uh it it
+05:05 
+
+05:05 ended up generating much more than it
+05:08 
+
+05:08 makes mistakes at at at that level right
+05:11 
+
+05:11 the order of the result is like much
+05:13 
+
+05:13 bigger than what it should have been and
+05:15 
+
+05:15 and imagine that using this for banking
+05:17 
+
+05:17 solutions right if you want to transfer
+05:18 
+
+05:18 like 2,000 rupees and it ends up
+05:20 
+
+05:20 transferring two lakh right so so this
+05:22 
+
+05:22 is a this is a big issue like even
+05:25 
+
+05:25 elementary mathematical skills are not
+05:27 
+
+05:27 good in LMS, right? Uh and and uh and
+05:32 
+
+05:32 and of course an easy technique would be
+05:34 
+
+05:34 to use calculator or Python interpreter
+05:36 
+
+05:36 or or any other deterministic way of
+05:38 
+
+05:38 computing uh uh simple math equations,
+05:41 
+
+05:41 right? And and that's exactly what ended
+05:45 
+
+05:45 up happening. Uh so so if you query chat
+05:48 
+
+05:48 GPT with with any uh such queries that
+05:51 
+
+05:51 requires mathematical calculation or in
+05:53 
+
+05:53 fact you might have also seen this on
+05:54 
+
+05:54 Google search, right? So if you query
+05:56 
+
+05:56 with a mathematical operation, it'll
+05:57 
+
+05:57 show you the output in a calculator
+05:59 
+
+05:59 rather than a web search result. Right?
+06:01 
+
+06:01 So that's exactly what LLM people who
+06:03 
+
+06:03 work with LLM also did uh which is uh
+06:06 
+
+06:06 they would give you the answer uh by by
+06:09 
+
+06:09 by by using a Python interpreter. Right?
+06:12 
+
+06:12 So, so if you click on this particular
+06:13 
+
+06:13 uh tool tip, it'll show you what it did,
+06:16 
+
+06:16 which is like it created this particular
+06:18 
+
+06:18 Python program and and and the and the
+06:21 
+
+06:21 result was then used for generating the
+06:23 
+
+06:23 final response. Right? So, this is
+06:25 
+
+06:25 another example where a tool can make it
+06:28 
+
+06:28 make it solve a problem that LLMs are
+06:31 
+
+06:31 not good at. Right?
+06:33 
+
+06:33 So, let's summarize. Uh so, why are
+06:36 
+
+06:36 tools important? uh one uh easy example
+06:39 
+
+06:39 that we took was a web search tool where
+06:40 
+
+06:40 it helps overcome LLM over its knowledge
+06:43 
+
+06:43 limits. Uh two is uh it can have
+06:46 
+
+06:46 accurate uh reasoning and computations
+06:49 
+
+06:49 that can help you uh solve like math
+06:52 
+
+06:52 problems or any other related reasoning
+06:54 
+
+06:54 problems. You can use Python functions
+06:56 
+
+06:56 or some you some APIs that can help you
+06:59 
+
+06:59 do math problems and things like that.
+07:01 
+
+07:01 But but why is this very important
+07:03 
+
+07:03 right? Uh so let's see like like a
+07:06 
+
+07:06 slightly more uh
+07:09 
+
+07:09 real world use case right so let's say
+07:11 
+
+07:11 that you are in an enterprise setup uh
+07:15 
+
+07:15 and you'll likely have a lot of
+07:17 
+
+07:17 knowledge in your database a lot of
+07:19 
+
+07:19 knowledge uh stored in multiple uh
+07:23 
+
+07:23 sectors in your uh org and most of these
+07:27 
+
+07:27 APIs and data is not available out in
+07:30 
+
+07:30 the public right so if you ask questions
+07:32 
+
+07:32 like show me the top 10 customers by
+07:34 
+
+07:34 revenue this quarter. So then there's no
+07:36 
+
+07:36 way for the model to answer this
+07:38 
+
+07:38 question unless you provided access to
+07:41 
+
+07:41 the APIs which can help you get these
+07:44 
+
+07:44 data right so so having access to tools
+07:47 
+
+07:47 is very very important to solve real
+07:49 
+
+07:49 world questions right so let's say that
+07:52 
+
+07:52 you call or go customer care and then
+07:55 
+
+07:55 say that my last bill uh is is too high
+07:59 
+
+07:59 I don't think that I've used this much
+08:02 
+
+08:02 data or or I've called this many people
+08:04 
+
+08:04 can you check Why this issue is of
+08:06 
+
+08:06 course if you have to automate something
+08:07 
+
+08:07 like this the model first has to
+08:09 
+
+08:09 understand who you are fetch relevant
+08:11 
+
+08:11 information understand the guidelines of
+08:13 
+
+08:13 how bills are generated and should be
+08:15 
+
+08:15 able to answer right and these are not
+08:17 
+
+08:17 in the public domain so so most of these
+08:19 
+
+08:19 tools will be available to you in
+08:21 
+
+08:21 enterprise system but the model should
+08:23 
+
+08:23 be able to leverage these tools uh along
+08:26 
+
+08:26 with its uh ability to converse with
+08:29 
+
+08:29 people right and uh and and slightly
+08:34 
+
+08:34 more uh uh like complex use cases like
+08:38 
+
+08:38 let's say you're building an autonomous
+08:39 
+
+08:39 agent uh that can automatically create
+08:42 
+
+08:42 PR uh in your repo right and you want to
+08:45 
+
+08:45 create such an autonomous bot uh in
+08:47 
+
+08:47 within your organization then it has to
+08:50 
+
+08:50 send it has to know all the code in your
+08:52 
+
+08:52 private repo it should be able to call
+08:54 
+
+08:54 an LLM with some parts of this uh
+08:57 
+
+08:57 repository figure out how to figure out
+08:60 
+
+09:00 like what is a problem understand the
+09:02 
+
+09:02 solution and come up with a solution and
+09:04 
+
+09:04 create a PR Right. And and of course
+09:05 
+
+09:05 like the code for your particular use
+09:07 
+
+09:07 case may not be available in the public
+09:09 
+
+09:09 domain. So there's a lot of knowledge
+09:11 
+
+09:11 and tools that enterprise have or other
+09:15 
+
+09:15 organizations might have which LLMs
+09:17 
+
+09:17 would not know in general and that's
+09:19 
+
+09:19 exactly where tools are very important
+09:21 
+
+09:21 and that's why understanding tools is so
+09:24 
+
+09:24 uh critical for LLM agents otherwise you
+09:26 
+
+09:26 cannot automate uh any use case that you
+09:30 
+
+09:30 have in mind right so with this in mind
+09:33 
+
+09:33 like eventually after the six lectures
+09:35 
+
+09:35 you will be able to appreciate uh how
+09:39 
+
+09:39 much the
+09:41 
+
+09:41 the field has moved towards building
+09:43 
+
+09:43 autonomous agents uh which can use tools
+09:46 
+
+09:46 to solve complex real life problem. You
+09:48 
+
+09:48 will also be able to uh understand where
+09:51 
+
+09:51 all they still fail and where work is
+09:54 
+
+09:54 needed to to go forward. Right? So
+09:58 
+
+09:58 so I've divided the lectures into three
+09:60 
+
+10:00 parts. uh and and and in the first part
+10:04 
+
+10:04 we'll just talk about how this whole
+10:06 
+
+10:06 field of using tools with LLM started.
+10:09 
+
+10:09 So we will go through uh very uh like
+10:12 
+
+10:12 innovative papers four or five
+10:14 
+
+10:14 innovative papers in that field to
+10:16 
+
+10:16 understand how they started this field
+10:19 
+
+10:19 and then we will move on to uh where the
+10:22 
+
+10:22 field is now and what is the acceptable
+10:24 
+
+10:24 norm in using external APIs like how do
+10:26 
+
+10:26 like let's say mix or uh cloud or GPT
+10:31 
+
+10:31 models allow you to uh give them
+10:34 
+
+10:34 specifications of tools and they will
+10:36 
+
+10:36 leverage in their workflow right in
+10:38 
+
+10:38 building agents
+10:39 
+
+10:39 And finally we'll talk about is it just
+10:42 
+
+10:42 tools that are needed to get going or
+10:44 
+
+10:44 what other complexities are involved in
+10:47 
+
+10:47 actually building an agent. Right? Tools
+10:49 
+
+10:49 are essential part but they are not
+10:51 
+
+10:51 sufficient. Right? Uh so so what are
+10:54 
+
+10:54 those and then we'll get into some use
+10:56 
+
+10:56 cases. We'll understand what are the
+10:58 
+
+10:58 issues and and then what are the
+10:59 
+
+10:59 problems that are still open in this
+11:02 
+
+11:02 particular field. So I will be covering
+11:04 
+
+11:04 part one in this lecture. part two will
+11:06 
+
+11:06 be the next two lectures after that and
+11:08 
+
+11:08 part three will cover the last three
+11:10 
+
+11:10 right
+11:13 
+
+11:13 so so the the term that I'll use is that
+11:17 
+
+11:17 the just to understand how tools are
+11:19 
+
+11:19 used in LLMs uh specifically during the
+11:22 
+
+11:22 uh post- training phase like you already
+11:24 
+
+11:24 have an instruct LLM then how can you uh
+11:27 
+
+11:27 make use of tools is what will be tool
+11:29 
+
+11:29 augmentation second is like while you
+11:33 
+
+11:33 create the instruction fine fine tune
+11:35 
+
+11:35 model or when you create the instability
+11:39 
+
+11:39 to access external tools, right? That's
+11:42 
+
+11:42 what we'll cover in part two which is
+11:43 
+
+11:43 called function calling or tool calling.
+11:45 
+
+11:45 And in the third part, of course, we'll
+11:46 
+
+11:46 cover the broader spectrum of how to
+11:48 
+
+11:48 develop a AI agents.
+11:53 
+
+11:53 Okay. So the outline for today's talk
+11:55 
+
+11:55 will be that I'll talk about one of the
+11:57 
+
+11:57 first works that talked about tools and
+11:60 
+
+11:60 LLMs. uh this was by open AI and it's
+12:02 
+
+12:02 called uh like solving math problems
+12:05 
+
+12:05 using a data set called GSM8K. Then
+12:08 
+
+12:08 we'll talk about two other papers that
+12:10 
+
+12:10 helps augment tools uh into the
+12:12 
+
+12:12 fine-tuning process. And then we'll talk
+12:14 
+
+12:14 about tool former which [clears throat]
+12:16 
+
+12:16 uh which goes slightly above instruction
+12:19 
+
+12:19 finetuning and says that how can we in
+12:21 
+
+12:21 general make uh uh LLM aware of like a
+12:24 
+
+12:24 set of tools that you have at hand so
+12:26 
+
+12:26 that it can use it in any task that it
+12:28 
+
+12:28 can solve. And if time permits I'll also
+12:30 
+
+12:30 talk about web GPT. uh this is the like
+12:33 
+
+12:33 uh in the in the example that I showed
+12:36 
+
+12:36 about who is the the current president
+12:38 
+
+12:38 or prime minister of India it sort of
+12:42 
+
+12:42 did how [clears throat] a human did
+12:43 
+
+12:43 right it'll create a search query uh
+12:45 
+
+12:45 figure out uh like go through the search
+12:47 
+
+12:47 results understand what parts make sense
+12:50 
+
+12:50 and then summarize it so so this was the
+12:52 
+
+12:52 first paper that talked about how you
+12:53 
+
+12:53 would methodically do it or what type of
+12:55 
+
+12:55 data do you need to teach LLM this
+12:58 
+
+12:58 ability so if time permits I'll cover
+12:60 
+
+12:60 that but otherwise it's a good paper to
+13:02 
+
+13:02 otherwise.
+13:05 
+
+13:05 Okay. So, let's start with GSM8K. So, so
+13:08 
+
+13:08 GSM8K is a math data set. Uh it's grade
+13:12 
+
+13:12 school math word problems. These are not
+13:14 
+
+13:14 very complicated. These are quite simple
+13:16 
+
+13:16 problems like uh Beth bakes four two
+13:20 
+
+13:20 dozen batches of cookies in a week. If
+13:22 
+
+13:22 these cookies are shared among 16 people
+13:24 
+
+13:24 equally, how many cookies does each
+13:27 
+
+13:27 person consume? So these are going to be
+13:29 
+
+13:29 problems like these.
+13:32 
+
+13:32 So the the reason why this data set was
+13:34 
+
+13:34 important was the data sets that exist
+13:37 
+
+13:37 previously were either too complex or
+13:39 
+
+13:39 too simple. Too simple in the sense they
+13:41 
+
+13:41 were all templatized like in the sense
+13:42 
+
+13:42 that they may just replace some numbers
+13:44 
+
+13:44 or some words here and there but in
+13:46 
+
+13:46 general they follow a very uh standard
+13:48 
+
+13:48 template and so those data sets were
+13:50 
+
+13:50 studying those data sets were not really
+13:52 
+
+13:52 exposing the problems within LLM or they
+13:54 
+
+13:54 were too complex right. Uh so the and
+13:57 
+
+13:57 here the answer is quite
+13:58 
+
+13:58 straightforward. It's an integer. It's
+13:60 
+
+13:60 easy to measure. It's is easy to
+14:01 
+
+14:01 evaluate. So but all the problems here
+14:04 
+
+14:04 are human written. They are not like
+14:06 
+
+14:06 crawled from any website. They are not
+14:09 
+
+14:09 systematically synthesized using uh
+14:12 
+
+14:12 either templates or LLMs. So these are
+14:15 
+
+14:15 human written ones. So the diversity of
+14:17 
+
+14:17 natural language is very high. So so and
+14:20 
+
+14:20 the answers are mostly right. So the
+14:21 
+
+14:21 paper claims that uh they predict that
+14:25 
+
+14:25 only there will be less than 2% noise in
+14:27 
+
+14:27 the data set. So it's that clean right
+14:30 
+
+14:30 and what they showed is that uh the the
+14:33 
+
+14:33 paper came in 2011 late 200 uh sorry
+14:36 
+
+14:36 2021 and at that time GPT3 was the
+14:39 
+
+14:39 state-of-the-art model and uh what they
+14:41 
+
+14:41 showed is that on this very simple uh
+14:44 
+
+14:44 grade school math problem uh GPT3 175
+14:48 
+
+14:48 billion model was only doing about 20%
+14:51 
+
+14:51 accurate right so it was a big gap to be
+14:54 
+
+14:54 bridged but they were doing very good on
+14:56 
+
+14:56 a lot of natural language tasks like
+14:57 
+
+14:57 question answering or squad like data
+14:59 
+
+14:59 sets right or reasoning data sets on
+15:01 
+
+15:01 text and similarly smaller models like 6
+15:04 
+
+15:04 billion model was even worse right so
+15:07 
+
+15:07 the goal of this paper was to showcase
+15:09 
+
+15:09 this issue that they are not good at
+15:12 
+
+15:12 very simple math while they claim to be
+15:14 
+
+15:14 really good otherwise right and also
+15:17 
+
+15:17 study how can we improve them right
+15:18 
+
+15:18 that's the the other thing
+15:21 
+
+15:21 so when they when they ask humans to
+15:23 
+
+15:23 create this data set uh they also asked
+15:26 
+
+15:26 them to not just write the final answer
+15:29 
+
+15:29 uh but rather give step-by-step
+15:31 
+
+15:31 explanation of how to arrive at the
+15:34 
+
+15:34 answer, right? Uh so uh so so you can
+15:38 
+
+15:38 see those examples here. Uh in addition
+15:40 
+
+15:40 to this, they also said uh they also
+15:44 
+
+15:44 asked them to do some sort of tool
+15:45 
+
+15:45 annotations. In this context, the only
+15:48 
+
+15:48 tool that they have access to is
+15:50 
+
+15:50 something like a calculator and they
+15:52 
+
+15:52 only support basic math operations like
+15:55 
+
+15:55 addition, subtraction, multiplication
+15:56 
+
+15:56 and division. That's about it, right?
+15:58 
+
+15:58 So, this was the instruction given to
+15:59 
+
+15:59 them. So, so basically annotated this
+16:02 
+
+16:02 part, right? Which is uh in order to get
+16:05 
+
+16:05 to eight dozen cookies and I have four
+16:07 
+
+16:07 and two in my input. So, it's 4 into 2
+16:09 
+
+16:09 which is equal to 8. Uh and and so they
+16:12 
+
+16:12 they did all these annotations.
+16:15 
+
+16:15 uh so let's see where these annotations
+16:16 
+
+16:16 are useful and and and how they uh help
+16:20 
+
+16:20 model get better. So of course the one
+16:23 
+
+16:23 thing to understand is that in this
+16:25 
+
+16:25 problem they're considering a scenario
+16:27 
+
+16:27 where you have a GPT3 model be it 6
+16:30 
+
+16:30 billion or 175 billion and your goal is
+16:33 
+
+16:33 to make it work good only on GSM8K
+16:37 
+
+16:37 right they don't they don't worry about
+16:39 
+
+16:39 uh okay if I fine tune will it regress
+16:41 
+
+16:41 on other natural language task right
+16:43 
+
+16:43 because of course if you fine tune it
+16:44 
+
+16:44 for this specific task the model is
+16:46 
+
+16:46 going to work only for that so the
+16:48 
+
+16:48 current goal is just that let's not
+16:49 
+
+16:49 worry about other tasks let's assume
+16:51 
+
+16:51 after I fine-tune this model, it's going
+16:53 
+
+16:53 to be used only for this task. Right?
+16:55 
+
+16:55 Well, this is a big disadvantage, but
+16:57 
+
+16:57 it's anyway a good study to to
+16:59 
+
+16:59 understand the problem.
+17:02 
+
+17:02 Right? So, so the way they fine-tuned
+17:05 
+
+17:05 this was slightly different compared to
+17:08 
+
+17:08 the usual technique, right? Usually what
+17:10 
+
+17:10 would you do? Uh you would the problem
+17:13 
+
+17:13 would be fed as input, right? And then
+17:17 
+
+17:17 you would use either only the final
+17:19 
+
+17:19 answer as the output or you would use
+17:22 
+
+17:22 solution plus final answer as the
+17:24 
+
+17:24 output. Right? Uh this is the typical
+17:27 
+
+17:27 way people would have fine- tuned.
+17:28 
+
+17:28 Right? So but they did not do it that
+17:30 
+
+17:30 way. The reason being that uh this was
+17:34 
+
+17:34 different compared to what typically you
+17:36 
+
+17:36 would have. So they wanted to use it to
+17:38 
+
+17:38 their advantage. Right? And and the
+17:41 
+
+17:41 reason why they went for this annotation
+17:43 
+
+17:43 to begin with was there was a study
+17:46 
+
+17:46 before uh which said that
+17:50 
+
+17:50 LLMs are auto reggressive models and all
+17:54 
+
+17:54 the model has to do is make one
+17:56 
+
+17:56 mathematical mistake in the solution for
+17:59 
+
+17:59 it to fail completely. Right? This is a
+18:01 
+
+18:01 single point of failure. Right? Once it
+18:03 
+
+18:03 fails then it's going to cascade the
+18:04 
+
+18:04 error and it's going to blow blow out of
+18:06 
+
+18:06 proportion. Right? and and LLMs at that
+18:09 
+
+18:09 point in time were not good at even
+18:11 
+
+18:11 singledigit arithmetic. Right? So so
+18:14 
+
+18:14 that was the reason why it failed. So
+18:16 
+
+18:16 and and specifically the part where 8
+18:18 
+
+18:18 was predicted from 4 and 2 or the part
+18:21 
+
+18:21 where 96 was predicted from 12 and 8 or
+18:24 
+
+18:24 the place where six was predicted from
+18:26 
+
+18:26 96 and 16, right? It's it's it's at
+18:28 
+
+18:28 these points that the model failed. So
+18:30 
+
+18:30 what this paper tried was okay maybe
+18:32 
+
+18:32 let's use a tool to do this job rather
+18:35 
+
+18:35 than let the LLM do it. Right? So that
+18:36 
+
+18:36 was the goal.
+18:39 
+
+18:39 So what they did was uh until this point
+18:43 
+
+18:43 uh it is typical LLM next word
+18:46 
+
+18:46 prediction training right you give the
+18:47 
+
+18:47 entire input and you let the model
+18:49 
+
+18:49 predict the next word right so so once
+18:52 
+
+18:52 you have let's say uh two angular
+18:56 
+
+18:56 brackets and 20 it's going to predict
+18:57 
+
+18:57 plus and then it's going to predict the
+18:59 
+
+18:59 number 10 and then it would predict
+19:01 
+
+19:01 equals right so the moment LLM predicts
+19:04 
+
+19:04 equal they are not going to have the
+19:07 
+
+19:07 next token prediction trained for the
+19:08 
+
+19:08 LM. What they would do is they would
+19:11 
+
+19:11 take the content after the
+19:15 
+
+19:15 two angular brackets and everything
+19:17 
+
+19:17 after that till equals uh this part
+19:21 
+
+19:21 sorry right and they will use a
+19:23 
+
+19:23 calculator to to evaluate that
+19:26 
+
+19:26 expression and they'll directly put that
+19:28 
+
+19:28 number 30 and the close angular brackets
+19:31 
+
+19:31 into the LL input. Right? So this part
+19:33 
+
+19:33 is never trained. This is never trained.
+19:38 
+
+19:38 Right. So, so which will ensure that the
+19:40 
+
+19:40 model will never go wrong in this
+19:42 
+
+19:42 particular token prediction. Right? And
+19:45 
+
+19:45 the only change that they have to make
+19:46 
+
+19:46 is instead of saying equal to 30
+19:48 
+
+19:48 directly, they are going to the model
+19:51 
+
+19:51 has to learn to not predict
+19:56 
+
+19:56 the output by itself but rather just
+19:58 
+
+19:58 generate the expression for which it
+19:60 
+
+19:60 needs the output. So that's what you're
+20:01 
+
+20:01 teaching the LLM. Right?
+20:04 
+
+20:04 So let's see what happened. Right? So
+20:06 
+
+20:06 now uh because of this new fine-tuning
+20:09 
+
+20:09 strategy, the model started to the this
+20:11 
+
+20:11 is a 175 billion GPT3 model. The model
+20:14 
+
+20:14 slowly started to improve as and when
+20:16 
+
+20:16 you train. But the issue is like they
+20:19 
+
+20:19 only had collected uh 8k data points,
+20:23 
+
+20:23 right? And so there was some used for
+20:25 
+
+20:25 validation and testing and this just
+20:27 
+
+20:27 helped improve 10% of the performance,
+20:31 
+
+20:31 right? And at this rate that you have to
+20:33 
+
+20:33 let's say if you have to reach 90 or
+20:35 
+
+20:35 like acceptable performance on math you
+20:37 
+
+20:37 need insane amount of data right so so
+20:40 
+
+20:40 then the part comes like how do we
+20:42 
+
+20:42 improve this further with the limited
+20:45 
+
+20:45 data that we have right
+20:48 
+
+20:48 so what they uh found was that uh so
+20:52 
+
+20:52 this is the setup where uh you would
+20:56 
+
+20:56 just do inferencing with temperature
+20:58 
+
+20:58 equal to zero which is basically greedy
+20:59 
+
+20:59 decoding right so you take one sample
+21:02 
+
+21:02 and then you check what is the accuracy
+21:03 
+
+21:03 of the answer. So like I said uh after
+21:07 
+
+21:07 they trained it. So this is a 6 billion
+21:09 
+
+21:09 model not a 175 billion model. So the
+21:11 
+
+21:11 performance will not be 30 after 8K but
+21:13 
+
+21:13 rather after uh training
+21:16 
+
+21:16 over around 50 epochs they were only
+21:19 
+
+21:19 able to achieve uh around 22%
+21:24 
+
+21:24 accuracy. Right? Uh on the other hand
+21:27 
+
+21:27 what they did was they set the
+21:29 
+
+21:29 temperature a little higher. Right? uh
+21:32 
+
+21:32 which means the model can now generate
+21:34 
+
+21:34 slightly more variations and also get
+21:37 
+
+21:37 out slightly less probable uh output
+21:40 
+
+21:40 sequences. And then they sampled 100
+21:43 
+
+21:43 samples, right? And what they saw was
+21:46 
+
+21:46 like even before even slightly after the
+21:48 
+
+21:48 training started, it was around 78,
+21:51 
+
+21:51 right? Which is good. But then what they
+21:52 
+
+21:52 noticed is that unlike the overall uh
+21:57 
+
+21:57 greedy decoding accuracy
+22:00 
+
+22:00 the the percentage of cases where the
+22:03 
+
+22:03 answer was in one of those hundreds kept
+22:07 
+
+22:07 first increased a bit and then start to
+22:09 
+
+22:09 decline rapidly. Right? So so the reason
+22:13 
+
+22:13 uh so can anybody guess why this is
+22:16 
+
+22:16 happening?
+22:20 
+
+22:20 you would expect this to go high, right?
+22:27 
+
+22:27 >> Okay. So, that's a good point. So,
+22:28 
+
+22:28 you're saying like maybe uh temperature
+22:31 
+
+22:31 being at 7 could be one of the reasons
+22:33 
+
+22:33 why uh this sort of trend is happening,
+22:35 
+
+22:35 right? So, anybody else? Any other
+22:38 
+
+22:38 guesses? That's a good point.
+22:46 
+
+22:46 So, so how many of you have fine-tuned
+22:48 
+
+22:48 an LLM for a specific task at hand for
+22:50 
+
+22:50 them?
+22:53 
+
+22:53 Have you tried fine-tuning an LLM for a
+22:55 
+
+22:55 very specific task?
+22:58 
+
+22:58 So, so what typically happens with very
+22:60 
+
+22:60 specific task, right? You will start to
+23:03 
+
+23:03 uh forget everything else in the world
+23:05 
+
+23:05 and focus only on this particular
+23:07 
+
+23:07 problem at hand, right? And uh let's say
+23:10 
+
+23:10 you hit a point uh where you can't learn
+23:13 
+
+23:13 any new patterns, right? If you can't
+23:15 
+
+23:15 learn any new patterns, what would you
+23:17 
+
+23:17 do? The objective function says that
+23:19 
+
+23:19 increase the log likelihood of the right
+23:20 
+
+23:20 token, right? So what it would do is it
+23:23 
+
+23:23 will spend all its energy to reduce
+23:26 
+
+23:26 probability mass on other tokens that
+23:28 
+
+23:28 are not right and put all its energy on
+23:30 
+
+23:30 just one one token that is right. So
+23:33 
+
+23:33 what happens the the distribution
+23:34 
+
+23:34 becomes a lot peaky, right? So it starts
+23:37 
+
+23:37 to get more and more confident on just
+23:39 
+
+23:39 the right answer. So its ability to
+23:41 
+
+23:41 explore reduces right. So when you use
+23:44 
+
+23:44 the temperature of course the second one
+23:46 
+
+23:46 has to be somewhat higher for it to get
+23:48 
+
+23:48 sampled to begin with right. So so
+23:50 
+
+23:50 basically what happens is that if you
+23:51 
+
+23:51 train a lot then the diversity at 7
+23:56 
+
+23:56 would not be good. That's a so that's
+23:58 
+
+23:58 exactly comes to your point which is
+23:60 
+
+23:60 maybe if you change your temperature
+24:01 
+
+24:01 from 7 to uh slightly higher maybe it
+24:05 
+
+24:05 might have chosen even lower probable
+24:07 
+
+24:07 ones and that could have helped but uh
+24:09 
+
+24:09 that's what happens here right so so
+24:12 
+
+24:12 what they did was that they took lot of
+24:15 
+
+24:15 samples from this particular stage of
+24:17 
+
+24:17 training right uh so they know that
+24:20 
+
+24:20 around 84% of the times one of the
+24:22 
+
+24:22 answers is right and of course they can
+24:24 
+
+24:24 verify that answer right which is out of
+24:26 
+
+24:26 those 100 samples they exactly know
+24:29 
+
+24:29 which of these trajectories because
+24:31 
+
+24:31 they're going to predict the entire
+24:32 
+
+24:32 solution uh followed by the answer right
+24:36 
+
+24:36 so it's going to verbose it's going to
+24:38 
+
+24:38 like think through all the solutions
+24:39 
+
+24:39 final arrive at the final answer maybe
+24:41 
+
+24:41 it can think through different parts
+24:43 
+
+24:43 right to arrive at the final answer so
+24:45 
+
+24:45 so they're going to sample and figure
+24:47 
+
+24:47 out how many of these samples actually
+24:49 
+
+24:49 yielded the right answer right and what
+24:53 
+
+24:53 they say is maybe we can use that to to
+24:56 
+
+24:56 better train a verifier model which is
+24:58 
+
+24:58 let's assume that I have lot of compute
+25:00 
+
+25:00 with me right I'm not worried about like
+25:03 
+
+25:03 how much how many times I'm going to
+25:05 
+
+25:05 call the LLM before arriving at the
+25:06 
+
+25:06 right answer but my focus is more like I
+25:08 
+
+25:08 want the right answer even if it costs a
+25:10 
+
+25:10 lot so what they say is that if you
+25:14 
+
+25:14 sample a lot of examples and then give
+25:16 
+
+25:16 it to a verifier let's assume you have a
+25:18 
+
+25:18 good verifier with you and the verifier
+25:21 
+
+25:21 can tell you which is the right answer
+25:22 
+
+25:22 we are more likely to get right answers
+25:24 
+
+25:24 that was their hypothesis this and uh to
+25:27 
+
+25:27 to train a model what they did was like
+25:29 
+
+25:29 I mentioned uh they took this particular
+25:31 
+
+25:31 checkpoint around I think two epochs or
+25:33 
+
+25:33 something is what they took and then
+25:35 
+
+25:35 they sampled 100 each for each 8k
+25:38 
+
+25:38 examples that they had
+25:40 
+
+25:40 and of course uh you will be able to
+25:45 
+
+25:45 using deterministic techniques verify
+25:47 
+
+25:47 whether the final answer is right or not
+25:48 
+
+25:48 right because just an integer so they
+25:50 
+
+25:50 would have okay for this question and
+25:52 
+
+25:52 for this solution uh this was right for
+25:55 
+
+25:55 this question for this solution it was
+25:57 
+
+25:57 wrong right so they will be able to get
+25:58 
+
+25:58 the labels as well so what they did was
+26:00 
+
+26:00 they trained a verifier which is again
+26:02 
+
+26:02 an LLM they use the same auto
+26:05 
+
+26:05 reggressive model but rather than like
+26:08 
+
+26:08 in the final prediction layer after the
+26:10 
+
+26:10 logits they don't do a projection but
+26:13 
+
+26:13 rather they insert a head which will
+26:15 
+
+26:15 classify whether uh that particular uh
+26:19 
+
+26:19 whole solution give the query and the
+26:21 
+
+26:21 solution is right or wrong
+26:24 
+
+26:24 is is It does it make sense? Right. So,
+26:28 
+
+26:28 so basically the verifier would give you
+26:31 
+
+26:31 probability of how good this particular
+26:34 
+
+26:34 solution is and when you say when you
+26:36 
+
+26:36 have 100 different solutions, you pass
+26:38 
+
+26:38 each of them through your trained
+26:40 
+
+26:40 verifier uh and that verifier will be
+26:42 
+
+26:42 able to pick the one that is best at the
+26:45 
+
+26:45 moment. Right? So, this is typically
+26:46 
+
+26:46 called best of end sampling which is a
+26:49 
+
+26:49 in in in the current uh terminology this
+26:51 
+
+26:51 is called test time scaling. Right? If
+26:53 
+
+26:53 you don't worry about uh uh compute
+26:57 
+
+26:57 during test time then you can do test
+26:59 
+
+26:59 time scaling where uh you can call you
+27:02 
+
+27:02 can with higher temperature you can
+27:04 
+
+27:04 generate multiple samples and then you
+27:05 
+
+27:05 can pick the best one from that right so
+27:08 
+
+27:08 that's the this was the first paper that
+27:10 
+
+27:10 sort of introduced test time scaling
+27:12 
+
+27:12 okay so let's see how adding the
+27:14 
+
+27:14 verifier into the pipeline helps right
+27:17 
+
+27:17 so what they say is that if you add a
+27:19 
+
+27:19 verifier to your pipeline right uh Then
+27:23 
+
+27:23 uh you can see that the the the numbers
+27:26 
+
+27:26 uh jumped till 55% with uh 8,000
+27:30 
+
+27:30 training data points. Right? So now it
+27:33 
+
+27:33 sort of looks like with some more data
+27:36 
+
+27:36 you can achieve good numbers much easier
+27:38 
+
+27:38 than what you would do with just
+27:39 
+
+27:39 fine-tuning. Right? So there are a bunch
+27:41 
+
+27:41 of more uh things also this paper talks
+27:44 
+
+27:44 about on how to make it more efficient.
+27:45 
+
+27:45 But the crux is this point that uh
+27:50 
+
+27:50 the paper showed how tools can be used
+27:52 
+
+27:52 during the finetuning process right uh
+27:55 
+
+27:55 and and these tools are non-
+27:56 
+
+27:56 differentiable. So they gave a nice
+27:58 
+
+27:58 technique to get it to work in in
+28:00 
+
+28:00 fine-tuning setup and they also talked
+28:02 
+
+28:02 about verifiers which at this moment at
+28:04 
+
+28:04 this point in time there's a whole
+28:06 
+
+28:06 literature on test time scaling but this
+28:08 
+
+28:08 was the first paper that sort of hinted
+28:09 
+
+28:09 towards uh this approach
+28:13 
+
+28:13 right okay so let's move on to the uh
+28:16 
+
+28:16 the next technique which is tool
+28:19 
+
+28:19 augmented language models so so in the
+28:22 
+
+28:22 GSM 8K setup we just had one tool and we
+28:24 
+
+28:24 just had one task at hand right So, so
+28:27 
+
+28:27 in this particular paper it's slightly
+28:30 
+
+28:30 one level of abstraction above GSM8K.
+28:33 
+
+28:33 What they say is that let's assume that
+28:35 
+
+28:35 in addition to let's say Python
+28:37 
+
+28:37 interpreter or calculator you also have
+28:39 
+
+28:39 web search tool or a machine translation
+28:42 
+
+28:42 tool right so let's assume that you have
+28:45 
+
+28:45 bunch of tools available with you and
+28:47 
+
+28:47 and the LLM is allowed to use any of
+28:48 
+
+28:48 these tools uh in it during the response
+28:51 
+
+28:51 generation right so which means that it
+28:53 
+
+28:53 is not restricted to only one type of
+28:55 
+
+28:55 task you're not fine- tuning it only for
+28:57 
+
+28:57 one type of task but rather you have
+28:59 
+
+28:59 like five or six different tasks in your
+29:01 
+
+29:01 training data and for each task you can
+29:03 
+
+29:03 use uh different tools, right? So they
+29:06 
+
+29:06 slightly abstracted out the same
+29:08 
+
+29:08 philosophy in GSM8K. What they said is
+29:11 
+
+29:11 that uh the model sorry
+29:17 
+
+29:17 uh the model once it gets the input will
+29:21 
+
+29:21 first figure out whether it needs a tool
+29:23 
+
+29:23 or not and if it needs what tool it
+29:26 
+
+29:26 needs right so for example if you have
+29:29 
+
+29:29 if the input is a machine is is like a
+29:31 
+
+29:31 translation task okay uh so then
+29:34 
+
+29:34 probably it would say I want a
+29:35 
+
+29:35 translator tool if it is a math word
+29:37 
+
+29:37 solving thing right then it would say I
+29:39 
+
+29:39 need a math tool or things like that,
+29:41 
+
+29:41 right? Uh and then uh this is like the
+29:44 
+
+29:44 tool arguments like what should you pass
+29:46 
+
+29:46 as arguments to the tools and then once
+29:48 
+
+29:48 you predict all the arguments to the
+29:50 
+
+29:50 tools then uh of course you can the
+29:51 
+
+29:51 model will say this token which is now I
+29:54 
+
+29:54 want the result right. So then whatever
+29:57 
+
+29:57 tool you picked uh would be executed and
+29:60 
+
+29:60 the results will be appended here along
+30:02 
+
+30:02 with this token called output and at
+30:04 
+
+30:04 this moment again the model will start
+30:06 
+
+30:06 to uh generate the next tokens. Right?
+30:09 
+
+30:09 So this is clear. It's just the same
+30:11 
+
+30:11 thing as GSMK. It's just one level of
+30:13 
+
+30:13 abstraction higher, right? Uh like some
+30:18 
+
+30:18 examples are for math QA, you give the
+30:21 
+
+30:21 entire question, right? It's not going
+30:23 
+
+30:23 to do step by step in this place. You
+30:24 
+
+30:24 give the entire question and then it's
+30:26 
+
+30:26 it says that there is a tool called
+30:28 
+
+30:28 formula and and and this is how I want
+30:31 
+
+30:31 you to call the tool,
+30:34 
+
+30:34 right? uh and then once it says that and
+30:36 
+
+30:36 says the word say like predicts the
+30:38 
+
+30:38 token result then that will be executed
+30:41 
+
+30:41 and then finally uh this will be added
+30:43 
+
+30:43 to the uh the the the input and then the
+30:47 
+
+30:47 model will predict the next token which
+30:48 
+
+30:48 is again and this for this setup it's
+30:50 
+
+30:50 exactly same as what the output was but
+30:53 
+
+30:53 in other cases it might be different
+30:55 
+
+30:55 right in this this is another example of
+30:57 
+
+30:57 natural questions where the question is
+30:60 
+
+30:60 where are hops added in the brewing
+31:02 
+
+31:02 process so then the model decided that
+31:04 
+
+31:04 it's not in it parametric knowledge to
+31:06 
+
+31:06 answer this question. So it needs to use
+31:07 
+
+31:07 a search tool and this would be the
+31:10 
+
+31:10 parameters for the search which is a
+31:11 
+
+31:11 search query and then the result of it
+31:14 
+
+31:14 will get appended here and finally the
+31:15 
+
+31:15 model predicts the output. So here the
+31:16 
+
+31:16 output is not exactly same as the result
+31:19 
+
+31:19 but uh it's just a small subset of it.
+31:22 
+
+31:22 So, so it was so this was just one level
+31:25 
+
+31:25 of abstraction above, right? So, there's
+31:27 
+
+31:27 no big novelty into it except for
+31:29 
+
+31:29 setting the problem in a good way. But
+31:31 
+
+31:31 what was important to see here is that
+31:34 
+
+31:34 in GSM 8K, you had to collect 8.5k
+31:38 
+
+31:38 examples
+31:40 
+
+31:40 uh for spec solving just one task. Okay.
+31:43 
+
+31:43 And the amount of effort that goes into
+31:44 
+
+31:44 that is insane because you have to train
+31:46 
+
+31:46 people to to sort of create a good data
+31:49 
+
+31:49 set. You have to express them I need
+31:50 
+
+31:50 diversity. Expressing diversity is not
+31:52 
+
+31:52 an easy task, right? Enforcing
+31:54 
+
+31:54 expressing it probably is an easy task,
+31:56 
+
+31:56 but enforcing diversity is a very
+31:57 
+
+31:57 difficult task, right? So imagine that
+31:59 
+
+31:59 you have to scale it for like all the
+32:01 
+
+32:01 tools you want to use, right? So that's
+32:03 
+
+32:03 going to be insane. So what this the
+32:06 
+
+32:06 what they claimed in this paper was that
+32:08 
+
+32:08 uh we will help you uh by coming up with
+32:13 
+
+32:13 an algorithm which needs very less
+32:15 
+
+32:15 amount of training data than what people
+32:17 
+
+32:17 in the past had used. Right? So that was
+32:20 
+
+32:20 a big cell of this paper. So let's say
+32:22 
+
+32:22 that typically for fine-tuning you will
+32:25 
+
+32:25 have examples of one or multiple tasks
+32:28 
+
+32:28 right which is the excess here could be
+32:30 
+
+32:30 math word problem and y could be the
+32:32 
+
+32:32 actual solution for it or similarly for
+32:35 
+
+32:35 the QA like natural questions you might
+32:36 
+
+32:36 have natural language question and an
+32:38 
+
+32:38 answer right so those are typically the
+32:41 
+
+32:41 the the task that you have at hand and
+32:44 
+
+32:44 uh what they say is that for a small
+32:46 
+
+32:46 subset D for each tool right uh you
+32:49 
+
+32:49 create the tool annotations
+32:51 
+
+32:51 and the results, right? Not for
+32:54 
+
+32:54 everything, just for a very small
+32:55 
+
+32:55 subset, right? And and what they say is
+32:58 
+
+32:58 that uh let's let's do our rounds of
+33:01 
+
+33:01 training or our rounds of fine-tuning
+33:04 
+
+33:04 and each round what do we do? First use
+33:07 
+
+33:07 the data set that you have and then
+33:09 
+
+33:09 finetune the LLM, right? So the model
+33:12 
+
+33:12 will start to learn some aspects of what
+33:15 
+
+33:15 are tools are available, how to fill
+33:17 
+
+33:17 arguments, right? So because it's a very
+33:19 
+
+33:19 small subset, it might have not learned
+33:21 
+
+33:21 very well on how to use the tool, but it
+33:23 
+
+33:23 might have it might have some ability to
+33:25 
+
+33:25 predict what tools to use. And then and
+33:27 
+
+33:27 some hints about how to use them may not
+33:29 
+
+33:29 be 100% right. And what they say is that
+33:32 
+
+33:32 for every example that you have, right,
+33:34 
+
+33:34 it doesn't matter if it's in this D set
+33:36 
+
+33:36 or not in the D set. For every examples
+33:38 
+
+33:38 you have, just like how in DSM8K you
+33:40 
+
+33:40 sample 100 with higher temperature here
+33:42 
+
+33:42 too, they sample with a higher
+33:44 
+
+33:44 temperature, a large number of samples.
+33:47 
+
+33:47 And for that let's they call it n right.
+33:50 
+
+33:50 So let's say n is 100. Okay, for that
+33:52 
+
+33:52 same input uh they sample 10 different
+33:55 
+
+33:55 sorry 100 different uh tools, right? And
+33:58 
+
+33:58 once you have 100 different uh tool
+33:60 
+
+34:00 predictions, then you'll be able to
+34:02 
+
+34:02 execute them and get the tool response,
+34:04 
+
+34:04 right? And then given the input, the
+34:07 
+
+34:07 tool prediction, the tool response,
+34:09 
+
+34:09 you'll be able to predict the final
+34:10 
+
+34:10 output, right? So they check how good is
+34:14 
+
+34:14 that final output.
+34:16 
+
+34:16 If the output is good, they augment this
+34:18 
+
+34:18 output into the training data so that
+34:21 
+
+34:21 it'll be used in the next round of
+34:23 
+
+34:23 training. Right? So, so the the whatever
+34:26 
+
+34:26 verifier did there like they are using
+34:29 
+
+34:29 that strategy to bootstrap the training
+34:32 
+
+34:32 process, right? So, so the ideas are
+34:33 
+
+34:33 derived from there but a slightly
+34:35 
+
+34:35 different way of using the because here
+34:38 
+
+34:38 you don't need a verifier, right?
+34:39 
+
+34:39 Because this is a training data. So, you
+34:41 
+
+34:41 have the output like you mentioned
+34:42 
+
+34:42 you'll be able to use a calculator and
+34:43 
+
+34:43 show whether it's good or not. So they
+34:45 
+
+34:45 are slowly sampling good data points and
+34:47 
+
+34:47 then bootstrapping the training. So
+34:49 
+
+34:49 let's say that you have level one
+34:51 
+
+34:51 complexity data points annotated. So
+34:53 
+
+34:53 maybe if you learn all level one maybe
+34:55 
+
+34:55 you will be able to solve little bit of
+34:56 
+
+34:56 level two right and then put the level
+34:58 
+
+34:58 two back into the training and then
+34:59 
+
+34:59 slowly it sort of builds upon its own
+35:02 
+
+35:02 expertise building step by step and
+35:04 
+
+35:04 that's why it's called selfplay
+35:05 
+
+35:05 algorithm to improve uh tool calling
+35:07 
+
+35:07 abilities. Right. So here yeah it it was
+35:10 
+
+35:10 a very simple experiment where they show
+35:12 
+
+35:12 that for different sizes of large
+35:15 
+
+35:15 language models here there's 220 million
+35:17 
+
+35:17 parameters and 3 billion parameters.
+35:19 
+
+35:19 What they say is that after we
+35:20 
+
+35:20 fine-tuned it using the proposed
+35:22 
+
+35:22 technique that they have that they are
+35:24 
+
+35:24 able to achieve 30 points improvement
+35:26 
+
+35:26 across different sizes. Right?
+35:32 
+
+35:32 So again like the issue here is that in
+35:34 
+
+35:34 this technique is that again the number
+35:36 
+
+35:36 of tools are always fixed like how can
+35:38 
+
+35:38 you expand this to enterprise setup like
+35:40 
+
+35:40 you will have like say 20 different
+35:41 
+
+35:41 tools in your new enterprise again
+35:42 
+
+35:42 you'll have to annotate again you'll
+35:43 
+
+35:43 have to find tune an LLM and maybe it's
+35:45 
+
+35:45 not easy to verify the answer right so
+35:48 
+
+35:48 this issue of using tools is still there
+35:50 
+
+35:50 you cannot generalize very easily and
+35:52 
+
+35:52 again they show one issue here which is
+35:55 
+
+35:55 they say that for natural questions 150
+35:57 
+
+35:57 demonstrations was what that is needed
+35:59 
+
+35:59 to sort of learn a good
+36:01 
+
+36:01 But for math QA uh they need 2k
+36:04 
+
+36:04 demonstrations right so the more complex
+36:08 
+
+36:08 your argument extraction and your tool
+36:10 
+
+36:10 chaining becomes the more data you need
+36:13 
+
+36:13 right so while they don't need 8k but
+36:16 
+
+36:16 still they need good amount right so
+36:18 
+
+36:18 it's not it's a reduction but it's not
+36:19 
+
+36:19 to a level where it's like easy like I
+36:21 
+
+36:21 give me two three examples I'll be able
+36:22 
+
+36:22 to get it work right so it still
+36:24 
+
+36:24 requires a lot of effort and again the
+36:25 
+
+36:25 number of tools is also very fixed once
+36:27 
+
+36:27 you fine tune the model you can't
+36:28 
+
+36:28 introduce a new tool right or if you You
+36:30 
+
+36:30 have to add a new tool, you have to
+36:31 
+
+36:31 retrain from scratch again, right? So
+36:33 
+
+36:33 those issues still exist.
+36:36 
+
+36:36 Yeah. So it cannot generalize to new
+36:37 
+
+36:37 tools and it requires human annotations,
+36:39 
+
+36:39 right? Because question getting question
+36:41 
+
+36:41 answers may be easier but getting that
+36:43 
+
+36:43 annotations of tool is what is very
+36:44 
+
+36:44 painful, right? Because you define the
+36:47 
+
+36:47 space of tools, you define how it has to
+36:49 
+
+36:49 be formulated. So that is little tricky.
+36:53 
+
+36:53 So, so then there was another approach
+36:55 
+
+36:55 which said like let me help generalize
+36:57 
+
+36:57 it a little bit and I will use lot
+36:59 
+
+36:59 lesser examples than what uh talm paper
+37:03 
+
+37:03 used right so what they rely on is
+37:06 
+
+37:06 something similar to uh so let's say
+37:09 
+
+37:09 that so I think tanay already has
+37:11 
+
+37:11 covered chain of thought in one of his
+37:13 
+
+37:13 lectures before right which is like
+37:16 
+
+37:16 normal prompting is that you give the
+37:17 
+
+37:17 question and you ask the model to give
+37:19 
+
+37:19 the answer right away right chain of
+37:22 
+
+37:22 thought prompting is like you ask the
+37:23 
+
+37:23 model to think through the solution
+37:26 
+
+37:26 uh in a very verbose manner and then
+37:28 
+
+37:28 finally arrive at the answer right and
+37:30 
+
+37:30 and there are papers like uh we at all
+37:32 
+
+37:32 showed that chain of thought gives you a
+37:34 
+
+37:34 lot better numbers and also there are
+37:36 
+
+37:36 multiple different ways of doing chain
+37:37 
+
+37:37 of thought this is just an example to
+37:38 
+
+37:38 show that uh typically how people solve
+37:42 
+
+37:42 math word problems if they don't have a
+37:44 
+
+37:44 specific fine tune model like if if you
+37:45 
+
+37:45 only have access to GPT3 or GPT 5
+37:48 
+
+37:48 ideally rather than asking to generate
+37:49 
+
+37:49 the answer you should ask it to do chain
+37:51 
+
+37:51 of thought and then answer. Right? So
+37:53 
+
+37:53 this was at that point in time for math
+37:55 
+
+37:55 word problems or logical problems or any
+37:57 
+
+37:57 other problems that requires reasoning
+37:59 
+
+37:59 uh the the the the acceptable the
+38:02 
+
+38:02 accepted baseline was like you make it
+38:04 
+
+38:04 do chain of thought and then you arrive
+38:05 
+
+38:05 at the answer and the numbers will be
+38:06 
+
+38:06 good.
+38:08 
+
+38:08 Right? So what this programed language
+38:10 
+
+38:10 model said or the the the premise why
+38:13 
+
+38:13 they wrote this paper was that at that
+38:16 
+
+38:16 point in time uh core models were pretty
+38:19 
+
+38:19 good,
+38:20 
+
+38:20 right? uh and these code models were
+38:23 
+
+38:23 good at Python, good at multiple
+38:25 
+
+38:25 different programming languages, Python
+38:26 
+
+38:26 being the most popular at that point in
+38:28 
+
+38:28 time. So there were a lot of benchmarks
+38:29 
+
+38:29 like uh most basic Python programming or
+38:32 
+
+38:32 advanced Python programming a lot of
+38:34 
+
+38:34 benchmarks that shows models ability to
+38:35 
+
+38:35 do Python programming and and code
+38:38 
+
+38:38 models did insanely good on even
+38:39 
+
+38:39 advanced Python programming. So so what
+38:42 
+
+38:42 they thought was look most math and
+38:44 
+
+38:44 logical operations
+38:46 
+
+38:46 uh requires something like a programming
+38:49 
+
+38:49 language, right? So if you have access
+38:50 
+
+38:50 if you're good at programming language
+38:52 
+
+38:52 right and you can convert all your
+38:53 
+
+38:53 logical and math problem into
+38:55 
+
+38:55 programming language then why can't we
+38:56 
+
+38:56 use that right so that seemed like a
+38:59 
+
+38:59 slightly more generic solution than
+39:02 
+
+39:02 using calculator wherein you predefined
+39:04 
+
+39:04 what all operations are supported and
+39:05 
+
+39:05 things like that right so if LLMs know
+39:08 
+
+39:08 most of what Python can do that space is
+39:10 
+
+39:10 huge right so so the crux of this paper
+39:13 
+
+39:13 is that don't do chain of thought by
+39:17 
+
+39:17 words Right? But rather try to express
+39:21 
+
+39:21 your chain of thought like a Python
+39:23 
+
+39:23 program. Maybe use natural language but
+39:26 
+
+39:26 like sort of use natural language as
+39:28 
+
+39:28 comments in Python programs.
+39:30 
+
+39:30 Right? So you will be allowed to think
+39:32 
+
+39:32 in natural language which which get
+39:33 
+
+39:33 commented when you run it on the
+39:35 
+
+39:35 compiler but the compiler will be able
+39:36 
+
+39:36 to execute the instructions in the code.
+39:40 
+
+39:40 Right? So that was their crux and what
+39:42 
+
+39:42 they said is we are also going to do
+39:44 
+
+39:44 chain of thought because chain of
+39:45 
+
+39:45 thought requires one or two examples in
+39:47 
+
+39:47 the prompt. Right? few short examples
+39:48 
+
+39:48 and then it'll be able to generalize
+39:50 
+
+39:50 very well. So what they said is if you
+39:52 
+
+39:52 have a problem at hand then give us just
+39:54 
+
+39:54 two three examples express the chain of
+39:56 
+
+39:56 thought in Python that's the only
+39:57 
+
+39:57 difference right and comment out natural
+40:01 
+
+40:01 languages so that it doesn't get
+40:03 
+
+40:03 executed and then just run the code and
+40:05 
+
+40:05 you'll be able once you run the code get
+40:07 
+
+40:07 the answer and show it to the LLM and
+40:09 
+
+40:09 then let it generate the final answer
+40:10 
+
+40:10 right that was the the the the crux of
+40:13 
+
+40:13 this paper and yeah so similarly so this
+40:16 
+
+40:16 is an example where this is the oneshot
+40:18 
+
+40:18 example they gave for this problem how
+40:21 
+
+40:21 it should solve. Assume that there are
+40:22 
+
+40:22 comments here, right? In Python in all
+40:25 
+
+40:25 the non highlighted in the blue
+40:27 
+
+40:27 highlighted one assume there are Python
+40:28 
+
+40:28 comments, right? So it it thinks through
+40:31 
+
+40:31 it uses Python assignments and then it
+40:33 
+
+40:33 uses variables and then it creates a
+40:35 
+
+40:35 code for arriving at the final answer.
+40:37 
+
+40:37 Similarly, when you gave it the new
+40:38 
+
+40:38 question, it's able to exactly mimic how
+40:40 
+
+40:40 the example was given. But after this,
+40:44 
+
+40:44 this part is where the Python
+40:46 
+
+40:46 interpreter executes it and gives you
+40:47 
+
+40:47 the final answer 74. and then use the
+40:50 
+
+40:50 final answer because it's a math word
+40:52 
+
+40:52 problem. You don't necessarily have to
+40:53 
+
+40:53 call LLM again because a Python program
+40:56 
+
+40:56 tells you like everything is in the
+40:57 
+
+40:57 final answer. So similarly, this is an
+40:59 
+
+40:59 example of a logical operation where
+41:01 
+
+41:01 while creating the Python program, the
+41:04 
+
+41:04 model makes some logical decisions,
+41:06 
+
+41:06 right? For example, the question here is
+41:08 
+
+41:08 I have a chair, two potatoes, a
+41:10 
+
+41:10 cauliflower, a lettuce head, two tables,
+41:12 
+
+41:12 a cabbage, two onions, and three
+41:14 
+
+41:14 fridges. How many vegetables do I have?
+41:17 
+
+41:17 Right? So, so this part is where
+41:20 
+
+41:20 reasoning comes into picture which is
+41:22 
+
+41:22 when it creates the vegetables to count
+41:25 
+
+41:25 dictionary. It clearly excludes
+41:27 
+
+41:27 everything uh that's not a
+41:31 
+
+41:31 vegetable right there's no table there's
+41:34 
+
+41:34 no chair and there's no fridge right so
+41:37 
+
+41:37 once it so this is the part where
+41:38 
+
+41:38 reasoning comes into picture logical
+41:40 
+
+41:40 reasoning uh and then post that it's
+41:42 
+
+41:42 simple uh code right so what they say is
+41:45 
+
+41:45 that uh this can work for problems like
+41:48 
+
+41:48 these as well right again the big issue
+41:50 
+
+41:50 is that uh for every type of task that
+41:56 
+
+41:56 you have at hand. You have to give few
+41:57 
+
+41:57 short examples, right? Even though it
+41:59 
+
+41:59 can generalize to everything in Python
+42:00 
+
+42:00 but still you need to understand what
+42:02 
+
+42:02 problem you can solve and you need to
+42:03 
+
+42:03 define few short examples which is a lot
+42:06 
+
+42:06 cheaper than what you would do for
+42:07 
+
+42:07 fine-tuning because there's no fine
+42:08 
+
+42:08 tuning needed right you can use any LLMs
+42:11 
+
+42:11 uh you can just design a new prompt and
+42:13 
+
+42:13 then figure out what prompt to use at
+42:15 
+
+42:15 the input and then switch to that right
+42:16 
+
+42:16 so this is there is no retraining
+42:19 
+
+42:19 expense here right in in TAM if you have
+42:22 
+
+42:22 to add a new tool you have to add a lot
+42:24 
+
+42:24 of data you have to annotate the data
+42:26 
+
+42:26 again fine tune the model from scratch
+42:27 
+
+42:27 with the new tool Right. But here you
+42:29 
+
+42:29 don't have but the the only con the only
+42:32 
+
+42:32 flip side compared to TM is that um it
+42:36 
+
+42:36 can only work for Python right
+42:39 
+
+42:39 >> only tool it can
+42:42 
+
+42:42 >> or any programming language
+42:43 
+
+42:43 >> but it cannot use any other tool like
+42:46 
+
+42:46 >> no it cannot right of course you can't
+42:48 
+
+42:48 do web search right because that's not
+42:50 
+
+42:50 the so that's why it's called program
+42:52 
+
+42:52 aed language models anything that is
+42:53 
+
+42:53 program aed it can solve right so in the
+42:56 
+
+42:56 interest of time I'll just skip this but
+42:57 
+
+42:57 basically
+42:58 
+
+42:58 It says that uh uh compared to chain of
+43:01 
+
+43:01 thought p is better. uh but one good
+43:04 
+
+43:04 thing about this is that they said that
+43:07 
+
+43:07 uh for GSM8K the numbers on coot it's
+43:10 
+
+43:10 not that small to begin with it's quite
+43:12 
+
+43:12 high and they show that this is because
+43:16 
+
+43:16 LLMs at that point in time were have
+43:19 
+
+43:19 memorized singledigit arithmetics right
+43:21 
+
+43:21 and and almost 50 a little more than 50%
+43:24 
+
+43:24 of GSM8K data was only singledigit
+43:27 
+
+43:27 arithmetic right so they say that I will
+43:29 
+
+43:29 create uh systematically create a hard
+43:31 
+
+43:31 version where I will replace single
+43:33 
+
+43:33 digits with like six-digit seven-digit
+43:35 
+
+43:35 number and then they show that the
+43:36 
+
+43:36 performance drops drastically whereas
+43:38 
+
+43:38 the performance of programmated language
+43:40 
+
+43:40 does not did not drop that much right so
+43:42 
+
+43:42 it shows better generalization and so on
+43:48 
+
+43:48 uh okay so so now let's move on to the
+43:52 
+
+43:52 next approach which was slightly
+43:54 
+
+43:54 different compared to these approaches
+43:57 
+
+43:57 why are they different because these
+43:58 
+
+43:58 approaches only work in fine-tuning
+44:00 
+
+44:00 stage and the task task on which you
+44:03 
+
+44:03 want to use tools is fixed right you
+44:05 
+
+44:05 need to have data sets of that task so
+44:07 
+
+44:07 let's assume you have huge Wikipedia
+44:09 
+
+44:09 corpus right and you don't have any task
+44:11 
+
+44:11 specific corpus
+44:14 
+
+44:14 then it cannot work right let's assume
+44:16 
+
+44:16 you train for calculator for one
+44:18 
+
+44:18 particular task now let's say you use
+44:20 
+
+44:20 another task right which also needs
+44:23 
+
+44:23 calculator maybe it cannot scale it
+44:25 
+
+44:25 cannot work for the other task as well
+44:27 
+
+44:27 right so tool former was a paper that
+44:29 
+
+44:29 helped solve the task problem
+44:32 
+
+44:32 like first of all you don't need task
+44:34 
+
+44:34 based data to learn tools right and then
+44:37 
+
+44:37 they say that if you learn my tools in a
+44:40 
+
+44:40 non-task specific manner during test
+44:42 
+
+44:42 time uh if you give tasks that the model
+44:45 
+
+44:45 has not seen during train it will still
+44:47 
+
+44:47 work
+44:49 
+
+44:49 of course they don't say that it will
+44:50 
+
+44:50 work for new tools it has not seen
+44:51 
+
+44:51 during training all they say is that it
+44:53 
+
+44:53 is task agnostic right there one step
+44:55 
+
+44:55 towards what we really want
+44:58 
+
+44:58 so what they say is we will fix the set
+45:00 
+
+45:00 of tools that the model will use which
+45:03 
+
+45:03 is a QA system which can use the web and
+45:07 
+
+45:07 things like that. Uh search system, web
+45:10 
+
+45:10 search, calculator or a math tool,
+45:13 
+
+45:13 calendar and translation system. Okay.
+45:18 
+
+45:18 So what they say is let's say you take a
+45:20 
+
+45:20 news corpus or something right and the
+45:23 
+
+45:23 news corpus says that out of,400
+45:26 
+
+45:26 participants 400 or 29% pass the test
+45:32 
+
+45:32 right so here what they say is rather
+45:35 
+
+45:35 than just predicting 29% from the
+45:38 
+
+45:38 model's parametric knowledge it may be
+45:41 
+
+45:41 better if the model says that look I
+45:43 
+
+45:43 [clears throat] know that I want to
+45:44 
+
+45:44 predict the percentage of what I just
+45:47 
+
+45:47 mentioned before as the next token. So
+45:49 
+
+45:49 let me not predict it by myself. I will
+45:52 
+
+45:52 say that I want to use calculator at the
+45:54 
+
+45:54 moment for computing 4, 400 divided
+45:56 
+
+45:56 by,400
+45:58 
+
+45:58 and then let it give me the result and
+45:60 
+
+45:60 based on that result, I'll predict the
+46:01 
+
+46:01 next token. Right? So this is not a very
+46:04 
+
+46:04 specific task. It's just a like a
+46:06 
+
+46:06 sentence prediction. Right? So similarly
+46:08 
+
+46:08 they say that the name derives from la
+46:11 
+
+46:11 toa the Spanish word for something.
+46:14 
+
+46:14 Right? So at this point in time it knows
+46:16 
+
+46:16 that it needs a Spanish like you need to
+46:18 
+
+46:18 translate this word to Spanish sorry
+46:21 
+
+46:21 this Spanish word to English right so
+46:23 
+
+46:23 maybe it's better to use a translator
+46:25 
+
+46:25 get the output of the translator and
+46:27 
+
+46:27 then decide what should be my next word
+46:28 
+
+46:28 right that will increase the correctness
+46:30 
+
+46:30 by quite a bit so so on they show
+46:32 
+
+46:32 examples of other data sets as well like
+46:34 
+
+46:34 for example the Brown Act is
+46:36 
+
+46:36 California's law you know that you're
+46:38 
+
+46:38 going to talk about the Brown Act later
+46:39 
+
+46:39 on right so if you can search the web
+46:42 
+
+46:42 get information about Brown Act then
+46:44 
+
+46:44 maybe you'll be able to do a much better
+46:46 
+
+46:46 job. Right? So, so this is what they
+46:49 
+
+46:49 want to achieve. Let's say how they
+46:50 
+
+46:50 achieve without humans having to
+46:52 
+
+46:52 annotate a lot of them. Right? So,
+46:55 
+
+46:55 basically what the model should do is
+46:56 
+
+46:56 before the next word prediction, it has
+46:58 
+
+46:58 to figure out if it has to use tools. It
+47:01 
+
+47:01 has to figure out what tool should use.
+47:03 
+
+47:03 It has to figure out for that tool what
+47:04 
+
+47:04 all parameters have to be given. And
+47:06 
+
+47:06 finally, once the results are there, it
+47:08 
+
+47:08 should it should be able to leverage the
+47:09 
+
+47:09 results to do the next token prediction.
+47:11 
+
+47:11 Right?
+47:14 
+
+47:14 So for their experiments uh they simply
+47:17 
+
+47:17 used uh unstructured like normal text
+47:20 
+
+47:20 corpora like no task specific data no
+47:22 
+
+47:22 instruction fine tuning data just normal
+47:24 
+
+47:24 pre-training data with uh I think the
+47:26 
+
+47:26 data was some part of a news corpus uh
+47:30 
+
+47:30 and then they use GPDJ one of the open
+47:32 
+
+47:32 models at that point in time in 2023.
+47:36 
+
+47:36 So what they said is they somehow want
+47:40 
+
+47:40 to annotate simple text with tools
+47:44 
+
+47:44 right. So if you have a text like this
+47:46 
+
+47:46 then they want to annotate that before I
+47:48 
+
+47:48 predict the steel city I want to call a
+47:51 
+
+47:51 QA system which asks which tells me what
+47:54 
+
+47:54 other name is Pittsburgh known by and
+47:57 
+
+47:57 then once it gets the answer I want to
+47:58 
+
+47:58 predict steel city. So somebody has to
+47:60 
+
+48:00 annotate this right. So let's see how
+48:02 
+
+48:02 they end up annotating them in a
+48:04 
+
+48:04 systematic manner. Okay,
+48:09 
+
+48:09 first what they say is that I will use a
+48:11 
+
+48:11 simple in context learning prompt,
+48:14 
+
+48:14 right? I will tell the model this
+48:16 
+
+48:16 instruction an LLM. This instruction
+48:18 
+
+48:18 saying like your task is to add calls to
+48:20 
+
+48:20 a question answering API to a piece of
+48:22 
+
+48:22 text. For example, Joe Biden was born in
+48:25 
+
+48:25 Scranton, Pennsylvania. It shows that
+48:28 
+
+48:28 you should probably say after in that
+48:30 
+
+48:30 where was Joe B Joe Biden born. uh and
+48:33 
+
+48:33 then and after that you predict the
+48:35 
+
+48:35 answers granted right that's what it
+48:37 
+
+48:37 wants to annotate so so they just gave
+48:39 
+
+48:39 an in context example and then they said
+48:41 
+
+48:41 for the corpus that they have at hand
+48:43 
+
+48:43 they will go through paragraph by
+48:46 
+
+48:46 paragraph annotate them with this and
+48:49 
+
+48:49 that's their first step of course it's
+48:50 
+
+48:50 going to be extremely noisy right it's
+48:52 
+
+48:52 going to be extremely noisy you have to
+48:54 
+
+48:54 filter something but the first goal is
+48:56 
+
+48:56 let me cover as much as QA as possible
+48:58 
+
+48:58 or as much as calculator as possible as
+48:60 
+
+48:60 much as translator as possible
+49:01 
+
+49:01 everywhere and Now I'll filter what are
+49:04 
+
+49:04 useful.
+49:06 
+
+49:06 Then they said uh execute them.
+49:11 
+
+49:11 Okay. So okay now you figured out that
+49:15 
+
+49:15 these questions are possible. Execute
+49:17 
+
+49:17 all questions.
+49:18 
+
+49:18 Okay. Uh and uh
+49:22 
+
+49:22 once you execute you'll end up getting
+49:24 
+
+49:24 the results. Let's say for this
+49:26 
+
+49:26 particular example u you you have uh you
+49:30 
+
+49:30 have annotated in three different ways
+49:35 
+
+49:35 right maybe they wanted to generate for
+49:37 
+
+49:37 every paragraph 100 different ways right
+49:40 
+
+49:40 so so then uh you execute them you will
+49:43 
+
+49:43 get different answers right so now is
+49:46 
+
+49:46 the filtering part now what they say is
+49:49 
+
+49:49 that let's see whether this execution
+49:53 
+
+49:53 actually helped me do a better job or
+49:55 
+
+49:55 not. Right? So, how did they do that?
+49:57 
+
+49:57 First is that let's compute the negative
+50:00 
+
+50:00 log likelihood of the word that is to be
+50:03 
+
+50:03 predicted after that which is uh
+50:07 
+
+50:07 this part right the steel city or just
+50:10 
+
+50:10 the and and like an average of that. So,
+50:14 
+
+50:14 if I I'm given access to these
+50:16 
+
+50:16 executions, how does this prediction
+50:18 
+
+50:18 change? That's what they want to see,
+50:21 
+
+50:21 right? So what they say is that
+50:24 
+
+50:24 uh this is what they want to predict
+50:26 
+
+50:26 right the prefix here will include the
+50:28 
+
+50:28 tool call and the tool execution right
+50:30 
+
+50:30 so they say that without API call I'm
+50:32 
+
+50:32 getting 2.5 which is a high number right
+50:37 
+
+50:37 and if I only give the paraphrased
+50:39 
+
+50:39 question no execution results okay just
+50:42 
+
+50:42 okay I need to use the QA tool and I
+50:44 
+
+50:44 want this question to be answered
+50:46 
+
+50:46 sometimes it helps sometimes it doesn't
+50:49 
+
+50:49 help right so The cases where it helps
+50:52 
+
+50:52 is like maybe during viva if the
+50:55 
+
+50:55 professor asks the question in a certain
+50:56 
+
+50:56 way maybe you did not comprehend it well
+50:58 
+
+50:58 right but when they rephrase the
+50:59 
+
+50:59 question maybe sometimes it clicks right
+51:01 
+
+51:01 so it may so happen just just by
+51:02 
+
+51:02 rephrasing the question the model
+51:03 
+
+51:03 figured out what the answer was right
+51:04 
+
+51:04 and it was able to do a good job so what
+51:06 
+
+51:06 they do is model's inherent ability to
+51:09 
+
+51:09 know that knowledge is a min of these
+51:11 
+
+51:11 two
+51:13 
+
+51:13 right it's just the same question
+51:14 
+
+51:14 replaced in a different way right so
+51:16 
+
+51:16 that is the one part now given the
+51:19 
+
+51:19 answer how does the log likelihood could
+51:21 
+
+51:21 change or how does the negative log
+51:22 
+
+51:22 likelihood drop. If there is a drop then
+51:25 
+
+51:25 the answer helped. If there is no drop
+51:28 
+
+51:28 then the answer did not help. In fact it
+51:30 
+
+51:30 confused the model. Right? So whenever
+51:32 
+
+51:32 there is a drop those are good
+51:34 
+
+51:34 candidates and whenever there is no drop
+51:36 
+
+51:36 they will skip those candidates. Right?
+51:37 
+
+51:37 So ideally what would happen if this was
+51:39 
+
+51:39 there it would have probably made no
+51:42 
+
+51:42 sense for Scranton uh sorry steel city.
+51:45 
+
+51:45 this might have helped and we don't know
+51:47 
+
+51:47 whether this helped or not. Right?
+51:54 
+
+51:54 So what they say is that I will use
+51:56 
+
+51:56 these techniques to identify good
+51:57 
+
+51:57 candidates and then use them for my
+51:59 
+
+51:59 training process. Right? So without
+52:01 
+
+52:01 actually annotating the dialogues just
+52:03 
+
+52:03 with few short examples they got tools
+52:05 
+
+52:05 tool annotations and then they used a
+52:07 
+
+52:07 technique to filter them. Right? And
+52:10 
+
+52:10 then finally they show on different
+52:12 
+
+52:12 tasks. So fact completion, question
+52:14 
+
+52:14 answering maybe web search and Wikipedia
+52:16 
+
+52:16 search, right? Math is calculator. Uh
+52:19 
+
+52:19 temporal requires calendar, multilingual
+52:21 
+
+52:21 requires a translation tool. So what
+52:24 
+
+52:24 they say is like this is the GPTJ model,
+52:26 
+
+52:26 the the the the light blue one, the dark
+52:29 
+
+52:29 blue one is a tool former trained with a
+52:31 
+
+52:31 tool, right? And this was the
+52:33 
+
+52:33 state-of-the-art model back then, GPT2,
+52:35 
+
+52:35 right? So they say that for almost all
+52:38 
+
+52:38 tasks except QA tool former which is
+52:42 
+
+52:42 just a 6 billion model was able to beat
+52:43 
+
+52:43 GPT3 175 billion model. Of course for
+52:45 
+
+52:45 math it will be obvious for you guys now
+52:47 
+
+52:47 right because anyway GPT3 was very bad
+52:49 
+
+52:49 at math temporal reasoning also it was
+52:51 
+
+52:51 really bad. It was even worse than GPJ
+52:53 
+
+52:53 for some reason at that point in time
+52:54 
+
+52:54 right? Same thing with multilingual. uh
+52:57 
+
+52:57 now the this part is because
+53:01 
+
+53:01 for question answering it was basically
+53:02 
+
+53:02 Wikipedia based things and GPT is good
+53:05 
+
+53:05 at language it has memorized the whole
+53:06 
+
+53:06 Wikipedia right so that's why they're
+53:07 
+
+53:07 not able to get better numbers than that
+53:10 
+
+53:10 so the summary of this paper is that uh
+53:14 
+
+53:14 it's not task specific the solution is
+53:16 
+
+53:16 slightly more general purpose it can
+53:18 
+
+53:18 scale to task that it has not seen
+53:20 
+
+53:20 during train because it just happens in
+53:22 
+
+53:22 next word prediction right and uh it
+53:24 
+
+53:24 requires very few human annotations
+53:26 
+
+53:26 because you just need those for every
+53:27 
+
+53:27 tool that you use you need a few short
+53:29 
+
+53:29 example uh and then it'll be able to
+53:31 
+
+53:31 annotate and get the whole data by
+53:32 
+
+53:32 itself and again the biggest problem
+53:35 
+
+53:35 still lies which is all these techniques
+53:38 
+
+53:38 cannot generalize to tools that are
+53:39 
+
+53:39 unseen during train which means that uh
+53:42 
+
+53:42 if you are like GPT folks at that point
+53:45 
+
+53:45 in time might have already trained for
+53:47 
+
+53:47 search and calculator and things and so
+53:48 
+
+53:48 they would be able to do a good job
+53:50 
+
+53:50 there but still if you want to develop
+53:52 
+
+53:52 your own agentic autonomous system using
+53:54 
+
+53:54 APIs that are available to you you're
+53:55 
+
+53:55 still you still don't know how to do it
+53:58 
+
+53:58 right so so in the interest of time I'll
+54:01 
+
+54:01 probably pause here uh maybe if I have
+54:04 
+
+54:04 time in the next lecture I'll cover webg
+54:07 
+
+54:07 but but uh yeah so this is the uh
+54:10 
+
+54:10 landscape where people did not know how
+54:13 
+
+54:13 to extend it to tools that were unseen
+54:15 
+
+54:15 during trip okay and in the next class
+54:17 
+
+54:17 we'll talk about uh how did LLM get the
+54:21 
+
+54:21 ability to use any tool that was given
+54:23 
+
+54:23 to it during testing okay thank Thank
+54:25 
+
+54:25 you.

@@ -1,0 +1,448 @@
+00:03 hi welcome to this session on multimodel models part one my name is Manish Gupta and I'm a principal applied scientist at
+00:10 Microsoft uh so let's get started with the session today okay um this is a
+00:16 session on multimodel models right uh while multimodal models can actually mean several modalities this session is
+00:23 going to be primarily focused on vision and language tasks also note that this
+00:29 session is more on multimodal understanding and lesson generation to begin with of course in the part two
+00:35 I'll start talking about generation uh text generation specifically where the input could be multimodal but in this
+00:41 session I'm going to focus more on um you know multimodel content
+00:47 understanding right so what you see on the slide here are various vision and language tasks there are several
+00:54 scenarios where uh information uh could be multimodal in nature um specifically
+01:01 text and images right so uh the most popular multimodal task I would say is
+01:06 visual question answering where the input is an image and also a question uh
+01:12 along with that image so is there something to cut the vegetables with and this task is actually called as visual
+01:17 question answering where given the image and the question the idea is to select from a large set of answers right an
+01:25 understanding task is about selecting from a large set of answers right uh but a generation task could be to actually
+01:31 generate an answer text another related task is VCR or visual Common Sense
+01:36 reasoning where uh you know given this image of a social situation right and a
+01:42 question why is person for pointing at person one the idea is to be able to
+01:47 figure out from these four options which is the most correct option most uh you know accurate answer right and then uh
+01:55 as an extension to the task people have also proposed um you know uh this this second order task where uh given an
+02:02 image and given the question and an answer that was chosen what is a rational why is it correct right why is
+02:08 the answer correct right so both of them involve choosing one of the four possible options right here is yet
+02:16 another task where then where given an image uh and uh uh you see uh given a
+02:22 rectangle you basically want to choose a piece of text saying hey well this is guy in yellow dribbling ball right
+02:28 referring Expressions task yet another task is about uh caption based image retrieval where you know you have a
+02:35 particular caption let's say uh this text caption and then you have a large bunch of images and you want to retrieve
+02:40 the most relevant images okay so the idea is that here of course you want to basically encode the images and the text
+02:47 uh in a in a similar in a you know uh in a in a uh single space so that you could
+02:52 actually compute similarity between them seamlessly and then do good imagry work right so all of them basically involve
+02:59 encoding the image and encoding the text uh in some form um sometimes jointly
+03:04 sometimes uh individually but then at some level try to compute similarity okay so now what I would do is to
+03:11 basically slowly start talking about the kind of models people have been using to solve these kinds of vision and language
+03:16 tasks of course there are many other tasks by the way right so for example there's also multimodal fake uh tweet
+03:22 detection so where the Tweet could be multimodal nature there's an image there's a text and you want to figure out if this combined multimodal tweet is
+03:29 fake or not uh similarly there are other tasks like uh like like hate speech detection so there could be a multimodel
+03:36 document and you want to figure out let's say a blog or again a tweet right and you want to figure out if combined
+03:42 overall including the image and the text is it hateful or not right so so given
+03:48 all of this I'll start talking about models that people have built around trying to solve uh these these multimodal tasks so basically how do you
+03:54 do multimodal understanding right now to be able to do multimodal understanding you need to encode both the
+04:01 both the image as well as the text now text understanding of course you have done over multiple lectures in this in
+04:06 this course uh let me actually talk about how do you how do you encode images nicely right so far you know or
+04:14 or um until 2020 let's say people used to use uh convolution neural networks to
+04:19 encode images people still use them but what has become popular also is to basically use these Vision Transformers
+04:25 to encode images okay so the idea is that given a particular image of this kind you're going to first split it into
+04:32 fix size patches for example this guy is basically split into fix size n patches and these patches are linearly embedded
+04:39 so essentially uh you have some sort of a projection which sort of embeds them linearly so you have a embedding
+04:45 computed per patch and then you also add positional embeddings uh to this to each
+04:50 of those patch embeddings uh and you feed them the resultant vectors along with the CLS token to a Transformer
+04:56 encoder right so that's basically uh the way these Vision trans Transformers work so viit or the vision Transformer model
+05:02 basically takes an image Place into fix size patches linearly embeds them adds a position embedding and passes it as
+05:08 input to the uh Transformer encoder along with the CLS token on the CLS token you could of course attach a MLP
+05:15 head and use it for various classification purposes for example in this particular case maybe you want to do a thousand class classification so
+05:22 you basically taken the image and you have passed it to through through this Transformer encoder and you're going to
+05:27 attach a thousand sized output attention out output layer right th000 neurons in
+05:33 the output okay um now uh viit model uh and the trans encoder is the standard
+05:39 encoder you don't make no changes essentially you just have the multi head self attention you have the MLP feed forward layer and so on right um the vi
+05:47 model comes in three different sizes 12 layer 24 layer 32 layer base large and huge sizes uh with different hidden
+05:53 dimensions and number of attention heads and so on right the largest one is basically 632 million parameters this
+06:00 model was pre-trained using obvious data sets imaginet 1K imaginet 21k and jft
+06:06 right um see these models basically uh differ in terms of not just the base large and huge the sizes but they also
+06:13 differ in terms of the patch IM patch sizes that they take as input so for example V l16 basically takes 16 Cross
+06:21 16 input patch size so of course smaller patch size would mean larger sequence length but there is basically a
+06:27 trade-off between uh and then larger sequence length would mean latency higher latency and so on uh so but it
+06:33 could also mean higher accuracy in that senses so that's that and what what people have shown is that Vision Transformers match or exceed residual
+06:41 networks on many many image classification data sets and therefore people have started using transform
+06:46 models Vision transform models for encoding images as well okay now you would be thinking hey where is
+06:52 multimodality here but this was really important to build there's no multimodality here so far it was important to build so as to bring this
+06:58 notion that yes you could use transform models even to encode images right and now here is our first multimodel model
+07:05 it's called visual Bird right so the model is actually called visual bird and as you can imagine it sort of is going
+07:10 to integrate bird for text and you know Vision also um as using using transform
+07:18 model itself okay so the idea is uh that um uh you have to somehow uh understand
+07:24 how to pre-train this model so visual bird is a pre-trained multimodal model now if you remember bird how was it
+07:30 pre-trained the pre-training goal was to be able to learn a task agnostic language model such that it understands
+07:36 English like a second grade third grade kid okay and the way it was done pre- tring data is is always obtained in a
+07:43 self-supervised manner in the sense that there should be large amounts of this data and no extra human labeling
+07:49 required right now when you think about a multimodel pre-training what you want is a model which can basically
+07:55 understand how to link U you know uh portions of those images of patches in
+07:60 those images with text words right so essentially patches in images with words right so it should basically not just so
+08:07 so uh unlike ber which basically just needs to understand relationship between various words uh visual B needs to
+08:14 understand the relationship between these text words and visual patches of images okay how do you enable that what
+08:20 kind of pretin data would you use so what folks realized is that there's a whole bunch of image captioning data
+08:25 which is available and therefore they said that hey we'll use image captioning data image next pair so as to be able to
+08:31 pre-train this model so you have images and you have a corresponding caption associated with it so visual bird
+08:37 basically liag the MS Coco data which is basically 120,000 images along with each
+08:43 with five different captions leading to a data set of six 600,000 image text pairs right and they basically use the
+08:50 standard so they use the standard Transformer encoder model uh to be able uh to train um uh this this pre-training
+08:56 to do this pre-training okay so uh the way way they did this did this is basically to uh add um you see there's a
+09:05 there's a CLS token and then there is the text caption which is going in as input and there is of course the image
+09:11 uh pieces that are going in as input okay now U let's let's understand this step by step so essentially um uh just
+09:18 like one would do Mass language modeling in B here they also mask text so some
+09:24 text token so that's obvious and then text and images are separated by a separated token which is also obvious now what are these image pieces well
+09:31 these image pieces basically um are not tiles or patches as you observed on the previous slide but well in their case
+09:38 they actually used an object detection model called as faster rcnn so as to basically take this image and divide it
+09:43 into different patches uh such that each patch actually captures a relevant object like a cap or a ball or a tennis
+09:50 racket or a shirt and so on okay so they basically take objects uh which are
+09:55 returned by this faster RCN model uh and pass them as inputs in you know as as
+10:01 input image tokens so what are your image words so to say well are image tokens they're basically objects as
+10:06 detected by the fasn model f rcnn object detector okay um uh now to encode these
+10:13 things they have like three different kinds of U you know things that go as input at every position there is of
+10:18 course a position embedding that is obvious in any transform model there is also segment embedding which basically tells you whether this is a text segment
+10:24 or an image segment there's also a token or image embedding so of course you know there need to be some text features or
+10:30 image features that need to be passed for tokens basically it's the token embedding and for images it basically
+10:35 compris the features from faster rcnn and so on okay so all of this is combined and then fed to the standard
+10:42 Transformer model uh Transformer encoder model and U then you basically train
+10:48 pre-train this Transformer model using two different objective functions we'll talk about these two objective functions
+10:53 next uh the first one is very simple it's just the mass language modeling so Mass language modeling remember no mass
+10:59 image modeling so on the image side you do not really hide any of those images but on the text side you mask these text
+11:05 pieces and the idea is that just like in bird uh you know Mass language modeling aims to be able to uh predict the m word
+11:13 at the output at the same position by leveraging knowledge uh or borrowing knowledge uh from other tokens unmasked
+11:20 tokens right in the same way in visual bir the idea is that at the same position you know the model should be
+11:27 able to guess the hidden word or the m word um um you know by leveraging uh
+11:33 Knowledge from the unmasked uh text words and also of course all the image
+11:38 tokens because another the image tokens are masked so you know the accuracy here for Mass language modeling should be ID
+11:44 higher U you know because now the m word let's say the tennis racket uh tennis
+11:49 can can possibly be guessed not just based on Racket and ball and so on but
+11:54 also based on what the model sees in the image in that senses all right so this knowledge should be able to help um you
+12:00 know U improve the mass language modeling accuracy on the way making the model learn how to um relate uh this
+12:07 particular image with the word called tennis okay so that's that the second
+12:13 task is and and by the way these these M you know this objective one is going to be computed Mast language modeling
+12:19 objective is going to be computed only on those tokens where the text words or text tokens were mased okay now on the
+12:26 other hand let's talk about this objective two it's basically the sentence image prediction task the idea
+12:32 is that um you see in a particular batch of samples you would give image text pairs but half of those pairs are going
+12:39 to be positive pairs half of them are going to be negative pairs now what is a positive pair positive pair basically means that the caption is linked with
+12:46 the image itself and you know which is which means that is similar it is relevant for the image right and then
+12:52 the negative pair would be this caption is linked with the negative image you know irrelevant image to the caption
+12:58 okay for sample positive negative pairs create a batch and then you know the objective two is basically all about
+13:03 figuring out whether uh the attent whether the you know uh the the MLP head
+13:09 out there um is is able to predict correctly whether this is a positive pair or a negative pair right so that's
+13:14 basically that um now the interesting part about visual bird is that you could
+13:20 basically now look at the attention weights of some selected heads uh at the
+13:25 at the output layer at the last layer and uh then by looking at those those attention weights you can visualize them
+13:31 and try to see uh remember in self attention you have like now words text
+13:37 words paying attention to uh image uh pieces and now you can try to see you know how are they correlated okay so let
+13:44 me look at layer 11 and uh you see uh this this heat map is basically drawn by
+13:51 showing um uh attention between text words you see there and image tokens you
+13:56 see there right so five image five image tokens you know uh corresponding to man which are also highlighted in this image
+14:02 by the way so the red red one is man the you know bluish one is shirt and you
+14:08 know the bluish kind of stuff is sidewalk and so on right so what you observe is that uh so if I look at the
+14:14 word man right fortunately it has very high uh you know um attention weight for
+14:22 for the for the for the for the box man in that senses for the image piece man okay and that's very useful and nice
+14:28 because it's sort of nicely tells us that the model is actually learning to correlate pieces in the image with the
+14:33 tokens in the text okay uh so and so on you can actually pause the video here and essentially observe that this holds
+14:39 also for other kinds of things like sidewalk pedestrians shirt and so on okay now after this people tried to
+14:46 improve the architecture they came up with this architecture new model called as Wilber okay by the way you can also look at these papers most of my slides
+14:52 actually have a citations for these papers at the at the bottom okay um so
+14:57 Wilber basically believes in a two to model unlike visual bird visual bird was a single Tower model the concatination
+15:03 of text and image modalities sort of happened right in the right in the first layer right in the zeroth layer in that
+15:08 senses okay but wilart basically believes in processing text separately using a few few layers Transformer
+15:15 layers as you see them here and processing the image separately using a few layers now these layers could be you
+15:20 know um uh Transformer layers and so on so um so uh notice that the text stream
+15:27 in Wilbert actually has much more processing before interacting with the visual features but as I was saying well it's a two Tower model where the text
+15:33 and image are processed separately in their own pipelines but then there is also a fusion which happens where cor
+15:40 Transformer layers or Co attention based Transformer layers basically try to fuse the information across both the pipelines okay uh and then there are
+15:47 other Transformer layers further which basically do individual processing separately okay now the interesting part
+15:52 is that this linguistic stream is basically bird base and for uh for you
+15:58 know um uh but but base and then you know uh again the for for the visual stream essentially you use uh faster
+16:06 rcnn to essentially figure out those image patches and so on okay this faster rcnn both in visual bird and willber is
+16:12 pre-train on visual genome data set okay okay so now how is this Co attention how do these Co Transformer layers work
+16:18 right so a standard Transformer layer it has the typical standard self attention and feed forward right with the qkv the
+16:25 query keys and values coming from a single stream right but in will you have two different streams the visual stream
+16:31 and then the um the the linguistic stream right uh and what you do uh for
+16:36 transferring information across the two is to basically use uh the query of the same modality but the you know uh the
+16:44 keys and the values coming from the other modality from the linguistic stream in this particular example right in this particular case and in the other
+16:49 case in the linguistic stream again you're going to use the query from the linguistic stream but you're going to use the keys and the values from the visual stream so as to essentially do
+16:56 this cross-pollination of information um in the in the attention layer right and then of course you do this typical
+17:02 standard feed forward with all those residual connections add and normalization and so on okay so that's
+17:07 how Wilbert works now another interesting part about Wilbert is that rather than depending on manually
+17:12 labeled Ms Coco data they actually depended on conceptual captions data this data set of conceptual captions is
+17:19 basically obtained in an automated manner by scraping things from the web so the idea is that on the web there are
+17:25 Wikipedia Pages news articles and many other art many other web pages where you have an image and underneath that
+17:30 there's a caption okay there are also images with very nice alt tags associated with them these serve as
+17:36 really good sources for caption information along with images and that is what willber guys basically leverage
+17:44 um says to uh essentially U you know um create the visual uh grounding data
+17:50 right uh visual image text pairs essentially and then then they pre-rain the VIS wibert model based on that now
+17:56 in Wilbert model again there are two pre-training loss functions so so just like in visual bird there is a
+18:01 multimodel alignment prediction function to basically just predict whether this image and text are aligned with each other or not and that's basically the
+18:07 same as visual bir so there's no no difference in that sense except the change in the name right but then on the other hand the mass language modeling is
+18:13 actually now extended to to to become M multimodal learning okay the interesting part is that you know rather than just
+18:20 masking out text you can actually also mask out image pieces uh in 2019 you know there was no
+18:27 good technology to basically generate back image pieces themselves in the same
+18:32 position but what you could do or rather what Wilber does is to basically generate a distribution over a set of
+18:38 class labels so of course you know because you're using fcnn you know what particular object this particular
+18:44 position indicates the image piece at this position indicates and then the idea is that uh willbert uh the goal or
+18:50 the objective is such that the the vilbert model is motivated to learn the right pred right distribution over those
+18:57 objects uh at the the output at the same position okay if it learns great else there's a back propagation cross and
+19:03 tropy loss back propagated right so that's basically M multimodal learning a great extension from just that M Mass
+19:08 language modeling as done in visual part okay so that's great now the idea
+19:15 behind willbert and visual bir so far is that you have image is that you have image text Pairs and you could do a nice
+19:22 uh uh you know modeling of both the modalities together and come up with
+19:27 these interesting embeddings in that senses and uh hopefully it gives you good accuracies however uh over time
+19:34 people have moved to using contrastive training contrastive loss Based training and that is what the clip model is also
+19:40 famous for as it says it's contrastive language image pre-training okay so the
+19:46 way clip model works is that it's also a two Tower model in that senses and uh then it has a contrastive loss right at
+19:52 the very end in that senses okay so uh you use uh uh you know I mean of course
+19:58 you have text caption and you have an image as well so use the text caption is to basically pre-train a text encoder or
+20:05 you know you use a pre-train text encoder and you you use it to encode the text in that senses you use a prein
+20:11 image encoder to encode the images and then so in their particular case in fact they they essentially used a 12 a
+20:18 transformer for the text encoder and for the image encoder well they actually experimented with quite a few so there
+20:23 are five resets they still believed in convolution neural networks and you know uh three different uh VI model so VI
+20:30 base and V large with different patch sizes 3 to 16 and 14 as you see okay uh
+20:36 and then what do they do they basically pre-train this with a contrastive loss that I'm going to explain very soon
+20:42 using 400 million web image text image text pairs okay so the data set is
+20:47 called Web image text and basically has 400 million image common text pairs okay uh so you see I mean visual B was on
+20:53 600k Mage text pairs wibert on 3 million uh you know clip is basically on 400 million and the interesting part is it
+20:59 also uses contrastive loss toes to do pre-training okay now the way this pre-training works is that uh you have
+21:06 image you have text tokens and you have embeddings for each of those text tokens at different positions from the text encoder it's just 12 L Transformer you
+21:13 also have image tokens and you have a representation for each of those uh for various image pieces right so what you
+21:18 do is basically you try to compare uh these and and by by the way by the way
+21:24 you know from a from a from a batch of n instances let's say if I have a batch of n samp
+21:29 so consider in real pairs real image text Pairs and samples in a batch okay
+21:35 what you're going to do is to basically take a pulled text embedding a pulled image embedding and you're going to
+21:40 compute cosine similarities between them so i1 dot1 i1 dot2 so given a batch
+21:46 let's say batch of 20 you're basically going to end up with 400 similarities because you have a 20 um 20 image um
+21:53 embeddings and 20 text embeddings you get like 400 different similarities of course what you want what you what you
+21:58 know is that there are only 20 pairs so therefore there are only 20 positive pairs right and if you really did all of
+22:04 this you know 20 cross 20 kind of computation you have like 400 - 20 380 negative pairs what you want to do is to
+22:11 maximize the coine similarity of the image and text embeddings of n real pairs versus minimizing cosine
+22:16 similarity of the embeddings of the incorrect pairings right so 380 incorrect pairings so you want to
+22:22 maximize those 20 the diagonal right and minimize the similarity um for for those
+22:27 remaining 380 which are negative right so this is what gives basically awesome
+22:32 uh accuracy values in fact clip was tested on 30 plus computer vision tasks like OCR action recognition videos and
+22:38 so on so forth and they basically found clip to be really doing very well even in a zero zero shot manner okay uh uh it
+22:46 was better than uh it was it was it was found to be better than even fully supervised baselines okay so here is
+22:53 more details about clip so essentially as you notice here uh we have uh you
+22:58 know uh we have uh so essentially you can actually use clip even for zero short
+23:04 classes and for classification problems which basically involve uh new classes
+23:09 at test time okay so for example what you could do uh is that you can take an image and uh let's say you have some new
+23:16 class labels right at test time and you want to figure out if this new test time class label holds good for this image or
+23:21 not okay all you need to do is to basically take that class label pass it through a text encoder and the text encoder learns a text embedding and then
+23:28 and this is at in time by the way right so basically you take the image pass through the image encoder get an image embedding and just try to compute the
+23:34 similarities whichever has the highest similarity is the one that you actually predict as the as the right caption or
+23:39 the right text uh class label for this particular image okay that's that now
+23:44 the interesting part so what they did was to compare a zero short clip with the resnet 50 supervised model across
+23:51 several the several of these data set so notice clip is zero short it's not fine-tuned on any of these data sets but
+23:58 reset is not zero shot I mean it's actually you take the pre-train rest net and fine tune it on the training set of
+24:03 these data sets and what they observed is that among these data sets you know several of these data sets clip actually
+24:09 gives you positive Improvement significantly positive improvements compared to uh compared to resnet okay
+24:16 uh here are a few examples based on how clip performs so here's an example from food 101 data set um you know uh nicely
+24:24 predicts that this particular food is not you know any of those but guacamole
+24:29 right and then you can also use it for other kinds of classification problems like classifying uh you know what setting is this is it a television
+24:36 Studio Podium indoor conference room lecture room control room and so on you could also basically try to figure out
+24:41 what particular object is highlighted in the image or you could basically use it for classifying uh the land used type so
+24:47 whether it is a Pon crop land pasture land you know highway or road or Ocean
+24:52 or you know Shand and so on so forth okay so that's clip okay um well now
+24:59 similar kind of models have also been trained and used for uh doing document understanding visually reach document
+25:06 understanding right so these are scans of various kinds of documents so for example what you see here is essentially
+25:13 um uh some sort of a key value pairs highlighted in this interesting clearance sheet as such but you could
+25:20 also have scans for invoices and so on okay uh the interesting part is that uh using uh a model popularly called as
+25:27 layout LM uh of course I'll also talk a little bit about on the next few slides right uh what one could do is to nicely
+25:33 extract the key value pairs from this document okay one can also basically do question answering on these documents so
+25:39 uh here is a postcard scan and you could basically then ask questions like mention the ZIP code written and then it
+25:46 can nicely figure out that the ZIP code is that you can also ask it for the date on the seal at the top and it nicely
+25:51 figures out the seal and so on so forth the the date on the scene okay you could also use it for legal contract
+25:57 Management in that senses that give document scans you could basically ask it to highlight what are the important
+26:02 legal uh phrases that I must be uh paying attention to or extract just key value pairs so basically which parties
+26:08 signed the document or when was it signed and so on okay uh of course if you have uh lots of documents on users
+26:16 one drive or Google Drive accounts you could try to build an app which can classify those documents or categorize
+26:22 them into popular categories like uh like you know personal identification documents like passport and pan cards
+26:28 and so on uh while uh while another category could just be all kinds of invoices utility
+26:33 bills and so on right you could of course also use these kinds of models to do U recognition over Walmart receipts
+26:39 or any other Supermarket receipts in that senses and the main model for doing this kind of visually reach document
+26:45 processing a very popular model is layout LM and you know there are of course various versions layout LM V1 V2
+26:52 there's also a layout llm in that senses you know motivate you folks to go ahead and look at it later but what is
+26:58 interesting thing is uh that it basically uses Transformer models okay in their particular case they used a
+27:03 transformer called as uni LM V2 to to initialize and of course uh then they basically took domain specific data
+27:10 layout visually You Know Rich layout data and they basically tried to train
+27:16 this model using um using document specific loss functions as well okay um
+27:22 so very broadly what they do is to take the document and uh they mask out certain lines on this document so they
+27:29 hide out certain lines I'll call them hidden out lines in that senses okay um
+27:34 uh then they basically also um you know uh so this this hidden out uh you know
+27:40 image is divided into different parts and then encoded using a visual encoder right on the other hand you take uh so
+27:47 these you basically take uh uh the document and then uh you take the lines
+27:53 from the document and uh essentially for the lines which are not covered you
+27:59 basically have each for each line you basically have this notion whether it is covered or not you Bas well when they
+28:05 when they height out they don't hide out partial lines they hide out an entire line and so on okay so you have a
+28:10 covered line and a non-covered line okay and uh what you do is to basically take the document and you know you have a OC
+28:17 PDF parser which gives you text so that's how you get these text tokens so you basically have the text tokens and you can of course do must language
+28:24 modeling so therefore some tokens on M as well remember the hiding part is different from masking part okay of
+28:29 course you can mask out text Tok so so the OCR is actually done on the on the non-hidden version of the document so
+28:35 that the OCR quality is good in that senses right but then you have this information which line is hidden or not
+28:41 okay now as you see the Transformer is being passed four different things so of course the first one is basically segment embeddings whether it is
+28:47 basically processing image tokens versus is it processing um you know text tokens
+28:52 and then on the text tokens also you could basically say whether it is a mass token or a non-mass token yellow or blue
+28:58 right uh of course you pass 1D position embeddings essentially you must pass some position some notion of position
+29:04 right you also pass two dimensional position embeddings for the box so for example for the text tokens essentially
+29:10 sorry for the for the image tokens you have a box so essentially uh you know uh X ywh and uh you can actually also um
+29:18 encode width and height of the box as part of the um uh 2D position embeddings for the um uh and and then for the CLS
+29:25 token you actually um you know pad with the box with all the six things xmin x
+29:31 max y Min y Max and height and width initialized to all zeros set to all zeros right okay uh and U uh so that's
+29:38 that so that's how you basically have 2D position embeddings then you also have the text and uh visual embedding so um
+29:45 essentially um you use um you know M rcnn embeddings uh because you're using
+29:51 that as the visual encoder here right U and uh for the text you basically just use the uh use the standard text
+29:57 embeddings okay uh now the Transformer yes they experiment with the two different models base size and large
+30:03 size 12 layers and 24 layers and uh basically which means 200 million or 426 million parameters okay H so now you
+30:10 know preing objectives so there are three different preing objectives Mast visual language modeling right which is
+30:16 the typical uh you know you can mask the images part or the text part and you can try to um uh I think in their particular
+30:22 case I think they just hid the uh the text part so therefore for visual language modeling so if you Mas these
+30:27 text tokens you will basically try to predict them what is the text right text image alignment so um essentially uh
+30:34 they are just predicting whether a particular token belongs to the covered class or the not covered class so
+30:40 remember you basically covered some lines so this text token belongs to the covered class covered class versus these
+30:46 ones belong to not covered class okay and then lastly you have text image matching so essentially you know whether
+30:52 this particular image and the text match with each other or not like just like the visual bird and the B bird models okay those are three classes now of
+30:59 course the the preing data they obtained like 11 million scan documents and they use the text OCR Microsoft read API for
+31:05 the OCR part okay and that's how layout LM V2 basically does an awesome job U and and essentially uh is used to pre a
+31:13 model which does very awesome uh visually reach document processing okay so so far I've talked
+31:20 about text and images now let me quickly talk about video tasks um uh multimodality could also mean you know
+31:26 doing things about video and teex text so for example text video retrieval given a text and a collection of videos
+31:32 find the relevant ones now this requires text embedding and video video embedding both of them together in same space okay
+31:38 multiple choice video question answering so again given a video and a question and multiple candidate answers you want to choose which is the best one uh you
+31:45 know it's analogous to image question uh visual question answering which typically just relates with an image in that senses okay and then you could also
+31:52 have other kinds of tasks like action segmentation action step localization and so on uh where you basically have an
+31:58 action which is described in text and then you have a video and you want to figure out where the action is in that senses also called as moment detection
+32:04 in that senses okay okay so um how do
+32:09 you do this now the ideas are pretty similar uh you you see I mean if you really think about it what is a video
+32:15 video is a sequence of image frames okay so in some ways if you basically uh are
+32:20 thinking about uh an image as a 3D bit map where an image has a height and a width and basically the depth is
+32:27 basically just three three because you have to incorporate three channels RGB red green and blue right a
+32:33 video with 100 frames can be T again as a 3D uh bit map or a 3D uh Cube where
+32:40 you have of course the height and the width but you also have a depth which is basically 3 * 100 if there are 100
+32:45 frames in the video okay so you should really you could really think about a video as um a three-dimensional cube in
+32:52 that senses right and in that senses you could basically then use your 3D convolution neural networks to to encode
+32:58 this video or you could actually also use latest advances you know uh in
+33:03 transform models just to be able to encode this video of course you know um I mean um so as I mentioned video is
+33:11 basically a whole bunch of image frames but there is also sequence to them and 3D CNM help you sort of uh ensure that
+33:17 that sequence is also respected when you're trying to encode the video right but again this session is not on video encoding so I'm not really going to go
+33:24 into deep details about how do you encode videos there's so many interesting models you know all the way starting from um you know very old
+33:30 models like i3d uh inflated uh 3D models and 3D conines and so on to the more
+33:36 recent ones but the idea is let's say that you have a video encoder right and you have a text encoder so and you could
+33:42 basically do the same contrastive loss kind of training the same noise you know um uh the typical popular uh noise
+33:51 contrastive estimation loss basically can be used also for doing something called as video clip okay just like you
+33:57 have the clip for image and text pairs you could also have a video clip which basically tries to do contast of learning uh with uh with with video and
+34:04 text pairs okay now the idea is that where do you get these video and text pairs right so you could of course basically make use of transcripts so you
+34:11 have video and the visual information and you have transcript and you could make use of the two to align them but
+34:16 one has to be a little cautious about this because you know typically if uh let's say even in this lecture video I
+34:22 started off saying that hey in this video I would talk about U you know multimodal models but when I talked
+34:29 about that visually on the slide you couldn't see any multimodel for that matter right similarly if I if if I'm
+34:35 making a recipe video I'm going to say that hey I'm going to basically teach you how to cook Cho B right and at that
+34:41 time on the slide there's no Cho B at all right I mean J come much later okay
+34:46 or essentially you know um the idea is that the speech and and what you see on
+34:52 the video may not be completely aligned always and therefore you have to be little cautious about how do you line
+34:58 and how do you get those positive pairs versus the negative pairs but otherwise more or less the contrastive estimation
+35:03 contrastive loss and so on work the same way uh and in fact in their particular case in video clip they basically use
+35:09 the same the six layer uh I mean they use the bird base uncased for both the video and text they just use the
+35:15 Transformer model for encoding the video as well okay um so uh uh I mean and the
+35:21 way they did that was to basically use a frozen pre-trained CNN so to essentially encode the image frames and then they projected those video tokens to the to
+35:28 the to the to the to the size that size and the dimensionality and the space that bird base desires by doing an MLP
+35:35 projection layer by training MLP projection ler okay uh so that's that they pretend on how to 100 million data
+35:41 set and that's basically um how they pretend video clip next you know almost um sort of
+35:49 towards the uh towards uh sort of trying to uh you know uh moving towards U more
+35:56 and more modality let me talk about this this image P model okay um so far we have talked about multiple models uh I
+36:04 start off with simple Vision Transformers right and I basically said hey well they can be used for encoding
+36:10 images then I talked about image then I talked about willber and visual bird and I basically said well they can be used
+36:15 for um for encoding U uh you know multimodal task involving images and text and then we of course also talked
+36:22 about clip in the same same theme okay then I talked about video clip and basically I said well you could extend
+36:27 this to two modalities not image and text this time but video and text okay now the obvious question is that can I
+36:34 include more modalities and there are so many tasks with multiple modalities okay so for example here are various
+36:40 modalities and image bind here is a model called image bind which basically tries to extend this kind of a thing to
+36:47 six different modalities uh these ones are images uh
+36:53 text audio depth um so this is the depth image right uh uh thermal and inertial
+36:59 measurement unit okay images text audio are obvious what is the depth image depth image basically tells you how far
+37:05 away from the uh camera each pixel is okay so essentially white tells you that it is very close to the camera but black
+37:12 tells you that it is very far away from the camera okay that's a depth image you could also try to bring in a modality
+37:17 called thermal now thermal modality you know you might have heard about Flur images Flur images so they basically
+37:22 used a lot in you know um infrared Imaging for for for electrical circuits
+37:28 you know you want to figure out is there a fault or not right so FL images basically make use of these infrared
+37:33 cameras as to um also record temperature at every pixel in some ways so that's why thermal images in that sense right
+37:40 you could also have IMU inertial measurement unit kind of data I mean this is more like time series data
+37:46 sensor data in that senses which you could get let's say if you're trying to build a driverless car application you
+37:51 might not just want to use the uh you know um uh the the input from the camera
+37:57 uh but you might also want to use several sensors data coming from several sensors inside the car right so to be
+38:03 able to make a decision for example whether to press a break or not right so that's basically multiple modalities of
+38:10 data uh and in several applications may not you you may not require processing
+38:15 all the modalities but some of those modalities suddenly become important okay um and what image B so so therefore
+38:22 the the idea is that it is a great idea to basically learn a model which can process all the modalities uh right uh
+38:28 and you know here is an inspiring statement why this could be useful um and uh how to do this right so of course
+38:36 many many applications require a combination of these modalities challenge though is that there is no data set across all of these modalities
+38:43 right so although I might want to basically uh compare or or build a application which be basically you know
+38:50 uses thermal images along with the sensor data unfortunately I might not have aligned data there okay but what is
+38:56 really interesting is that image bind it all okay an image of a beach can actually remind us of the sound of the
+39:02 Waves audio right the texture of the sand right uh uh a breeze so or even
+39:08 inspire a poem you know text and so on so you see different modalities can be all linked to images in some ways okay
+39:14 uh so that is also shown in this in this animation here so so if you basically
+39:19 just look at the image if you basically can just to get the uh image text image depth image heat map image audio image
+39:26 IMU pairs you know maybe what you can do is to solve this problem of not
+39:31 requiring you know pairwise data across all possible modalities right so if there are five different six different
+39:37 modalities as you see you would require 62 different image different types of data you know image Text data image
+39:43 audio data text audio data text IMU data and so on but maybe if you basically just go via images uh you could
+39:49 basically solve this problem and that's all image bind banks on so they basically make use of a whole bunch of image data combined uh with another
+39:56 modality data so to be able to train a really really awesome multimodel model and that multimodel model now helps them
+40:03 to do not just a multimodel understanding but also helps them to do multimodel generation yeah now
+40:09 multimodel generation is of course a topic for another lecture and we'll talk about that later uh but uh uh you know
+40:15 here are here are some examples so cross model retrieval so essentially if you basically just pass on this audio uh
+40:22 which is essentially of a crackle of a fire you can basically try to retrieve these kinds of images or videos which
+40:27 actually show the crackle of a fire or also retrieve these uh depth images
+40:33 which basically relate with you know fireplace and so on as you can uh as you can understand from the image right you
+40:39 can also retrieve you know these text pieces which are all talking about fire a fire crackles while a pan and remember
+40:45 this is not basically because the text called crackle of a fire was used to search but because the audio relating uh
+40:52 um you know audio which basically just uh is a sound of the crackle of a fire basically helps you retrieve the text
+40:59 okay this is not speech to text by the way so in the audio crackle of a fire those words were not spoken uh all that
+41:05 was there in the audio is the sound of the fire in that senses okay so of course it can also be used for doing
+41:11 embedding space arithmetics so you could basically have uh this image of of a crane uh or or a or a bird right and you
+41:18 know you can have sound of waves right and then it can actually generate images which can you know basically the same
+41:24 bird in in in the sea or on on the shore and so on okay you could also use this
+41:29 kind of a model for audio to image generation so given audio you know can you generate an image barking audio
+41:35 generate a dog or you know train audio generator train image and so on so forth
+41:41 yeah so how is the image model image bind model trained well as I mentioned the basically the model is basically
+41:47 trained by using uh uh several kinds of data sets also mentioned here uh which
+41:53 basically relate visual modality with everything else so with other mod modalities for example video and audio
+41:59 from a data set called audio Set uh image depth kind of relationship from
+42:04 some other data set image thermal from another data set video IMU data image Text data and so on so forth okay uh the
+42:10 model is basically uh of course you know it uses large deep learning deep neural
+42:16 network is to encode uh the image and also any other modality so encode the
+42:21 image and any other modality M uh and it uses the same influency contrastive loss
+42:27 so I mean essentially just like video clip or clip they basically use a symmetric version of the influency loss
+42:32 where noise contrastive estimation right where you know uh you you take both the
+42:38 U you know um image versus the other modality and modality versus the other versus the image and so on right so the
+42:45 loss is particularly given as follows I mean that's basically ensuring that the positive pairs essentially have a higher
+42:51 similarity compared to negative pairs which you which you see I mean of course in the denominator you have both right
+42:56 so that's that now um yeah so so essentially for image point for the text
+43:02 encoder essentially for the image encoder they use the vi H the huge model 630 million parameters and for the text
+43:08 encoder they basically used a 302 302 million parameters from open club and um
+43:15 I think for training they as far as I remember they froze the text encoder part but then they trained uh the other
+43:22 modalities in that senses um that's that so they use the same encoder for images plus video
+43:28 basically the videos are just treated as multi frame images right um that's that
+43:35 okay so more or less this is what I had for you uh for this uh for this session
+43:41 uh quickly summarizing in this session I talked about a whole bunch of uh uh
+43:47 models I first motivated essentially why multimodal modeling is important by um
+43:52 you know talking about various vision and language tasks like visual question answering visual Common Sense reasoning ing Expressions caption based image
+43:59 retrieval um you know multimodel hate speech detection multimodel fake news detection and so on then we talked about
+44:05 Vision Transformers which is basically um model to use Transformers to encode images then we talked about three
+44:11 different models for encoding images U namely uh visual BT willbert um you know
+44:18 and and and clip right uh where uh and and in that order they have been
+44:23 pre-trained using larger and larger image text pairs right um lastly or
+44:29 other next I talked about uh um about uh visually Rich document understanding using uh this particular model called as
+44:35 layout LM um layout LM V2 particularly uh right and then uh next we talked
+44:41 about uh video tasks uh extending multimodality to video and text
+44:46 combinations right and then therefore we talked about video clip an obvious extension of the standard clip model um
+44:55 uh lastly I talked about image Bine if by the way you know image P of course deals with six different modalities but
+45:01 there are other models uh which can actually deal with more modalities for example you know I think if I remember
+45:07 correctly there's a model of course there's a model called text bind by the way right there's also a model called as metat Transformers uh you know uh there
+45:15 is also yet another model called as composable diffusion right so if you try to search for these models you'll
+45:20 basically see that people have tried to extend this to many more modalities not just six people have tried I think 10
+45:25 plus modalities in those in those space papers okay so hopefully you know this session motivates you um to uh to to
+45:33 read up more of those papers in multimodal modeling and um uh you know
+45:39 and potentially also do research in this area right uh I'm of course always excited to uh work in this area um uh um
+45:47 so you know if you want to do more research in this area feel free to reach out to me uh on these
+45:52 coordinates uh you will also find by the way on my YouTube channel a whole bunch of videos
+45:58 um around multimodality um so feel free to check them out as well okay thanks so much and
+46:05 uh happy to take questions

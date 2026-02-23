@@ -1,0 +1,563 @@
+00:00 Okay. Uh hello everyone and welcome back to the second lecture. Good to see you all again. Uh okay. So this lecture
+00:08 series is on efficient LLMs and in part one we are looking at how to scale pre-training or training of uh language
+00:14 models across on a cluster of GPU with uh huge sequences and a lot of you know
+00:21 a big batch size right so let's quickly recap what we covered yesterday. uh I
+00:27 would uh you know appreciate your help in recapping what we covered. So we
+00:33 started with uh training for a marathon and then we quickly shifted to training large language models. We saw that uh
+00:40 you know training time uh in both is if you have more training time then your performance is going to be good.
+00:46 Training time for measuring uh training time for language models is measured in
+00:52 terms of number of GPU hours. Right? And we started with the question of how to
+00:57 train big models on big data. Then uh to answer that uh we saw that you know we
+01:04 started with training on one GPU and we started looking at what's there in the GPU when we are training. Uh there are
+01:11 primary four things model par model parameters gradients of those parameters
+01:17 optimizer states and activations. uh these three are static and
+01:24 activations will depend upon the uh batch size. We took a small detour to
+01:31 understand whether we need a bigger batch size or a smaller batch size. And
+01:36 uh we came up with the intuition that you know in the beginning of the training smaller bat size is okay
+01:42 because it is quick. It gives us you know it's noisy signal but at least a signal in the right direction. We need
+01:48 to be quick. we should start with smaller bat size and towards the end we need stable signal we should uh you know
+01:55 have bigger bat size so that we can get bigger signal so a quick intuition for this could be that you know let's say
+02:01 you're going from Delhi to Kanyumari right so when you're starting your journey from Delhi to Kanyakumari
+02:09 uh in the beginning as long as you're moving south you're okay right you're
+02:14 okay taking noisy steps as long as they're in the right direction Right? And small bat sizes will give you quick
+02:21 noisy steps in the right direction. But as you approach closer to kakumari, you
+02:27 would want to move in the right direction. Your steps should be in the right direction. Right? So you should
+02:33 compute your gradients using bigger bat sizes. And what does that mean for language models? uh we saw that for one
+02:40 of the models recently they started with 4 million tokens right in the beginning
+02:45 and which increased which they keep kept on doubling and it increased till I think 128 million tokens towards the end
+02:53 right uh and uh so that was a quick detour on whether a small whether we
+02:59 need a small bat size or a big bat size then uh to fully understand you know
+03:05 what's going on within the training we looked at we dived deeper into when we looked at what what is the size of these
+03:12 model parameters, gradients, optimizer states and activations. We will do a
+03:17 quick recap of that here. Right? So, uh these three things they always remain in
+03:25 the GPU. Right? So their dimension is
+03:30 we saw that it's h is the hidden dimension that we have h cross h because
+03:35 most of the weight matrices are h cross h or h + cross 4 h. So it's h cross h
+03:41 plus some bias term h right we had 12 of
+03:47 these and 13 of these in one layer. So 12 h²
+03:52 + 13h. Right. So these were the parameters in a layer.
+04:01 Right. Okay. And this will remain this is
+04:06 irrespective of the batch size that you have right that you're using for computing your gradients. Uh if you have
+04:12 L layers you will have L * this plus this right. Whereas activation memory
+04:18 will depend upon the batch size. So the way it will look like is you have a
+04:23 batch size let's say 1024 right in each batch you have a sequence
+04:32 which is a sentence right a sequence of let's say length uh 4096
+04:40 right and each token here will have an h dimensional
+04:47 embedding so this is h whatever that h Right. So this is
+04:53 how a activation block will look like. Right. So this is batch size time sequence
+05:01 length time hidden dimension. And we counted these. We have 34 of these in a
+05:07 layer at different points. Right? And there is one special operation which is
+05:13 attention where we need to compute probability of
+05:18 a token of a query on all the keys. Right? And every other token acts as a
+05:23 key. Right? So we for the attention layer we have this sequence length times
+05:30 sequence length. Right? This is the
+05:36 uh memory that we need for activation in the attention layer. And if we have n number of heads, so it's going to be n
+05:43 heads time sequence square, right? And we will have one for each element of the batch.
+05:50 So batch number of heads, sequence length square, right? And in one layer
+05:56 we have five of this. So this gives you an idea of you know what is the
+06:01 difference between the static weights which are not dependent of on the input
+06:07 these things right two dimensional of the order of square right and activation
+06:13 memory which is really huge right which depends on the bat size as well right
+06:20 and uh then we looked at because this is the biggest culprit we
+06:27 want to see how Can we reduce the activation memory? Right? So the first
+06:33 uh tool that we have there is activation recomputation. That means do not store these activations rather recomputee
+06:40 them. And we saw that uh this is the biggest culprit. So we do not store the
+06:47 activations corresponding to multi-headed attention. We rather recomputee them when we are doing
+06:52 backward pass. Right? So we save 70% of the activation memory and at the at the
+06:58 cost of 2 to 4% extra compute right if we checkpoint everything if if we recomp
+07:05 compute everything and save only at the end of layer we will have 30 to 40% increase in the computation time but
+07:11 activation memory will reduce further right and then uh we saw uh you
+07:18 know how to increase the batch size and uh for that the next tool in our hand was gradient accumulation
+07:25 where we sliced these activations across this dimension, right?
+07:31 We take some micro batches, we call this as a micro batch MBS,
+07:37 right? If we cannot fit the memory activation memory for the entire batches in the memory, we split this this this
+07:43 cuboid by this dimension zero which is the dimension of batch size, right? and
+07:49 and run only a micro batch uh in one go. Compute the gradients. Do
+07:56 not do optimizer.step. Save those gradients and have another
+08:01 micro batch. Do it forward pass backward pass accumulate the gradients and hence
+08:06 the name gradient accumulation. Right? And if you are using any tools for trainings for example hugging face
+08:13 trainer or SFT trainer there you can when you are initializing your trainer class you can specify this parameter
+08:19 there's a parameter called gradient accumulation steps you can specify it there right and then we asked the
+08:25 question can we parallelize can we speed up if we have more GPUs all of this was on one GPU and we are now asking the
+08:31 question can we parallelize if we have uh more GPUs and many of you came up with the idea that uh you know these
+08:38 micro batches are independent of each other. What we can do is that we can have these micro batches
+08:46 computed on different GPUs. Right? So
+08:52 in gradient accumulation we were processing microbatches sequentially and to speed up we said that we observed
+08:58 that they are independent of each other and we said that you know instead of computing uh processing them
+09:05 sequentially we se we process them parallelly on uh three different GPUs right but then uh and and and how we are
+09:13 doing it we keeping a replica of model gradient and optimizer on each GPU
+09:19 Right? Same operations on different data. Right? Exactly same operations but
+09:26 they are being operated on different data. That will give us different activations and different gradients.
+09:32 Right? Once we have these gradients computed on uh three different GPUs in
+09:39 this case we need to add them to get the global gradient before we do optimizer.
+09:46 Right? And then and that uh introduces you know communication between the GPUs
+09:53 right and that is where we stopped yesterday uh you know how to communicate gradients
+10:00 across GPUs right that was the question where we stopped yesterday right so for communication
+10:07 uh now PyTorch also provides various primitives right uh I will introduce
+10:13 those primitives as and when we um encounter them right so for example here
+10:19 what we have to do is that we have to take the gradients from three different GPUs let's say a b and c these are uh
+10:27 del w with respect to x1 right this is del w with on on x2 not with respect to
+10:35 x1 on on computed on the microbatch x1 this
+10:40 is dw computed on the microbatch x2 and this is dw computed on microbatch x3
+10:46 three, right? To compute the overall gradient, I need to what do I need to
+10:51 do? Add them, right? And after adding them, I need to send them to all the nodes
+10:59 because all the nodes are doing the same operations. All the nodes have their own copy of model weights, optimizer states,
+11:06 and they need to update them separately. This is what will keep the models in sync with each other, right? Because
+11:12 their update steps are also same, right? So this uh primitive is called all reduce. Uh this function f here is an
+11:21 addition and then x in this case is a + b + c. Right? Uh
+11:29 okay. So these yeah so these are called collective operations and also communication
+11:35 primitives. they are defined in torch distributed API and uh this is this is
+11:42 the you know code snippet which which implements this all reduce right so what we are doing here is uh I mean at in
+11:49 this step so we are using this torch distributed API for this communication between GPUs right
+11:57 this code will run we will launch this code simultaneously on all the GPUs
+12:03 right it will run on all the GPUs simultaneously Okay. So we have to first set up the initialize the communication
+12:11 back uh you know uh back end right. So this distin process group this will set
+12:17 up the communication back end. It will assign a variable called rank to all the
+12:24 GPUs. For example GPU zero first GPU will get rank zero then one and two and
+12:29 so forth if you have more GPUs. And it will establish a connection between the workers. the workers here are GPUs right
+12:36 and uh yeah so this torchpuda so let's say this as I said that this code is
+12:42 running on all the three nodes right on on GPU0 this variable I mean we are
+12:48 setting the CUDA device right we're setting the CUDA device which is uh which is given by this list dot get rank
+12:56 right now when this function all reduce runs on each GPU right on GPU zero What
+13:03 would be the value of this tensor? Let's see if you guys are following or
+13:09 not. So, get rank will return zero for the first, right? This is 0 + 1 1 * 5 which
+13:20 is a vector of all ones. Right? we will
+13:27 have a vector of all ones. On GPU 0 on right on GPU 1 we will have a vector of
+13:33 all twos. Its rank is going to be 1 1 plus 1 2 all twos right five times and
+13:40 then on GPU 3 we will have all threes right and we are putting it on CUDA and
+13:46 we know that you know uh we have already set the CUDA device to the appropriate rank right so
+13:55 okay so we will see what is the print statement this print statement will look like this only right uh and then when we
+14:02 do all reduce tensor And we we specify the operation as you
+14:07 know sum and then we will print the tensor after the operation right so what
+14:13 would be the tensor after the operation
+14:18 yes so it's going to be all six on all three GPUs right so uh so before all
+14:24 reduce we'll have these three different tensors on three different devices right on rank 0 1 and two and after we have
+14:32 communicated this uh We're going to have the same tensor on all the machines,
+14:38 right? So this is a small snippet illustrating how this all reduce works,
+14:43 right? Uh so let's look at uh you know the computation and the communication
+14:49 timeline for this how we are computing when when we are computing and when we are communicating, right? So in the
+14:54 example uh each box here corresponds to a layer and we have three layers for
+15:01 example in in a in a model. So we will in the forward pass we will go through
+15:06 layer 0, layer 1 and layer two right and then we will do the backward pass which
+15:13 will compute the gradients on layer for layer 2, layer 1 and layer zero. This
+15:19 will happen on both the GPUs simultaneously on different data points. Same operations different data points
+15:25 right on different GPUs. Once we have computed the gradients in
+15:30 the backward pass, we need to communicate them right. So that's when
+15:36 communication will kick in, right? Uh while this communication is happening,
+15:43 what are the GPUs doing? They're sitting idle, right? They can't
+15:50 do anything. They can't process the next batch, right? And once we do all reduce we have
+15:58 the gradients now accumulated we need to run the optimizer step which will update the first moment second moment and then
+16:04 the model parameters using those right and because we have synced the gradients
+16:10 across GPUs model parameters automatically remain synced they are same right and then the forward pass for
+16:18 the second micro batch or the second batch will start again on both the GPUs simultaneously right okay So clearly
+16:25 there is an issue here right? What's the issue?
+16:31 Very good. This is idle. So what should we do?
+16:39 We cannot Yeah, we cannot start the next batch without new weights. So what should we do?
+16:48 Any guesses? Sorry. And do what with it?
+17:05 Sorry. Uh no, for evaluation you need GPU
+17:12 memory as well, right? Uh so that will take a lot of time. You don't have that much of time in between. Yeah. go next
+17:19 forward pass. So if we let's say we go to the next forward pass here right with one let's
+17:26 say we shift this zero to to here uh this is happening with which weights
+17:34 previous weights we want to take the next step after we update
+17:40 good point we can process another mini batch that is combining gradient accumulation with uh this multiGPU
+17:47 training that is that is one uh thing that we can do Right. Uh, anything else?
+18:02 Okay. So, what we can do is so so notice here that you're communicating all the
+18:07 gradients together. Whereas for layer two or you know there are many parameters within the layer,
+18:14 right? As soon as we have computed the gradient,
+18:19 we can send it across for communication. Right? So as we saw earlier here, the
+18:27 communication was happening at the tensor level. We have a tensor. We are we are saying
+18:33 desk.reduce tensor. Right? So here once we have
+18:41 the uh gradient for the last
+18:48 module right or the last set of parameters we can actually start the communication for this here right
+18:58 right so basically now our computation and communication are overlapping we are communicating and communicating
+19:05 simultaneously we don't have to wait for all for the entire backward pass to complete. As soon as we have the
+19:11 gradients, we start the backward pass. Right? So that's what we do. We uh take
+19:18 the last layer or the the last tensor of the last layer of the last parameter and start communicating it. Right? Okay. So
+19:25 how is it implemented? It is implemented via hooks. Right? So essentially it says
+19:31 that you know we registering a backward hook as soon as for a particular tensor or for a particular module we call
+19:37 dobackward right this function will get triggered right so here in this function we are
+19:44 for each parameter for P in all the parameters if it requires gradient we
+19:50 are saying that we register a post accumulate grad hook for this right
+19:56 right and this hook is a function which will start the communication.
+20:03 Right? Does that make sense?
+20:14 [Music] Yes. Yes. So it's like u
+20:22 um Okay. So you have to send a parcel right and it consists of
+20:31 smaller things right as soon as the first packet is ready you can dispatch
+20:36 it you don't have to wait for uh the entire
+20:42 uh 8 billion parameter gradients to get computed and then start one bulk dispatch
+20:48 right you can start smaller dispatches right and then the question is at frequency. Should we do it here? We are
+20:56 doing it at a parameter level, right? So, so this means a small a lot of small small packets floating around in the uh
+21:04 communication channel, right? So, what is the appropriate bucket size, right?
+21:09 Should we have do it at at the parameter level or should we bucket some parameters together and then start the
+21:16 communication for that? Right? So, so again uh
+21:23 what we saw here when we register a hook there that function the hook was called for each parameter as soon as the
+21:29 backward was called for the parameter we were starting the communication again that is also inefficient that is you
+21:35 know sending very small packets too frequently. We can optimize it further by bucketing the gradients,
+21:42 right? Which essentially means that wait for the entire layer for example to communicate and then send uh you know
+21:50 all of them together, market them together,
+21:58 right? So that has reduced here also. This has this has reduced a lot. Right?
+22:06 Does it make sense? Okay. So, uh
+22:11 Okay. And and as he pointed out that you know we could also start if we have a
+22:17 gradient accumulation step then we could start processing the next microbatch for there because in gradient accumulation
+22:23 also we have to process the microbatches of the same model weights. Right? So we can combine data parallelism with
+22:30 gradient accumulation naturally. Right? So with data parallelism we saw that our global bat size was micro bat size times
+22:38 data DP stands for number of data parallelism right a degree of data parallelism. This was our total bat size
+22:45 right. So for example on each GPU if we are processing uh 1024
+22:52 uh sequences and we have four uh GPUs then we can process uh
+22:59 roughly 1100 right or 1098
+23:05 or 4098 sequences right and uh with gradient
+23:11 accumulation also we were doing the same thing but on the same GPU right now if we with if you combine the both then our
+23:18 global bat size becomes uh micro bat size times within accumulation steps
+23:24 times data parallelism right number of GPUs that we have so so let's take a
+23:29 quick example let's say we have a target global back of 1024 right uh
+23:36 of sequence length let's say 4096 this is the sequence length so roughly this
+23:42 will give me 4 million tokens So we have 1024 sequences that we want
+23:48 to process and we want to compute gradients for each sequence is of 4096
+23:54 tokens. That gives me roughly 4 million tokens in total. Right? Now we assign
+24:00 the microbat size according to memory of one GPU. Right?
+24:06 Whatever can fit in the GPU max that is the maximum micro bat size that we can
+24:11 process. So we first max out on that. Let's say we can process two then we
+24:16 assign DP based on the resources that we have. If you have 128 GPUs then it can't
+24:24 go beyond that. Right? Let's say we have 128 GPU. So DP will be 128
+24:29 and uh then accordingly whatever is the remaining factor remaining we we set the
+24:35 gradient accumulation which turns out to be four in this case. Right? Uh does that make sense? No
+24:41 rocket science here. All clear. Okay.
+24:46 So now the question is uh have we hit a holy grail? Can we scale
+24:53 the P as much as we want? Right? Will we get so let's say if with one GPU I'm
+24:60 able to process 1,000 tokens per second. If I scale to 10 GPUs, will I still be
+25:07 able to process,000 tokens per second? uh per G thousand tokens per second per
+25:12 GPU. Does that make sense? Right. Is is the
+25:18 scaling loss lossless? We can just add another GPU and my uh
+25:24 you know number of tokens that I'm able to process overall will just uh get doubled if I double the number of GPUs
+25:30 or not. Right? Of course, it will not because there's a communication overhead that is happening. Right? So uh so this
+25:37 graph quickly tells you uh how much is the uh reduction in the throughput. So
+25:42 on the y-axis here we have tokens per second per GPU right from one GPU how
+25:49 many tokens are we able to process per second. If you have if you're doing it on 8 GPUs that's the baseline let's say
+25:56 we have 40k uh tokens that we're able to process per second with 16 it reduces
+26:04 and as I mean here you can see that as the uh data parallelism increases
+26:10 there's a drop of as much as 40 right uh
+26:17 okay so what is happening here in DP we saw that it's not just the computation
+26:22 but communication as well that is there right and communication will become the
+26:28 bottleneck right okay
+26:34 so let's quickly see what are the assumptions of DP right recall that in
+26:39 DP it's same computation
+26:45 different data exactly the same forward pass being done on different data Right?
+26:51 Keep this in mind. So the assumption here is that the model is fitting on one GPU.
+26:58 Right? Because we have the entire copy of the model on on all the GPU. So model
+27:03 has to fit on one GPU. And uh for a 8 billion model we saw that
+27:10 it is not the case right these are non-negotiables some sense right optimizer gradients and
+27:18 parameters they are above the 80 GB benchmark right 1 GPU 800
+27:27 80 GB so what should we
+27:40 Sorry. Okay. So the suggestion is that you know
+27:47 uh we had the activations batch size
+27:52 sequence length and um hidden dimension.
+27:57 We break the activations in this dimension right and compute different
+28:03 microbatches on different GPUs but we are keeping the entire model on uh all
+28:09 the GPUs right the suggestion here is that we let's break the model as well
+28:14 right but then uh recall in data parallel different data same operation
+28:23 if I break then how do I uh you Now do
+28:28 the same operation right and how do I break let's say
+28:34 right
+28:43 right so very good observation that if we break we can break always right but what will it increase
+28:51 communication because we need model on all the GPUs to do the forward
+28:57 Right. So let's see let's let's take them one at a time. Right. For computing
+29:03 the activations we need the parameters
+29:08 right for doing the forward pass and compute the activations.
+29:13 This is computed in the backward pass. Right.
+29:19 And what do we have in the optimizer and where do we use it?
+29:29 After that after back propagation right we are maintaining this running state in the
+29:35 optimizer right first moment and the second moment and we use it to
+29:40 update the model parameters right so can I
+29:47 shard the let's start with sharding the optimizer first right let's start step
+29:54 by step let's keep the model weights and the gradients on each GPU and let's try to shard the
+30:03 optimizer right and uh just to recall what is the memory requirement of these
+30:09 let's say we work in mixed precision right in mixed precision we have so z is the number of model parameters right we
+30:17 have uh we are storing the parameters and gradients in lower precision which
+30:23 is 16 bytes which means uh two bytes 16
+30:28 bits right and we have the optimizer in higher precision because they're
+30:34 accumulating moments are accumulating we need high precision there so four bytes
+30:40 for first moment four by for second moment for each parameter right and then
+30:46 uh because model parameters are also kind of accumulating or changing over time we need to have a master copy of
+30:53 the parameters as well, right? Uh this we will call you know as optimizer
+30:59 state, right? Uh so let's see if we can
+31:04 shard the optimizer, right?
+31:11 Okay. So what we do here is that in in the baseline. So this is the baseline on
+31:16 all the GPUs we have all three uh model
+31:23 gradient and optimizer. The colors are changing in every slide. So you know pay
+31:30 attention. Optimizer is a different color here. Okay. And our total memory
+31:36 is 2 Z for parents, 2 Z for gradients
+31:41 and KI for optimizer. Uh we have K here because you
+31:48 know K will depending will will vary with what all we save in high precision. So in what we saw previously K was 12
+31:57 right. Okay. And ND is the data valid. Okay. Then what we do in 01 is that we
+32:08 shard the optimizer right let's assume that we are doing it layer by layer for each layer or for
+32:15 each tensor in fact right uh if the zeroth dimension of the tensor is 1024
+32:22 and we have two GPUs we will take the first 512 on one GPU and the second 512
+32:28 on the second GPU right so we're sharding on on dimension zero each parameter.
+32:34 Okay. And if you do that our requirement for the optimizer reduces by a fraction
+32:42 of ND where ND is the number of GPUs that we have. Right? Here we have let's say three then it goes down by three.
+32:48 Right? But now how will it work in back
+32:53 propagation? Will it impact anything? Will it
+32:58 introduce anything new? So let's see. So in in data parallelism
+33:04 we communicate the gradient via all reduce right that will be same here as
+33:09 well. We have model rates we have the gradients we will communicate
+33:15 once we get the gradients on all the GPUs right
+33:20 each GPU will update its corresponding parameters. Its optimizer
+33:28 is is K Z right what is Z is the number of parameters some parameters are on GPU
+33:36 0ero and other are on GPU 1 and some are on GPU 3 let's say GPU 2
+33:43 right this is this is let's say a weight matrix right and
+33:51 parameters are same in all the GPUs but for each parameter we have first moment and second moment
+33:57 right m and m² we have this for each parameter right that is why it is k z right z is
+34:05 the number of parameters for each parameter we have that so parameters are there on each GPU
+34:11 right but the two copies that we were maintaining for first and second moment
+34:16 right two slots that we have that is not there on all the GPUs for the first 1/3
+34:22 we have on the first GPU second 1/3 method on the second GPU and third one method on the third GPU right
+34:29 so what will happen now you know when we are computing so when we do the backward
+34:37 pass we will have the gradients we will do all reduce right all the now now here you know it's
+34:45 all the same all the gradients are same right we have done all reduce
+34:51 but on one first GPU we can discard all these Right? We will use only the gradients
+34:58 corresponding to the to one/ird of the model parameters and update the
+35:04 optimizer state first and second moments.
+35:09 Is that is that clear or is there any confusion? I mean if there is any confusion I can
+35:15 repeat and I can take a concrete example.
+35:20 Okay. Good. Right. So once we have the gradients here, we will use these to
+35:27 update the optimizer states right and those optimizer states are used to
+35:33 update the model parameters right now this GPU has the updated parameter for
+35:42 first one/ird of the model parameters and this GPU has the updated parameters for the second and and this one is for
+35:50 the third. So what do we need to do now? We need to
+35:55 communicate again, right? So what do we need to do in this communication?
+36:00 This let's let's look at this GPU, right? First GPU. What it needs to do? It needs to
+36:07 gather all the weights so that it has the next bit next. Right? This also has to do the
+36:16 same thing, right? gather from different machines, right? And that is why it is
+36:23 called all gather. Everyone is gathering, right? This is the next uh
+36:31 communication primitive that we have all gather. Uh so what happens here in
+36:36 gather as I said if you're running gather then first I mean from depending
+36:41 on from which node we're running gather that machine will gather all the parameters
+36:46 from every other GPU and if you are doing all gather all the GPUs will will
+36:52 do the same operation right so now these were the gradients these were the model parameters right updated model
+36:58 parameters and now all the GPUs have the updated model parameters
+37:04 they can now start with the next batch. Right? Okay. So this is what is 01
+37:12 strategy. Right? Uh so this is called zero redundancy optimizer.
+37:18 Now I mean what did we do after uh all reduce here? What did do what did we do
+37:25 with these gradients? We were not using them, right? We
+37:31 discarded them. Right? So we don't need to use all reduce.
+37:37 Right? In fact, do I need to reserve the space for all the parameters? Can I only
+37:42 do with just this much space for the gradient as well? Right? So gradient was 2 Z. Right?
+37:53 Do we right I I can very clearly I can get rid of u the remaining words only
+37:59 these are used to update the corresponding u optimizer state right and the corresponding model parameters I
+38:05 don't need to keep space for all the gradients right
+38:13 and then we can get rid of that space right so there is another operation
+38:20 called reduce scatter Right. So you are right we some we have
+38:25 to actually add accumulate for I mean even for these parameters sorry even for
+38:31 these parameters we need to accumulate but we need to accumulate only on first GPU we don't need to accumulate on all
+38:38 the GPUs right similarly here also we need to accumulate only these we don't have to accumulate all
+38:45 right so so that and now this brings us to reduce scatter what is it doing it is
+38:51 first as I said it is first reducing
+38:56 and then scattering, right? So scatter essentially means that you have one big thing here and then you scatter uh on
+39:03 all the GPUs. Reduce scatter means that you have gradients on all different GPUs. These are the gradients for a
+39:09 particular parameter on on three different GPUs. You need to add them. So this f is the reduction operation,
+39:16 right? But after adding you can scatter them. Meaning let's say
+39:23 this A is uh is is uh 3,000 dimensional,
+39:32 right? B is also 3,000 dimensional and C is also 3,000 dimensional, right? For
+39:37 this is for all the parameters, we aggregate them, right? That will give me
+39:42 a 3,000 dimensional vector. But I don't need all 3,000 on all. I need only
+39:50 1,000. First 1,000 here. Second one 0 1 to 1,000 here. 1,000 to 2,000 here. And
+39:58 whatever 1,000 1 to 0 to this, whatever that would be to 2,000, 1 to 3,000 here.
+40:04 Right? So we are we are reducing and then we are scattering. Right? So that brings us to 03
+40:12 02 sorry. Right? 01 where we were sharding only optimizer 02 where we are
+40:19 sharding gradients as well. Right? So
+40:25 okay is this is this clear or is there any doubt?
+40:31 Yeah.
+40:37 Yeah. Okay. Right. So,
+40:44 so when we are backing right for a particular layer, I'm not storing the
+40:49 gradients for all, but when I'm backcropping, when I'm at a particular
+40:55 layer, right, let's say these are the this is the weight matrix for that
+41:00 layer, right? This is let's say 3,00 H.
+41:06 Let's let's assume that, right? all the GPUs will have to compute the
+41:13 the full gradient for the entire 30,000 cross H right so this is the temporary memory that we are we are allocating for
+41:20 for one layer let's say we need right we we need to have memory for whatever it
+41:25 share is 2 Z by N right plus we also need some buffer for you know for at
+41:31 least one layer that we have or or one operation right all the three GPUs are
+41:37 computing the gradient for for this right so let's say uh let's take a
+41:43 concrete example we have y = wx this is the first GPU doing y2 = wx2
+41:50 y3 = wx3 same operation on different data that is what data parallelism is
+41:56 when we are doing backdrop right we will compute delt on the first GPU I'm
+42:04 calling it here right that will be d l by del y1 * x1 one transpose right right
+42:11 similarly for uh the second GPU and similarly for the
+42:16 third GPU right we have the full gradient now what is the overall gradient for W
+42:23 what is DW
+42:30 sorry accumulation right so it's DW 1 plus DW 2 plus dw 3 by 3 right this is
+42:42 the overall gradient so this is the reduce part we have to reduce right but now the way
+42:49 we have sharded the optimizer and the gradient is that we I do not persist the
+42:56 gradient for the first one/ird on all the GPUs this part is on GPU 0 this is
+43:01 on GPU 1 and this is on GPU 2 or if you're following 1 2 3 then it's 1 2 and
+43:07 free whatever memory that I have allocated right persistent memory I have allocated
+43:14 only for the first 1,000 rows right
+43:21 rest I can flush flush out so for the on the first GPU
+43:27 I need so if I have this DW this DW is again this 1,00 cross H on the first GPU
+43:36 I need this first one/3 on the second I need this one and on the third I need
+43:42 this one right so but this entire I have computed this del the entire DW I
+43:48 reduced it now I need to I have this entire thing right I need to scatter
+43:54 this is the scatter part right so there is one uh native communication primitive
+44:01 which is doing this and and how is it implemented we will not go into the details will be too much slow level.
+44:07 Right? Does that make sense? How is it happening? Right? So the important thing is that we transiently we need the
+44:16 memory for the entire uh you know delw on all the GPUs. But after we have
+44:21 computed the forward pass and after we have communicated we can get rid of at least twothird of this. I will keep only
+44:27 this one on one GPU this one on second and this one on third. Right? Then again when I go to the next layer I will have
+44:34 the entire the entire weight matrix again in the same layer. I need the entire DW for for that but after
+44:40 communication I can discard uh two two of the three
+44:47 right okay cool. So
+44:52 yeah so we have replaced all reduce with reduce scatter right and uh all gather
+44:59 here remains the same. We need to gather the model parameters after we have updated right. So this this would for
+45:04 example be the first one/3 rows right of of our thousand 3,000 dimensional tensor
+45:10 and this will the second last right and then the next forward pass. And now
+45:15 let's look at the computation communication timeline. U this is how it
+45:20 looked in vanilla DP. What will happen in uh 01 and 2? Have we introduced any
+45:27 new uh communication things? Let's look at this here, right?
+45:32 We have forward pass, backward pass. We need one communication, right?
+45:41 We had this here as well, which was all reduced that has been replaced with
+45:47 reduce scatter, right? And this is overlapping with the
+45:56 backward computation, right? As as soon as we have run backward on layer 2, we can start it reduce cutter
+46:02 right and once we have the uh you know we have the gradients we can
+46:09 run the optimizer step right this optimizer step is also updating the
+46:14 corresponding parameters. Now on different GPUs this optimizer is working on different parameters right
+46:22 and after that we need an all
+46:28 gather right because updated parameters are on different GPUs first few
+46:34 parameters on one GPU second few on the second GPU now I need to gather all of them and and all of the GPUs have to
+46:41 gather right so that's how it looks Okay. Uh
+46:48 yeah. So in 01 we keep a copy of all the gradients. 02 we communicate and release
+46:54 the gradients on the fly. Okay. Um
+47:01 right. So so typically we would never use 01. There is no point in using 01. Typically you know we'll always use 02.
+47:08 There is no practically no communication overhead. That's why we had the same communication uh communication timeline
+47:13 for them. Right. uh so for to you know to make things clear conceptually I said that in 01 we
+47:19 are using we doing all reduce over the gradients because gradients were not scattered but in practice in 01 as well
+47:25 we do you know reduce scatter we don't need the remaining ones right okay so
+47:34 now you know we can come to the last bit which is the next only thing remaining
+47:39 on all the GPUs model Let's shard that as well, right?
+47:45 Let's keep only a fraction of model parameters on each GPU. So, what is the
+47:51 issue with doing this sharding?
+47:56 If we shard the model parameters as well, what is the problem?
+48:05 We can't do forward pass, right? Because we don't have the entire layer. uh first few rows are on one GPU next few are on
+48:12 the other GPU right for a matrix uh how will you do that so when we don't have
+48:18 what we do we gather right and uh only one GPU
+48:24 needs to gather or all GPU needs to gather right so we do all gather right so this saves some
+48:32 memory but introduces
+48:38 communication ation, right? So we we need in the forward pass we need to do
+48:43 all gather, right? That means we need to wait.
+48:48 There's communication there's a communication overhead here, right? And similarly in the backward
+48:54 pass also we need to gather. Okay.
+49:00 So I mean whenever we need we have more communication what do we do?
+49:07 Right. So initially we saw that in in naive data parallelism we were
+49:12 doing all reduce over the gradients right we were computing the entire forward pass backward pass all the gradients and then accumulating it and
+49:20 then we saw that it is inefficient it was inefficient because we were sitting idle when doing communication what did
+49:25 we do we tried to overlap communication and computation so here also can we do
+49:33 that and what will we do how How can we overlap communication and computation
+49:38 here?
+49:58 Any guesses?
+50:03 Sorry. values to the certificate.
+50:09 So what do you mean by computed values? We have the model model parameters, right? Which which are lying on
+50:14 different let's say I am on 10th layer right now. I have to pass through the 10th layer, right? I don't have the
+50:20 model parameters. I'm waiting for I have asked for it and I'm waiting for
+50:26 collecting them. Right? So should I dig the well when I'm thirsty
+50:32 or should I dig it before that? Right? I mean when I'm computing the
+50:39 ninth layer, I can prefetch the parameters for the 10th layer,
+50:45 right? Why to leave our communication channel empty, right? Let it prefetch. That's called prefetching,
+50:51 right? So there is an increased communication cost
+50:57 uh in 03. We are gathering the parameters here, right? And
+51:06 we are so so what happens is I mean we are prefetching here, right? So we get
+51:11 the zero layer parameters. We don't wait for this computation to
+51:17 finish. We start fetching layer 1, right? We're pre- fetching layer 1 before its
+51:24 computation starts, right? So we fetch layer zero, then forward pass through layer zero, then we flush the
+51:31 parameters. We don't need them, right? We have done the forward pass, then we are pre-fetching which continues in the
+51:37 background. Then parameters of the last layer are fetched only once, right? So
+51:44 in the last layer you do the forward pass, immediately you have to do the backward pass. Right? So you when you have fetched it
+51:50 for the forward pass, you keep it there with you and then use it in the backward pass as well to communicate to to
+51:56 compute the gradients. Right? And then
+52:03 one then you can start communicating the fetching the parameters for the next
+52:08 layer layer 1 for the backward pass right.
+52:13 Okay. Okay. So yeah so prefetching of layer 1 parameters it is overlapped with layer 2 computation
+52:20 and uh now this purple communication is we're
+52:26 communicating the gradients for parameter update right reduce and scatter the gradients right and overall
+52:33 for one layer one right how how much communication is happening so see that
+52:39 you know one layer one is appearing three three times here right we We are
+52:44 gathering the parameter for the forward pass once that is z communication tracks
+52:49 and we'll be doing it for all the parameters. We are doing it for the backward pass again right and then we
+52:58 are doing again for the gradient communication
+53:03 right and once we have done the gradient communication we will update the model
+53:09 parameters. Do I need to do all gather one because
+53:14 you know I have the updated model parameters on different GPUs in 02 we were doing all gather after we had the
+53:21 updated gradient par right do we need to do do we need to do all gather here no because updated parameters remain there
+53:28 we are prefetching them anyway right for computation we don't we don't I mean uh
+53:35 state of the model is not the same on all the GPUs it's sharded Right. So here
+53:42 the total communication cost is 3 Z right getting gathering the parameters
+53:49 for forward pass or backward pass and then then gradients for the uh weight update and in uh 02 and one it was 2 Z
+53:59 right so we have increased the communication but as long as we are able to overlap it with uh computation we are
+54:07 good right okay so this finishes is uh you know sharding with data parallel
+54:14 right uh let's compare the memory usage for a 8 billion model right uh on the
+54:22 x-axis we have different sequence lengths and uh we have dp equal to 8 we have
+54:30 eight GPUs right here we use 01 sharding 02 sharding and 03 sharding
+54:38 right in vanilla DP remember exactly same computation different data
+54:46 right so we keep a replica of the model gradient and optimizer right so yeah
+54:53 this parameters gradient and optimizer in 01 we are
+54:59 sharding only the optimizer it becomes 18 in 02 we are sharding the gradients
+55:07 as well Right. And in 03 we are sharding the
+55:13 parameters as well. Right. And with 03 we are able to bring
+55:21 this within 80 GB memory limit. Yay.
+55:26 Right. So at least we can do something with 03 with with 16k
+55:31 uh sequence length and uh 8 bit in memory. Right. Okay. And
+55:38 yeah, what would be the uh bat size here? Global bat size.
+55:49 No, it's going to be eight, right? I mean, we have one sequence of 16K that we are able to process. We have eight
+55:56 GPUs. So, it's 8 8 * 16 384
+56:02 uh tokens, right? We can do gradient accumulation if you want to increase it further,
+56:08 right? But that will be uh sequential. Okay. So let's just summarize whatever
+56:16 we have we have done today. Uh in vanilla DP assumption is that the entire
+56:22 sequence activation all the parameters gradients and optimizer states all the four sources of
+56:29 memory usage right all the four things that sit on our GPU memory they should fit on one GPU. Right? Sequence
+56:36 activations for at least one for one at least one sequence activation for at least one sequence. Right? In 01 these
+56:42 should remain as it is but you know ND fraction of the optimizer weight should
+56:48 sit on one GPU and similarly for 02 and 03. Uh
+56:54 as we saw what are we parallelizing in in in in data parallel we have
+57:01 activations right always remember this diagram bat size sequence length hidden
+57:07 dimension we are parallelizing cross this dimension zero on bat size zero
+57:12 right and in 0 1 2 and 3 we are in addition to reducing the activations
+57:19 right so so what is how are we reducing the memory uh The activation is activation matrix or the activation
+57:25 tensor is getting distributed right along the back dimension in in vanilla DP in 0 1 2 and three. In addition to
+57:32 activations we are also sharding the model optim and uh gradients right
+57:37 parameters and uh this is the memory excluding activation. We saw that right uh this
+57:43 this factor is only beneath the optimizer optimizer and gradients and
+57:50 optimizer gradients and parameters right everything is flux one bank and how much
+57:55 is the communication tax that we are paying right so we saw that in 03 it was 3 we
+58:03 need to gather the model parameters for forward pass for backward pass and then we need to
+58:09 scatter reduce scatter the gradients 3zi Right? In 02 it was 2 Z. We need to
+58:15 reduce scatter the gradients. Right? And then we need to all gather the the
+58:22 parameters model parameters. Right? And in 01 also it was 2 Z. Right? And in
+58:28 vanilla DP how much was the communication tax? What was the communication you were doing?
+58:33 Only the gradients, right? It was Z. Okay.
+58:40 So these are the assumption right and what is the common assumption in all three
+58:47 that at least one sequence activations should fit into the memory
+58:53 and uh to recall again this is
+58:59 the activations that we have bat size sequence length hidden dimension we have
+59:06 34 of these and we have five of sequence
+59:12 squared time number of heads
+59:17 time batch size right times five. This is the activation that
+59:24 these are the activations that we have. Can we somehow shard these activations
+59:30 as well?
+59:35 Which means if you are sharding these activations for a sequence
+59:40 that means same data
+59:46 on different GPUs. Does that make sense? I mean I'm just
+59:53 giving you some intuition. You need to keep this in mind always. In data parallel when we shed across the
+60:01 bat size dimension we said that okay GPU 1 you take first sequence GPU you take second sequence GP3 you take third
+60:07 sequence do exactly the same operation on all right same operation
+60:15 different data right and assumption was that at least activations worth of one
+60:21 sequence one data point we are able to keep in the memory we are not able to do
+60:26 that and And now we need to shard that those activations and those but those
+60:32 activations are for the same sequence right that means now we somehow need to
+60:39 have the same sequence go through multiple GPUs so that we can
+60:45 shard its activations. Right? So this
+60:50 will bring us to tensor parallelism which maybe we will start next time. Right? So
+60:57 yeah this is uh this is again a recap of what we saw earlier 34 times sequence bat size
+61:05 sequence then then dimension five times sequence square which is in the multi-edit tension right we need to u
+61:12 and and and uh this is the total activations that we have we will shard these activations on different GPUs and
+61:19 we will start with the MLP block right u in particular we'll look at the uh
+61:26 linear nonlinearity and another linear layer, right? H to 4 H and then back to H. This
+61:35 is the MLP block that we have, right? And we will see how can we shard uh
+61:40 these activations next time, right? We'll start with the MLP block. Thank you.

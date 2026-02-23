@@ -1,0 +1,5485 @@
+00:00 Welcome to this uh session on the
+00:03 
+
+00:03 advanced large language models course.
+00:05 
+
+00:05 Today I'm going to talk about text
+00:06 
+
+00:06 generation with multimodel inputs.
+00:08 
+
+00:08 Right? So um in the previous session we
+00:10 
+
+00:10 talked about multimodal encoder models.
+00:12 
+
+00:12 In this session I'm going to talk about
+00:14 
+
+00:14 text generation with multimodel inputs.
+00:17 
+
+00:17 uh let's start with uh uh you know the
+00:21 
+
+00:21 um a few few basically applications
+00:23 
+
+00:23 where this text generation with
+00:24 
+
+00:24 multimodal inputs matters and um in fact
+00:27 
+
+00:27 I have a bunch of those applications
+00:29 
+
+00:29 just to sort of motivate the kind of use
+00:31 
+
+00:31 cases people are applying these
+00:33 
+
+00:33 technologies for so for example this one
+00:35 
+
+00:35 is visual conversation so this has
+00:38 
+
+00:38 become so popular now I mean you have
+00:39 
+
+00:39 like so many chat bots all around so you
+00:42 
+
+00:42 have Microsoft copilot and Gemini and
+00:44 
+
+00:44 you know chat jeep chat GPT etc where
+00:46 
+
+00:46 you can basically upload load an image
+00:48 
+
+00:48 also put up a question and uh then uh
+00:50 
+
+00:50 the model generates an uh answer um and
+00:53 
+
+00:53 the interesting part is that it also
+00:55 
+
+00:55 retains context. So essentially there is
+00:57 
+
+00:57 a memory buffer which basically also
+00:59 
+
+00:59 manages um you know context of the
+01:01 
+
+01:01 previous turns in the in the current
+01:03 
+
+01:03 conversation. Uh in fact some of these
+01:05 
+
+01:05 systems also retain a user context
+01:07 
+
+01:07 across conversations by doing user
+01:08 
+
+01:08 modeling and then sort of retaining some
+01:11 
+
+01:11 sort of a user profile right. Um and
+01:14 
+
+01:14 these conversations could be pretty
+01:15 
+
+01:15 long. So in the sense that you could
+01:16 
+
+01:16 actually you know um ask very very
+01:19 
+
+01:19 creative things like creating a a blog
+01:21 
+
+01:21 post around uh a particular uh scenario
+01:24 
+
+01:24 and so on right so very very rich
+01:26 
+
+01:26 conversations multilingual conversations
+01:28 
+
+01:28 and so on. Uh scene understanding is yet
+01:31 
+
+01:31 another uh sort of multimodal task where
+01:34 
+
+01:34 you could basically upload an image and
+01:35 
+
+01:35 ask um you know what could have happened
+01:38 
+
+01:38 based on the current scene. So this is
+01:39 
+
+01:39 not just descriptive in nature but also
+01:41 
+
+01:41 does a whole bunch of reasoning
+01:43 
+
+01:43 understanding um world knowledge uh some
+01:46 
+
+01:46 sometimes also understanding common
+01:48 
+
+01:48 sense that you know what could have
+01:49 
+
+01:49 happened that could have led to this
+01:50 
+
+01:50 kind of a situation and so on right uh
+01:53 
+
+01:53 this is about actual uh knowledge based
+01:56 
+
+01:56 sort of um uh based generation. So maybe
+01:59 
+
+01:59 what you want to do while generating is
+02:01 
+
+02:01 not just depend on the pre-trend
+02:03 
+
+02:03 knowledge of the model but also combine
+02:05 
+
+02:05 it with the knowledge that exists in the
+02:07 
+
+02:07 knowledge base. um and uh essentially u
+02:10 
+
+02:10 then generate stuff. So knowledge
+02:12 
+
+02:12 grounded image descriptions for example,
+02:14 
+
+02:14 right? Um visual question answering just
+02:18 
+
+02:18 by itself is also an interesting task
+02:21 
+
+02:21 where rather than uh doing full
+02:23 
+
+02:23 multi-turn conversations, you just want
+02:25 
+
+02:25 to sort of generate um an answer u
+02:28 
+
+02:28 direct answer based on a question for an
+02:30 
+
+02:30 image. And these these examples are
+02:33 
+
+02:33 super popular essentially coming from uh
+02:36 
+
+02:36 the oldest GBD4 papers, right? And then
+02:38 
+
+02:38 almost everyone sort of tries to show
+02:40 
+
+02:40 the results uh with the different kinds
+02:42 
+
+02:42 of models um on on these on these
+02:45 
+
+02:45 examples that you see. I mean what is
+02:47 
+
+02:47 abnormal about this image or um can you
+02:49 
+
+02:49 explain this meme in detail kind of
+02:51 
+
+02:51 examples right? So both of these
+02:53 
+
+02:53 examples essentially for example what is
+02:55 
+
+02:55 unusual about this image? Uh yes there
+02:57 
+
+02:57 are models which can generate very long
+02:59 
+
+02:59 outputs detailing uh um I mean you know
+03:02 
+
+03:02 what is what is unusual but then well I
+03:05 
+
+03:05 mean there are also latest models which
+03:07 
+
+03:07 basically give you very very pinpointed
+03:09 
+
+03:09 accurate output saying that the unusual
+03:11 
+
+03:11 thing is that man is ironing clothes on
+03:13 
+
+03:13 a ironing board attached to the roof of
+03:14 
+
+03:14 a moving taxi which is not really very
+03:16 
+
+03:16 very usual. Um similarly you know uh
+03:19 
+
+03:19 there are models which can give you very
+03:21 
+
+03:21 very crisp answers or detailed answers
+03:23 
+
+03:23 depending on uh whatever is the style
+03:25 
+
+03:25 that you prefer to uh get those answers
+03:27 
+
+03:27 in. And all of these models after all
+03:29 
+
+03:29 are processing text and image and then
+03:31 
+
+03:31 generating text as a response to the
+03:33 
+
+03:33 input image. Um so these models don't
+03:37 
+
+03:37 just do image and text as input. They
+03:40 
+
+03:40 also can take audio as input. So where
+03:43 
+
+03:43 uh you know in this system uh you could
+03:46 
+
+03:46 basically take the video uh pass on the
+03:48 
+
+03:48 video and then you can actually um uh so
+03:51 
+
+03:51 this is video lama um we'll talk about
+03:53 
+
+03:53 video llama also when we talk start
+03:55 
+
+03:55 talking about architectures but uh here
+03:57 
+
+03:57 you essentially yes take the video um
+03:60 
+
+03:60 the user ask describe what you hear and
+04:02 
+
+04:02 well it can basically describe the dog
+04:04 
+
+04:04 barking sound um and but then it also
+04:07 
+
+04:07 has visual capabilities so you can
+04:09 
+
+04:09 basically uh user can ask does the man
+04:11 
+
+04:11 wear glasses And uh you know the system
+04:14 
+
+04:14 does have a visual cap capacity as well.
+04:16 
+
+04:16 Okay. Uh similarly this is another
+04:18 
+
+04:18 example where the audio uh processing
+04:20 
+
+04:20 capabilities uh can be observed you know
+04:22 
+
+04:22 when when the model is asked how was the
+04:24 
+
+04:24 audience's response it can actually
+04:26 
+
+04:26 nicely uh explain that the audience was
+04:28 
+
+04:28 very enthusiastic and cloud lap uh and
+04:30 
+
+04:30 and clap loudly and so on. Okay.
+04:34 
+
+04:34 uh common sense uh concept recognition.
+04:36 
+
+04:36 So essentially uh uh this is basically
+04:40 
+
+04:40 uh a a picture a pic from a scene in a
+04:44 
+
+04:44 movie. Do you know who the man on the
+04:45 
+
+04:45 right is and it can actually nicely
+04:47 
+
+04:47 relate celebrities. So in some ways yes
+04:49 
+
+04:49 these models can understand celebrities
+04:52 
+
+04:52 uh relate them with world knowledge or
+04:54 
+
+04:54 knowledge graphs basically so as to be
+04:56 
+
+04:56 able to figure out who is playing which
+04:58 
+
+04:58 kind of a role in which movie and so on
+04:60 
+
+04:60 right uh landmark detection as well. So
+05:02 
+
+05:02 in the sense yes it basically recognizes
+05:05 
+
+05:05 popular buildings and can explain about
+05:07 
+
+05:07 about them as well right. Um so many of
+05:11 
+
+05:11 these things that we discussed were
+05:13 
+
+05:13 essentially describing world knowledge
+05:15 
+
+05:15 or describing static snapshots but it
+05:17 
+
+05:17 can also describe videos. So what what
+05:20 
+
+05:20 are the actions which are ongoing and uh
+05:22 
+
+05:22 then also do question answering based on
+05:24 
+
+05:24 the actions. So either just describe the
+05:26 
+
+05:26 actions uh in deep details uh but also
+05:29 
+
+05:29 sort of describe uh the actions and
+05:32 
+
+05:32 answer questions based on that. So for
+05:33 
+
+05:33 example, summarize is okay but then you
+05:35 
+
+05:35 know the question is what direction is
+05:36 
+
+05:36 the ship going? So it does understand
+05:38 
+
+05:38 what was the direction which the ship is
+05:40 
+
+05:40 moving. Yeah. Um and then people have
+05:43 
+
+05:43 used it for all kinds of creative use
+05:45 
+
+05:45 cases. So in uh 2022 um when these
+05:49 
+
+05:49 models were not so accurate uh or yeah
+05:52 
+
+05:52 early 2022 we were ourselves working on
+05:54 
+
+05:54 a task of comic strip generation. So the
+05:56 
+
+05:56 idea was that hey based on the previous
+05:58 
+
+05:58 few uh frames you know can you basically
+06:01 
+
+06:01 try to come up with the text that those
+06:04 
+
+06:04 cartoon characters would speak in the
+06:05 
+
+06:05 next frame. Uh now people are people
+06:09 
+
+06:09 basically use these kinds of models for
+06:10 
+
+06:10 doing all kinds of interesting creative
+06:12 
+
+06:12 generation like uh can you write a story
+06:15 
+
+06:15 around this image or can you write a rap
+06:17 
+
+06:17 song uh you know that wibes with this
+06:20 
+
+06:20 image um or or who are the people in
+06:23 
+
+06:23 this image I mean when you give a comic
+06:24 
+
+06:24 strip and so on right so people so these
+06:27 
+
+06:27 are all examples where uh text is being
+06:29 
+
+06:29 generated given multimodal inputs more
+06:32 
+
+06:32 examples um these images are essentially
+06:35 
+
+06:35 more of uh snapshots of web text. So
+06:40 
+
+06:40 text extraction and detailed reasoning
+06:41 
+
+06:41 based on image where you know this is
+06:43 
+
+06:43 basically a snapshot of an article and
+06:45 
+
+06:45 uh then the uh you know and then
+06:48 
+
+06:48 somebody could say oh please identify
+06:49 
+
+06:49 the text in the picture um you might
+06:52 
+
+06:52 have heard about the DC OCR which came
+06:54 
+
+06:54 up very recently. So which is more or
+06:56 
+
+06:56 less I mean has has super awesome
+06:58 
+
+06:58 capabilities of doing these kinds of
+06:60 
+
+06:60 things. It basically understands the
+07:02 
+
+07:02 text which is in embedded in the image
+07:03 
+
+07:03 itself. Right? Uh and then this is a
+07:06 
+
+07:06 response to this question. Hey uh I mean
+07:08 
+
+07:08 this is a text which is extracted. Uh
+07:10 
+
+07:10 this is using mini CPM lava lama 3 but
+07:12 
+
+07:12 yes deepse go is known to do even
+07:15 
+
+07:15 better. Okay. Uh but there could be
+07:18 
+
+07:18 other kinds of interpretations based on
+07:19 
+
+07:19 the text of the image like based on this
+07:21 
+
+07:21 picture make a detailed meal plan for
+07:23 
+
+07:23 me. Um and uh yes there is a detailed
+07:26 
+
+07:26 nice meal plan which is generates um so
+07:29 
+
+07:29 yeah uh based on what is a healthy diet
+07:32 
+
+07:32 and obviously all of us studied this in
+07:34 
+
+07:34 school balanced diet and so on. Okay. Uh
+07:36 
+
+07:36 these systems now can also process very
+07:38 
+
+07:38 long uh text in different kinds of or or
+07:41 
+
+07:41 very long uh so images which are
+07:43 
+
+07:43 basically depicting uh um um you know uh
+07:47 
+
+07:47 articles or paper cutings in different
+07:50 
+
+07:50 aspect formats right. So for example
+07:52 
+
+07:52 this one is a a tall format you know
+07:55 
+
+07:55 this is basically uh continuation of the
+07:58 
+
+07:58 entire um paper cutting in that sensus
+08:01 
+
+08:01 and you want to capture that story yes I
+08:02 
+
+08:02 mean different aspect ratios also are
+08:05 
+
+08:05 reasonably okay with today's models in
+08:07 
+
+08:07 that senses right um flowchart
+08:10 
+
+08:10 understanding is yet another kind of uh
+08:12 
+
+08:12 um image gener I mean you know image to
+08:15 
+
+08:15 text kind of problem so uh you have a
+08:18 
+
+08:18 flowchart of this kind how does it work
+08:20 
+
+08:20 right so essentially understanding
+08:21 
+
+08:21 natural images is one thing and being
+08:23 
+
+08:23 able to generate um descriptions of
+08:25 
+
+08:25 those but the other thing is basically
+08:27 
+
+08:27 taking structured images like flowcharts
+08:29 
+
+08:29 or patents. We also worked on patent
+08:31 
+
+08:31 diagrams um um so those kinds of um
+08:35 
+
+08:35 infographics and uh being able to nicely
+08:38 
+
+08:38 come up with uh with uh with text that
+08:41 
+
+08:41 describes those right text that
+08:43 
+
+08:43 describes those um this is the right one
+08:45 
+
+08:45 is for interior understanding. So these
+08:47 
+
+08:47 are different domain specific things.
+08:48 
+
+08:48 Now there is obviously also work on
+08:50 
+
+08:50 medical understanding. So given medical
+08:52 
+
+08:52 images try to write diagnosis uh you
+08:55 
+
+08:55 know possibly also link with ICD10 codes
+08:57 
+
+08:57 which are uh which are like standardized
+08:59 
+
+08:59 medical codes uh for that diagnosis and
+09:01 
+
+09:01 so on. Right? So, so people have done
+09:03 
+
+09:03 generation in domain specific manner
+09:04 
+
+09:04 where basically the images are not
+09:06 
+
+09:06 really um you know the usual cat and dog
+09:08 
+
+09:08 images but more of uh flowchart images
+09:11 
+
+09:11 um infographics, bar charts and plots
+09:14 
+
+09:14 and um uh and patent diagrams,
+09:17 
+
+09:17 architecture diagrams uh things of that
+09:19 
+
+09:19 kind. Very recently we have also been
+09:21 
+
+09:21 working of working on um uh you know the
+09:26 
+
+09:26 other way around problem. So obviously
+09:28 
+
+09:28 you can take architecture diagrams and
+09:30 
+
+09:30 generate text but uh orthogonally which
+09:33 
+
+09:33 we'll not discuss in this session is
+09:35 
+
+09:35 also the the task of image generation or
+09:38 
+
+09:38 video generation and things of that kind
+09:40 
+
+09:40 where given let's say text describing
+09:42 
+
+09:42 how a system works can you generate
+09:44 
+
+09:44 architecture diagram automatically right
+09:46 
+
+09:46 but that's orthogonal so this session is
+09:47 
+
+09:47 more on text generation it's multimodal
+09:49 
+
+09:49 session but it's a session on multimodal
+09:51 
+
+09:51 inputs but output is text more examples
+09:54 
+
+09:54 understanding menu cards and
+09:55 
+
+09:55 infographics so we already talked about
+09:57 
+
+09:57 infographics. Yes, take this kind of a
+09:59 
+
+09:59 chart and explain this stuff. Um, people
+10:02 
+
+10:02 have been using these kinds of things
+10:03 
+
+10:03 even for writing papers these days. I
+10:04 
+
+10:04 mean essentially almost everyone when we
+10:07 
+
+10:07 write papers essentially u take an
+10:09 
+
+10:09 infographic and uh obviously you
+10:11 
+
+10:11 manually describe what is going on in
+10:12 
+
+10:12 that uh but more often than not you also
+10:15 
+
+10:15 ask GPT hey can you basically describe
+10:17 
+
+10:17 it in a better manner to me? uh and uh
+10:19 
+
+10:19 yes if there are interesting uh insights
+10:22 
+
+10:22 that uh a human could not really look at
+10:24 
+
+10:24 uh you could basically have these models
+10:27 
+
+10:27 uh generate those insights and you could
+10:28 
+
+10:28 then include them in your write up right
+10:33 
+
+10:33 uh so those are all last one basically
+10:36 
+
+10:36 bill parsing so essentially um we did
+10:39 
+
+10:39 discuss this in the previous session as
+10:40 
+
+10:40 well about document layout parsing and
+10:43 
+
+10:43 so on but here is a very interesting
+10:45 
+
+10:45 this is an interesting example in the
+10:46 
+
+10:46 sense that it just does not parse things
+10:48 
+
+10:48 but also engages in a conversation based
+10:50 
+
+10:50 on the pars data. So here is a a receipt
+10:54 
+
+10:54 from some store uh from some restaurant
+10:57 
+
+10:57 and then this guy basically says I only
+10:60 
+
+10:60 had the sliced meat how much do I need
+11:02 
+
+11:02 to pay uh include a 18% tip. Now the
+11:05 
+
+11:05 kind of capabilities that the model
+11:06 
+
+11:06 needs to have to be able to answer this
+11:08 
+
+11:08 question is is is very very interesting.
+11:10 
+
+11:10 So it needs to be able to uh not just
+11:12 
+
+11:12 parse this stuff and do OCR uh but be
+11:15 
+
+11:15 also able to relate that hey what would
+11:17 
+
+11:17 sliced meat mean I mean there are like
+11:19 
+
+11:19 sure I mean there are like four or five
+11:20 
+
+11:20 things which are ordered here and there
+11:23 
+
+11:23 are those entries four four entries
+11:24 
+
+11:24 basically that we see here which one
+11:26 
+
+11:26 basically relates to sliced meat okay
+11:28 
+
+11:28 and uh it also requires then language
+11:31 
+
+11:31 translation so or understanding which
+11:33 
+
+11:33 could have I maybe this does not
+11:35 
+
+11:35 directly translate to uh you know meat
+11:37 
+
+11:37 but uh having that understanding that
+11:39 
+
+11:39 this is the one that relates. This is
+11:40 
+
+11:40 the entry that relates and uh then being
+11:43 
+
+11:43 able to, you know, take that amount and
+11:46 
+
+11:46 add 18% tip as expected. Uh and then
+11:49 
+
+11:49 finally putting up the amount really
+11:51 
+
+11:51 involves a whole bunch of uh
+11:52 
+
+11:52 capabilities, right? Not just visual
+11:54 
+
+11:54 visual understanding but being able to
+11:56 
+
+11:56 translate being able to relate what
+11:58 
+
+11:58 contains what being able to um uh take
+12:00 
+
+12:00 the align align the you know the u u
+12:05 
+
+12:05 amount 36.5 being able to do
+12:07 
+
+12:07 mathematical reasoning on top adding the
+12:09 
+
+12:09 tip and coming up with the final answer.
+12:10 
+
+12:10 Yeah. So all of those are interesting
+12:13 
+
+12:13 capabilities. So what I did in the first
+12:15 
+
+12:15 part was to basically talk about various
+12:18 
+
+12:18 kinds of use cases where multimodal
+12:21 
+
+12:21 input but text output makes a lot of
+12:24 
+
+12:24 sense right. So several several use
+12:26 
+
+12:26 cases. Okay. Uh and uh uh yeah I mean at
+12:29 
+
+12:29 the base it's basically just perception
+12:31 
+
+12:31 parsing perception understanding. So in
+12:33 
+
+12:33 the sense that understanding the image
+12:35 
+
+12:35 but beyond that there's a whole bunch of
+12:38 
+
+12:38 uh bunch whole bunch of effort that
+12:40 
+
+12:40 these architectures need to make in
+12:42 
+
+12:42 terms of combining reasoning on top of
+12:45 
+
+12:45 the perception that has been already
+12:48 
+
+12:48 performed right. Um so now what I will
+12:52 
+
+12:52 do is to basically start talking about
+12:54 
+
+12:54 various models and starting from the
+12:56 
+
+12:56 history historical perspective to some
+12:58 
+
+12:58 of the latest ones. We may or may not
+12:60 
+
+12:60 have time to really talk about all of
+13:01 
+
+13:01 them especially in detail. I mean I I
+13:04 
+
+13:04 try to go into a significant amount of
+13:06 
+
+13:06 detail that you can understand the main
+13:07 
+
+13:07 idea but clearly I mean if you want to
+13:09 
+
+13:09 understand more details you should look
+13:11 
+
+13:11 up at the paper right. So the first uh
+13:14 
+
+13:14 first thing that you could do to be able
+13:16 
+
+13:16 to generate uh text is basically
+13:18 
+
+13:18 obviously take image as input pass it
+13:20 
+
+13:20 through a vision encoder like the ones
+13:22 
+
+13:22 that we learned in the previous session
+13:24 
+
+13:24 right uh take the take the text uh and
+13:26 
+
+13:26 pass it to a language model language
+13:28 
+
+13:28 encoder um take those encodings and
+13:30 
+
+13:30 essentially pass it to a uh to a to a to
+13:33 
+
+13:33 an auto reggressive uh you know language
+13:35 
+
+13:35 generator right so that's that and
+13:37 
+
+13:37 that's what the frozen model does I mean
+13:39 
+
+13:39 the name itself is so explicit that hey
+13:41 
+
+13:41 I'm going to freeze my uh you know
+13:43 
+
+13:43 embedding model. I'm going to freeze my
+13:45 
+
+13:45 uh or maybe the vision model maybe I'll
+13:48 
+
+13:48 freeze or I'll basically learn but you
+13:49 
+
+13:49 know I'm surely going to freeze my text
+13:51 
+
+13:51 part completely and all I'm going to do
+13:53 
+
+13:53 is to also take the input image project
+13:56 
+
+13:56 it to the dimensions uh in fact at that
+13:58 
+
+13:58 time there was no projection logic sorry
+13:60 
+
+13:60 so I I'll basically therefore just take
+14:01 
+
+14:01 the vision encoder uh I will unfreeze
+14:04 
+
+14:04 the vision encoder so basically I'm
+14:05 
+
+14:05 going to train my vision encoder but he
+14:07 
+
+14:07 is going to generate the output one
+14:09 
+
+14:09 token at a time right and you train it
+14:10 
+
+14:10 in a end to-end manner such that you
+14:12 
+
+14:12 keep the language model parameter has
+14:14 
+
+14:14 frozen but you update um uh you see uh
+14:18 
+
+14:18 the vision encoder parameters um uh as
+14:21 
+
+14:21 you fine-tune it on this um image
+14:24 
+
+14:24 captioning data. So you fine tune on
+14:25 
+
+14:25 image captioning data. You give the
+14:26 
+
+14:26 image and given the first four words
+14:29 
+
+14:29 you're going to predict the fifth word,
+14:30 
+
+14:30 sixth word, seventh word one by one as
+14:32 
+
+14:32 you typically fine-tune any any
+14:34 
+
+14:34 generative model. It's just that you
+14:35 
+
+14:35 have an extra input which is basically
+14:36 
+
+14:36 the image embedding. Right? Uh or image
+14:39 
+
+14:39 encoder. So basically you do fine-tune
+14:41 
+
+14:41 the weights of the image encoder. Right?
+14:43 
+
+14:43 Now at inference time you could use it
+14:45 
+
+14:45 in various ways. You could basically
+14:46 
+
+14:46 just do zero short vqa. So in the sense
+14:49 
+
+14:49 that you pass on the image, you pass on
+14:50 
+
+14:50 the question uh and uh obviously the
+14:54 
+
+14:54 weights are all uh fixed and so on. So
+14:56 
+
+14:56 after the question has ended, it
+14:58 
+
+14:58 basically leaves you with a prompt and
+14:59 
+
+14:59 the next token essentially tries to
+15:01 
+
+15:01 predict the answer. Next token tries to
+15:02 
+
+15:02 predict the answer. You could also do
+15:04 
+
+15:04 oneshot VQA which basically means you
+15:06 
+
+15:06 can give the image and you can
+15:07 
+
+15:07 essentially give the question and the
+15:09 
+
+15:09 answer together. That's a one short
+15:11 
+
+15:11 example. But then you can also give the
+15:13 
+
+15:13 image and essentially in the question
+15:15 
+
+15:15 without the answer and hopefully it
+15:17 
+
+15:17 generates the right answer or you could
+15:19 
+
+15:19 do few short. So essentially you could
+15:21 
+
+15:21 uh give the image and then you know some
+15:23 
+
+15:23 some sort of a caption another image
+15:24 
+
+15:24 some sort of a caption and the third
+15:26 
+
+15:26 image and then ask um ask you know what
+15:29 
+
+15:29 should be the caption or what should be
+15:31 
+
+15:31 the classification for the third image
+15:32 
+
+15:32 right. So uh so this is basically
+15:35 
+
+15:35 obviously test time uh you know changes
+15:37 
+
+15:37 that you're doing inference time changes
+15:38 
+
+15:38 via in context learning the first thing
+15:40 
+
+15:40 that people could do uh in in history
+15:43 
+
+15:43 from a historical perspective right in
+15:46 
+
+15:46 hindsight if you think about it hey why
+15:48 
+
+15:48 do you want to basically update the
+15:49 
+
+15:49 entire weight in the vision encoder
+15:51 
+
+15:51 could you basically just use just keep
+15:52 
+
+15:52 the vision encoder also frozen u and
+15:55 
+
+15:55 probably just learn some sort of a
+15:56 
+
+15:56 projector embeddings which project these
+15:58 
+
+15:58 vision uh model to the same text space
+16:01 
+
+16:01 and make it work and so on But uh in the
+16:04 
+
+16:04 beginning that's what people thought and
+16:06 
+
+16:06 they basically called it the frozen
+16:07 
+
+16:07 model where well that language model is
+16:09 
+
+16:09 frozen but but that vision model is
+16:11 
+
+16:11 trained and then at test time you could
+16:13 
+
+16:13 basically use it in the zero shot one
+16:15 
+
+16:15 shot few shot settings right
+16:18 
+
+16:18 um so uh and and this model basically
+16:21 
+
+16:21 was not trained on multi-image data. So
+16:24 
+
+16:24 in the input there is basically only one
+16:26 
+
+16:26 image and the output basically just has
+16:28 
+
+16:28 one caption uh associated. So the
+16:30 
+
+16:30 pre-training data is basically of that
+16:32 
+
+16:32 kind right. Uh uh by the way there are
+16:35 
+
+16:35 now models which basically have been
+16:37 
+
+16:37 trained using multiple images in a
+16:39 
+
+16:39 conversation style. Um also there have
+16:42 
+
+16:42 been models which have been trained such
+16:43 
+
+16:43 that all the images are upfront provided
+16:45 
+
+16:45 and then the conversation works on that
+16:47 
+
+16:47 works based on that. But there are also
+16:49 
+
+16:49 models which basically have interled
+16:51 
+
+16:51 image and text kind of scenarios. So you
+16:54 
+
+16:54 basically have some text and then you
+16:55 
+
+16:55 have an image then you have more text
+16:57 
+
+16:57 then you have another image and more
+16:58 
+
+16:58 text and so on. that's interled image
+16:59 
+
+16:59 and text scenarios. So for certain kinds
+17:01 
+
+17:01 of scenarios, you do need that interle
+17:03 
+
+17:03 thing. Um so when you are trying to uh
+17:06 
+
+17:06 think about a scenario where you want to
+17:07 
+
+17:07 apply such a model, you want to also
+17:09 
+
+17:09 think whether the model was trained in
+17:10 
+
+17:10 an interled setting or not. Right? U so
+17:13 
+
+17:13 that takes us to the next model that I'm
+17:16 
+
+17:16 going to discuss. This is called
+17:17 
+
+17:17 flamingo. So uh in this model uh you
+17:21 
+
+17:21 know you can actually have multiple
+17:23 
+
+17:23 images uh in the in the input. Uh so uh
+17:27 
+
+17:27 that's that's that uh uh if if the input
+17:30 
+
+17:30 is this uh there's an image and then
+17:32 
+
+17:32 there is a very cute dog is the is the
+17:34 
+
+17:34 caption and then there is a cat and then
+17:36 
+
+17:36 there this is so you want to obviously
+17:39 
+
+17:39 you know um predict a very serious cat
+17:42 
+
+17:42 in that senses. Okay. Uh the way this
+17:45 
+
+17:45 works is uh is the architecture that you
+17:48 
+
+17:48 see here. So let me basically talk about
+17:50 
+
+17:50 the architecture. In this architecture
+17:52 
+
+17:52 uh there is uh vision processing which
+17:54 
+
+17:54 is happening on the left side and then
+17:56 
+
+17:56 there is text processing which is
+17:57 
+
+17:57 happening here. Okay. So images
+17:60 
+
+17:60 basically uh are uh are represented I
+18:03 
+
+18:03 mean when there's text processing which
+18:04 
+
+18:04 is happening in the text tower here
+18:06 
+
+18:06 essentially uh you see the text
+18:09 
+
+18:09 processing uh um um in the in the text
+18:12 
+
+18:12 part you basically place these sentinel
+18:14 
+
+18:14 tokens or representative tokens to
+18:16 
+
+18:16 basically mention that there was an
+18:17 
+
+18:17 image here. you don't really specify uh
+18:19 
+
+18:19 specifically contain the image tokens
+18:21 
+
+18:21 there but you basically just mention
+18:22 
+
+18:22 that there's a image here. Okay. Um and
+18:26 
+
+18:26 uh this one is the standard um is is
+18:30 
+
+18:30 more or less the standard transformer
+18:32 
+
+18:32 decoder. So there's not too much of a
+18:34 
+
+18:34 difference as you can see uh there is
+18:35 
+
+18:35 some sort of an attention and there's
+18:37 
+
+18:37 feed forward and so on but there's a
+18:39 
+
+18:39 slight variation. So in the sense that
+18:41 
+
+18:41 uh although there is feed forward and
+18:43 
+
+18:43 self attention I mean you know this this
+18:44 
+
+18:44 block is slightly different from a
+18:46 
+
+18:46 standard transmitter decoder but more or
+18:47 
+
+18:47 less it does the same job. Okay. Uh in
+18:49 
+
+18:49 fact this block actually contains two
+18:51 
+
+18:51 subblocks and if you really look at it
+18:53 
+
+18:53 this one is um you see I mean
+18:56 
+
+18:56 essentially it has uh gated cross
+18:59 
+
+18:59 attention dense and then it also has a
+19:01 
+
+19:01 lm block. So LM block is basically the
+19:04 
+
+19:04 standard uh transformer decoder that you
+19:06 
+
+19:06 have learned about. It has self
+19:07 
+
+19:07 attention and feed internally. But then
+19:09 
+
+19:09 there is a gated cross attention dense
+19:12 
+
+19:12 you know and this gated cross attention
+19:13 
+
+19:13 dense is slightly different. Okay. Um it
+19:16 
+
+19:16 is slightly difference in the sense that
+19:17 
+
+19:17 well self attention is actually replaced
+19:19 
+
+19:19 by cross attention and you have a feed
+19:21 
+
+19:21 forward layer as usual. Okay. Uh however
+19:24 
+
+19:24 um you know along around them there is
+19:26 
+
+19:26 getting also and that is why it's called
+19:27 
+
+19:27 gated self attention. Gated networks are
+19:29 
+
+19:29 again gated gated uh this gating thing
+19:32 
+
+19:32 is actually a popular primitive that is
+19:34 
+
+19:34 used across many many uh many many
+19:36 
+
+19:36 architectures. It just means a dense
+19:39 
+
+19:39 layer which sort of predicts how much
+19:40 
+
+19:40 importance do you give to each of the
+19:42 
+
+19:42 attention heads or each of the inputs
+19:43 
+
+19:43 and so on. Okay. Um now why cross
+19:46 
+
+19:46 attention here? I mean cross attention
+19:48 
+
+19:48 makes sense here because hey it's not
+19:50 
+
+19:50 just that you want to process the text.
+19:52 
+
+19:52 You obviously want to also have the
+19:53 
+
+19:53 influence of the image so as to
+19:54 
+
+19:54 basically when you generating stuff.
+19:56 
+
+19:56 Now, how do you bring the influence of
+19:57 
+
+19:57 the image when you're generating stuff?
+19:59 
+
+19:59 Well, the influence of the image flows
+20:00 
+
+20:00 in uh through these cross attention
+20:03 
+
+20:03 cross attention, you know, connections.
+20:05 
+
+20:05 Okay, so uh our uh decoder guy, our text
+20:10 
+
+20:10 decoder guy, you know, this guy
+20:12 
+
+20:12 essentially is sort of generating the
+20:14 
+
+20:14 text output, but that needs to be
+20:16 
+
+20:16 conditional um on uh on the images that
+20:20 
+
+20:20 are also there as part of input, right?
+20:22 
+
+20:22 And um uh this conditional behavior is
+20:24 
+
+20:24 basically brought in using this using
+20:26 
+
+20:26 this cross attention logic. And I'm
+20:29 
+
+20:29 assuming you sort of understand cross
+20:30 
+
+20:30 attention. Cross attention. Yesterday
+20:32 
+
+20:32 also we talked about it um where you
+20:34 
+
+20:34 know in Wilbur basically there were this
+20:36 
+
+20:36 cross attention kind of things. Uh
+20:37 
+
+20:37 you're taking keys and values from um
+20:39 
+
+20:39 from from the other modality and queries
+20:42 
+
+20:42 from the text modality itself. So the
+20:43 
+
+20:43 queries are from the language modality
+20:44 
+
+20:44 itself. The keys and the values come
+20:46 
+
+20:46 from the vision modality. Okay.
+20:48 
+
+20:48 So um I mean Flamingo has basically
+20:51 
+
+20:51 three different variants 3 billion, 9
+20:52 
+
+20:52 billion, 80 billion variants and uh uh
+20:55 
+
+20:55 for encoding images basically they did
+20:57 
+
+20:57 not use the uh transform models yet they
+20:59 
+
+20:59 use the restnet models. So they still
+21:01 
+
+21:01 come up with some sort of embeddings
+21:02 
+
+21:02 based on restnet and they essentially
+21:04 
+
+21:04 pass them on um as extra input uh which
+21:08 
+
+21:08 uh which flows in via cross attention
+21:09 
+
+21:09 connections to the uh transformer
+21:11 
+
+21:11 decoder for generating the text. Okay.
+21:14 
+
+21:14 uh yeah there are some details about the
+21:15 
+
+21:15 about the data sets that they used for
+21:17 
+
+21:17 training uh but more important stuff is
+21:20 
+
+21:20 to really focus on the vision vision
+21:22 
+
+21:22 tower now okay so on the vision tower if
+21:25 
+
+21:25 you observe there's a vision encoder
+21:26 
+
+21:26 which was basically based on pre-trained
+21:28 
+
+21:28 restnet model uh and kept frozen okay uh
+21:31 
+
+21:31 but then there is also this thing called
+21:33 
+
+21:33 as perceiver resampler okay there's also
+21:35 
+
+21:35 a perceiver resampler guy okay uh now
+21:38 
+
+21:38 what does this perceive resampler guy do
+21:39 
+
+21:39 okay uh it's uh you know I tried to talk
+21:42 
+
+21:42 about it yesterday as well in the um in
+21:44 
+
+21:44 the in the afternoon talk. But the idea
+21:46 
+
+21:46 is that Perseverampler essentially is
+21:48 
+
+21:48 typically used uh when your input is uh
+21:51 
+
+21:51 v can be variable sized. For example, in
+21:53 
+
+21:53 this case, there could be multiple
+21:54 
+
+21:54 images. And then what do you do, right?
+21:56 
+
+21:56 Uh and then what you want to do is to
+21:58 
+
+21:58 really extract the essence of all of
+21:60 
+
+21:60 that input and convert it to a fixed
+22:01 
+
+22:01 size representation, a fixed number of
+22:03 
+
+22:03 vectors. Okay? Fixed number of
+22:04 
+
+22:04 embeddings in that senses. Okay? So,
+22:06 
+
+22:06 let's talk about what is this perceive
+22:08 
+
+22:08 resampler guy. I mean, you know,
+22:09 
+
+22:09 hopefully the remaining part of the
+22:10 
+
+22:10 architecture is super clear, but this
+22:11 
+
+22:11 perceive resampler, what is this guy
+22:13 
+
+22:13 doing is is what I'm going to talk about
+22:14 
+
+22:14 on the next slide. Okay. Now, not to
+22:16 
+
+22:16 sort of overwhelm people, basically the
+22:18 
+
+22:18 left part is just the architecture from
+22:20 
+
+22:20 the previous slide. That's not a new
+22:21 
+
+22:21 thing. The new thing is on the right
+22:23 
+
+22:23 side which is a perceiver sampler
+22:24 
+
+22:24 architecture. Okay. U what does this guy
+22:28 
+
+22:28 really do? Right. So essentially um uh
+22:31 
+
+22:31 and what does it contain? Okay. So I'm
+22:34 
+
+22:34 really talking about this box. Okay. So
+22:36 
+
+22:36 what does this guy do? Okay. So per
+22:38 
+
+22:38 resampler essentially is just a
+22:39 
+
+22:39 transformer encoder model. So it's
+22:42 
+
+22:42 basically maybe you know you can think
+22:43 
+
+22:43 about as a six layer transformer encoder
+22:45 
+
+22:45 model. Okay. Um so that's basically that
+22:48 
+
+22:48 guy six layer transformer encoder.
+22:50 
+
+22:50 Right. So what changes is basically the
+22:52 
+
+22:52 input that you provide to this guy uh
+22:54 
+
+22:54 broadly. Okay. Um so the input you know
+22:57 
+
+22:57 if you have these two images so sure you
+22:58 
+
+22:58 take the images and you tile them like
+23:00 
+
+23:00 you would uh do that using vision
+23:03 
+
+23:03 transformers or you basically get get
+23:05 
+
+23:05 the representations from a restn net
+23:06 
+
+23:06 model whatever is is the representations
+23:08 
+
+23:08 you have some some tokens in some ways
+23:10 
+
+23:10 right whether you get them from restnet
+23:11 
+
+23:11 or you basically get them from vision
+23:13 
+
+23:13 transformer as tiles right so you have
+23:15 
+
+23:15 those tokens and you uh essentially
+23:18 
+
+23:18 flatten those things I mean if you're
+23:19 
+
+23:19 getting from restn net well you have to
+23:20 
+
+23:20 flatten them because they're volumes
+23:22 
+
+23:22 effectively so you have to flatten them
+23:23 
+
+23:23 okay and you pass those image tokens And
+23:25 
+
+23:25 remember this could be variable sized
+23:27 
+
+23:27 because uh if you have two images you'll
+23:28 
+
+23:28 have two tokens. If you have like five
+23:30 
+
+23:30 five images you have like five tok five
+23:31 
+
+23:31 I mean five into x tokens whatever is x
+23:34 
+
+23:34 uh token number of tokens per image.
+23:35 
+
+23:35 Okay but uh what I wanted to do is
+23:38 
+
+23:38 basically have a fixed number of uh
+23:40 
+
+23:40 represent fixed number of vectors to
+23:42 
+
+23:42 represent this variable sized input. And
+23:44 
+
+23:44 the way this guy does is by basically um
+23:47 
+
+23:47 you know to this to this transmit
+23:49 
+
+23:49 encoder um uh backbone you know the
+23:51 
+
+23:51 inputs that are passed are not just
+23:53 
+
+23:53 these variable size things but also
+23:55 
+
+23:55 these latent learnable queries. Okay. So
+23:58 
+
+23:58 if I really wanted to represent whatever
+23:60 
+
+23:60 is the number of images represent them
+24:02 
+
+24:02 using just 32 vectors let's say if I
+24:03 
+
+24:03 decided 32 vectors then I would pass in
+24:05 
+
+24:05 32 learnable queries. Okay. Um and you
+24:09 
+
+24:09 know when you have these third two
+24:11 
+
+24:11 learnable queries the idea is that these
+24:13 
+
+24:13 learnable queries act as actual queries
+24:15 
+
+24:15 in in the in the in the self attention
+24:17 
+
+24:17 kind of a thing and these other guys
+24:20 
+
+24:20 basically so so essentially uh if you
+24:23 
+
+24:23 think about query part well it's going
+24:25 
+
+24:25 to be these learnable guys and the keys
+24:29 
+
+24:29 and the values are supplied by both the
+24:31 
+
+24:31 blue and the purple part which basically
+24:33 
+
+24:33 means that these keys and values are
+24:35 
+
+24:35 these guys and these guys together.
+24:37 
+
+24:37 Okay, so what you're trying to do is to
+24:38 
+
+24:38 really come up with transform
+24:40 
+
+24:40 representations for those queries by
+24:42 
+
+24:42 borrowing influence from the variable
+24:44 
+
+24:44 image input. Okay, borrowing influence
+24:46 
+
+24:46 from the variable image input. Okay, so
+24:48 
+
+24:48 what you're trying to do is to basically
+24:50 
+
+24:50 take these images, these vectors, they
+24:52 
+
+24:52 act as keys and values, but your main
+24:55 
+
+24:55 goal is to really take these uh query
+24:57 
+
+24:57 vectors and transform them nicely
+24:59 
+
+24:59 because that's going to be your output.
+24:60 
+
+25:00 Okay, you're not going to output your
+25:01 
+
+25:01 variable part that came in, but you want
+25:04 
+
+25:04 to capture all the influence, all the
+25:05 
+
+25:05 semantics in it and include them in your
+25:07 
+
+25:07 in your fixed sized vectors. Okay, so
+25:09 
+
+25:09 yeah, learn about vectors, you know, I
+25:11 
+
+25:11 mean this thing really reminds me of a
+25:13 
+
+25:13 very old thing that existed even before
+25:16 
+
+25:16 transformers came in. Even before
+25:17 
+
+25:17 transformers came in, people used to do
+25:18 
+
+25:18 this uh self attention so to say, but
+25:20 
+
+25:20 the meaning of self attention at that
+25:22 
+
+25:22 time was very different. uh to be able
+25:23 
+
+25:23 to represent a paragraph or a document
+25:25 
+
+25:25 you know you would have a vector which
+25:27 
+
+25:27 is learnable across multiple things and
+25:29 
+
+25:29 then that's the same thing that they're
+25:30 
+
+25:30 doing here I mean rather than having one
+25:31 
+
+25:31 vector which is learnable you have
+25:33 
+
+25:33 multiple vectors which are learnable and
+25:34 
+
+25:34 you call them as queries um and uh you
+25:36 
+
+25:36 know that's now going to be a
+25:38 
+
+25:38 representation of your variable sized
+25:39 
+
+25:39 input in that sense okay so perceive
+25:41 
+
+25:41 resampler is is is now a component that
+25:43 
+
+25:43 is actually used across many many models
+25:45 
+
+25:45 many many places wherever you want to
+25:47 
+
+25:47 sort of uh take your variable sized uh
+25:49 
+
+25:49 multimodal input and convert it to a
+25:51 
+
+25:51 fixed number of vectors
+25:52 
+
+25:52 Now let me um yeah fast forward and talk
+25:55 
+
+25:55 about blip. So blip series of models. Uh
+25:58 
+
+25:58 blip stands for bootstrapping language
+26:00 
+
+26:00 image pre-training. I mean I think they
+26:02 
+
+26:02 borrowed the terminology from clip but
+26:04 
+
+26:04 it does uh other kinds of things. I mean
+26:06 
+
+26:06 well bootstrapping was probably not the
+26:08 
+
+26:08 not a great you know uh acronym or great
+26:12 
+
+26:12 part to put in the system but anyway uh
+26:14 
+
+26:14 we'll talk about the system. So while
+26:16 
+
+26:16 clip is basically for understanding blip
+26:18 
+
+26:18 is for generation and understanding. In
+26:20 
+
+26:20 fact, the claim was that hey, we just
+26:22 
+
+26:22 don't do image understanding or multiple
+26:23 
+
+26:23 understanding, but we are going to also
+26:25 
+
+26:25 generate based on that uh understanding.
+26:27 
+
+26:27 Okay. Um u so their model architecture
+26:31 
+
+26:31 is pretty elaborate as you can see. Uh
+26:33 
+
+26:33 but it's pretty simple to understand in
+26:35 
+
+26:35 some ways. Okay. Uh they also use image
+26:38 
+
+26:38 captioning data to pre-train their
+26:39 
+
+26:39 model. Uh as you can see there are these
+26:41 
+
+26:41 four towers in their model literally
+26:43 
+
+26:43 right. Um, so the input could be this,
+26:46 
+
+26:46 the image, and the caption is this, a
+26:49 
+
+26:49 little girl holding a kitten next to a
+26:51 
+
+26:51 blue fence. That's the caption. Okay.
+26:53 
+
+26:53 And you want to pre-train the model
+26:54 
+
+26:54 based on these kinds of uh these kinds
+26:56 
+
+26:56 of data samples, right? So you take the
+26:59 
+
+26:59 image and and the first tower is
+27:00 
+
+27:00 basically an image tower. You
+27:02 
+
+27:02 essentially this that's literally like a
+27:03 
+
+27:03 VIT tower. So in the sense that you take
+27:05 
+
+27:05 the image, tile it out and each tile is
+27:08 
+
+27:08 basically a token. um you know you
+27:10 
+
+27:10 project the token give it to uh you know
+27:12 
+
+27:12 multiple transformer encoder layers
+27:14 
+
+27:14 which in turn contain self attention
+27:16 
+
+27:16 feed forward. Okay. So that's basically
+27:18 
+
+27:18 your image uh encoder tower in that
+27:20 
+
+27:20 senses. There's a text encoder tower.
+27:22 
+
+27:22 You basically take the entire text and
+27:23 
+
+27:23 you essentially u uh you see uh you
+27:26 
+
+27:26 prepend the CLS token to the text and
+27:29 
+
+27:29 you give it to your uh your traditional
+27:32 
+
+27:32 bird style transparent code. So there's
+27:35 
+
+27:35 nothing specific about this tower as
+27:36 
+
+27:36 well. I mean as you see this cross
+27:38 
+
+27:38 attention guys like is not there. I mean
+27:40 
+
+27:40 it's it's not there. It's basically just
+27:41 
+
+27:41 self attention and feed forward. Okay.
+27:44 
+
+27:44 Um so literally if you really just focus
+27:47 
+
+27:47 on this part of the model it's just clip
+27:49 
+
+27:49 actually. Right. So essentially there's
+27:50 
+
+27:50 a VIT style image encoder. There's a
+27:53 
+
+27:53 text encoder as well. Um and uh then to
+27:56 
+
+27:56 pre-train they actually also have the
+27:58 
+
+27:58 same kind of loss function ITC image
+28:00 
+
+28:00 text contrastive loss. Okay. So image
+28:02 
+
+28:02 text contrastive loss. So literally this
+28:04 
+
+28:04 part you know the half part the first
+28:06 
+
+28:06 the left half part of this model
+28:08 
+
+28:08 architecture is is is clip okay is clip
+28:11 
+
+28:11 okay but then there's a right half part
+28:13 
+
+28:13 which is doing some more fancy stuff. So
+28:15 
+
+28:15 basically therefore let's talk about the
+28:16 
+
+28:16 uh right half part. So in the right half
+28:18 
+
+28:18 part uh they basically want to do yet
+28:22 
+
+28:22 another thing. Uh this this tower is
+28:24 
+
+28:24 still not generating things. So the
+28:26 
+
+28:26 generation is actually happening only in
+28:27 
+
+28:27 the last tower. Okay. So uh so this one
+28:31 
+
+28:31 this uh third tower let me call it third
+28:33 
+
+28:33 tower is still uh is still an encoder.
+28:35 
+
+28:35 It's still not a generator. Okay. Uh
+28:37 
+
+28:37 it's an encoder which tries to um come
+28:40 
+
+28:40 up with um with you see uh an image and
+28:44 
+
+28:44 text combined representation. Okay. So
+28:47 
+
+28:47 in the sense that it basically takes
+28:49 
+
+28:49 this image representation from here and
+28:51 
+
+28:51 the text representation as input text
+28:53 
+
+28:53 representation as input right from
+28:55 
+
+28:55 there. uh and uh uh it has a self
+28:58 
+
+28:58 attention birectional self attention
+28:59 
+
+28:59 anyway but it also has a cross attention
+29:01 
+
+29:01 and why cross attention it's trying to
+29:03 
+
+29:03 take the image influence and come up
+29:05 
+
+29:05 with a image influenced text
+29:07 
+
+29:07 representation in some ways right it's
+29:08 
+
+29:08 an image influenced text query in that
+29:10 
+
+29:10 senses okay and on top of that it's
+29:12 
+
+29:12 basically applying this ITM image text
+29:13 
+
+29:13 matching loss okay so in in that senses
+29:16 
+
+29:16 if you think about clip clip basically
+29:18 
+
+29:18 just suddenly ignored the visual bird
+29:20 
+
+29:20 and Wilbur's image text matching loss
+29:22 
+
+29:22 completely okay uh and what this guy has
+29:25 
+
+29:25 done is is to basically not just to
+29:26 
+
+29:26 preserve the clips image text
+29:28 
+
+29:28 contrastive loss kind of thing but also
+29:30 
+
+29:30 image text matching loss. Okay. Um
+29:32 
+
+29:32 specifically uh as a third tower. Okay.
+29:35 
+
+29:35 Um that's that and then uh but this is
+29:38 
+
+29:38 all for understanding. This is all for
+29:40 
+
+29:40 coming up with better and better
+29:41 
+
+29:41 representations for image and text. But
+29:43 
+
+29:43 how about generation? Okay. So now once
+29:46 
+
+29:46 this uh uh uh and and by the way right
+29:48 
+
+29:48 since basically you have a loss function
+29:50 
+
+29:50 here it obviously influences your image
+29:52 
+
+29:52 encoding. So obviously these weights are
+29:54 
+
+29:54 much better and you can come up with a
+29:56 
+
+29:56 much better image representation. Okay.
+29:58 
+
+29:58 So therefore the generation which is
+29:59 
+
+29:59 happening here basically makes use of a
+30:02 
+
+30:02 much uh more improved image
+30:04 
+
+30:04 representation. Okay. You come up with a
+30:07 
+
+30:07 prompt. So essentially you say decode
+30:09 
+
+30:09 and you want to decode it you know token
+30:12 
+
+30:12 by token. So you basically just give
+30:13 
+
+30:13 decode as a token. There's a causal self
+30:16 
+
+30:16 attention which is what you expect
+30:17 
+
+30:17 anyway on a transformer decoder. But
+30:19 
+
+30:19 there's cross attention as well. So, so
+30:20 
+
+30:20 basically this tower, the fourth tower
+30:22 
+
+30:22 that you see is practically the decoder
+30:24 
+
+30:24 tower um of a of a standard transform
+30:26 
+
+30:26 model, right? Um uh it's just that the
+30:29 
+
+30:29 kind of kind of input that it takes is
+30:33 
+
+30:33 much better uh image uh much better
+30:37 
+
+30:37 image embedding which is influenced by
+30:38 
+
+30:38 the text as well because uh it ensured
+30:41 
+
+30:41 that image text matching happens fine.
+30:42 
+
+30:42 It ensured that image text contrastive
+30:44 
+
+30:44 uh loss is good and therefore the input
+30:46 
+
+30:46 is basically much more accurate leading
+30:48 
+
+30:48 to uh higher quality language modeling.
+30:51 
+
+30:51 Okay. Overall it has three loss
+30:52 
+
+30:52 functions as we discussed you know image
+30:54 
+
+30:54 text contrastive loss, image text
+30:55 
+
+30:55 matching loss and then language modeling
+30:57 
+
+30:57 loss. Okay.
+30:60 
+
+30:60 Um the next version of uh blip is blip 2
+31:05 
+
+31:05 and in blip 2 uh they actually changed
+31:07 
+
+31:07 the architecture significantly. So this
+31:09 
+
+31:09 is I mean you know literally I I don't
+31:11 
+
+31:11 know why they still call it blip 2 maybe
+31:12 
+
+31:12 to really represent the same group but
+31:14 
+
+31:14 change the architecture significantly
+31:16 
+
+31:16 and uh uh the architecture is more
+31:18 
+
+31:18 closer to what you observe in in today's
+31:20 
+
+31:20 world when you think about multioder
+31:22 
+
+31:22 architectures which basically um you
+31:25 
+
+31:25 know take image and text as inputs. Okay
+31:27 
+
+31:27 they they don't really have these four
+31:29 
+
+31:29 tower kind of models. Again from an
+31:30 
+
+31:30 efficiency perspective this is actually
+31:32 
+
+31:32 heavily inefficient uh because doing a
+31:34 
+
+31:34 forward pass through four transformer
+31:36 
+
+31:36 towers is going to cost a crazy lot.
+31:38 
+
+31:38 Okay. So, uh what uh people do in Blip 2
+31:42 
+
+31:42 is to really u yeah I mean it also does
+31:45 
+
+31:45 uh image gener also does text
+31:47 
+
+31:47 generation. Uh but the way it does is uh
+31:50 
+
+31:50 u essentially yeah I mean you know uh
+31:53 
+
+31:53 this is the input this is the output
+31:54 
+
+31:54 interesting input output especially for
+31:56 
+
+31:56 this audience. Yeah. Um uh so basically
+31:59 
+
+31:59 uh you see uh you can uh actually take
+32:02 
+
+32:02 the uh so you can take the image pass it
+32:05 
+
+32:05 to an image encoder um and uh as you can
+32:08 
+
+32:08 imagine it's borrowing the concept of
+32:10 
+
+32:10 the perceiver resampler in the sense
+32:12 
+
+32:12 that it's basically taking the perceiver
+32:14 
+
+32:14 resampler concept um taking variable
+32:17 
+
+32:17 sized text right along with the image
+32:21 
+
+32:21 and converting it to uh taking the fixed
+32:23 
+
+32:23 size queries. So essentially this Q
+32:25 
+
+32:25 former guy as they called is literally a
+32:27 
+
+32:27 pursuer resampler similar kind of a
+32:29 
+
+32:29 method. I will talk about that one on
+32:31 
+
+32:31 the next slide. Uh it's similar kind of
+32:33 
+
+32:33 a method which takes learnable query.
+32:35 
+
+32:35 These queries are learnable queries. So
+32:36 
+
+32:36 they are basically vectors that have to
+32:38 
+
+32:38 be learned. Okay. Uh it takes the so
+32:41 
+
+32:41 your input contains image and text
+32:42 
+
+32:42 obviously. So the image goes to the
+32:43 
+
+32:43 image encoder. Text goes to the text
+32:45 
+
+32:45 encoder or rather this quering
+32:46 
+
+32:46 transformer. Actually text directly goes
+32:48 
+
+32:48 to the quering transformer. Um and then
+32:51 
+
+32:51 there are these queries. Um so these
+32:53 
+
+32:53 queries are actually so these queries uh
+32:56 
+
+32:56 are the ones that are fed to the large
+32:58 
+
+32:58 language model. Okay, these queries are
+32:59 
+
+32:59 the ones that are fed to the large
+33:00 
+
+33:00 language model. So what do these queries
+33:02 
+
+33:02 do? I mean you know while the Q former
+33:04 
+
+33:04 the queries are trying to express the uh
+33:07 
+
+33:07 semantics from the image uh as passed on
+33:10 
+
+33:10 by the image encoder along with the
+33:12 
+
+33:12 semantics in variable size text and
+33:14 
+
+33:14 converted to fixed size uh you know
+33:16 
+
+33:16 query vectors that are basically passed
+33:18 
+
+33:18 to the large language model to generate
+33:19 
+
+33:19 outputs. Okay, that's what basically is
+33:21 
+
+33:21 going on here. Okay. Um they pre-tend it
+33:24 
+
+33:24 in two stages. First they basically
+33:26 
+
+33:26 vision language representation learning
+33:28 
+
+33:28 stage with the where where they freeze
+33:30 
+
+33:30 the image encoder and then the second
+33:32 
+
+33:32 one uh basically with a frozen LLM,
+33:34 
+
+33:34 right? Uh but but this will make more
+33:36 
+
+33:36 sense when we sort of look at what's
+33:38 
+
+33:38 going on in the Q former. So the Q
+33:39 
+
+33:39 former as I mentioned you know in the
+33:42 
+
+33:42 basic world you could just think about
+33:43 
+
+33:43 it as a perceived resampler which is
+33:45 
+
+33:45 trying to take semantics of the image
+33:46 
+
+33:46 and semantics of text and trying to you
+33:48 
+
+33:48 know compress them into a fixed number
+33:50 
+
+33:50 of vectors. uh and then pass it to a
+33:52 
+
+33:52 large language model. This also made
+33:54 
+
+33:54 quite some sense in 2023 because you
+33:56 
+
+33:56 know large language models at that time
+33:57 
+
+33:57 had limited uh limited max sequence
+33:60 
+
+33:60 length that they could process. So
+34:01 
+
+34:01 unlike today's models which can process
+34:03 
+
+34:03 as much as you want like millions of
+34:05 
+
+34:05 tokens as well thanks to uh advancements
+34:07 
+
+34:07 in the way attention is is computed and
+34:10 
+
+34:10 so on right uh well let's try to
+34:13 
+
+34:13 understand what this Q former guy is and
+34:14 
+
+34:14 as I said you know broadly it sounds
+34:16 
+
+34:16 like a persever sampler but it's it's
+34:18 
+
+34:18 much more actually okay
+34:20 
+
+34:20 um so so this is a this is a you know
+34:24 
+
+34:24 expanded diagram uh where I'm going to
+34:27 
+
+34:27 talk about this Q former guy okay uh so
+34:30 
+
+34:30 just to just to sort of again stress
+34:32 
+
+34:32 this is the Q former guy, right? And uh
+34:35 
+
+34:35 its job is basically to take image and
+34:37 
+
+34:37 text and encode it in a way such in a in
+34:40 
+
+34:40 a fixed number of vectors kind of a way.
+34:42 
+
+34:42 Okay. So it's going to therefore take
+34:45 
+
+34:45 image and text. So it's taking image and
+34:47 
+
+34:47 it's taking text and it's basically
+34:48 
+
+34:48 taking those learnable queries.
+34:50 
+
+34:50 Learnable queries representation for
+34:52 
+
+34:52 these learnable queries as you get them
+34:53 
+
+34:53 is basically passed on to the next
+34:55 
+
+34:55 module which is the LLM guy, the decoder
+34:57 
+
+34:57 guy. Okay.
+34:60 
+
+34:60 um now uh it's doing some fancy stuff
+35:02 
+
+35:02 here and therefore let's talk about it.
+35:03 
+
+35:03 So Qformer actually in in internally
+35:05 
+
+35:05 it's basically a image transformer and a
+35:07 
+
+35:07 text transformer. So there is a uh there
+35:10 
+
+35:10 is a you know uh tower which basically
+35:12 
+
+35:12 processes images which is this tower and
+35:15 
+
+35:15 there's a tower which processes text.
+35:16 
+
+35:16 Okay. So and these towers basically are
+35:19 
+
+35:19 just transformer encoder layers. That's
+35:20 
+
+35:20 that. Okay. Um and uh uh the idea is
+35:24 
+
+35:24 that uh the input is processed using
+35:26 
+
+35:26 image the input image is processed using
+35:28 
+
+35:28 image encoder. It comes up with several
+35:31 
+
+35:31 tokens. Um so several tokens
+35:33 
+
+35:33 representing the image. Uh in fact the
+35:35 
+
+35:35 number of tokens could actually depend
+35:36 
+
+35:36 on the on the resolution of the image.
+35:38 
+
+35:38 So if the image is short, small or large
+35:40 
+
+35:40 depending on that the number of tokens
+35:42 
+
+35:42 could be different because vit models as
+35:44 
+
+35:44 we discussed yesterday they have a fixed
+35:46 
+
+35:46 size patches. So if your image is large
+35:48 
+
+35:48 well the number of patch tokens are
+35:49 
+
+35:49 large right? If the image small, the
+35:50 
+
+35:50 patch tokens are small and so on. Okay,
+35:53 
+
+35:53 so both of them are transformer encoder
+35:55 
+
+35:55 models as you see except that this guy
+35:57 
+
+35:57 also is a cross attention. The cross
+35:59 
+
+35:59 attention is the way that it actually
+36:00 
+
+36:00 takes the image input. Okay, takes the
+36:02 
+
+36:02 image input. Okay. Uh in the in the on
+36:05 
+
+36:05 the text side, it's a standard text uh
+36:07 
+
+36:07 it's a standard transmitter encoder. No,
+36:08 
+
+36:08 no surprise there. It's a self attention
+36:10 
+
+36:10 and feed forward. Okay. Uh but then uh
+36:12 
+
+36:12 the way that these two towers interact
+36:14 
+
+36:14 is what is very very interesting here in
+36:16 
+
+36:16 in in this particular architecture.
+36:18 
+
+36:18 Okay. And that is why they actually call
+36:20 
+
+36:20 the entire thing as a Q former rather
+36:21 
+
+36:21 than talking about those two blocks
+36:22 
+
+36:22 separately. Okay. Uh so there's a uh I
+36:26 
+
+36:26 mean as you can imagine here this self
+36:27 
+
+36:27 attention, cross attention and feed
+36:29 
+
+36:29 forward. So it looks like again a
+36:30 
+
+36:30 standard um you know uh standard
+36:32 
+
+36:32 transform encoder except that it also
+36:34 
+
+36:34 has cross attention. I mean which is not
+36:35 
+
+36:35 there in a standard transfer encoder but
+36:37 
+
+36:37 well it has to it has to somehow in
+36:39 
+
+36:39 include you know the image influence and
+36:41 
+
+36:41 therefore it has this cross attention.
+36:42 
+
+36:42 So um yeah one could probably think
+36:44 
+
+36:44 about it more like a transport decoder
+36:46 
+
+36:46 architecture but not causal attention.
+36:47 
+
+36:47 The attention is not causal. That's the
+36:48 
+
+36:48 point, right? So attention is is
+36:50 
+
+36:50 birectional in that senses. Okay. Now
+36:53 
+
+36:53 how do these two towers talk to each
+36:54 
+
+36:54 other and then how are the loss
+36:56 
+
+36:56 functions defined? So basically while
+36:57 
+
+36:57 training this guy you have like three
+36:59 
+
+36:59 loss functions. Remember while training
+37:01 
+
+37:01 this guy you have three loss functions
+37:02 
+
+37:02 and these loss functions are different
+37:04 
+
+37:04 from the language modeling loss that
+37:05 
+
+37:05 you'll have at the end. Okay. So they
+37:06 
+
+37:06 are different. Okay. So you're basically
+37:08 
+
+37:08 just training this guy right until here
+37:10 
+
+37:10 with these three loss functions. Okay.
+37:12 
+
+37:12 So what are the three loss functions?
+37:13 
+
+37:13 Well, image text matching, image text
+37:14 
+
+37:14 contrastive learning and image grounded
+37:16 
+
+37:16 text generation. So basically these are
+37:17 
+
+37:17 like standard loss functions that one
+37:19 
+
+37:19 can imagine. Okay. Image text matching
+37:21 
+
+37:21 and image text contrastive learning we
+37:22 
+
+37:22 already talked about and since this is a
+37:25 
+
+37:25 generative model as well you are trying
+37:27 
+
+37:27 to basically uh you know uh uh you know
+37:30 
+
+37:30 also have text generative loss. Okay. Uh
+37:33 
+
+37:33 now the way that these two towers
+37:35 
+
+37:35 interact is as follows. The for each of
+37:37 
+
+37:37 these three each of these three loss
+37:39 
+
+37:39 functions you have a different mask uh
+37:41 
+
+37:41 in the way that both of these guys talk
+37:43 
+
+37:43 I mean these these two towers talk to
+37:45 
+
+37:45 each other at every layer. Okay. So for
+37:47 
+
+37:47 example in image text matching uh you
+37:49 
+
+37:49 basically have u birectional self
+37:52 
+
+37:52 attention mask uh which basically means
+37:54 
+
+37:54 that u you see which basically means
+37:57 
+
+37:57 that you do early concatenation. Think
+37:59 
+
+37:59 about it like visual bird. So in visual
+38:02 
+
+38:02 bird you basically give the input image
+38:04 
+
+38:04 and the text tokens together and you let
+38:06 
+
+38:06 them interact completely. Right? It's
+38:08 
+
+38:08 basically like it's a concatenated input
+38:10 
+
+38:10 and now you don't care about which
+38:11 
+
+38:11 modality it came from. You basically let
+38:12 
+
+38:12 it interact completely. Okay? So
+38:14 
+
+38:14 basically this is a mask where if you
+38:16 
+
+38:16 look at the learnable queries and the
+38:19 
+
+38:19 text samp text this is Q this is T you
+38:21 
+
+38:21 know all of them interact with each
+38:23 
+
+38:23 other there's no masking at all so
+38:25 
+
+38:25 there's complete self attention across
+38:26 
+
+38:26 the two towers across the two towers
+38:28 
+
+38:28 right birectional across the two towers
+38:29 
+
+38:29 okay um uh so and this makes a lot of
+38:33 
+
+38:33 sense because when you are trying to do
+38:34 
+
+38:34 image text matching you let it basically
+38:37 
+
+38:37 come up with full information transfer
+38:39 
+
+38:39 across both of them and uh then take the
+38:41 
+
+38:41 benefit of early concat early concatess
+38:44 
+
+38:44 to come up with better embeddings. Okay.
+38:46 
+
+38:46 But you also have image text contrastive
+38:47 
+
+38:47 learning more like clip kind of setting.
+38:49 
+
+38:49 So in clip kind of setting is a two
+38:51 
+
+38:51 tower setting. It's not really concat.
+38:52 
+
+38:52 You basically have a separate vision
+38:54 
+
+38:54 encoder text encoder and then you
+38:55 
+
+38:55 basically concat only at the end and
+38:57 
+
+38:57 which is what is going on here. You do
+38:58 
+
+38:58 masking. So in the sense that query
+38:59 
+
+38:59 tokens only attend to other query
+39:00 
+
+39:00 tokens. Text tokens attend only to text
+39:02 
+
+39:02 tokens and query tokens by the way are
+39:04 
+
+39:04 representative of the image because they
+39:05 
+
+39:05 are after all taking the image
+39:06 
+
+39:06 representation via cross attention in
+39:08 
+
+39:08 that senses. Okay. Um so that's that
+39:12 
+
+39:12 right and in between you have this uh uh
+39:15 
+
+39:15 you have this generator guy right I mean
+39:16 
+
+39:16 in the sense that it has to do image
+39:18 
+
+39:18 grounded text generation so therefore uh
+39:21 
+
+39:21 here uh the way the attention is defined
+39:24 
+
+39:24 uh is that uh uh it it's it's actually
+39:26 
+
+39:26 causal self attention sorry I think I
+39:28 
+
+39:28 mentioned it's a transmar encoder it's
+39:29 
+
+39:29 not it's a causal self attention because
+39:31 
+
+39:31 it has to do generation so the idea is
+39:33 
+
+39:33 that uh it so every token here every
+39:36 
+
+39:36 token here attends to not just the
+39:38 
+
+39:38 previous token tokens in the text not
+39:40 
+
+39:40 just to previous tokens in the text. So
+39:41 
+
+39:41 every token attends to previous tokens
+39:43 
+
+39:43 in the text but they also attend to all
+39:44 
+
+39:44 the tokens on the image. All the tokens
+39:46 
+
+39:46 on the image. Okay. So that's the
+39:47 
+
+39:47 masking that is happening here. Okay. So
+39:50 
+
+39:50 Q former uh you know uh technically is a
+39:53 
+
+39:53 very very elegant architecture. It's a
+39:54 
+
+39:54 very interesting architecture the way
+39:55 
+
+39:55 they sort of transitioned from a clip
+39:58 
+
+39:58 kind or rather merged the clip kind of
+40:00 
+
+40:00 thinking and the visual bird kind of
+40:02 
+
+40:02 thinking. So clip kind of thinking is
+40:04 
+
+40:04 late concat. Okay. uh while uh uh or two
+40:07 
+
+40:07 tower models, two completely different
+40:09 
+
+40:09 towers while visual bird kind of
+40:10 
+
+40:10 thinking is early concat a single tower
+40:12 
+
+40:12 kind of a model and then you combine it
+40:14 
+
+40:14 with decoder right so that's a very very
+40:16 
+
+40:16 cute and elegant uh kind of an
+40:18 
+
+40:18 architecture to think about it okay so
+40:21 
+
+40:21 that was blip 2 and uh yeah I mean after
+40:23 
+
+40:23 your Q former training is done basically
+40:25 
+
+40:25 this part is the Q former training that
+40:27 
+
+40:27 we are talking about you take the query
+40:28 
+
+40:28 representations pass them I mean do a
+40:31 
+
+40:31 projection pass them to LLM decoder
+40:33 
+
+40:33 right you could also pass it to LM
+40:34 
+
+40:34 encoder decoder model if that is what is
+40:36 
+
+40:36 preferred and they basically pre-trained
+40:39 
+
+40:39 in both scenarios with uh just a decoder
+40:42 
+
+40:42 kind of a model frozen decoder and you
+40:44 
+
+40:44 know also with a encoder decoder kind of
+40:46 
+
+40:46 a model. So uh remember again I mean the
+40:49 
+
+40:49 LM decoder or the LM encoder decoder are
+40:52 
+
+40:52 kept frozen so they are they are not
+40:53 
+
+40:53 trained uh they basically just kept
+40:55 
+
+40:55 frozen. So uh if you if you really just
+40:58 
+
+40:58 look at this part, if you just look at
+40:60 
+
+40:60 this part, you should really think about
+41:01 
+
+41:01 it as if uh uh you somebody gave you
+41:04 
+
+41:04 input image and input text and you
+41:07 
+
+41:07 transformed it into a fixed size
+41:08 
+
+41:08 representation, soft representation that
+41:10 
+
+41:10 is not interpretable. Uh but it's very
+41:13 
+
+41:13 very awesome uh because your LM decoder
+41:16 
+
+41:16 gives you really good outputs based on
+41:17 
+
+41:17 that. Okay. So it's probably more like a
+41:20 
+
+41:20 compressed representation where the LLM
+41:22 
+
+41:22 leads to super awesome generative
+41:23 
+
+41:23 outputs. Okay, so that's that and again
+41:27 
+
+41:27 I mean to train such kind of things you
+41:28 
+
+41:28 basically need a whole bunch of image
+41:30 
+
+41:30 caption data and by this time people had
+41:32 
+
+41:32 moved way beyond the typical small MSCO
+41:35 
+
+41:35 data set and come up with uh interesting
+41:37 
+
+41:37 data sets like SBU as well uh so as to
+41:40 
+
+41:40 train these kinds of models okay u
+41:42 
+
+41:42 that's that's blip and blip 2
+41:47 
+
+41:47 um people uh I mean before before we
+41:51 
+
+41:51 come to you know larger models
+41:54 
+
+41:54 uh like like GPT4 and so on. uh people
+41:57 
+
+41:57 also tried other kinds of architectures
+41:59 
+
+41:59 for example another popular one was this
+42:01 
+
+42:01 M plug model uh where the idea was to
+42:05 
+
+42:05 basically use uh uh I mean and there
+42:08 
+
+42:08 have been these instruction following
+42:10 
+
+42:10 multimodal models mplug is one of them
+42:12 
+
+42:12 but there's also lava and gbd4 mini GBD4
+42:14 
+
+42:14 and I'll talk about mplug here but we'll
+42:16 
+
+42:16 also talk about mini GBD4 and lava later
+42:19 
+
+42:19 uh where uh uh yes you do I mean you
+42:22 
+
+42:22 know it's it's also pre-trained on image
+42:23 
+
+42:23 text pairs uh and lots of pre-training
+42:26 
+
+42:26 data
+42:26 
+
+42:26 uh some of them basically have different
+42:29 
+
+42:29 designs for the visual linguistic uh
+42:31 
+
+42:31 encoder uh but typically the decoder guy
+42:34 
+
+42:34 remains the same. Okay. So this is the
+42:36 
+
+42:36 mplug architecture where the decoder guy
+42:38 
+
+42:38 is exactly the same. No changes here on
+42:40 
+
+42:40 the decoder architecture basically just
+42:43 
+
+42:43 takes the uh shifted outputs as input
+42:46 
+
+42:46 text has causal self attention cross
+42:48 
+
+42:48 attention and then feed forward. So
+42:49 
+
+42:49 nothing changes there. But on the
+42:51 
+
+42:51 encoder side uh this one is a is is a
+42:55 
+
+42:55 slightly different architecture. In
+42:56 
+
+42:56 visual bird basically you had early
+42:59 
+
+42:59 concat in Wilbur basically you had u you
+43:03 
+
+43:03 know uh layers I mean basically there
+43:06 
+
+43:06 were like two towers they were uh there
+43:07 
+
+43:07 was a vision tower and a linguistic
+43:09 
+
+43:09 tower and then in between you were
+43:10 
+
+43:10 basically doing some information
+43:12 
+
+43:12 propagation through the core transformer
+43:13 
+
+43:13 layers in that sensors right uh this one
+43:15 
+
+43:15 also is slightly similar to that but
+43:18 
+
+43:18 then does a slightly different work as
+43:20 
+
+43:20 well. So let's basically look at the
+43:21 
+
+43:21 architecture, right? So there's a visual
+43:23 
+
+43:23 encoder and there's a text encoder.
+43:25 
+
+43:25 Okay. Um so after the after a few layers
+43:29 
+
+43:29 of visual encoding and text encoding,
+43:31 
+
+43:31 you do compute your ITC, your image text
+43:33 
+
+43:33 contrastive loss. Okay. So that
+43:35 
+
+43:35 basically is going on as usual. You
+43:36 
+
+43:36 should really now think about this guy
+43:38 
+
+43:38 as a clip guy, right? Clip clip kind of
+43:40 
+
+43:40 a uh pre-training, right? But then
+43:43 
+
+43:43 beyond that, what it does is to also
+43:44 
+
+43:44 apply the mass language modeling and the
+43:46 
+
+43:46 ITM losses. So rather than just
+43:48 
+
+43:48 depending on the three ITM, ITC and and
+43:52 
+
+43:52 language decoding, it's also doing mass
+43:54 
+
+43:54 language modeling. Okay. Uh where mass
+43:56 
+
+43:56 language modeling is the standard mass
+43:57 
+
+43:57 language modeling. You take the input
+43:58 
+
+43:58 text and mask out a few tokens and try
+43:60 
+
+43:60 to predict those tokens. Okay. Uh but
+44:02 
+
+44:02 what is going on here is that u is that
+44:05 
+
+44:05 there is a visual um visual tokens which
+44:08 
+
+44:08 are being passed to uh your uh
+44:11 
+
+44:11 transformer decoder layer as it
+44:13 
+
+44:13 transformer encoder layer as it is
+44:14 
+
+44:14 right. But then the text tokens are
+44:16 
+
+44:16 being processed through this uh cross
+44:19 
+
+44:19 attention um I mean another kind of a
+44:22 
+
+44:22 they call it asymmetric cross asymmetric
+44:25 
+
+44:25 coattention kind of a layer okay and
+44:27 
+
+44:27 this layer basically has a self
+44:29 
+
+44:29 attention has a feed forward but it also
+44:31 
+
+44:31 has a cross attention taking the
+44:32 
+
+44:32 influence from the vision stream in that
+44:35 
+
+44:35 senses okay uh and then the idea is that
+44:37 
+
+44:37 you repeat uh this thing uh sometimes
+44:41 
+
+44:41 you have one transformer encoder layer
+44:43 
+
+44:43 and then you basically repeat this thing
+44:45 
+
+44:45 like end times. This thing like end
+44:47 
+
+44:47 times. Okay. Um so the I mean well the
+44:50 
+
+44:50 architecture is uh overly complex if you
+44:53 
+
+44:53 really think about the simpler
+44:54 
+
+44:54 architectures that exist today. By the
+44:55 
+
+44:55 way you know all of these architectures
+44:56 
+
+44:56 are great but then today what exists is
+44:58 
+
+44:58 much more simpler architectures uh uh
+45:01 
+
+45:01 but people did make those changes and
+45:03 
+
+45:03 again when it comes to these these these
+45:05 
+
+45:05 interesting changes they are interesting
+45:07 
+
+45:07 from academic perspective. when you
+45:09 
+
+45:09 really think about deploying them at
+45:10 
+
+45:10 scale it becomes really complex to
+45:12 
+
+45:12 deploy such architectures because when
+45:13 
+
+45:13 you change these things when you make
+45:14 
+
+45:14 these changes uh literally you're making
+45:16 
+
+45:16 changes um in the in the transformer I
+45:20 
+
+45:20 don't know what do we call it maybe we
+45:21 
+
+45:21 should really call it the transformer
+45:22 
+
+45:22 encoder because everything is encoder
+45:23 
+
+45:23 anyway you're making those changes but
+45:25 
+
+45:25 then um your primitives are changing
+45:28 
+
+45:28 which basically means your GPU kernels
+45:30 
+
+45:30 that you wrote for making for doing any
+45:31 
+
+45:31 kind of optimizations will have to be
+45:33 
+
+45:33 reader okay so unless this gives you
+45:35 
+
+45:35 significant benefits over just using a
+45:37 
+
+45:37 standard transfer encoder standard clip
+45:39 
+
+45:39 encoder and you know decoder people
+45:41 
+
+45:41 typically tend to not use them in in in
+45:44 
+
+45:44 in industry but that said yes I mean
+45:46 
+
+45:46 it's a it's it's a great thing because
+45:48 
+
+45:48 employ paper all of these papers
+45:49 
+
+45:49 obviously showed that their results are
+45:50 
+
+45:50 better than the previous ones I I
+45:52 
+
+45:52 excluded those because that's going to
+45:54 
+
+45:54 be very boring here right if you really
+45:55 
+
+45:55 wanted to look at the results you can
+45:56 
+
+45:56 look at them in the paper also okay so
+45:60 
+
+45:60 that was the M plug paper and after that
+46:02 
+
+46:02 models are super simple so people came
+46:04 
+
+46:04 up with this lava model and the name
+46:06 
+
+46:06 itself should tell you It's basically
+46:08 
+
+46:08 you know processing visual plus llama.
+46:11 
+
+46:11 Okay. Uh in that senses um so and this
+46:15 
+
+46:15 model as you can see this is the
+46:16 
+
+46:16 architecture and I mean you know maybe I
+46:18 
+
+46:18 don't even need to describe that
+46:19 
+
+46:19 architecture to you. It's like extremely
+46:20 
+
+46:20 extremely simple. Okay. Uh the idea is
+46:23 
+
+46:23 that uh um but but powerful. That's the
+46:27 
+
+46:27 most important point. It's simple and
+46:28 
+
+46:28 powerful. Pluggable components super
+46:30 
+
+46:30 simple to deploy from deployment
+46:32 
+
+46:32 perspective maintenance perspective. It
+46:34 
+
+46:34 just becomes so easy to work with these
+46:35 
+
+46:35 kinds of things. Okay. Uh the language
+46:37 
+
+46:37 model here is uh uh an LLM could be
+46:40 
+
+46:40 llama could be anything else right later
+46:42 
+
+46:42 basically people call it mini GBD4 they
+46:44 
+
+46:44 just use GBD4 as the as as the language
+46:47 
+
+46:47 model in that senses okay uh but here in
+46:49 
+
+46:49 this lava kind of a framework they
+46:51 
+
+46:51 basically had llama as the language
+46:53 
+
+46:53 model um vision encoder is basically
+46:56 
+
+46:56 your vit kind of model you take the
+46:58 
+
+46:58 vision encoder um you basically have a
+47:01 
+
+47:01 projection layer so you take the vision
+47:03 
+
+47:03 encoder you keep the vision encoder
+47:05 
+
+47:05 frozen okay you don't change that. You
+47:07 
+
+47:07 take the language model, you keep the
+47:08 
+
+47:08 language model also frozen. Don't change
+47:10 
+
+47:10 that. Only change the projection layer.
+47:11 
+
+47:11 Only basically train the projection
+47:13 
+
+47:13 layer. That's it. Okay. You have a lot
+47:14 
+
+47:14 of image caption data. Sure. Use that to
+47:17 
+
+47:17 only change the projection layer. You
+47:18 
+
+47:18 have a lot of visual question answering
+47:20 
+
+47:20 data. Yes. I mean, you can use that
+47:21 
+
+47:21 also. So, basically, you know, take the
+47:23 
+
+47:23 vision visual question answering data,
+47:25 
+
+47:25 take the image, pass it to the vision
+47:26 
+
+47:26 encoder, take those text tokens, you
+47:28 
+
+47:28 know, pass them as is directly. I mean,
+47:30 
+
+47:30 sorry, text tokens, pass them as is in
+47:32 
+
+47:32 your language instruction and let it
+47:33 
+
+47:33 generate the answer. So you can actually
+47:35 
+
+47:35 now train the model on all kinds of
+47:36 
+
+47:36 multimodal data, not just image
+47:38 
+
+47:38 capturing data. Okay, training is also
+47:41 
+
+47:41 easier because uh you see if you're
+47:43 
+
+47:43 keeping components frozen, you don't
+47:44 
+
+47:44 really need too much of iterations to
+47:46 
+
+47:46 train these projection layers. Obviously
+47:48 
+
+47:48 if you have more data, clearly it leads
+47:49 
+
+47:49 to better results, but the idea is
+47:51 
+
+47:51 training also becomes easier. Okay. Um
+47:54 
+
+47:54 they have some uh details also here. So
+47:56 
+
+47:56 for example, if you are u you know
+47:59 
+
+47:59 training on conversational kind of data.
+48:01 
+
+48:01 So and and they actually trained on
+48:03 
+
+48:03 conversational kind of data uh for the
+48:05 
+
+48:05 first turn you could choose to keep the
+48:07 
+
+48:07 query first and then the uh and then
+48:10 
+
+48:10 basically the visual part. So query is
+48:12 
+
+48:12 basically text query and then the vision
+48:14 
+
+48:14 part right or you could keep the image
+48:16 
+
+48:16 first and then the and then the text
+48:18 
+
+48:18 part. Okay. So basically you could keep
+48:20 
+
+48:20 the query first and then the image or
+48:22 
+
+48:22 keep the image first and then the text.
+48:23 
+
+48:23 Okay. Um now it has implications. So
+48:26 
+
+48:26 basically uh for for all the other
+48:28 
+
+48:28 remaining terms essentially uh they are
+48:30 
+
+48:30 keeping uh the query first basically. Um
+48:33 
+
+48:33 I mean uh uh
+48:37 
+
+48:37 sorry uh yeah for for the remaining
+48:40 
+
+48:40 terms obviously you just have the query
+48:42 
+
+48:42 you don't I mean because there is they
+48:43 
+
+48:43 they work with only conversations which
+48:45 
+
+48:45 have one image. Yeah that's that right.
+48:47 
+
+48:47 So u the whether you keep the query
+48:50 
+
+48:50 first or the text first has implications
+48:52 
+
+48:52 in the sense of KV caching. So remember
+48:55 
+
+48:55 when you're doing conversations if some
+48:57 
+
+48:57 part changes while some part is constant
+48:59 
+
+48:59 you would want to keep the constant part
+49:01 
+
+49:01 first. Okay. um so that you can do KV
+49:04 
+
+49:04 caching and essentially not really uh
+49:07 
+
+49:07 you know as as you get more and more
+49:09 
+
+49:09 things you don't really essentially
+49:11 
+
+49:11 recomp compute the decoding part again
+49:12 
+
+49:12 and again right but anyway I mean in
+49:14 
+
+49:14 their case basically randomly chose
+49:16 
+
+49:16 between both of them just to essentially
+49:18 
+
+49:18 ensure that the model basically can also
+49:20 
+
+49:20 deal with images that come after the
+49:21 
+
+49:21 first uh first text turn rather than uh
+49:24 
+
+49:24 actually always considering the image
+49:26 
+
+49:26 first okay so lava I mean from
+49:28 
+
+49:28 architecture perspective it's super
+49:29 
+
+49:29 simple essentially you have image pass
+49:31 
+
+49:31 it through a frozen image encoder you
+49:33 
+
+49:33 have text you know pass it through a
+49:34 
+
+49:34 frozen LLM but prepend it with the image
+49:37 
+
+49:37 tokens prepend it with the image tokens
+49:39 
+
+49:39 that's basically that okay
+49:41 
+
+49:41 um then people came up with video lama
+49:45 
+
+49:45 now video llama has to take multiple
+49:48 
+
+49:48 video to I mean has to take multiple
+49:50 
+
+49:50 image tokens in that senses because
+49:51 
+
+49:51 video is basically after all multiple
+49:53 
+
+49:53 frames uh and uh video llama
+49:57 
+
+49:57 specifically not just focused on the
+49:58 
+
+49:58 visual aspect of videos it also focused
+49:60 
+
+49:60 on the on on the audio aspect Okay. So
+50:03 
+
+50:03 if you look at the decoder, well decoder
+50:05 
+
+50:05 is a frozen llm. It could be lava or
+50:08 
+
+50:08 llama or or vikuna. I mean vikuna was
+50:11 
+
+50:11 also popular. I'm not sure if you folks
+50:12 
+
+50:12 know but vikuna was a small effort from
+50:15 
+
+50:15 Berkeley guys uh which exploited you
+50:18 
+
+50:18 know um which exploited the the
+50:21 
+
+50:21 flourishing uh that happened in those
+50:23 
+
+50:23 days. So what happened in those days was
+50:25 
+
+50:25 uh meta released llama which made
+50:27 
+
+50:27 academicians to essentially nicely train
+50:30 
+
+50:30 models finetune models on their side. Uh
+50:32 
+
+50:32 Microsoft released LoRa which basically
+50:35 
+
+50:35 enabled faster finetuning. uh and uh you
+50:37 
+
+50:37 know there were chat GPD kind of models
+50:40 
+
+50:40 which enabled synthetic data set
+50:41 
+
+50:41 generation and all of those three
+50:43 
+
+50:43 combined people came up with Vikuna a
+50:45 
+
+50:45 very good recipe you know spending very
+50:47 
+
+50:47 little amount of research efforts or any
+50:49 
+
+50:49 any engineering efforts but coming up
+50:51 
+
+50:51 with much more much better llama model
+50:52 
+
+50:52 which was called Vikuna right and and
+50:54 
+
+50:54 the same thing happened with another
+50:55 
+
+50:55 story called Alpaka at Stanford but
+50:57 
+
+50:57 anyway so so basically sorry I mean
+50:59 
+
+50:59 sorry for the degration but the point is
+51:00 
+
+51:00 that the LLM is basically the standard
+51:02 
+
+51:02 LLM right the idea is that since it's a
+51:05 
+
+51:05 video llama well it has to sort take
+51:06 
+
+51:06 video signals u visual signals and audio
+51:08 
+
+51:08 signals. So that's what this branch is
+51:10 
+
+51:10 doing. It's basically taking the video
+51:12 
+
+51:12 signals, visual signals and this branch
+51:14 
+
+51:14 is basically doing the audio signal
+51:15 
+
+51:15 processing. Okay. Uh so when you have a
+51:17 
+
+51:17 video, you basically break it down. You
+51:19 
+
+51:19 take the video and the audio out. And
+51:20 
+
+51:20 I'm sure everyone here has used ffmpeg
+51:22 
+
+51:22 to basically get the two tracks out
+51:24 
+
+51:24 anyway, right? Uh so when you basically
+51:26 
+
+51:26 take the video signal, well, it has
+51:28 
+
+51:28 multiple frames. And if you're sampling
+51:30 
+
+51:30 at the same sampling rate, you would end
+51:33 
+
+51:33 up with different number of frames
+51:35 
+
+51:35 depending on um you know the length of
+51:37 
+
+51:37 the video. Okay. Uh so they take each of
+51:40 
+
+51:40 those frames, pass it through a VIT or
+51:42 
+
+51:42 some uh visual encoder uh and then
+51:44 
+
+51:44 finally pass it uh uh through a Q former
+51:48 
+
+51:48 because uh well some videos maybe you
+51:50 
+
+51:50 are also doing some frames you're also
+51:52 
+
+51:52 doing crops which basically means that
+51:53 
+
+51:53 your VIT model can lead to different
+51:55 
+
+51:55 number of tokens per image. But uh
+51:56 
+
+51:56 ignoring that complexity, the idea is
+51:58 
+
+51:58 that you basically get same number of
+51:60 
+
+51:60 tokens per image. Okay. So same number
+52:02 
+
+52:02 of tokens per image. But then you can
+52:04 
+
+52:04 have different number of frames. So you
+52:05 
+
+52:05 have to basically also deal with
+52:06 
+
+52:06 different number of frames. Which is why
+52:07 
+
+52:07 they basically use a video Q former. Now
+52:09 
+
+52:09 we know what Q former is. You know Q
+52:11 
+
+52:11 former is that guy which basically takes
+52:13 
+
+52:13 variable number of you know uh inputs
+52:15 
+
+52:15 but then can finally lead to a fixed
+52:17 
+
+52:17 number of learnable queries. Okay. So
+52:19 
+
+52:19 that basically gives you a fixed number
+52:20 
+
+52:20 of fixed size representation for the
+52:22 
+
+52:22 video. And the same thing you do on the
+52:24 
+
+52:24 audio side. On the audio side, obviously
+52:25 
+
+52:25 you need to use a specialized audio
+52:27 
+
+52:27 encoder. Uh particularly they use the
+52:29 
+
+52:29 audio specttogram transformer. So um you
+52:32 
+
+52:32 know audio can be represented in the
+52:33 
+
+52:33 specttogram space in the frequency
+52:35 
+
+52:35 space. Some of you might have used
+52:36 
+
+52:36 audacity or pi audio to generate
+52:38 
+
+52:38 specttograms. But uh you know the so so
+52:41 
+
+52:41 audios can be also represented as images
+52:43 
+
+52:43 in that sense. The spectrogram is an
+52:44 
+
+52:44 image after all. Okay. Um and uh then
+52:47 
+
+52:47 you have this audio spectrogram
+52:49 
+
+52:49 transformer which is basically
+52:50 
+
+52:50 specialized trained on audio um audio
+52:53 
+
+52:53 audio based data. Uh the same
+52:55 
+
+52:55 spectrogram transformer which is also
+52:56 
+
+52:56 used as the encoder for image bind model
+52:58 
+
+52:58 which we discussed yesterday. Okay, I
+53:00 
+
+53:00 mean rather just talked about briefly
+53:02 
+
+53:02 yesterday. Right. So you take this uh uh
+53:04 
+
+53:04 this audio transformer audio encoder
+53:06 
+
+53:06 outputs and uh again you know uh you
+53:09 
+
+53:09 compute this thing for uh fixed size
+53:11 
+
+53:11 segments. So if your audio is very long
+53:13 
+
+53:13 you would end up with lots of tokens. If
+53:15 
+
+53:15 your audio is small, you will end up
+53:16 
+
+53:16 with smaller number of tokens and
+53:18 
+
+53:18 therefore you pass it through audio Q
+53:19 
+
+53:19 former so as to finally end up with
+53:21 
+
+53:21 fixed number of tokens. Okay. And then
+53:23 
+
+53:23 you give it to llama and again this
+53:25 
+
+53:25 fixed number of tokens was very very
+53:26 
+
+53:26 important at that time again two years
+53:27 
+
+53:27 back in time because llama also had like
+53:29 
+
+53:29 limited the llama one model had like 2k
+53:31 
+
+53:31 window. Okay. So essentially if you had
+53:33 
+
+53:33 like you see I mean like five images and
+53:35 
+
+53:35 each of those images basically I mean
+53:37 
+
+53:37 you know these images were like,24 you
+53:39 
+
+53:39 had like 16 sized patch size. I mean you
+53:41 
+
+53:41 know,24 by 16 is what I mean I think uh
+53:44 
+
+53:44 some uh uh uh 56 maybe something around
+53:49 
+
+53:49 that right 50s uh thousand yeah I mean
+53:52 
+
+53:52 something like that so I mean you know
+53:54 
+
+53:54 yeah a few tens let's say right so
+53:57 
+
+53:57 basically very easily even with five
+53:58 
+
+53:58 images you can actually fill that space
+53:60 
+
+53:60 of the limited token window very quickly
+54:02 
+
+54:02 I mean but obviously also have to
+54:04 
+
+54:04 process the audio modality so the idea
+54:06 
+
+54:06 is that whatever be the size of your
+54:08 
+
+54:08 video and the audio you wanted to
+54:09 
+
+54:09 compress it down to limited size so that
+54:11 
+
+54:11 you can fit all of this in limited
+54:13 
+
+54:13 budget and make it work. Okay. So that
+54:15 
+
+54:15 was video llama you know uh trained in
+54:18 
+
+54:18 different parts now. So obvious things
+54:20 
+
+54:20 are you train the video video branch
+54:22 
+
+54:22 separately you pre-train the audio
+54:23 
+
+54:23 branch separately and then you
+54:25 
+
+54:25 essentially learn the nice projector
+54:26 
+
+54:26 layers. So the projector layers are
+54:28 
+
+54:28 trained at the end. Okay. So that's
+54:31 
+
+54:31 video llama um mini GPD4 now as you can
+54:34 
+
+54:34 imagine it's not a new thing anyway. So
+54:36 
+
+54:36 you take image pass through the Q former
+54:40 
+
+54:40 LLM basically is Vikuna model or or the
+54:43 
+
+54:43 more powerful GPD4 model and all they
+54:45 
+
+54:45 want to train is this linear layer. So
+54:47 
+
+54:47 as you can see these two are frozen the
+54:49 
+
+54:49 only the linear layer is what is
+54:51 
+
+54:51 trained. there are more details um and
+54:53 
+
+54:53 in the interest of time I may not really
+54:55 
+
+54:55 talk about all of those details uh but
+54:57 
+
+54:57 if you have uh more rich data and you
+55:01 
+
+55:01 have richer LLMs you automatically get
+55:03 
+
+55:03 the benefits of richer LLMs uh as as
+55:05 
+
+55:05 they become better because your model is
+55:07 
+
+55:07 your your overall architecture just
+55:09 
+
+55:09 depends on those richer LLMs anyway
+55:11 
+
+55:11 right
+55:13 
+
+55:13 and uh then people started using them in
+55:16 
+
+55:16 fact 2023 at the end of it people
+55:18 
+
+55:18 realized that yes text generation using
+55:20 
+
+55:20 multimodal inputs the reality uh and
+55:22 
+
+55:22 people started using them for various
+55:24 
+
+55:24 purposes. In fact in teams Microsoft
+55:26 
+
+55:26 teams we started integrating this uh for
+55:28 
+
+55:28 speech to text um I mean obviously
+55:30 
+
+55:30 speech to text was way better even
+55:32 
+
+55:32 before these models but it's also a
+55:33 
+
+55:33 multimodal uh thing in some ways that
+55:36 
+
+55:36 quality became better uh but it became
+55:38 
+
+55:38 even better with the with recorded
+55:40 
+
+55:40 videos. So teams quality with recorded
+55:42 
+
+55:42 videos is super awesome uh the
+55:44 
+
+55:44 transcript quality that you get at the
+55:45 
+
+55:45 end of it. Right. So um um here is
+55:49 
+
+55:49 basically just a a speechtoext example.
+55:51 
+
+55:51 But then there is also um you know a
+55:54 
+
+55:54 lecture video. So these models are the
+55:56 
+
+55:56 ones that helped uh basically generate
+55:58 
+
+55:58 very awesome um awesome outputs you know
+56:02 
+
+56:02 things that people have obviously not
+56:03 
+
+56:03 seen before. So for example you could
+56:05 
+
+56:05 take a nice 45minut video and uh create
+56:08 
+
+56:08 slides out of it. Those slides may or
+56:10 
+
+56:10 may not be really uh you know perfect
+56:11 
+
+56:11 but hey that is something for you to
+56:13 
+
+56:13 start with. So essentially rather than
+56:14 
+
+56:14 starting from scratch uh that's a pretty
+56:16 
+
+56:16 good these are these are these are
+56:17 
+
+56:17 slides these are the these are this is
+56:19 
+
+56:19 basically taken from openi's blog uh
+56:20 
+
+56:20 GBD40 model uh GBD4 was uh was I believe
+56:25 
+
+56:25 uh yeah GBD4 well GBD4 was the first
+56:27 
+
+56:27 openai multimodal model GPD4 is the
+56:29 
+
+56:29 improved version on that um and they
+56:32 
+
+56:32 basically showed yes their model could
+56:33 
+
+56:33 actually do long video processing also
+56:35 
+
+56:35 thanks to some of these um architectural
+56:38 
+
+56:38 advancements and uh generate generate
+56:41 
+
+56:41 awesome text. Okay. um more uh so
+56:44 
+
+56:44 there's a more recent mini CPM model but
+56:46 
+
+56:46 I think I'll skip that for for the sake
+56:48 
+
+56:48 of time. One last thing that I want to
+56:50 
+
+56:50 touch upon before we sort of stop is uh
+56:52 
+
+56:52 this interesting uh piece of work which
+56:54 
+
+56:54 happens in uh uh in the UX space user
+56:57 
+
+56:57 interface space. Okay. Now we engineers
+56:59 
+
+56:59 typically feel oh user interface is for
+57:01 
+
+57:01 some design people who cares and so on
+57:02 
+
+57:02 right but the interesting thing here how
+57:04 
+
+57:04 do you make these models uh multimodal
+57:08 
+
+57:08 understanding models um also um you know
+57:11 
+
+57:11 in an agentic world right also basically
+57:14 
+
+57:14 do a user interface tasks automatically
+57:16 
+
+57:16 right so for example if you think about
+57:18 
+
+57:18 flight booking it's a very complicated
+57:20 
+
+57:20 task I mean you know if you if you think
+57:22 
+
+57:22 about uh uh I mean or cap booking is a
+57:25 
+
+57:25 even more complicated task where random
+57:27 
+
+57:27 people I mean randomly the the cab gets
+57:29 
+
+57:29 you know I mean you know canceled and or
+57:31 
+
+57:31 the guy doesn't want to cancel and so
+57:33 
+
+57:33 on. So a very complicated task right as
+57:35 
+
+57:35 as complicated as driving on Indian
+57:36 
+
+57:36 roads right so but uh anyway I mean uh
+57:39 
+
+57:39 and here then the agent needs to be able
+57:41 
+
+57:41 to understand the UX controls which
+57:43 
+
+57:43 exist it needs to understand
+57:46 
+
+57:46 uh uh you see u the the the the uh
+57:50 
+
+57:50 functionality that each tool provides um
+57:54 
+
+57:54 it needs to be able to also decompose
+57:56 
+
+57:56 large task. So uh now we taking talking
+57:58 
+
+57:58 about an agent which is supported by all
+57:60 
+
+57:60 of this multimodal architectures that we
+58:01 
+
+58:01 have learned so far right. So it should
+58:03 
+
+58:03 be able to decompose a task as well. So
+58:05 
+
+58:05 take the task of flight booking and
+58:07 
+
+58:07 figure out oh I have to basically first
+58:09 
+
+58:09 figure out in the user interface that is
+58:10 
+
+58:10 given to me. How do I basically find the
+58:13 
+
+58:13 or you know set the origin city then set
+58:15 
+
+58:15 the destination city set the number of
+58:16 
+
+58:16 people who are traveling set you know
+58:18 
+
+58:18 the dates and uh and then essentially
+58:20 
+
+58:20 check out what the results look like
+58:22 
+
+58:22 because it's not like I'll be shown the
+58:24 
+
+58:24 results always. maybe internet
+58:25 
+
+58:25 connection breaks and I get a 404 then
+58:27 
+
+58:27 what to do with it right so or or I get
+58:29 
+
+58:29 like connection expired or whatever I
+58:31 
+
+58:31 get right how do I deal with it right so
+58:33 
+
+58:33 these are some of those snapshots that
+58:35 
+
+58:35 are that I'm showing here um it also
+58:37 
+
+58:37 needs to basically be able to understand
+58:38 
+
+58:38 oh one milestone is achieved I've been
+58:41 
+
+58:41 able to set the origin city and that's a
+58:43 
+
+58:43 milestone right in in the entire
+58:44 
+
+58:44 planning right um and and so on so uh
+58:46 
+
+58:46 sometimes it also needs to backtrack or
+58:48 
+
+58:48 reflect you know I did something I
+58:51 
+
+58:51 clicked on the search button but hey I'm
+58:52 
+
+58:52 not seeing any results what happened
+58:54 
+
+58:54 Right? So essentially is there something
+58:55 
+
+58:55 wrong? Uh uh maybe it needs to just to
+58:58 
+
+58:58 keep pulling keep waiting or maybe the
+58:59 
+
+58:59 search results are still populating.
+59:01 
+
+59:01 Right? So there's a huge lot of stuff
+59:02 
+
+59:02 that we humans do uh which needs to be
+59:04 
+
+59:04 sort of mimicked and uh interestingly
+59:06 
+
+59:06 people have been training these kinds of
+59:08 
+
+59:08 models um to be able to do these kind of
+59:10 
+
+59:10 things. Again I'll skip some slides but
+59:12 
+
+59:12 you know it's very interesting when you
+59:13 
+
+59:13 read through them what kind of stuff
+59:14 
+
+59:14 what kind of reasoning that this model
+59:16 
+
+59:16 has to do in an agentic way uh to take
+59:20 
+
+59:20 the multimodal input and figure out the
+59:23 
+
+59:23 next step figure out the next step to be
+59:24 
+
+59:24 done. Okay. Uh what is exciting to
+59:27 
+
+59:27 understand is how do people train these
+59:29 
+
+59:29 models. Now UX controls are not simple.
+59:31 
+
+59:31 They are not like typical cat dog
+59:33 
+
+59:33 images. So you don't learn that by
+59:35 
+
+59:35 learning from imageet. You don't learn
+59:36 
+
+59:36 that stuff at all. It's a different
+59:37 
+
+59:37 domain altogether. Okay. So they did a
+59:39 
+
+59:39 whole bunch of interesting uh uh you
+59:41 
+
+59:41 know learning by taking a huge lot of
+59:43 
+
+59:43 user desktop snapshots that you see
+59:46 
+
+59:46 here. So I know this image is very very
+59:48 
+
+59:48 busy but you see this desktop picture
+59:51 
+
+59:51 and uh you know they basically uh
+59:53 
+
+59:53 gathered a crazy amount of label data uh
+59:55 
+
+59:55 question answering data what does this
+59:57 
+
+59:57 particular icon at the left bottom you
+59:59 
+
+59:59 know shaped in a particular form do
+60:01 
+
+60:01 those that kind of stuff okay uh and
+60:03 
+
+60:03 element description also so for
+60:05 
+
+60:05 everything that you see and again I mean
+60:06 
+
+60:06 as if you see the screen right I mean
+60:08 
+
+60:08 there are probably like 100 elements
+60:09 
+
+60:09 that you see there right uh and we are
+60:11 
+
+60:11 like super awesome geeky people you know
+60:13 
+
+60:13 we understand the interface so well show
+60:15 
+
+60:15 it to my mom Right? I mean, and she's
+60:16 
+
+60:16 never going to use this, right? But
+60:18 
+
+60:18 anyway, right. So, the point is that uh
+60:21 
+
+60:21 all of these things and and then and
+60:23 
+
+60:23 then talk about action. This is just a
+60:24 
+
+60:24 static snapshot. What happens if you
+60:26 
+
+60:26 click here or rather if you basically
+60:28 
+
+60:28 were at this snapshot and then next this
+60:30 
+
+60:30 is the snapshot, what action might have
+60:31 
+
+60:31 been taken to basically get there.
+60:33 
+
+60:33 Right? So, those are the tasks that they
+60:34 
+
+60:34 train for. Uh and there's a very
+60:36 
+
+60:36 interesting field altogether by itself.
+60:38 
+
+60:38 Um there is active research work being
+60:41 
+
+60:41 done in this field and I'll basically
+60:42 
+
+60:42 again due to time limits I'll basically
+60:44 
+
+60:44 skip that. But this active work which is
+60:46 
+
+60:46 being done in this field to extend this
+60:47 
+
+60:47 work now to mobile screens because they
+60:49 
+
+60:49 are even more complicated. Desktop
+60:51 
+
+60:51 screens sure I mean you know you have so
+60:52 
+
+60:52 many controls but you can actually
+60:54 
+
+60:54 visualize them and hover over them to
+60:56 
+
+60:56 understand and so on. But mobile screens
+60:58 
+
+60:58 well I mean it's super complicated
+60:60 
+
+60:60 because in the compact screen you have
+61:02 
+
+61:02 uh and sometimes broken UX as well you
+61:04 
+
+61:04 have like so many things. So people are
+61:05 
+
+61:05 actually working on mobile screens.
+61:07 
+
+61:07 There's no model for now which basically
+61:08 
+
+61:08 can do interesting multimodal processing
+61:10 
+
+61:10 over mobile screens and then do some
+61:12 
+
+61:12 automated task. In fact, and there are
+61:14 
+
+61:14 like again other stories as well. So at
+61:17 
+
+61:17 Microsoft, you know, internally we
+61:18 
+
+61:18 developed a voice- based troubleshooter.
+61:21 
+
+61:21 Okay, I can't uh you know install a
+61:22 
+
+61:22 printer. So let me just talk to my
+61:24 
+
+61:24 device. Hey, install the nearest printer
+61:26 
+
+61:26 and yo, I mean it gets into autopilot
+61:28 
+
+61:28 mode. Basically just takes a snapshot of
+61:29 
+
+61:29 whatever is being visible on my screen.
+61:31 
+
+61:31 Uh presses a Windows button
+61:32 
+
+61:32 automatically and also talks while it's
+61:34 
+
+61:34 doing that. I mean uh it's it's speech
+61:36 
+
+61:36 enabled as well. Speech to text to
+61:37 
+
+61:37 speech is good, right? Uh and then it
+61:39 
+
+61:39 basically you know figures out oh
+61:41 
+
+61:41 Windows button it shows settings click
+61:42 
+
+61:42 on settings. It basically figures out
+61:43 
+
+61:43 where to click, click on settings,
+61:45 
+
+61:45 settings, okay, uh there's some printer
+61:46 
+
+61:46 option, printers and devices. Okay,
+61:48 
+
+61:48 click on that and then you know add a
+61:49 
+
+61:49 printer. uh and then all of that right
+61:52 
+
+61:52 uh but again um so all of that is
+61:55 
+
+61:55 supported by this UI task kind of model
+61:57 
+
+61:57 so that you know where to click and so
+61:58 
+
+61:58 on right but then you know there are
+62:00 
+
+62:00 deployment challenges there are privacy
+62:02 
+
+62:02 challenges so that will not come into
+62:04 
+
+62:04 Windows ever because uh it's just that
+62:05 
+
+62:05 there are privacy challenges you can't
+62:07 
+
+62:07 capture user screen like this and so on
+62:09 
+
+62:09 maybe it will come up at some point with
+62:10 
+
+62:10 lots of permissions being asked from the
+62:12 
+
+62:12 nive users as well that hey please
+62:14 
+
+62:14 understand we are taking snapshots of
+62:15 
+
+62:15 your screen and so on right so in short
+62:17 
+
+62:17 in this session well we went over a
+62:19 
+
+62:19 whole bunch of models. Hopefully I
+62:20 
+
+62:20 motivated you and well you have been
+62:22 
+
+62:22 using these models for various use cases
+62:24 
+
+62:24 anyway right with many many applications
+62:26 
+
+62:26 but we also talked about several
+62:27 
+
+62:27 architectures like uh like frozen
+62:30 
+
+62:30 flamingo uh and that's history that's
+62:32 
+
+62:32 basically the way it evolved basically
+62:33 
+
+62:33 right in frozen you know I mean people
+62:35 
+
+62:35 did not even realize that uh uh you
+62:38 
+
+62:38 don't need to really retrain the entire
+62:39 
+
+62:39 vision encoder you can basically just
+62:41 
+
+62:41 retrain projection layer u and then
+62:43 
+
+62:43 there were models which basically tried
+62:45 
+
+62:45 to um tried to mess around with the
+62:48 
+
+62:48 encoder uh and come up with better and
+62:50 
+
+62:50 better encoders um visual linguistic
+62:54 
+
+62:54 encoders in that sense is more or less
+62:55 
+
+62:55 keeping the generation part more or less
+62:58 
+
+62:58 just the standard transformer decoder
+62:60 
+
+62:60 right uh there are models which are
+63:01 
+
+63:01 basically you know tried to include the
+63:03 
+
+63:03 visual and audio input as well and then
+63:06 
+
+63:06 you know specialized models basically
+63:08 
+
+63:08 which try to do uh generation and
+63:10 
+
+63:10 reasoning um in in user interface space
+63:13 
+
+63:13 complex user interface screens and so on
+63:15 
+
+63:15 okay that's it for this session folks
+63:17 
+
+63:17 hope you enjoyed the session it was a
+63:19 
+
+63:19 glimpse into a quick glimpse into what
+63:21 
+
+63:21 is going on in the uh world where inputs
+63:24 
+
+63:24 are multimodal but the outputs are text.
+63:26 
+
+63:26 Obviously yet another interesting area
+63:28 
+
+63:28 is where the outputs are also
+63:29 
+
+63:29 multimodal. Uh you know you have image
+63:31 
+
+63:31 generation and uh video generation and
+63:33 
+
+63:33 multimodel generation but that's a story
+63:35 
+
+63:35 for some other session. You know thanks
+63:37 
+
+63:37 so much for being a great audience. Yeah
+63:39 
+
+63:39 and the interesting questions and we'll
+63:40 
+
+63:40 stop here. Thank you.

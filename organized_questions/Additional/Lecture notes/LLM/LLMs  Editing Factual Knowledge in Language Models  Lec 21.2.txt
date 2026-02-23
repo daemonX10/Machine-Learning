@@ -1,0 +1,1579 @@
+00:03 hello everyone now these three
+00:05 
+
+00:05 categories you see a lots of method uh
+00:08 
+
+00:08 methods proposed in last two three years
+00:10 
+
+00:10 so let's start with uh knowledge editor
+00:13 
+
+00:13 Global optimization
+00:16 
+
+00:16 okay so I think this is one of the first
+00:18 
+
+00:18 papers in knowledge editing way back
+00:20 
+
+00:20 2021 the high level idea is you have
+00:23 
+
+00:23 this pretrain large language model right
+00:27 
+
+00:27 and you have another Network which we
+00:30 
+
+00:30 call hyper Network or knowledge editor
+00:33 
+
+00:33 this is another neural network method
+00:36 
+
+00:36 right and what is the purpose of this
+00:37 
+
+00:37 knowledge editor or hyper Network the
+00:40 
+
+00:40 purp purpose is to learn this Delta
+00:44 
+
+00:44 W right this is global optimization what
+00:47 
+
+00:47 it does so the original original
+00:49 
+
+00:49 parameter space is w and what what you
+00:52 
+
+00:52 are learning you are learning Delta W
+00:55 
+
+00:55 right and this this Delta W will just be
+00:57 
+
+00:57 added to
+00:58 
+
+00:58 W Okay so the hyper Network or the
+01:01 
+
+01:01 knowledge editor is responsible for
+01:04 
+
+01:04 learning Delta
+01:06 
+
+01:06 W okay all right
+01:10 
+
+01:10 so this is my actual network if actual
+01:13 
+
+01:13 large language model this is llm right
+01:15 
+
+01:15 you are given the input X right the the
+01:18 
+
+01:18 the input is the Space Needle is located
+01:20 
+
+01:20 located in the CT of Dash the model
+01:23 
+
+01:23 outputs c as the you know as the
+01:25 
+
+01:25 predicted um as the prediction right and
+01:29 
+
+01:29 Theta
+01:31 
+
+01:31 is the pre-trend parameters right again
+01:34 
+
+01:34 remember the notation when I say Theta I
+01:37 
+
+01:37 basically indicate all the parameters
+01:39 
+
+01:39 combined together and when I say w w is
+01:42 
+
+01:42 basically a parameter of a single
+01:46 
+
+01:46 layer okay and this is my knowledge
+01:49 
+
+01:49 editor this is my hyper Network okay and
+01:52 
+
+01:52 what is the goal of this hyper Network
+01:54 
+
+01:54 the goal is to learn this Delta Theta
+01:58 
+
+01:58 the updated weight right when it is
+01:60 
+
+01:60 learned you just add Delta Theta to
+02:02 
+
+02:02 Theta and Theta Dash is going to be the
+02:05 
+
+02:05 updated
+02:07 
+
+02:07 parameters and how does it operate it
+02:11 
+
+02:11 basically it is operated using um uh
+02:15 
+
+02:15 some feed forward networks is Alpha Beta
+02:18 
+
+02:18 Gamma Delta we'll
+02:20 
+
+02:20 discuss okay so when we when we learned
+02:24 
+
+02:24 this Delta Theta right Theta Dash is my
+02:28 
+
+02:28 new updated parameter I will make sure
+02:32 
+
+02:32 that those inputs for which I wanted to
+02:35 
+
+02:35 update the model which is X basically
+02:37 
+
+02:37 here for those inputs the new
+02:42 
+
+02:42 uh the the edited knowledge will be
+02:44 
+
+02:44 returned right remember this is DX so DX
+02:47 
+
+02:47 is what DX is all DX is a set of all
+02:50 
+
+02:50 knowledge which I want to incorporate
+02:52 
+
+02:52 for all DX the updated version should be
+02:54 
+
+02:54 returned for all Ox for the other set
+02:58 
+
+02:58 right non-targeted set the original the
+03:02 
+
+03:02 old version should be
+03:06 
+
+03:06 returned okay so now let's discuss this
+03:10 
+
+03:10 hyper Network which is as I mentioned
+03:11 
+
+03:11 it's a bit complicated let's focus on
+03:13 
+
+03:13 this so the hyper network is a normal
+03:17 
+
+03:17 neural
+03:18 
+
+03:18 network okay I will tell you what what
+03:21 
+
+03:21 are the components of this hyper network
+03:23 
+
+03:23 but think of it as a blackbox neural
+03:25 
+
+03:25 network right whose parameters are
+03:29 
+
+03:29 five okay okay you need to learn this uh
+03:32 
+
+03:32 hyper Network you need to train this
+03:34 
+
+03:34 hyper Network right when we train this
+03:37 
+
+03:37 hyper Network what is objective function
+03:39 
+
+03:39 the objective function is this this
+03:42 
+
+03:42 loss so so you
+03:45 
+
+03:45 have now this is your original llm F
+03:49 
+
+03:49 pretend llm right this is the hyper
+03:52 
+
+03:52 Network um uh we call it G right
+03:56 
+
+03:56 parameters are
+03:58 
+
+03:58 F parameters are Theta here
+04:01 
+
+04:01 okay so now what is PX look at this
+04:05 
+
+04:05 objective function carefully PX is a
+04:06 
+
+04:06 paraphrased version of all the edits
+04:09 
+
+04:09 that you want to
+04:10 
+
+04:10 incorporate PX can also be DX when there
+04:14 
+
+04:14 is no paraphrase right so for all the
+04:17 
+
+04:17 original and the paraphrased version of
+04:20 
+
+04:20 uh the input
+04:22 
+
+04:22 xcap right I want the model to return
+04:26 
+
+04:26 the updated output a
+04:31 
+
+04:31 right so I want this llm to return the
+04:35 
+
+04:35 updated uh output
+04:37 
+
+04:37 a
+04:39 
+
+04:39 right if it is unable to return then
+04:43 
+
+04:43 we'll have some loss we'll have some
+04:45 
+
+04:45 loss here okay so this loss will be back
+04:50 
+
+04:50 propagated so I would like to minimize
+04:53 
+
+04:53 the loss of the original llm right such
+04:58 
+
+04:58 that now think about it when
+05:01 
+
+05:01 we when we uh and and and what is the
+05:04 
+
+05:04 target here the target is here is to
+05:06 
+
+05:06 essentially train this G right to learn
+05:09 
+
+05:09 these parameters um five
+05:13 
+
+05:13 right so what is the sub what is the
+05:17 
+
+05:17 constraint the constraint here is as
+05:19 
+
+05:19 follows the constraint here
+05:21 
+
+05:21 is this loss is computed with respect to
+05:25 
+
+05:25 PX there is another set
+05:27 
+
+05:27 Ox I do not want the model to basically
+05:32 
+
+05:32 uh you know respond to any of the
+05:34 
+
+05:34 queries which belong which which belongs
+05:36 
+
+05:36 to Ox right so so this is the this is
+05:40 
+
+05:40 the constraint it says
+05:43 
+
+05:43 that that the the updates right with
+05:47 
+
+05:47 respect to Ox should be as low as
+05:51 
+
+05:51 possible as minimum as
+05:55 
+
+05:55 possible Right For Those quaries which
+05:58 
+
+05:58 belong to Ox I do not want to respond I
+06:02 
+
+06:02 I do not want the model to respond to
+06:03 
+
+06:03 any of these queries right they they
+06:06 
+
+06:06 should be
+06:07 
+
+06:07 untouched and how do you make how do you
+06:09 
+
+06:09 make sure this happens right now if we
+06:12 
+
+06:12 make a very hard constraint that I do
+06:15 
+
+06:15 not want the model to respond to any of
+06:17 
+
+06:17 these Ox any of the instances of ox that
+06:19 
+
+06:19 would be very hard constant right so
+06:21 
+
+06:21 therefore they introduced some sort of
+06:23 
+
+06:23 slack
+06:24 
+
+06:24 M so what they said is that I will allow
+06:27 
+
+06:27 the model to to make some erors I mean
+06:30 
+
+06:30 when if the model makes some I mean if
+06:33 
+
+06:33 the model edits Ox those will be
+06:36 
+
+06:36 errors iow I will allow the model to
+06:41 
+
+06:41 make errors up to
+06:44 
+
+06:44 M right so m is a hyper parameter let's
+06:48 
+
+06:48 look at the C the C is the cost function
+06:51 
+
+06:51 right so they they they took two types
+06:54 
+
+06:54 of cost functions the first cost
+06:56 
+
+06:56 function is just a kale
+06:58 
+
+06:58 Divergence right it basically says
+07:02 
+
+07:02 that that I have two llms one is the one
+07:08 
+
+07:08 is Theta other is Theta Theta Dash Theta
+07:11 
+
+07:11 Dash is the updated one Theta is the old
+07:13 
+
+07:13 one the kale Divergence between the old
+07:15 
+
+07:15 and the new one should not should should
+07:17 
+
+07:17 should be less than M less than equals
+07:20 
+
+07:20 to
+07:23 
+
+07:23 M
+07:24 
+
+07:24 okay this is clear so this is one loss
+07:28 
+
+07:28 that they considered they also tested
+07:30 
+
+07:30 their model with another
+07:32 
+
+07:32 loss this is just an LP LP Norm right
+07:35 
+
+07:35 they looked at the parameter difference
+07:38 
+
+07:38 between uh between the original one and
+07:41 
+
+07:41 the updated one right and U that's going
+07:44 
+
+07:44 to be the
+07:46 
+
+07:46 loss this is kind of LP norm and this is
+07:50 
+
+07:50 scale Divergence so they they tested and
+07:53 
+
+07:53 and they showed that kale Divergence
+07:55 
+
+07:55 works better compared to
+07:57 
+
+07:57 lpo clear so so far we assumed that
+08:01 
+
+08:01 there is this hyper Network hyper
+08:03 
+
+08:03 network will be trained based on this
+08:05 
+
+08:05 objective but we do not know what are
+08:08 
+
+08:08 the components of the hyper network is
+08:10 
+
+08:10 it just a fit forward Network or what
+08:12 
+
+08:12 what it
+08:13 
+
+08:13 is and now we'll discuss
+08:16 
+
+08:16 this so the hyper Network or the
+08:19 
+
+08:19 knowledge editor consist of multiple
+08:23 
+
+08:23 components okay now this is a handdrawn
+08:26 
+
+08:26 uh I'm very lazy in drawing this figure
+08:28 
+
+08:28 so I drew this um
+08:30 
+
+08:30 by hand it's a handdrawn uh figure of
+08:33 
+
+08:33 this hyper Network again I want you to
+08:35 
+
+08:35 focus on this hyper
+08:36 
+
+08:36 Network so this is my hyper Network
+08:42 
+
+08:42 file okay what is f Theta F Theta is the
+08:46 
+
+08:46 original
+08:47 
+
+08:47 llm whose parameters are
+08:50 
+
+08:50 Theta okay and the purpose of this hyper
+08:52 
+
+08:52 Theta hyper network is to learn Delta
+08:56 
+
+08:56 Theta
+08:58 
+
+08:58 okay now the the hyper network is
+09:02 
+
+09:02 essentially a combination of lstms and
+09:05 
+
+09:05 feed forward
+09:06 
+
+09:06 networks so the input to the hyper
+09:09 
+
+09:09 network is X Y
+09:12 
+
+09:12 A what is X what is y what is a a
+09:16 
+
+09:16 um a is the object that uh that you want
+09:19 
+
+09:19 to update X is the um input
+09:23 
+
+09:23 prompt so we first get the embedding of
+09:25 
+
+09:25 this uh this one we pass it to uh
+09:28 
+
+09:28 through a BST this a simple B STM
+09:32 
+
+09:32 followed by a fit forward Network so
+09:34 
+
+09:34 after this fit forward Network we get an
+09:36 
+
+09:36 embedding of this triplet X Y A this
+09:41 
+
+09:41 H right now H this H is a single Vector
+09:46 
+
+09:46 right H is now fed to four different
+09:50 
+
+09:50 Feit forward networks
+09:52 
+
+09:52 Alpha
+09:54 
+
+09:54 Beta right Gamma Delta forget about this
+09:59 
+
+09:59 ITA for the time
+10:00 
+
+10:00 Alpha Beta Gamma Delta these are four
+10:04 
+
+10:04 feed forward networks and I will tell
+10:05 
+
+10:05 you the purpose of this feed forward
+10:07 
+
+10:07 Network later first understand the
+10:09 
+
+10:09 architecture and then I'll discuss the
+10:10 
+
+10:10 purpose of this fit forward Network okay
+10:14 
+
+10:14 so this H will be fed will be fed to
+10:18 
+
+10:18 four feed forward networks Alpha Beta
+10:21 
+
+10:21 gamma and
+10:22 
+
+10:22 Delta the feed forward network will
+10:24 
+
+10:24 produce a vector right corresponding to
+10:27 
+
+10:27 H so the vector that will be produced by
+10:30 
+
+10:30 this Alpha fit forward network will be
+10:33 
+
+10:33 passed through a soft Max this is a soft
+10:36 
+
+10:36 Max will be passed through a s Max right
+10:39 
+
+10:39 similarly uh beta's beta's uh Vector
+10:43 
+
+10:43 will be passed through a s
+10:45 
+
+10:45 Max
+10:47 
+
+10:47 right Alpha's so Alpha's output will be
+10:50 
+
+10:50 passed through a s Max beta's output
+10:52 
+
+10:52 will be passed through a s Max right and
+10:54 
+
+10:54 this will be multiplied with with gamma
+10:58 
+
+10:58 and Delta so Alpha Alpha's output will
+11:01 
+
+11:01 be multiplied with gamma and this is
+11:03 
+
+11:03 outer
+11:04 
+
+11:04 product okay similarly beta's uh beta's
+11:08 
+
+11:08 output uh short Max output will be
+11:10 
+
+11:10 multiplied with
+11:14 
+
+11:14 Delta okay look at
+11:19 
+
+11:19 here right now when we multiply a vector
+11:24 
+
+11:24 this kind of outer product two vectors
+11:26 
+
+11:26 outer product it will produce a matrix
+11:30 
+
+11:30 it will produce a matrix so so here this
+11:32 
+
+11:32 is a matrix this is also a
+11:37 
+
+11:37 matrix okay so these are four feed
+11:40 
+
+11:40 forward networks there is another feed
+11:42 
+
+11:42 forward Network which will which which
+11:45 
+
+11:45 basically the input of the fit forward
+11:47 
+
+11:47 network is again H and the output is
+11:51 
+
+11:51 ITA what is ITA ITA is a scalar since
+11:54 
+
+11:54 this is a scalar what I do I will pass
+11:57 
+
+11:57 ITA through a sigmoid
+12:01 
+
+12:01 which will make sure that this is
+12:02 
+
+12:02 between the range right so all the
+12:06 
+
+12:06 outputs of the fit for networks will be
+12:08 
+
+12:08 passed through sort Max which will make
+12:10 
+
+12:10 sure this is follow the it output
+12:12 
+
+12:12 follows the distribution right 0 to one
+12:15 
+
+12:15 similarly the the the scalar will be
+12:17 
+
+12:17 Fade to a
+12:19 
+
+12:19 sigmoid okay now focus on this component
+12:22 
+
+12:22 this is the main part of this model
+12:24 
+
+12:24 Delta W that you are
+12:26 
+
+12:26 learning
+12:27 
+
+12:27 Okay so
+12:30 
+
+12:30 for this input the original model this
+12:33 
+
+12:33 is the original model the original model
+12:36 
+
+12:36 already produced the
+12:38 
+
+12:38 loss right the loss and this
+12:43 
+
+12:43 loss I mean if you know the loss you
+12:45 
+
+12:45 also know the
+12:46 
+
+12:46 gradient right so this is the
+12:52 
+
+12:52 gradient okay so gradient is what it's
+12:55 
+
+12:55 it is in a
+12:58 
+
+12:58 matrix right it is Matrix now you do not
+13:02 
+
+13:02 want that I mean you basically want to
+13:05 
+
+13:05 control this update you do not want that
+13:07 
+
+13:07 the the the whatever gradient that that
+13:10 
+
+13:10 is produced will be directly added to
+13:13 
+
+13:13 the old old parameter you want to
+13:16 
+
+13:16 control this gradient flow you want to
+13:19 
+
+13:19 change certain components of the
+13:21 
+
+13:21 gradient or certain components of this
+13:23 
+
+13:23 gradient
+13:24 
+
+13:24 Matrix this is very similar to lstm and
+13:27 
+
+13:27 Gru this GED mechanism right right now
+13:30 
+
+13:30 look at here this Alpha what is this
+13:32 
+
+13:32 Alpha cap the alpha cap is the is the
+13:35 
+
+13:35 Matrix is the outer product Matrix that
+13:37 
+
+13:37 you obtained earlier so this will be dot
+13:40 
+
+13:40 product
+13:42 
+
+13:42 will uh I mean elementwise dot product
+13:45 
+
+13:45 with the with the gradient
+13:48 
+
+13:48 Matrix okay and then what is beta hat
+13:52 
+
+13:52 beta hat is again another output uh fit
+13:54 
+
+13:54 forward dat output that you obtained
+13:55 
+
+13:55 earlier so if you look at only this part
+13:58 
+
+13:58 what does it mean
+14:02 
+
+14:02 what does it mean it means that remember
+14:05 
+
+14:05 the alpha this Alpha hat is produced by
+14:09 
+
+14:09 this hyper Network right so Alpha hat is
+14:12 
+
+14:12 parameterized by
+14:15 
+
+14:15 F so you want to learn such
+14:18 
+
+14:18 files right which will basically allow
+14:21 
+
+14:21 you to update things
+14:26 
+
+14:26 selectively right and what is the
+14:28 
+
+14:28 purpose of this Ita this is just a
+14:30 
+
+14:30 scaling
+14:31 
+
+14:31 Factor
+14:33 
+
+14:33 okay so again in summary what we learned
+14:37 
+
+14:37 here this hyper Network the loss the
+14:40 
+
+14:40 loss is this loss right the loss is the
+14:43 
+
+14:43 loss with respect to the original
+14:45 
+
+14:45 Network right now here look at it
+14:48 
+
+14:48 carefully I'm not touching the original
+14:50 
+
+14:50 parameters at all I'm just learning W
+14:54 
+
+14:54 I'm just learning Delta Delta Theta or
+14:56 
+
+14:56 Delta W right and that will just be
+14:59 
+
+14:59 added to the
+15:02 
+
+15:02 parameters okay so this is a global
+15:05 
+
+15:05 optimization uh
+15:07 
+
+15:07 technique right all right so this is the
+15:10 
+
+15:10 result so that the they tested
+15:13 
+
+15:13 their uh method this knowledge editor uh
+15:17 
+
+15:17 with full
+15:19 
+
+15:19 finetuning full F fine tuning first
+15:21 
+
+15:21 layer full time fine tuning all the
+15:23 
+
+15:23 layers right and this is another method
+15:26 
+
+15:26 that was proposed earlier first layer
+15:30 
+
+15:30 fine tuning all their fine
+15:32 
+
+15:32 tuning and uh and this result
+15:36 
+
+15:36 corresponds to the knowledge editor with
+15:38 
+
+15:38 L2 Norm loss I mentioned there are two
+15:41 
+
+15:41 loss functions that they checked with
+15:43 
+
+15:43 one is this kale diver is L2 right so
+15:46 
+
+15:46 this is
+15:47 
+
+15:47 L2 okay and this is their output uh
+15:50 
+
+15:50 simple knowledge editor I'll tell you
+15:52 
+
+15:52 what is this Loop and PX later but first
+15:55 
+
+15:55 look at
+15:56 
+
+15:56 the experimental uh uh you know
+15:59 
+
+15:59 evaluation measures so success
+16:02 
+
+16:02 rate now these measures are are also
+16:05 
+
+16:05 used in other papers success rate says
+16:08 
+
+16:08 that whatever is there in my
+16:11 
+
+16:11 DX in the DX right I want the model to
+16:14 
+
+16:14 produce proper out for DX right so
+16:17 
+
+16:17 success rate will be measured with
+16:19 
+
+16:19 respect to DX what is uh uh written
+16:22 
+
+16:22 accuracy written accuracy is
+16:25 
+
+16:25 localization it basically says that I
+16:27 
+
+16:27 look at Ox other outputs and the model
+16:30 
+
+16:30 should not produce uh should not change
+16:32 
+
+16:32 anything with respect to X right and
+16:35 
+
+16:35 what is equivalence accuracy equivalence
+16:37 
+
+16:37 accuracy is measured with respect to PX
+16:39 
+
+16:39 so DX ox and
+16:43 
+
+16:43 PX okay now look at it very carefully
+16:47 
+
+16:47 the result is very interesting it says
+16:49 
+
+16:49 that for all the fine tuning full fine
+16:52 
+
+16:52 tuning first layer fine tuning full fine
+16:55 
+
+16:55 tuning the success rate is
+16:57 
+
+16:57 100% meaning
+16:59 
+
+16:59 all the instances which are there in DX
+17:02 
+
+17:02 they have been updated
+17:04 
+
+17:04 properly right with L2 Norm success rate
+17:08 
+
+17:08 is
+17:09 
+
+17:09 99% with their method success rate is
+17:12 
+
+17:12 98% 2%
+17:15 
+
+17:15 error right which apparently looks bad
+17:18 
+
+17:18 but let's look at the other parameters
+17:20 
+
+17:20 other metrix return rate return accuracy
+17:24 
+
+17:24 the full with full fine tuning the rate
+17:27 
+
+17:27 the accuracy is 86%
+17:30 
+
+17:30 what is return return accuracy return
+17:31 
+
+17:31 accuracy is measured with respect to Ox
+17:34 
+
+17:34 so when you do full fine tuning with the
+17:37 
+
+17:37 set of new knowledge you are you start
+17:39 
+
+17:39 forgetting the pre Trend
+17:43 
+
+17:43 knowledge okay so but but if you look at
+17:47 
+
+17:47 knowledge editor their return accuracy
+17:50 
+
+17:50 is 97%
+17:53 
+
+17:53 98% okay now what is this
+17:56 
+
+17:56 Loop so the so the so so knowledge
+17:59 
+
+17:59 editor plus Loop is one setting
+18:03 
+
+18:03 where you keep on updating the models
+18:07 
+
+18:07 right you keep on updating the models
+18:08 
+
+18:08 with respect to DX until unless we see
+18:11 
+
+18:11 the accuracy is
+18:13 
+
+18:13 100% right you see with Loop the
+18:15 
+
+18:15 accuracy is 100% meaning you keep on
+18:17 
+
+18:17 updating the model with respect to DX
+18:20 
+
+18:20 right until unless you see the accuracy
+18:22 
+
+18:22 is 100% what is PX so knowledge editor
+18:25 
+
+18:25 knowledge editor plus PX so when I say
+18:29 
+
+18:29 simple knowledge
+18:31 
+
+18:31 editor right there is no concept of PX
+18:34 
+
+18:34 so model is only updated with respect to
+18:37 
+
+18:37 DX right if you add paraphrase version
+18:40 
+
+18:40 also PX you see that you know uh some
+18:44 
+
+18:44 accuracy measures
+18:46 
+
+18:46 improve and this is the B version PX
+18:49 
+
+18:49 plus
+18:52 
+
+18:52 Loop
+18:54 
+
+18:54 okay so this is essentially an error
+18:57 
+
+18:57 analysis and this error analis is very
+18:60 
+
+18:60 interesting what they did to understand
+19:02 
+
+19:02 what actually happens
+19:04 
+
+19:04 inside for every output which you obtain
+19:08 
+
+19:08 right for a for a query let's say the
+19:10 
+
+19:10 space station is located at Dash output
+19:13 
+
+19:13 ISL right you want to update it to Goa
+19:17 
+
+19:17 right for every output they measured the
+19:21 
+
+19:21 logic right they measured log of P by 1
+19:26 
+
+19:26 minus
+19:27 
+
+19:27 P okay
+19:29 
+
+19:29 now remember uh the outputs correspond
+19:32 
+
+19:32 to DX output corresponds to PX outputs
+19:36 
+
+19:36 correspond to
+19:38 
+
+19:38 Ox right and what they plotted here they
+19:41 
+
+19:41 plotted the Logics of the old model and
+19:44 
+
+19:44 the updated
+19:45 
+
+19:45 model right so x-axis is the Logics for
+19:49 
+
+19:49 the original model and y axis is the
+19:52 
+
+19:52 Logics for the updated
+19:54 
+
+19:54 model right so now think of this example
+19:58 
+
+19:58 right um the US president was the US
+20:01 
+
+20:01 president is Barack Obama and updated
+20:02 
+
+20:02 knowledge is Joe Biden so for the for
+20:05 
+
+20:05 the phrase Barack Obama what is the
+20:08 
+
+20:08 logic for
+20:10 
+
+20:10 the original
+20:13 
+
+20:13 model so the original model always
+20:15 
+
+20:15 returns Barack Obama so logic is high
+20:18 
+
+20:18 that's why it returned Barack Obama now
+20:20 
+
+20:20 in the updated model it should not
+20:22 
+
+20:22 return this it should return Joe Biden
+20:24 
+
+20:24 so for the Barack Obama the updated
+20:28 
+
+20:28 logic should be low whereas for Joe
+20:31 
+
+20:31 Biden the original one should be low and
+20:34 
+
+20:34 the updated one should be
+20:36 
+
+20:36 high clear so those outputs which are in
+20:41 
+
+20:41 DX for the original model the the Logics
+20:45 
+
+20:45 should just be just be
+20:48 
+
+20:48 flipped think about it those will be
+20:50 
+
+20:50 just flipped lows will be high high will
+20:53 
+
+20:53 be
+20:54 
+
+20:54 low right now look at this green dots
+20:58 
+
+20:58 the Green Dot dots correspond to
+21:00 
+
+21:00 those uh outputs in
+21:04 
+
+21:04 DX right in DX which are
+21:09 
+
+21:09 correct right now within DX there might
+21:13 
+
+21:13 be some now look at this flip so earlier
+21:15 
+
+21:15 this was here some of the some of the
+21:17 
+
+21:17 dots were here now they are here right
+21:21 
+
+21:21 earlier some of the dots were here now
+21:23 
+
+21:23 there
+21:26 
+
+21:26 here now what is the error case for some
+21:29 
+
+21:29 of the outputs which belong to DX let's
+21:31 
+
+21:31 say they are not flipped right so the
+21:35 
+
+21:35 error case are denoted by this uh this
+21:39 
+
+21:39 Red Cross you see in this figure there
+21:42 
+
+21:42 is no red
+21:43 
+
+21:43 cross that means there is no error with
+21:46 
+
+21:46 respect to DX 100% accuracy and I I
+21:50 
+
+21:50 already mentioned right with fine tuning
+21:52 
+
+21:52 the accuracy is 100% so this is fine
+21:54 
+
+21:54 tuning result full fine tuning result
+21:56 
+
+21:56 there is no error with respect to DX
+21:60 
+
+21:60 now look at the ox so what will happen
+22:03 
+
+22:03 with WX the logic tell me it will not
+22:07 
+
+22:07 change right it will not change whatever
+22:10 
+
+22:10 will be there ear it will remain the
+22:11 
+
+22:11 same so all the ox Logics should
+22:14 
+
+22:14 basically follow this diagonal part
+22:16 
+
+22:16 diagonal uh axis right so these blue
+22:19 
+
+22:19 dots indicate all these successful W all
+22:24 
+
+22:24 the successful Wes knowledges successful
+22:27 
+
+22:27 in the sense that those have those have
+22:29 
+
+22:29 not been updated and those should not be
+22:33 
+
+22:33 updated among this among this some of
+22:37 
+
+22:37 them have also some some of them have
+22:39 
+
+22:39 been updated and those are the errors
+22:41 
+
+22:41 right and those are denoted by this
+22:44 
+
+22:44 orange orange
+22:46 
+
+22:46 dots so
+22:48 
+
+22:48 Ox basically has so in this figure Ox is
+22:53 
+
+22:53 Ox has essentially um Ox is represented
+22:56 
+
+22:56 by two colors one is this blue
+22:59 
+
+22:59 other is this Orange right blue are the
+23:02 
+
+23:02 blue are the correct Ox output and the
+23:06 
+
+23:06 orange oranges are basically those
+23:08 
+
+23:08 outputs which have been updated which
+23:10 
+
+23:10 should have should not have been
+23:11 
+
+23:11 updated so here the errors are orange
+23:14 
+
+23:14 dots and Red
+23:16 
+
+23:16 Cross this is for full fine
+23:19 
+
+23:19 tuning now this is the knowledge editor
+23:23 
+
+23:23 with ill to
+23:25 
+
+23:25 normal you see these green dots are
+23:29 
+
+23:29 quite separated that is good they are
+23:31 
+
+23:31 flipped that is good but the MCE is here
+23:35 
+
+23:35 the the the problem is this blue dots
+23:38 
+
+23:38 the blue dot is not diagonal like this
+23:41 
+
+23:41 blue dots also have been flipped and
+23:43 
+
+23:43 blue dots are what blue dots are tox
+23:46 
+
+23:46 that means with
+23:49 
+
+23:49 uh with uh with with L2 Norm right the
+23:53 
+
+23:53 model is very different from the from
+23:57 
+
+23:57 the pre- model the updated model is very
+23:59 
+
+23:59 different from the pre-
+24:01 
+
+24:01 model okay now this is their model with
+24:05 
+
+24:05 kale Divergence and PX now here you see
+24:08 
+
+24:08 that the blue dots are kind of following
+24:10 
+
+24:10 the diagonal diagonal axis whereas uh
+24:14 
+
+24:14 green dots are flipped right but you
+24:16 
+
+24:16 here you see some red
+24:20 
+
+24:20 crosses right why this red crosses
+24:22 
+
+24:22 because I already mentioned that the
+24:25 
+
+24:25 accuracy is 98% so 2% rers are there so
+24:28 
+
+24:28 this rate process correspond to 2% of
+24:30 
+
+24:30 error and also of course uh less amount
+24:34 
+
+24:34 of uh orange dots less amount of orange
+24:37 
+
+24:37 dots compared to this which indicates
+24:41 
+
+24:41 that the pre-trend knowledge has not
+24:43 
+
+24:43 been
+24:45 
+
+24:45 hampered much compared to full
+24:49 
+
+24:49 FR okay so this is about knowledge
+24:52 
+
+24:52 editor okay thank you

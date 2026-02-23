@@ -7,9 +7,9 @@ This folder contains interview questions about linear algebra interview question
 - **Theory**: 35 questions
 - **General**: 18 questions
 - **Coding**: 9 questions
-- **Scenario_Based**: 8 questions
+- **Scenario_Based**: 10 questions
 
-**Total Questions**: 70
+**Total Questions**: 72
 
 ## Files:
 

@@ -1,0 +1,4297 @@
+00:00 Uh hello everyone um welcome to the to
+00:04 
+
+00:04 the session on reasoning models. So we
+00:08 
+
+00:08 we were discussing reasoning models
+00:10 
+
+00:10 right specifically
+00:12 
+
+00:12 uh you know the previous in the previous
+00:14 
+
+00:14 two lectures we discussed um different
+00:18 
+
+00:18 types of reasoning models specifically
+00:20 
+
+00:20 in the training paradigm. So during
+00:22 
+
+00:22 training how do you make this model so
+00:25 
+
+00:25 efficient for reasoning right. So, so in
+00:28 
+
+00:28 today's class we will discuss a
+00:29 
+
+00:29 different aspect of this reasoning
+00:31 
+
+00:31 models and uh specifically we'll discuss
+00:34 
+
+00:34 something called uh test time scaling
+00:37 
+
+00:37 right a test time compute right the idea
+00:39 
+
+00:39 is that uh you know uh we have done
+00:43 
+
+00:43 enough uh about uh training models with
+00:47 
+
+00:47 more data more compute uh more resources
+00:50 
+
+00:50 right uh new techniques and so on but
+00:54 
+
+00:54 people have realized that there There is
+00:56 
+
+00:56 a limit right up to up to which you can
+00:59 
+
+00:59 achieve something but after that you
+01:01 
+
+01:01 can't you can't really actually progress
+01:03 
+
+01:03 right much. So we'll discuss we'll
+01:07 
+
+01:07 discuss today test time scaling where we
+01:09 
+
+01:09 will see how this kind of reasoning
+01:11 
+
+01:11 methods models can be used in the
+01:14 
+
+01:14 inference time for for generating better
+01:17 
+
+01:17 reasoning um you know traces.
+01:21 
+
+01:21 So uh before that this is today's
+01:23 
+
+01:23 breaking news. Some of you may know this
+01:26 
+
+01:26 model called GLM, right? This is another
+01:29 
+
+01:29 open-source model, right? Uh by Z8.ai.
+01:33 
+
+01:33 Uh this is a company, right? So, uh GLM
+01:38 
+
+01:38 4 406 version, you know, this has been
+01:42 
+
+01:42 released in October on October 1. Uh and
+01:46 
+
+01:46 it it currently supports um 200K tokens,
+01:51 
+
+01:51 right? uh in the context and it was
+01:53 
+
+01:53 shown that this outperforms models like
+01:56 
+
+01:56 deepseek v3 v3.0 and cloud sonet 4 and
+02:00 
+
+02:00 so on and so forth. So another
+02:02 
+
+02:02 development in the open source
+02:04 
+
+02:04 community. So if you interested you can
+02:06 
+
+02:06 go through this blog and uh know use
+02:09 
+
+02:09 this tool.
+02:12 
+
+02:12 So we'll discuss some of these data sets
+02:14 
+
+02:14 today. the data set that they used for
+02:16 
+
+02:16 uh evaluating their models like a IME
+02:19 
+
+02:19 data set uh SWE bench right and you know
+02:25 
+
+02:25 uh GPQ and so on and so forth. So these
+02:27 
+
+02:27 are the standard data sets that we
+02:29 
+
+02:29 generally use for evaluating this using
+02:31 
+
+02:31 models.
+02:33 
+
+02:33 Okay. So let us briefly go back to uh to
+02:39 
+
+02:39 the paradigm of scaling language models
+02:43 
+
+02:43 right specifically uh
+02:46 
+
+02:46 scaling in terms of data sets and uh uh
+02:49 
+
+02:49 you know model parameters right. So if
+02:52 
+
+02:52 you if you are asked to you know improve
+02:55 
+
+02:55 the performance of a model the obvious
+02:57 
+
+02:57 response would be okay this is trivial
+02:60 
+
+02:60 because you just increase the number of
+03:01 
+
+03:01 parameters right and uh or you or and or
+03:06 
+
+03:06 right you uh also increase the number of
+03:09 
+
+03:09 data points you know size of the data
+03:11 
+
+03:11 set right and that would eventually
+03:14 
+
+03:14 capture all patterns present in the data
+03:17 
+
+03:17 set. So that's the obvious answer that
+03:20 
+
+03:20 all of us uh you know can think of. So
+03:24 
+
+03:24 the question that we ask here can we
+03:26 
+
+03:26 just make them deeper? Can we just make
+03:28 
+
+03:28 the models deeper larger and you know uh
+03:32 
+
+03:32 and and and pretend on large corpus
+03:34 
+
+03:34 right would that be sufficient to
+03:37 
+
+03:37 improve the size or performance of the
+03:39 
+
+03:39 model? Right? So there have been
+03:42 
+
+03:42 attempts to to basically try to
+03:45 
+
+03:45 understand the uh the relation between
+03:49 
+
+03:49 the performance of a model and all these
+03:53 
+
+03:53 uh you know all these aspects for
+03:54 
+
+03:54 example compute right uh data set size
+03:58 
+
+03:58 uh parameters and so on and so forth.
+04:01 
+
+04:01 Now if you look at these figures right
+04:03 
+
+04:03 so uh on the y-axis you see the test
+04:06 
+
+04:06 loss right and x-axis you see different
+04:10 
+
+04:10 different aspects like for example the
+04:12 
+
+04:12 first figure on the x-axis we you see uh
+04:15 
+
+04:15 you know compute right in terms of um pf
+04:19 
+
+04:19 days right and then uh second uh figure
+04:24 
+
+04:24 x-axis shows the size of the data set
+04:27 
+
+04:27 and then the third figure x-axis shows
+04:30 
+
+04:30 the number of parameters and as you see
+04:32 
+
+04:32 as you increase the compute right petal
+04:35 
+
+04:35 flop as you increase the number of
+04:36 
+
+04:36 tokens in the data set if you increase
+04:38 
+
+04:38 the number of parameters in the model
+04:40 
+
+04:40 the loss will decrease
+04:43 
+
+04:43 and then uh Kaplan so Kaplan proposed
+04:46 
+
+04:46 Kaplan and of course the colleagues
+04:48 
+
+04:48 right so they proposed this law called
+04:50 
+
+04:50 Kaplan scaling law and and this is the
+04:53 
+
+04:53 scaling law that they proposed right so
+04:55 
+
+04:55 loss right so uh loss is essentially
+04:59 
+
+04:59 loss will decrease if you increase the
+05:02 
+
+05:02 uh the number of parameters. N is the
+05:04 
+
+05:04 number of parameters, right? If you
+05:06 
+
+05:06 increase the number of parameters, loss
+05:08 
+
+05:08 will decrease. If you increase the size
+05:10 
+
+05:10 of the data set, loss will uh decrease,
+05:13 
+
+05:13 right? And these are some of the
+05:14 
+
+05:14 coefficients that you need to set uh for
+05:16 
+
+05:16 a specific model. So what they did they
+05:19 
+
+05:19 they train models uh with different
+05:21 
+
+05:21 parameter different data sets and they
+05:23 
+
+05:23 basically try to feed the data points
+05:25 
+
+05:25 and they feed using this power law and
+05:29 
+
+05:29 they show the relation between uh L and
+05:32 
+
+05:32 L l and uh N and L and D right. So this
+05:38 
+
+05:38 is quite obvious but later on but if you
+05:41 
+
+05:41 think of it carefully
+05:43 
+
+05:43 you cannot
+05:45 
+
+05:45 increase the number of parameters and
+05:47 
+
+05:47 the data set size together. Why? because
+05:51 
+
+05:51 you have a fixed compute right the
+05:54 
+
+05:54 compute is fixed right now given a
+05:56 
+
+05:56 certain compute you can either increase
+05:59 
+
+05:59 the let's say you have a flexibility to
+06:01 
+
+06:01 increase the size of the parameters as
+06:03 
+
+06:03 well as increase the size of the data
+06:05 
+
+06:05 number of parameters and size of the
+06:07 
+
+06:07 data right so uh you can either increase
+06:10 
+
+06:10 the parameter number of parameters or
+06:13 
+
+06:13 you can increase the data set size right
+06:16 
+
+06:16 so later on Hoffman
+06:19 
+
+06:19 from Google right and their and and his
+06:22 
+
+06:22 colleagues. So he so they came up with
+06:24 
+
+06:24 the new law called the chinchilla's law
+06:28 
+
+06:28 right and in the chinchilla's law they
+06:31 
+
+06:31 said that now this kind of power law uh
+06:34 
+
+06:34 is fine where you see a relation between
+06:37 
+
+06:37 loss and number of parameters loss and
+06:40 
+
+06:40 the data set size but you also need to
+06:43 
+
+06:43 consider the fact that the total flops
+06:45 
+
+06:45 right or the total compute is fixed
+06:48 
+
+06:48 right now given this compute either you
+06:51 
+
+06:51 can think of increasing parameter Or you
+06:53 
+
+06:53 can think of increasing the data set
+06:54 
+
+06:54 size and so on and so forth. So and they
+06:57 
+
+06:57 showed that if you follow this kind of
+06:60 
+
+06:60 equation or the relation right they
+07:02 
+
+07:02 showed that uh their chinchilla model
+07:05 
+
+07:05 right which is a 70 billion model can
+07:07 
+
+07:07 beat uh their previous model which is a
+07:10 
+
+07:10 grapher goffer model of size 280 billion
+07:13 
+
+07:13 right uh following this kind of law
+07:16 
+
+07:16 right so you cannot you should not
+07:18 
+
+07:18 arbitrarily increase the size of the
+07:20 
+
+07:20 models you should not arbitrarily
+07:21 
+
+07:21 increase the size of the data sets and
+07:24 
+
+07:24 so on and so forth Right. And then you
+07:27 
+
+07:27 know followup a lot of follow-up works
+07:29 
+
+07:29 you know took place after that. We
+07:31 
+
+07:31 recently wrote a survey paper on uh the
+07:33 
+
+07:33 scaling law in LLM. So if you're
+07:35 
+
+07:35 interested you can look at that paper uh
+07:38 
+
+07:38 you know you'll get fair bit of ideas
+07:41 
+
+07:41 about what is happening in the scaling
+07:43 
+
+07:43 law uh paradigm.
+07:46 
+
+07:46 So um now if we if we try to improve the
+07:51 
+
+07:51 LLMs by optimally pre-training
+07:54 
+
+07:54 pre-training the models optimally what
+07:56 
+
+07:56 are the problems
+07:58 
+
+07:58 right the first problem is that uh as I
+08:01 
+
+08:01 mentioned uh the compute and training
+08:03 
+
+08:03 data are always limited right I mean
+08:06 
+
+08:06 after all you should you you you can
+08:08 
+
+08:08 only be able to script the entire uh
+08:11 
+
+08:11 internet right I you can't go beyond
+08:13 
+
+08:13 that of course you can think of going to
+08:16 
+
+08:16 going to people collect uh you know
+08:19 
+
+08:19 collect data record their voice and so
+08:21 
+
+08:21 on. But uh you know the given data set
+08:24 
+
+08:24 that we have currently on the web you
+08:26 
+
+08:26 can only collect the you know script
+08:28 
+
+08:28 that data set that's that's it and
+08:31 
+
+08:31 compute is also limited you can't
+08:32 
+
+08:32 increase this forever. The other problem
+08:35 
+
+08:35 is that if you think of synthetic data
+08:36 
+
+08:36 generation right or let's say
+08:38 
+
+08:38 duplicating data right uh that would be
+08:41 
+
+08:41 a problem because you basically do not
+08:44 
+
+08:44 you basically violate this iid
+08:47 
+
+08:47 assumption right because now you are
+08:48 
+
+08:48 duplicating things right and your
+08:50 
+
+08:50 synthetic data essentially mimics the
+08:52 
+
+08:52 real world data and you also see
+08:54 
+
+08:54 duplicates there also right
+08:57 
+
+08:57 and the very importantly if you keep on
+08:60 
+
+08:60 increasing the size of the parameters
+09:02 
+
+09:02 and data sets that would affect uh the
+09:04 
+
+09:04 environment right in terms of CO2
+09:07 
+
+09:07 emission, energy and etc etc. So if you
+09:10 
+
+09:10 look at this figure x-axis number of uh
+09:13 
+
+09:13 parameters right and y-axis is the test
+09:17 
+
+09:17 loss uh left left side y-axis is the
+09:20 
+
+09:20 test loss and right side y-axis is the
+09:24 
+
+09:24 CO2 emission as the loss decreases CO2
+09:27 
+
+09:27 emission also increases now this is true
+09:29 
+
+09:29 for the model size this is also true for
+09:32 
+
+09:32 the data set if you increase the data
+09:34 
+
+09:34 set training data set the same thing
+09:36 
+
+09:36 happens
+09:38 
+
+09:38 right so statistics says that 10%
+09:41 
+
+09:41 improvement in performance requires 3x
+09:43 
+
+09:43 more energy. So the question is do we
+09:45 
+
+09:45 really need u you know to improve this
+09:49 
+
+09:49 5% 10% by compromising on the energy and
+09:53 
+
+09:53 you know compromising on the
+09:54 
+
+09:54 environmental effects and so on.
+09:58 
+
+09:58 So
+10:00 
+
+10:00 now training during training time how do
+10:04 
+
+10:04 we improve the model? We discussed many
+10:06 
+
+10:06 techniques in the past, right? But let's
+10:08 
+
+10:08 now look at the post-training
+10:10 
+
+10:10 strategies, right? Post-training meaning
+10:12 
+
+10:12 that your model has already been
+10:14 
+
+10:14 pre-trained, right? Now you u you you
+10:18 
+
+10:18 want to fine-tune your model, I mean in
+10:20 
+
+10:20 the true sense, right? So that your
+10:22 
+
+10:22 model, you know, produces the response
+10:25 
+
+10:25 that you want it to produce, right? For
+10:27 
+
+10:27 example, let's say without fine-tuning,
+10:31 
+
+10:31 without supervised finetuning or without
+10:33 
+
+10:33 any uh usage of RL, you can just think
+10:36 
+
+10:36 of incontest adaptation where you can
+10:38 
+
+10:38 you know in prompt you write examples
+10:40 
+
+10:40 and you know you ask the model to
+10:43 
+
+10:43 perform similar kind of tasks right
+10:46 
+
+10:46 following the examples you can also
+10:48 
+
+10:48 think of supervised fine-tuning where
+10:50 
+
+10:50 you have a small data set and then then
+10:52 
+
+10:52 you do finetuning remember these are all
+10:54 
+
+10:54 post training strategies when I say post
+10:57 
+
+10:57 training post pre-training strategies
+10:59 
+
+10:59 right and of course RL uh for alignment
+11:03 
+
+11:03 now uh the usual
+11:07 
+
+11:07 uh approach is that we tend to give more
+11:11 
+
+11:11 weightage or more preference uh in the
+11:13 
+
+11:13 training time right so if you see the
+11:15 
+
+11:15 effort this is just a cartoon uh figure
+11:18 
+
+11:18 if you see the effort people tend to
+11:20 
+
+11:20 give more preference to the during the
+11:21 
+
+11:21 training time to improve the model and
+11:23 
+
+11:23 give less preference to the test time
+11:25 
+
+11:25 because people think that the model has
+11:27 
+
+11:27 already been trained, there's no point
+11:29 
+
+11:29 in you know doing further uh processing
+11:31 
+
+11:31 of the model, right? So if you follow
+11:34 
+
+11:34 the traditional approach pre-training
+11:36 
+
+11:36 scaling
+11:38 
+
+11:38 the perform the the the participation
+11:41 
+
+11:41 across the globe would be limited. Why?
+11:43 
+
+11:43 because people really do not have enough
+11:44 
+
+11:44 compute right if you ask me to uh focus
+11:47 
+
+11:47 more on training right I don't have
+11:49 
+
+11:49 compute so I won't be able to
+11:51 
+
+11:51 participate who will participate those
+11:53 
+
+11:53 who have access to huge data huge uh uh
+11:57 
+
+11:57 huge you know resource right resource
+11:60 
+
+11:60 inefficiency as I mentioned data set is
+12:02 
+
+12:02 limited you know GPU is also limited and
+12:06 
+
+12:06 people also realize that performance has
+12:08 
+
+12:08 a plateau right so if you look at the
+12:10 
+
+12:10 performance you see that you know after
+12:11 
+
+12:11 certain after certain in uh you know
+12:14 
+
+12:14 scaling you don't see enough growth
+12:16 
+
+12:16 right so even let's say uh you know for
+12:19 
+
+12:19 a for 1% 2% improvement of accuracy you
+12:22 
+
+12:22 actually need to put in a lot of data
+12:24 
+
+12:24 set a lot of parameters
+12:26 
+
+12:26 and update slowly but uh as opposed to
+12:29 
+
+12:29 this if you think of let's say putting
+12:32 
+
+12:32 in more effort during the test time
+12:34 
+
+12:34 right in the test time so that not only
+12:37 
+
+12:37 increases the participation right across
+12:40 
+
+12:40 the globe but also uh you know you may
+12:43 
+
+12:43 you know you may start exploring a new
+12:45 
+
+12:45 dimension altogether a new aspect
+12:46 
+
+12:46 altogether where which which has not
+12:48 
+
+12:48 been explored uh in the past.
+12:51 
+
+12:51 So, so this has been uh you know the the
+12:55 
+
+12:55 direction of research in last 2 three
+12:57 
+
+12:57 years right uh specifically last two I
+13:00 
+
+13:00 would say last one year right but uh you
+13:03 
+
+13:03 know uh since the
+13:06 
+
+13:06 uh invention of this chain of thoughts
+13:08 
+
+13:08 and you know tree of thoughts and stuff
+13:10 
+
+13:10 like that in 2022 2023 people started
+13:13 
+
+13:13 thinking of uh test time scaling right
+13:16 
+
+13:16 of course the term test time scaling is
+13:18 
+
+13:18 very fancy that was not there earlier
+13:20 
+
+13:20 but if you think of coot cood is also
+13:22 
+
+13:22 basically an inference time uh output
+13:25 
+
+13:25 right because you just ask the model to
+13:27 
+
+13:27 think step by step and the model is
+13:29 
+
+13:29 thinking step by step there's no
+13:30 
+
+13:30 training involved as such of course you
+13:32 
+
+13:32 can collect coot data further fine-tune
+13:35 
+
+13:35 it right and that that can be possible
+13:36 
+
+13:36 but in a zero sort setup right you just
+13:39 
+
+13:39 need to tell the model to think step by
+13:41 
+
+13:41 step
+13:43 
+
+13:43 okay so why test time scaling is uh
+13:46 
+
+13:46 interesting because
+13:49 
+
+13:49 if you think of human cognition
+13:51 
+
+13:51 Human cognition also follows the pattern
+13:54 
+
+13:54 called thinking fast and slow. Meaning
+13:56 
+
+13:56 that if a if a if a problem is complex
+13:60 
+
+13:60 enough, right, you think slow. If you
+14:02 
+
+14:02 probably if a problem is simple enough,
+14:04 
+
+14:04 you think fast, right? And model should
+14:06 
+
+14:06 also be also be knowing when when to
+14:09 
+
+14:09 think uh when and where to think fast,
+14:11 
+
+14:11 when and where to think slow,
+14:14 
+
+14:14 right? So, and there's this famous book
+14:16 
+
+14:16 called think fast and thinking fast and
+14:18 
+
+14:18 slow. You can look at this. This is a
+14:20 
+
+14:20 very famous book um of a Nobel laureate.
+14:25 
+
+14:25 So uh of course u now now how do we
+14:29 
+
+14:29 achieve this thinking fast and slow kind
+14:32 
+
+14:32 of approach right? One can say that I
+14:34 
+
+14:34 would do supervised finetuning meaning
+14:36 
+
+14:36 that I would I would collect data in
+14:38 
+
+14:38 such a way that the data set itself uh
+14:41 
+
+14:41 indicates where to think uh fast where
+14:44 
+
+14:44 to think slow right where to wait and so
+14:46 
+
+14:46 on and so forth and that data will be
+14:48 
+
+14:48 given to the model for training and the
+14:50 
+
+14:50 model should be able to understand where
+14:52 
+
+14:52 where to wait where to uh go fast and so
+14:55 
+
+14:55 on right
+14:57 
+
+14:57 so there are approaches which uh which
+14:60 
+
+14:60 basically talk about SFT and RL for uh
+15:03 
+
+15:03 this kind of finetuning. Uh so in
+15:07 
+
+15:07 general when I say test time scaling
+15:09 
+
+15:09 this is essentially uh indicating
+15:11 
+
+15:11 assigning more compute to enhance
+15:14 
+
+15:14 reasoning abilities inherently right
+15:17 
+
+15:17 without keeping uh while keeping the
+15:20 
+
+15:20 model parameters fixed
+15:22 
+
+15:22 right so we'll discuss two types of
+15:25 
+
+15:25 methods one uh one type of methods focus
+15:28 
+
+15:28 more on prompting right less on uh
+15:31 
+
+15:31 finetuning and other kind of methods
+15:33 
+
+15:33 focus more on finetuning less on
+15:35 
+
+15:35 prompting right now when I say
+15:37 
+
+15:37 finetuning you can you can ask why this
+15:40 
+
+15:40 finetuning comes under test time scaling
+15:42 
+
+15:42 because you said that in test time
+15:43 
+
+15:43 scaling there is no training as such so
+15:46 
+
+15:46 sftt RL are all post- training
+15:48 
+
+15:48 approaches right so uh you can also
+15:51 
+
+15:51 think of I mean of course these are not
+15:54 
+
+15:54 inference time approach but you can also
+15:55 
+
+15:55 think of these as uh non pre-training
+15:58 
+
+15:58 based approaches right so uh so
+16:01 
+
+16:01 therefore these things can come under u
+16:04 
+
+16:04 test time scaling.
+16:07 
+
+16:07 So uh recent methods like deepseek R1
+16:11 
+
+16:11 open
+16:13 
+
+16:13 model these are all uh reasoning models
+16:15 
+
+16:15 and these models are uh these models
+16:17 
+
+16:17 also follow test time scaling abilities
+16:19 
+
+16:19 right we'll discuss this one by one okay
+16:22 
+
+16:22 so before discussing the approaches let
+16:24 
+
+16:24 us look at the empirical motivation. So
+16:27 
+
+16:27 in this figure you see that uh so the
+16:31 
+
+16:31 first figure on the x-axis you see the
+16:34 
+
+16:34 training time compute right and y axis
+16:37 
+
+16:37 is the accuracy and the second figure
+16:41 
+
+16:41 x-axis is the test time compute and
+16:43 
+
+16:43 y-axis is the accuracy so in both cases
+16:46 
+
+16:46 the performance improves with the
+16:48 
+
+16:48 increase of training time compute so
+16:51 
+
+16:51 when I say training time compute what
+16:53 
+
+16:53 does it mean test time compute meaning
+16:55 
+
+16:55 that I basically I let the model think
+16:58 
+
+16:58 deeper and the model will produce more
+17:00 
+
+17:00 tokens.
+17:02 
+
+17:02 I forcefully uh you know let the model
+17:05 
+
+17:05 uh think deeper. Okay. So if you
+17:09 
+
+17:09 increase the uh training time train time
+17:11 
+
+17:11 compute and test time compute in both
+17:13 
+
+17:13 the cases the performance increases
+17:15 
+
+17:15 right. But if you look at the slope in
+17:17 
+
+17:17 case of test time compute the slope is
+17:19 
+
+17:19 more uh you know more higher right this
+17:21 
+
+17:21 is higher than the slope here. This is
+17:25 
+
+17:25 one motivation. The other motivation is
+17:27 
+
+17:27 that you know in this paper they showed
+17:29 
+
+17:29 that um you know if you increase the if
+17:32 
+
+17:32 you let the model generate more
+17:34 
+
+17:34 reasoning paths right for different data
+17:37 
+
+17:37 sets for different tasks right um as
+17:40 
+
+17:40 compared to let's say greedy decoding a
+17:42 
+
+17:42 greedy decoding chooses the best one
+17:44 
+
+17:44 right so as opposed to greedy decoding
+17:46 
+
+17:46 which is the orange line if you let the
+17:50 
+
+17:50 model think more right the performance
+17:52 
+
+17:52 increases you if you look at the
+17:54 
+
+17:54 accuracy performance also increases
+17:55 
+
+17:55 Right? So these are some of the
+17:57 
+
+17:57 evidences that test time scaling
+17:58 
+
+17:58 actually is a good idea.
+18:02 
+
+18:02 Okay. So last two classes we already
+18:05 
+
+18:05 discussed reasoning non-reing models. As
+18:07 
+
+18:07 we all know that in non non-reasoning
+18:09 
+
+18:09 model essentially the uh the final goal
+18:13 
+
+18:13 is just to produce the final answer
+18:15 
+
+18:15 right answer. Right? There is no
+18:17 
+
+18:17 reasoning or thinking as such. These are
+18:19 
+
+18:19 not thinking models. These are these are
+18:21 
+
+18:21 all auto reggressive models. So
+18:22 
+
+18:22 basically the goal is to predict the
+18:25 
+
+18:25 best next token that can be possible
+18:28 
+
+18:28 right. So these are non- reasoning
+18:29 
+
+18:29 models whereas if you look at reasoning
+18:31 
+
+18:31 models the next best token prediction is
+18:33 
+
+18:33 not the actual aim. The aim is to think
+18:36 
+
+18:36 properly, right? And maybe if you think
+18:39 
+
+18:39 of it, I mean, if you think in parallel,
+18:41 
+
+18:41 if you if you have multiple parallel
+18:43 
+
+18:43 thinking traces, right? You now you then
+18:46 
+
+18:46 uh you know, you have some some ways to
+18:48 
+
+18:48 verify which trace is uh useful and so
+18:52 
+
+18:52 on and so forth, right? So, we have
+18:53 
+
+18:53 discussed process reward model, right?
+18:55 
+
+18:55 In the in last class, last to last
+18:57 
+
+18:57 class. So we'll use this kind of uh
+18:59 
+
+18:59 process I mean some sort of reward
+19:01 
+
+19:01 models which would assess the quality of
+19:04 
+
+19:04 this reasoning traces.
+19:07 
+
+19:07 So and uh in the reasoning trace
+19:11 
+
+19:11 generation right we these reasoning
+19:14 
+
+19:14 models also generate uh you know the
+19:17 
+
+19:17 thinking tokens for example wait right
+19:20 
+
+19:20 uh you know final answer uh let me go
+19:23 
+
+19:23 back and so on and so forth. we will see
+19:25 
+
+19:25 various types of thinking tokens right
+19:27 
+
+19:27 that uh that these models generate. Now
+19:29 
+
+19:29 the question is uh who taught these
+19:32 
+
+19:32 models to think or who taught or who uh
+19:36 
+
+19:36 let or who taught these models to
+19:37 
+
+19:37 essentially generate these kind of
+19:39 
+
+19:39 thinking tokens. So there are two ways
+19:42 
+
+19:42 again. One way is that you uh you you do
+19:45 
+
+19:45 everything in context right where you
+19:47 
+
+19:47 have some examples and the examples you
+19:49 
+
+19:49 you place these kind of thinking tokens
+19:52 
+
+19:52 and you ask the models to follow that
+19:54 
+
+19:54 pattern. Um on the other hand you can
+19:57 
+
+19:57 also think of another round of uh
+19:60 
+
+19:60 supervised finetuning for example the S1
+20:02 
+
+20:02 paper right the budget forcing paper uh
+20:06 
+
+20:06 proposed by uh Stanford right they they
+20:09 
+
+20:09 took a very small uh thousand size data
+20:11 
+
+20:11 set right thousand instances of data set
+20:14 
+
+20:14 and they they uh manually added these
+20:17 
+
+20:17 thinking tokens right and then they
+20:19 
+
+20:19 fine-tuned the model with that uh that
+20:21 
+
+20:21 data set and then they showed that with
+20:23 
+
+20:23 only this much of tiny data set the
+20:27 
+
+20:27 model first of all learned uh I mean
+20:30 
+
+20:30 where to stop where to wait and so on
+20:32 
+
+20:32 and it outperforms you know really big
+20:35 
+
+20:35 models big in the sense like those
+20:37 
+
+20:37 models which consider a lot of data sets
+20:39 
+
+20:39 for supervised fine tuning okay we'll
+20:42 
+
+20:42 discuss things these things one by one
+20:45 
+
+20:45 so u
+20:48 
+
+20:48 test time scaling strategies are
+20:50 
+
+20:50 categorized into two you know two two
+20:53 
+
+20:53 buckets the First bucket we will discuss
+20:56 
+
+20:56 what we ask what and the second bucket
+20:59 
+
+20:59 we ask how right. So what in the sense
+21:03 
+
+21:03 like whether we will do sequential
+21:05 
+
+21:05 scaling or we will do parallel scaling
+21:09 
+
+21:09 or we will do hybrid scaling. So in
+21:11 
+
+21:11 sequential scaling you basically force
+21:13 
+
+21:13 the model to think sequentially. There
+21:16 
+
+21:16 will be only one trace. There will be
+21:17 
+
+21:17 only one reasoning path but the path
+21:20 
+
+21:20 will be deeper. Right? In case of
+21:22 
+
+21:22 parallel scaling, you ask the model to
+21:24 
+
+21:24 think uh you know u in parallel, right?
+21:28 
+
+21:28 There will be multiple parallel uh
+21:30 
+
+21:30 traces and then there should be some
+21:32 
+
+21:32 ways to decide the the best path and
+21:36 
+
+21:36 hybrid is in between. So in some cases
+21:39 
+
+21:39 you so you let's say you start with a
+21:41 
+
+21:41 parallel uh parallel thinking and then
+21:44 
+
+21:44 you realize that okay one maybe one path
+21:46 
+
+21:46 is uh is is doing good. So you keep on
+21:50 
+
+21:50 uh uh uh you know increasing the length
+21:53 
+
+21:53 of that path and you forget about other
+21:55 
+
+21:55 paths right
+21:60 
+
+21:60 and when I say how so as I mentioned how
+22:02 
+
+22:02 there are two ways one is in context uh
+22:05 
+
+22:05 with prompts right and most of these
+22:07 
+
+22:07 methods basically follow prompts and
+22:09 
+
+22:09 other is uh some sort of RL kind of
+22:12 
+
+22:12 approach right where you further
+22:14 
+
+22:14 fine-tune with some RL in the loop
+22:18 
+
+22:18 so So let's focus on what first. Okay.
+22:21 
+
+22:21 So u so in general there are four types
+22:25 
+
+22:25 as I mentioned parallel scaling,
+22:27 
+
+22:27 sequential scaling, hybrid scaling and
+22:29 
+
+22:29 so these are three famous approaches
+22:31 
+
+22:31 right parallel scaling approaches like
+22:33 
+
+22:33 majority voting beam search right uh
+22:36 
+
+22:36 diverse verified tree search self
+22:39 
+
+22:39 consistency these are parallel scaling
+22:41 
+
+22:41 approaches I will discuss them uh
+22:42 
+
+22:42 briefly sequential scaling methods like
+22:45 
+
+22:45 self-refin I think react was taught or
+22:48 
+
+22:48 no it will be taught in the agent uh so
+22:50 
+
+22:50 agent It will be taught in the next next
+22:53 
+
+22:53 class and S1 paper S1 as I mentioned uh
+22:58 
+
+22:58 tip these are the sequential scaling
+22:60 
+
+22:60 methods and hybrid is in between tree of
+23:02 
+
+23:02 thoughts graph of thoughts right and so
+23:04 
+
+23:04 on and then uh there came this new kind
+23:08 
+
+23:08 of methods called internal scaling in
+23:10 
+
+23:10 internal scaling what we have so now uh
+23:14 
+
+23:14 so these methods right mostly all these
+23:17 
+
+23:17 methods are prompt based approaches
+23:19 
+
+23:19 right you write innovative prompts and
+23:22 
+
+23:22 you basically let the model follow those
+23:24 
+
+23:24 prompts and so on. But in internal uh
+23:27 
+
+23:27 scaling you have some sort of RL loop
+23:30 
+
+23:30 which would which would decide uh you
+23:33 
+
+23:33 know um how long one should think right
+23:36 
+
+23:36 or where uh one should stop right u self
+23:40 
+
+23:40 safe refinement and all these strategies
+23:42 
+
+23:42 right now deepseek urban open is one
+23:47 
+
+23:47 paper this I mean if you look at those
+23:48 
+
+23:48 papers you get some ideas but of course
+23:50 
+
+23:50 these papers are not very clear right if
+23:53 
+
+23:53 you look at if you read those papers
+23:55 
+
+23:55 there are many things which are which
+23:57 
+
+23:57 are not that transparent but the useful
+24:01 
+
+24:01 concepts. So if you look at the timeline
+24:03 
+
+24:03 here uh GPT GPT3 came in 2020 and then
+24:08 
+
+24:08 coot was proposed in 2022
+24:11 
+
+24:11 and then uh in 2022 these two parallel
+24:15 
+
+24:15 exploration started parallel scaling and
+24:18 
+
+24:18 sequential scaling. Self-consistency
+24:20 
+
+24:20 paper came in 2022 third quarter and
+24:23 
+
+24:23 then start paper also came in 2022.
+24:26 
+
+24:26 Right? And then process reward model
+24:28 
+
+24:28 concept was introduced in 2023. And then
+24:31 
+
+24:31 tree of thought was introduced 2023,
+24:34 
+
+24:34 right? MCTS and then uh 2024 and 20251
+24:38 
+
+24:38 and R1 papers were introduced.
+24:42 
+
+24:42 Okay, let's start with parallel scaling
+24:44 
+
+24:44 first, right? Idea is that you generate
+24:46 
+
+24:46 parallel reasoning traces and then you
+24:48 
+
+24:48 choose the best one. So the first
+24:51 
+
+24:51 technique is very simple best of n
+24:53 
+
+24:53 technique. So in best of pen is a gritty
+24:55 
+
+24:55 uh kind of method. What you do here is
+24:58 
+
+24:58 that
+24:59 
+
+24:59 you u you use different types of prompts
+25:03 
+
+25:03 or you can also uh you can also think of
+25:06 
+
+25:06 uh let's say different ways uh of
+25:09 
+
+25:09 starting your uh your your thinking
+25:11 
+
+25:11 right but remember this is greedy okay
+25:13 
+
+25:13 in the sense like it is not like beam
+25:16 
+
+25:16 search where you take top k you know
+25:18 
+
+25:18 beam search right it's not like beam
+25:20 
+
+25:20 search where you take top k is greedy so
+25:22 
+
+25:22 your initialization should be different
+25:24 
+
+25:24 otherwise you will not be able to
+25:25 
+
+25:25 produce different results Right? So you
+25:28 
+
+25:28 start with different initializations,
+25:30 
+
+25:30 right? And you greedily explore the uh
+25:33 
+
+25:33 the threads, right? And you have some
+25:35 
+
+25:35 sort of majority voting approaches to uh
+25:37 
+
+25:37 to choose the best one, right? And and
+25:40 
+
+25:40 generally here they do not use any
+25:42 
+
+25:42 process reward model that they don't use
+25:45 
+
+25:45 PRM as such. They only look at the final
+25:47 
+
+25:47 answer and these are all like mass types
+25:50 
+
+25:50 of questions. So these are deterministic
+25:52 
+
+25:52 answers, right? So, so among this n
+25:55 
+
+25:55 number of reasoning traces if you see
+25:58 
+
+25:58 you you look at the majority uh output
+26:00 
+
+26:00 right and u and then you choose one of
+26:03 
+
+26:03 the traces which produces that that
+26:05 
+
+26:05 output
+26:07 
+
+26:07 clear
+26:09 
+
+26:09 okay now if you look at u the u if you
+26:13 
+
+26:13 look at okay so now now also think of
+26:16 
+
+26:16 you know
+26:18 
+
+26:18 the probability of uh of of a successful
+26:21 
+
+26:21 trace so if you think of p as the
+26:23 
+
+26:23 probability of a trace being successful,
+26:26 
+
+26:26 right? 1 minus P is the probability of
+26:28 
+
+26:28 the trace is not being not not
+26:30 
+
+26:30 successful. To the power n is that all
+26:32 
+
+26:32 the traces are not successful. One minus
+26:34 
+
+26:34 that is at least one of the traces
+26:36 
+
+26:36 successful. So you see that the success
+26:40 
+
+26:40 uh the probability of success is
+26:42 
+
+26:42 proportional to n.
+26:44 
+
+26:44 Now what is n? Number of traces that you
+26:47 
+
+26:47 generate. Right? So it means that the
+26:50 
+
+26:50 more you allow the model to generate
+26:51 
+
+26:51 parall traces uh highly likely that you
+26:54 
+
+26:54 will be able to uh get the right answer.
+26:59 
+
+26:59 Beam search. Now beam search all of us
+27:01 
+
+27:01 know you start from a same uh prompt and
+27:04 
+
+27:04 then you ask the model to generate uh k
+27:08 
+
+27:08 number of different tokens right and
+27:09 
+
+27:09 then you follow those tokens
+27:12 
+
+27:12 in in parallel. And when we stop we stop
+27:14 
+
+27:14 when the end of token is end of sentence
+27:16 
+
+27:16 is generated. Again there is no PRM
+27:18 
+
+27:18 involved right? So you stop when the end
+27:20 
+
+27:20 of end of sentence is generated and then
+27:22 
+
+27:22 you do then again you do some uh
+27:25 
+
+27:25 majority voting.
+27:28 
+
+27:28 So later on in this approach this is
+27:31 
+
+27:31 called diverse verifier tree search. So
+27:34 
+
+27:34 the in in diverse verified tree search
+27:37 
+
+27:37 they argued that beam search produces
+27:39 
+
+27:39 responses which are kind of similar
+27:41 
+
+27:41 responses because after all after all
+27:43 
+
+27:43 what you are doing you are taking the
+27:45 
+
+27:45 top k uh tokens right and top k tokens
+27:48 
+
+27:48 are maybe top k tokens are kind of
+27:50 
+
+27:50 similar tokens right so the threads the
+27:52 
+
+27:52 the the traces are not diverse
+27:56 
+
+27:56 right so what they did they start with
+27:59 
+
+27:59 um with k diverse prompts and these
+28:02 
+
+28:02 prompts
+28:03 
+
+28:03 These prompts are written uh manually
+28:06 
+
+28:06 and they are actually diverse for a
+28:08 
+
+28:08 specific uh question right and then from
+28:11 
+
+28:11 each of the diverse prompts uh they do
+28:14 
+
+28:14 exactly the same uh beam search kind of
+28:16 
+
+28:16 approach. So only difference is that
+28:18 
+
+28:18 they allow the models and these are
+28:20 
+
+28:20 actually very light models right and
+28:22 
+
+28:22 there's no model assesses or promps. So
+28:26 
+
+28:26 uh you know so each of the branches
+28:29 
+
+28:29 would be very diverse and then they also
+28:32 
+
+28:32 introduce the concept of PR. So now
+28:34 
+
+28:34 there is no concept of majority voting
+28:35 
+
+28:35 as such. Now of course if you think of
+28:38 
+
+28:38 PRM as just a majority voting then that
+28:39 
+
+28:39 is fine otherwise you you can also train
+28:42 
+
+28:42 a process reward model to verify whether
+28:45 
+
+28:45 the branch is uh is appropriate or not.
+28:47 
+
+28:47 Right now remember when I say PRM I'll
+28:50 
+
+28:50 not discuss PRM here. It was discussed
+28:51 
+
+28:51 earlier. So PRM doesn't consider doesn't
+28:56 
+
+28:56 only consider the final answer. Now it's
+28:58 
+
+28:58 if it's a maths kind of reasoning
+28:60 
+
+28:60 problem, you can uh fine-tune PRM
+29:03 
+
+29:03 separately. But it not only looks at the
+29:06 
+
+29:06 final answer but also looks at
+29:07 
+
+29:07 coherence, right? Uh robustness and many
+29:11 
+
+29:11 other uh you know uh small aspects of a
+29:14 
+
+29:14 resulting trace. Okay. So we also did
+29:17 
+
+29:17 some experiment. This is our work and we
+29:20 
+
+29:20 showed that um you know among all the
+29:24 
+
+29:24 traces that we generate generally
+29:27 
+
+29:27 um the trace with uh with uh you know uh
+29:32 
+
+29:32 um uh with the uh smallest length right
+29:37 
+
+29:37 uh is the trace which is accurate in
+29:40 
+
+29:40 general right now these are empirical
+29:42 
+
+29:42 results. If you look at the uh correct
+29:44 
+
+29:44 so you have correct responses bunch of
+29:47 
+
+29:47 correct responses bunch of incorrect
+29:48 
+
+29:48 responses and you look at their length
+29:50 
+
+29:50 right and you plot the density of this
+29:52 
+
+29:52 length right so you see that incorrect
+29:55 
+
+29:55 responses uh tend to have less uh uh you
+29:60 
+
+29:60 know length right low lower length
+30:02 
+
+30:02 whereas correct uh sorry correct
+30:04 
+
+30:04 responses tend to have lower length and
+30:06 
+
+30:06 incorrect responses tend to have higher
+30:08 
+
+30:08 length right so this was our huristics
+30:11 
+
+30:11 our huristics This is that what we do we
+30:15 
+
+30:15 generate parallel traces right okay so
+30:19 
+
+30:19 these are parallel sampling techniques
+30:20 
+
+30:20 you generate parallel traces now
+30:22 
+
+30:22 remember when I say parallel traces
+30:24 
+
+30:24 essentially what we do is that it's so
+30:29 
+
+30:29 you start with the first token right and
+30:32 
+
+30:32 let's say you know that I want to
+30:34 
+
+30:34 generate let's say you know you want to
+30:36 
+
+30:36 generate 10 different traces right so
+30:38 
+
+30:38 you start you you generate first token
+30:41 
+
+30:41 for all all the traces and then second
+30:43 
+
+30:43 token for all the traces, third token
+30:45 
+
+30:45 for all the traces, right? You write
+30:48 
+
+30:48 your loop in that way. It's not like
+30:50 
+
+30:50 first you know you first create the
+30:52 
+
+30:52 first branch and second branch and it's
+30:54 
+
+30:54 not like that. Right?
+30:56 
+
+30:56 And then when you you you stop when uh
+30:59 
+
+30:59 this end of sentence is generated.
+31:00 
+
+31:00 Right? Now the huristics was that
+31:04 
+
+31:04 the huristics was that um the reasoning
+31:08 
+
+31:08 trace which has uh which is which has
+31:12 
+
+31:12 lowest length would be the correct one.
+31:17 
+
+31:17 Now what is the intuition behind this?
+31:20 
+
+31:20 Now think of an Oracle model, right?
+31:23 
+
+31:23 Let's an oracle model. the model uh uh
+31:26 
+
+31:26 who knows everything right and the model
+31:28 
+
+31:28 which always produces the correct answer
+31:30 
+
+31:30 right it never produce a wrong answer.
+31:33 
+
+31:33 So if you ask a model that kind of model
+31:36 
+
+31:36 to solve a problem generally the model
+31:40 
+
+31:40 will be very very precise in terms of
+31:42 
+
+31:42 giving answers. The model would be
+31:45 
+
+31:45 verbose if the model thinks deeper. If
+31:47 
+
+31:47 the model is not very sure about the uh
+31:51 
+
+31:51 uh you know the the uh the output the
+31:54 
+
+31:54 response and so on. Let's say in in case
+31:56 
+
+31:56 of human right if you if you are very
+31:58 
+
+31:58 clear about the answer your answer will
+31:60 
+
+31:60 be very precise right you will not be
+32:03 
+
+32:03 descriptive right of course you I mean
+32:06 
+
+32:06 depends on the situation but in general
+32:08 
+
+32:08 right you'll be very very precise so
+32:10 
+
+32:10 that was the huristics
+32:12 
+
+32:12 and it turned out that uh actually many
+32:15 
+
+32:15 models many many many models follow this
+32:18 
+
+32:18 kind of huristics right um and uh and
+32:22 
+
+32:22 and then we essentially had and and And
+32:24 
+
+32:24 and these kind of models are these kind
+32:27 
+
+32:27 of huristics are also useful because
+32:31 
+
+32:31 um if you look at the accuracy right it
+32:34 
+
+32:34 dramatically reduces the inference
+32:35 
+
+32:35 compute
+32:38 
+
+32:38 right now you may argue that first
+32:41 
+
+32:41 finish search um you know
+32:46 
+
+32:46 the number of tokens that is required to
+32:48 
+
+32:48 generate in in different branches right
+32:52 
+
+32:52 might be the same as The number of
+32:54 
+
+32:54 tokens generated in let's say majority
+32:56 
+
+32:56 voting right or budget forcing. Now what
+32:60 
+
+32:60 is number of token? The total number of
+33:01 
+
+33:01 tokens generated by generated in all the
+33:05 
+
+33:05 branches right. So if you fix that as
+33:09 
+
+33:09 your budget right that okay you are
+33:12 
+
+33:12 allowed to generate only you are allowed
+33:14 
+
+33:14 to generate up to 100 tokens. Right?
+33:17 
+
+33:17 Right. So there are there are two ways.
+33:19 
+
+33:19 One way is that you you just create one
+33:22 
+
+33:22 branch with 100 tokens or you let's say
+33:25 
+
+33:25 create 10 different branch with 10
+33:27 
+
+33:27 tokens right of course the branch size
+33:29 
+
+33:29 can be different right so we argued that
+33:33 
+
+33:33 you know u specifically if the question
+33:36 
+
+33:36 is easy right I should mention this if
+33:39 
+
+33:39 the question is easy then there is no
+33:42 
+
+33:42 point in uh doing this kind of uh
+33:45 
+
+33:45 sequential uh reasoning of 100 tokens
+33:48 
+
+33:48 right the model can generate things very
+33:50 
+
+33:50 quickly and that would be your answer.
+33:52 
+
+33:52 Now these are parallel scaling. Now
+33:53 
+
+33:53 let's look at sequential scaling. So the
+33:56 
+
+33:56 first sequential scaling uh was proposed
+33:59 
+
+33:59 I think in 2023.
+34:01 
+
+34:01 Yeah, this is the self self-refined
+34:03 
+
+34:03 paper and the idea is very fancy, right?
+34:06 
+
+34:06 The idea is that you have a model M,
+34:09 
+
+34:09 you give an input, right? Model
+34:12 
+
+34:12 generates something and the model itself
+34:14 
+
+34:14 acts as a critic,
+34:18 
+
+34:18 right? And the model produces a feedback
+34:21 
+
+34:21 of its own output,
+34:23 
+
+34:23 right? And then the model refineses its
+34:27 
+
+34:27 own output,
+34:29 
+
+34:29 right? Let's say the question is to
+34:32 
+
+34:32 generate the sum of 1 2 3 N. Initially
+34:36 
+
+34:36 the model produces this code
+34:40 
+
+34:40 and then you and everything happens in
+34:43 
+
+34:43 terms of prompts, right? So you write a
+34:45 
+
+34:45 prompt and you ask the model to uh give
+34:47 
+
+34:47 a feedback on this output. The model
+34:50 
+
+34:50 will say that this code is slow as it
+34:53 
+
+34:53 uses brute forced. A better approach is
+34:55 
+
+34:55 to use the formula detas. Right? Now
+34:57 
+
+34:57 this is a feedback. This feedback will
+34:59 
+
+34:59 be given to the model and the model will
+35:01 
+
+35:01 refine it and this is going to be the
+35:02 
+
+35:02 refined code. Now the question you may
+35:05 
+
+35:05 ask that uh if the model knows what's
+35:09 
+
+35:09 the uh efficient code right why the
+35:12 
+
+35:12 model produced a code which was kind of
+35:14 
+
+35:14 inefficient at the beginning now
+35:16 
+
+35:16 remember these are non-resing models and
+35:20 
+
+35:20 the task was 2023 right and the task was
+35:23 
+
+35:23 to generate next word properly right so
+35:26 
+
+35:26 model doesn't have any idea about
+35:28 
+
+35:28 whether the uh the token or sequence of
+35:30 
+
+35:30 tokens that the model is going to
+35:31 
+
+35:31 generate would lead to an efficient
+35:33 
+
+35:33 result
+35:36 
+
+35:36 right so this kind of self-refinement
+35:39 
+
+35:39 process helped and I'll show you some
+35:40 
+
+35:40 results later on okay now this is the
+35:44 
+
+35:44 budget forcing paper uh in in this year
+35:48 
+
+35:48 early this year by Stanford right and
+35:51 
+
+35:51 this is also a sequential scaling
+35:52 
+
+35:52 approach so the idea is that
+35:56 
+
+35:56 let's say this is your uh task okay this
+35:58 
+
+35:58 is the question that you ask and the
+36:01 
+
+36:01 model starts thinking
+36:03 
+
+36:03 Right? These are the steps and then
+36:05 
+
+36:05 suddenly the model uses this token
+36:07 
+
+36:07 called weight.
+36:09 
+
+36:09 Okay? And then think further. So model
+36:12 
+
+36:12 starts thinking produces steps and then
+36:14 
+
+36:14 the model returns weight and then model
+36:17 
+
+36:17 starts the model keeps on thinking on
+36:20 
+
+36:20 the same direction right and at the end
+36:23 
+
+36:23 this is another token final answer token
+36:26 
+
+36:26 and then the model produces you know uh
+36:30 
+
+36:30 uh this uh final answer so look at here
+36:33 
+
+36:33 so how many are in raspberry
+36:36 
+
+36:36 okay the model says let's break down the
+36:39 
+
+36:39 process of counting the letter R in the
+36:41 
+
+36:41 word raspberry. First letter R. This is
+36:44 
+
+36:44 an R. Current uh count is one. Second
+36:46 
+
+36:46 letter A, not an R, count one. Count
+36:49 
+
+36:49 remains one. Sixth letter E, right? Dot
+36:51 
+
+36:51 dot dot. Sixth letter E, not uh not an
+36:54 
+
+36:54 R, count remain one. Seventh letter R,
+36:57 
+
+36:57 this is an R, count two. Eighth letter
+36:59 
+
+36:59 Y, uh, eighth letter Y, not an R, count
+37:03 
+
+37:03 remains two. The number of Rs in
+37:05 
+
+37:05 Raspberry is two. Wait, let's read the
+37:09 
+
+37:09 question carefully.
+37:10 
+
+37:10 It asks how many hours in Raspberry dot
+37:13 
+
+37:13 dot dot dot dot right and then it says
+37:15 
+
+37:15 my initial answer was two initial answer
+37:18 
+
+37:18 of two was incorrect due to quick
+37:19 
+
+37:19 reading of what the final answer is
+37:22 
+
+37:22 three
+37:24 
+
+37:24 right
+37:25 
+
+37:25 so what what what happened here you
+37:28 
+
+37:28 forced the model to rethink right so now
+37:32 
+
+37:32 the question is h how do you force the
+37:35 
+
+37:35 model to rethink and this is a
+37:37 
+
+37:37 sequential reasoning remember so what
+37:39 
+
+37:39 What they did they uh you know very
+37:42 
+
+37:42 precisely c curated a data set of
+37:45 
+
+37:45 thousand uh instances thousand traces
+37:47 
+
+37:47 right with you know this kind of special
+37:50 
+
+37:50 thinking tokens embedded
+37:52 
+
+37:52 and then they just simp simply did an S
+37:55 
+
+37:55 SFT no RL a simple SFT right and they
+37:60 
+
+37:60 showed that uh you know u with these
+38:05 
+
+38:05 kind of approaches the model
+38:06 
+
+38:06 automatically learns where to think
+38:08 
+
+38:08 there's a very interesting paper you can
+38:10 
+
+38:10 look at and this and they call this
+38:12 
+
+38:12 method budget forcing because there's a
+38:14 
+
+38:14 budget of course you can't think in for
+38:16 
+
+38:16 infinite time there's a budget you can
+38:18 
+
+38:18 go up to that kind of uh budget and you
+38:20 
+
+38:20 stop okay and
+38:24 
+
+38:24 uh in that paper they also showed that
+38:26 
+
+38:26 there is this concept of uh you know uh
+38:30 
+
+38:30 uh getting stopped or uh changing the
+38:32 
+
+38:32 gear uh arbitrarily right and the model
+38:35 
+
+38:35 actually produced that thing right so
+38:37 
+
+38:37 suddenly the model got stopped suddenly
+38:39 
+
+38:39 the model you know produced this token
+38:42 
+
+38:42 weight and then started uh uh thinking
+38:44 
+
+38:44 again and so on.
+38:48 
+
+38:48 Okay. So follow-up work is this concept
+38:51 
+
+38:51 called thought switching penalty. Okay.
+38:55 
+
+38:55 Now what is thought switching penalty?
+38:57 
+
+38:57 What is the idea?
+38:58 
+
+38:58 Again this is this this also comes under
+39:00 
+
+39:00 sequential scaling. So the idea is that
+39:04 
+
+39:04 let's say when you start thinking
+39:07 
+
+39:07 right um it should not happen that the
+39:11 
+
+39:11 model switches from one thinking trace
+39:14 
+
+39:14 to another thinking trace. It is okay to
+39:17 
+
+39:17 think in parallel right if you it is
+39:19 
+
+39:19 okay to think uh it is not in parallel
+39:22 
+
+39:22 it is okay to think in different
+39:23 
+
+39:23 directions because we do not know which
+39:25 
+
+39:25 direction would be will be will be
+39:27 
+
+39:27 useful but it should not happen that you
+39:30 
+
+39:30 know you are you let's say you are doing
+39:32 
+
+39:32 correct right uh you your thinking was
+39:34 
+
+39:34 your thinking is correct but suddenly
+39:36 
+
+39:36 due to this models you know logic and
+39:38 
+
+39:38 other distribution right you suddenly
+39:40 
+
+39:40 shifted your thinking to another another
+39:42 
+
+39:42 direction it should not happen so the
+39:45 
+
+39:45 idea is that uh so the they came up with
+39:48 
+
+39:48 the penalty. Now this penalty is imposed
+39:50 
+
+39:50 to the this penalty is added to the
+39:52 
+
+39:52 logit right let's say uh let's say so
+39:56 
+
+39:56 far again hypothetically you assume that
+39:58 
+
+39:58 so far whatever you have thought uh the
+40:01 
+
+40:01 confidence was very high the probability
+40:02 
+
+40:02 was very high right at that time if you
+40:06 
+
+40:06 suddenly start thinking in a different
+40:08 
+
+40:08 direction or you produce a different
+40:09 
+
+40:09 token altogether that is bad right if
+40:13 
+
+40:13 that happens the model will add some
+40:15 
+
+40:15 penalty to the logic right not only to
+40:19 
+
+40:19 that uh to the logic of that token but
+40:21 
+
+40:21 also you know uh subsequent tokens and
+40:24 
+
+40:24 the and you basically force the model
+40:26 
+
+40:26 not to think at at that direction.
+40:29 
+
+40:29 Now it is completely okay that your
+40:32 
+
+40:32 let's say your thinking was not going to
+40:35 
+
+40:35 the in in a proper direction and your uh
+40:38 
+
+40:38 your your confidence was very low and
+40:40 
+
+40:40 then you switched that is totally fine
+40:42 
+
+40:42 but if your confidence was is very high
+40:44 
+
+40:44 and then you switch that is not enough.
+40:46 
+
+40:46 So they came up with this concept called
+40:48 
+
+40:48 penalty strength. The penalty strength
+40:49 
+
+40:49 is the amount of penalty that you impose
+40:52 
+
+40:52 to the logit of the token so that that
+40:54 
+
+40:54 kind of tokens are not generated and
+40:56 
+
+40:56 penalty duration is the number of tokens
+40:58 
+
+40:58 uh for which you add this penalty.
+41:03 
+
+41:03 Remember this is sequential token uh
+41:05 
+
+41:05 sequential uh scaling meaning that again
+41:07 
+
+41:07 you have some uh budget restriction and
+41:09 
+
+41:09 you can go up to that budget. Now tree
+41:12 
+
+41:12 of thought is a hybrid approach. I'll
+41:14 
+
+41:14 not go into details of t of tree of
+41:16 
+
+41:16 thought. I think it was discussed in the
+41:17 
+
+41:17 last year's class. I discussed it in the
+41:20 
+
+41:20 prompting uh section of last year. But
+41:24 
+
+41:24 this this is again some sort of um test
+41:27 
+
+41:27 time scaling. So the idea is that um um
+41:31 
+
+41:31 in t of thought you
+41:35 
+
+41:35 um uh so you have something called um
+41:39 
+
+41:39 you know um intermediate thought units.
+41:42 
+
+41:42 Right? Now what are these intermediate
+41:44 
+
+41:44 thought units? Now intermediate thought
+41:47 
+
+41:47 units are not let's say in case of let's
+41:49 
+
+41:49 say your task is to generate a poem
+41:51 
+
+41:51 right or generate a paragraph. So is the
+41:53 
+
+41:53 thought units are not characters.
+41:56 
+
+41:56 Thought units are not as so thought
+41:58 
+
+41:58 units are not as small as characters or
+41:60 
+
+42:00 thought units are not as as big as the
+42:02 
+
+42:02 document itself. Right? Thought units
+42:04 
+
+42:04 can be you can think of them as a
+42:06 
+
+42:06 paragraph for example. Right? And these
+42:07 
+
+42:07 are vague concepts. Right? So, so what
+42:11 
+
+42:11 you do, you start with a prompt and you
+42:14 
+
+42:14 ask the model. So, this is a hybrid
+42:16 
+
+42:16 approach, right? You do parallel as well
+42:17 
+
+42:17 as sequential. So, you generate
+42:21 
+
+42:21 intermediate thought units, right? And
+42:24 
+
+42:24 then
+42:26 
+
+42:26 for each and and these thought units are
+42:28 
+
+42:28 states, right? Now, for each state, you
+42:31 
+
+42:31 generate K candidate thought using coot.
+42:36 
+
+42:36 You can do that, right? from from each
+42:38 
+
+42:38 thought you can just follow the coot
+42:40 
+
+42:40 kind of approach and you can proceed
+42:42 
+
+42:42 right now the interesting part is the
+42:45 
+
+42:45 state evaluation
+42:47 
+
+42:47 now this is a bit tricky and this is
+42:50 
+
+42:50 also not very clear in the paper so what
+42:52 
+
+42:52 they said is that after every state
+42:56 
+
+42:56 right let's say let's say in a branch
+42:58 
+
+42:58 there are three states that you already
+42:60 
+
+42:60 generated right after every state you
+43:03 
+
+43:03 determine whether the that that that
+43:07 
+
+43:07 branch would lead to the correct answer
+43:09 
+
+43:09 or not.
+43:11 
+
+43:11 Right? And who and and and and who who
+43:14 
+
+43:14 will determine this? There's a separate
+43:16 
+
+43:16 language model. Not the same language
+43:18 
+
+43:18 model. There's a separate language
+43:20 
+
+43:20 model. Maybe a powerful language model.
+43:22 
+
+43:22 It will determine whether that trace or
+43:25 
+
+43:25 that branch would lead to correct answer
+43:27 
+
+43:27 or not.
+43:29 
+
+43:29 Okay. So this is a state evaluation.
+43:31 
+
+43:31 State evaluator.
+43:33 
+
+43:33 And once you generate the entire tree
+43:36 
+
+43:36 then you have some strategy. The
+43:37 
+
+43:37 strategy can be a simple BFS or DFS or
+43:40 
+
+43:40 let's say let's say you have a score for
+43:43 
+
+43:43 every branch and then you prune a branch
+43:45 
+
+43:45 which has low score and so on and so
+43:46 
+
+43:46 forth right and then you backtrack let's
+43:49 
+
+43:49 say you see that okay maybe you you
+43:52 
+
+43:52 start with a high a branch with high
+43:54 
+
+43:54 score you gradually move and then you
+43:56 
+
+43:56 suddenly think that no uh the in rest of
+43:59 
+
+43:59 the states the scores are bad you
+44:02 
+
+44:02 backtrack and you start exploring the
+44:03 
+
+44:03 other other branch that the entire tree
+44:06 
+
+44:06 is generated by
+44:07 
+
+44:07 Okay. Now the major innovation is here
+44:10 
+
+44:10 the state evaluation. Now I mean you can
+44:13 
+
+44:13 think of a process reward model. You can
+44:14 
+
+44:14 think of maybe another powerful model
+44:17 
+
+44:17 which will which are now now the the
+44:20 
+
+44:20 kind of problems that they tried out.
+44:23 
+
+44:23 The problems are also deterministic
+44:24 
+
+44:24 problems. For example, let's say uh game
+44:26 
+
+44:26 of 24. Do you know this game? H uh game
+44:31 
+
+44:31 of 24. So you are given four numbers,
+44:35 
+
+44:35 right? your task would be to uh to
+44:38 
+
+44:38 basically uh generate the number 24 by
+44:42 
+
+44:42 doing some operations with these
+44:43 
+
+44:43 numbers. Now uh you can use the
+44:46 
+
+44:46 intermediate results right for example
+44:48 
+
+44:48 let's say you say that I will subtract
+44:52 
+
+44:52 13 I subtract 9 from 13 and four from 10
+44:55 
+
+44:55 and then we multiply right so what you
+44:57 
+
+44:57 have done you first subtracted this here
+45:01 
+
+45:01 and subtracted this one you got some
+45:03 
+
+45:03 numbers and then you multiply so
+45:05 
+
+45:05 intermediate outputs can also be used to
+45:08 
+
+45:08 uh to generate this number 24
+45:12 
+
+45:12 now what they said is that and and then
+45:14 
+
+45:14 again five + 4 5 + 5 cross crossboard a
+45:17 
+
+45:17 creative writing is of course something
+45:19 
+
+45:19 which is not deterministic but other
+45:21 
+
+45:21 things are kind of deterministic you
+45:23 
+
+45:23 know that whether a branch or let's say
+45:25 
+
+45:25 if you ask a human being to uh you know
+45:27 
+
+45:27 verify whether a branch may lead to a
+45:30 
+
+45:30 correct answer or not it this would be
+45:32 
+
+45:32 able to verify this now let's look at
+45:34 
+
+45:34 the internal scaling right specifically
+45:37 
+
+45:37 uh the 01 paper right paper
+45:42 
+
+45:42 I'll come to that I'll come to the
+45:43 
+
+45:43 internal scaling but let's look at the
+45:45 
+
+45:45 how the the how question right so as I
+45:48 
+
+45:48 mentioned there are two ways right one
+45:50 
+
+45:50 is tuning based in tuning based you um
+45:53 
+
+45:53 you you do some finetuning SFT or RL or
+45:57 
+
+45:57 the other one is more of an inference
+45:58 
+
+45:58 based where you do stipulation u uh
+46:01 
+
+46:01 stimulation you know some sort of
+46:03 
+
+46:03 verification SS and aggregation we
+46:04 
+
+46:04 discussed this stimulation is more of a
+46:06 
+
+46:06 self refining process right so I said
+46:09 
+
+46:09 the same model is used for refining and
+46:12 
+
+46:12 verifying And then verification is one
+46:15 
+
+46:15 we'll discuss. Uh search is more of a
+46:17 
+
+46:17 tot kind of approach right and
+46:19 
+
+46:19 aggregation is
+46:21 
+
+46:21 middle voting first finish search and so
+46:23 
+
+46:23 on.
+46:25 
+
+46:25 So let's look at open open paper. Of
+46:29 
+
+46:29 course this is a closed source model. I
+46:30 
+
+46:30 don't have much idea about what was
+46:32 
+
+46:32 there in the in the uh you know in the
+46:35 
+
+46:35 underline this model.
+46:37 
+
+46:37 But overall this is the idea. So the
+46:39 
+
+46:39 idea is that so 01 model was built on
+46:43 
+
+46:43 top of GPT4
+46:45 
+
+46:45 okay so GPT4 architecture and uh and and
+46:49 
+
+46:49 reasoning focused pre-training remember
+46:51 
+
+46:51 this is very important now the
+46:52 
+
+46:52 pre-training is reasoning focused
+46:54 
+
+46:54 meaning that your data set you have math
+46:56 
+
+46:56 question science question code code
+46:59 
+
+46:59 related questions and there also traces
+47:01 
+
+47:01 right so your focus is not to generate
+47:04 
+
+47:04 the next token but to generate the
+47:07 
+
+47:07 correct reasoning right? Uh they
+47:10 
+
+47:10 fine-tuned on QA reasoning data set,
+47:12 
+
+47:12 right? Containing explicit thought
+47:14 
+
+47:14 sequence.
+47:16 
+
+47:16 Okay. Um to to teach the model think
+47:20 
+
+47:20 before answering. This is very
+47:21 
+
+47:21 important, right? So in autogressive
+47:24 
+
+47:24 model the task was just to predict the
+47:27 
+
+47:27 next token right uh those models don't
+47:30 
+
+47:30 think much but here they think and then
+47:32 
+
+47:32 answer.
+47:33 
+
+47:33 they do is right with some sort of
+47:36 
+
+47:36 reasoning rewards and then they in in
+47:39 
+
+47:39 the in in their report right they
+47:41 
+
+47:41 mentioned this uh idea called um
+47:45 
+
+47:45 um you know um internal reflection loops
+47:50 
+
+47:50 adaptive holding. So what is this
+47:51 
+
+47:51 internal reflection loop? Internal name
+47:54 
+
+47:54 is very fancy right and these people
+47:56 
+
+47:56 know how to come up with fancy names. So
+47:60 
+
+47:60 internal reflection loops meaning that
+48:02 
+
+48:02 the model itself tries to assess uh the
+48:07 
+
+48:07 or reflects on the steps that the model
+48:10 
+
+48:10 generates
+48:13 
+
+48:13 right so you have self-reflection
+48:15 
+
+48:15 right and adaptive halting means the
+48:17 
+
+48:17 model knows uh where to halt and this
+48:21 
+
+48:21 this is determined uh dynamically
+48:24 
+
+48:24 meaning that the model will will
+48:26 
+
+48:26 understand that this is a simple
+48:28 
+
+48:28 question the model doesn't need to think
+48:29 
+
+48:29 deeper, right? Doesn't need to uh uh
+48:33 
+
+48:33 doesn't need to think deeper and the
+48:34 
+
+48:34 model can halt at any time. Whereas if
+48:37 
+
+48:37 the question is complex, then the model
+48:39 
+
+48:39 knows you know that you know it
+48:41 
+
+48:41 basically needs to uh needs to think
+48:44 
+
+48:44 deeper and it should not halt and so on
+48:47 
+
+48:47 and so forth. And this is determined uh
+48:49 
+
+48:49 dynamically
+48:51 
+
+48:51 right and uh for adaptive vaultting
+48:54 
+
+48:54 internal reflection loops all these
+48:55 
+
+48:55 things are basically incorporated using
+48:57 
+
+48:57 RL right and it also has this safety
+49:02 
+
+49:02 alignment and so on and that we'll not
+49:03 
+
+49:03 discuss but as I mentioned test time
+49:05 
+
+49:05 scaling is a important factor uh in this
+49:08 
+
+49:08 kind of reasoning models
+49:11 
+
+49:11 okay now let's focus on the evaluation
+49:13 
+
+49:13 of this evaluation of of this reasoning
+49:15 
+
+49:15 models so generally We use maths data
+49:19 
+
+49:19 sets, right? AIM and maths 500 is a is a
+49:24 
+
+49:24 popular data set that we generally use,
+49:26 
+
+49:26 right? For for the evaluation, these are
+49:29 
+
+49:29 Olympia data sets, right? Olympiad
+49:31 
+
+49:31 questions, right? Um, AIM
+49:35 
+
+49:35 you know you so so the you know the
+49:38 
+
+49:38 answer is already given and the model
+49:40 
+
+49:40 should be able to produce that answer.
+49:43 
+
+49:43 uh GPQA is more of an MCQ type of U uh
+49:47 
+
+49:47 data data set right uh but these are
+49:49 
+
+49:49 complicated data sets. Uh GPQA has
+49:53 
+
+49:53 physics chemistry and mathematics um you
+49:56 
+
+49:56 know uh mathematics questions right
+49:60 
+
+49:60 whereas SW bench is a code generation
+50:02 
+
+50:02 data set. So this is a leaderboard that
+50:04 
+
+50:04 people generally follow.
+50:07 
+
+50:07 Okay. Now how do we evaluate this
+50:09 
+
+50:09 models? Remember evaluating a reasoning
+50:12 
+
+50:12 trace and correctness of a reasoning
+50:15 
+
+50:15 trace is not explored yet right? People
+50:18 
+
+50:18 have been thinking about it but there is
+50:20 
+
+50:20 no concrete way to evaluate whether the
+50:21 
+
+50:21 reasoning trace is correct or not. But
+50:23 
+
+50:23 there are ways to you know there are
+50:26 
+
+50:26 proxies to actually evaluate the
+50:27 
+
+50:27 reasoning trace. For example, you look
+50:31 
+
+50:31 at you can evaluate a model in four
+50:34 
+
+50:34 dimensions. The first dimension is
+50:36 
+
+50:36 performance. You look at the accuracy,
+50:38 
+
+50:38 right? And then you val and then and
+50:40 
+
+50:40 then you measure the you know
+50:42 
+
+50:42 performance. So accuracy
+50:45 
+
+50:45 what is pass at K? Pass at K is you know
+50:49 
+
+50:49 let's say you have generated n different
+50:53 
+
+50:53 uh traces. You you look at top K traces
+50:56 
+
+50:56 and you see is kind of precision at K
+50:59 
+
+50:59 right you look at top K traces and see
+51:01 
+
+51:01 whether it is correct or not.
+51:04 
+
+51:04 Performance is pretty straightforward.
+51:06 
+
+51:06 But let's look at controllability,
+51:07 
+
+51:07 scalability, and efficiency.
+51:09 
+
+51:09 Controllability
+51:13 
+
+51:13 uh controllability evaluates whether the
+51:16 
+
+51:16 test time methods can consistently
+51:18 
+
+51:18 adhere to the predefined resource
+51:19 
+
+51:19 constraint. What does it mean?
+51:23 
+
+51:23 Let's say your budget is something,
+51:27 
+
+51:27 right? you will check whether the
+51:30 
+
+51:30 reasoning trace generated by the model
+51:33 
+
+51:33 follows that constraint or not. A very
+51:35 
+
+51:35 simple idea. Let's say uh let's say in
+51:38 
+
+51:38 this metric control metric, it measures
+51:41 
+
+51:41 fraction of test time compute values
+51:44 
+
+51:44 that stay within the given upper and
+51:46 
+
+51:46 lower bound.
+51:49 
+
+51:49 So, so you have an upper bound of the
+51:52 
+
+51:52 reasoning trace that you should
+51:53 
+
+51:53 generate, the number of tokens that you
+51:55 
+
+51:55 should generate and also the lower
+51:56 
+
+51:56 bound, right? So you check for how many
+51:58 
+
+51:58 traces
+52:00 
+
+52:00 it follows this it basically ranges or
+52:03 
+
+52:03 it comes within the range of this upper
+52:05 
+
+52:05 and lower limit right if it is okay if
+52:08 
+
+52:08 if it comes within this range then it's
+52:10 
+
+52:10 okay otherwise not
+52:13 
+
+52:13 you you can also look at the mean
+52:15 
+
+52:15 deviation from the target length let's
+52:17 
+
+52:17 say in your gold reasoning trace let's
+52:20 
+
+52:20 have a gold reasoning trace n is the
+52:22 
+
+52:22 length of the trace and and and this is
+52:25 
+
+52:25 the length that you generated
+52:27 
+
+52:27 Right? Now you look at essentially the
+52:29 
+
+52:29 mean of this difference
+52:33 
+
+52:33 and then of course RM RMS right the same
+52:36 
+
+52:36 quantity RMS
+52:38 
+
+52:38 clear is that clear
+52:42 
+
+52:42 now scalability
+52:45 
+
+52:45 so in scalability
+52:47 
+
+52:47 what we look at we look at
+52:50 
+
+52:50 uh with the increasing
+52:53 
+
+52:53 number of tokens right let's say let's
+52:56 
+
+52:56 say you have two reasoning traces. One
+52:58 
+
+52:58 trace has length 10. Another trace has
+53:02 
+
+53:02 length 15. Right? Now, what is the
+53:06 
+
+53:06 accuracy of a trace with length 10? What
+53:08 
+
+53:08 is the accuracy of a trace with length
+53:10 
+
+53:10 15? Right? So, the numerator is the
+53:13 
+
+53:13 accuracy of these two traces and the
+53:16 
+
+53:16 denominator is the length difference. So
+53:18 
+
+53:18 the idea is that uh with the unit length
+53:22 
+
+53:22 difference whether the accuracy also
+53:24 
+
+53:24 scales accordingly or not right it will
+53:27 
+
+53:27 be pretty straightforward
+53:29 
+
+53:29 and you and you do this for all pairs of
+53:32 
+
+53:32 reasoning traces. So so this carly a uh
+53:35 
+
+53:35 you know has all reasoning traces and
+53:37 
+
+53:37 then you take a pair of reasoning traces
+53:39 
+
+53:39 and you do the same.
+53:42 
+
+53:42 Now this is more of a quantitative
+53:44 
+
+53:44 approach. More qualitative approach is
+53:46 
+
+53:46 that you just you know you just draw a
+53:48 
+
+53:48 curve where x-axis is the compute and
+53:50 
+
+53:50 y-axis is the performance right and you
+53:54 
+
+53:54 analyze that curve.
+53:57 
+
+53:57 Okay. The third one is efficiency.
+54:00 
+
+54:00 In efficiency you look at u
+54:05 
+
+54:05 so total compute is the is basically the
+54:08 
+
+54:08 total number of tokens used across all
+54:10 
+
+54:10 generated responses for a given problem
+54:13 
+
+54:13 as I mentioned right let's say you have
+54:15 
+
+54:15 a you have a majority voting kind of
+54:17 
+
+54:17 approach and a let's say uh budget
+54:20 
+
+54:20 forcing kind of approach in majority
+54:21 
+
+54:21 voting there are multiple parallel
+54:23 
+
+54:23 traces generated you you you see how you
+54:26 
+
+54:26 see total number of tokens generated
+54:28 
+
+54:28 total number of tokens generated by all
+54:30 
+
+54:30 the traces case and here in case of
+54:32 
+
+54:32 sequential uh uh you know trace
+54:34 
+
+54:34 generation let's say budget forcing you
+54:35 
+
+54:35 look at number of tokens and you compare
+54:38 
+
+54:38 which one is higher if it is higher it
+54:40 
+
+54:40 is bad
+54:43 
+
+54:43 sequential in in sequential compute you
+54:46 
+
+54:46 do not look at all tokens you just look
+54:48 
+
+54:48 at the to you you just look at you just
+54:51 
+
+54:51 focus on that branch or thating trace
+54:54 
+
+54:54 which is correct right and the
+54:57 
+
+54:57 corresponding tokens present in that in
+54:59 
+
+54:59 that specific branch right that can also
+55:02 
+
+55:02 be considered.
+55:04 
+
+55:04 Okay, the third one is very interesting.
+55:07 
+
+55:07 The third one is called underthinking
+55:10 
+
+55:10 score.
+55:12 
+
+55:12 What is underthinking score? I'll
+55:13 
+
+55:13 discuss this formula later. But first
+55:15 
+
+55:15 understand the intuition. The intuition
+55:18 
+
+55:18 is that you only so you start with
+55:21 
+
+55:21 considering only those branches or only
+55:24 
+
+55:24 those visiting traces which are
+55:26 
+
+55:26 incorrect.
+55:29 
+
+55:29 Right? You do not look at the correct
+55:30 
+
+55:30 responses. You look at incorrect
+55:32 
+
+55:32 responses. Right? And in the incorrect
+55:35 
+
+55:35 responses,
+55:36 
+
+55:36 you see
+55:39 
+
+55:39 in the incorrect responses, it may
+55:41 
+
+55:41 happen that some tokens
+55:45 
+
+55:45 uh let's say some steps were correct,
+55:50 
+
+55:50 right? It may happen that in that
+55:52 
+
+55:52 incorrect response thread initially you
+55:55 
+
+55:55 started thinking correctly but then you
+55:58 
+
+55:58 got deviated.
+56:01 
+
+56:01 Other case you never started thinking
+56:04 
+
+56:04 correctly.
+56:05 
+
+56:05 The other case initially your thoughts
+56:07 
+
+56:07 were incorrect then some correct
+56:10 
+
+56:10 thoughts and then again incorrect.
+56:13 
+
+56:13 Right? These are three cases. First case
+56:16 
+
+56:16 initial thoughts are correct and then
+56:17 
+
+56:17 incorrect. Second case all the thoughts
+56:20 
+
+56:20 are and when I say thoughts steps right
+56:24 
+
+56:24 all the steps are incorrect and these
+56:26 
+
+56:26 are all incorrect traces. And the third
+56:28 
+
+56:28 case is that uh incorrect some correct
+56:32 
+
+56:32 and then again incorrect right which one
+56:34 
+
+56:34 is correct? I mean which one is still
+56:36 
+
+56:36 okay? I mean none of them are okay but
+56:38 
+
+56:38 which one is okay?
+56:41 
+
+56:41 Maybe the first one is okay. Why?
+56:43 
+
+56:43 because the model knows how to think
+56:47 
+
+56:47 correctly but then got maybe during the
+56:50 
+
+56:50 thinking process the model got deviated.
+56:52 
+
+56:52 Second case the model was not able to
+56:54 
+
+56:54 think correctly at all. In the third
+56:56 
+
+56:56 case after long time the model started
+56:58 
+
+56:58 thinking and then again got deviated. So
+56:60 
+
+56:60 the idea is that
+57:02 
+
+57:02 the idea is that the sooner you start
+57:05 
+
+57:05 thinking correctly better it is for you.
+57:08 
+
+57:08 So so what is TI? TI is the number of
+57:12 
+
+57:12 tokens in the entire trace. Right? And
+57:15 
+
+57:15 what I what is TI cap? TI cap is the
+57:18 
+
+57:18 number of tokens till you generate the
+57:23 
+
+57:23 first correct step.
+57:26 
+
+57:26 Right? Now think of a case where
+57:28 
+
+57:28 initially you generate the correct step.
+57:31 
+
+57:31 So t hat would be zero or one or ti
+57:34 
+
+57:34 would be the length. Right? So this
+57:36 
+
+57:36 value would be small values be small 1
+57:40 
+
+57:40 minus small will be very high right and
+57:43 
+
+57:43 that's the idea and if the model is not
+57:46 
+
+57:46 able to produce any correct step then
+57:48 
+
+57:48 then what then ti and tk would be the
+57:51 
+
+57:51 same the model is not able to produce
+57:53 
+
+57:53 any correct step right so ti and t would
+57:57 
+
+57:57 be the same 1 minus one would be zero
+58:03 
+
+58:03 so uh the The rest of things are you
+58:07 
+
+58:07 know pretty straightforward. So these
+58:08 
+
+58:08 are some of the result that I wanted to
+58:09 
+
+58:09 show. For example you know if you look
+58:12 
+
+58:12 at um if you look at self consistency
+58:15 
+
+58:15 paper self consistency is majority
+58:16 
+
+58:16 voting majorly right. I think I already
+58:19 
+
+58:19 showed this figure earlier right with
+58:21 
+
+58:21 the uh you know with the increasing
+58:23 
+
+58:23 number of uh reasoning pass you see the
+58:25 
+
+58:25 accuracy increases right it is even
+58:28 
+
+58:28 better than um greedy decoding and
+58:30 
+
+58:30 sample and rank decoding. In fact, in
+58:32 
+
+58:32 self-refined paper, this is the result
+58:34 
+
+58:34 of a self-refined paper. It also
+58:37 
+
+58:37 outperforms uh other approaches.
+58:41 
+
+58:41 Um now this is the result of an S1
+58:44 
+
+58:44 paper. Of the S1 paper, right? X-axis
+58:48 
+
+58:48 indicates uh number of
+58:52 
+
+58:52 thinking tokens, right? Total number of
+58:55 
+
+58:55 tokens in the reasoning. Yaxis is the
+58:58 
+
+58:58 accuracy. And you see uh you know uh
+59:02 
+
+59:02 slope is pretty good right it's pretty
+59:03 
+
+59:03 high across data sets
+59:07 
+
+59:07 they showed as I mentioned earlier they
+59:09 
+
+59:09 showed that if you look at S1
+59:12 
+
+59:12 right with only thousand training
+59:15 
+
+59:15 instances or instances for fine-tuning
+59:19 
+
+59:19 the model reaches an accuracy of 92 93%.
+59:22 
+
+59:22 which is equivalent to let's say QWQ
+59:25 
+
+59:25 method right which require a lot of data
+59:28 
+
+59:28 set for finetuning
+59:33 
+
+59:33 and in this figure what we showed is
+59:36 
+
+59:36 that so x-axis is the number of output
+59:38 
+
+59:38 tokens
+59:41 
+
+59:41 yaxis is the accuracy
+59:43 
+
+59:43 so if you do parallel scaling so in the
+59:46 
+
+59:46 S1 paper they showed if you do parallel
+59:49 
+
+59:49 scaling parallel scaling means parallel
+59:51 
+
+59:51 branches Right? The accuracy improves
+59:53 
+
+59:53 like this with the number of tokens.
+59:56 
+
+59:56 If you do sequential scaling, the
+59:58 
+
+59:58 accuracy improves like this.
+60:03 
+
+60:03 Okay, I'll not discuss all this. I'll
+60:05 
+
+60:05 I'll finish here. U now let's think
+60:09 
+
+60:09 about it. Let's think of what we have
+60:11 
+
+60:11 discussed so far and decide when to use
+60:14 
+
+60:14 or where to use which model.
+60:16 
+
+60:16 Okay, let's say let's look at this
+60:18 
+
+60:18 figure. Y-axis is the compute
+60:21 
+
+60:21 availability and X-axis is the task
+60:24 
+
+60:24 difficulty. Let's say if you look at
+60:26 
+
+60:26 this this quadrant you have less compute
+60:30 
+
+60:30 uh and your question is easy which model
+60:34 
+
+60:34 should be used
+60:36 
+
+60:36 ffs
+60:39 
+
+60:39 why because as I mentioned if you
+60:41 
+
+60:41 basically don't need to think deeper
+60:44 
+
+60:44 right maybe your small small trace uh is
+60:47 
+
+60:47 the right trace right and you also don't
+60:49 
+
+60:49 have enough compute now let's look at
+60:51 
+
+60:51 this one low compute difficult question.
+60:57 
+
+60:57 What do you do now? FS is parallel.
+60:60 
+
+60:60 Remember parallel uh scaling.
+61:03 
+
+61:03 What should what should we do?
+61:05 
+
+61:05 No, parallel scaling is useful when you
+61:08 
+
+61:08 have easy questions. Now, for difficult
+61:11 
+
+61:11 questions, you should always choose a
+61:12 
+
+61:12 sequential model, right? So, you can use
+61:17 
+
+61:17 bucket question,
+61:19 
+
+61:19 right? So that the model thinks deeper.
+61:22 
+
+61:22 If you have high compute and easy
+61:24 
+
+61:24 question then any model right? If you
+61:27 
+
+61:27 have high compute and difficult
+61:28 
+
+61:28 question,
+61:32 
+
+61:32 high compute and difficult question,
+61:35 
+
+61:35 you have a lot of computes, infinite
+61:38 
+
+61:38 number of computes,
+61:41 
+
+61:41 parallel search, but which method?
+61:42 
+
+61:42 Majority voting. Majority voting is
+61:45 
+
+61:45 always good. Remember this because you
+61:47 
+
+61:47 are actually generating multiple
+61:49 
+
+61:49 branches, right? All right. Then let's
+61:52 
+
+61:52 look at the second figure. uh x-axis the
+61:55 
+
+61:55 same easy and difficult y-axis is model
+61:58 
+
+61:58 strength. Now weak model and strong
+61:60 
+
+61:60 model.
+62:01 
+
+62:01 If you have a weak model and uh easy
+62:05 
+
+62:05 question then FFS
+62:08 
+
+62:08 same reason weak model difficult
+62:10 
+
+62:10 question maybe BF right weak model uh uh
+62:14 
+
+62:14 sorry uh um uh strong model difficult
+62:18 
+
+62:18 question MB and um and easy and strong
+62:23 
+
+62:23 anything okay so there is no silver
+62:26 
+
+62:26 bullet as such you have to choose your
+62:27 
+
+62:27 model accordingly according to your
+62:30 
+
+62:30 tasks okay thank

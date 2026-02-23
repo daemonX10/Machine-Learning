@@ -1,0 +1,678 @@
+00:02 hello everyone in today's class we will discuss tokenization
+00:08 strategies so uh so far we discussed uh Transformer in details right we also
+00:14 discussed uh different types of attention mechanisms um we also
+00:20 discussed pre-training strategies right uh specifically board and uh and and
+00:26 before that we we discussed different types of word embedding meth right what to we glove fast text and so on so in
+00:35 each of these techniques right if you um if you uh notice it properly the first
+00:41 and foremost step is to tokenize uh the the the streaming words
+00:47 right the tokenization is very important because it it actually helps you determine which words are similar right
+00:55 in a in a very high level okay so uh it also helps you understand unknown words
+01:00 very very effectively okay so in in Transformer or before Transformer let's
+01:06 say RNN based methods neural methods before uh and also what to bre glove
+01:11 kind of methods the inputs that we give are basically a sequence of tokens now before uh you know neural
+01:20 language models what people used to do people used to use uh you know different
+01:25 types of delimeters to u to to tokenize running text right for example you use space you
+01:33 use tab you use um say full stop you use new line right using these delimeters
+01:40 you can essentially tokenize uh a sequence of um a sequence of uh you know
+01:47 running text right so but then people realize that uh you know this this ders
+01:53 may not be a right approach because well in a in a in a normal text uh when when
+01:59 it is okay to split uh running text into uh into into different words based on
+02:05 these delimiters but when a when it comes to the testing right when you see an unknown token or you know a token
+02:14 which is which is difficult to decipher right you may wonder what kind of tokenization we should use right so
+02:21 uh this field the field of tokenization has been one of the prior uh you know
+02:28 areas in in large language models in neural machine translation neural neural
+02:34 language model in general but the uh so essentially we we here we
+02:40 look at three kinds of strategies right for tokenization that are that have been
+02:45 used quite uh quite heavily in different kinds of large language models okay so
+02:53 before that today's breaking news is as follows Microsoft releases recently
+02:59 released five 3.5 family of small language models this was released in August 20 uh you can look at this blog
+03:06 post in Azure AI services so uh 5 3.5 mini 5 3.5 Vision 5 3.5 uh mix of expert
+03:16 released uh the 3.5 mini version is specifically designed for handling multilingual uh multilingual text with
+03:24 128k context length uh 3.5 vision is a
+03:29 4.2 billion model these are all small models uh these these basically improves multiframe image understanding task and
+03:37 uh the 53.5 right this basically features 16
+03:42 different experts and this is a 6.6 billion parameter size model
+03:48 okay now u in all these methods that was proposed here you see that the these
+03:55 methods actually have undergone uh you know further pre-training using
+04:00 different types of strategies like multilingual synthesis high quality filtering and so on and so forth with um
+04:06 human alignment likef pop DPO and a combination of various things human
+04:11 labeled synthetic and transl data set so this is the uh this is the link as I mentioned
+04:19 you can go through the link and you can uh download these models okay so coming back to the topic
+04:27 again tokenization so the word level tokenization the the
+04:33 strategy that was there uh before neural machine machine translation neural language model right word level
+04:39 tokenization is not good enough because if you think of words right what is what what is word is basically a combination
+04:46 of characters now you can think of a exponential number of uh you know words
+04:51 possible right if you think of the fixed set of characters now with this fix set
+04:56 of characters you can think of exponential number of words it may be possible that some of the words are not
+05:02 meaningful words some of the words are meaningful words but you can think of you know a lot of lot of such words
+05:08 right so only words as a token may not be a
+05:14 right approach whereas a character as a token Also may not be a right approach
+05:20 because if you think of only a character then there's a there's a fix set of characters that we can think of right 26
+05:27 characters and some maybe some special characters like hash at the rate like some some some unicorns and symbols like
+05:34 that uh so that that may be a limited set of vocabulary whereas if you only consider
+05:41 words right that is also a huge set of vocabulary now you I mean you can also
+05:46 Imagine new words which are not part of your training set right remember when you talk about tokenization this
+05:52 tokenization is performed during the training uh training phase right so during the training time you basically
+05:59 go through the entire Corp purpose and you identify the vocabulary and that vocabulary will help you Parts an
+06:05 unknown token during the teste time okay so in between character level
+06:12 tokenization and Word level tokenization we can think of subord level tokenization right if you remember the
+06:18 word embedding method we talked about um you know what to V glove and fast text
+06:24 right first text is essentially a sub level tokenization sub level embeding matters
+06:29 which basically uses a subord level tokenization strategy okay
+06:34 so now why this sub subord level tokenization is even more important now let's say if you have uh a verb right
+06:42 let's say catch and let's say catch okay and
+06:47 catching now let's say in your training set the word catch is present but the word catching is not present right but
+06:54 in a test set when you part this word catching right you will be you will you
+06:59 will not be able to split it properly because you know that in your training set is not present right but let's say
+07:05 if you think of sub level ining and let's say one subord one subord uh token
+07:10 is catch right then you can say that okay in the test token which is catching you can split it into two parts catch
+07:18 and Ing and since the word catch is also present here maybe the word catch and catching these are kind of uh similar
+07:25 you know appear in the similar context and so on and so forth right similarly let's say another word let's say hugging
+07:34 right uh right and let's say this is the split hug hu G for example again it's a
+07:40 hypothetical split and ining okay now you know that uh that in your test set
+07:46 ing is present in your training set let's say uh hugging is present where you know that in is also part of hugging
+07:54 so you can essentially say that okay maybe the catch the word catching and hugging is similar the word catching and
+08:00 hugging they they are similar in some context maybe they are both of them are actually continuous tense right so so
+08:10 therefore we we will we will basically break a word into subwords right tokens
+08:16 into sub tokens and so on and so forth and then these subwords basically form
+08:21 tokens and these tokens are basically fed to the neural model to the Transformer to the RNN to the word to V
+08:29 and you know any other model that you can think of okay so this is by the way
+08:34 tokenization is an active research area so in this lecture we will look at three
+08:40 types of tokenization techniques bite pair encoding Bo piece encoding and uh
+08:46 unigram language model tokenization which is used in sentence Spas
+08:53 encoding sentence piece encoding right we will discuss these
+09:01 three kinds of techniques in this lecture and we will see that all modern
+09:06 llms like B T5 right gpts they essentially use this uh I mean one of
+09:13 these methods or a combination of these methods okay so in each of these
+09:19 methods we will see that there are two basic steps the four steps the first
+09:25 step is basically a token learn the task of this token learn is to learn the tokens which will
+09:32 basically form the vocabulary okay and this token learner is executed during the training
+09:40 time so during the training time we run this token learner which will
+09:45 essentially uh uh learn or identify the tokens which are going to be a part of
+09:51 the vocabulary right then we during the test time we use
+09:58 another module called token segment right this is during the test
+10:03 time test time remember um uh in the
+10:08 training time you already identified the vocabulary in the test time based on the
+10:14 vocabulary and maybe a set of rules that you have identified right you can further uh you can tokenize a raw test
+10:21 sentence into different tokens okay and token segment that is responsible for
+10:27 this okay now for bite pair encoding you have one type of tokenizer uh one type
+10:33 of segmenter for what piece you have a different type of tokenizer and segmenter for unigram language model uh
+10:39 segmentation tokenization you have again different types of tokenizer uh learner
+10:44 and segmenter let's start with bite paer encoding in short it is called bpe okay
+10:51 very simple idea so B fear encoding was originally
+10:57 proposed for text compression techniques okay for compression strategy it was proposed in um in um long time back and
+11:06 then in 2016 uh in the paper they used this uh
+11:11 you know this this technique for uh neural machine translation okay and B per encoding is used in methods like GPD
+11:19 gpd2 robota uh bot B bot right uh this is a different B by the way this is a
+11:25 encoder decoder model right we'll discuss later and then but and so on
+11:32 okay so let's look at the algorithm so this is the algorithm it's not very important you will understand the
+11:38 algorithm once we uh describe the method let's look at the method first
+11:44 okay so essentially there are three
+11:50 steps the first step is that now remember uh you know u i as I mentioned
+11:57 earlier you have two basically two different uh modules right one is this
+12:02 token learner other is this token segmenter the task of the token learner is to identify tokens okay to identify
+12:10 tokens what we do during the pre- tokenization stage now pre- tokenization stage is a stage
+12:17 which is executed before the token learner is executed okay now during the
+12:22 pre- tokenization stage what we do we we clean the Corpus right we are
+12:29 giving a training set we clean the Corpus meaning we maybe we remove
+12:35 punctuations maybe we uh uh we remove we I mean maybe we remove some special
+12:41 characters we uh normalize the text meaning we convert all the lower case to upper case upper to lower lower case
+12:47 again these are not very standard steps by the way these are the all these things are dependent on the application
+12:53 right but during the pre- tokenization stage you clean the Corpus you break
+12:60 words let's say you break a sentence into words right you break sentence into words based on Space punctuation more
+13:06 complex rules and so on and so forth you can use traditional NLP techniques for for doing that okay
+13:13 now once we do that once your uh cleaning process is done you essentially
+13:20 identify all the words right so all the unique words that
+13:25 are there in the in the in the Corpus right now all these unique words basically uh tokens uh
+13:32 types right all the types have been identified now okay now then what we do once it is
+13:41 done we create a base vocabulary what is a base vocabulary a base vocabulary is
+13:47 essentially the starting point of your of your segmentation process of your tokenization process in the base
+13:54 vocabulary what you do you essentially add all the unique characters present in
+13:59 in the tokens that you identified so far right so you have all these words from the words you identify you basically
+14:06 extract the characters and you add those characters into the vocabulary right for example uh
+14:13 one word is hello h l you add the the character h e l and O uh you add L one
+14:20 time because you only you want to add only unique character right so h e l o
+14:26 will be added to the vocabulary if there is a special let say dollar or hash these will also be added to the
+14:32 vocabulary and so on and so forth okay so now in the best case what would
+14:40 happen in the best case you you basically ended up adding all the unique characters present in in a language
+14:46 right in English let's say you you you ended up adding all 26 characters assuming that all 26 characters appear
+14:54 in the Corpus in your training Corpus at least once right so now this is my base
+15:01 vocabulary and what I do I I I keep on increasing this vocabulary size with
+15:07 more and more training okay
+15:12 um okay now what is the step what is step three step
+15:18 three is margin right then what we do once we identified the base vocabulary
+15:25 what we do we look at all combinations of these characters so so far we have h
+15:30 e l o these four characters then we look at all possible combination of
+15:35 characters we we we start with Byram right Byram character let's say h e right e l HL ho o l o and so on and so
+15:44 forth all possible characters all possible character combination
+15:50 and we choose that particular combination whose frequency is high in
+15:57 the training set I'll explain what what what what is uh what is the meaning of high frequency right let's say for
+16:04 example in our example let's say the combination LL right appears most
+16:10 frequently right in the Byram right most so LL is basically the most frequent
+16:16 Bagram character uh in the in the in the training set we Marge L and L and that
+16:23 will become a vocab entry now okay so let us uh let us take an
+16:30 example and explain this but before that so we keep on marging this thing until
+16:36 unless a specific size of the vocabulary is reached right let's say we predefine the size of the vocabulary to be let's
+16:43 say to be uh to be 1,000 right so we keep on marging Byram trigram forr and
+16:48 so on and so forth and we stop when we see that the the specified size is
+16:54 achieved okay all right let say these are uh five words
+17:01 cat bat bag tag and cats okay these words are present in the training set
+17:08 right and their frequencies are as follows 10 5 12 4 and five so the word
+17:13 cat appears 10 times what bat appears five times and so on and so forth in the training set right
+17:21 okay so to start with what we do we first identify the base vocabulary right
+17:26 base vocabulary is identified and from the characters unique characters present in this Corpus right so unique
+17:33 characters are a b c g a and t so this
+17:38 is my base vocabulary okay then we look at
+17:44 combinations we look at combination and the frequency and uh based on the highest frequency we Marge that
+17:51 particular combination right so how many combinations are possible a a a b a c a
+17:56 g uh a s and a t then again B uh BB ba
+18:01 right all possible combination that you can think of okay
+18:08 so let's look at it here so the word cat bat cat bat bag tag
+18:17 and cats these are the tokens present right so initially as I mentioned uh the
+18:23 the the unique characters are part of the vocabulary so the so the character cat c a t g is these are part part of
+18:30 the vocabulary now right c
+18:35 a t g s b
+18:42 also now we look at all combinations some of the combinations are listed here let's say ca right CA by
+18:51 the CA and AC are different okay ca this token pair the frequency is 15 why this
+18:57 is 15 look at it here CA appears in the word cat and the word cat
+19:03 appears 10 times that means the word that means the combination CA also appears 10 times in the word c right CA
+19:12 also appears here in the word cats right so the total appearance of CA is 10 + 5
+19:20 15 right similarly uh another combination is 0 five times here right
+19:26 five times here and uh 10 times here right so the frequency is 20 and so on
+19:33 and so forth we calculate all uh Byram characters and their frequencies now
+19:40 here which one is the highest right the highest is at right so therefore we
+19:46 combine a and t with this new split rule which is a + T goes to
+19:54 0 so this is the new split rule that we learned right from this table okay
+20:03 so once we identified this what we do now all the appearances of a and t a
+20:11 comma T will be replaced by the new vocabulary word which is at remember at is my new vocabulary word
+20:20 so at will be added here so this is a vocabulary V right so
+20:27 a and t will be added will be added here and all these combinations will be
+20:32 replaced by the unique token at okay now look at here C A it is not C comma a
+20:40 comma T this is C comma a b comma a right C comma a comma a and so on and so
+20:47 forth okay so what we did we select the most frequent pair at March them into a
+20:53 single symbol a single symbol is now 80 add this newly created symbol to the
+20:60 vocabulary 0 but remember one thing the the earlier
+21:06 symbols which were used to create the new symbol a and t they are also present in the vocabulary it is not that we
+21:13 removed those two symbols a and t and we remove them by another we we replace them by another another new token at no
+21:20 those are also there and along with those you added a new token which is
+21:25 at okay all right now we learned a new rule which is a + T
+21:33 = to a t a comma t uh you know leads to 0 now these rules are important right we
+21:40 keep on collecting these rules we keep on expanding the vocabulary we keep on collecting these
+21:47 rules okay now now look at here now this is my modified table right in the
+21:54 modified table again we keep on combining now here what are the combinations possible uh again it
+22:00 depends on the vocabulary right my vocabulary is this one a c t g SB a t a
+22:07 c t g s b a t how many possibilities are there again
+22:15 AC a Ag and so on and so forth Byram possibilities are there trigram
+22:20 possibilities are also there right you can Marge a with a a a right C with a c
+22:26 a and so on and so forth Byram and trigram possib are all there as you see this is a Byram possibility and these
+22:33 are trigram possibilities right this is again another Bagram possibility and so on this is a partial table by the
+22:41 so if you Marge AG right look at the frequency AG appears here with the
+22:48 frequency 12 AG is here with the frequency 4 so totally 16 what about cat
+22:55 if we March c and a 10 C and
+23:00 at5 15 right and so on and so forth
+23:06 again what is the highly frequent token pair which is AG in this case right so
+23:12 we do we repeat the same thing we learn a new rule a comma
+23:19 G derives a initially we learned earlier we learned a comma T derives a t now a
+23:26 comma G derives a right and what what what else we do we
+23:32 replace all the occurrences of a comma G by AG so this is going to be B comma AG
+23:37 this is going to be T comma Ag and so on and so
+23:43 forth right this is my uh modified uh
+23:48 frequency table this is the modified vocabulary where you see both this new
+23:55 uh you know new tokens have been added right and the new these two rules the two the two rules have also been
+24:04 added okay now again we do the same thing we uh keep on merging it can be
+24:10 for gram now right as you see here cat plus s right trigram trigram trigram
+24:16 trigram forr right and you see here the most frequent uh uh you know margin
+24:21 could be uh the most frequent token can be cat right with the rule uh C comma at derives c
+24:31 a okay so the word cat will now be added to the vocabulary right at along with at and AG
+24:39 a new token which is added is c a okay so all appearance of uh all appearance
+24:45 of c a will now be replaced uh I mean c comma a will be replaced by c
+24:53 a okay so we learned three rules a comma
+24:58 t d a a comma G derives a c comma a derives c a right
+25:05 and um and and what is my uh my final
+25:10 vocabulary uh till this stage the final vocabulary is this one AB b c g is T
+25:17 right a b c g is T then
+25:24 a Ag and c a okay we keep on doing this
+25:31 thing until unless the predefined threshold of this vocabulary is reached
+25:37 let's say the size of the vocabulary that we expecting is 1,000 right we keep on expanding and we stop when this uh
+25:45 predefined uh threshold is reached okay now let's see what happens during
+25:54 the test time right so this is essentially you
+25:59 remember again I'm going back back and forth uh token learner so this is the
+26:04 task of the token learner so whatever I discuss so far is the task of the token learn to learn the token and the
+26:10 vocabulary now we are we are we are we are executing token segmenter right what
+26:15 the token segmenter will do whatever was learned uh in the tokenization stage
+26:21 that rules that vocab will be used to segment unknown
+26:26 tokens okay so let's say the word is bag
+26:31 B a in your test set okay token
+26:38 segmenter will be executed here so what what it would do first it
+26:45 would first split the word b a into uh
+26:52 so it it basically should be BS I think there's a typo here BS okay
+26:60 so it it first segment uh the entire word into characters b a g and S and
+27:08 then it it will apply it will start applying the set of rules that we have learned so far but remember the set of
+27:15 rules are applied in sequence right we'll first apply this then this and
+27:21 then this the way we curated the rules the same way we basically apply uh these
+27:26 rules execute the rules it is not case that we first apply C comma a t and then a comma T no the way we applied the rule
+27:34 uh the the way we curated the rule the same uh sequence will also be used to uh
+27:40 execute those rules okay
+27:45 so we go through the Marge rules right until we'll find we we basically uh we
+27:51 find one uh that we can apply for example right if I apply a comma t
+27:59 derives a it is not there right if I apply a comma G derives AG this can be
+28:05 applied here right so a comma G will now be replaced by AG okay so a now the modified the
+28:15 updated set of tokens will be B comma AG comma
+28:20 s now let's see whether I'll be able to apply some other rules or not uh of
+28:26 course C comma a will not be applied so the updated or the final tokenization
+28:31 the final tokens for the word b a GS is going to be B comma a g comma s okay and
+28:38 this will be fed to the Transformer or to the RNN method right now what
+28:43 happens if a token is not present right in the vocabulary now remember here in
+28:51 this case all the tokens B Ag and S right B
+28:59 Ag and S they are part of the vocabulary right all three are part of
+29:04 the vocabulary but let's say you have a word m
+29:10 ug right the word m the the character m is not present here right the character
+29:16 U is also not present here how do you deal with this during the test time again let's
+29:22 see okay let's say the word is Matt m a t
+29:29 okay and again we start applying the rule right first m a t will be split
+29:36 into a comma a m comma a comma T right then we apply the first
+29:48 rule M comma a comma T right then we apply the first rule which we learned
+29:54 which is a comma T derives a t right so a comma T will be replaced by
+30:00 a now I have two tokens M comma a now I can't apply other rules I can't
+30:07 apply other rules so the final token should be a should be a comma a but the token a is not present in the
+30:15 vocabulary right so if it is not present we also don't know its corresponding
+30:21 embedding right think about what to V think about uh you know a transformer in
+30:26 Transformer when we when we feed all the tokens we basically feed their corresponding eddings right so m is not
+30:33 present in the training set m is not present in the vocabulary therefore M doesn't have any mding right what we do
+30:40 here we replace all such unknown characters by and a token called an
+30:48 unk okay so this unique token un K is always
+30:55 a part of the vocabulary that you have learned okay it is always a part of the vocabulary that you you have learned so
+31:03 far right the base the base vocabulary must include every possible character or a symbol like un
+31:11 K okay so this will be replaced by un K and then you already know the embedding
+31:17 for at because this is a known vocabulary entry so this is going to be my tokens for the word
+31:25 mat clear in this way we deal with unknown we'll see in case of what pce we
+31:31 have a different strategy in fact in gpt2 and robota what
+31:37 they use they use basically bites the beat bite concept uh instead of
+31:43 characters right these bites are basically parts of their uh their their base vocabulary and then uh on top of
+31:50 this they keep on applying this rules okay so this is a simple version
+31:56 of bpe bite pair encoding of course you can think of modifications further modifications on top of
+32:02 this let's move to the next part which is what piece
+32:09 tokenization the idea behind what piece tokenization is very same as bpe right
+32:15 uh the only difference is that here the marging operation marging of two
+32:20 characters marging of two tokens into sub tokens right uh is not performed
+32:27 based on the frequency right it is performed based on another property
+32:32 right uh another formula that we'll discuss
+32:37 here so in in in in what piece we Marge based on something called the likelihood
+32:45 not frequency how do we Define likelihood we'll discuss so this what this tonation
+32:52 is used in B uh the Google's b Paper dis B mobile B funnel but and impet and so
+33:00 on and so forth right this was proposed way back 2012 and then I think later on
+33:06 it was modified uh for the task of uh language processing okay so let's look at the uh
+33:13 steps here it again has two steps in the first step during the training time
+33:19 right uh we have this training uh training do Corpus training document and from the training document we identify
+33:26 the vocabulary we identify the rules and so on and so forth
+33:32 right and then during the teste time we apply this we use this vocabulary and rules right for for splitting a word
+33:39 into subwords so here what we
+33:45 do remember in the BP what I mentioned let's say a word hello h e l l o right
+33:52 it was split into h e l l o at the beginning
+33:58 right character level split but here what we do we use a special character double
+34:05 hash right to indicate to differentiate between the character which appears at
+34:11 the beginning of the word and the characters which appear uh uh you know uh in the intermediate part of the word
+34:18 right so here the word h e l o will be split in this way H comma double hash e
+34:28 comma double hash L comma doubleh L
+34:35 comma double hash o this double hash is a prefix this
+34:43 indicates the this indicates that the token is an internal token not the beginning of a token
+34:51 right okay so similarly the word t o k n will be split into T comma the h oou h k
+34:59 dou h e s n right now for every so when we think
+35:06 of marging right we use let's say let's say we want to Marge two characters c
+35:12 and d right in case of BP what we did we
+35:17 looked at the frequency of CD here what we do we use this score function this
+35:23 is very simple frequency of CD divided by frequency of c times frequency of D
+35:32 this is this is this is a kind of mutual information PMI pointwise uh Mutual
+35:38 information uh that we generally discuss in the in the semantics of
+35:44 NLP okay so this is kind of my likelihood okay so frequency of the pair
+35:51 divided by frequency of the first token times frequency of the second token what is the beauty of this this
+35:58 one the beauty of this scoree is that let's say even if a pair is highly
+36:04 frequent a pair is highly frequent if their corresponding constituent characters are also highly frequent that
+36:11 specific pair will be penalized right versus let's say there's
+36:17 a case where the pair is you know uh not that frequent kind of medium frequent
+36:24 right but the tokens are not their corresponding tokens are not that frequent that particular pair will be
+36:31 given high high priority we'll discuss with an example okay so step
+36:40 one step one and step two are the same as we discussed in case of bpe Right
+36:46 Step One is basically a pre- tokenization where we clean the Corpus we split the sentence into words based
+36:53 on Space characters Bas on space space tabs uh some other unicorns and so on
+36:59 and so forth step two we identify the base vocabulary base vocabulary in our case
+37:05 again the base vocabulary constitutes all these tokens right all these characters but remember here characters
+37:12 are differentiated based on the positions if a character appears at the beginning it it it it will it will be
+37:19 added to the vocabulary without hash if the character appears at the at the middle or the end it will be added to
+37:25 the vocabulary with a prefix of double hash
+37:30 okay now step three is a margin what we do here it we choose the
+37:37 symbols that maximize the likelihood of the training data when added to the
+37:44 vocabulary okay what is the Marge criteria the algorithm identifies the symbol pair whose Marge would maximize
+37:51 the likelihood of the training data this is determined by selecting the pair with the highest score the score that I
+37:58 discussed earlier defined as the probability of mar symbols divided by the product of the probabilities of his
+38:04 individual components okay and again similar to BP we stop the method when we
+38:11 when a particular size of the vocabulary is reached let's again take an
+38:17 example okay so let us assume that these are the training words uh words present in the
+38:23 training Corpus sunflower sunflower right uh flow flowers and so on and so
+38:29 forth and the corresponding frequencies right now when we segment
+38:37 right as you see here sunflower Sun hashtags U hashtags n Hash Hash Hash
+38:43 Hash Hash right son hashu hash n and so on and so forth as I mentioned earlier
+38:49 right all the initial characters will be there without hash and all the intermediate characters will be there
+38:55 with hash and what is the vocabulary now the vocabulary is this one you see here
+39:01 there are two unique starting characters S and F S and if right and all the other
+39:08 characters are intermediate characters therefore they are they are preceded by a prefix a prefix is double hash
+39:16 here similar to BP here also I start with marging a a pair of characters
+39:22 right for example s and U let's look at s and u so
+39:28 s and U right so a and u uh so the Byram
+39:36 is U right what is the frequency of this vagram the frequency is 1 + 2 so three
+39:44 and then uh and then is there any other s s and you no right so the frequency is
+39:49 three and what is the frequency of s the frequency of s is 1 + 2 3 + 2 right 1 so
+39:58 three three four four uh four and then six right so six times what is the
+40:05 frequence of U frequen of U is 1 + 2 3
+40:12 so three and then then then that's all right so three okay so the score for Au
+40:21 is basically 1X 6 right uh you look I the calculation
+40:27 Maybe wrong but I hope you understood the uh understood the
+40:32 concept so uh so similarly we Marge unu n UF f l l o and so on and so forth
+40:41 right and we obtain the corresponding scores here again you you basically
+40:47 identify that pair whose score is the maximum in this case a and u right s and
+40:53 U will be merged and the new token uh will be formed which is s u right now
+40:58 here important thing to note is that when you march a and hasu right the
+41:04 resultant token is not not has Su right
+41:10 this is only Su why because a is basically the initial character but
+41:15 let's say if you had marged you let's say if you marged this one if you had marged this one the resultant uh the
+41:22 resultant character would have been would be u n
+41:28 because both U and N are the intermediate characters not the start
+41:33 starting character okay so in this case you
+41:39 identified a and u you march them and the new vocabulary word is uh is is is
+41:44 Su okay so Su is a new vocabulary word along with the previous words previous
+41:51 tokens present by the way I I'm misusing the term uh word right I using using the
+41:58 I'm basically using the term word and tokens interchangeably but I hope you
+42:03 understand so once this is identified then what we do again similar to uh
+42:09 similar to the BP I replace all is is Hash U will be uh replace this by su
+42:18 right all appearances of su will be replaced by suu and so
+42:24 on okay so this is my modified table again on top of this we I apply the same
+42:30 set of rules right Byram uh Byram combination trigram combination you see
+42:35 here these are trigram combination these are Byram combinations right
+42:41 and let's say in this case there's a tie right so we can yeah we can break the
+42:46 Tie by by choosing one of them so let's say in this case we chose e and r to be
+42:51 marged so andr will be marged and the new token uh will be has e e r which is
+42:57 will be a part of the vocabulary okay has ER is a part of the vocabulary now and we replace all of
+43:04 appearances of e comma R by HH ER right and so on and so forth so your
+43:09 vocabulary uh size gets increased right the table gets modified and so on and so
+43:15 forth the next stage you again Marge Ed right uh it will be added here vocal
+43:22 size increases and so on and so forth all right so this is the tokenization step uh
+43:29 for wordp now so this is the training time now what happens in the test time
+43:35 so this is very important during the test time remember in case of bpe what we did
+43:42 we first split a word into characters right and then we applied all these
+43:48 rules one by one in sequence right and then we uh kept on combining characters
+43:53 based on this uh rules right and and and and and uh through the through that
+43:58 process we ended up basically uh splitting the word into tokens we use the tools in case of BP
+44:07 right here in case of word piece we will not use any rule we will not store the
+44:14 Marge rules we will only store the vocabulary that's the difference here we
+44:20 will not store the rules at all we'll only store the vocabulary right now if we have only the
+44:26 vocabulary the updated probability that we obtain from the training set how do we split an unknown token
+44:33 into sub tokens or a test token into sub tokens let's see so for that what piece
+44:42 identifies the longest subword available in the vocabulary and
+44:47 then perform the split based on the subword let's see let's say the word is
+44:55 fused Fu ACD right and let's say this is my vocabulary that we have already
+45:02 learned from the training set okay I we we don't have the rules we
+45:07 we haven't stored the rules so here if you if you if you start from the
+45:15 beginning again you start from the beginning right if you look at the uh vocabulary
+45:22 here what is the longest subword or what is the longest subword which is present
+45:27 in the vocabulary so if let's say you start from if right f is present here of
+45:34 course f is present but if may not be the longest let's look at f you f you is
+45:39 present here does does f you present here if you is uh so if you is not present
+45:48 here right so it means that the longest subword here is
+45:55 if right if you is not present here of course if fu is not present Fu s will
+46:01 also not be present so the so we split first uh
+46:07 fused by if so this this will be split into f u e
+46:14 d of course this hash okay now I know that this is the longest
+46:23 one that is possible so I keep this thing aside let's look at this one can can we split this further what is the
+46:29 longest sequence here u e d so of course if we consider only has U hash U is
+46:36 present here what about hash USU hash us is also present here
+46:42 no that means from here also the longest subword is Hash U and the remaining part
+46:52 will be separated now let's look at this one hash SED okay of course double
+47:00 hash what about hash s hash s is present here yes hash s is
+47:07 present what about hash AC as hash AC is not present here that means again the
+47:13 longest uh word which is possible here is Hash is comma hash Ed let's look at
+47:21 this one again okay hash it is present yes hash it is present here okay
+47:27 so the final tokens that are derived from fused is if hasu HH is has
+47:39 Ed okay we haven't used any Mar marging rules right what we did here very simple
+47:45 idea given a word right we start from the beginning we look at what is the
+47:52 longest subword present in the vocabulary let's say again hypothetically assume that the the the
+48:01 token Fu was present here the token Fu was also present in the vocabulary right
+48:07 if it was the case then the the tokens would have been ifu comma
+48:13 hash SED right but this is not the case here
+48:20 so we start from the beginning we look at the longest subword which is present in the vocab not if it is present we
+48:26 segment that part and again process the remaining remaining part of the word similarly right we don't need to store
+48:33 the marging rule which is useful in our case because we can basically save a lot of
+48:39 memory what about the unknown word let's say the unknown word is funny a few n
+48:46 and y again this is my vocabulary I start with
+48:53 if uh uh so the word the word f is present here the word f is present here
+48:60 but the word fu is not present here so the so the uh longest word is if
+49:07 right then let's say if right you split it into uh into
+49:13 tokens if then so if then hash hhu n n y right again maybe the
+49:23 unique token is the longest token is hhu so if the then hash U and then
+49:31 hash the remaining part is has n n y right uh hash in in is not present but
+49:39 hash in is present so if hash U hash n
+49:48 hash n and the remaining is Hash y let's look at hash y hash Y is not not present
+49:55 here so hash Y is not present here it is not present what we do
+50:01 here what we did in case of bpe in case of bpe we replace this by the token un
+50:08 K right in case of BP the uh in case of BP the the tokens were f u n n
+50:19 unknown but in case of what piece what we do the whole word is tokenized as
+50:28 an okay I replace the whole word by the token Unk not the
+50:36 subw okay the entire token the entire word will be replaced by
+50:41 Unk if if a specific token a sub token right is
+50:49 not present the vocabulary the entire word will be replaced by
+50:54 Unk that's it that is about what piece now let's move to the next part which is
+51:01 U unigram tokenization so in unigram tokenization it's a bit complicated okay
+51:07 but it's a very interesting uh idea so in this tokenization so this is
+51:13 used in um in a specific embedding encoding method called sentence space
+51:19 right which is heavily used in uh recent methods like T5 invert uh Excel net and
+51:24 so on so the IDE here is that we will go back to the concept of unigram language
+51:31 model right I hope you remember what is unigram language model right we
+51:37 discussed in the language model introduction chapter given a sequence of uh tokens W1
+51:43 W2 do dot do WN when we measure the probability of the sequence uh this
+51:49 token this is basically a multiplication of all individual tokens right P of W1 * P of W2 and so on and so forth
+51:57 probability of all individual tokens we assume that all these tokens are independent of each other so we use the
+52:03 same unigram language model concept here uh while segmentation while segmenting a
+52:08 word into subwords right what is the motivation here the motivation here is if you
+52:15 remember uh the discussion that we had today right BP and what piece both these
+52:21 algorithms produce a single type of segmentation for a specific word for a
+52:27 given word you have only one type of segmentation but in real world it may
+52:32 not be the case a word can be segmented into in in multiple ways there can be multiple ways through which you can
+52:38 segment a specific word so in in this unigram Lang uh
+52:45 unigram tokenization what we do we introduce multiple subword candidates for a
+52:51 particular uh for a particular token or for a particular word during
+52:58 training right and here we will use the concept of expectation maximization em
+53:04 algorithm so em as we know it's a it's a very interesting idea right we generally used in non-parametric estimation and so
+53:12 on and so forth if you if you are not aware of em you go back and check uh you know the
+53:19 machine learning course right uh for example the algorithm kein use this
+53:26 algorithm uses em em algorithm for uh defining the the centroids and so
+53:32 on okay so expectation maximization is used uh during tokenization let's
+53:39 see so again similar to the previous methods the first step is to identify
+53:45 the base vocabulary now here this unigram language model
+53:52 tokenization is different from the other tokenization that I discussed today how
+53:59 so in both bite pair and W piece our goal was to increase the vocabulary
+54:05 right and so we started with a base vocabulary and we kept on increasing the vocabulary until unless we reach a
+54:12 certain threshold size of the vocabul right here this is just
+54:18 opposite we have a massive based vocabulary and we keep on reducing the vocabulary we keep on shrinking the
+54:25 vocabulary until unless a specific threshold is reached right there we increase here we
+54:32 decrease so to start with during the initialization
+54:37 stage we we we can use different types of methods to basically get all possible
+54:44 combinations of vocabulary tokens that are possible for example you add all the characters you add all the subwords
+54:50 possible subrings and so on and so forth into the into the vocabulary and then we later we decide that out of this uh
+54:57 tokens present in the vocabulary which tokens are useful which tokens are useless okay
+55:05 so here what we can do we include all the characters all possible all all all uh
+55:13 uh frequent you know uh medium frequent subrings into the vocabulary we can also
+55:21 here you can also run bpe for example you can run BP EX exibly right
+55:28 to create the base vocabulary okay so once we once we did
+55:36 this the next stage is essentially to compute the log log likelihood
+55:42 loss okay so what is this log likelihood loss the log like likelihood loss is
+55:48 computed based on this unigram language model it's better to first I think it's
+55:54 look uh let's look at example and then we go back uh to the algorithm let's assume that these are the training words
+56:02 run bug Fun and Sun okay and these are the
+56:09 frequencies let's say we start with this vocabulary right where r u n r u u n b g
+56:17 these are present there is no hash use here by the way okay these are kind of vocabulary
+56:22 tokens used in bpe right therefore I I said that we can just run BP initially
+56:29 at the beginning to curate the initial vocabulary for for unigram language
+56:34 model tokenization okay then what we do now these are my
+56:40 vocabulary words r u uh n Ru u n b g and so on and so forth initial vocabulary
+56:48 tokens right and these are the frequencies U uh for R this is three for U 31 and so on and so forth
+56:57 we will not use this raw frequency we will use unigram frequency okay what is the
+57:03 unigram frequency what is the UNR probability here UNR probability for R
+57:09 is three by the sum of this what is the sum of uh sum of all the tokens let's
+57:14 say the number is 155 the sum of all these frequencies 155
+57:21 so so the probability here unigram probability is 3x 155 this is is 31 by
+57:28 155 and so on and so forth right for for example uh for the token ACU this is 10
+57:34 by 155 okay so we started we started off with
+57:40 the base vocabulary for each vocabulary entry we calculated the unigram
+57:46 probability then what we do then we now for every
+57:54 for every word present in the trading set we measure the probability of a a
+58:02 specific segmentation as I mentioned a particular word can be split in in different ways right for example the
+58:08 word run can be split into R comma U comma n or r u comma n or R comma u n
+58:16 remember r u n r u u n these are all vocabulary entries already present in
+58:22 the initial vocabulary so the word r can be split in three three different ways now let's
+58:28 look at the probability of each of these individual splits the probability of this split is
+58:36 as I mentioned this is unigram probability meaning all the all the uh unigrams are independent of each other
+58:43 so probability of P comma U comma n is probability of P probity of probability
+58:50 of R comma U comma n is probability of R time probability of U * probability of N
+58:56 and how do we get this p r p p PN we will get p r p PN from here P this is p
+59:03 r this is p this is PN right so this time this time this this is going to be
+59:08 the probability for this split for the second split which is Ru comma n Ru and N the probability will be
+59:17 P Ru * PN P Ru will come from here P
+59:22 will come from here right so this is this is the probability for this split for the last
+59:29 split which is R comma u n the probability will be p r * P again we go
+59:35 back to the table and we will see the probability is this one for every word I look at all
+59:43 possible splits with respect to the vocabulary and their corresponding probabilities now from this we identify
+59:51 the best split right according to this probability so the best split here here
+59:57 can be so look at this one these and these both are both both are highest and the same right so let's say we randomly
+60:03 choose uh this one this one Ru comma n right at
+60:10 the base split so for the word Ru n so far the best split is Ru comma
+60:18 n right now think about this is very exhaustive by the way it's not it's it's not a very computationally efficient
+60:25 method right for every word coming up with all possible splits based on the
+60:30 vocabulary it's it's is quite tedious so what we use we use this V algorithm I
+60:36 not discuss V here but you go back and check V is a very standard uh method
+60:41 that we generally used in um in in sequence modeling and many other places
+60:48 so we use V algorithm to make this the enti computation efficient right but at the end of the day the the the the end
+60:55 goal is to measure the probability for every split right so the for the word
+61:02 run right for the word run whose frequency is three the best split that
+61:07 we identified is Ru comma n and the corresponding probability is this one similarly for the word b bug which is
+61:15 present in the training set let's let us assume that the split Bas split that you identified is BU comma G and this is the
+61:22 score for fun Fu comma n this is the score score for sun Su comma n this is
+61:28 the score okay so for every word in the training set we identify the best split
+61:34 and the corresponding probability then we compute a
+61:40 loss okay what is the loss your loss is a log loss very simple log loss uh for
+61:46 every word I know the probability right I take the I I basically take the log of
+61:52 the probability right and minus so minus log loss minus log of this
+61:59 probability why minus because this probability ranges between 0 to One log of that probability will always return
+62:05 minus therefore minus and minus will cancel out so for every word I compute minus log loss right and
+62:14 since the word is present let's the first word run is present three times so this will be three three in three times
+62:22 the minus log loss corresponding minus log log loss similarly for the word bug log minus log of this * 5 for the word
+62:32 fun minus log of this times 13 and so on and so forth so this log loss
+62:38 essentially is the loss for the entire Corpus of the trading set right because
+62:44 these words are taken from the uh training Corpus right essentially when you are combining everything in the log
+62:51 loss it is basically the log loss of the ENT trading corpus now the log loss current log loss
+62:58 is 66102 as I mentioned we will use em
+63:04 algorithm right if you do not know what is em let's forget about em uh let's
+63:09 let's assume that there are two steps M step and E step okay so what is the goal now the goal
+63:18 is I my my my goal is to remove a vocabulary entry which is not useful
+63:24 already the vocabulary is significant large we started with a large uh base
+63:29 vocabulary then at every stage we identify the the the the token in the vocabulary which is not useful how do we
+63:37 do that let's see so so far so far this
+63:43 is my token uh frequency table right in the uh based on the vocabulary I in the
+63:49 vocabulary I have r u n Ru blah blah blah and these are the corresponding probabilities right unigram probab that
+63:56 I mentioned earlier this table is something I already shown I already showed
+64:01 earlier let us assume that I want to remove
+64:07 un I want to remove the token un from the vocabulary if I remove the token un so
+64:15 for the word run n remember initially mentioned that there were three splits possible splits one was Ru n the other
+64:23 was Ru comma n the other was R comma u n right so this split will not be possible
+64:29 then because un if you if we remove un this split will not be
+64:34 possible right so there are only two splits that are possible r u n and Ru
+64:39 and N right then for these two splits I measure the
+64:44 probability the same way right uh probability of R prob of U probity of n
+64:50 based on this table right probability of Ru probability of n now out of these two splits which are the best this is the
+64:58 best right so for run n now so for run n the split that uh
+65:09 that is the best at this moment is Ru comma n if we remove
+65:15 un okay similarly for bug for fun right
+65:20 for sun look at here for fun one speed could have been F comma un right but
+65:26 since we removed you we we just need to discard that that that option so then maybe the Bas plit will be Fu comma n
+65:34 right similarly here SQ comma n and so on so I so u n is a possible token from
+65:44 the vocabulary that I want to remove right if I remove these are the
+65:49 resultant base splits and these are the corresponding probabilities right again
+65:55 what is the total Plus loss the total loss of the corpus with respect to the Corpus is uh the frequency times minus
+66:03 log loss so this log of this minus log of this * 3 minus log of this * 5 and so
+66:10 on and so forth so this this is the total log loss now after removing
+66:16 un now remember this number 66102 earlier it was also
+66:23 66102 when the token U1 U was present in the vocabul after removing it it is
+66:29 still 66102 meaning removal of the token un doesn't affect the log loss at all
+66:36 right so I can safely remove this token from the vocabulary in fact if you do this
+66:43 calculation you will see that there are many other candidate tokens that can be removed right un was one of the token I
+66:51 mean one of the possibilities Ru can also be a possibility bu can also be a possibility ug can also be a possibility
+66:58 in fact removal of each of these tokens from the vocabulary will not change the
+67:04 loss at all right so now out of this which one I
+67:11 should remove I can choose one randomly one of this randomly right in fact what
+67:17 the algorithm does in practice it removes 10 5 to 10% or 10 to 20% of
+67:23 vocabulary vocabulary entries at one go right if you see all these tokens are
+67:31 are useless you remove them at a time okay so but let's assume that in
+67:37 our case we remove this one by one right so let's say we select un and we remove un right and then we basically modify
+67:46 the table so in the maximization stage what we did we maximization State we removed
+67:54 basically a token we we aim to remove remove a token whose uh whose removal
+67:59 will not affect the loss or whose removal will affect the loss least least
+68:05 affect the loss now once we removed un this is the
+68:11 modified table now this is the uh this is the vocabulary r u r u n Ru look at
+68:19 here the the token un is not present at all and the corresponding
+68:24 frequency since you already removed the token the corresponding Byram probability will also change right the
+68:32 corresponding Byram probability will also change okay so now the resultant Byram
+68:39 probability is this one right now let's let's look at the
+68:45 split again for this words areu N Run bug Fun and Sun let's assume that the
+68:51 best split for Ru n is Ru comma n right for buug B comma G for Fu n Fu comma n
+68:59 for Su n s comma n and these are the corresponding probabilities based on this table okay
+69:06 again I measured the loss the total loss the total loss is a frequency times minus log loss and now the current log
+69:13 loss is 61115 uh 61155
+69:20 okay now let's see which one I want to remove if I remove Ru right so among
+69:28 this among this tokens this is the vocabulary if I remove Ru if I remove Ru
+69:35 the loss will be 63. 0126 remember this number 61.
+69:43 61155 if I remove Ru this will be the loss if I remove bu this will be the
+69:48 loss if I remove U is the loss and so on and so forth right now look at
+69:54 here the token bu if we remove this token bu or
+70:00 ug it will not affect the loss at all right so I can remove both either
+70:06 both bu and ug or I I can remove either bu or ug
+70:12 right so I keep on removing uh uh you know vocabulary entries in this way and
+70:19 then I stop when I see a certain uh you know a certain uh uh vocabulary size
+70:25 each l so let me recap what we discussed here in this specific algorithm unigram
+70:31 language model um tokenization so I given the training set
+70:38 right from the training set I did all this pre pre- tokenization I identified all the um all the words right from the
+70:46 words u i then identified the base vocabulary the Bas vocabulary in this case is the is is the largest one I me
+70:54 is the is the is the longer one compared to uh BP and what piece right because
+70:59 here the aim is different here the aim is to basically remove the vocab ENT which are not useful so what we can do
+71:06 we can either you know uh you can either add all possible characters you know
+71:13 subword that you can think of out of the words present in the training set right and make a larger kind of vocabulary or
+71:21 you can run BP or what piece what not what piece maybe BP right to identify
+71:26 the initial uh initial vocabulary once once it is ready then what we do then for every
+71:34 word right for every word present in the training set right I identify the base
+71:41 split for that word how do we identify the base split base split so for a word
+71:46 there can be multiple possible splits right for every split I measure the
+71:52 probability the probability is essentially uh the uh the the multiplication of all the individual
+71:58 probabilities of tokens present in the in the specific split right so for every word I identify
+72:06 the base split for every word in the training set I identify the base split now uh for the enre Corpus meaning for
+72:13 all the words present in the training set I basically cumulate all the uh all
+72:19 the loss together so what is the loss loss is a log loss so minus log of the probability of the split times the
+72:26 frequency of the word so I uh measure the uh the the total loss with respect
+72:33 to the Corpus right and that's my standard now then from the vocabulary I
+72:40 identify that token whose removal will not impact the loss or least impact the
+72:47 loss okay I can remove one such uh one such token from the vocabulary at a time
+72:53 or multiple tokens from the vocabulary at a time time right
+72:58 so once I remove this again I modify the Byram I I modify the uh the the
+73:04 frequency table right meaning the unigram table right based on the modified uh modified count and so on and
+73:11 so forth then again based on the modified count for every word present in the training set I again identify the
+73:17 base split right again cumulative uh loss right and again uh we we choose the
+73:24 best which choose the best candidate token whose removal will uh will um will
+73:30 not impact the overall loss and we keep on this doing this thing we keep on removing uh tokens from the uh from the
+73:37 vocabulary until unless it it basically gets syn into a certain uh size
+73:44 predefined size that you that you already determined at the beginning okay
+73:49 so this is U unigram language model tokenization which is used in sentence p
+73:56 embedding uh these are the standard tokenization tokenization methods BP what pce and sentence piece unram
+74:03 language model right but uh there are lots of uh recent advances in
+74:09 tokenization strategies tokenization is very important to handle low resource languages by the way for example you
+74:16 know those languages which are not as at all present uh in the training time
+74:22 right the model is completely unaware of the those languages for example let's uh
+74:27 let's say you don't have the resource to compute uh to to to pretend the model from scratch for a specific language
+74:34 right we can use this kind of tokenization techniques uh to deal with low resource languages with this I stop
+74:41 here and next day we basically move to the next topic of this of this course
+74:46 thank you

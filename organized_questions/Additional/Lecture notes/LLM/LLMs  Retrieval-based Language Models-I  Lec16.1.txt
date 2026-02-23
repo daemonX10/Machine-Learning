@@ -1,0 +1,580 @@
+00:03 today we will be talking about retrieval based language models
+00:09 okay so let's get started so
+00:14 um so let me take a poll here first right I'm I'm sure that all of you are
+00:21 using chart GPT right so what are the tasks you typically use it for coding
+00:28 okay cool writing emails good retrieving some
+00:33 factual information correct grammatical errors cool summarization good okay so
+00:40 in all of these tasks uh I think you you are actually acting as a gatekeeper and a verifier
+00:48 right I mean if you're using it to generate code you are the one who is actually verifying the code right you're
+00:55 not using it blindly similarly to compose an email I mean you have to verify other otherwise you know you send
+01:01 that mail to your prop and uh anything can happen after that right so I'll tell
+01:09 you where do I use it for right so one thing that I use it for is creative
+01:15 writing if I have to create a notice I don't want to go and write you know all that flashy stuff I just give it facts
+01:22 and it creates a flashy notice for me here the example that I'm showing it's you know writing a story in some
+01:27 specific style good it it if it makes a mistake I don't mind
+01:33 it's okay the percussions are not much right and these models you know have
+01:40 performed really well even in exams right in exams if you make a mistake it's okay it's just one 1.1
+01:47 percentage down score right it's not you know a matter of life and death it's not that you're giving medicine to someone
+01:54 even if you score low in US ml exam it's fine it's just a score right
+02:00 and uh one thing that I have noticed uh you
+02:06 know the biggest issue that I have noticed with uh with these models is something called hallucination so this
+02:12 is a real world example uh my last submission was about pointwise Mutual information and using it to quantify
+02:20 hallucination so I want I thought let me do some related Works using uh find some related work using chat GPT so I you
+02:27 know typed the query what is the use of PMI in NLP it gave me something and I
+02:32 was shocked because it looked like my work has already been scooped people already know I mean it's it's already
+02:38 there out there right okay then I said okay can you give me some citations for the above uh
+02:44 examples right and that's where the fun begins the first citation
+02:50 is pointwise mutual information for language modeling I went to Google
+02:56 Scholar there's no paper with this name it cooked it up
+03:02 right and this is true for all the papers that are there in the citation none of the paper
+03:07 exists so this is a classical case of hallucination if I were not the verifier
+03:13 if I had copy pasted this related work in the paper then definitely my paper
+03:18 would have been scooped right yeah and you know that is what
+03:25 happens when you do that in real word situation there have been cases where there were repercussions
+03:31 for example uh there was a US lawyer poor guy he did not verify whatever chat
+03:36 GPT returned and he presented some cases which were fake which were hallucinated by the language model as a precedent in
+03:43 the court and boom similarly Air Canada had a chat bot and there was a legal
+03:49 case against them as well because uh you know some user forced it the language model to say something that he wanted
+03:56 and then it become a binding contract on the company to you know that whatever the chatbot said so this is a big big
+04:04 problem and that this is one of the major reasons what stops these language models from being deployed in critical
+04:10 scenarios right and in places where you know a company can be held liable for
+04:17 for its responses right another issue is again
+04:24 verification it itself claims that it can make mistakes this this is the disclaimer that it gives right and even
+04:31 if you prompt it for some verification right this is the link hyperlink that it is providing this link
+04:37 is is working but notice the titles it it doesn't correspond to what
+04:44 it you know generated earlier so even if you use it to verify its own output
+04:50 there are issues right and uh definitely there is
+04:55 knowledge cut offs right if you if you I mean when you're preing the language model you take all the information all
+05:02 the documents up to a certain date right for example this is a query about a person who is a professor now and some
+05:08 University and uh CH G doesn't know about him of course
+05:13 right okay and then definitely there are learning failures right these these models do not attain zero perplexity
+05:19 they don't know that they have not memorized everything they can still make mistakes right so with all of these in
+05:28 mind how should we go about using it in a you know real world scenario let's
+05:35 let's motivate it by U taking an example right so these uh language models I'm
+05:43 calling them parametric language models because they store all the information
+05:48 in the parameters right at the time of training you show it all the information for example the capital city of Ontario
+05:53 is Toronto this is the information with which you train the model it will put that information in its weight
+06:01 and at the time of testing when I am giving a query let's say the the capital city of Ontario is I expect it to
+06:07 generate Tor right from its own memory it has not provided anything extra right
+06:14 so this is I I like to think of it as you know closed book exam where when
+06:19 you're preparing for the exam you read the entire book you have to mug it up but when you are in the exam you have to
+06:26 answer only using the memory that is there in your parameter space right in your
+06:33 brain now is it mandatory right there are certain exams
+06:39 which are open book and in the real world why not contrast it with an open
+06:44 book exam where you know model is allowed to
+06:49 use external knowledge even at the time of testing and and this is I mean in the
+06:55 real world this is what happens right it's okay if if a doctor goes and open
+07:00 it book and finds checks the facts right
+07:06 so so this is what retrieval based language models is essentially right in
+07:12 addition to its own parameters it is relying on access to the information at
+07:18 the time of testing as well it is answering not just from its own parameters but also from the information
+07:26 which it can access at the time of testing right and and when you're using
+07:32 the book in an exam I there are three ways in which you you know kind of use a book in an exam right if it's an open
+07:39 book exam one is that you solve the problem on your own and then you use it
+07:44 to verify right you have you use I mean with your own mind whatever answer you
+07:50 can come up with you come up with that answer and then you go back to the book search for the
+07:56 query right and check if your answer is correct or not right so I like to call it as output
+08:03 interpolation where you use the external knowledge after you have solved the question yourself right so KNN language
+08:11 models is is one work which falls under this category we will look into
+08:17 it the other is intermediate Fusion that is you start solving it and you are
+08:24 stuck then you go back search in the book r some information you know access
+08:32 it and then continue and then again maybe you know you need to stop and go
+08:37 back and search in the book and then get more information and then continue right so I like to call it as intermediate
+08:43 fusion and uh we will discuss uh work retro here and notice that here we may
+08:49 have to even change the architecture of the language model right when you because when you have external
+08:55 information coming in between while you're processing the input your yourself then
+09:00 you may have to somehow change the architecture as well right and the most
+09:06 common and nonintrusive way of using external information is called rag or
+09:12 retrieval augmented generation and this is essentially input augumentation what you're doing is that
+09:19 okay you're given a query you go and search for that in the book right you
+09:25 retrieve the relevant documents right and now once you have retrieved the relevant documents you you
+09:32 know you give it to the language model which will attend on that information as well
+09:39 while answering the question right so this is this is this is essentially input
+09:45 augumentation right and this is the the technique which is most popular we will look at two Works in this category uh
+09:53 the rag and realm the Contemporary work they came almost uh simultaneously right but before we use
+10:02 the information right we need to search in the book right I mean if you are
+10:08 given a book if you don't know how to search in it then that book is useless right so this process of
+10:16 searching in the book is called retrieval and this is the first thing
+10:22 that we will cover today we will we'll discuss various retrieval techniques and
+10:27 see how it works right okay so how would you search in a
+10:34 book let's say I give you a physical book and you have a question how would you go about searching in that book
+10:40 let's say you do not know about that book either right you're looking at it for the first time so you don't have
+10:46 that information in your memory so how will you go about searching in the
+10:52 book index okay where do you find it at the end of the book okay anything else
+11:02 in the index right cool so that's that's that's right and that is what will motivate our first approach that's
+11:07 essentially an inverted index but not the index right it's mapping keywords to
+11:13 the pages these pages are let's say individual documents in the Corpus the entire book is our Corpus each page is a
+11:19 document in the Corpus right the index is mapping is an inverted index which is
+11:25 mapping you know the page the documents which contain specific words you have specific word you go and search for a
+11:31 specific word in the index and then it Maps you to the pages which contains that's that's an inverted Index right so
+11:39 so good and this is what motivates the first
+11:44 retrieval method which is spars retrieval right so in sparse retrieval what we do is that we represent any
+11:52 document or a query as a bag of words right so essentially let's say the query
+11:57 is what is NLP and and here each Dimension corresponds to a
+12:03 word in the vocabulary right the length
+12:08 of this Vector the dimension of this Vector is going to be size of the vocabulary right whatever is the
+12:15 vocabulary size and you will have nonzero entries here for the tokens
+12:20 which are present in the input whatever you are trying to Index right whatever you trying to find a representation for
+12:28 in this case we are representing the query using a sparse Vector right the query has three tokens what is an NLP
+12:35 and correspondingly only these three are the nonzero terms here everything else is zero right so this is a
+12:42 representation of a query and this is Spar representation because only few I
+12:47 mean a document will contain only few words right so most of the words are going to most of the entries are going to be
+12:53 zero corresponding to The Words which are not there in the document or the query right and similarly we will
+13:00 represent let's say uh for the sake of argument we have three documents in the Corpus right using a similar
+13:07 representation we will represent each document so here uh the document contains what is life candy is life and
+13:15 uh the nonzero entries are for what candy is and life later on right so so
+13:20 somewhere for life we will have a nonzero entry here right uh
+13:27 whatever some X which is nonzero right and these are normalized so that
+13:32 they sum up to one similarly you will have uh a
+13:37 representation for each of the documents right and now if you have to find the document which contains the
+13:44 query what will you do how do you figure out which document
+13:50 contains the
+13:55 query right yeah do product of cosign similarity right because um you take a DOT product only those entries will
+14:01 remain where you know both are non zero if a particular Dimension if a particular word what is there in both
+14:07 the query and the document only then the corresponding entries are going to be
+14:12 nonzero right so you will have non-zero entries for only those words which occur in both the query and
+14:19 the document that's what you want to search for right so here this is going to be non- zero and this is going to be non zero right only what and is
+14:27 everything else you will have zero here you'll have zero here and everywhere else right this is what you get when you
+14:33 take a DOT product of Q and D1 right similarly uh you can compute
+14:40 the dot product of the query with the the other documents right and you pick the one
+14:47 which has the highest similarity or the highest score right now in this example what do
+14:56 we get the first document happens to have the highest similarity score but is
+15:03 this the relevant document right so what is happening here
+15:09 which which document is relevant for this query right D2 We want D2 to have the
+15:14 highest similarity right so what is happening here why why is it that this
+15:20 question has the highest similarity with document
+15:25 one correct all the words in the query are assigned in equal weight and you know in a sentence you will always have
+15:31 many stop words right what is the these are the common words which you will have in every document and in every query
+15:38 mostly right I mean people don't ask keyword queries where they will ask NLP right so people are going to ask for
+15:45 a sentence what is NLP and what and is in this case what is happening is then what and is our overpowering NLP right
+15:51 so we have to Discount the frequent words and how do you do that okay I I
+15:57 hear multiple things one is toop word remov remov could yeah that is obvious strategy that we should remove the stop
+16:03 wordss find all the Stop wordss and remove them good the other thing that I'm hearing is TF IDF so it looks like
+16:08 people already know a lot of people already know about uh this thing right so yes TF IDF is what we do essentially
+16:16 what we do is that uh for each token we figure out whether it appear whether it
+16:24 is a rare word or a very frequent word right we figure out in how many documents this token appears let's say
+16:29 say if I see a word the right it will appear in all the
+16:35 documents almost all the documents so this is not an important word if if I have word the in the query this will not
+16:41 give me any information about the query as such right so the information will be contained in rare words for example what
+16:48 is NLP in the query word NLP is is what contains the information mostly right so
+16:56 what we do is that we uh so this is this is what we had earlier term frequency
+17:02 where we had number of times a particular token appeared in the document divided by total number of tokens in the document the fraction that
+17:08 we had earlier this was the term frequency that we see that we had earlier we multiply it with inverse
+17:13 document frequency and inverse document frequency is simply saying this is the
+17:18 total size of the Corpus right and in the denominator we
+17:26 have the number of documents
+17:33 containing the word t the token T
+17:38 right right so so if this is low if the denominator is low numerator is constant
+17:45 right if the denominator is low then then IDF is going to be high we going to give more vitage to those turns and Vis
+17:51 Versa if for example if a particular token appears in every document right then it's going to
+18:02 be right okay good so so yeah this IDF
+18:08 takes care of the rare words or the stop words and then bm25 is um you know a
+18:14 sparse Vector representation which further modifies the term frequency term
+18:20 and the intuition here is that U you know if let's say there is a very big document in the Corpus which contains
+18:26 almost every word right we would like to penalize that because it will it will it will come up
+18:31 in every search query right in every search result you will have the document because it contains almost all the tokens of the VAB right so we we
+18:39 normalize that uh with this term here which essentially D is the length of that document and this is the average
+18:45 length of the document in the Corpus right so that is one thing that it takes care of and the other thing that it
+18:51 takes care of is that you know if in a particular document uh a particular rare
+18:56 word occurs multiple times let say a particular word NLP is coming 20 30 times do we really want to give that
+19:04 much importance to that that word or do we want to saturate its important at some point right so the other term K1
+19:10 essentially takes care of that saturation effect where if a particular rare word is appearing multiple times in
+19:16 the same document then we don't want to go beyond let's say five or 10 occurrences of that we don't we want to
+19:22 count all of that as equal Beyond a certain point right okay so this this bm25 is one of the most popular
+19:29 technique for sparse retrieval right so and and uh you know
+19:37 to find uh the top documents it's not
+19:42 feasible to go iterate over all the documents and compute the dot product
+19:48 and find the one which contains which has the highest score right to speed up this computation what we do is uh you
+19:55 know what you were suggesting earlier inverted index it's essentially uh you know for each word we know the
+20:02 document IDs which contain that word right so whenever we are given a query we can search for those tokens query
+20:09 tokens in this index then we will know the documents which contains that and then we can restrict
+20:16 our search right so this this essentially helps in speeding up the entire process and uh Lucine is is is
+20:22 one of the software which which builds that uh which provides you know an example is a software which implements
+20:28 this okay so uh what is the issue with this what what issue do you see with uh
+20:34 this token based
+20:40 matching right a classical NLP problem right if you have a word bank it it can mean the sense
+20:48 is right the sense cont the context is not captured the sense is not conveyed
+20:54 and and another issue is that you know out of cab is another thing and
+21:00 then synonyms is another problem right you're searching for a particular word but then the document or the Corpus
+21:06 contains synonyms of those words then you will not find a
+21:16 match yeah right so you're saying that there might be a document which contains actually information about that topic
+21:21 but it uses some synonyms uh of the words of the tokens in the query right
+21:27 and uh so it will not even appear in the search on the other hand uh if there is a document which is just mentioning
+21:33 those things in the passing will appear in the search results these are some obvious examples of some obvious
+21:39 drawbacks of having a sparse lexical overlap right U search lexical
+21:45 search right so and obviously uh the solution is essentially dense
+21:51 representation moving from spars representation to dense representation right so what we do is in
+21:57 dense representation that we uh would encode all the documents in the Corpus
+22:02 so these are all the documents that we have in the in the Corpus these are their corresponding embeddings these are
+22:10 dense embeddings right
+22:15 now at the time of testing when you get a query you can find its dense
+22:22 representation right this is the dense representation of the query and then you can go and search and the the entire
+22:31 Corpus right and uh return the
+22:37 top you know documents that that have the highest score right so there are two
+22:42 questions here one is how do you create these embeddings right can can you use out of
+22:50 the box uh birth model let's say to document uh to to create these
+22:56 embeddings can we use that what are the Frozen
+23:02 cons sorry that's fine uh we'll use an for
+23:07 that and I think uh Den presentation will take some care of it
+23:17 right document size okay so we will chunk we'll ensure that each document is
+23:22 512 uh tokens not more than that right so so at an intuitive level
+23:29 the issue with using any outof thebox emitting model here is that the queries
+23:35 and the documents are in the are in different space right one is asking a question and the other is answering the
+23:41 question right who told the model to align those two embeddings why do we
+23:47 believe that the embedding of a query will be same as the embedding of a document by using any out of the box
+23:55 uh any out of the box language model right I mean for example B is a mask language model it is trained to fill the
+24:02 masks in between it is not trained to or or it robera for example is trained for
+24:07 next word next sentence uh prediction task right so it is not trained to map a
+24:13 query to a document and that is why we need maybe we need to U you know create
+24:20 special models right we can create I mean it's okay we can create single
+24:26 model for this for both query and document encoder but we definitely we need some special model we can't use out
+24:32 of the box model as it is I mean we can use it but it may not give us good performance right so when we are
+24:39 training uh uh these these models to create the
+24:44 embedding for query and the document what do we want right we want that if a
+24:50 particular particular query can be answered using a particular
+24:55 text Chunk right then the qu embedding that we that I get for that particular
+25:01 query should be close to the document embedding in in the in the
+25:07 in the low dimensional space right so that is the idea we to begin with it
+25:12 will not be the case right so what do we need to uh train this right the train
+25:22 how would the training data look like question answer pairs or
+25:31 query and document right so I need a query and I need a a document which contains the answer
+25:39 so why do we need negative samples right so if we naively say that
+25:47 you know just maximize the dot product of query and document it will what is the you know fallback uh
+25:54 weights that it can learn which are kind of redundant it can maximize a score to
+25:60 one for any query in any document you're just maximizing it you're not contrasting it you're not saying that this document contains the answer but
+26:07 there are another document D1 D2 negative D3 negative and the other
+26:12 documents that are there let's say there are n documents in the Corpus that we have right we want to say that bring its
+26:18 embedding close to D positive right but take it far from
+26:27 d uh negative right now
+26:33 uh okay now can I compute the similarity with respect to all the documents in the Corpus at the time of
+26:40 training right if let's say there are millions of documents then you know I cannot compute the
+26:47 similarity with respect to all the documents so what we need essentially is some sort of negative negative
+26:55 sampling right how do we sample the negatives so this is the positive passage and we want the query and this
+27:02 p+ to be close to each other right and we want this query to be far away from
+27:10 all the other passages and it is too expensive to consider all the negatives so we resol to contrastive learning or
+27:16 you know we we sample the negatives randomly right so this is the idea that
+27:21 that that's what we want we want to begin with uh the query positive document and the negative document will
+27:27 be kind of equid and after the training we want these to be close to each other
+27:32 query and positive and query and negative we want them to be further away from each other right okay now there are
+27:40 different Works um and they differ in the way they create the negatives right
+27:45 so how would you go about creating the negatives two solutions first is that you statically fix negatives that will not
+27:53 work because it will only learn to distinguish one positive with respect to fixed number of negatives those only
+28:00 whatever negatives that you have chosen for a particular query right the other alternative that you suggested is is is
+28:07 good and that is called in batch negatives the the advantage there is
+28:12 that uh you know the batch is going to form going to be formed randomly and therefore we hope that it will see every
+28:18 other document during the training right so that is called uh uh uh in in batch negative and then
+28:28 DPR what it does is that it does something more um interesting what it
+28:34 does is that you know we we essentially want to distinguish it from the hard
+28:40 negatives right we essentially want hard negatives I mean if let's say there is a query query is
+28:48 about what is NLP right now there is a document which
+28:55 talks about feelings obviously you know these two are going
+29:00 to be in separate spaces even if you're using a out of the box language model
+29:06 right it will have difficulty in distinguishing between documents which are close to each other let's say a to a
+29:13 document which talks about specifically NLP and then there is a document D2 which which mean which is mainly about
+29:21 machine learning and mentions NLP in the passing and then there is a document three which
+29:27 is broader document and talks about Ai and then ML and then NLP right this is
+29:33 the most relevant one for us and these are kind of the documents where the model will
+29:40 struggle right these are these are called hard negatives and one way of creating this is you know fall back on
+29:46 the sparts retrieval do sparts retrieval right and the documents that are in the
+29:52 top those are the one which are difficult and use that as negative right so that is what DPR does
+29:60 and uh contriver is another work what they do is that you know for this is this is
+30:06 an unsupervised dense retrieval model where let's say you do not have u a
+30:12 query and document pairs right so what they do is that they from the same
+30:19 passage they will take two chunks right and then they will treat
+30:24 them as positives for each other right so this is this is one way
+30:29 of creating uh basically this is unsupervised way okay
+30:35 so okay so we we covered you know how to uh train the embedding models for
+30:42 creating the embeddings for you may now okay now you may have two different embedding models for document and query
+30:50 so you may have a query embedding model and you give query to it and it will
+30:56 give you the query embeddings and you can have a separate document emitting
+31:02 model right and you give document to it and you get document edings
+31:07 alternatively you can have a common model as well right where you prefix
+31:12 this query with some special tokens an identifier that tells you that this is you know I want query embedding this is
+31:18 query embedding and when uh through the same model when a docu you're embedding a document you can prefix it with a
+31:24 special token which tells you that I need a document embedding right so both the options options are
+31:31 are there okay now once we have created uh uh the once we have learned these
+31:38 embedding models for embedding the query and the document right at the time of
+31:44 testing uh you will get the query you will find it's embedding now you have to search in this big Corpus of all the
+31:52 embeddings right in the case of sparts embedding we used inverted Index right
+31:58 now how would you go about searching in the in this case how do you find the K
+32:04 nearest neighbor of this Vector in the entire space so let's say this is the 2D
+32:10 representation this is where your query lies and you want to search in its
+32:16 neighborhood and find the K documents D1 D2
+32:21 D3 DK which are closest to it so what you are suggesting is essentially some
+32:26 sort of clustering right what you are saying is that you whatever documents that you have in the
+32:32 space you kind of cluster them let's say these are the three clusters that I
+32:39 create right and then I can have a a representation of the cluster of each
+32:46 cluster this is also an embedding right now I can I have once an embedding comes
+32:53 aqu quarium meting comes I have to search you know first figure out in which cluster it lies
+33:03 right so for example if I take if I create three clusters only right and I have uh 3
+33:10 million uh total documents right in the first search I'm finding
+33:17 similarity with respect to only these three cluster centers Center one Center two and Center three right and I
+33:24 restrict my search space to 1 million I can go on doing this
+33:33 recursively right so essentially it's I have reduced the search from order n
+33:41 to what are we doing here Order log good right good so that is what you were
+33:49 suggesting let me try to phrase your query your I think your doubt emerges
+33:54 from the way we are selecting our negatives you are saying that because we considered hard negatives as well and
+34:02 those hard negatives might create problems right I mean the example that we took that you know there's a document
+34:08 mentions NLP and then there's a document which mentions ML and NLP we have pushed apart ML and
+34:14 NLP right and they but if you have pushed apart they will be further apart
+34:20 from each other right so relatively yes
+34:25 they will be you know if a query is about NLP it will okay so if a query is
+34:31 let's say there is a query about NLP right it will lie somewhere here this is
+34:38 the let's say it is query about NLP right for and let's say this is the
+34:45 cluster in which it lands in the first case for sure if it will be far away from you know the documents which are
+34:52 talking about astronomy right
+34:59 because we have ensured that and it is easy for it to learn that as well it will definitely push those away right however what you are saying
+35:07 is that because the query is about NLP within this higher cluster there will be
+35:13 a space about NLP there there could be a space about
+35:18 you know some other computer vision I mean definitely this query will be closer to computer vision than astronomy
+35:25 and we want that as well so this cluster with the help of that contrastive loss
+35:30 where we took hard negatives what we ensured was that a query about query about
+35:36 NLP should be closer to these are the NLP documents and slightly further away
+35:43 from the computer vision document and if you get a computer vision query it should be closer to the
+35:51 documents which are about computer vision all of them at the at the top level maybe at the first level both both
+35:58 both of them are going to be in the same cluster so both the queries query about NLP and query about CV will land in the
+36:03 same higher level cluster right but when we go one level deep when we further classify that maybe we will have you
+36:11 know different uh breakings there will be a cluster about NLP there will be a cluster about CV then there will be a
+36:17 cluster about let's say a time series model right and if there is a multimodal
+36:23 thing it will be somewhere in the in the middle right somewhere you know which will map match with with everything
+36:29 right so that bifurcation between NLP and CV will come maybe in the next iteration does it make sense right so
+36:36 each cluster itself is very big you are right that when we are first creating clusters at the top level computer
+36:42 verion and NLP will be in the same cluster but when we go deeper at the second level or third level or fourth level they will get bated and and
+36:49 multimodel models are going to be somewhere in between both right is somewhere equid from both
+36:56 thees right okay so good we covered uh one way of
+37:02 creating U this this index hierarchical tree structure the other interesting way
+37:08 is locality sensitive hashing right so this is so what it does is that U you
+37:14 know it it randomly starts with a classifier let's say this is a random classifier that it that it has right
+37:22 randomly initialized weight so what this classifier is doing is that it is partition ing the entire space into two
+37:30 parts right this is let's say this is the positive part of it and this is the negative part of it so this is one this
+37:36 is zero with respect to the first I can further initiate another
+37:43 random classifier this is also partitioning the space this is
+37:48 one side of it and this is the zero side of it and I can go on and
+37:54 on right now each not now look at what it has done it has also given us some
+38:01 sort of partitioning of the space the core idea remains same we have to create partitioning of the space right and for
+38:08 each partition we also get a kind of a hash map or a spar representation right
+38:15 so this Dimension is the uh three is the number of classifiers that we have
+38:22 here we can take multiple classifiers hundreds and thousands of classifiers let's say I will have
+38:28 a sparse representation now for each cluster right so this is essentially a
+38:36 hash map right that is why it is called hash this is a hash map for this this
+38:42 part of the um of the space right now when a query
+38:48 comes right I can you know hash it and figure
+38:53 out where it lies I can pass the query through all of these classifiers that will give me the corresponding hash and
+38:59 I can map it or alternatively these are not sparse embeddings I can I can create an inverted index as
+39:05 well right so these are the two popular techniques uh for approximate nearest
+39:11 search and and these are approximate right these are not exact nearest search one of the reasons is what you mentioned
+39:17 earlier right that it may happen that a document which is relevant we might have pushed it further apart right a document
+39:23 let's say which mentions both computer CV and NLP we might it's it's a chance that we might have pushed it outside the
+39:29 B right so it's therefore it is approximate uh nearest neighbor
+39:34 search okay so graph based search we already uh did this discussed this
+39:40 earlier this is the cluster based uh and and an no and uh f are the softwares you
+39:47 know which Implement these two and these are quite popular very easily available okay so till now what we have
+39:55 discussed is essentially a buy uh encoder scoring right what we did was that we took the
+40:04 query embedded it we took the document independently embedded it and then
+40:10 scored them later on late interaction right and uh the advantage of this was
+40:15 that you know we could embed all the documents offline and save it in the in the index
+40:22 right and then search do you see any potential negatives of this
+40:28 of doing it this
+40:34 way right but we have learned uh the model right that the whole idea of learning the retrieval um embedders was
+40:41 to learn was to ensure that quer and documents come in the same space right
+40:48 so we will we have taken care of that to a certain extent by training these
+40:53 emitting models specifically right so in terms of contrast it with
+41:03 sparse embedding can you think of anything uh
+41:08 wrong here or anything which is lacking okay so what is the difference between dense embeding and sparse
+41:15 edings let's focus on the word dense and
+41:21 sparse sorry
+41:26 spars okay that is the definition of sparity a lot of elements are going to be zero but focus on the U on the you
+41:33 know the embedding Vector right each word in the vocabulary had a
+41:41 representation separate representation in that Vector right in contrast here we
+41:47 have let's say one2 four dimensional embeddings
+41:53 only right in in the dense representation we are forcing the entire
+41:58 information in the document which could be much longer than 1024 to be represented by a dense embedding
+42:04 essentially we are losing information at the granular token level right right so
+42:11 there is some loss of there is there there are issues with the representation power of these the specific
+42:18 model right so how can we go about improving it is there a way
+42:24 of uh improving this what what would be the best way of you know finding the
+42:31 similarity between two documents or or a query and a document how would you go about it if you have to preserve the
+42:37 token level information as
+42:43 well fine multiple dense Tings you can you can cover the space but you will never be able to go till um V right you
+42:50 will never be able to go to you will not be able to uh account for all the tokens
+42:56 in the document M the and because still those are going to be less than the
+43:02 number of tokens whatever taking okay so the solution here is uh
+43:07 simple but very expensive the idea is that you know you embed the query and
+43:14 the document together let's say you know in the bird model you concatenate the query and the document and then pass it
+43:21 through the model right and then take the the embedding so this this embedding
+43:27 has taken into account all the tokens right now what is the issue with
+43:33 this uh large the documents but they were
+43:40 earlier as well earlier also we were passing the documents through theing mod
+43:47 right good so that is the major drawback that you know in this case how will you
+43:54 go about searching for a for the document right you have to take all the
+44:00 documents their embeddings cannot be pre-computed because now these are contextual embeddings now the documents
+44:05 are contextualized on the query and vice versa earlier the documents ineds were independent of the query they were not
+44:13 contextualized on a given test query right here you have contextualized them right so there are notings that you can
+44:20 compute a priori and store them right we can't do that so this is very expensive
+44:27 and therefore it is it is not possible best what you can do is that uh you know you can rank using this model that is
+44:36 use uh this dual encoders by encoders fetch 100 uh top 100 documents now
+44:45 amongst those hundreds you can rank them using this uh cross encoder right and uh but then still if
+44:55 you want to I mean still this is this is expensive ensive right you will have to call the model 100 times at least right
+45:02 is there anything else that you can do I mean can you have best of both the world in some sense have the document
+45:08 admitting stored and then still you know while Computing the score have the query
+45:14 attend to each token in the document instead of just one
+45:23 embedding and then you you okay so what you're saying is that you first train this model right you you have already
+45:29 trained these uh these models right you have a querying model and then you have a document aming model now you are
+45:35 saying that if you are training this for reranking let's say right when for reranking when you
+45:41 are training this once you have this model now you are relying only on the ranker to create the embeddings notice
+45:49 the difference between the two right ranker is only reranking right it is only kind of looking at hard negatives
+45:58 right so I'm not sure whether the embeddings that you get after that will
+46:04 those be able to distinguish between let's say astronomy and NLB I don't know about that I mean I'll have to think about it but up front I don't think whe
+46:11 that is going to work or not okay so let's let's quickly discuss uh a popular approach for reranking this
+46:17 is called Colbert so what they do so this is kind of a hybrid thing it's it's a mix of both the worlds right what they
+46:24 are doing is that offline they compute the document embeddings right this is offline at the
+46:31 time of storing they are storing all the token embeddings so storage cost increases because you are now storing
+46:38 every token in the document embedding for every token in the document right now once you have the top 100
+46:47 documents and now you want to rank them in order to rerank what you do is that you now find you you compute the query
+46:53 embedding right so this is the this is uh token of the query token two of the query and token three of the query and
+47:00 this is uh token one of the document token two of
+47:06 the document token three of the document and token uh n of the document let's say
+47:11 right now what you do essentially is that for E for this token let's say
+47:18 right you search you want to search whether this token lies in the document or not that's what you know that that is
+47:25 what Spar anding was doing it was kind of searching that token in the document
+47:31 right here we want to search for the embedding of this token right amongst these embeddings in
+47:37 some sense these token embeddings I have to search for this token in this right so I can what I can do is that I can
+47:42 compute its similarity with all of this so T1 so t1. D1 is the similarity of token
+47:50 one of the query and token one of the document and this T1 D2 is the
+47:58 similarity of token one with document with token two of the document right and
+48:03 I take the maximum similarity one right so that that will give me the token Which is closest to that and if there is
+48:09 no token Which is closest to that this Max will also be very low right so for each token here for each token I get the
+48:16 uh Max scod for the first token similarly I get Max score similarity
+48:22 score for the second token and Max score for the third token right and I add them to the of the M the
+48:28 similarities right so this is essentially uh taking care I mean it is
+48:33 essentially U instead of using just one embedding for the entire document it
+48:39 stores the embedding of each token in the document right and then uh compute
+48:44 the similarity at the granular level it's some sort of compromise between the two cross encoder and and bu encoder and
+48:50 it is very efficient and and most popular technique uh that is used for ranking Okay so uh another way of
+48:59 retriever you know this this is another popular technique uh hypothetical document embeddings so the idea here is
+49:06 that you know we motivated learning a new model by saying that query and the documents lie in separate spaces right
+49:13 so what I what they do here is that they pass the query through a language model
+49:18 like gpt3 right and prompt it to generate a document which may potentially contain the answer right so
+49:24 they map the query to a potential document which may contain the answer now you know you can use any out of the
+49:31 box embedder because right for for for embedding this document because now it is in the same similarity space as the
+49:38 uh as the other uh right as the as a documents that you
+49:44 have U indexed right and and notice that this can also be used for U used with
+49:52 sparse encoder right so this this can also be thought of as query expansion you are given a query you're essentially
+49:58 expanding the query to include More Words which are related to that maybe some synonyms and all of that and now
+50:04 once you have included the synonyms you can go back and search using bm25 or a SPS because the major issue was with
+50:10 bm25 one of the issues was you know you know synonyms synonyms will not get matched
+50:17 so this is this is called a hybrid approach as well where you use a dense a
+50:22 language model to expand your query and then you search using bm25 using the
+50:28 expanded query so we we cover cross encoder ranking and we also looked at hide as uh one of the ways right where
+50:36 uh you know you can use kind of a hybrid approach or where you use a language model to modify the input query okay
+50:45 so till now uh you know what we have done is that we
+50:53 have created the retriever using an index we created we learned an embedding model to embed the query right and the
+51:01 retriever uh the query and the passages and search using an index can I somehow use a language model
+51:10 itself to tell me the document to give me the document given the query I mean
+51:15 these language models are powerful enough to memorize the entire Corpus right we know that I mean you can they
+51:22 have so many parameters you can train them to just just train them the callus
+51:27 and memorize everything right so taking this this particular paper differentiable search
+51:33 index a completely different view of the retriever right it says
+51:39 that how about training a language model which takes a query as input and just
+51:45 spits out the document ID just assign a document ID to to every
+51:51 document and the language model that you have it will
+51:57 you know take the query let's say let's say this is a sequence to sequence so it will have an
+52:03 an It will have an encoder and then a decoder so the encoder will give me some
+52:11 representation of the query and the decoder will attend on this representation and just split out the
+52:18 document ID right this is completely different from whatever we have seen till
+52:24 now and uh as a proof of concept they they actually do that right so the idea
+52:32 here is that we learn to encode and retrieve using the same language model so this is the query it goes to the
+52:38 encoder right and it gives me the representation V12 3 is the vector
+52:44 representation of the query this is the document goes to the encoder V 456 is the document representation is the is
+52:51 the representation of the document and when this goes to the decoder it simply spits out the document ID document
+52:58 456 right this is the document which can answer this query when I say this V 456
+53:04 this embedding this also splits out doc 456 it Maps essentially it says that this content is mapped to this document
+53:11 ID right so it is mapping this content to this document ID right and they call this as indexing
+53:20 this is what they call as index
+53:25 right right and search is nothing but mapping
+53:31 this retrieving is nothing but mapping this to the corresponding document ID
+53:37 which will contain the answer right it's a very simple approach
+53:43 and they basically there are two tasks for which you are training the model one is indexing task and the other is
+53:48 retrieval task so similarly you will have some identifier here right so this is with indexing and you will say
+53:53 document and then the model will split out the document ID and you will say retrieve and you
+54:01 will say the query and the document will retrieve the document ID right and uh two important question
+54:09 is how do you represent the document when you are training this language model and how do you represent the doc
+54:14 IV right so they essentially work with uh three different ways of document representation direct indexing
+54:21 essentially whatever the document is you take the first L tokens of it set indexing you convert document into a set
+54:27 remove stop words and use that as the document while embedding that right and
+54:32 inverted index essentially means that you know you just take any random contous chunk of the document and map it
+54:38 to the corresponding document ID right and uh and and direct indexing is what
+54:45 they find to be the most useful in their uh experiment okay now to represent the
+54:51 doc IDs uh you know the most common thing that one can do is that have a
+54:56 token for each document ID right now your vocabulary will increase from whatever tokens that you had earlier
+55:02 plus size of the Corpus total number of documents in the Corpus right this will be your total vocabulary and you will
+55:08 have to do a soft Max over over this Dimension the output
+55:14 layer right so so this is basically unstructured Atomic identifiers the
+55:20 other is that you know you have some you treat the document ID as a string so you have d o c i D5 this is a string you
+55:28 just decode it one step one one token at a time right so this is this is again
+55:36 the string representation of the document ID and it's a KN structured string identifier and the other they
+55:41 also treat you know they also create semantically structured identifiers the the idea about the semantically
+55:47 structured identifier is that you know uh let's say the entire document is
+55:53 divided into chapters and sections and subsections and let's say each subsection is a particular passage that
+55:60 you have that you are is the smallest chunk that you are that you want to Index right so the document ID may
+56:05 contain you know some structure in the output it may have chapter number first the chapter 7
+56:14 section 5 subsection 5.2 right this would be this
+56:20 is kind of a structure that is that we're inducing using um the known structure of the document but what they
+56:27 try is essentially they create they don't have they don't assume any structure which is given to them they create the structure by looking at the
+56:35 embeddings of all the documents using let's say some some out of the box language model and then clustering them
+56:40 the way we created it earlier right so you at the first level let's say you create three clusters right and then further each
+56:48 cluster is subdivided right and let's say this is the uh the leaf node each
+56:55 docu passage that you are indexing it will be represented as two and three and
+57:02 then three what is this three this is the U the one two and three the third
+57:07 document this in this cluster let at the leaf cluster you will have some documents let's say right right so this
+57:14 this uh last two three three this is at the first level two this is at the second level you're going to the third
+57:21 cluster and then this is the number within that cluster you sequentially
+57:26 number each document right okay so these are the results that they have again
+57:32 this idea is very preliminary it's preliminary SES in some sense it's kind of a proof of concept right so they
+57:38 they're not dealing with uh very big Index right they're they're going up to
+57:44 maybe 250 or up to 300 300K documents that they are indexing right and uh if
+57:51 you look at this these are the different ways of
+57:57 uh so so this is the Dual encoder which is the Baseline that we have right these are the Baseline these are the Baseline
+58:04 numbers these are the different ways of encoding the document ID this is the atomic document ID where they're taking
+58:10 a soft Max over the number of document space this is a KN string that you have
+58:16 Doc id5 and semantic string doc ID would be chapter comma subsection
+58:21 comma section right or or alternatively you can create the cluster that we created and this if you know look at the
+58:29 jump that they get it's kind of you know on on a subset of the data in
+58:35 k1k their hit at one is 48.5 and the maximum that they get here is 22.1 almost the double right so I
+58:45 mean this has opened a new Direction in some sense in the entire retriever space and uh finally this is the last
+58:53 last bit that I want to cover uh recall that when we started talking about retrieval we said that you know we can
+58:60 use the index to compute to search right is there any other way that you
+59:07 can search index is one way
+59:13 and uh when you when I give you a physical book and you have to search for
+59:20 something where all places do you you know search for it you don't
+59:27 exactly right so index what we saw earlier and table of contents is another
+59:33 place where you can actually search right so now how about providing the
+59:38 entire table of context in the prompt table of content is not going to be huge right these days language models can
+59:45 process 32k context right and they prompt the model to you know give me the
+59:53 SE subsection number which contains which can potentially answer the question right because there is going to
+59:59 be text heading of each subsection and query can potentially be mapped to that
+60:05 right so this is another approach table of content search we prompt a language model with
+60:10 Toc and a question and ask it to generate the chapter title subsection which contains the answer right and we
+60:17 can also explore an llm you know answering it in a zero shot fashion without training it and and
+60:24 alternatively we can train a language model as as well with certain books and certain table of contents and then at
+60:31 the time of testing we can give some other table of contents and ask it to search right so this is what this
+60:37 approach uh proposes this work is still under submission right and uh the idea here is
+60:44 that the language model will get table of content and the query right and the
+60:49 output should be the the leaf node of the table of content right Leaf node is
+60:54 let's say subsection level is a leaf node want right and uh we because these
+60:60 language models are are powerful enough I can prompt them for you know I can
+61:06 prompt them to restrict their output um you know to to to a specific format right so these
+61:15 are some preliminary results and these are the different in each row we have a different book that we are indexing We
+61:21 compare with DSI and bm25 search and we show that you know in some cases for
+61:28 example in social science the gain over DSi is 19.2 points and gain over BM 25
+61:35 is 17 5 Points right so this is this is a promising approach this work is still
+61:41 under submission and these are the preliminary results that you're see right so yeah so so what we have
+61:48 covered till now is the retrieval methods right tomorrow what we will do
+61:54 is that we will go back to our an ology of uh how to use the book remember we we
+62:01 looked at three methods of using the book one is you know once you have solved the question and then you go and
+62:07 find something verify in the book The Other is while solving you go back find
+62:12 something come back solve then solve for some time go back come back and solve
+62:18 intermediate way right the other is where you read the question go and
+62:23 search in the book find the relevant Passage read it read the question and then solve
+62:28 the right that is that so so we will go over each of these three models these
+62:34 three approaches and architectures for them and how to train those models thank you

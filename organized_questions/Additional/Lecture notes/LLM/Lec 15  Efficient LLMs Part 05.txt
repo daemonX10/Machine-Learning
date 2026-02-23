@@ -1,0 +1,4228 @@
+00:00 Hello everyone and welcome uh to the
+00:02 
+
+00:02 fourth lecture in this series or the
+00:05 
+
+00:05 fifth I have stopped keeping the count
+00:08 
+
+00:08 right. So uh till now what we have seen
+00:13 
+
+00:13 so we started with training large
+00:16 
+
+00:16 language models on a GPU cluster right
+00:18 
+
+00:18 so where uh we discussed about
+00:21 
+
+00:21 parallelism for scale right we looked at
+00:23 
+
+00:23 various parallelism techniques starting
+00:26 
+
+00:26 with uh data parallelism tensor
+00:28 
+
+00:28 parallelism pipeline parallelism context
+00:31 
+
+00:31 parallelism and so on and so forth and
+00:33 
+
+00:33 then uh in the last lecture we started
+00:36 
+
+00:36 with uh efficient implement mentations,
+00:40 
+
+00:40 right? And uh in particular we focused
+00:43 
+
+00:43 on flash attention which is uh nothing
+00:48 
+
+00:48 but creating a fused kernel and
+00:51 
+
+00:51 computing attention black block by block
+00:54 
+
+00:54 as uh you know we do in ring attention
+00:57 
+
+00:57 and then we saw that uh there is a
+00:60 
+
+00:60 recent work and and called liger kernels
+01:03 
+
+01:03 they have released a library of fused
+01:06 
+
+01:06 kernels for many operations uh that are
+01:08 
+
+01:08 required in LLMs.
+01:10 
+
+01:10 Right. And uh so all of this is useful
+01:14 
+
+01:14 and is required for massive scale
+01:17 
+
+01:17 pre-training. And today let's look at uh
+01:20 
+
+01:20 a different dimension which is
+01:22 
+
+01:22 inference. Right? Once you have trained
+01:24 
+
+01:24 the model, how do you use it for
+01:27 
+
+01:27 inference? But before we dive into that,
+01:30 
+
+01:30 uh let's first ask the question, how is
+01:33 
+
+01:33 training different from inference in
+01:35 
+
+01:35 LLMs? Right? If I'm creating a vision
+01:39 
+
+01:39 language model
+01:41 
+
+01:41 or not a vision language model but a but
+01:43 
+
+01:43 a let's say convolutional neural network
+01:45 
+
+01:45 right in a convolutional neuronet
+01:47 
+
+01:47 network you have an image right you have
+01:51 
+
+01:51 various convolutional layers
+01:54 
+
+01:54 it goes through it and let's say it's an
+01:57 
+
+01:57 image classification you get a
+01:59 
+
+01:59 distribution over all the classes right
+02:02 
+
+02:02 class one to class
+02:07 
+
+02:07 1 th00and, right? And you pick the one
+02:10 
+
+02:10 which is with the highest probability,
+02:14 
+
+02:14 right? And
+02:16 
+
+02:16 that is your
+02:19 
+
+02:19 output during inference and during
+02:22 
+
+02:22 training, you pick the one which
+02:24 
+
+02:24 corresponds to the gold given gold
+02:28 
+
+02:28 output. You know the gold output during
+02:29 
+
+02:29 training and then you try to maximize
+02:31 
+
+02:31 that. Right? Now here in in
+02:34 
+
+02:34 convolutional neural networks do you see
+02:36 
+
+02:36 any difference between training and
+02:39 
+
+02:39 inference?
+02:44 
+
+02:44 Is there any difference here?
+02:47 
+
+02:47 And for that matter let's look at BERT
+02:49 
+
+02:49 right when we uh train BERT it's an
+02:54 
+
+02:54 encoder only model we take the sequence
+02:58 
+
+02:58 right and do a forward pass through the
+03:01 
+
+03:01 transformers right so let's see what
+03:03 
+
+03:03 happens when we take a transformer model
+03:07 
+
+03:07 right and and pass it uh you know take
+03:11 
+
+03:11 an input sequence and pass it through
+03:13 
+
+03:13 the transformer model right so let's
+03:15 
+
+03:15 consider it as a black box for Right.
+03:18 
+
+03:18 So what do you get in the output?
+03:22 
+
+03:22 So you do model
+03:24 
+
+03:24 dot
+03:26 
+
+03:26 u what forward
+03:31 
+
+03:31 with an input sequence
+03:33 
+
+03:33 you get
+03:35 
+
+03:35 output
+03:37 
+
+03:37 and then you do n dot
+03:41 
+
+03:41 cross entropy
+03:44 
+
+03:44 of output
+03:47 
+
+03:47 with
+03:48 
+
+03:48 levels. Right? This is your loss token.
+03:53 
+
+03:53 Now in the next token prediction task,
+03:56 
+
+03:56 what is this output? What that you get?
+03:59 
+
+03:59 >> The next next token,
+04:03 
+
+04:03 >> the next token. Uh so here the input is
+04:08 
+
+04:08 let's say the entire sequence, right?
+04:09 
+
+04:09 Begin. This is beginning of sentence and
+04:11 
+
+04:11 this is end of sentence. We have the cat
+04:14 
+
+04:14 sat on a mat and we are passing this.
+04:16 
+
+04:16 We're doing a forward pass uh through
+04:19 
+
+04:19 the transformer
+04:21 
+
+04:21 right so now you're saying that you will
+04:24 
+
+04:24 get the next token
+04:27 
+
+04:27 that means what I mean what is the
+04:29 
+
+04:29 notion of a next token here for this for
+04:31 
+
+04:31 this entire input
+04:41 
+
+04:41 uh is the question clear uh what am I
+04:43 
+
+04:43 asking the question is not clear Okay,
+04:48 
+
+04:48 I'm saying the input here X is a tensor
+04:53 
+
+04:53 which is of dimension
+04:57 
+
+04:57 uh number of tokens that we have here,
+04:58 
+
+04:58 right?
+05:01 
+
+05:01 Eight eight tokens and H is the hidden
+05:03 
+
+05:03 dimension,
+05:05 
+
+05:05 right? What is what is output here? What
+05:08 
+
+05:08 is the dimension of output and what does
+05:10 
+
+05:10 that represent?
+05:12 
+
+05:12 That's the question.
+05:19 
+
+05:19 probability of each token.
+05:23 
+
+05:23 >> So it's the probability of the next
+05:25 
+
+05:25 token at each position. Right? So the
+05:28 
+
+05:28 output is also you know 8 cross
+05:33 
+
+05:33 vocabulary size dimensional right. So at
+05:36 
+
+05:36 at this beginning of sequence the output
+05:40 
+
+05:40 will be
+05:42 
+
+05:42 a distribution over the entire
+05:43 
+
+05:43 vocabulary
+05:45 
+
+05:45 and we pick
+05:47 
+
+05:47 the probability of the which is the next
+05:50 
+
+05:50 token. we know which is the next token
+05:51 
+
+05:51 here and try to maximize that right
+05:55 
+
+05:55 so this happens in forward pass
+05:57 
+
+05:57 >> so we are talking about the training
+05:58 
+
+05:58 pass
+05:59 
+
+05:59 >> about the training pass we're talking
+06:01 
+
+06:01 about we're talking about forward pass
+06:03 
+
+06:03 through an LLM
+06:05 
+
+06:05 let's say what happens in the forward
+06:06 
+
+06:06 pass
+06:07 
+
+06:07 >> okay when we have the entire sequence
+06:09 
+
+06:09 with us
+06:09 
+
+06:09 >> when yeah this is the input that we have
+06:12 
+
+06:12 right uh which is eight tokens
+06:16 
+
+06:16 right we look up their corresponding
+06:18 
+
+06:18 embeddings we get 8 cross h uh tensor,
+06:22 
+
+06:22 right? And we are doing a forward pass
+06:23 
+
+06:23 through the transformer model,
+06:26 
+
+06:26 right? Uh irrespective of whether it is
+06:29 
+
+06:29 during training or uh or or inference,
+06:32 
+
+06:32 right? So the output here is going to be
+06:35 
+
+06:35 the probability distribution over the
+06:36 
+
+06:36 next token at each position and we
+06:39 
+
+06:39 maximize the uh probability of the next
+06:43 
+
+06:43 token which we already have here. Right?
+06:47 
+
+06:47 But notice here the the point that I'm
+06:49 
+
+06:49 trying to make here is that you get all
+06:50 
+
+06:50 the all the output probabilities
+06:53 
+
+06:53 simultaneously
+06:55 
+
+06:55 in parallel right and how are we able to
+06:58 
+
+06:58 do that we are able to do it with you
+07:01 
+
+07:01 know self attention
+07:04 
+
+07:04 and and for causality we mask the self
+07:06 
+
+07:06 attention right
+07:10 
+
+07:10 okay so now what happens
+07:15 
+
+07:15 during inference Let's say the input is
+07:17 
+
+07:17 only the cat sat and we have to complete
+07:19 
+
+07:19 this.
+07:20 
+
+07:20 So, so our input is now 4 cross h
+07:24 
+
+07:24 dimensional right. So, this is our
+07:26 
+
+07:26 input. Uh, and
+07:30 
+
+07:30 what do we do in inference? What is the
+07:31 
+
+07:31 for we'll do a forward pass through the
+07:34 
+
+07:34 model, right?
+07:36 
+
+07:36 We will get the probability distribution
+07:38 
+
+07:38 at each position.
+07:41 
+
+07:41 Right?
+07:42 
+
+07:42 and and we are interested in which of
+07:44 
+
+07:44 these four distributions here. So for
+07:46 
+
+07:46 example, this distribution represents
+07:48 
+
+07:48 the probability of the next token at
+07:50 
+
+07:50 beginning uh at BOS right which is the
+07:55 
+
+07:55 right what and to make the prediction
+07:59 
+
+07:59 here during inference which distribution
+08:01 
+
+08:01 are we interested in?
+08:04 
+
+08:04 >> The last one right and and what do we
+08:07 
+
+08:07 do? We pick the token which has the
+08:11 
+
+08:11 highest probability. Let's say this is
+08:12 
+
+08:12 the one and let's say it corresponds to
+08:16 
+
+08:16 on.
+08:17 
+
+08:17 Right? Now we fill this here on. Now we
+08:20 
+
+08:20 we get only one token. Now see here that
+08:22 
+
+08:22 you know with the forward pass we got
+08:25 
+
+08:25 only one token. Right? And now what
+08:28 
+
+08:28 should we do for the next token?
+08:32 
+
+08:32 Right? So the point that I'm trying to
+08:33 
+
+08:33 make here is that each forward pass
+08:37 
+
+08:37 is giving you only one token during
+08:39 
+
+08:39 inference. During training,
+08:42 
+
+08:42 it was not the case. During training, we
+08:44 
+
+08:44 got the probability distribution at
+08:45 
+
+08:45 every token and we could maximize uh you
+08:49 
+
+08:49 know the the probability of the of the
+08:51 
+
+08:51 next token, right? And that was all done
+08:54 
+
+08:54 in parallel because of self attention.
+08:57 
+
+08:57 But in inference we are getting only one
+08:60 
+
+08:60 token at a time and and what should we
+09:02 
+
+09:02 do now for the next token here
+09:07 
+
+09:07 >> we have to do the forward pass again
+09:10 
+
+09:10 right with the entire sequence
+09:13 
+
+09:13 right and and then we get the
+09:15 
+
+09:15 distribution at the last token and pick
+09:18 
+
+09:18 and we pick the one which has the
+09:19 
+
+09:19 highest probability right so
+09:23 
+
+09:23 there are so many forward passes here
+09:26 
+
+09:26 And is there any repeated computation
+09:29 
+
+09:29 that is happening in in different
+09:30 
+
+09:30 forward passes right? So what is it that
+09:34 
+
+09:34 we are computing again and again in each
+09:35 
+
+09:35 forward passion
+09:40 
+
+09:40 output we are like again and again
+09:42 
+
+09:42 giving it the forward pass.
+09:46 
+
+09:46 See if you talk about output we
+09:48 
+
+09:48 definitely need that right. I mean if if
+09:51 
+
+09:51 MAD
+09:53 
+
+09:53 is the output was the output here we
+09:55 
+
+09:55 need that output to get the uh you know
+09:58 
+
+09:58 the next input for the next forward
+10:01 
+
+10:01 pass.
+10:04 
+
+10:04 >> Previous ones also are going into the
+10:06 
+
+10:06 transformer like the cats and these
+10:09 
+
+10:09 tokens are also going in the model right
+10:14 
+
+10:14 >> these tokens are going again in the
+10:15 
+
+10:15 model. Yes. Yeah. So, so that that's
+10:17 
+
+10:17 right that and but how is it impacting
+10:19 
+
+10:19 the overall computation?
+10:22 
+
+10:22 >> You have to compute values again. Yeah.
+10:37 
+
+10:37 >> Right. So, so you're saying that when we
+10:39 
+
+10:39 do a forward pass with a sequence X,
+10:43 
+
+10:43 let's say it has 10 tokens, the way
+10:46 
+
+10:46 forward pass is implemented, we get a 10
+10:48 
+
+10:48 + 10
+10:51 
+
+10:51 attention
+10:54 
+
+10:54 uh matrix again, right? And this is
+10:56 
+
+10:56 computed using the keys and values,
+10:58 
+
+10:58 right? So, so that's right. So, that is
+10:60 
+
+10:60 the computation that we're doing again
+11:01 
+
+11:01 and again. We are computing the
+11:02 
+
+11:02 attention the entire attention matrix
+11:04 
+
+11:04 again and again. and we are computing
+11:05 
+
+11:05 the keys and values again right so
+11:08 
+
+11:08 that's I mean that's how inference is
+11:11 
+
+11:11 different from training obviously this
+11:12 
+
+11:12 is this is not good and we should cache
+11:15 
+
+11:15 whatever we have already computed right
+11:18 
+
+11:18 yeah
+11:18 
+
+11:18 >> so here also we are using mask self
+11:20 
+
+11:20 attention inference right
+11:24 
+
+11:24 >> we are using mask self attention yeah
+11:27 
+
+11:27 causal mask
+11:29 
+
+11:29 >> like why can't we do this in a
+11:31 
+
+11:31 sequential manner so as the token is So
+11:34 
+
+11:34 as we get a soft match in the token and
+11:36 
+
+11:36 we take let's hard match we just send it
+11:38 
+
+11:38 to the new input and carry the weight
+11:40 
+
+11:40 like what is the problem with that?
+11:44 
+
+11:44 Okay. So
+11:45 
+
+11:45 >> like why do we have to send all the
+11:47 
+
+11:47 tokens again in the forward pass kind of
+11:50 
+
+11:50 >> why do we have to set all the tokens
+11:53 
+
+11:53 again
+11:53 
+
+11:53 >> when predicting the next token why do I
+11:55 
+
+11:55 have to send all the tokens previously
+11:59 
+
+11:59 predicted tokens also into the
+12:01 
+
+12:01 >> so what will you send otherwise
+12:05 
+
+12:05 >> uh my question is like more basic why
+12:08 
+
+12:08 can't I use the already generated tokens
+12:11 
+
+12:11 in one single forward pass to generate
+12:14 
+
+12:14 the next output.
+12:16 
+
+12:16 >> So that's what we are doing. So here for
+12:18 
+
+12:18 example the input was the cat sat right?
+12:21 
+
+12:21 We pass the sequence through the model.
+12:24 
+
+12:24 We get the distribution. We'll we'll get
+12:26 
+
+12:26 the distribution at all the positions.
+12:29 
+
+12:29 Right? We focus on the distribution that
+12:31 
+
+12:31 we get at this position because this is
+12:33 
+
+12:33 telling me what should come next.
+12:35 
+
+12:35 >> Right? And from here we pick the token
+12:38 
+
+12:38 on which has the highest probability.
+12:41 
+
+12:41 >> Right? So now now we get one token
+12:43 
+
+12:43 prediction
+12:45 
+
+12:45 right and now
+12:47 
+
+12:47 >> now we have this distribution right so
+12:49 
+
+12:49 we can just send it
+12:51 
+
+12:51 >> we have which distribution
+12:53 
+
+12:53 >> uh basically that we got on in this
+12:56 
+
+12:56 prediction right
+12:57 
+
+12:57 >> yeah we have on here yeah
+12:59 
+
+12:59 >> we have these uh
+13:00 
+
+13:00 >> so this becomes my new uh input the cat
+13:04 
+
+13:04 sat on yeah
+13:06 
+
+13:06 >> so you can just straight away send it in
+13:07 
+
+13:07 the in the current pass only right to
+13:10 
+
+13:10 predict the next one Current what do you
+13:12 
+
+13:12 mean by current pass?
+13:13 
+
+13:13 >> The the current forward pass. So you're
+13:15 
+
+13:15 saying right we have to again and again.
+13:17 
+
+13:17 So okay so we have multiple layers of
+13:19 
+
+13:19 transformers layer 1 till layer 28 let's
+13:23 
+
+13:23 say right through causal self attention
+13:27 
+
+13:27 we are you know we have the embedding
+13:29 
+
+13:29 this let's in this case 8 cross
+13:32 
+
+13:32 hdimensional embedding right it goes to
+13:35 
+
+13:35 layer 1 we get 8 cross hdimensional
+13:38 
+
+13:38 emitting this is the output of layer 1
+13:40 
+
+13:40 right and how are these embeddings
+13:41 
+
+13:41 getting impacted
+13:43 
+
+13:43 through self attention and through MLP
+13:45 
+
+13:45 layers right and and at the end of layer
+13:48 
+
+13:48 28 we again have this 8
+13:54 
+
+13:54 cross h embedding
+13:56 
+
+13:56 >> we pass it through the lm head we get lm
+13:59 
+
+13:59 head is nothing but a matrix
+14:01 
+
+14:01 multiplication right which maps this h
+14:03 
+
+14:03 dimensional to v-dimensional
+14:04 
+
+14:04 >> scores
+14:06 
+
+14:06 >> right so we get u we get in the end here
+14:09 
+
+14:09 we have this 8 cross v dimensional
+14:14 
+
+14:14 distribution out of This we you know we
+14:17 
+
+14:17 focus on uh the SAT which was the last
+14:20 
+
+14:20 token here right let's say SAT and we
+14:23 
+
+14:23 focus on this distribution and get
+14:26 
+
+14:26 you know pick on now now what are you
+14:28 
+
+14:28 asking what what are you saying what
+14:30 
+
+14:30 should we do we have done a forward pass
+14:33 
+
+14:33 to the entire transformer here to get uh
+14:37 
+
+14:37 the output embeddings
+14:41 
+
+14:41 and that gives me just one token
+14:47 
+
+14:47 Right now what is your question?
+14:53 
+
+14:53 Okay.
+14:55 
+
+14:55 >> My question basically was that so this
+14:57 
+
+14:57 is happening for so the input to all
+14:59 
+
+14:59 these layers right? Uh
+15:01 
+
+15:01 >> this is the input
+15:02 
+
+15:02 >> input to L1 right?
+15:03 
+
+15:03 >> Yeah this is the input is the input to
+15:05 
+
+15:05 L1. This is the input to L1 H
+15:09 
+
+15:09 8 this 8 cross H dimensional uh tensor
+15:14 
+
+15:14 >> which is the embedding of
+15:16 
+
+15:16 >> each token let's say there are eight
+15:17 
+
+15:17 tokens in the input in this case this is
+15:20 
+
+15:20 1 2 3 four when we are here till SAT
+15:24 
+
+15:24 it's four we have four tokens each token
+15:28 
+
+15:28 has its embedding so we have four cross
+15:30 
+
+15:30 h dimensional uh embeddings as input to
+15:34 
+
+15:34 first layer
+15:43 
+
+15:43 So I was like a bit confused in the
+15:45 
+
+15:45 sense that we are sending an 8 cross
+15:47 
+
+15:47 edge embedding directly. Let's say we
+15:49 
+
+15:49 have to print eight tokens, right?
+15:51 
+
+15:51 >> We don't have that. No, that was at the
+15:53 
+
+15:53 time of training you are right. At the
+15:55 
+
+15:55 time of training, I know what is my
+15:56 
+
+15:56 entire sequence and I could send all all
+15:58 
+
+15:58 the eight uh emittings simultaneously.
+16:02 
+
+16:02 But when I'm doing inference,
+16:05 
+
+16:05 right? When I'm doing inference, I only
+16:07 
+
+16:07 have uh the cat sat. This is my input. I
+16:11 
+
+16:11 have to complete the sentence.
+16:14 
+
+16:14 >> Yeah, makes sense.
+16:15 
+
+16:15 >> So, the input is only the cat sat. I
+16:16 
+
+16:16 don't know what is the next token.
+16:20 
+
+16:20 >> Yeah.
+16:21 
+
+16:21 >> Right. So, uh yeah. And and and this
+16:24 
+
+16:24 entire forward pass, I get this
+16:28 
+
+16:28 probability distribution. and and and
+16:30 
+
+16:30 from here I just focus on the last one
+16:32 
+
+16:32 which is corresponding to the last uh
+16:35 
+
+16:35 token in the input because the
+16:36 
+
+16:36 corresponding probability distribution.
+16:38 
+
+16:38 So so when we were training we what did
+16:41 
+
+16:41 we maximize? We maximized the
+16:43 
+
+16:43 probability of the token which should
+16:44 
+
+16:44 come next. So we expect that in this
+16:48 
+
+16:48 distribution probability of the next
+16:50 
+
+16:50 token will be the highest
+16:52 
+
+16:52 >> right and therefore we pick that on.
+16:55 
+
+16:55 Now once we have this on
+16:59 
+
+16:59 how do you predict the next uh
+17:01 
+
+17:01 >> you'll have to set that again. Yes,
+17:03 
+
+17:03 exactly. Precisely.
+17:04 
+
+17:04 >> H becomes 5 + H embedding.
+17:08 
+
+17:08 >> Yes, exactly. Now input will become five
+17:12 
+
+17:12 cross h
+17:15 
+
+17:15 right
+17:18 
+
+17:18 so this is this is what we I mean that
+17:20 
+
+17:20 is why inference is different we have to
+17:22 
+
+17:22 call it multip we have to call the
+17:24 
+
+17:24 forward pass multiple times right but
+17:27 
+
+17:27 when but let's look at the attention
+17:30 
+
+17:30 computation and let us see if we if in
+17:32 
+
+17:32 successive forward passes because there
+17:34 
+
+17:34 is an input which is common right
+17:38 
+
+17:38 the 4 + H is a
+17:42 
+
+17:42 you know subsequence or subset of 5 + H.
+17:46 
+
+17:46 >> So are there any computations that we
+17:48 
+
+17:48 have done already that we can leverage
+17:50 
+
+17:50 right? So that is the question that we
+17:52 
+
+17:52 will try to answer here. Right? And that
+17:55 
+
+17:55 is why we need efficient inference
+17:57 
+
+17:57 because one forward pass will give you
+17:59 
+
+17:59 only one token which is which becomes
+18:00 
+
+18:00 very expensive.
+18:02 
+
+18:02 Right? Okay. So uh
+18:09 
+
+18:09 >> so like the previous example we were
+18:12 
+
+18:12 taking input was 8 cross right
+18:14 
+
+18:14 >> during training the input was during
+18:16 
+
+18:16 training because we knew the entire
+18:17 
+
+18:17 sequence. Okay.
+18:19 
+
+18:19 >> Yes.
+18:19 
+
+18:19 >> During inference let's say it is 5 + h.
+18:23 
+
+18:23 >> If we have five tokens it's going to be
+18:24 
+
+18:24 five + h.
+18:25 
+
+18:25 >> And our focus is on the last token which
+18:28 
+
+18:28 will be generating the next output. Then
+18:31 
+
+18:31 the output what will be the output size?
+18:33 
+
+18:33 It should be 1 + B right.
+18:36 
+
+18:36 >> That is what we are interested in that I
+18:38 
+
+18:38 mean transformer will give you the
+18:40 
+
+18:40 probability at every step. We are
+18:42 
+
+18:42 interested in the last one.
+18:44 
+
+18:44 Right?
+18:45 
+
+18:45 >> So that probability will be updated for
+18:47 
+
+18:47 >> which one?
+18:48 
+
+18:48 >> For the previous one
+18:50 
+
+18:50 >> if you're training yes not during
+18:52 
+
+18:52 inference.
+18:52 
+
+18:52 >> Not during
+18:53 
+
+18:53 >> not during inference of course.
+18:54 
+
+18:54 >> So there is one more question. So while
+18:56 
+
+18:56 we are taking like so we have the
+18:59 
+
+18:59 distribution over the dictionary size
+19:01 
+
+19:01 right B
+19:02 
+
+19:02 >> and then we are taking basically so are
+19:05 
+
+19:05 we sampling from that or we are taking R
+19:07 
+
+19:07 maps on that. So these are different uh
+19:10 
+
+19:10 decoding strategies.
+19:11 
+
+19:11 >> So basically the question stems from the
+19:13 
+
+19:13 fact that let's say if you are sending
+19:15 
+
+19:15 the five cross h token and you had sent
+19:18 
+
+19:18 that four cross h token right now it can
+19:21 
+
+19:21 be that the four tokens which were
+19:23 
+
+19:23 already predicted in the new forward
+19:25 
+
+19:25 pass there is something else which gets
+19:27 
+
+19:27 predicted instead of the four tokens.
+19:28 
+
+19:28 Right?
+19:29 
+
+19:29 >> Very good. So so you're saying that
+19:32 
+
+19:32 let's say my input was the cat sat
+19:34 
+
+19:34 right? But when I did the forward pass
+19:41 
+
+19:41 >> yeah let let me yeah so here right uh
+19:47 
+
+19:47 let's say yeah this is what we are doing
+19:49 
+
+19:49 we we are here right the cat sat on you
+19:53 
+
+19:53 are saying that here when I started the
+19:56 
+
+19:56 sequence
+19:57 
+
+19:57 right
+20:01 
+
+20:01 uh probability of the may or may not be
+20:04 
+
+20:04 maximum
+20:08 
+
+20:08 Right. That's is that your question? For
+20:11 
+
+20:11 example, uh the cat instead of cat, it
+20:13 
+
+20:13 said it said dog. Let's say you know we
+20:16 
+
+20:16 have dog here.
+20:17 
+
+20:17 >> So maybe
+20:18 
+
+20:18 >> so after the the model says you should
+20:21 
+
+20:21 you should be saying dog and not cat.
+20:24 
+
+20:24 >> Right? But that is I mean that is part
+20:26 
+
+20:26 we are not worried about that and we
+20:27 
+
+20:27 will not be maximizing the probability
+20:29 
+
+20:29 of dog here. That that will happen
+20:32 
+
+20:32 right? uh if so that will never happen
+20:35 
+
+20:35 actually even during training we know
+20:37 
+
+20:37 what is the ground truth and we want to
+20:39 
+
+20:39 maximize the probability of that
+20:43 
+
+20:43 even during training we maximize the
+20:45 
+
+20:45 probability of cat
+20:46 
+
+20:46 >> let's say let's say in let's say some
+20:48 
+
+20:48 forward pass it predicts out the cat sat
+20:52 
+
+20:52 right
+20:53 
+
+20:53 >> and then later on in the next forward
+20:56 
+
+20:56 pass while predicting on it predicted
+20:60 
+
+20:60 out the dog sat on so Is such a thing
+21:03 
+
+21:03 possible?
+21:05 
+
+21:05 >> No, it's not possible because we are not
+21:09 
+
+21:09 uh
+21:11 
+
+21:11 we are not picking the argax here,
+21:15 
+
+21:15 right?
+21:17 
+
+21:17 For this position the
+21:20 
+
+21:20 we I mean even if this has the highest
+21:22 
+
+21:22 probability we don't care about it,
+21:26 
+
+21:26 right? because our entire
+21:29 
+
+21:29 sequence has been processed with the
+21:31 
+
+21:31 given input that we have
+21:34 
+
+21:34 so so when you say it predicted dog what
+21:36 
+
+21:36 does that mean
+21:40 
+
+21:40 so basically I mean that if let's say I
+21:42 
+
+21:42 give the same input to an LLM model it
+21:45 
+
+21:45 will not produce same output right
+21:50 
+
+21:50 it may not produce uh same output for
+21:54 
+
+21:54 like I give one input it can produce
+21:55 
+
+21:55 different
+21:56 
+
+21:56 >> so so there Okay. So let me split your
+21:58 
+
+21:58 question into two parts. There are two
+21:60 
+
+21:60 points that you are making. One point is
+22:02 
+
+22:02 that when I'm predicting so here for
+22:04 
+
+22:04 example the cat sat on right here there
+22:08 
+
+22:08 is a token a which has some probability
+22:11 
+
+22:11 let's say.3
+22:13 
+
+22:13 right there is a token the
+22:16 
+
+22:16 which has probability 2. Which one
+22:19 
+
+22:19 should we pick? Is that your is that
+22:21 
+
+22:21 part of your doubt?
+22:22 
+
+22:22 >> Yeah.
+22:23 
+
+22:23 >> Or let's say this also has 0.3
+22:25 
+
+22:25 probability. Which one should you pick?
+22:26 
+
+22:26 >> Yeah.
+22:27 
+
+22:27 >> What should be your completion?
+22:29 
+
+22:29 >> Correct.
+22:29 
+
+22:29 >> Right. That is one part of your doubt.
+22:31 
+
+22:31 >> Yeah.
+22:31 
+
+22:31 >> Is that correct?
+22:32 
+
+22:32 >> So basically the picking strategy is
+22:34 
+
+22:34 sampling out of the probability
+22:36 
+
+22:36 distribution or taking
+22:37 
+
+22:37 >> or taking the gradient. So they Yeah. So
+22:38 
+
+22:38 there are different decoding strategies.
+22:40 
+
+22:40 Nuclear sampling for example would
+22:42 
+
+22:42 sample
+22:44 
+
+22:44 >> right
+22:44 
+
+22:44 >> suppose I'm sampling right then in that
+22:47 
+
+22:47 case let's say the is2 right?
+22:50 
+
+22:50 >> Let's the is 2 and it gets sampled.
+22:52 
+
+22:52 >> Yeah. So yes
+22:53 
+
+22:53 >> the cat sack on the let's say
+22:55 
+
+22:55 >> on so so the next input is going to be
+22:57 
+
+22:57 the here
+22:59 
+
+22:59 >> not whatever you sample is becomes your
+23:01 
+
+23:01 next
+23:02 
+
+23:02 >> when I'm then sampling the when I'm next
+23:04 
+
+23:04 predicting the token number six in this
+23:07 
+
+23:07 >> yes
+23:07 
+
+23:07 >> sequence then I'll forward pass all
+23:11 
+
+23:11 these five predicted tokens again as
+23:13 
+
+23:13 well right
+23:13 
+
+23:13 >> yes the cat sat on the
+23:15 
+
+23:15 >> there may be there may be a case then it
+23:17 
+
+23:17 gets predicted now that the cat sat on
+23:20 
+
+23:20 instead of the right
+23:21 
+
+23:21 >> yes exactly That was my route also.
+23:23 
+
+23:23 >> But we are not we are not predicting.
+23:25 
+
+23:25 That's what I'm saying. We are not
+23:26 
+
+23:26 predicting at this position.
+23:28 
+
+23:28 >> So you have frozen it once it's
+23:30 
+
+23:30 >> we have frozen it
+23:32 
+
+23:32 >> getting a conditional distribution
+23:34 
+
+23:34 something like that. So like
+23:36 
+
+23:36 >> what I'm trying to say is once it's
+23:37 
+
+23:37 predicted is it frozen in the array
+23:39 
+
+23:39 >> and then why we are getting that output
+23:41 
+
+23:41 again like then it should be just for
+23:43 
+
+23:43 the last prediction right
+23:46 
+
+23:46 >> see the model is going to compute that
+23:48 
+
+23:48 and during training you maximize the
+23:50 
+
+23:50 probability of what is the ground truth
+23:52 
+
+23:52 right uh you're not I mean that that is
+23:55 
+
+23:55 how the transformer layers uh are are
+23:59 
+
+23:59 coded right I mean you have an input
+24:02 
+
+24:02 sequence right and
+24:05 
+
+24:05 Let's say we have only single layer.
+24:07 
+
+24:07 Let's simplify, right? We have a single
+24:09 
+
+24:09 layer. We have the token embeddings of
+24:14 
+
+24:14 the cat sack, right? The way the
+24:20 
+
+24:20 transformer layer works is that each
+24:22 
+
+24:22 token is attending on the previous
+24:23 
+
+24:23 token,
+24:25 
+
+24:25 right? And determining what should be
+24:28 
+
+24:28 the output probability.
+24:31 
+
+24:31 Right? Now
+24:33 
+
+24:33 when when we are here when we talking
+24:35 
+
+24:35 about the token cat
+24:37 
+
+24:37 this is also attending on its previous
+24:39 
+
+24:39 token
+24:41 
+
+24:41 right
+24:43 
+
+24:43 and gave me a distribution over what
+24:47 
+
+24:47 should come next it could be sat it
+24:51 
+
+24:51 could be ran or whatever maybe the model
+24:55 
+
+24:55 says that you know it should be ran
+24:58 
+
+24:58 right but when we are but when we are
+24:60 
+
+24:60 doing the forward class
+25:02 
+
+25:02 focus on this token sat
+25:06 
+
+25:06 right and in fact let's say uh we have
+25:10 
+
+25:10 the cats at on as well that will make it
+25:13 
+
+25:13 clear we have let's say this token as
+25:14 
+
+25:14 well
+25:16 
+
+25:16 now here
+25:18 
+
+25:18 when we are taking the embedding of on
+25:22 
+
+25:22 right it has already attended to sat the
+25:24 
+
+25:24 input was the cat sat on
+25:27 
+
+25:27 the output embedding here you know the
+25:29 
+
+25:29 output embedding that The output
+25:31 
+
+25:31 distribution that we will get at this
+25:33 
+
+25:33 position token position would have
+25:36 
+
+25:36 already conditioned itself on SAG that
+25:39 
+
+25:39 was part of the input
+25:42 
+
+25:42 right. So the distribution that you are
+25:44 
+
+25:44 getting here is conditioned on this
+25:47 
+
+25:47 entire
+25:50 
+
+25:50 uh input sequence.
+25:52 
+
+25:52 >> Okay. Okay. So forward pass a new
+25:54 
+
+25:54 forward pass does not mean we are
+25:56 
+
+25:56 predicting the earlier tokens again
+25:58 
+
+25:58 right?
+25:58 
+
+25:58 >> Yeah. Yeah we are not. I mean this is
+25:60 
+
+25:60 this is called teacher forcing during
+26:01 
+
+26:01 training uh essentially right. So the
+26:05 
+
+26:05 distribution at this position right here
+26:08 
+
+26:08 it it may happen that ran has the
+26:11 
+
+26:11 highest probability the cat ran right
+26:15 
+
+26:15 but we don't care about that we're not
+26:17 
+
+26:17 interested in that what we are
+26:19 
+
+26:19 interested in is that you know what is
+26:22 
+
+26:22 the distribution that we will get here
+26:24 
+
+26:24 >> but then sir if this is like this is
+26:27 
+
+26:27 only happening then we are not doing any
+26:29 
+
+26:29 computations again and again right
+26:31 
+
+26:31 because we have the embeddings of add
+26:33 
+
+26:33 sack and all the attention layers
+26:35 
+
+26:35 precomputed right
+26:37 
+
+26:37 >> yes you are right and that is what we do
+26:39 
+
+26:39 we cache them that is what we are going
+26:42 
+
+26:42 to discuss now so you are right that I
+26:44 
+
+26:44 mean that is the way we will look at it
+26:46 
+
+26:46 right and we say that as you correctly
+26:48 
+
+26:48 pointed out that we have already
+26:50 
+
+26:50 computed the embeddings of the cat sat
+26:52 
+
+26:52 and on as well
+26:55 
+
+26:55 right so when when I get the next output
+26:60 
+
+26:60 here on let's say
+27:03 
+
+27:03 And when I
+27:06 
+
+27:06 append it here in the input, right? I
+27:09 
+
+27:09 will compute the embeddings for this
+27:11 
+
+27:11 these only.
+27:12 
+
+27:12 >> Yeah.
+27:12 
+
+27:12 >> Right. And attend on the previous ones
+27:16 
+
+27:16 but I need to store them separately. We
+27:18 
+
+27:18 were not doing that in training. That
+27:20 
+
+27:20 was not because that was not required.
+27:21 
+
+27:21 We were not doing it because during
+27:22 
+
+27:22 training it was
+27:23 
+
+27:23 >> the entire
+27:24 
+
+27:24 >> the entire input. Right? And that is how
+27:27 
+
+27:27 forward pass becomes different. uh that
+27:30 
+
+27:30 is how inference becomes different
+27:32 
+
+27:32 during uh you know for transformers.
+27:34 
+
+27:34 Yes. So, so if for example the the
+27:37 
+
+27:37 cataly
+27:40 
+
+27:40 so if we sample from the distribution
+27:43 
+
+27:43 rather than taking the argument
+27:45 
+
+27:45 >> at which position
+27:46 
+
+27:46 >> at the second position
+27:48 
+
+27:48 >> we are not doing that and we're not even
+27:50 
+
+27:50 interested in that that's what I'm
+27:51 
+
+27:51 saying you know what are we interested
+27:53 
+
+27:53 in we are interested in the distribution
+27:57 
+
+27:57 here is that point clear because we have
+27:60 
+
+27:60 the cat sat on and we are interested in
+28:02 
+
+28:02 the distribution here
+28:05 
+
+28:05 >> and that distribution is conditioned on
+28:07 
+
+28:07 this input the cats at on what should be
+28:09 
+
+28:09 the next token
+28:12 
+
+28:12 >> my so if even if for example we are not
+28:16 
+
+28:16 considering the output of the second
+28:19 
+
+28:19 >> which is this right
+28:20 
+
+28:20 >> the cat one
+28:22 
+
+28:22 >> but what if the like context in that
+28:27 
+
+28:27 like the output if if we take the arm
+28:30 
+
+28:30 max or uh it is block
+28:33 
+
+28:33 uh
+28:34 
+
+28:34 >> for dog and the
+28:36 
+
+28:36 >> uh let's stick to this example right and
+28:38 
+
+28:38 here let's say uh we have ran which has
+28:41 
+
+28:41 the maximum the cat is the input
+28:45 
+
+28:45 partial input and the distribution that
+28:48 
+
+28:48 we get at this position at the position
+28:49 
+
+28:49 of cat ran gets the maximum probability
+28:53 
+
+28:53 whereas sat is somewhere lower okay
+28:57 
+
+28:57 >> so at later stages the context might
+28:60 
+
+28:60 change because
+29:01 
+
+29:01 >> how will the context the input will
+29:03 
+
+29:03 never change right the cat sat on is the
+29:05 
+
+29:05 input given to you
+29:06 
+
+29:06 >> the output might change not
+29:08 
+
+29:08 >> the output is the next token
+29:10 
+
+29:10 >> okay so here that will I mean see the
+29:13 
+
+29:13 output is not given to you anyway you
+29:15 
+
+29:15 are deciding the output right so
+29:17 
+
+29:17 whatever output you get at each step
+29:19 
+
+29:19 you're going to fix that and now that
+29:21 
+
+29:21 becomes your new input so for example
+29:24 
+
+29:24 here right when you we are interested in
+29:27 
+
+29:27 the distribution at the fourth position
+29:29 
+
+29:29 this dist this this distribution we are
+29:31 
+
+29:31 interested in Right? And we want to pick
+29:34 
+
+29:34 from this distribution. We either want
+29:35 
+
+29:35 to sample or we want to you know
+29:37 
+
+29:37 greedily pick the one which has the
+29:38 
+
+29:38 highest probability.
+29:41 
+
+29:41 Right? Because conditioned on the cat on
+29:43 
+
+29:43 I want to predict the next token.
+29:47 
+
+29:47 Right? Model may say that you know
+29:50 
+
+29:50 according to the model it may happen
+29:51 
+
+29:51 that ran has the highest probability
+29:54 
+
+29:54 which is fine. Then essentially it means
+29:56 
+
+29:56 that this sentence has higher perplexity
+29:58 
+
+29:58 with respect to the model
+30:01 
+
+30:01 which is okay. There is other sequence
+30:03 
+
+30:03 the cat ran which has lower probability
+30:06 
+
+30:06 as per the model.
+30:09 
+
+30:09 But but our job at the time of inference
+30:11 
+
+30:11 is to get the
+30:14 
+
+30:14 p of y given x right we want to get arc
+30:18 
+
+30:18 max
+30:19 
+
+30:19 over y
+30:21 
+
+30:21 at the time of inference. This is the
+30:23 
+
+30:23 task right
+30:26 
+
+30:26 okay we have spent a lot of time at this
+30:27 
+
+30:27 I thought I'll just quickly skim through
+30:29 
+
+30:29 this but it's okay let's move on
+30:34 
+
+30:34 okay
+30:36 
+
+30:36 so with this understanding in mind and I
+30:39 
+
+30:39 think we have already discussed that uh
+30:42 
+
+30:42 when we are processing
+30:45 
+
+30:45 the uh you know so let's say if the
+30:48 
+
+30:48 input is the cat sat right and we are
+30:50 
+
+30:50 processing the input uh the way way it
+30:52 
+
+30:52 happens is that you have the embeddings
+30:55 
+
+30:55 of the four tokens, right? Uh
+30:59 
+
+30:59 the this is the cat sat and this is
+31:03 
+
+31:03 beginning of sentence. You multiply them
+31:05 
+
+31:05 with the query key and value weight
+31:10 
+
+31:10 matrices. You get the query embeddings,
+31:12 
+
+31:12 key embedding and the value embeddings,
+31:14 
+
+31:14 right? You have all these embeddings
+31:16 
+
+31:16 which you compute simultaneously. This
+31:18 
+
+31:18 is these are matrix multiplications,
+31:19 
+
+31:19 right? in in one go you are computing
+31:21 
+
+31:21 them right so you have these you use uh
+31:25 
+
+31:25 the query and key to compute the
+31:28 
+
+31:28 attention block now here again this
+31:31 
+
+31:31 attention block is computed
+31:32 
+
+31:32 simultaneously for all the tokens and
+31:34 
+
+31:34 that is why training is so fast because
+31:37 
+
+31:37 you're computing the attention block
+31:40 
+
+31:40 simultaneously for all the tokens right
+31:42 
+
+31:42 and uh so let's say this is the
+31:45 
+
+31:45 attention block and you have masked it
+31:47 
+
+31:47 for cause to this is the cause mask and
+31:51 
+
+31:51 uh
+31:52 
+
+31:52 you compute the
+31:57 
+
+31:57 so what is this? You compute the uh so
+31:59 
+
+31:59 this is uh you know at this token the
+32:02 
+
+32:02 cat sat you have the uh this is this
+32:05 
+
+32:05 token sat is attending on all the tokens
+32:08 
+
+32:08 right so this is this is the uh
+32:12 
+
+32:12 attention uh score or the probability
+32:15 
+
+32:15 with which it attends to this token
+32:18 
+
+32:18 right and and this becomes its final
+32:20 
+
+32:20 embedding right which goes on to the
+32:22 
+
+32:22 next layer and so on and so forth right
+32:24 
+
+32:24 and then you get the distribution here
+32:28 
+
+32:28 right and uh yeah so this is the
+32:32 
+
+32:32 distribution and we are interested in
+32:33 
+
+32:33 the one which is the maximum which
+32:34 
+
+32:34 corresponds to on right now when we now
+32:38 
+
+32:38 our input becomes the cats at on when we
+32:41 
+
+32:41 are computing uh doing the forward pass
+32:45 
+
+32:45 for this right as you observed already
+32:47 
+
+32:47 that we have already computed the
+32:51 
+
+32:51 this this attention matrix and we have
+32:53 
+
+32:53 already computed uh these queries
+32:56 
+
+32:56 these keys and these values, right? And
+33:01 
+
+33:01 therefore what we do is that we cache
+33:05 
+
+33:05 the already computed keys and values. So
+33:07 
+
+33:07 these are the keys and the values that
+33:09 
+
+33:09 we have already computed in the previous
+33:11 
+
+33:11 step and all four we got simultaneously
+33:14 
+
+33:14 in the first step. Right? So now we have
+33:16 
+
+33:16 to compute the query vector for on and
+33:20 
+
+33:20 we compute the key embedding for on and
+33:22 
+
+33:22 we cache it here. we compute the value
+33:24 
+
+33:24 embedding and we cache it right and once
+33:27 
+
+33:27 we have the entire uh key matrix here
+33:33 
+
+33:33 right I can take this query and do k
+33:36 
+
+33:36 transpose which will give me this entire
+33:39 
+
+33:39 attention score right in one go and once
+33:42 
+
+33:42 I have this uh q * k transpose I will I
+33:47 
+
+33:47 can compute the corresponding attention
+33:50 
+
+33:50 by normalizing it and uh multiply it
+33:53 
+
+33:53 with with the value vectors that we
+33:55 
+
+33:55 already have in the cache. Right? So Q K
+33:58 
+
+33:58 transpose then soft soft max over this
+34:02 
+
+34:02 and then multiplied with the value will
+34:03 
+
+34:03 give me the output embedding for
+34:09 
+
+34:09 the token on right and then this
+34:12 
+
+34:12 embedding will go through MLP layers
+34:14 
+
+34:14 layer normalization we don't have to do
+34:16 
+
+34:16 this again for the previous tokens right
+34:18 
+
+34:18 because MLP layers layer normalization
+34:20 
+
+34:20 dropout these are anyway token wise
+34:24 
+
+34:24 so it goes through all the layers and In
+34:26 
+
+34:26 the end we get a distribution over the
+34:28 
+
+34:28 entire vocabulary and we pick the token
+34:31 
+
+34:31 which has the highest uh
+34:34 
+
+34:34 uh probability which is let's say here
+34:36 
+
+34:36 and and this a goes here as the input
+34:40 
+
+34:40 and we now after this step our KV cache
+34:45 
+
+34:45 have the keys and values for the token
+34:48 
+
+34:48 on as well and then we continue right
+34:52 
+
+34:52 continue like this and KV cache keeps on
+34:54 
+
+34:54 growing until we at this end of sequence
+34:58 
+
+34:58 uh token. Right? So at at this step when
+35:02 
+
+35:02 we processed this input, right? We got a
+35:06 
+
+35:06 distribution over all the tokens and the
+35:08 
+
+35:08 distribution for the end of sequence was
+35:10 
+
+35:10 maximum. We picked that and then we
+35:13 
+
+35:13 stopped right. So we will stop either
+35:15 
+
+35:15 when we get this or when our budget you
+35:18 
+
+35:18 know exhausts whenever we run forward
+35:20 
+
+35:20 generate we say that you know how many
+35:21 
+
+35:21 tokens we want to generate. Cool. So the
+35:24 
+
+35:24 first step as you saw here is is
+35:26 
+
+35:26 special. It's called prefilling because
+35:28 
+
+35:28 we are computing the we are prefilling
+35:30 
+
+35:30 the KV cache and in each subsequent
+35:33 
+
+35:33 iteration we get only one token at a
+35:35 
+
+35:35 time and we append to the KV cache.
+35:39 
+
+35:39 Right? Okay. So uh let's quickly look at
+35:42 
+
+35:42 the memory usage of the KV size KV KV
+35:44 
+
+35:44 cache. How will it grow? Right. So uh
+35:48 
+
+35:48 two is for one for key and one for
+35:50 
+
+35:50 value. Precision is whether we are doing
+35:52 
+
+35:52 computation in 16 uh bits or or or or 32
+35:57 
+
+35:57 right. uh we saw that in in transformers
+35:59 
+
+35:59 we do computation in lower uh precision
+36:02 
+
+36:02 right so maybe two bits uh two bytes for
+36:05 
+
+36:05 this number of layers for each layer we
+36:07 
+
+36:07 need to maintain the KV cache right and
+36:10 
+
+36:10 this is the hidden dimension h
+36:13 
+
+36:13 uh and this is the sequence sequence
+36:16 
+
+36:16 length right whatever is a input
+36:18 
+
+36:18 sequence length or the expected output
+36:22 
+
+36:22 sequence length because whenever you are
+36:23 
+
+36:23 calling the for the the generate
+36:25 
+
+36:25 function you specify how many tokens You
+36:27 
+
+36:27 want maximum what is your maximum budget
+36:29 
+
+36:29 right? So we will have to reserve the
+36:32 
+
+36:32 space for the entire sequence length.
+36:34 
+
+36:34 Let's say it is 2048 maximum then you
+36:36 
+
+36:36 deserve it for that right and this is
+36:39 
+
+36:39 the batch size uh if you have multiple
+36:41 
+
+36:41 requests here right so quickly uh you
+36:45 
+
+36:45 know we see that even for a 13 billion
+36:48 
+
+36:48 model
+36:50 
+
+36:50 uh even in low precision we know that 26
+36:53 
+
+36:53 GB roughly right uh will be stored by
+36:56 
+
+36:56 the will be required for the model
+36:58 
+
+36:58 weights right and we will uh and and for
+37:02 
+
+37:02 10 sequences KV cache becomes 17 GB,
+37:06 
+
+37:06 right? So if you have a 40GB GPU, we'll
+37:08 
+
+37:08 not be able to process all the 10
+37:12 
+
+37:12 sequences together, right? So the
+37:14 
+
+37:14 maximum thing that we will be able to
+37:15 
+
+37:15 process is essentially eight uh
+37:17 
+
+37:17 sequences for 2048 sequence length
+37:20 
+
+37:20 because KV cache requirement is 17 GB
+37:23 
+
+37:23 and we have only 12 GB for for for 10,
+37:25 
+
+37:25 right? Okay.
+37:27 
+
+37:27 So uh
+37:30 
+
+37:30 yeah so now how should we you know
+37:32 
+
+37:32 improve this
+37:34 
+
+37:34 right? Can we do anything about this?
+37:42 
+
+37:42 So in the previous uh example we said
+37:45 
+
+37:45 that you know we are reserving it for
+37:47 
+
+37:47 2048 tokens all the 2048 tokens let's
+37:50 
+
+37:50 say that's what we want to that is the
+37:52 
+
+37:52 maximum budget that we have given and we
+37:54 
+
+37:54 are reserving for that right but uh the
+37:57 
+
+37:57 completion could be just few words right
+37:60 
+
+37:60 the input is the cat sat and we have max
+38:02 
+
+38:02 token of 2048 we're unnecessarily you
+38:05 
+
+38:05 know blocking the the GPU memory for
+38:08 
+
+38:08 2048 tokens that you know this uh naive
+38:11 
+
+38:11 way of memory management of KV cache is
+38:14 
+
+38:14 not efficient because it is blocking a
+38:15 
+
+38:15 lot of space right so so there are
+38:19 
+
+38:19 essentially two types of you know
+38:22 
+
+38:22 blockings that are happening or wastages
+38:24 
+
+38:24 that are happening one is that we
+38:26 
+
+38:26 reserve the slots according to the input
+38:28 
+
+38:28 request or the maximum length that the
+38:31 
+
+38:31 model supports which is 2048 here and uh
+38:35 
+
+38:35 here let's say 512 so we are blocking
+38:37 
+
+38:37 these this is essentially internal
+38:39 
+
+38:39 fragmentation
+38:41 
+
+38:41 right some of this will be used. I mean
+38:43 
+
+38:43 if my prediction is the cat sat on a mat
+38:47 
+
+38:47 these will be used right but still we
+38:51 
+
+38:51 are we are what we are uh reserving is
+38:54 
+
+38:54 much more than that. So this is internal
+38:56 
+
+38:56 fragmentation and depending upon how the
+38:59 
+
+38:59 allocator works there could be some
+39:02 
+
+39:02 external fragmentation as well. It's
+39:04 
+
+39:04 it's not possible that you know you get
+39:05 
+
+39:05 the contiguous space for two samples
+39:08 
+
+39:08 simultaneously. Right? So there is
+39:10 
+
+39:10 external fragmentation and then there is
+39:12 
+
+39:12 internal fragmentation
+39:15 
+
+39:15 right. So this is yeah
+39:17 
+
+39:17 so this is this is internal
+39:18 
+
+39:18 fragmentation and this reserved
+39:20 
+
+39:20 corresponds to the one which will be
+39:22 
+
+39:22 utilized in the future. This is also
+39:24 
+
+39:24 kind of a wastage in some sense right uh
+39:26 
+
+39:26 to begin with. So uh of course we should
+39:29 
+
+39:29 do better management of the uh KV cache
+39:33 
+
+39:33 in this case right and uh to do that we
+39:37 
+
+39:37 take ideas from
+39:41 
+
+39:41 uh
+39:43 
+
+39:43 you know how how memory is managed in
+39:45 
+
+39:45 the OS right so there is something
+39:48 
+
+39:48 called paging where you the actual
+39:52 
+
+39:52 physical memory is divided into blocks
+39:54 
+
+39:54 right so so these are different each
+39:57 
+
+39:57 page is let's say one one block of
+39:60 
+
+39:60 contiguous memory right and each process
+40:03 
+
+40:03 will require some memory for for its
+40:05 
+
+40:05 computations right uh so what we do is
+40:08 
+
+40:08 that we assign different blocks to
+40:10 
+
+40:10 different processes that's how it
+40:12 
+
+40:12 happens in the OS so for example here
+40:14 
+
+40:14 process A has page one and page four
+40:18 
+
+40:18 notice that these are not contiguous
+40:21 
+
+40:21 right but of course the process does not
+40:23 
+
+40:23 want to manage all of this right it
+40:24 
+
+40:24 doesn't want to it wants a a a virtual
+40:29 
+
+40:29 view of the memory which is contiguous,
+40:30 
+
+40:30 right? So it will have its own virtual
+40:35 
+
+40:35 virtual view or virtual memory
+40:41 
+
+40:41 where you know it's it's all contiguous
+40:43 
+
+40:43 according to it right because right so
+40:47 
+
+40:47 uh that's what we do here as well we we
+40:51 
+
+40:51 uh divide the GPU memory into
+40:55 
+
+40:55 multiple blocks right so these are KV
+40:58 
+
+40:58 blocks this is the KV cache
+41:01 
+
+41:01 request A and request B are two let's
+41:03 
+
+41:03 say uh inputs that we are getting right
+41:07 
+
+41:07 uh uh two completion requests that we
+41:10 
+
+41:10 are getting right and uh as in the uh in
+41:16 
+
+41:16 in the in the OS memory management these
+41:19 
+
+41:19 processes
+41:21 
+
+41:21 have their own view which is contiguous
+41:24 
+
+41:24 which is virtual memory but the actual
+41:26 
+
+41:26 physical memory
+41:28 
+
+41:28 lies somewhere else it's not contiguous
+41:30 
+
+41:30 and we need a mapping from the virtual
+41:34 
+
+41:34 view to the real view right and that is
+41:36 
+
+41:36 called table of pages right and uh
+41:41 
+
+41:41 here as well we will have a logical KV
+41:43 
+
+41:43 block right the I mean the the idea of
+41:47 
+
+41:47 fragmentation and the idea of uh blocks
+41:51 
+
+41:51 should be abstracted out from the user
+41:52 
+
+41:52 right so we need a logical KV block
+41:54 
+
+41:54 which is continuous
+41:56 
+
+41:56 we need physical KV block this is how we
+41:59 
+
+41:59 are actually managing the GPU memory and
+42:01 
+
+42:01 then we have a block table which maps
+42:05 
+
+42:05 the logical KV block to the physical KV
+42:08 
+
+42:08 block right so yeah so here for example
+42:11 
+
+42:11 we have assumed block size of four right
+42:16 
+
+42:16 and we have eight blocks each block is
+42:18 
+
+42:18 of size four and uh
+42:24 
+
+42:24 you know whenever we get a request let's
+42:26 
+
+42:26 say there is a prompt which is today we
+42:28 
+
+42:28 are learning about lm And
+42:31 
+
+42:31 right uh this is how it looks to the
+42:35 
+
+42:35 program in the logical view. And
+42:39 
+
+42:39 in the physical memory it's it's at slot
+42:42 
+
+42:42 one and slot seven right and we keep a
+42:45 
+
+42:45 mapping here. So here uh it says that
+42:49 
+
+42:49 this one the first block the zero block
+42:52 
+
+42:52 in the logical KV is mapped to the
+42:56 
+
+42:56 seventh physical block here. Right? And
+42:59 
+
+42:59 we also keep a count of how many of
+43:00 
+
+43:00 these are filled. So all of these are
+43:02 
+
+43:02 filled here four
+43:04 
+
+43:04 and the second logical KV block is
+43:07 
+
+43:07 mapped to first physical block here.
+43:11 
+
+43:11 Right? And three are filled here. Right?
+43:15 
+
+43:15 And when we uh make the next prediction
+43:20 
+
+43:20 right and let's say it says memory
+43:23 
+
+43:23 today we are learning about LLMs and
+43:25 
+
+43:25 memory where will it go in the actual
+43:29 
+
+43:29 physical KV
+43:33 
+
+43:33 here right it will come here so the keys
+43:36 
+
+43:36 and values for this token memory will
+43:39 
+
+43:39 come in uh physical block one and we
+43:43 
+
+43:43 increment this to four, right? So, this
+43:48 
+
+43:48 is one process if you map it to the uh
+43:52 
+
+43:52 you know OS thing that we had, right?
+43:55 
+
+43:55 This is this is one uh input request,
+43:59 
+
+43:59 right? now
+44:01 
+
+44:01 and after memory let's say the next
+44:03 
+
+44:03 token is on it goes here and uh the
+44:08 
+
+44:08 memory management will see that this is
+44:10 
+
+44:10 full and therefore it needs to allocate
+44:14 
+
+44:14 a new block on demand and uh you know we
+44:18 
+
+44:18 fill the block table here corresponding
+44:19 
+
+44:19 to this and uh so for example fifth
+44:22 
+
+44:22 block is allocated we we put it here and
+44:26 
+
+44:26 the number of field is also incremented
+44:28 
+
+44:28 to one right Okay. And this will go on.
+44:33 
+
+44:33 Now
+44:36 
+
+44:36 what is the internal fragmentation here
+44:40 
+
+44:40 that this input the specific input
+44:43 
+
+44:43 stopped here and we will not fill the
+44:45 
+
+44:45 corresponding uh there I mean these two
+44:47 
+
+44:47 will remain empty right. So this is the
+44:50 
+
+44:50 internal fragmentation here that can
+44:51 
+
+44:51 happen maximum. So the maximum internal
+44:53 
+
+44:53 fragmentation is restricted by the block
+44:55 
+
+44:55 size that we have allocated. Right?
+44:58 
+
+44:58 Okay. Now what happens when a new
+45:01 
+
+45:01 request comes,
+45:03 
+
+45:03 right? Let's say a new request come
+45:05 
+
+45:05 another user comes and has the same
+45:09 
+
+45:09 exactly the same input prompt. Today we
+45:12 
+
+45:12 are learning about ln's and right now
+45:16 
+
+45:16 you know we will allocate a new
+45:20 
+
+45:20 block table and we will allocate
+45:25 
+
+45:25 physical u we'll allocate space in the
+45:28 
+
+45:28 physical uh k blocks as well right and
+45:32 
+
+45:32 here also after
+45:35 
+
+45:35 and let's say the next token is memory
+45:37 
+
+45:37 you know this this will get filled and
+45:40 
+
+45:40 after that uh The next token is
+45:42 
+
+45:42 different which is management and and
+45:44 
+
+45:44 you know that will come here right. So
+45:47 
+
+45:47 the two sequences when they are same
+45:51 
+
+45:51 right we allocated different physical KV
+45:56 
+
+45:56 blocks right
+45:59 
+
+45:59 can we reuse something and and how often
+46:02 
+
+46:02 does it happen that you have one input
+46:05 
+
+46:05 and you want multiple output
+46:08 
+
+46:08 corresponding to that. Have you seen
+46:10 
+
+46:10 that scenario earlier? So what happens
+46:13 
+
+46:13 in alignment? What do we do for the same
+46:15 
+
+46:15 input? You are generating multiple
+46:17 
+
+46:17 outputs right there. So I mean so it's a
+46:21 
+
+46:21 very common scenario right and and we
+46:23 
+
+46:23 should definitely take care of that uh
+46:25 
+
+46:25 when we are designing a new uh you know
+46:28 
+
+46:28 manage
+46:30 
+
+46:30 GPU memory management system right. So
+46:32 
+
+46:32 what we do and how do we how does it
+46:34 
+
+46:34 modifi get modified? uh we have uh you
+46:40 
+
+46:40 know for the input for the first input
+46:41 
+
+46:41 we have already allocated some physical
+46:44 
+
+46:44 memory and we have the corresponding uh
+46:48 
+
+46:48 table right and the two requests this is
+46:53 
+
+46:53 request one and this is request
+46:57 
+
+46:57 two we are processing them
+46:58 
+
+46:58 simultaneously we know that they are
+47:00 
+
+47:00 same and therefore we allocate only
+47:02 
+
+47:02 single
+47:04 
+
+47:04 uh
+47:06 
+
+47:06 physical memory to them. Right? So if
+47:08 
+
+47:08 you look at the corresponding uh block
+47:11 
+
+47:11 tables, they are identical. Right? 57 43
+47:14 
+
+47:14 57 43. Right? Now once we generate the
+47:19 
+
+47:19 next
+47:21 
+
+47:21 token,
+47:22 
+
+47:22 right?
+47:24 
+
+47:24 Memory and how they're two different
+47:27 
+
+47:27 completions for the same input, right?
+47:30 
+
+47:30 So now what should we do?
+47:33 
+
+47:33 Right? We have reserved only one
+47:37 
+
+47:37 uh block here the physical AV blocks.
+47:41 
+
+47:41 This position can be given only to
+47:43 
+
+47:43 either memory or to how? We cannot have
+47:45 
+
+47:45 two things here. Right? So what we do is
+47:48 
+
+47:48 that we let's say randomly assign it to
+47:50 
+
+47:50 memory.
+47:53 
+
+47:53 Can we do that?
+47:56 
+
+47:56 So what will happen when uh this
+47:58 
+
+47:58 sequence comes?
+48:01 
+
+48:01 Right? because it's I mean according to
+48:03 
+
+48:03 this uh its block table says that you
+48:05 
+
+48:05 know uh there is an empty space here
+48:08 
+
+48:08 right so this will create problems right
+48:11 
+
+48:11 so what we do is that as soon as the
+48:13 
+
+48:13 first person comes
+48:15 
+
+48:15 here right it sees so we maintain a
+48:18 
+
+48:18 reference count as well which tells me
+48:20 
+
+48:20 how many inputs are you do have this
+48:24 
+
+48:24 common uh uh prefix right so reference
+48:28 
+
+48:28 count is true for both uh fifth and
+48:31 
+
+48:31 seventh block when this uh the first
+48:35 
+
+48:35 query a comes it sees that the reference
+48:38 
+
+48:38 count here is two right so it it it
+48:41 
+
+48:41 knows that someone else is also using
+48:44 
+
+48:44 this and I cannot corrupt this what it
+48:47 
+
+48:47 will do is that it will create a copy it
+48:51 
+
+48:51 will reduce the reference count by by
+48:53 
+
+48:53 one right because it is no longer using
+48:56 
+
+48:56 it will copy the KV cache from here to
+49:00 
+
+49:00 here this is extra cost right it will
+49:04 
+
+49:04 then fill the next token memory here
+49:07 
+
+49:07 right and then it has to modify the uh
+49:10 
+
+49:10 block table this now it's not seven it's
+49:13 
+
+49:13 two block two and number of field are
+49:15 
+
+49:15 four and when this request B comes it
+49:20 
+
+49:20 goes to
+49:22 
+
+49:22 the seventh uh physical KV block it sees
+49:25 
+
+49:25 that the reference counter is one so
+49:27 
+
+49:27 therefore it is free to use that so it
+49:29 
+
+49:29 puts the token how
+49:31 
+
+49:31 Right. So yeah, this is how it uh it
+49:34 
+
+49:34 continues. Concurrent requests can
+49:36 
+
+49:36 happen here. So therefore you need to
+49:38 
+
+49:38 have appropriate lock mechanism. When
+49:39 
+
+49:39 you are accessing this, you need to have
+49:41 
+
+49:41 an appropriate lock mechanism. Right? So
+49:43 
+
+49:43 this when under the lock you see that uh
+49:47 
+
+49:47 the reference count is two. You know
+49:49 
+
+49:49 that someone else is also using it. So
+49:51 
+
+49:51 therefore you copy, right? You reduce
+49:54 
+
+49:54 the reference count from 2 to one
+49:56 
+
+49:56 because you're no longer using it. and
+49:58 
+
+49:58 you copy this to some other uh location.
+50:03 
+
+50:03 That that's exactly what we are doing,
+50:05 
+
+50:05 right?
+50:07 
+
+50:07 And and modify the corresponding uh
+50:10 
+
+50:10 table.
+50:12 
+
+50:12 All right. And and then this will
+50:14 
+
+50:14 continue.
+50:16 
+
+50:16 >> Yeah.
+50:18 
+
+50:18 >> So for example, there is one request.
+50:22 
+
+50:22 Today we are learning about this is one
+50:26 
+
+50:26 sequence.
+50:27 
+
+50:27 >> Yes.
+50:28 
+
+50:28 half process. So the KV cache still
+50:30 
+
+50:30 exist for it, right?
+50:32 
+
+50:32 >> Uh this say that again. Uh this is one
+50:35 
+
+50:35 input sequence which is
+50:36 
+
+50:36 >> half process like till and add it is
+50:39 
+
+50:39 processed.
+50:40 
+
+50:40 >> This is the input that we have right and
+50:43 
+
+50:43 the input will be processed in
+50:45 
+
+50:45 pre-filled step. We have processed it
+50:49 
+
+50:49 >> and we have to generate two completions
+50:51 
+
+50:51 for it.
+50:52 
+
+50:52 So for so rather than generating two
+50:56 
+
+50:56 completion what if after some delay a
+50:59 
+
+50:59 similar sequence comes
+51:02 
+
+51:02 >> right so you are asking about the
+51:04 
+
+51:04 scenario where up front we are not
+51:06 
+
+51:06 asking for multiple uh completions but
+51:09 
+
+51:09 it so happens that the next user also
+51:11 
+
+51:11 asks the same query. So for example they
+51:13 
+
+51:13 say if we consider so there are one
+51:17 
+
+51:17 request that comes yes
+51:19 
+
+51:19 >> and it is half and on another thread
+51:22 
+
+51:22 like another similar sequence comes so
+51:26 
+
+51:26 how is get
+51:27 
+
+51:27 >> like how is the memory process
+51:30 
+
+51:30 >> right so
+51:33 
+
+51:33 uh so let's break that down into two
+51:35 
+
+51:35 parts one is that let's say there is one
+51:38 
+
+51:38 input today we are learning about llm's
+51:39 
+
+51:39 and this is one sequence which is
+51:41 
+
+51:41 getting processed And then another input
+51:43 
+
+51:43 comes today we are learning let's say
+51:45 
+
+51:45 only today we which is a subsequence of
+51:47 
+
+51:47 that right so I'm sure VLM guys first
+51:50 
+
+51:50 look up and figure out if they have any
+51:52 
+
+51:52 prefix which matches this this they can
+51:54 
+
+51:54 do very easily
+51:56 
+
+51:56 >> sort of using hash
+51:57 
+
+51:57 >> yeah hashing or whatever I mean it's
+51:59 
+
+51:59 it's it's this is going to be very quick
+52:01 
+
+52:01 operation you just have a an input and
+52:04 
+
+52:04 you are looking for the longest common
+52:08 
+
+52:08 uh prefix that amongst the requests that
+52:11 
+
+52:11 you are already processing processing
+52:13 
+
+52:13 right anyway how many requests can you
+52:14 
+
+52:14 process simultaneously let's say you can
+52:16 
+
+52:16 process you're processing thousand
+52:17 
+
+52:17 requests simultaneously you get an input
+52:19 
+
+52:19 right you can keep the the state of all
+52:23 
+
+52:23 those thousands with you right uh in the
+52:28 
+
+52:28 CPU itself and then you can run a simple
+52:31 
+
+52:31 algorithm to find what is the largest
+52:33 
+
+52:33 common prefix that matches and then you
+52:36 
+
+52:36 can exploit uh that you don't have to
+52:39 
+
+52:39 compute it again so I think VLN does
+52:42 
+
+52:42 Right.
+52:43 
+
+52:43 >> So uh so in this case the first so if we
+52:47 
+
+52:47 consider the first sequence so if the
+52:50 
+
+52:50 first output is given to the user and
+52:54 
+
+52:54 the second is still being evaluated. So
+52:56 
+
+52:56 the KV cache for first will be still
+53:02 
+
+53:02 discard first
+53:04 
+
+53:04 >> if it's output if the entire output has
+53:06 
+
+53:06 been generated till the end of sequence
+53:08 
+
+53:08 then we can discard it right
+53:10 
+
+53:10 >> but it is still being used for another
+53:12 
+
+53:12 >> if it is being used and it of course it
+53:14 
+
+53:14 will not be discarded because we are
+53:15 
+
+53:15 keeping a reference count
+53:17 
+
+53:17 to to discard we need to ensure that the
+53:20 
+
+53:20 reference count goes to zero only then
+53:22 
+
+53:22 we will discard
+53:24 
+
+53:24 right so of course I'm sure that these
+53:26 
+
+53:26 these guys would have taken care of of
+53:27 
+
+53:27 of this these basic management uh right
+53:32 
+
+53:32 yeah so uh
+53:35 
+
+53:35 uh we saw that in in in VLM the internal
+53:38 
+
+53:38 fragmentation is restricted by the block
+53:40 
+
+53:40 size and what about the uh external
+53:43 
+
+53:43 fragmentation
+53:47 
+
+53:47 is there any external fragmentation here
+53:50 
+
+53:50 there's no notion of external
+53:51 
+
+53:51 fragmentation here right so there is no
+53:53 
+
+53:53 notion of external fragmentation right
+53:55 
+
+53:55 So uh overall I mean with VLMs overall
+54:00 
+
+54:00 wasted space is less than 4%. And uh
+54:04 
+
+54:04 with naive way of memory management it
+54:06 
+
+54:06 was roughly 20 30%. So we save a lot
+54:08 
+
+54:08 with this right and uh the next point is
+54:14 
+
+54:14 I this this was about the memory
+54:15 
+
+54:15 management right but then what do we do
+54:19 
+
+54:19 with KV cache?
+54:22 
+
+54:22 Where do we use it?
+54:28 
+
+54:28 in attention, right? When when we have
+54:30 
+
+54:30 the new token, we have to attend on the
+54:32 
+
+54:32 all the previous tokens and we have the
+54:35 
+
+54:35 KV cache for this and we have to attend
+54:37 
+
+54:37 on all of these, right? So, we have to
+54:40 
+
+54:40 compute the attention scores. So, now
+54:43 
+
+54:43 how do we compute the attention scores?
+54:44 
+
+54:44 Because uh typically in GPU right when
+54:48 
+
+54:48 you
+54:49 
+
+54:49 when you call a kernel it expects that
+54:53 
+
+54:53 the memory is contiguous right it's it's
+54:55 
+
+54:55 in the contiguous memory
+54:58 
+
+54:58 right I'm not sure if you have faced
+55:01 
+
+55:01 this earlier or not that if you create a
+55:03 
+
+55:03 tensor which is created using two three
+55:05 
+
+55:05 different tensors right and you try to
+55:08 
+
+55:08 do an operation on top of it pytor
+55:10 
+
+55:10 complains it says that you know you need
+55:13 
+
+55:13 uh that in a contiguous block and you
+55:14 
+
+55:14 have to do dot continuous to it. Right?
+55:16 
+
+55:16 Now here physic in the physical KV
+55:19 
+
+55:19 blocks uh we have fragmented uh keys and
+55:23 
+
+55:23 values right so let's say
+55:28 
+
+55:28 they're sitting here right so uh first
+55:31 
+
+55:31 few tokens are here and then next few
+55:32 
+
+55:32 tokens are here so how do we compute the
+55:36 
+
+55:36 attention
+55:38 
+
+55:38 right
+55:40 
+
+55:40 how should we do that
+55:44 
+
+55:44 using the paper that already
+55:46 
+
+55:46 >> we already have the table. Yes,
+55:48 
+
+55:48 >> we can use those table to calculate the
+55:52 
+
+55:52 TN value,
+55:54 
+
+55:54 >> right? Okay. So, when you compute the
+55:56 
+
+55:56 attention, you have the query which is
+55:58 
+
+55:58 this vector, right? And you have the
+56:01 
+
+56:01 keys vector K1, K2, KT, right? K N. This
+56:08 
+
+56:08 is the K transpose matrix. This is the Q
+56:10 
+
+56:10 matrix.
+56:12 
+
+56:12 You need all the T in a contiguous
+56:15 
+
+56:15 memory space in in physical GPU. You
+56:18 
+
+56:18 need it to be in a contiguous memory
+56:20 
+
+56:20 space. But this key, these keys are
+56:24 
+
+56:24 fragmented. Now you may have it a you
+56:27 
+
+56:27 may have a virtual view of it, but that
+56:29 
+
+56:29 doesn't help, right?
+56:31 
+
+56:31 The keys are fragmented. Four keys are
+56:33 
+
+56:33 here, two keys are here. Now, how do you
+56:36 
+
+56:36 do this QK transpose with fragmented
+56:39 
+
+56:39 keys?
+56:42 
+
+56:42 Have you seen the scenario earlier where
+56:43 
+
+56:43 our keys were fragmented
+56:46 
+
+56:46 maybe across
+56:49 
+
+56:49 GPUs?
+56:53 
+
+56:53 Did we look at it in one of the
+56:56 
+
+56:56 parallelism techniques? we compute for a
+56:58 
+
+56:58 just for a specific page we compute
+57:04 
+
+57:04 >> right and
+57:05 
+
+57:05 >> rather than so rather than considering
+57:08 
+
+57:08 it continuous we just separate out into
+57:10 
+
+57:10 K1 which is a like one page K2
+57:17 
+
+57:17 >> right exactly that's what we do so let's
+57:19 
+
+57:19 say this corresponds to first page and
+57:21 
+
+57:21 this corresponds to the second page
+57:23 
+
+57:23 right and I have q krpose that's what I
+57:25 
+
+57:25 have
+57:26 
+
+57:26 multiply and what I can do is that I can
+57:29 
+
+57:29 do Q K1 transpose
+57:32 
+
+57:32 and Q K2 transpose.
+57:36 
+
+57:36 Q K1 transpose will give me the
+57:37 
+
+57:37 attention score over the first four
+57:39 
+
+57:39 tokens, right? A1 to A4 and this will
+57:44 
+
+57:44 give me A5 and A6.
+57:48 
+
+57:48 These are the attention scores that I
+57:50 
+
+57:50 get. And
+57:53 
+
+57:53 how do I compute the final value? It is
+57:55 
+
+57:55 e ^ a i * vi
+57:60 
+
+57:60 right so but then how does it happen
+58:02 
+
+58:02 here if I have the attention scores here
+58:03 
+
+58:03 a1 to a4 let's say I convert a1 to a4 to
+58:07 
+
+58:07 corresponding probabilities p1 to p4 by
+58:10 
+
+58:10 doing a soft max right soft max over
+58:13 
+
+58:13 this will give me the corresponding
+58:14 
+
+58:14 probabilities and I multiply it with the
+58:17 
+
+58:17 values v_sub_1 to v4 right I will get
+58:23 
+
+58:23 uh summation P I VI right VI is a vector
+58:28 
+
+58:28 we get I get it on for the first page
+58:31 
+
+58:31 I get a similar value from the second
+58:34 
+
+58:34 page. So this will be P1 V_sub_1 + P2 V2
+58:39 
+
+58:39 plus P3 V3 plus P4 V4 and I can do it
+58:43 
+
+58:43 for the second block as well. Let's say
+58:45 
+
+58:45 the probabilities are P
+58:49 
+
+58:49 5 prime V5 plus P6 prime V6.
+58:55 
+
+58:55 I have two values. Now how do I get the
+58:58 
+
+58:58 final value?
+59:05 
+
+59:05 Is this is this making sense? Yes.
+59:10 
+
+59:10 Uh
+59:12 
+
+59:12 before calculating the attention for the
+59:15 
+
+59:15 different pages, we can split the query
+59:20 
+
+59:20 uh the query vector according to the key
+59:23 
+
+59:23 >> query. The query
+59:25 
+
+59:25 >> there's only one query.
+59:26 
+
+59:26 >> Yeah. The one query.
+59:27 
+
+59:27 >> Yes.
+59:28 
+
+59:28 >> So that will be of size
+59:30 
+
+59:30 >> H dimensional query is only one H
+59:32 
+
+59:32 dimensional query.
+59:33 
+
+59:33 >> H dimensional. So because now these are
+59:36 
+
+59:36 different. So we cannot if we calculate
+59:38 
+
+59:38 like attention different two attentions
+59:41 
+
+59:41 >> that's what we have done we what we have
+59:43 
+
+59:43 done is that we have uh
+59:48 
+
+59:48 Q k1 transpose right this gave me a1 to
+59:54 
+
+59:54 a4 these are the attention scores that I
+59:56 
+
+59:56 get
+59:58 
+
+59:58 right and if I apply soft max on it I
+60:01 
+
+60:01 will get e ^ a1 divided by e ^ a1 plus E
+60:06 
+
+60:06 ^ A2 + E ^ A3 + E ^ A4 this this will be
+60:11 
+
+60:11 my P1
+60:13 
+
+60:13 for the first one right and for the
+60:16 
+
+60:16 second attention block I would have
+60:19 
+
+60:19 computed K * K2 transpose which would be
+60:23 
+
+60:23 let's say A5 and A6
+60:27 
+
+60:27 right if I apply soft max on this it
+60:31 
+
+60:31 will be
+60:33 
+
+60:33 what e to the
+60:35 
+
+60:35 a 5 / e ^ a5 + e ^ a 6
+60:42 
+
+60:42 right but what do I want I don't want
+60:47 
+
+60:47 them separate right what I want
+60:48 
+
+60:48 essentially is
+60:50 
+
+60:50 e ^ a 5 divided by all the attention
+60:55 
+
+60:55 scores here right summation over all the
+60:56 
+
+60:56 attention scores e to the power a i i i
+60:58 
+
+60:58 i going from 1 to six
+61:02 
+
+61:02 right
+61:04 
+
+61:04 I thought we have already covered this
+61:06 
+
+61:06 in ring attention, right? I mean in ring
+61:08 
+
+61:08 attention, we have the keys and values
+61:12 
+
+61:12 segregated on different GPUs and we get
+61:16 
+
+61:16 the input, we get the corresponding keys
+61:18 
+
+61:18 and values from a GPU. We compute the
+61:23 
+
+61:23 uh you know uh the attention scores from
+61:27 
+
+61:27 that, preserve it and then get the keys
+61:30 
+
+61:30 and values from the other GPU then do
+61:31 
+
+61:31 that right. So these I mean this is
+61:32 
+
+61:32 exactly same we have the keys and values
+61:34 
+
+61:34 from here and then we have the keys and
+61:36 
+
+61:36 values from here and we have to
+61:37 
+
+61:37 aggregate it
+61:42 
+
+61:42 right so I think I will leave it at this
+61:45 
+
+61:45 maybe we'll go through it go over it
+61:47 
+
+61:47 again I mean this is this is simple
+61:48 
+
+61:48 online softmax computation that we have
+61:50 
+
+61:50 been looking at uh for quite some time
+61:52 
+
+61:52 right so that's what is page detention
+61:54 
+
+61:54 that's what they devised uh right they
+61:56 
+
+61:56 called it page detention and combining
+61:59 
+
+61:59 this uh you know better memory memory
+62:01 
+
+62:01 management of KV cache and page
+62:04 
+
+62:04 detention we get you know a lot of
+62:07 
+
+62:07 improvement in the inference right and
+62:09 
+
+62:09 and what is giving us improvement we are
+62:11 
+
+62:11 reducing the memory fragmentation with
+62:13 
+
+62:13 paging and then we're further reducing
+62:16 
+
+62:16 the memory usage with sharing if we have
+62:18 
+
+62:18 the same requests which is being
+62:19 
+
+62:19 processed twice
+62:21 
+
+62:21 okay so yeah I think we should stop uh
+62:25 
+
+62:25 here and we can continue in the next
+62:27 
+
+62:27 lecture
+62:30 
+
+62:30 thank

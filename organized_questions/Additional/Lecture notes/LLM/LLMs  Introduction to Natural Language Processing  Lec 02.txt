@@ -1,0 +1,536 @@
+00:02 okay so let's get started good morning to all of you this is the uh second lecture on large language models and uh
+00:10 today we will try to introduce NLP within an hour which is impossible right
+00:15 so what I will do I'll try to very you know try to give you a very very high level overview of NLP but um as I
+00:23 mentioned earlier you are strongly recommended to go through any NLP course
+00:28 right if you have taken my NLP course last semester then you are okay otherwise please um go through an online
+00:35 NLP course okay okay so um breaking news I so
+00:43 yesterday Lama 3.1 was released okay so Lama 3 was released in April
+00:50 2024 and uh yesterday the updated version of Lama was released by
+00:57 meta and I don't know but the the over the Intercourse how many new models will
+01:03 be released right that is something that we will we will look at uh we'll also follow and I'll also give you an update
+01:10 on uh the the new models okay so Lama uh
+01:16 3.1 um uh it basically came with three versions 8B uh 8 billion 70 billion and
+01:22 45 405 billion model this is the largest Lama model ever uh introduced and and uh
+01:30 if you want to know more about it this is the website where they they released uh the the model along with uh the the
+01:39 the version and other details this is an open source model as we all know Lama is
+01:44 an open source model and um uh this uh
+01:50 400 billion parameter models U the some of the important aspects are as follows
+01:56 the model was trained on around um uh you know 15 trillion tokens right uh
+02:03 using a context wind of uh 8K tokens right and uh this this uh at
+02:11 least the largest model of Lama 3 3.1 has already shown quite significant
+02:17 performance on uh different Benchmark Benchmark task uh specifically it uh it
+02:23 already beat the baselines like CLA 3.5 Sonet and GPT 40 the recent version of
+02:28 GPT okay so this is an open source version you can download you can uh you can use
+02:36 it but uh if you have memory of 820
+02:43 GB right so if you think that your laptop has 820 GB memory to load this
+02:49 you are welcome to load a new you know this is called new new uh new new type
+02:55 of open sourcing right you open source it but you know that it could be very difficult to
+03:01 download and of course this look at the training uh training uh resources right
+03:06 so the model was trained on uh 16k 800
+03:12 gpus right I doesn't have any 800 GPU by the 16k h00 gpus were used to train this
+03:20 model okay but of course if you if you don't have space memory Etc you can use
+03:26 the 8 billion model maybe this is better than Lama 3 okay so I will start off uh by uh
+03:33 showing this example okay this is a recent uh example news articles taken
+03:39 from Times of India on the assassination attempt on Donald Trump and this is the
+03:44 headline right Donald Trump's death okay so uh uh and and uh you you may Wonder
+03:54 possibly there are some mistakes in this uh in this uh title there are punctuation errors and so on and so
+04:00 forth we'll figure out later but remember this and think whether the title is correct or not okay but yeah so
+04:08 let's go let's let's proceed uh what is NLP so NLP is natural language
+04:14 processing we all know what is a language language is a medium of communication natural language is
+04:20 essentially a language which has evolved without maintaining any grammar right so
+04:26 uh it has evolved automatically naturally right right and then the grammar has been introduced okay so it
+04:33 is it is not like the uh the artificial language right like let's say python or
+04:41 C++ other types of programming languages where uh the first the grammar was
+04:46 introduced and then the language was introduced okay so and natural language
+04:52 processing is a field of computer science Ai and comput Linguistics which basically concerned with interactions
+04:59 between computers and uh human languages right so I mean this is of course
+05:04 controversial but generally we use this V diagram to to identify the position of
+05:11 NLP within the space we have CS uh human language and Ai and uh you know at the
+05:18 at the intersection of these three space we have this NLP okay so why NLP is uh
+05:26 interesting because of the diversity language language has a lot of divers City I mean if you look at World's
+05:32 language there are more than 6,000 languages across World these are official languages by the way right so
+05:38 if you also consider dialects nobody knows how many dialects are there in the world but if you look at India there are
+05:44 19,000 languages right uh it's it's difficult to digest but this is an
+05:50 official report it includes uh the the official languages as well as dialects
+05:57 right I mean I'm a Bengali so I can tell you the amount of dialects that are there that
+06:02 are there in West Bengal and in Bangladesh right if you go to West Bengal and Bangladesh you will see crazy
+06:07 amount of variations right there are people from Bangladesh they they can tell you right if you go from east to
+06:13 west of Bangladesh you see a huge variation in in fact the west Western part of Bangladesh may not be able to
+06:19 understand the eastern part of Bengali right so so so lots of dialects and that
+06:25 essentially makes the Entre business so difficult to process
+06:30 okay so like computer science uh NLP I mean if you if you asked who is the
+06:35 father of NLP of course one and only uh Turing right and uh the and and uh we
+06:43 all know about Turing test this is the famous paper computer Computing machinaries and and intelligence right
+06:50 so in the touring test I hope all of you know what is touring test right so in Turing test you essentially uh let's say
+06:58 you have a room the room is part and in one partition uh you have a this
+07:04 is human being on another partition you have a computer and um and human being
+07:10 so if there's a sound from this uh partition coming in right so the human being should uh the task of the human
+07:16 being is should basically to identify whether the sound is essentially generated by the machine or the human
+07:22 being right so if C is successful then a the machine actually fails the during
+07:28 test if C is not successful uccessful then he essentially passes the T Test
+07:33 okay but of course when you talk about modern Linguistics computational Linguistics
+07:39 nsky is considered as the father of uh modern Linguistics right uh we all know
+07:46 the universal grammar proposed by nor chsky right uh we all know chomsky's
+07:51 normal form right we'll also talk about it maybe later if time permits but uh
+07:57 he's a living legend some of you know that uh just few weeks back there was a rumor
+08:03 about chomsky's death on Twitter right and uh then after 2 three hours of that
+08:09 REM started spreading it was debunked why is NLP challenging uh some
+08:15 of you who have taken my uh course last last semester these slides might be a
+08:20 bit redundant but this is important just to make the course complete uh this is challenging because of the
+08:27 ambiguity right uh let's look at this example again how many of you think that there's an error here it should be it
+08:35 should have been Donald Trump's death or whatever I don't
+08:40 know is missing what do you think uh what other things is this
+08:46 correct T should be lower case
+08:53 why factually wrong okay yeah so the Trump here is used as a
+09:02 verb trump card okay so basically Donald
+09:08 Trump's death okay this was a very interesting example floated on Twitter
+09:13 and my ti actually spotted this so I thought this is a nice example to start with okay and that's why NLP is really
+09:22 crazy there's another example right so U if you look at the sentence vat kohi was
+09:27 on fire last night he totally destroyed the other team it doesn't mean that V kohi was standing on fire right so and
+09:36 we all know the meaning of this right so the literal meaning the surface meaning of a sentence may not be same as the
+09:43 actual meaning of the sentence right and that is something where uh you know we Le we need Linguistics uh Linguistics as
+09:50 well as Computing right to essentially teach the model to learn Wall's
+09:56 knowledge to learn pragmatics to learn uh discourse and so on so forth okay but it is not about language
+10:05 where ambiguity is present right if you look at this picture right so uh somebody can say that this is a picture
+10:11 of a rabbit somebody can say that this is a picture of a duck right so ambiguity is
+10:17 everywhere but we'll talk about ambiguity in language right let's look at this sentence here right of course
+10:24 you can say that this these are very simple examples I mean human being can easily Pro process these examples but
+10:31 it's not as simple for a machine to process it right so look at this one I saw a girl with a
+10:37 telescope right so who had the telescope the girl had the telescope or I had the telescope it's not very clear right so
+10:45 uh but if I but but of course if you if you uh maybe if you think of it
+10:51 carefully uh it seems that uh I had the telescope right but it can it is also
+10:57 possible that the girl had a telescope and I saw the if you use the same syntax same syntax
+11:04 the syntax that is present uh in this um okay the syntax is basically
+11:09 grammar okay if you use the same syntax to write these two sentences I saw a
+11:16 girl with a bicycle right or I saw a bus with a telescope things are very clear
+11:22 right there is no ambiguity because because um uh because I can't see a girl through
+11:29 a bicycle right so it is obvious that the girl had the bicycle similarly I can't um uh
+11:36 similarly the boss did not have a Tes telescope of course B is not a human
+11:41 being so uh it is very clear that I saw the bir through telescope okay so the
+11:48 same syntax but the first case uh the first sentence was a bit ambiguous if
+11:54 you do not know the if you do not know the the the the semantics I mean it's
+11:59 very difficult to decipher the semantics where whereas the next two sentences the semantics is very
+12:06 clear okay so the next example is this one Mary had a little
+12:13 lamb okay so what do you think is this ambiguous yes this is also ambiguous
+12:20 because uh in in one case uh it is indicating that uh uh Mary had a lamb
+12:27 which which was basically an animal right whereas the other example the other semantics can be that Mary
+12:33 basically ate a lamb okay let's look at some the regional languages Hindi for
+12:43 example right so it is not very clear who is uh offering M to
+12:50 whom what do you think who is offering M to whom
+12:59 so it depends on so so this is called pragmatics okay it's a very interesting
+13:05 aspect of NLP right uh uh it has been very interesting aspect of NLP before
+13:11 llm hijacked the entire world of NLP right but pragmatics deals with the way
+13:16 you speak right the tone the intonation the the hand movement the face movement
+13:23 and so on and so forth based on that you determine the meaning of this sentence
+13:28 right uh for example let's say if somebody if if let's say if I ask this
+13:35 boy right who is coming to the class now what's the time exactly so so if I ask him what's
+13:44 the time so he's basically giving excuse that sorry sir I was not able to find the room etc etc right but the ideal
+13:52 response would be the time is 115 okay please come and
+13:58 see okay so uh this is important now let's look
+14:03 at let's look at this uh three um sentences now I ate rice with spoon I
+14:10 ate rice with card I ate rice with Rahul right same
+14:16 syntax same syntax right uh syntactically they are same but
+14:22 semantically they are very different okay spoon was used here as an instrument right card was used as a as a
+14:31 as an auxilary food right with rice and Rahul here basically was used as a as as
+14:38 somebody who was accompanying me right so they are very
+14:44 different now let's look at punctuation ambiguity okay so if you look at this
+14:53 sentence let's eat Grandma right versus let's eat comma
+14:58 grandma if you look at the sentences again the only difference is in terms of this comma right but the meaning is
+15:05 completely different so punctuation is very important I I'll show you some other examples some other crazy examples
+15:11 look at this one a woman without her man is
+15:17 nothing okay so we all understand the meaning of this right now let's look at
+15:23 the beauty of punctuation a woman without her man is nothing this is a meaning that we can interpret easily now
+15:29 now if you add this colon here and a comma here a woman colon without her man
+15:35 is nothing right so uh this is the power of
+15:42 punctuation now let's look at this one this is my favorite example right I always start my NLP course with this
+15:48 example okay so buffalo buffalo buffalo buffalo buffalo buffalo buffalo buffalo eight times the word Buffalo is
+15:55 repeated right do you think it's a valid sentence
+16:00 right this is a valid sentence and this is one of the crazy sentence crazy sentences that people always use to uh
+16:07 to basically show that how is difficult so if you look at this sentence the word
+16:13 Buffalo right uh has three meanings Buffalo is used as an animal
+16:21 buffalo is used as an American state and buffalo is used as a verb right which means to bully
+16:28 someone clear three meanings now look at it carefully now look at this colors
+16:33 color codes now look at this this carefully now I I just added a few
+16:38 punctuations here and there now look at it buffalo buffalo meaning the the
+16:44 American states Buffalo right who other buffalo buffalo
+16:51 buffalo right right meaning so so there are two sets of
+16:58 Buffalo here in in American state right so one set of Buffalo one set of
+17:04 buffalos are are bullied by another set of Buffalo right and they also bully
+17:09 them so buffalo buffalo whom other buffalo buffalo buffalo buffalo buffalo
+17:17 buffalo okay so this is a valid sentence now why NLP is difficult n NLP
+17:24 is difficult because of specifically these issues right so
+17:30 uh uh we have non-standard English right specifically in the era of social media
+17:36 we see a lot of nonstandard English like uh LOL right R to it it is also a uh
+17:43 grammatic not a grammatically incorrect word but it's not a dictionary word okay so non-standard English then
+17:49 segmentation issue uh if you feel that a space can be used to segment tokens
+17:55 right that may not be correct for example if you look at here the New York
+18:00 New Heaven Railway right if you uh tokenize it using um using space you
+18:07 will get a different you'll get a separate uh I mean a very different and
+18:12 erous tokens essentially the third problem is edms multiword okay so multiword is a
+18:19 term that we use in in NLP to indicate those terms which are um whose surface
+18:26 meaning is very different from the actual meaning for example hot dog okay surface meaning is a dog which is
+18:33 hot or who is hot whatever right but the actual meaning is uh is basically a
+18:38 food similarly all the phrasal verbs right uh Regional languages if you look
+18:44 at phrase like Kan kanana Kina Etc right
+18:49 and so on and so forth ne ne neoism so it's basically those words
+18:56 which are not a part of dictionary for example unfriend retweet right and so on and so forth
+19:02 T world's knowledge world's knowledge is very important for example you know uh
+19:08 um I think in 2020 in 2014 2015 there was an article which essentially showed
+19:15 that one of the uh parsers right um one of the parsers which was which was built
+19:21 based on Stanford's uh Corpus it was not able to recognize um Mel Obama as a as
+19:29 as the wife of bar Barak Obama right it essentially returned Mel Obama as the wife of J bu okay so so Wall's knowledge
+19:38 is very important and it's it's very difficult to incorporate W's knowledge into into the
+19:45 model and the next uh the tricky problem is the tricky named entity right let's
+19:52 say late it B was recorded you need to understand that
+19:58 late it be is a single named entity right and it is referring to a it is referring to a song
+20:06 right uh but if the these three words Let It Be appear in a different context
+20:11 right and then then you consider let it be as three different tokens right but if it appears in the context like this
+20:19 then you have to identify or you have to mark let it be as a unique a single
+20:25 token okay okay so in NLP uh when you talk about NLP NLP is
+20:32 categorized into two components or you know two two aspects are there in NLP uh
+20:37 one is natural language understanding right where we mostly try to understand
+20:42 uh a language right meaning let's say Sy analysis right part of speace tagging uh
+20:48 part seeing and so on and so forth right uh whereas the other uh aspect is
+20:53 natural language generation right where we talk about generating a language generating a sentence generating a
+20:59 phrase right chatbot basically comes under natural language generation where we
+21:04 generate uh sentences tokens and and this is the layer NLP
+21:11 layer that we follow generally we start with morphology morphology deals with I'll talk about
+21:17 all these layers one by one but uh in a very very high level overview morphology
+21:22 is basically study of um word structure right prefix suffix uh infix C com fix
+21:29 and so on and so forth then we talk about um uh syntax now within syntax we have
+21:37 POS tagging part of speace tagging we all know what is part of speace tagging right uh there is chunking in chunking
+21:44 we essentially uh uh essentially group different words into chunks right noun
+21:50 chunk verb chunk and so on and then we have paring the parsing deals with uh the actual uh syntactic understanding of
+21:57 a sentence we we try to build a par tree right a grammatical a grammar
+22:04 essentially right uh from the sentence then the most difficult part is
+22:10 semantics right so morphology and uh syntax these two things essentially deal
+22:16 with the surface form of the sentence surface form of the token right but when
+22:21 it comes to semantics and the upper part of semantics pragmatics discourse these
+22:27 layers essentially connect NLP uh to the world to the society right because now
+22:35 we start thinking of uh pragmatics context World Knowledge and so on so
+22:41 semantics deals with understanding the meaning of it and then the last one is
+22:47 pragmatics and discourse okay so pragmatics is essentially about pragmatics is all about context
+22:54 right depending on the context uh the meaning of uh the sentence can change
+22:60 and discourse is basically about um about a discussion right let's say there
+23:05 is a there's a discussion happening between two parties multi parties right we look at the entire context and then
+23:11 we respond accordingly okay so from bottom to top we basically move towards increasing
+23:17 complexity and uh and the model will also become harder and harder now this
+23:23 is uh this is called NLP Trinity okay so you see a three dimensional figure here right x-axis
+23:31 indicates uh different languages right we have Hindi marati English French Etc
+23:38 Y axis indicates different tasks right parsing uh P tagging morphology right uh
+23:46 semantic role leveling and so on so this is Task this is
+23:51 language and this is algorithm okay so CRF uh hmm hidden Mark
+23:58 of model conditional random field mm right maximum entropy Mark of model but
+24:04 there are other models deep neural network LM Etc right so these are essentially models to to solve these
+24:12 problems across this languages okay okay now let's look at uh these
+24:19 layers one by one I'll again very very briefly talk about it I'll not talk about any algorithm to essentially solve
+24:25 these problems but if you let's say if you go through uh duraski Martin's book you can uh you can easily understand it
+24:32 but if also you can you can take any online lectures if needed so the first and most important
+24:38 part uh is the word or a token right as I mentioned last class I guess token can
+24:45 be a word token can be a character token can be a subword right and specifically in the context of llm tokenization is
+24:52 very very important right we will talk about different types of tokenization later on
+24:60 uh but uh might pair what P sentence p and so on and so forth but tokenization
+25:05 is very important don't assume that tokenization can can be possible by you know using
+25:12 the space you use the space and then you tokenize words it's not that easy okay
+25:17 for example if you look at the first sentence here uh you you may use the uh
+25:26 I me you may use punctuation like comma full stop uh and space right for token
+25:31 tokenization but if you use the same uh way to tokenize this sentence all right
+25:39 uh it will produce an an erroneous token because because you see here uh this
+25:45 entire sentence is a single token this entire number is a single
+25:50 token right so this is important now if
+25:55 you feel that uh let's look at I mean if you if you consider full stop as a delimer for example for tokenization you
+26:03 fail here right because this URL is a single token right you can't split the URL into
+26:10 multiple tokens based on this full stop right and similarly you know these
+26:16 days hashtags are very popular so uh hashtag within a single hashtag there is no space at all right so uh great day if
+26:25 you want to tokenize it it would be very tough to tokenize okay so
+26:31 morphology as I told earlier morphology is basically a study of words how they are formed their relationship to other
+26:37 words in the same language it also analyzes the structure of the word part of parts of the word suffix stem root
+26:44 words prefix and so on right so uh if you have a
+26:50 morphological parser right you if you feed let's say if you feed um uh
+26:57 independently as an input to the parcel the parcel will essentially return this
+27:04 independent plus ly independent can also be broken into independent ly right so
+27:12 essentially you will see that paror may return this one inde depend
+27:20 endly right so these are individual morphins which are used to essentially
+27:27 form this particular token right uh how do you how do you do
+27:33 this kind of tokenization there are ways like I mean we can use finest automata right if you if you are aware of
+27:40 automata theory right use finest automata to essentially and you have multiple rules and you use those rules
+27:47 for for splitting a word into multiple multiple morphs
+27:52 okay um now here in this context another
+27:57 aspect is very important so uh so essentially what morphology does
+28:03 morphology uh Returns the steam of a word the root word of a word root word
+28:08 of a surface word right and it it it separates the other affixes right
+28:15 like infix prefix postfix and so on right
+28:20 so in this context uh we need to understand
+28:29 the difference between staming and lemmatization okay so
+28:35 staming and lization these are two types of algorithms used uh for morphological
+28:41 analysis right stemming returns uh a stamed word or a root word
+28:49 which may not be a dictionary word whereas lemmatization returns a
+28:55 root word which will always be a dictionary word right then the obvious question would be
+29:02 why do we need stemming lemmatization can be useful I mean we can only use limitation why do we need stemming the
+29:08 reason is that the reason behind using stemming is that stemming is very fast right stemming is uh I mean compared to
+29:16 lization because in order to do lization you need to have a dictionary right and
+29:21 dictionary is something which which always changes over time right so and
+29:27 but but steaming at at least guarantees most cases guarantees that if
+29:33 there are two different surface wordss if they are generated from the same LMA
+29:39 right stemming guaranteed stemming always guarantees that they stemmed word
+29:44 is always the same so you can always you you can always say that you know you can always
+29:52 uh uh identify whether these two whether two surface words ESS came from the same
+29:60 root or not okay so
+30:07 morphology if you look at different languages English Chinese Etc right they
+30:13 are morphologically poor languages right whereas languages like
+30:19 Hindi is morphologically Rich now let's let's look at example so I will go we
+30:26 will go you will go he will go she will go right uh same uh kind of same surface
+30:34 sentences right now if you look at the Hindi translation of these
+30:41 sentences
+30:47 right and so on and so forth right
+30:52 so so the complexity in Hindi language uh is that the the word
+30:59 itself is what the verb has
+31:07 a the verb has a gender right so in fact I I have not
+31:14 been able to understand this properly but U but therefore right languages like
+31:21 Hindi Hungarian they are morphologically rich language okay syntax so syntax
+31:27 concerns the way in which words can be combined together to form a sentence okay
+31:35 uh right so po tagging chunking pursing these three steps basically are part of
+31:42 the syntactic analysis of a language right po tagging part of speech tagging
+31:48 we all know right how many part of speech you are aware of noun
+31:54 pronoun adjective verb adverb preposition conjunction interjection article maybe right but in English uh
+32:01 there are different types of tag tag sets right for example if you follow pain Tre Bank uh nomenclature P pentry
+32:08 Bank tag said there are 45 english tags tags like PP PRP personal pronoun
+32:16 VR VR D verb past right DT determiner there are 45 such tags right if you look
+32:23 at C7 uh tag set there are 146 tags
+32:29 so it's not as simple as we think of okay but here also in P tagging there is
+32:35 a there's a problem of ambiguity okay let's look at these two sentences he went to the park in a car
+32:43 they went to park the car in the set so the word Park here is used in the
+32:50 first sentence as a noun in the second sentence as a verb right so if you think
+32:56 that if we can just create a right or List where all possible wordss
+33:01 and the corresponding POS tags uh you know can be uh can be added and you know
+33:07 when we talk about po we just look at the dictionary and then F the relevant po tag po tag that's not going to work
+33:15 okay need to understand the context again chunking is the second uh step
+33:21 within um within uh syntax right so chuning deals with essentially uh uh
+33:29 segregating different tokens into uh uh into groups for example here he the word
+33:36 he is a is a noun phrase right went is a ver phrase to is a prepositional phrase
+33:42 and the Indian city Mumbai is a noun phrase right now let's look at this one
+33:48 this is not that easy by the way let's look at this one Mumbai green lights uh women icons on traffic signals arms
+33:55 Global praise
+34:01 right so here Mumbai green signal woman icons this is the this is a single noun
+34:09 phrase okay on is a prepositional phrase traffic signal is another phrase another
+34:15 noun phrase and then ears is a main verb okay and then uh and and then uh
+34:25 praise Global praise is essentially uh now phrase okay so now once we once we are
+34:34 done with POS tagging and chunking the next stage is
+34:39 parsing right and what is the purpose of the pursing the purpose of a personing
+34:45 is essentially given a sentence like this he eats a mango right your task
+34:50 would be to build this kind of tree okay let's assume that you already know the part parts of speech of all the
+34:57 token let's say he is PRP right uh its is vbz
+35:04 Right a is determiner mango is NN right and then your task would be to
+35:10 group this uh first level po tags right
+35:15 into into chunks right uh DT so determiner and
+35:21 noun they are combined to to basically form the noun phrase right then V phrase
+35:26 and uh uh verb and noun phrase are combined to form the verb phrase and so on and so
+35:32 forth okay now this is not simple let's look at this let's look at an ambiguous
+35:38 example here the same example I saw a girl with a telescope
+35:43 okay so if you look at the first level POS
+35:49 tagging right here oh sorry uh like this
+35:60 okay the first level P staging is the same both the cases right but in this
+36:07 case where the where I had the telescope right and
+36:13 why the telescope I I I saw the girl here um here what happened is that
+36:22 um you know this uh this noun phrase right and the prep
+36:28 they they combined together to form this PP prepositional phrase and PP NP and verb so verb noun phrase and
+36:35 prepositional phrase they are combined together to form the V phrase right whereas
+36:40 here here you see that uh see this PP NN and determiner they are combined
+36:47 together to form a noun phrase right so then then the noun phrase and the ver verb they are
+36:53 attached and they form the verb phrase right
+37:00 so in this way we basically resolve the ambiguity problem now the next step is
+37:05 semantics and semantics as I mentioned earlier semantics is a step after which
+37:10 from semantics and after semantics we essentially try to try to connect
+37:16 language with the world okay so semantics is concerned with meanings of words and how they are combined together
+37:21 to forms phrases and sentences so semantics I mean if if you if you tell
+37:28 me to give a to take a class on semantics only I can give a lecture on on on semantics on enter class I mean
+37:35 enter enter course okay it's very very important very very uh very very uh kind
+37:41 of in-depth uh topic but uh very high level semantics essentially can be
+37:47 classified or semantics of a sentence uh can be can be done in three three ways
+37:53 the first one is uh decomposition right decompositional semantics the second one
+37:58 is ontological semantics and the third one is distributional semantics okay
+38:03 let's look at decompositional semantics so in decompos semantics the so what we do we decompose
+38:11 a sequence into wordss and then we essentially try to decompose every word okay something like
+38:19 this so here you see uh there are uh you know
+38:25 in this particular figure there are uh there's a boy there's a girl there's a man and there's
+38:33 a woman right so we look at each an individual entity here separately and
+38:41 let's assume that these are the three features based on which we characterize each each character or each entity right
+38:48 human female adult these are the three features based
+38:53 on which we characterize these four entities so boy is a human
+38:59 not a not a female not an adult a girl is a is a is a human uh is
+39:07 a female right not an adult man is a human not a female he's an adult right
+39:15 and woman is a female uh human and an adult right so we look at individual
+39:22 entity and then we dig deeper into each of the entities and try to understand the semantics
+39:28 ontological semantics so onology some of you know what is onology right can you give me an example of
+39:35 ontology in ontology essentially tokens or entities are connected connected
+39:40 through different relations give give an example of an
+39:47 ontology onology example W net right so wet is an onology in wet so
+39:55 wet is is a is a resource or is a Tas right U developed by um developed
+40:03 through a consort Consortium long back 1995 1996 that time uh I think it was a
+40:10 six seven years of long project different versions of wet were were came uh came up after that so wet in uh so in
+40:19 wnet what happens is that within a wet we have different tokens right let's say let's say motor
+40:26 vehicle tractor right wagon vehicle and so on and so forth golf cart and so on
+40:32 and so forth right these are these are different entities entities are connected through different relations
+40:37 right this is this is same as ER diagram right database entity relationship
+40:43 diagram right uh here also there are different uh different relations between entities
+40:50 Isa right has part of right uh and then
+40:55 uh uh let's say uh same as opposite to these are
+41:01 different relations right and these relations can be classified into these forms uh synonym antonym uh hyper hypony
+41:10 meronym Hony and so on and so forth right these are different types of relations and through these relations
+41:17 entities are connected right for example selfpropelled vehicle is a uh is
+41:24 a wheeled vehicle right motor vehicle is a self-propelled vehicle tractor is a self probable vehicle and so on and so
+41:30 forth right car has part of car um car window and so on so in ontological
+41:37 semantics then what we do uh given a sentence we look at the existence of
+41:42 individual tokens within the wet for example within the onology and then we
+41:48 return nearest neighbors of that token right so for for each individual token
+41:54 we have a set of Neighbors which essentially characterize that token right and then we look at the similarity
+42:00 between tokens in terms of the neighbors if if there are high if there is high overlapping between neighbors then maybe
+42:07 two tokens are similar okay but here the problem is that designing such an
+42:13 onology is very tough it requires a lot of manual labor and the way new new wordss are coming in
+42:20 uh into the picture right it's not possible to come up with a complete onology right where all possible uh in
+42:27 all possible wordss tokens are present okay therefore we essentially came up with
+42:35 this idea of distribution semantics okay so this is the this is the premise
+42:40 behind uh all recent models for example uh all recent water embeding methods
+42:46 like what to V glove we'll discuss in the next week maybe right this is the premise behind have this so in
+42:52 distributional semantics the idea is that a what is uh is represented or the
+42:59 word is characterized by the surrounding words right a meaning of a meaning uh
+43:06 the meanings of words can be derived from their distribution properties in large corpor of text right it relies on
+43:12 the context in which words appear let's look at example okay let's
+43:18 see you have words like this dog cat Lion Light bark and so on right and you
+43:26 and and you have a document right you have a corpus from the Corpus you build this
+43:31 Matrix and this Matrix is called cooccurrence Matrix right so rows are unique tokens
+43:41 types right columns are unique tokens right it's a square Matrix let's
+43:48 assume it's a square Matrix right and of course this example is not a
+43:54 square Matrix but ideally it's a square Matrix okay and each
+43:59 entity within this Matrix indicates number of times the word dog let's say
+44:06 this entity five indicates the number of times the word dog and the word walk
+44:11 coae together right what do you what do I mean by COA together Co coing together
+44:18 how do we measure this we have a document and let's say you have a
+44:24 threshold you have a sliding window of size 10 right so you look at 10 words at
+44:29 a time so you look at first 10 words and see whether they coar whether I mean
+44:34 which words coar together then you move it by what by one step and then you look
+44:40 at again uh which words coar together and so on and so forth right you determine the sliding uh sliding window
+44:46 size and based on that you basically create this Matrix now if you look at this Matrix
+44:52 carefully dog and cat right they coar with the word
+44:58 pit right they coar with the word owner
+45:04 right they coar with the word run right but they do not coae with the word
+45:13 bark right uh but but but still out of
+45:18 out of six words uh maybe in uh three to four words they coopar together that
+45:24 means they they are semantically similar but if you look at dog and car for example right they rarely they rarely
+45:32 coar except this owner right so a simple way of looking
+45:39 at semantics uh IND distri semantics context is that each
+45:45 row right acts as a vector for the token right now if you want to measure
+45:52 the similarity between two tokens you essentially F two rows and measure the similarity between two vectors using
+45:59 cosine similarity dot product and you know other types of similarity measures
+46:04 okay this is a very very very simple way there are problems we'll discuss D semantics and the problems in the in the
+46:11 word word embeding chapter pragmatics deals with um pragmatics
+46:18 deals with the the context okay so very nice definition of
+46:24 pragmatics is that pragmatics is essentially the negotiation of
+46:30 meaning between between speaker and listener so very nice phrase I like this
+46:35 phrase a lot this this is this is taken from this paper the negotiation of meaning between speaker and
+46:41 listener I already given example right uh do you know the do you know what time
+46:47 is it right the literal meaning is essentially are you aware of the current time and the answer should be you know
+46:52 the current time whereas the pragmatic meaning is that you are essentially late okay
+46:59 similarly uh if you look at this uh sentence can you pass the water bottle
+47:05 right what would be the response what would be the response you
+47:10 just pass it right but if you say that yes I can then stop
+47:17 right then it's not a right uh right answer now this
+47:22 course is a is a toughest is a most difficult part of NLP it essentially
+47:29 deals with uh dialogue okay
+47:35 so let's say uh there's a sentence like this a mother to John go to school it is
+47:41 open today are you planning to Bunk father will be very angry right there's a uh dialogue between two parties and
+47:50 then you ask question like what is open bankk what why the father is angry and
+47:55 so on and so forth so you need to look at the discourse context and then you respond
+47:60 right so the way we we we ask questions to chat gbt you have seen right chat gbd
+48:05 has multiple sessions right so let's say within a session if you ask about NLP
+48:11 and suddenly you move to some political uh prompts right you'll see the model fails terribly right so yesterday I was
+48:19 I was uh playing with sht and um
+48:25 um I I I was what's the forget
+48:31 uh I was asking about um an appropriate definition of NLP right but in a
+48:37 different context again the the earlier context was different I was earlier I was talking earlier I was discussing on
+48:45 some Quantum quantum theory Etc and then suddenly I asked you know what is NLP then it returned that NLP is a is a uh
+48:54 is a Neal language proy okay by the way if you if you search the word NLP on the
+49:00 internet right you see how many how many how many uh full phrases are there for
+49:07 This Acronym NLP 13 13 to 14 search with the word NLP okay and see how many how
+49:14 many full versions of NLP are available on the internet there are 13 14 different versions of NLP that that's
+49:20 very crazy okay so let's look at very quickly this is the last part of the today's
+49:26 class let's look at some of the uh some of the tasks that we are interested in
+49:31 right and these tasks are generally used to evaluate the models right LMS and
+49:37 other types of models uh semantic role leveling so semantic role leveling uh
+49:44 deals with this right so let's say you have a sentence right and you try to
+49:49 understand different uh you try to understand different roles of wordss
+49:55 right uh in this case say let's say John drove Mary from Delhi to Pune in his car
+50:03 so the roles are agent patient Source destination right now these roles are
+50:08 already given to you and your task would be to assign these roles to the to the
+50:14 to the Ws okay this is called semantic role leveling the next one is textual
+50:21 ement ement task right you are given two sentences for example let's say Ram hit
+50:27 sham with a hockey stick yesterday sham got hot okay so whether the second
+50:33 sentence is is entailed from the first sentence or not right so in this case it
+50:38 the second the first sentence ENT second sentence right therefore this a positive pement example whereas the second one
+50:46 ram hit samam with a hocky stick yesterday Sam did not get h a negative ement the last one Sam got his first
+50:54 goal so it has nothing to do with the it has nothing to do with the first first
+51:01 um first sentence so this is U non inment okay cor reference
+51:09 resolution it is actually very tough when the contest becomes larger and larger let's say this one John SS Bob
+51:16 his Toyota yesterday right look at this sentence John shows Bob his to Toyota
+51:23 yesterday it's similar to the one I bought five years ago that was really nice but he likes this
+51:31 this one even better now here is refers to whom John
+51:37 or Bob this is not clear okay so in cor reference resolution we essentially
+51:44 resolve this problem right so there are refering expressions like his its these right
+51:52 which it refers to right is ambiguous and we essentially try to uh
+51:58 disambiguated itat whether it is referring to Toyota or what right that
+52:05 was really nice now look at this that was here that refers to Toyota or that
+52:11 refers to the one which I bought 5 years ago okay it's not very clear he refers
+52:19 to whom John or Bob again it's not very clear okay so in core resolution we
+52:25 resolve these problems information extraction we all know right let's say uh let's say you got an
+52:32 email and uh you may have seen Google these days automatically block your
+52:37 calendar based on the email right let's say you booked a hotel right uh you got a confirmation of your booking and you
+52:45 see that your calendar will be booked automatically by by Gmail this is information extraction
+52:52 information extraction also deals with um you know identifying um names named
+52:58 entities right relations between entities right so named entity recognition is again another task right
+53:05 there are multiple types of name named entity tags uh person location organization time Dollar uh sorry
+53:13 currency right and so on and so forth there are multiple named entity tags and the task is essentially to identify
+53:20 named entities U relation extraction given let's say given two
+53:25 entities uh your task could be to extract relations this relations are either given or you you can I your task
+53:32 can be to cure relations from from the web right wsd is again very difficult
+53:39 task what sense disambiguation let's say for example the what bank whether Bank
+53:44 refers to a financial sector or Banks is a river bank uh is something that we uh
+53:50 we we need to disambiguate again apple apple and so on sentiment analysis all of you know right essentially the task
+53:58 is to categorize every sentence into into positive sentiment negative sentiments or NE neutral sentiment uh
+54:04 another related task is emotion emotion detection right there are six different emotion tags happy sad Etc and you
+54:13 categorize every utterance into emotions machine translation is very important task it's one of the oldest tasks is NLP
+54:20 right uh I mean in this class I wanted to also talk about the history of NLP
+54:28 but I thought let's skip it if you look at if you go to Wikipedia and the history of NLP you see that M learning
+54:35 machine translation is a task which started uh early 1960 1965 okay and in
+54:43 1965 um uh you know that time uh I think
+54:49 English to Russian Russian to English uh task was there and and there were 65 70
+54:54 odd sentences and based on some rules they were able to successfully translate Russian to English and English to
+55:01 Russian and they they thought that it was solved right but till date this is
+55:08 an open problem Meine translation okay
+55:14 um when you talk about mine translation there are bias within the model okay for
+55:19 example if you translate sees a doctor uh with Google translator you see this
+55:24 kind of translation Who Doctor right right English to Hindi now you use the same Hindi uh to again translate it to
+55:31 English you see then uh the Google translator will say that he's a doctor right
+55:37 because of course I think that the I mean today's Google translator has been updated but it has been taken long time
+55:45 before but anyways so the there is bias but now look at this one
+55:52 okay uh first first
+55:57 and this is a translation eating carpet strictly prohibited
+56:02 okay okay so the next task is summarization T summarization where given a long paragraph or document your
+56:09 task is to summarize it into short paragraph right even very short kind of tldr uh summary on line summary right
+56:16 there are three different types of summarizations one is uh extractive summarization where you identify
+56:22 important sentences from the document and you just copy paste those sentences right and you form the doc uh uh the the
+56:28 summary whereas abstractive summarization you uh identify important
+56:34 sentences as well as the semantics and you rephrase them right to generate a uh the summary
+56:41 the third type is aspir based summary where given an aspect okay uh your task would be to
+56:48 only summarize document with respect to that aspect right let's say you have a set of
+56:56 reviews of a product right you are only interested in getting a summary of the reviews with respect to let's say
+57:02 battery charge right of a mobile right so the the the summar should be aspect B and of
+57:09 course there are other types of summaries like extreme summarization like tldr multimodal summarization and
+57:15 so on question answering uh again an unsolved task right people earlier
+57:22 people have been thinking that this may be solved but it's not a very uh easy problem there are three types of
+57:28 questions that we are interested in factored questions right like uh who is
+57:33 who is the president right who is the father who is the mother and so on and so forth right least type questions what
+57:40 are the uh what are the islands in India right you basically produce a list and a descriptive question which is the
+57:47 difficult one fracture fractured questions and list questions are easy to
+57:52 uh evaluate but descriptive questions are difficult to evaluate that systems we all know right chatboard is an
+57:59 example of dialog systems okay so we will we will see how this
+58:05 task uh can be solved using large language model okay thank you

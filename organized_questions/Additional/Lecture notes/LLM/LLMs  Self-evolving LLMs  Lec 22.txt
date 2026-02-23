@@ -1,0 +1,3388 @@
+00:03 uh hello everyone I'm yatin from IBM
+00:05 
+
+00:05 research and today we will discuss about
+00:07 
+
+00:07 self- evolving llms and uh before I
+00:11 
+
+00:11 begin the presentation I want to
+00:12 
+
+00:12 acknowledge and thank DH Ragu who helped
+00:14 
+
+00:14 me create the
+00:15 
+
+00:15 deck so with that note uh let's start
+00:20 
+
+00:20 and let us start with looking at the
+00:22 
+
+00:22 current you know the evolution of
+00:24 
+
+00:24 llms right uh so in 2018 and 19 uh B and
+00:29 
+
+00:29 gpt2 came and they relied mainly on
+00:32 
+
+00:32 pre-training right using
+00:35 
+
+00:35 self-supervision okay and then uh around
+00:38 
+
+00:38 a year later in 2020 T5 came which also
+00:43 
+
+00:43 relied on some sort of supervised fine
+00:45 
+
+00:45 tuning right essentially It cast each
+00:48 
+
+00:48 task as a generation task even a
+00:51 
+
+00:51 classification task as a generation task
+00:54 
+
+00:54 right and use annotated data right to
+00:58 
+
+00:58 train right and then uh came human
+01:03 
+
+01:03 alignment around 2022 with instruct GPT
+01:07 
+
+01:07 and here the models were aligned to
+01:10 
+
+01:10 human preferences in addition to
+01:11 
+
+01:11 following the
+01:13 
+
+01:13 instructions right and if you look at uh
+01:16 
+
+01:16 any model that is there right now K
+01:18 
+
+01:18 ofthe art model it has to go through all
+01:21 
+
+01:21 of these three stages of evolution we
+01:25 
+
+01:25 always start with pre-training on a
+01:27 
+
+01:27 humongous amount of data right using
+01:30 
+
+01:30 self supervision and then we have a huge
+01:33 
+
+01:33 amount of instruction following data set
+01:35 
+
+01:35 which is which is similar to S
+01:37 
+
+01:37 supervised fine tuning or instruction
+01:39 
+
+01:39 tuning and after that uh we take
+01:41 
+
+01:41 responses from these models and ask
+01:44 
+
+01:44 human annotators to choose the better
+01:46 
+
+01:46 one right and this is done and we use
+01:49 
+
+01:49 human preference to further align the
+01:52 
+
+01:52 these models to human preferences right
+01:55 
+
+01:55 and one thing which is common in all of
+01:58 
+
+01:58 these three is that all of these three
+02:00 
+
+02:00 steps are data
+02:02 
+
+02:02 hungry right I mean Lama 3 uh I think
+02:06 
+
+02:06 has looked at 15 trillion
+02:09 
+
+02:09 tokens right so where do we go from here
+02:12 
+
+02:12 what is the next
+02:14 
+
+02:14 step right do we need to depend on this
+02:18 
+
+02:18 much of data or can we do something
+02:22 
+
+02:22 different right and uh to answer that
+02:26 
+
+02:26 question let's go to a recent past and
+02:30 
+
+02:30 and uh you know look at Alpha go so how
+02:33 
+
+02:33 many of you know about Alpha go which
+02:35 
+
+02:35 made Deep Mind quite
+02:37 
+
+02:37 popular right so do you guys know what
+02:40 
+
+02:40 was the success of alpha go what what is
+02:42 
+
+02:42 it that because of which it became uh
+02:46 
+
+02:46 very successful and
+02:47 
+
+02:47 Powerful okay so training of alpha go
+02:52 
+
+02:52 had two
+02:53 
+
+02:53 stages right first one was imitation
+02:57 
+
+02:57 learning here the model is shown a lot
+03:02 
+
+03:02 of human plays right and it it is
+03:05 
+
+03:05 trained to mimic the human choices right
+03:08 
+
+03:08 it will be shown the current state of
+03:10 
+
+03:10 the game right and we will train it to
+03:14 
+
+03:14 predict the human move so that acts as
+03:17 
+
+03:17 an you know annotated
+03:19 
+
+03:19 data right so this is similar to
+03:22 
+
+03:22 pre-training or sft or
+03:25 
+
+03:25 rlf but this was not sufficient and the
+03:28 
+
+03:28 thing that actually made the difference
+03:31 
+
+03:31 was learning bya selfplay right so once
+03:36 
+
+03:36 the model was at a good enough point
+03:37 
+
+03:37 after imitation learning two copies of
+03:40 
+
+03:40 the model would play against each
+03:42 
+
+03:42 other right so first we need to generate
+03:45 
+
+03:45 new trajectories by playing against
+03:47 
+
+03:47 itself this is the first thing that
+03:49 
+
+03:49 happens then while doing so it also
+03:52 
+
+03:52 needs to identify what is a good move in
+03:54 
+
+03:54 order to take a move it needs to
+03:55 
+
+03:55 identify what is a good move right and
+03:58 
+
+03:58 once game comes to a termination we will
+04:02 
+
+04:02 get a signal from the environment we
+04:05 
+
+04:05 will know whether which agent won the
+04:06 
+
+04:06 game right and then we can use
+04:09 
+
+04:09 RL to train the model using that
+04:14 
+
+04:14 signal right so this is what made the
+04:18 
+
+04:18 difference and this is what we are
+04:20 
+
+04:20 calling self-
+04:21 
+
+04:21 Evolution the major difference here is
+04:24 
+
+04:24 that the model is not relying
+04:27 
+
+04:27 on data to
+04:31 
+
+04:31 train right now in the context of uh
+04:36 
+
+04:36 language models how would it look like
+04:39 
+
+04:39 right so it essentially means that we
+04:42 
+
+04:42 need to first the first step is going to
+04:44 
+
+04:44 be experience
+04:45 
+
+04:45 acquisition this is similar to
+04:48 
+
+04:48 generating
+04:49 
+
+04:49 trajectories right uh Second Step is
+04:53 
+
+04:53 experience refinement because here you
+04:55 
+
+04:55 may get a lot of noisy data so you need
+04:57 
+
+04:57 a way of identifying good samples this
+04:60 
+
+04:60 is similar to identifying good
+05:01 
+
+05:01 moves and then you need to update the
+05:04 
+
+05:04 model this you can do using uh
+05:06 
+
+05:06 supervised fine Turing or RL right and
+05:08 
+
+05:08 then you need to evaluate and and then
+05:11 
+
+05:11 move on in the circle right now what are
+05:15 
+
+05:15 the challenges if we apply such a
+05:17 
+
+05:17 paradigm for language models right so
+05:20 
+
+05:20 let's let's look at each step one by one
+05:24 
+
+05:24 so the first step is experience
+05:25 
+
+05:25 acquisition as we discussed this is
+05:27 
+
+05:27 similar to generating new game
+05:28 
+
+05:28 trajectory trajectory by playing against
+05:31 
+
+05:31 itself like the first step in self play
+05:34 
+
+05:34 now the question is how would you
+05:35 
+
+05:35 construct synthetic data for LM training
+05:37 
+
+05:37 you need to generate both input and
+05:39 
+
+05:39 output right so this is first challenge
+05:43 
+
+05:43 in the first
+05:45 
+
+05:45 step then in experience
+05:49 
+
+05:49 refinement here you need to this is this
+05:52 
+
+05:52 is similar to identifying good moves in
+05:54 
+
+05:54 some sense and again we have the same
+05:56 
+
+05:56 challenge we don't know how to identify
+05:59 
+
+05:59 a good good move
+06:00 
+
+06:00 right how would we know whether a
+06:03 
+
+06:03 particular generated answer is good or
+06:04 
+
+06:04 bad or a partial answer is good or bad
+06:08 
+
+06:08 and finally uh the third step is
+06:10 
+
+06:10 updating while uh in Alpha go we use we
+06:15 
+
+06:15 get a deterministic reward in the end
+06:17 
+
+06:17 right in the end we know who's the
+06:19 
+
+06:19 winner who's the loser so that is a
+06:20 
+
+06:20 reward and we use that to fine tune
+06:25 
+
+06:25 right here uh there is no accurate or
+06:29 
+
+06:29 you know unambigous environment that is
+06:30 
+
+06:30 giving us the feedback whether the
+06:32 
+
+06:32 output is good or bad right so this part
+06:35 
+
+06:35 this is a challenge here as well because
+06:38 
+
+06:38 I mean this these are related in some
+06:40 
+
+06:40 sense right and and here then the next
+06:45 
+
+06:45 part which is slightly easier is you
+06:47 
+
+06:47 know once we have the data depending on
+06:49 
+
+06:49 the kind of data we will pick whether we
+06:52 
+
+06:52 use RL or supervised fine tuning to
+06:56 
+
+06:56 train the model right so uh for example
+06:60 
+
+07:00 data could we could generate the
+07:02 
+
+07:02 synthetic data in the form of
+07:03 
+
+07:03 preferences that a model generates two
+07:05 
+
+07:05 responses and uh somehow we figure out
+07:08 
+
+07:08 which one is better and we use that
+07:10 
+
+07:10 signal to train via DPO or or po right
+07:15 
+
+07:15 or alternatively for a given input we
+07:17 
+
+07:17 could identify a good response and use
+07:20 
+
+07:20 that in supervised fine tuning setup in
+07:22 
+
+07:22 the talk today we will look at some of
+07:24 
+
+07:24 the methods which apply this Paradigm of
+07:27 
+
+07:27 self- evolution to improve upon a base
+07:30 
+
+07:30 language model right okay so let's begin
+07:33 
+
+07:33 with uh with with the first paper star
+07:37 
+
+07:37 it is called selftaught Reasoner and
+07:41 
+
+07:41 here what we do is that we begin with a
+07:44 
+
+07:44 pre-trained model right which is gpj in
+07:48 
+
+07:48 their experiments and we apply self
+07:51 
+
+07:51 Evolution or selfplay to get a self.
+07:56 
+
+07:56 gpj right so so let's see what it does
+08:00 
+
+08:00 so the basic idea here is that uh is a
+08:03 
+
+08:03 premise that Chain of Thought is better
+08:06 
+
+08:06 than normal prompting right so what they
+08:10 
+
+08:10 do is that given a data set so they they
+08:13 
+
+08:13 rely on a data set here so this is this
+08:15 
+
+08:15 is a shortcoming that they are relying
+08:17 
+
+08:17 on an unrated data set so it's not pure
+08:20 
+
+08:20 self- evolution in the sense that it is
+08:22 
+
+08:22 dependent on some data right but it is
+08:24 
+
+08:24 using that data to to further improve
+08:28 
+
+08:28 itself right by incorporating Chain of
+08:31 
+
+08:31 Thought I mean if one one way could be
+08:33 
+
+08:33 to use this data and simply do an sft
+08:36 
+
+08:36 and you will get a model M
+08:40 
+
+08:40 M1
+08:41 
+
+08:41 right right but the way how is this work
+08:47 
+
+08:47 different from this perspective is that
+08:49 
+
+08:49 you know it uses this data D to First
+08:53 
+
+08:53 construct a Chain of Thought kind of
+08:57 
+
+08:57 data right so it conver it transforms
+08:59 
+
+08:59 that into the D Prime which would be
+09:02 
+
+09:02 which would look like for each XI we
+09:04 
+
+09:04 would have some reasoning r i along with
+09:09 
+
+09:09 the output Yi and the premise is that if
+09:12 
+
+09:12 you train using using this data D
+09:16 
+
+09:16 Prime then you will get a better model
+09:19 
+
+09:19 M2 the the hypothesis is the premise is
+09:22 
+
+09:22 that M2 will be much better than
+09:24 
+
+09:24 M1 right
+09:27 
+
+09:27 okay so so um what are we given we start
+09:31 
+
+09:31 with a pre-trained llm we are given an
+09:33 
+
+09:33 annotated data set D and we rely on few
+09:36 
+
+09:36 short examples to generate the reasoning
+09:39 
+
+09:39 for
+09:40 
+
+09:40 the examples in the data set d right so
+09:43 
+
+09:43 what are these few short examples we
+09:45 
+
+09:45 know that these based models are good at
+09:47 
+
+09:47 in context learning right if we
+09:48 
+
+09:48 demonstrate them something they will be
+09:50 
+
+09:50 able to follow that how will you use
+09:52 
+
+09:52 this what is the most intuitive way to
+09:53 
+
+09:53 use it how will you generate uh
+09:55 
+
+09:55 reasoning for a given X1 y1 that belongs
+09:57 
+
+09:57 to D what will you do right so you have
+10:01 
+
+10:01 the model
+10:02 
+
+10:02 M
+10:04 
+
+10:04 right you can give few short examples
+10:08 
+
+10:08 let's call this as uh P I'm calling this
+10:11 
+
+10:11 as P right
+10:13 
+
+10:13 you put P concatenate it with
+10:18 
+
+10:18 XI right pass it to the model and you
+10:23 
+
+10:23 because these base models are good at in
+10:25 
+
+10:25 context learning you expect that the
+10:27 
+
+10:27 output is going to be
+10:29 
+
+10:29 the reasoning r i hat I'm putting a hat
+10:32 
+
+10:32 because it's a prediction of the
+10:33 
+
+10:33 model right and some output y i
+10:39 
+
+10:39 hat right now can I use this as it is
+10:44 
+
+10:44 for fine tuning so what if Yi hat is not
+10:49 
+
+10:49 equal to Yi we know gold Yi should we
+10:53 
+
+10:53 use it for
+10:55 
+
+10:55 training right so we need to pass it
+10:58 
+
+10:58 through a filter
+11:01 
+
+11:01 which will say whether it is good or
+11:06 
+
+11:06 bad right if it is good only then we add
+11:11 
+
+11:11 this x i r i hat and Yi to D
+11:16 
+
+11:16 Prime for training otherwise we discard
+11:20 
+
+11:20 it
+11:21 
+
+11:21 here
+11:23 
+
+11:23 right okay so this
+11:25 
+
+11:25 is precisely the algorithm here
+11:30 
+
+11:30 now what they observe is that you know
+11:35 
+
+11:35 uh there was a lot of filtering that was
+11:38 
+
+11:38 happening right so now can you improve
+11:44 
+
+11:44 that right so let me draw it here what
+11:47 
+
+11:47 we were doing we give the prompt P along
+11:50 
+
+11:50 with x i we get r i hat and Y I hat we
+11:56 
+
+11:56 pass it to a
+11:58 
+
+11:58 filter which takes Yi also and uh if it
+12:03 
+
+12:03 is good we add uh x i r i hat and y i to
+12:12 
+
+12:12 D prime otherwise if it is bad we reject
+12:18 
+
+12:18 it the issue here is that there are a
+12:20 
+
+12:20 lot of rejections can you think of an
+12:23 
+
+12:23 improvement on top of it right now we
+12:25 
+
+12:25 are exploiting Yi only for filtering
+12:29 
+
+12:29 how about making the task of the model
+12:32 
+
+12:32 easier here we are asking it to predict
+12:34 
+
+12:34 Yi hat as well right so instead of doing
+12:39 
+
+12:39 that what we do is that we modify the
+12:41 
+
+12:41 prompt right in the prompt we show that
+12:43 
+
+12:43 it is uh the the whatever uh The Prompt
+12:49 
+
+12:49 had right we we modify the prompt in the
+12:51 
+
+12:51 sense that we asked the model to
+12:53 
+
+12:53 generate the
+12:54 
+
+12:54 reasoning for the given output why it
+12:57 
+
+12:57 would have why this should be the right
+12:59 
+
+12:59 answer right so what we do is that we
+13:00 
+
+13:00 give Yi as input to the model here and
+13:03 
+
+13:03 change the instruction a little bit I'm
+13:05 
+
+13:05 calling it let's say p Prime change the
+13:08 
+
+13:08 prompt little bit and ask it to generate
+13:12 
+
+13:12 only R hat
+13:16 
+
+13:16 right okay so this is this is
+13:18 
+
+13:18 essentially the modified algorithm which
+13:22 
+
+13:22 which is called
+13:23 
+
+13:23 rationalization right now notice that
+13:27 
+
+13:27 uh there is still value in what we were
+13:29 
+
+13:29 doing
+13:30 
+
+13:30 earlier right because that was the core
+13:32 
+
+13:32 thought of the model I mean it was able
+13:34 
+
+13:34 to solve it on it on
+13:36 
+
+13:36 itself right so so we combine the two
+13:39 
+
+13:39 things as a first step we do generate
+13:43 
+
+13:43 both RI hat and Y Yi hat right
+13:47 
+
+13:47 and we add hint only when this Yi hat is
+13:54 
+
+13:54 rejected right when if Yi hat is
+13:56 
+
+13:56 rejected only then we add the hint in
+13:58 
+
+13:58 the input prom and ask the model to
+14:00 
+
+14:00 generate both the reasoning and the
+14:02 
+
+14:02 output right notice that we are not
+14:04 
+
+14:04 asking when we are adding the hint we
+14:06 
+
+14:06 not asking the model to generate only
+14:07 
+
+14:07 the reasoning we are also asking it to
+14:09 
+
+14:09 generate the output so that we have one
+14:11 
+
+14:11 more step of filtering as well right so
+14:14 
+
+14:14 here also the model is giving even with
+14:16 
+
+14:16 the hint the model is also generating y
+14:18 
+
+14:18 hack and we uh add it to the data set
+14:22 
+
+14:22 only if this is equal to the given
+14:25 
+
+14:25 output y Yi hat rat is equal to Yi only
+14:29 
+
+14:29 then we
+14:30 
+
+14:30 add yeah so so this is one of the task
+14:33 
+
+14:33 that they experiment with which is um
+14:35 
+
+14:35 arithmetic data set right here uh the
+14:38 
+
+14:38 task is to add two numbers 623 + 259 and
+14:43 
+
+14:43 uh they provide some Chain of Thought
+14:46 
+
+14:46 here so this Chain of Thought is similar
+14:47 
+
+14:47 to the way we do it right uh we first
+14:49 
+
+14:49 add 4 + 9 we get 13 right this is three
+14:55 
+
+14:55 and the carry over is one then we in
+14:57 
+
+14:57 this step we add
+14:59 
+
+14:59 two and two and five here and then the
+15:03 
+
+15:03 carry one we get eight right there is no
+15:06 
+
+15:06 carry then we add six and two to get 8
+15:09 
+
+15:09 so our answer is 883 this this entire
+15:12 
+
+15:12 thing is is similar to Chain of Thought
+15:14 
+
+15:14 reasoning right and
+15:17 
+
+15:17 uh now this is the performance that they
+15:20 
+
+15:20 get on the left hand side this is using
+15:23 
+
+15:23 the algorithm where we are not using
+15:24 
+
+15:24 rationalization where we are not using
+15:26 
+
+15:26 the output to generate the reasoning
+15:28 
+
+15:28 right we're using it only to filter the
+15:30 
+
+15:30 data set right on on the uh right hand
+15:34 
+
+15:34 side we have the algorithm where we are
+15:36 
+
+15:36 using the rationalization from the very
+15:38 
+
+15:38 beginning right what are these different
+15:40 
+
+15:40 color lines one is single digit addition
+15:42 
+
+15:42 two is twood digigit addition three
+15:45 
+
+15:45 digigit addition and so on and so forth
+15:47 
+
+15:47 right we clearly see that in the left
+15:50 
+
+15:50 you know a lot of data will get filtered
+15:53 
+
+15:53 only easy
+15:55 
+
+15:55 data will get right and therefore it
+15:58 
+
+15:58 will first learn single digit arithmetic
+16:01 
+
+16:01 once it has learned single- digit
+16:02 
+
+16:02 arithmetic then we will start getting
+16:04 
+
+16:04 more data for two digits right and then
+16:07 
+
+16:07 you know therefore this therefore the
+16:09 
+
+16:09 learning is going to be a little slow
+16:11 
+
+16:11 whereas on the right hand side we see
+16:12 
+
+16:12 that learning is a little fast even for
+16:14 
+
+16:14 the complex five-digit
+16:16 
+
+16:16 editions okay so so this is the first
+16:18 
+
+16:18 work and we already noticed that there
+16:22 
+
+16:22 is a drawback here which is that it
+16:24 
+
+16:24 still relies on annotated data to evolve
+16:27 
+
+16:27 it is still doing some self Evolution
+16:29 
+
+16:29 because because you know it is relying
+16:30 
+
+16:30 the the basic premise is that CO2 is
+16:32 
+
+16:32 better and it is generating chain of
+16:34 
+
+16:34 thoughts and using the chain of thoughts
+16:36 
+
+16:36 to improve itself via VIA F fine tuning
+16:41 
+
+16:41 right but still it needs X and Y it is
+16:44 
+
+16:44 generating only reasoning R right now
+16:49 
+
+16:49 can we get rid of that in some sense
+16:52 
+
+16:52 right and that is where self- instruct
+16:55 
+
+16:55 paper comes into play and this was a
+16:58 
+
+16:58 phenomenal work alpaka model was trained
+16:60 
+
+16:60 using this and uh here the idea is that
+17:04 
+
+17:04 we will start with a base model gpt3
+17:07 
+
+17:07 let's say right and we will go through
+17:12 
+
+17:12 the process of self Evolution and come
+17:14 
+
+17:14 up with a self instruct gpt3
+17:17 
+
+17:17 model okay and uh okay so what we are
+17:21 
+
+17:21 given here is uh we are given a base
+17:24 
+
+17:24 model and uh 175 seed tasks so right
+17:28 
+
+17:28 they are given so what are these seat
+17:30 
+
+17:30 tasks the hypothesis is that uh using
+17:34 
+
+17:34 some instructions model will be able to
+17:37 
+
+17:37 generate new and novel instructions
+17:39 
+
+17:39 which can be used to finetune the
+17:42 
+
+17:42 model okay so each task has an
+17:45 
+
+17:45 instruction and a corresponding example
+17:49 
+
+17:49 that follows that
+17:51 
+
+17:51 instruction right and our objective is
+17:53 
+
+17:53 to use the base model which we know is
+17:55 
+
+17:55 good at uh you know in context learning
+17:58 
+
+17:58 to synthesize instruction fine tuning
+18:00 
+
+18:00 data
+18:01 
+
+18:01 set and to do so we use a seed
+18:05 
+
+18:05 instructions to create more
+18:07 
+
+18:07 instructions
+18:09 
+
+18:09 right and then we use the seed
+18:12 
+
+18:12 instructions and the example pairs to
+18:14 
+
+18:14 create more examples for the new
+18:16 
+
+18:16 instructions that we have created which
+18:18 
+
+18:18 it's essentially two-step process we
+18:19 
+
+18:19 first creating new instructions then we
+18:22 
+
+18:22 are creating using new questions or new
+18:26 
+
+18:26 examples that follow those instructions
+18:29 
+
+18:29 right right and then in in the end we
+18:30 
+
+18:30 use the synthesized data to find youe
+18:32 
+
+18:32 the base
+18:33 
+
+18:33 model okay so uh yeah so this is this is
+18:37 
+
+18:37 where we start we are given 175 seed
+18:42 
+
+18:42 task right what is a task a task is one
+18:46 
+
+18:46 instruction and one instance that
+18:48 
+
+18:48 follows that instruction this is we
+18:51 
+
+18:51 create a task pool which is initialized
+18:53 
+
+18:53 with these
+18:53 
+
+18:53 175 tasks right so this is the first
+18:57 
+
+18:57 step notice the llm vears the Hat of
+19:01 
+
+19:01 creating novel instructions right llm
+19:03 
+
+19:03 will wear multiple hats in the entire
+19:06 
+
+19:06 process right in the step one we use in
+19:10 
+
+19:10 ICT give an instruction and ask the
+19:12 
+
+19:12 model to generate multiple instructions
+19:15 
+
+19:15 right
+19:17 
+
+19:17 now once an instruction is created right
+19:20 
+
+19:20 the authors observed that uh you know
+19:24 
+
+19:24 the the instruction could be for a
+19:25 
+
+19:25 classification task or it could be for a
+19:28 
+
+19:28 generation task right now they they
+19:32 
+
+19:32 handle the two things separately now let
+19:34 
+
+19:34 us first look at when it is not a
+19:37 
+
+19:37 classification task what do they do this
+19:39 
+
+19:39 is similar to and this is very intuitive
+19:41 
+
+19:41 what they will do is that they will
+19:43 
+
+19:43 prompt the model right what will the
+19:46 
+
+19:46 prompt contain the prompt will contain
+19:49 
+
+19:49 instruction from the pool and some input
+19:52 
+
+19:52 some output instruction and input and
+19:56 
+
+19:56 output right I that's so one 2 1 one one
+19:60 
+
+20:00 so these are in context examples right
+20:05 
+
+20:05 and then you will give an instruction I
+20:08 
+
+20:08 and ask the model to
+20:10 
+
+20:10 generate both input and output right and
+20:15 
+
+20:15 and there is some instruction General
+20:17 
+
+20:17 instruction here as well that you know
+20:18 
+
+20:18 generate the input and output
+20:21 
+
+20:21 corresponding to the instruction given
+20:22 
+
+20:22 so this will be some meta instruction so
+20:24 
+
+20:24 this is the meta instruction and then
+20:27 
+
+20:27 few short examples right with the input
+20:32 
+
+20:32 instruction and the model will generate
+20:35 
+
+20:35 both the input and the
+20:37 
+
+20:37 output right so this is this is a
+20:40 
+
+20:40 standard you know way in which you will
+20:42 
+
+20:42 use the model now they twist it a little
+20:45 
+
+20:45 when it is a classification task right
+20:49 
+
+20:49 so the issue here was that when it was a
+20:51 
+
+20:51 classification task right the model uh
+20:56 
+
+20:56 was generating only uh one of the
+20:59 
+
+20:59 classes there was the divers there was
+21:00 
+
+21:00 no diversity in the classes that were
+21:02 
+
+21:02 being generated for
+21:05 
+
+21:05 example if the task is sentiment
+21:08 
+
+21:08 classification then the model will often
+21:10 
+
+21:10 generate only positive sentiment reviews
+21:12 
+
+21:12 it will not generate negative sentiment
+21:14 
+
+21:14 reviews right so they do a very clever
+21:17 
+
+21:17 thing they change the prompt a little
+21:19 
+
+21:19 what they say is that they they change
+21:22 
+
+21:22 the meta instruction right in the meta
+21:24 
+
+21:24 instruction they say that okay I will
+21:25 
+
+21:25 provide you with some instruction I am n
+21:29 
+
+21:29 one then I will tell you this
+21:31 
+
+21:31 instruction is we know that it is a
+21:33 
+
+21:33 classification task instruction it says
+21:35 
+
+21:35 that now I will give you an a label one
+21:39 
+
+21:39 which is let's say
+21:43 
+
+21:43 positive right then you have to generate
+21:46 
+
+21:46 an
+21:48 
+
+21:48 input with that follows this posit that
+21:51 
+
+21:51 belongs to this class positive so it
+21:52 
+
+21:52 will generate an it will generate a
+21:56 
+
+21:56 positive review
+21:60 
+
+21:60 right then we will give label
+22:03 
+
+22:03 two which is let's say
+22:05 
+
+22:05 negative and then it will generate an
+22:09 
+
+22:09 input a review which is a negative a
+22:11 
+
+22:11 negative
+22:12 
+
+22:12 review right so so what we are doing is
+22:15 
+
+22:15 that we changing our meta prompt and the
+22:19 
+
+22:19 in context learning examples in the in
+22:21 
+
+22:21 context learning example itself right we
+22:25 
+
+22:25 are changing the instruction a little we
+22:28 
+
+22:28 are first providing the label and asking
+22:31 
+
+22:31 the model to generate the input which
+22:33 
+
+22:33 aders to that label right and in the end
+22:36 
+
+22:36 we will have the input instruction this
+22:38 
+
+22:38 is the instruction this is same as the
+22:40 
+
+22:40 instruction I in right and after this
+22:44 
+
+22:44 the model has to generate right and the
+22:47 
+
+22:47 model will now generate label
+22:50 
+
+22:50 one and the corresponding input that
+22:53 
+
+22:53 aders to label one right why will it do
+22:56 
+
+22:56 so because it has seen in the in context
+22:59 
+
+22:59 that this is how the data looks like
+23:02 
+
+23:02 right we force it to
+23:05 
+
+23:05 generate input examples belonging to
+23:08 
+
+23:08 each of the
+23:09 
+
+23:09 classes okay so so this is the uh data
+23:13 
+
+23:13 generation part and after that of course
+23:15 
+
+23:15 you know when you are generating this
+23:17 
+
+23:17 data filtering becomes very important
+23:18 
+
+23:18 you can't use all of that to uh to train
+23:22 
+
+23:22 right so for example uh there will be a
+23:24 
+
+23:24 lot of
+23:25 
+
+23:25 duplicacy right so they essentially uh
+23:28 
+
+23:28 do some duplication based on some
+23:30 
+
+23:30 heuristics and then add those to the
+23:33 
+
+23:33 task pool and then repeat and uh so to
+23:36 
+
+23:36 to give you some sense of U you know the
+23:39 
+
+23:39 amount of data they were able to
+23:40 
+
+23:40 generate starting with only 175 seed
+23:43 
+
+23:43 instructions they were able to generate
+23:44 
+
+23:44 52,000 roughly
+23:46 
+
+23:46 52,000 um instructions right and with
+23:50 
+
+23:50 each instructions there were multiple
+23:51 
+
+23:51 examples so there were roughly 82,000
+23:54 
+
+23:54 number of instruction input output pairs
+23:56 
+
+23:56 that they were able to generate right
+23:58 
+
+23:58 and and interestingly you know if you
+24:00 
+
+24:00 look at the base vanilla GPT model
+24:03 
+
+24:03 performance the aggregate performance on
+24:05 
+
+24:05 superi data set which comprises of 119
+24:08 
+
+24:08 task and 100 in senses in each of the
+24:10 
+
+24:10 tasks was roughly 6.8 in terms of rouge
+24:13 
+
+24:13 L right and they were able to achieve
+24:17 
+
+24:17 39.9 with their method of self-
+24:19 
+
+24:19 instruct and the you know an instruction
+24:22 
+
+24:22 tuned GPT was not too far from here it
+24:25 
+
+24:25 was 40.8 I mean this is I think this is
+24:27 
+
+24:27 marvelous they able to forego almost all
+24:31 
+
+24:31 of the instruction tuning data set right
+24:34 
+
+24:34 they don't have any dependence now on
+24:36 
+
+24:36 instruction tuning data set and still
+24:37 
+
+24:37 achieve performance which is very close
+24:39 
+
+24:39 to the method which uses that
+24:41 
+
+24:41 instruction tuning data
+24:42 
+
+24:42 set right okay so now uh what is the
+24:47 
+
+24:47 drawback here right earlier we saw that
+24:50 
+
+24:50 the drawback was it relied on some data
+24:53 
+
+24:53 X comma y Pairs and using self Evolution
+24:56 
+
+24:56 it generated only the reason in in Star
+24:60 
+
+24:60 right in self- instruct we see that uh
+25:03 
+
+25:03 you know it relies only on 1 75 seed
+25:08 
+
+25:08 instructions and the language model
+25:10 
+
+25:10 veers multiple hats and generates the
+25:13 
+
+25:13 data instruction data set and use that
+25:16 
+
+25:16 to train and get an instruction find tun
+25:18 
+
+25:18 model now one drawback here is that the
+25:21 
+
+25:21 model still may not be aligned to the
+25:22 
+
+25:22 human preferences recall that we have
+25:24 
+
+25:24 three stages right free training
+25:25 
+
+25:25 instruction following and then human
+25:27 
+
+25:27 alignment right and this is
+25:29 
+
+25:29 this is precisely the drawback which the
+25:31 
+
+25:31 next paper is going to overcome which is
+25:34 
+
+25:34 uh self
+25:36 
+
+25:36 align okay so here again we will start
+25:39 
+
+25:39 with uh llama based llama model and then
+25:43 
+
+25:43 through the process of self- evolution
+25:44 
+
+25:44 we will arrive at a self-aligned llama
+25:48 
+
+25:48 right and here what are we given we are
+25:51 
+
+25:51 given a base model we are given 175 seed
+25:54 
+
+25:54 task they they take it from self-
+25:56 
+
+25:56 instruct paper only now
+25:60 
+
+25:60 you know the the the data sets that were
+26:02 
+
+26:02 there the seed instructions that were
+26:04 
+
+26:04 used in self instruct there I think
+26:07 
+
+26:07 there was no need of uh human alignment
+26:10 
+
+26:10 because the data was actually harmless
+26:12 
+
+26:12 right it did not ask questions uh you
+26:15 
+
+26:15 know which the language model should
+26:17 
+
+26:17 refrain from answering right so they
+26:19 
+
+26:19 need to enhance this and they do so uh
+26:22 
+
+26:22 using 20 topic guided red theming
+26:25 
+
+26:25 instructions so basically you can think
+26:27 
+
+26:27 of it as enhancement to this 175 seat
+26:30 
+
+26:30 tasks right they in all they have 195
+26:33 
+
+26:33 seat tasks now right they will use these
+26:36 
+
+26:36 20 topics to generate data that could be
+26:40 
+
+26:40 potentially
+26:41 
+
+26:41 harmful right and you know which
+26:43 
+
+26:43 language model should refrain from
+26:46 
+
+26:46 answering right and now they also need
+26:49 
+
+26:49 to mimic human alignment right we need
+26:52 
+
+26:52 to get rid of human alignment we don't
+26:53 
+
+26:53 have any human annotated data so they
+26:56 
+
+26:56 replace that with a set of principles or
+27:00 
+
+27:00 rules that the model should follow and
+27:03 
+
+27:03 the hope is that if you are using the
+27:07 
+
+27:07 model you know with in context learning
+27:10 
+
+27:10 examples and the examples in the in
+27:13 
+
+27:13 context are following these principles
+27:16 
+
+27:16 along with explicitly stating these
+27:18 
+
+27:18 principles automatically the data that
+27:20 
+
+27:20 you are generating will also follow
+27:22 
+
+27:22 these instructions right so these
+27:24 
+
+27:24 instructions are essentially mimicking
+27:26 
+
+27:26 human alignment we are now not aligning
+27:29 
+
+27:29 to human preferences but we are aligning
+27:31 
+
+27:31 to human principles so to say
+27:35 
+
+27:35 right okay so our objective is to get a
+27:38 
+
+27:38 model that is aligned to the 16
+27:40 
+
+27:40 principles that mimic human preferences
+27:43 
+
+27:43 right and
+27:45 
+
+27:45 uh there are primarily three steps in
+27:48 
+
+27:48 the entire process first one is an
+27:52 
+
+27:52 enhancement of self-
+27:53 
+
+27:53 instruct they call it topic guided red
+27:56 
+
+27:56 teing self- instruct which will generate
+27:59 
+
+27:59 data which could be potentially harmful
+28:03 
+
+28:03 right uh now once they generate the data
+28:07 
+
+28:07 the data could be
+28:10 
+
+28:10 instruction
+28:12 
+
+28:12 input and maybe some
+28:16 
+
+28:16 reasoning and output so I I can
+28:18 
+
+28:18 basically combine these two and call it
+28:20 
+
+28:20 as output only right input instruction
+28:24 
+
+28:24 input and output this is what the data
+28:26 
+
+28:26 would be right now the some
+28:30 
+
+28:30 somehow get so what they do is they get
+28:32 
+
+28:32 rid of this output that is generated in
+28:33 
+
+28:33 the first step they use the input
+28:36 
+
+28:36 instruction and the
+28:37 
+
+28:37 input
+28:39 
+
+28:39 right and uh use some in context
+28:42 
+
+28:42 learning examples these in context
+28:44 
+
+28:44 learning examples will
+28:46 
+
+28:46 follow 16
+28:50 
+
+28:50 principles right along with a
+28:55 
+
+28:55 prompt which elaborates enumerates all
+28:58 
+
+28:58 the 16 instructions and ask the model to
+29:01 
+
+29:01 generate a
+29:02 
+
+29:02 response you know which is
+29:04 
+
+29:04 good right so that's that they are
+29:06 
+
+29:06 calling principal driven self
+29:08 
+
+29:08 alignment right and then principal
+29:10 
+
+29:10 engraving is a fancy term for sft using
+29:14 
+
+29:14 the data that you get you generate to do
+29:16 
+
+29:16 so we have some five in context learning
+29:20 
+
+29:20 examples these are written by experts
+29:23 
+
+29:23 okay these are the 16 instructions and
+29:25 
+
+29:25 the rules these are also written by the
+29:27 
+
+29:27 experts
+29:28 
+
+29:28 we get a question this is a potential
+29:31 
+
+29:31 question from which you know model
+29:33 
+
+29:33 should refin from answering this
+29:35 
+
+29:35 question this we get after running
+29:37 
+
+29:37 self-instruction using those 175 + 20 uh
+29:41 
+
+29:41 seed um tasks right uh now we ask the
+29:46 
+
+29:46 base language model what is the prompt
+29:49 
+
+29:49 given to the base language model it
+29:50 
+
+29:50 consists of
+29:52 
+
+29:52 this instruction exploit instruction
+29:54 
+
+29:54 rules these in context examples and we
+29:57 
+
+29:57 initiate it responds with some internal
+29:59 
+
+29:59 thought right so this is kind of a chain
+30:01 
+
+30:01 of thought and we are already initiating
+30:03 
+
+30:03 there's a static Chain of Thought that
+30:04 
+
+30:04 we are using and the static Chain of
+30:06 
+
+30:06 Thought is saying that you have to this
+30:07 
+
+30:07 is kind of paraphrasing the rules and
+30:09 
+
+30:09 saying that you have to adher to these
+30:11 
+
+30:11 rules and so on and so forth and after
+30:14 
+
+30:14 this it generates the
+30:15 
+
+30:15 output so for example the question here
+30:18 
+
+30:18 is who is the president of US in 2025 it
+30:21 
+
+30:21 generates an internal thought which says
+30:23 
+
+30:23 that I am a helpful ethical and reliable
+30:24 
+
+30:24 assistant the question asks 2025 but my
+30:27 
+
+30:27 internal knowledge ends in year of 2021
+30:30 
+
+30:30 I should follow rule 3 5 12 right and
+30:35 
+
+30:35 then the output essentially refrain from
+30:37 
+
+30:37 answering and says that my knowledge
+30:39 
+
+30:39 only goes up to September 221 and
+30:41 
+
+30:41 therefore I cannot answer now if you uh
+30:43 
+
+30:43 train using this question this this this
+30:46 
+
+30:46 input and this output the model that you
+30:50 
+
+30:50 get will be kind of an aligned model
+30:53 
+
+30:53 because the outputs are actually already
+30:54 
+
+30:54 aligned to the rules in some sense right
+30:58 
+
+30:58 okay so uh so till now what we have
+31:02 
+
+31:02 covered is that we have looked at three
+31:04 
+
+31:04 methods that are using self Evolution to
+31:08 
+
+31:08 improve on a base model the first model
+31:11 
+
+31:11 relied on some X comma y pairs x i and
+31:16 
+
+31:16 Yi and uh the premise was that I need to
+31:20 
+
+31:20 augment it with x i and reasoning y eyes
+31:24 
+
+31:24 and use this to finetune the model and I
+31:27 
+
+31:27 will get a better model right in self-
+31:30 
+
+31:30 instruct we get rid of this uh
+31:34 
+
+31:34 assumption we rely only on 175 seed
+31:39 
+
+31:39 tasks to get a model which
+31:42 
+
+31:42 is instruction following and in self
+31:45 
+
+31:45 align in addition to these 175 seed
+31:48 
+
+31:48 tasks we add 20 more seat tasks so that
+31:51 
+
+31:51 we get data which could be potentially
+31:52 
+
+31:52 harmful and then we use some expert data
+31:56 
+
+31:56 in the form of in context examples and
+31:58 
+
+31:58 some rule 16 principles to generate
+32:01 
+
+32:01 answers which would be potentially
+32:04 
+
+32:04 harmless and could be used for training
+32:06 
+
+32:06 the right so now um let's zoom out a
+32:11 
+
+32:11 little from here and look at the overall
+32:14 
+
+32:14 process of self- evolution right now
+32:17 
+
+32:17 here uh the most crucial aspect is
+32:20 
+
+32:20 experience acquisition most of the
+32:21 
+
+32:21 Innovation is done in you know in in in
+32:25 
+
+32:25 experience acquisition in some sense
+32:27 
+
+32:27 right
+32:28 
+
+32:28 how do we come up with new instructions
+32:30 
+
+32:30 how do we come up with uh new Chain of
+32:33 
+
+32:33 Thought right now can we improve this
+32:38 
+
+32:38 experience acquisition process till now
+32:41 
+
+32:41 we have relied only on two things one is
+32:43 
+
+32:43 in context
+32:45 
+
+32:45 learning right and the other is Chain of
+32:48 
+
+32:48 Thought to give us new
+32:53 
+
+32:53 data right now can we improve
+32:57 
+
+32:57 this can we improve the entire process
+32:59 
+
+32:59 of getting good answers we are focusing
+33:02 
+
+33:02 only on the question here is I want to
+33:06 
+
+33:06 improve the process of synthetic data
+33:08 
+
+33:08 generation till now we are relying
+33:10 
+
+33:10 mainly on in context examples and chain
+33:12 
+
+33:12 of C to get good answers in one in one
+33:16 
+
+33:16 go right can I improve this
+33:19 
+
+33:19 process which will mimic some self-
+33:23 
+
+33:23 evolution in some
+33:25 
+
+33:25 sense in the sense that it will not rely
+33:27 
+
+33:27 on
+33:28 
+
+33:28 external data right given an input
+33:33 
+
+33:33 X it will and maybe some ICL examples
+33:39 
+
+33:39 and uh with which have some Chain of
+33:41 
+
+33:41 Thought reasoning ICL example with coot
+33:45 
+
+33:45 reasoning and getting some output with
+33:48 
+
+33:48 reasoning and output right this is what
+33:52 
+
+33:52 we are doing right now can we improve
+33:54 
+
+33:54 this to get better R and Y for for an X
+33:59 
+
+33:59 without using
+34:02 
+
+34:02 external
+34:04 
+
+34:04 data that is what self Evolution does
+34:06 
+
+34:06 right it improves the
+34:07 
+
+34:07 model earlier we were talking about
+34:09 
+
+34:09 global Improvement in the model right
+34:12 
+
+34:12 now I'm saying I want to improve it for
+34:14 
+
+34:14 a given
+34:15 
+
+34:15 X I think we have already covered in
+34:17 
+
+34:17 earlier lectures method called self-
+34:20 
+
+34:20 refine right what how did self- refine
+34:24 
+
+34:24 work for a given in model would be a
+34:26 
+
+34:26 three hat here given an input model will
+34:30 
+
+34:30 first
+34:31 
+
+34:31 generate
+34:33 
+
+34:33 y0 first answer then it will wear the
+34:36 
+
+34:36 hat of an examiner with some prompt
+34:40 
+
+34:40 where it will try to give some feedback
+34:42 
+
+34:42 on why this answer is not good so we'll
+34:44 
+
+34:44 get feedback on
+34:47 
+
+34:47 zero right then it will be the third hat
+34:52 
+
+34:52 of refining the answer it will get y not
+34:55 
+
+34:55 and
+34:56 
+
+34:56 fb0 and I will get
+35:01 
+
+35:01 y1 a new answer this y1 will again go to
+35:06 
+
+35:06 this examiner we get
+35:10 
+
+35:10 feedback one this feedback one along
+35:15 
+
+35:15 with y1 and feedback one and Y not And1
+35:20 
+
+35:20 so basically we can catenate because
+35:21 
+
+35:21 this is the entire Evolution that is
+35:23 
+
+35:23 happening in of the answer output y
+35:26 
+
+35:26 right this goes to the fine and we get
+35:30 
+
+35:30 52 and this process repeats in the hope
+35:33 
+
+35:33 that we'll get a better answer right
+35:36 
+
+35:36 this is similar to self why is this
+35:37 
+
+35:37 similar to self
+35:39 
+
+35:39 Evolution because it is using itself it
+35:41 
+
+35:41 is wearing different hats it is not
+35:43 
+
+35:43 relying on anything outside to improve
+35:45 
+
+35:45 the one particular answer what is the
+35:48 
+
+35:48 major crucial difference that it's a
+35:50 
+
+35:50 local process we are not updating the
+35:52 
+
+35:52 model weights but still we can use it in
+35:56 
+
+35:56 in in in the for better data acquisition
+35:59 
+
+35:59 in some
+35:60 
+
+35:60 sense right okay so therefore we put it
+36:04 
+
+36:04 in the bucket of methods that are
+36:07 
+
+36:07 iteratively improving their own output
+36:10 
+
+36:10 during inference without weight update
+36:13 
+
+36:13 right earlier methods they were creating
+36:15 
+
+36:15 the output right somehow filtering them
+36:19 
+
+36:19 creating creating a global data set
+36:21 
+
+36:21 using that to update its weight here we
+36:23 
+
+36:23 are not updating the
+36:24 
+
+36:24 weights right now okay and and uh recall
+36:30 
+
+36:30 that we said that inexperience
+36:32 
+
+36:32 acquisition which is creating new
+36:34 
+
+36:34 synthetic
+36:35 
+
+36:35 data generating good quality data for
+36:37 
+
+36:37 fine tuning is the most crucial step
+36:40 
+
+36:40 right and we relied mainly on coot with
+36:44 
+
+36:44 in context learning but it performs it
+36:47 
+
+36:47 performs better than standard prompting
+36:49 
+
+36:49 but is it good enough for complex
+36:51 
+
+36:51 reasoning tasks let's look at that using
+36:54 
+
+36:54 an example of uh game of 24 it's a it's
+36:57 
+
+36:57 a reasoning task
+36:58 
+
+36:58 the input here you know you're given
+37:01 
+
+37:01 four numbers 4 4 6 and 8 and you have to
+37:04 
+
+37:04 create an arithmetic expression that
+37:05 
+
+37:05 evaluates to 24 using simple arithmetic
+37:08 
+
+37:08 operations so this is a Chain of Thought
+37:11 
+
+37:11 prompt for uh for this task right what
+37:16 
+
+37:16 is the Chain of Thought here what are
+37:18 
+
+37:18 the thoughts that we are doing that that
+37:19 
+
+37:19 we providing to the model we are
+37:21 
+
+37:21 providing intermediate steps right so in
+37:23 
+
+37:23 each step and we are pro we are saying
+37:25 
+
+37:25 that in the instruction as well right in
+37:28 
+
+37:28 each step you are only allowed to choose
+37:29 
+
+37:29 two of the remaining numbers to obtain a
+37:31 
+
+37:31 new number so it starts with 4 4 6 8 in
+37:34 
+
+37:34 Step One it uses 4 and 8 and gets a
+37:37 
+
+37:37 number 12 it logs whatever it's left
+37:39 
+
+37:39 with it's left with a 4 6 and a 12 right
+37:43 
+
+37:43 and then uh it uses 6 and four to get
+37:45 
+
+37:45 two it is left with 2 and 12 and in the
+37:49 
+
+37:49 third step it gets 2 * 12 which is 24
+37:52 
+
+37:52 and it's left with 24 these are the
+37:54 
+
+37:54 three steps or three thoughts right and
+37:57 
+
+37:57 we get the fin answer which combines all
+37:59 
+
+37:59 of this which is 6 - 4 into 4 + 8 = 24
+38:03 
+
+38:03 right so this is one in context example
+38:06 
+
+38:06 we have more examples here and then we
+38:07 
+
+38:07 provide an input 4 9 10 13 right and
+38:11 
+
+38:11 when I passed it through GPT yesterday I
+38:15 
+
+38:15 got this
+38:17 
+
+38:17 response right so this was using only
+38:19 
+
+38:19 one Chain of Thought right and it
+38:22 
+
+38:22 faltered here at step two it it gave me
+38:25 
+
+38:25 16 the second thought or second step was
+38:27 
+
+38:27 it generated 16 and it was left with 16
+38:30 
+
+38:30 and 10 and then it says 16 + 10 equal to
+38:33 
+
+38:33 24 right
+38:36 
+
+38:36 so right so this was so this is an issue
+38:38 
+
+38:38 with Chain of Thought and you know the
+38:41 
+
+38:41 authors experiment with this and they
+38:43 
+
+38:43 get a performance of only
+38:45 
+
+38:45 4% using Chain of Thought and
+38:47 
+
+38:47 surprisingly using simple input output
+38:50 
+
+38:50 prompt where you don't have any Chain of
+38:51 
+
+38:51 Thought reasoning the performance was
+38:52 
+
+38:52 better 7.3 right and now they use
+38:56 
+
+38:56 self-consistency on top of Chain of
+38:58 
+
+38:58 Thought which essentially means that you
+38:59 
+
+38:59 generate 100 you sample it 100 times and
+39:03 
+
+39:03 then you pick the answer which is most
+39:05 
+
+39:05 frequent some sort of ensembling those
+39:07 
+
+39:07 right which is majority voting it jumps
+39:10 
+
+39:10 up to
+39:11 
+
+39:11 9% right and uh now what is the issue
+39:16 
+
+39:16 with Chain of Thought let's look at it
+39:19 
+
+39:19 right so the first major issue is that
+39:21 
+
+39:21 uh the decisions are taken locally at
+39:23 
+
+39:23 the token level Chain of Thought is
+39:25 
+
+39:25 generating only one token at a time it
+39:27 
+
+39:27 is not one thought at a time right I
+39:30 
+
+39:30 mean once you generate certain tokens
+39:32 
+
+39:32 you will get a thought but there is no
+39:34 
+
+39:34 separation between thoughts and tokens
+39:36 
+
+39:36 right that is
+39:37 
+
+39:37 ambiguous right and then the um other
+39:42 
+
+39:42 drawback is that there's no back
+39:43 
+
+39:43 tracking if even if you identify that
+39:47 
+
+39:47 you have gone wrong here you should
+39:49 
+
+39:49 start from this first step right there's
+39:51 
+
+39:51 no way of going back and starting from
+39:54 
+
+39:54 there right so can we
+39:58 
+
+39:58 uh improve these two limitations of
+40:01 
+
+40:01 Chain of Thought namely the the decision
+40:05 
+
+40:05 is token level there's no Global
+40:07 
+
+40:07 exploration there's no Global picture
+40:08 
+
+40:08 about there's no planning that is
+40:09 
+
+40:09 happening and then there is no
+40:11 
+
+40:11 backtracking we have a linear one by one
+40:14 
+
+40:14 thought generation we cannot go back to
+40:15 
+
+40:15 the previous thought even if we had the
+40:18 
+
+40:18 segregation of the output into into
+40:20 
+
+40:20 thoughts right and uh in In classical AI
+40:24 
+
+40:24 right we know that solving complex
+40:27 
+
+40:27 reasoning task may require some sort of
+40:29 
+
+40:29 planning some sort of uh you know
+40:31 
+
+40:31 backtracking and look ahead one of the
+40:34 
+
+40:34 most prominent method of formulating
+40:37 
+
+40:37 reasoning task is using you know search
+40:39 
+
+40:39 through a combinatorial problem space
+40:41 
+
+40:41 which is represented as a tree right you
+40:43 
+
+40:43 take a step you you make a guess and
+40:46 
+
+40:46 then evaluate whether that guess is true
+40:48 
+
+40:48 or not is good or not if it is good then
+40:49 
+
+40:49 you take another guess and if it is and
+40:52 
+
+40:52 evaluate whether it is good or not and
+40:54 
+
+40:54 then if it is not good then you
+40:55 
+
+40:55 backtrack right you're trying to
+40:58 
+
+40:58 essentially what you're trying to do
+40:59 
+
+40:59 that you are trying
+41:00 
+
+41:00 to essentially look at the solution
+41:03 
+
+41:03 space and visiting different states
+41:07 
+
+41:07 within the solution space and deciding
+41:09 
+
+41:09 whether you need to proceed or backtrack
+41:11 
+
+41:11 from
+41:12 
+
+41:12 there right and this is what motivates
+41:15 
+
+41:15 tree of thought right in simple input
+41:19 
+
+41:19 output prompting you have an input and
+41:21 
+
+41:21 you get the output directly in Chain of
+41:23 
+
+41:23 Thought prompting you have an input you
+41:25 
+
+41:25 get some intermediate thoughts and then
+41:27 
+
+41:27 you get output right in methods like
+41:30 
+
+41:30 self-consistency with Chain of Thought
+41:32 
+
+41:32 you have independent chain of
+41:34 
+
+41:34 thoughts and get outputs separately and
+41:38 
+
+41:38 then you select one output based on
+41:40 
+
+41:40 majority voting or something right in
+41:43 
+
+41:43 tree of thought what you are doing is
+41:45 
+
+41:45 that you are given an input you are
+41:48 
+
+41:48 generating multiple First Step multiple
+41:51 
+
+41:51 first level thoughts right and then
+41:54 
+
+41:54 using some rule you are deciding okay
+41:56 
+
+41:56 which thought should I explore now let's
+41:58 
+
+41:58 say you pick this right then you
+42:02 
+
+42:02 generate multiple thoughts for this
+42:06 
+
+42:06 again right so this is how you Traverse
+42:08 
+
+42:08 through the entire space in the form of
+42:10 
+
+42:10 a tree solution space in the form of a
+42:12 
+
+42:12 tree and to come up with an output right
+42:15 
+
+42:15 so the first step in in tree of thought
+42:19 
+
+42:19 is to
+42:21 
+
+42:21 decompose the output into individual
+42:24 
+
+42:24 thoughts right so this is different from
+42:27 
+
+42:27 chain of thought because in Chain of
+42:29 
+
+42:29 Thought even though we had a notion of
+42:31 
+
+42:31 thoughts those are implicit right I mean
+42:35 
+
+42:35 those were generated so essentially you
+42:37 
+
+42:37 know model will get an input X and you
+42:41 
+
+42:41 will get an output Y which you will for
+42:43 
+
+42:43 you in a post talk manner you pass it
+42:46 
+
+42:46 into thought one thought two thought
+42:48 
+
+42:48 three or step one in our example step
+42:51 
+
+42:51 two step
+42:53 
+
+42:53 three and the final
+42:56 
+
+42:56 answer right model doesn't care about
+42:60 
+
+42:60 this right I mean it's just following
+43:02 
+
+43:02 the the ICL examples and the instruction
+43:05 
+
+43:05 and generating one output by generating
+43:07 
+
+43:07 each token sequentially in an autor
+43:09 
+
+43:09 regressive fashion right here we're
+43:11 
+
+43:11 changing that while solving the problem
+43:13 
+
+43:13 we are saying that we need a handle on
+43:16 
+
+43:16 thoughts right so we whatever the
+43:19 
+
+43:19 problem is we need to First identify we
+43:20 
+
+43:20 need to decompose and identify what are
+43:23 
+
+43:23 intermediate steps or intermediate
+43:25 
+
+43:25 thought in the game of 24 uh it it's
+43:29 
+
+43:29 quite natural right the instruction
+43:30 
+
+43:30 itself says that follow it step by step
+43:32 
+
+43:32 and in each step you have to combine two
+43:35 
+
+43:35 numbers and give us the remaining
+43:38 
+
+43:38 leftover numbers right so the this is
+43:42 
+
+43:42 how you know we
+43:45 
+
+43:45 decompose uh
+43:47 
+
+43:47 thoughts then uh The Next Step would be
+43:50 
+
+43:50 to generate multiple Thoughts From A
+43:53 
+
+43:53 starting point
+43:56 
+
+43:56 right so starting from input 49 1013 we
+43:60 
+
+43:60 need to generate multiple First Steps
+44:02 
+
+44:02 like if you're doing if let's say we
+44:04 
+
+44:04 traversing the space in a bre First
+44:05 
+
+44:05 fashion we may have a prompt which in
+44:09 
+
+44:09 one go generates multiple thoughts right
+44:11 
+
+44:11 so that's what they use U here they ask
+44:14 
+
+44:14 uh the model to generate multiple
+44:16 
+
+44:16 possible next steps right given an input
+44:20 
+
+44:20 and then uh they use those depending on
+44:23 
+
+44:23 the breadth hyper parameter they choose
+44:25 
+
+44:25 five or one or or two or three of those
+44:28 
+
+44:28 thoughts right once you have the next
+44:31 
+
+44:31 thoughts you need to evaluate whether
+44:33 
+
+44:33 that thought is good or not right so
+44:36 
+
+44:36 again again here the language model uh
+44:39 
+
+44:39 wears the heart of an examiner and using
+44:41 
+
+44:41 a prompt
+44:42 
+
+44:42 evaluates uh whether it is good or not
+44:45 
+
+44:45 right and it specifically asks the model
+44:48 
+
+44:48 to give three-way signal right the
+44:51 
+
+44:51 three-way signal is sure likely or
+44:53 
+
+44:53 impossible the idea is that if it is
+44:55 
+
+44:55 impossible they will stop traversing ing
+44:57 
+
+44:57 through that node they will stop
+44:59 
+
+44:59 expanding that node right so uh so this
+45:02 
+
+45:02 is the value prompt and uh finally the
+45:06 
+
+45:06 last piece here is that what algorithm
+45:08 
+
+45:08 do you use to navigate the search space
+45:11 
+
+45:11 right in this example they're doing
+45:12 
+
+45:12 bread first search right with with a
+45:15 
+
+45:15 fixed depth of four and the breadth of
+45:17 
+
+45:17 breadth less than equal to five right
+45:19 
+
+45:19 you could use uh depth for search as
+45:22 
+
+45:22 well or you could use more complicated
+45:24 
+
+45:24 algorithms like Monte carot research
+45:26 
+
+45:26 right which will give you a better
+45:28 
+
+45:28 exploration exploitation
+45:30 
+
+45:30 trade-off so so right so so applying
+45:32 
+
+45:32 this tree of thought on this game of 24
+45:35 
+
+45:35 look at the jump that we get right we
+45:38 
+
+45:38 are able to achieve 74% if we have a
+45:42 
+
+45:42 breadth of five in our BFS algorithm and
+45:48 
+
+45:48 with breadth one it we are able to get
+45:51 
+
+45:51 45 right this is a huge jump from
+45:54 
+
+45:54 9% right and of course this is coming
+45:58 
+
+45:58 at a cost right you're creating I mean
+46:00 
+
+46:00 you're prompting the llm multiple times
+46:04 
+
+46:04 and the cost of TOS is almost similar to
+46:06 
+
+46:06 100 coot trials in this case and
+46:11 
+
+46:11 uh so therefore they compare with new
+46:13 
+
+46:13 baselines so what they saying that I
+46:15 
+
+46:15 will call Coot 100
+46:17 
+
+46:17 times instead of doing majority voting I
+46:20 
+
+46:20 will say it is good if any one of them
+46:22 
+
+46:22 is good I will use the Oracle to figure
+46:24 
+
+46:24 out if any one of the 100 is good or not
+46:25 
+
+46:25 so it's it's best of 100 essentially now
+46:28 
+
+46:28 coot best of 100 computation will be
+46:29 
+
+46:29 similar to to and even this Co best of
+46:33 
+
+46:33 100 which is using an oracle gets only
+46:36 
+
+46:36 49% top 100 performance right so clearly
+46:40 
+
+46:40 there is a benefit in doing
+46:43 
+
+46:43 to we understand that it is coming due
+46:46 
+
+46:46 to from high computational cost but that
+46:48 
+
+46:48 should not be an issue and they show
+46:50 
+
+46:50 that it can be applied on other data
+46:53 
+
+46:53 sets as well so game of 24 is something
+46:55 
+
+46:55 that they uh created and they they they
+46:57 
+
+46:57 play they experimented with that and
+46:59 
+
+46:59 with standard GSM 8K which involves
+47:01 
+
+47:01 mathematical reasoning they see that
+47:02 
+
+47:02 there is some improvement on uh using to
+47:07 
+
+47:07 and using other methods on other data
+47:09 
+
+47:09 sets as well right so uh in in the game
+47:13 
+
+47:13 of 24 the search algorithm was BFS right
+47:18 
+
+47:18 we can change that we can use
+47:20 
+
+47:20 complicated search algorithms as well
+47:22 
+
+47:22 and and this is what this paper does it
+47:24 
+
+47:24 uses MCTS and it it achieves
+47:28 
+
+47:28 uh performance similar to
+47:31 
+
+47:31 gp4 using only Lama 38 billion now
+47:35 
+
+47:35 recall that here we are not updating the
+47:37 
+
+47:37 model weights this is only an inference
+47:39 
+
+47:39 time Improvement right they're combining
+47:42 
+
+47:42 two things here they're combining tree
+47:43 
+
+47:43 of thought along with self- refine
+47:45 
+
+47:45 combining both of them right in tree of
+47:47 
+
+47:47 thought they are experimenting with
+47:50 
+
+47:50 Monte Carlo Tre search as the U search
+47:54 
+
+47:54 me method right and they get performance
+47:57 
+
+47:57 which are similar to
+47:59 
+
+47:59 gbd4 okay so till now we looked at in
+48:03 
+
+48:03 the first class of methods right for
+48:05 
+
+48:05 self Evolution we looked at three papers
+48:08 
+
+48:08 that were generating synthetic data
+48:10 
+
+48:10 right to generate the synthetic data
+48:12 
+
+48:12 language model was viering multiple hats
+48:14 
+
+48:14 right and they were using that synthetic
+48:17 
+
+48:17 data
+48:18 
+
+48:18 to train the model however in most of
+48:21 
+
+48:21 these paper the language model was used
+48:23 
+
+48:23 in a naive way way it was relying mostly
+48:25 
+
+48:25 on in context learning and and uh and
+48:29 
+
+48:29 Chain of Thought in the in context
+48:30 
+
+48:30 examples to generate good quality data
+48:33 
+
+48:33 and then we said that there are other
+48:35 
+
+48:35 methods which uh look similar to self-
+48:38 
+
+48:38 evolution in the sense that this the
+48:39 
+
+48:39 language model VI multiple hat in the
+48:42 
+
+48:42 process but they do not change the
+48:43 
+
+48:43 weights of the model they use it at the
+48:45 
+
+48:45 inference time right to get a better
+48:48 
+
+48:48 answer for a given input X here we
+48:50 
+
+48:50 looked at three papers selfrefined which
+48:54 
+
+48:54 was iteratively calling the model with
+48:57 
+
+48:57 uh in context learning examples and the
+48:59 
+
+48:59 model Weir uh you know played the role
+49:02 
+
+49:02 of a examiner and a refiner as well then
+49:06 
+
+49:06 we looked at tree of thought right which
+49:09 
+
+49:09 looked which basically formulated the
+49:12 
+
+49:12 Sol formulated solving the reasoning
+49:15 
+
+49:15 problem as search in the combinatorial
+49:17 
+
+49:17 space right and then we looked at MCTS
+49:20 
+
+49:20 self- refine which combined the two
+49:22 
+
+49:22 methods right self- refine along with
+49:24 
+
+49:24 using MCTS in for searching in three of
+49:28 
+
+49:28 right
+49:29 
+
+49:29 now is there a method that combines both
+49:33 
+
+49:33 right so basically it is updating the
+49:35 
+
+49:35 weights but for generating for
+49:37 
+
+49:37 experience acquisition it is using some
+49:38 
+
+49:38 complicated method for generating good
+49:40 
+
+49:40 quality examples right so there is a
+49:42 
+
+49:42 recent work which is doing that it is
+49:44 
+
+49:44 called toward self-improvement of llm
+49:47 
+
+49:47 via imagination searching and
+49:48 
+
+49:48 criticizing for data acquisition it is
+49:51 
+
+49:51 relying on MCTS and uh this paper is
+49:55 
+
+49:55 also using sft supervised fine tuning on
+49:58 
+
+49:58 the data that it acquires using uh
+50:01 
+
+50:01 MCTS right so so yeah this is the
+50:04 
+
+50:04 summary in the end we first looked at
+50:07 
+
+50:07 method which uh update the model weights
+50:11 
+
+50:11 right they do not rely on any external
+50:13 
+
+50:13 information or knowledge they rely on
+50:16 
+
+50:16 itself to generate some synthetic data
+50:18 
+
+50:18 and update the model weights then we
+50:20 
+
+50:20 looked at certain methods which again
+50:23 
+
+50:23 also do not rely on external data but
+50:25 
+
+50:25 they do not update the model weight for
+50:27 
+
+50:27 a given prompt for a given input they
+50:30 
+
+50:30 try to you know critique themselves and
+50:33 
+
+50:33 generate better and better responses and
+50:35 
+
+50:35 then we uh very uh briefly looked at a
+50:39 
+
+50:39 paper which combines the two things as
+50:42 
+
+50:42 well right for a better experience
+50:46 
+
+50:46 acquisition it uses these one of these
+50:48 
+
+50:48 complex methods to generate uh data and
+50:52 
+
+50:52 then you know uses sft to train using
+50:55 
+
+50:55 that data and and update the model
+50:57 
+
+50:57 pit right so that's it thank you

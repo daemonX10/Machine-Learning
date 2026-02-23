@@ -5180,3 +5180,924 @@ def with_system_prompt(user_query):
 - Prompt engineering is iterative experimentation
 
 ---
+
+
+---
+
+# --- Summarization & Text Generation Questions (from 08_nlp/10_summarization_text_generation) ---
+
+# Summarization/Text Generation - Theory Questions
+
+## Question 1
+**How do you balance faithfulness and fluency in abstractive text summarization?**
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**What techniques work best for controlling summary length and level of detail?**
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**How do you handle summarization for documents with multiple topics or themes?**
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**What strategies help with generating summaries that preserve important factual information?**
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**How do you implement domain-specific summarization for technical or specialized texts?**
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**What approaches work best for multi-document summarization with conflicting information?**
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**How do you handle summarization quality assessment without gold standard summaries?**
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What techniques help with explaining summarization decisions and content selection?**
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How do you implement query-focused summarization for specific information needs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**What strategies work best for summarization in different languages and cultural contexts?**
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How do you handle summarization bias and ensure balanced representation of viewpoints?**
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**What approaches help with summarization robustness against input variations?**
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**How do you implement knowledge distillation for compressing large summarization models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**What techniques work best for real-time summarization with low latency requirements?**
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How do you handle summarization for streaming or continuously updated content?**
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**What strategies help with summarization consistency across different content types?**
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**How do you implement online learning for summarization models adapting to user preferences?**
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**What approaches work best for summarization in conversational or interactive contexts?**
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How do you handle summarization optimization for specific downstream applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What techniques help with summarization for content requiring expert domain knowledge?**
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**How do you implement fairness-aware summarization to reduce demographic bias?**
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**What strategies work best for hierarchical or structured summarization?**
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**How do you handle summarization quality control with subjective content evaluation?**
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**What approaches help with summarization for low-resource or minority languages?**
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How do you implement privacy-preserving summarization for sensitive documents?**
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What techniques work best for summarization with external knowledge integration?**
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**How do you handle summarization adaptation to emerging content formats?**
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**What strategies help with summarization requiring factual accuracy verification?**
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How do you implement robust error handling when summarization fails or produces poor output?**
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**What approaches work best for combining summarization with other text processing tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How do you handle summarization for content with varying importance levels?**
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**What techniques help with summarization consistency in distributed processing scenarios?**
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**How do you implement efficient batch processing for large-scale summarization applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**What strategies work best for summarization with regulatory compliance requirements?**
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do you handle summarization for content requiring high accuracy and reliability?**
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**What approaches help with summarization customization for different user needs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**How do you implement monitoring and quality drift detection for summarization systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**What techniques work best for summarization of multimedia or multi-modal content?**
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How do you handle summarization optimization when balancing conciseness and completeness?**
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**What strategies help with summarization for emerging content types and platforms?**
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**How do you implement transfer learning for summarization across different domains?**
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**What approaches work best for summarization with minimal computational resources?**
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**How do you handle summarization integration with information management workflows?**
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**What techniques help with summarization for content requiring creative or editorial judgment?**
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**How do you implement controllable summarization with style and perspective adjustment?**
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**What strategies work best for summarization in high-volume content processing scenarios?**
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How do you handle summarization quality benchmarking across different model types?**
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**What approaches help with summarization for evolving information landscapes?**
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**How do you implement efficient memory management for large-scale summarization inference?**
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What techniques work best for balancing summarization automation with human oversight?**
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- Prompt Engineering Questions (from 08_nlp/11_prompt_engineering) ---
+
+# Prompt Engineering - Theory Questions
+
+## Question 1
+**How do you design prompts that consistently elicit desired behaviors from different LLM architectures?**
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**What techniques work best for chain-of-thought prompting in complex reasoning tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**How do you implement few-shot prompting strategies with optimal example selection?**
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**What strategies help with prompt optimization for domain-specific applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**How do you handle prompt engineering for multilingual or cross-cultural contexts?**
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**What approaches work best for reducing prompt sensitivity and improving robustness?**
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**How do you design prompts that minimize harmful or biased outputs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What techniques help with measuring and evaluating prompt effectiveness?**
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How do you implement automated prompt generation and optimization techniques?**
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**What strategies work best for prompt engineering in conversational AI systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How do you handle prompt versioning and management in production systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**What approaches help with prompt engineering for specific output formats and structures?**
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**How do you implement meta-prompting strategies for complex multi-step tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**What techniques work best for prompt engineering with limited computational resources?**
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How do you handle prompt adaptation to different user expertise levels?**
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**What strategies help with prompt consistency across different model versions?**
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**How do you implement dynamic prompting that adapts to context and user needs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**What approaches work best for prompt engineering in specialized domains?**
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How do you handle prompt optimization for specific quality metrics?**
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What techniques help with prompt engineering for creative and open-ended tasks?**
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**How do you implement fairness-aware prompting to reduce demographic bias?**
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**What strategies work best for prompt engineering with safety and alignment constraints?**
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**How do you handle prompt quality assessment with subjective or creative outputs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**What approaches help with prompt engineering for low-resource languages?**
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How do you implement privacy-preserving prompt engineering for sensitive applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What techniques work best for prompt engineering with external tool integration?**
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**How do you handle prompt adaptation to emerging model capabilities?**
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**What strategies help with prompt engineering requiring domain expert validation?**
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How do you implement robust error handling when prompts produce unexpected outputs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**What approaches work best for combining prompt engineering with fine-tuning strategies?**
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How do you handle prompt engineering for tasks with multiple valid approaches?**
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**What techniques help with prompt consistency in distributed AI applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**How do you implement efficient prompt testing and validation pipelines?**
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**What strategies work best for prompt engineering with regulatory compliance needs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do you handle prompt engineering for applications requiring high reliability?**
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**What approaches help with prompt customization for different user preferences?**
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**How do you implement monitoring and performance tracking for prompt-based systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**What techniques work best for prompt engineering with structured data inputs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How do you handle prompt optimization when balancing performance and interpretability?**
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**What strategies help with prompt engineering for emerging AI capabilities?**
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**How do you implement transfer learning for prompts across different models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**What approaches work best for prompt engineering with resource constraints?**
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**How do you handle prompt integration with broader AI system architectures?**
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**What techniques help with prompt engineering for tasks requiring factual accuracy?**
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**How do you implement controllable prompting with adjustable parameters?**
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**What strategies work best for prompt engineering in high-volume applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How do you handle prompt quality benchmarking across different LLMs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**What approaches help with prompt engineering for evolving use cases?**
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**How do you implement efficient prompt caching and optimization?**
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What techniques work best for balancing prompt complexity with model capabilities?**
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- RAG Questions (from 08_nlp/12_rag) ---
+
+# Retrieval-Augmented Generation (RAG) - Theory Questions
+
+## Question 1
+**How do you design RAG systems that effectively balance retrieval relevance and generation quality?**
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**What techniques work best for chunking and indexing documents in RAG knowledge bases?**
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**How do you implement dense retrieval methods that capture semantic similarity effectively?**
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**What strategies help with handling multi-modal RAG systems combining text, images, and structured data?**
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**How do you design RAG architectures that maintain factual accuracy and reduce hallucination?**
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**What approaches work best for real-time RAG with low latency retrieval and generation?**
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**How do you handle RAG system evaluation when ground truth answers aren't available?**
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What techniques help with explaining RAG decisions and source attribution?**
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How do you implement dynamic retrieval strategies that adapt to query complexity?**
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**What strategies work best for RAG in specialized domains with technical knowledge bases?**
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How do you handle RAG quality control and confidence scoring for generated answers?**
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**What approaches help with RAG robustness against noisy or outdated knowledge sources?**
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**How do you implement knowledge distillation for compressing large RAG models?**
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**What techniques work best for multilingual RAG systems across different languages?**
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How do you handle RAG knowledge base updates and maintaining retrieval consistency?**
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**What strategies help with RAG personalization for different user contexts and preferences?**
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**How do you implement online learning for RAG systems adapting to new information?**
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**What approaches work best for conversational RAG with context tracking?**
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How do you handle RAG optimization for specific enterprise applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What techniques help with RAG for questions requiring temporal or current information?**
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**How do you implement fairness-aware RAG to reduce bias in retrieved information?**
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**What strategies work best for RAG with structured knowledge graphs and databases?**
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**How do you handle RAG quality assessment with conflicting information sources?**
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**What approaches help with RAG for low-resource domains with limited knowledge bases?**
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How do you implement privacy-preserving RAG for sensitive organizational knowledge?**
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What techniques work best for RAG systems requiring high factual precision?**
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**How do you handle RAG adaptation to emerging topics and evolving knowledge?**
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**What strategies help with RAG requiring domain expert validation and oversight?**
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How do you implement robust error handling when RAG retrieval fails or returns poor results?**
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**What approaches work best for combining RAG with other AI system components?**
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How do you handle RAG for queries requiring multiple information sources?**
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**What techniques help with RAG consistency in distributed deployment scenarios?**
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**How do you implement efficient batch processing for large-scale RAG applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**What strategies work best for RAG with regulatory compliance and audit requirements?**
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do you handle RAG for applications requiring high accuracy and reliability?**
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**What approaches help with RAG customization for different organizational knowledge structures?**
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**How do you implement monitoring and performance tracking for RAG systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**What techniques work best for RAG handling semi-structured and unstructured data?**
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How do you handle RAG optimization when balancing retrieval quality and generation fluency?**
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**What strategies help with RAG for emerging enterprise AI applications?**
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**How do you implement transfer learning for RAG across different knowledge domains?**
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**What approaches work best for RAG with minimal computational and storage resources?**
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**How do you handle RAG integration with existing enterprise search and knowledge systems?**
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**What techniques help with RAG for applications requiring creative or analytical outputs?**
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**How do you implement controllable RAG with adjustable retrieval scope and generation style?**
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**What strategies work best for RAG in high-concurrency and multi-user environments?**
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How do you handle RAG quality benchmarking across different system architectures?**
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**What approaches help with RAG for rapidly evolving information landscapes?**
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**How do you implement efficient vector database management for RAG knowledge bases?**
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What techniques work best for balancing RAG system complexity with maintainability?**
+**Answer:** _To be filled_
+
+---

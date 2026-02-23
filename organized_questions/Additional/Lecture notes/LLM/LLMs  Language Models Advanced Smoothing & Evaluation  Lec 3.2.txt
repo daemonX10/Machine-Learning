@@ -1,0 +1,509 @@
+00:02 okay so welcome again uh this is the continuation of the previous lecture we
+00:07 started discussing language model right last class we discussed Ingram language
+00:13 model right specifically Byram language model we focused on Byram language model and we looked at how we compute Bagram
+00:20 language model basically um you know in any Bagram language language model what
+00:25 what we do we we compute two counts right the count of uh the count of the
+00:32 Byram which is w ius1 w i and the count of the unigram right W IUS one right and
+00:39 we also discussed uh we also observed that in a in a normal Byram kind of
+00:46 language model um what we do we first compute a Byram Matrix right which is
+00:54 which consist of U unigram cross unigram kind of um rows are unigrams and columns
+01:00 are also unigrams right rows are essentially vocabulary words columns are also vocabulary words right and we and
+01:07 and every every entry in that Matrix indicates the Bagram count right we also
+01:12 observed that although the Matrix is asymmetric but the the sum of rows for a
+01:19 particular entry and the sum of columns of a particular entry is is the same
+01:25 okay uh we also discussed smoothing techniques we started with a simple Advance Ming right
+01:34 uh where we basically blindly added one to all the entries of the Byram Matrix
+01:42 right and when we add plus one to all the entries right what does it
+01:50 mean what does it mean let's say the let's say the earlier count was two now the count is three earlier count was
+01:56 Zero now the count is one what does it mean it basically means that I have encountered that Bagram one additional
+02:05 time right then the count that I that that I had earlier okay and we also observed that
+02:13 because of this we uh I mean when we add plus one to the numerator we had to add
+02:19 plus mod V right to the denominator and what is this mod V mod V is the size of
+02:25 the vocabulary right and this was needed because essentially this is a condition
+02:33 probability and we we have to make sure that the sum of this condition probability should be
+02:39 one and we also discussed that uh you know this kind of smoothing techniques
+02:45 uh have some problems because what happened is that those counts which are
+02:50 very high right those counts will become very very low let's say 600 will become
+02:56 300 right 500 will become 100 and so on and so forth I mentioned also in the
+03:02 last class that this is essentially about stealing money from from the reach and distributed to the
+03:07 poort so today we will discuss an uh two Advanced smoothing techniques right
+03:13 which will address the problems that we had earlier in in advance smoting right ad Cas smooting LA
+03:19 smoting but uh as usual uh first things first the basic uh so we look at the
+03:25 today's breaking news so student today's breaking news is that uh on July
+03:32 25th OPI announced that uh they are going to launch search GPT okay uh which
+03:39 will essentially produce answers to different types of questions that we generally ask
+03:45 to uh search engine like Google right so search GPT will be released very soon
+03:50 they announced that this will be released very soon and this will be empowered by gp4 family of models we
+03:58 need to see whether this gbt will be a competitor of uh Google or perplexity
+04:05 kind of companies right that that we'll have to see how many of you have how
+04:10 many of you know about perplexity perplexity uh no the not the perplexity
+04:16 metric the perplexity company perplexity doai right if you have not uh seen this
+04:23 this is essentially a kind of a search engine where you ask questions and instead of uh you know unlike Google
+04:30 which essentially unlik Google search which essentially returns important links right perplexity will essentially
+04:37 answer to your questions with modifications of the content
+04:42 right all right so Advanced mooding algorithms and uh we will look at two
+04:48 algorithms today good touring and ner n or ker n right some some people
+04:53 pronounce it as ner some people pronounce it as Kern okay
+05:00 so so what is the intuition here the intuition is we use the count of things we have
+05:09 seen once to estimate the count of things we have never
+05:15 seen okay this is the intuition let's look at it with an example we Define a concept of frequency
+05:22 of frequencies right what is the frequency of frequency NC we denote this by NC n C is the
+05:30 frequency of frequency C right let's assume that this is our Corpus right
+05:36 Rohan I am I am Rohan I like to play how many times the word I appears the token I appears three times Rohan two times M
+05:45 uh two times like one times and so on and so forth right so what is N1 frequency of one frequency of count
+05:52 one here what is N1 here three what is N2 here two frequency of count two what
+06:01 is in three here one right frequency of
+06:07 frequencies okay now what good touring smoothing intu what what is the
+06:13 intuition behind uh good touring smoothing technique the intution is that we look at uh the count of one right
+06:22 count of count one to estimate the count of
+06:27 two right let's see so so let's assume that uh you know you are you are um you
+06:34 are B watching in uh let's say Jim Corbet National Park and these are the
+06:41 birs that that you have already observed right 10 flamingos to uh king fisher one
+06:47 Indian roller wood Pier peacock and so on and so forth right there are eight there are 18 BS that you have observed
+06:53 so far right so if I ask you what is the probability that the next B that you are
+06:59 going to see T is W Pier what is the
+07:04 probability 1 by 18 right and this is maximum likelihood estimate what is
+07:10 maximum likelihood estimate maximum likel estimate says that uh the the the
+07:15 best probability that you can you can derive from the observation and the best probability is
+07:21 1 by 18 here for root Pier right so maximum like likelihood estimate for V
+07:27 figure is 1 by 18 if if I ask you what is the probability that the next B that you are
+07:34 going to observe is purple Heron say for example a new species Al
+07:41 together according to the maximum likelihood estimate this would be zero 0
+07:46 by 18 right but what good touring will say the good touring estimate will say
+07:53 that in order to estimate the count of zero I will look at the count of one
+08:02 right so how many count one is there what is N1 three right so to estimate
+08:12 this I will use N1 right and based on that I will
+08:17 measure the probability so this will be N1 by total BS
+08:25 18 so 3 by 18 Okay so so in order to com in order
+08:31 to measure the cases uh where the uh the actual count is zero I will look at the
+08:37 count of one and then measure the probability so if this is 3x8 if I if I
+08:43 ask you again the same question what is the probability that the next bir is going to be wood picker what would the
+08:50 count would there still be 1 by 18 would that still be 1 by 18 it is not
+08:58 why it is not because we already subtracted we already took some
+09:03 probability Mass from 1 by8 in order to compute this 3x
+09:08 18 this is no longer be uh this will no longer be 1 by 18 right this will be
+09:14 less than 1 by 18 right what would be the value of uh
+09:19 the modified count for this we will basically uh
+09:25 discuss okay so so the good touring probability says
+09:30 that things with zero frequency the probability of those things with zero frequency is N1 N1 byn right so in case
+09:39 of purple Heron I mentioned the maximum like likelihood estimate says that this is zero but the good tuning estimate
+09:46 says that this is 3x8 for the other cases this is going to
+09:53 be the modified count the modified count C star will be C + 1 time time N C + 1
+10:02 by n c so to let's say to estimate to
+10:07 estimate the case where C equals to 3 for example I will look at c 3 + 1 N4 by
+10:18 N3 to estimate the case for C = to 2 I look at 2 + 1 N3 by N2
+10:30 okay now let's look at the probability of wood picker so according to the maximum
+10:35 likelihood estimate this was earlier 1 by 18 now this is going to be C + 1 1 + 1 C
+10:43 goes to 1 here and N2 by N1 right so 2 * 1 by 3 because in N2 N2
+10:52 is uh N2 is 1 right look at
+10:58 here N2 is 1 there's only one count two right and
+11:04 what is N1 N1 is three so 2 * 1 by 3 2x3 2x3 is the
+11:11 modified count what is the probability 2x3 by 18
+11:16 because the total B Bo that you have observed so far is 18 so the modified probability is 1 by
+11:23 27 the earlier probability was 1 by 18 now this is 1 by 27 this is lower than
+11:29 the previous one right right and I'm not going into the
+11:37 going going into the theoretical details of this if you do the theory if you do some maths math is very easy if you do
+11:43 the math uh it will always uh guarantee that it will basically follow all the
+11:49 probability rules some should be one and so on and so forth very simple idea this is good
+11:55 teing estimate so so these are the numbers before good teing
+12:01 estimate zero count 1 Count 2 3 4 5 6 7 8 and these are the modified count after
+12:08 good touring estimate so earlier it was Zero now this is some number some non-
+12:14 negligible number 0270 earlier it was one now this is 446
+12:21 the count which was two earlier now count is 1.26 the count which was three earlier now this is 2.24 now look at the
+12:28 difference between these and Advan Ming the one that I discussed earlier right ad Advan Ming after Advance Ming we saw
+12:36 that the count uh the the modified count is very very different from the original count right but if look at here
+12:42 carefully this is not very different after after after good teing
+12:48 estimate the count is not very different from the previous one but you still you still make sure
+12:54 that there is no zero zero is replaced by some number
+13:01 okay now if you look at this thing very carefully the numbers very carefully although we did some tricks
+13:07 but if you look at the number very carefully this is essentially the modified count is essentially the
+13:14 original count minus 75 roughly roughly
+13:22 75 right the modified count is original count minus roughly 75
+13:32 okay if this is the case then why can't we just uh discount an absolute number
+13:40 let's say 75 from the byr from the backround count
+13:45 and let's see what happens okay why do we need to do all these things ultimately if it is only a
+13:52 discount of 75 why do we need this math we just discount some some constant D
+13:58 from the count and then we again uh modify the count okay so so this is
+14:06 called the absolute discounting interpolation in the absolute discounting
+14:12 interpolation what we do so this so so C of w ius1 wi I by C of wi
+14:24 ius1 this is the actual probability that we are interested in right now I'm seeing the that you you discount some
+14:31 Factor D from the Byram count right because we observe that this
+14:38 is essentially 75 you discount some Factor right and
+14:44 since this is this is some sort of interpolation if you remember interpolation back of interpolation I mentioned last class interpolation is
+14:52 what let's say if you if you if we are looking at Byram probability interpolation says that you basically
+14:58 come up with something which is a combination of Byram and unigram right here also now this
+15:05 corresponds to Byram and this corresponds to unigram what is p of wi P of wi is the
+15:12 probability unigram probability of wi what is w w is the second word in the
+15:17 Byram wus one W right unigram probability and we can easily measure
+15:23 the unicor probability from the Corpus how let's see un probability of book book the word book we look at all the
+15:30 occurrences of book and you divide it by the total number of uh
+15:36 tokens right and what is this Lambda Lambda is essentially again some sort of
+15:42 uh uh hyper parameter whatever right that you can tune right Lambda can be a
+15:48 fixed value Lambda can be can be a function of the unigram itself in this
+15:54 case in this particular formula here Lambda is a function of the unigram itself
+15:60 and how do we how do we measure this function we have this held out set validation set and we run this thing
+16:07 multiple times and we decide the value of Lambda so but this is not that easy
+16:15 right this is not that easy the reason is if you look at the unicam count this
+16:20 P of wi right cases like stop words
+16:25 right a I so L's pronouns right uh articles right a the N right you'll see
+16:33 a lot of unigram counts right so therefore for stop words frequently occurring words the unigram count will
+16:39 always be very high okay so in in uh in uh in the next uh uh in the next U
+16:52 method that we going to discuss Kar name or ner name there what we'll see instead
+16:58 of looking at or instead of measuring the unigram probability we will measure something called a continuation
+17:05 probability of a unigram we'll measure the continuation
+17:10 probability of a unigram what is the continuation probability of a unigram we all understood what is an unigram
+17:16 probability right and you also understood the problems of unigram probability okay now let's
+17:23 say there is a document which is related to the US right where the word
+17:31 Los Angeles right appears so many times many many times in the document right so
+17:38 then obviously the word Angeles right will have high frequency High unigram
+17:45 count right so whenever you essentially sample some number some word from the
+17:50 unig distribution it is highly likely that the word Angeles will be will be
+17:57 sampled right but in this in this continuation probability what we will
+18:03 measure we will measure the number of unique byrams please listen to it very
+18:09 carefully number of unique byrams that this particular unigram
+18:18 completes number of unique byrams that the given unigram which is
+18:25 under consideration completes
+18:30 okay and what is the intuition again again the intuition goes back to the sanon sanon guessing game right let's
+18:38 say uh let's say if you if I ask you uh this this sequence my breakfast is
+18:43 incomplete without a c of Dash right with a c of Dash if you use a
+18:51 unigram count unigram probability you will see that the word Angelus has high
+18:56 fre high high high probability then the word coffee but if you sample Angeles
+19:02 here if you if you add here this is not going to be a correct answer right but if you look at it very
+19:08 carefully the word Angels so the Angeles so this word appears only with the word
+19:17 loss most of the times so how many unique byrams it
+19:23 completes only one whereas the word coffee appears with many other words hot
+19:30 coffee cold coffee regular coffee morning coffee breakfast coffee and so on and so
+19:35 forth so instead of measuring the unigram count we will measure something called the continuation probability of a
+19:41 unigram right which says How likely is W to appear as a novel
+19:50 continuation right so we will look at all all possible all possible wxs
+19:59 right all possible wxs which is completed by the word w so let's say W1
+20:06 W W2 W W3 w dot dot dot right w n w so
+20:13 the novel continuation count of the the the unigram W is essentially
+20:23 n okay so this is the uh continuation
+20:29 probability of a of a unigram look at the numerator very
+20:36 carefully right we are interested in all those
+20:42 byrams w ius1 w whose count is greater than
+20:47 zero right and how many such w i are there mod mod of this set so you're
+20:53 interested in all those W wi minus one such that count of this is greater than
+20:58 zero so this the cardinality of this set will be the numerator will be the count of
+21:06 Noel continuation what is the denominator what is the denominator what
+21:12 do you think what should be the denominator
+21:18 H number of unique diagrams very good number of unique diagrams irrespective
+21:25 of the appearance of w right if you look at the denominator
+21:30 here count of count of again count of all the so count of all the
+21:36 byrams so this is basically the state of all the vrs whose count is greater than
+21:44 zero out of all the byrams how many unique byrams are completed by the unigram
+21:53 W clear if you do that the probability of
+21:59 the word Angeles will be lower than the probability of the word
+22:05 coffee clear so this is the idea idea of kar
+22:12 name uh smoothing okay so we replace the unigram probability by the continuation
+22:21 probability right and and here if you look at the
+22:27 numerator what is this this says Max of Max of count minus D so D is the
+22:36 absolute discount right which was motivated by the previous one 75 so the
+22:42 count minus this absolute discount D comma zero because it may happen that the number is negative the count is if
+22:49 the count is zero then 0 minus let's say d is 75 this will be negative should not be negative so max of this two right by
+22:57 the count of unic now can somebody tell me how to determine the value of this uh
+23:05 Lambda let's say uh uh yeah so in this particular formula
+23:12 Lambda is a function of w minus one right remember this is a probability okay I already discounted
+23:20 something from the first component I discounted D from the first component
+23:26 right so how many discounts have happened so far for a particular wus
+23:32 one again think of the Byram table okay row each row is basically W IUS one and
+23:39 column is w i right myram table w ius1 w now for
+23:46 every w i minus one we need to make sure that the sum should be one right now tell me if I discount
+23:55 minus D if I discount D from the from the Byram count we need to adjust
+24:02 somewhere we need to adjust this so that the probability should be
+24:10 one yeah think about it think about it you almost there you're almost
+24:23 there so for for which entries for which entries this discount is applied now
+24:30 think about the row right there are some entries which are there are some entries which are non zero there are some
+24:37 entries which are zero so this D will only be applied to
+24:44 where non zero right non zero and those whose
+24:49 whose value is greater than D greater than d
+24:54 right so I mean this is again an approximate
+24:60 uh I mean this should be D right but again assume that this this is very
+25:05 small number so for those cases whose count is greater than d right we will discount
+25:13 something from there right and what is going to be the numerator uh denominator
+25:18 numerator is D what is the
+25:27 denominator hm count of what is this count of w IUS
+25:37 one unigram count of previous word in terms of the table can some can you tell
+25:42 me in terms of the row huh the count of basically the sum of
+25:48 sum of values of the row right yeah okay so the numerator would be D
+25:54 times the mod of the set for which this condition is applied by the total
+26:02 count this part is discounted and this part is adjusted here okay and and if
+26:08 you do the math you'll see that this is this will always guarantee that this is one okay now most important part uh so
+26:15 this was about smoothing there are other smoothing techniques also but uh generally we follow the three smoothing
+26:21 techniques uh Advan smothing add scale smoothing lapl smoothing and uh good touring and King
+26:29 the most important part here is how to evaluate a language
+26:35 model let's say you have a let's say you have come up with a language model which is a five G language model my language
+26:41 model is three G language model right how do you know that yours is better than my
+26:48 method what do you think what do you
+26:55 think so the language model right when we
+27:01 evaluate a language model there are two ways to evaluate a language model one
+27:06 is called extrinsic evaluation extrinsic evaluation the
+27:13 other is intrinsic evaluation what is extrinsic evaluation
+27:19 extrinsic evaluation is also called task based evaluation task based
+27:27 evaluation okay let's say this is a language model L1
+27:32 and this is language model L2 I mentioned in the first in in the
+27:38 last lecture that um we use this language model for Downstream tasks the task can be missing translation task can
+27:45 be speech recognition task can be spell correction spelling correction right let's
+27:50 say you have the task missing translation right for which you apply a
+27:56 language model you you use a language model and machine translation method model let's say is evaluated based on
+28:02 some Matrix let's say the Matrix is blue blue is a a score that we generally use
+28:08 to evaluate the quality of a machine translation engine okay so what we do I
+28:15 will feed the output of L1 to miss transation model and see the value of
+28:20 blue score similarly I feed the value of output of L2 and see the score right and
+28:26 we will see which one is better okay so uh I will fit the output of L1 I
+28:32 will fit the output of L2 separately in isolation and we'll see for which uh for
+28:38 which language model the machine translation engine will perform better and then I will say that okay
+28:44 let's say L2 is better than L1 or vice vers this a task based evaluation what
+28:50 are the problems in task which task based evaluation what do you think right so if the quality of the
+28:57 machine translation model is not good then you won't be able to essentially assess the actual performance of L1 and
+29:04 L2 what the second problem what's the second problem the
+29:10 second problem is that it is not very clear which task we should
+29:15 choose right there are plenty of tasks there are thousands of tasks right where
+29:21 language model can be applied right whether to choose machine translation or speech recognition system or what right
+29:28 not very clear so what we do generally we generally consider 10 12 different
+29:34 tasks and we see if a language model outperforms other language models across
+29:39 majority of the task then we say that um that language model is better okay the the third problem is
+29:49 that this extrinsic task machine translation spe recognition they are
+29:54 time taking they themselves are time taking
+29:59 because the let's say they are neural models right so if you had to choose
+30:04 between L1 and L2 you will you you you may need to wait for seven days to see
+30:10 the performance of this Downstream task and then you have to decide which one is better let's say let's say you have you
+30:16 don't have time right you have to choose very quickly among L1 and L2 right you you you can't use this kind of
+30:23 models these kind of Frameworks right so we'll have to have some ways to
+30:30 intrinsically or implicitly measure the quality of a language model okay
+30:41 so right and for that what we use we use
+30:46 a metri called
+30:51 perplexity okay again the motivation behind perplexity comes from the sence
+30:57 guessing game character guessing game what guessing game okay if I ask
+31:04 you this this sentence I always order pizza with cheese and dash what would be
+31:11 the answer mushroom maybe cheese and
+31:16 mushroom or cheese with and what corn right something like that right you you
+31:24 you you you uh I mean the the set of vocabulary from where you choose the
+31:29 answer would be limited maybe five words or 10 words or 15 words not more than
+31:35 that but if I ask you I wrote a dash right you see that the size of the
+31:42 vocab would be much much uh uh you know longer what does it mean it means if I
+31:51 give you more context if I give you more context then the language model should
+31:56 be able to predit things very easily it is all about guessing game okay so
+32:03 let me first Define perplexity and then I will tell you the intuition behind perplexity okay so what is the
+32:09 definition of perplexity uh the definition of complexity is very simple so let's
+32:16 assume that this is your test set W1 W2 in your test test set there are in
+32:24 tokens you already have a training set right based on the training set you
+32:29 already uh you have already come up with the language model you have already developed the language model let's say
+32:36 language model L1 language model L2 right now you are given a test
+32:42 set which consist of this tokens sequence of sentences right
+32:49 complete incomplete sentences what I do I measure the
+32:54 probability of this of this the sequence of sentences based on
+33:00 L1 separately and based on L2
+33:06 separately right now based on the probability I will Define the this Matrix for perplexity what is perplexity
+33:14 perplexity is denoted by PP of a sequence of tokens one to
+33:22 n is 1 by nth root of
+33:30 P of W1 W2 dot dot dot
+33:40 WN this is same as P of W1 W2 dot dot
+33:47 dot w n to the^ minus 1 by n
+33:52 AG agre what does it mean
+33:60 if a language model produces high probability right the proplex would be
+34:09 low okay if it produces high probability the probity would be low now if a if a
+34:16 language model is a Byram language model then this would be same as how do you compute this one if it Byram language
+34:23 model P of W1 * P of W2 given W1 time P
+34:29 of W3 given W2 dot dot dot P of WN given wnus one whole to the^ minus 1 by
+34:37 n if it is unigram then P of W1 * P of W2 do do do p of W1 whole to the^ minus
+34:43 1 by n right and we'll see that the language model which produces lower value lower
+34:50 complexity will be considered as a better model now why suddenly this metric why
+34:57 this 1 byn and you know n root and so on right for the time being forget about
+35:03 this n forget about this 1 byn right one by this comp this one by this probability let's assume that this is
+35:10 simply P of W1 W2 do WM right to the power or nth root of this nth root of
+35:17 this probability so what is this n root of
+35:23 this this one is what geometric mean right this is
+35:28 geometric mean the inverse geometric mean we know the geometric mean right
+35:34 arithmetic mean geometric mean right now why suddenly this there's
+35:42 a very interesting connection between perplexity and
+35:47 entropy right and we'll derive this thing here
+35:54 okay so we all know what is
+35:60 entropy so entropy let's say there's an event X right entropy of this this is
+36:07 hanoun entropy okay entropy of this event X let's say there are there are
+36:13 there are in number of outcomes right and each outcome has certain probability right so this is essentially sum of sum
+36:21 of p p p i or whatever PX I log of
+36:29 pxi minus okay and what is this XI XI is
+36:34 one outcome of X right there are in number of such
+36:40 outcomes okay now if the outcome is
+36:46 uniform right let's say there are in Trials there are in trials and and let's
+36:51 say there are C outcomes C possible outcomes and each outcome appears equally equal number of times
+36:59 C by n or n by C right versus if the outcome is
+37:06 biased whose entropy would be high entropy is a measure of Randomness right
+37:11 whose entropy would be high uniform right we all know this
+37:16 famous plot right this is p and this is H when
+37:22 uh the probability is same for all the outcomes the inop is maximum
+37:28 right all right so uh we all know entropy now we will
+37:36 uh now for a sentence for for uh for a language specifically for a
+37:42 language a language is language essentially is denoted by a sentence
+37:47 right or a sequence of tokens right so how do we measure the how we how do you measure the
+37:54 entropy of a sequence of tokens
+38:03 now remember this here there's a random random variable which indicates the outcome of an event now here what is the
+38:10 random
+38:15 variable h a random variable indicates a sequence of
+38:21 words right and how do you measure this entropy here this is this is same as uh
+38:26 minus of right sum of let's say p of W1 W2 do do w n right log
+38:38 of log of P
+38:48 of right and this is for all such sequence
+38:55 of all all such sequence of uh sequence of words who which belongs to the
+39:02 language ill isn't it you all agree with this
+39:09 equation right now what we Define we Define entropy rate why we Define
+39:16 entropy rate because this is an entropy of a sequence we need to Define an entropy of a word of a token right so we
+39:23 Define something called entropy rate entropy rate
+39:29 or par word
+39:35 entropy right what is entropy rate or part what entropy this is basically 1 by
+39:40 n of this H why because there are inwards this is a total entropy forward entropy is 1 by
+39:47 n of this simple right so this will be min-1 by
+39:55 n summation of P log
+40:01 P okay this is entropy rate now think about it I'm only considering those
+40:08 cases those sentences or those sequences whose length is
+40:14 n right but in a language in a document there are sentences there are there are
+40:19 sequences of multiple size right some sequences will be will have length of
+40:25 five some some will have length of six some some have 10 and so on and so forth but here we are only considering those
+40:31 sequences whose length is n right so how do we generalize it we generalize it
+40:37 using this um using this um limit Theory right we
+40:44 say that limit n TS to
+40:50 Infinity right 1 by n p of this log P of
+40:57 this okay so remember here language is a
+41:03 sastic process right language is a stasic process what's the stasic process
+41:09 it it generates uh uh tokens so language generate generate tokens based on some
+41:15 some distribution right and the distribution is something which we do not know p is a distribution that we do
+41:21 not know okay okay so
+41:28 so this is entropy rate okay and we denote this entropy rate by h of
+41:34 L now h of L is this one so far so good now we will apply a
+41:43 theorem again I will not go into details of the theorem this is called the
+41:49 sanon this is called sanon mcpan sanon
+41:56 mcpan briman
+42:01 theorem okay the sanon McAn bman theorem says if the stochastic process is
+42:08 regular what is the regular stochastic process it should be stationary and aroic again I not go into details of
+42:14 this right if a process is a is a regular process right I can approximate
+42:20 this I don't need I I I I don't need a lot of sentences right I need a sentence
+42:28 whose length is significantly large I don't need to basically take the
+42:34 sum over all sentences I can approximate it by a sentence whose length is
+42:41 significantly large meaning it can be approximated to limit n TS to
+42:49 Infinity log of right log of um W1 w to dot dot dot
+42:59 WN and again this P of this p is also here what I did I just removed the
+43:07 summation I only removed the summation because the summation says that let us consider all the sentences right of
+43:15 different length and so on and so forth Now using this theorem I said no I will not consider all the sentences I'll
+43:21 consider only that sentence only one sentence whose length is significantly long
+43:33 okay and I will this is
+43:38 minus okay and I will also assume that the probability of of this
+43:44 sentence is 1 by n okay now these are now if you're not
+43:51 convinced by this I strongly suggest that you you go through this theorem and you it's a very standard theorem in in
+43:57 in information science information Theory okay so this boils
+44:06 down this boils down to limit n TS to Infinity 1 by n log of W1
+44:16 W2 dot dot dot w
+44:24 n huh huh p p p yes p sorry P of course
+44:33 P okay now I Define another concept cross
+44:41 entropy entropy we know this is entropy what is cross
+44:46 entropy what is cross entropy when do we need cross
+44:52 entropy let's say there are two events there are two random variables in indicating two different events right
+45:00 and let's say you want to you want to measure the closeness or difference of some sort of similarity between two
+45:05 events right whether one one event is independent of other events and so on and so
+45:11 forth in language nobody knows what is the actual
+45:16 probability all the gold probability of a of of generating a w nobody knows if you knew what is the gold
+45:23 probability of generating a language then you would have solved the language generation problem nobody knows how a
+45:29 language is generated right we we approximate this process using language model we says
+45:36 that look we will we will design a language model which will try to mimic the way language is
+45:43 generated you get my point right so we will define something called cross entropy here cross entropy
+45:51 between between the actual way a language is generated L and our model m
+45:60 okay and and and and what is the U cross
+46:05 entropy formula uh sum of B sum of P
+46:12 of uh uh PL PL L of let's say x i right
+46:18 log of PM of XI right what is PL PL is
+46:24 the probability obtained from the language from the language itself assuming that we know the Oracle we have
+46:30 access to the Oracle whereas PM is the probability obtained from the model let's say the model is a Byram model or
+46:37 trigram model and this is cross entropy right
+46:42 again if you apply this Shannon mcon bman theorem you will you can you can
+46:48 approximate this again I mean from here we we will we will consider par entropy
+46:55 sorry uh entropy rate or par word ropy right 1 by n 1 by n then limit and so on
+47:00 and so forth apply all these things all the tricks that we applied here so if we apply this formula if we apply the
+47:07 theorem again the theorem says that the cross
+47:14 entropy cross entropy can be written as limit n TS to Infinity minus 1 byn log
+47:24 of PM
+47:30 I mean in our case XI is essentially what W1 W2 do
+47:42 WN okay so cross entropy has a very nice property by the way do you know that
+47:47 cross entropy has a
+47:52 bound the original entropy h of p is the the lower ground of the Cross
+47:58 entropy P of uh h of let's say or
+48:06 L and you can prove this very easily can you prove
+48:13 this can you prove this
+48:19 theorem can you prove this theorem h of L is bounded by h of L comma M what is l
+48:28 l is the true uh the the the the Oracle language right event or M and and what
+48:35 is m m is a model right can you prove this what is h of l
+48:42 h of L is let's say minus
+48:50 right log of Pi right if you if you replace Pi by pi by Mi *
+48:59 Mi right so minus
+49:05 Pi log of Mi minus right uh Pi log of Pi
+49:15 by Mi what is this this is cross entropy this is
+49:21 h l m and what is this by the way P log P MI
+49:29 let's see what is
+49:34 this this is scale Divergence this is scale Divergence
+49:40 between pi and Mi P and M right so h of L is essentially h of L M minus K
+49:51 Divergence of l and m so it means that h of L is less than
+49:60 equal to this now let's try to at least intuitively try to understand this this
+50:06 this equation right what it says it says that the intop what what is h of l h of
+50:12 L is the entropy of the true event L which you do not
+50:17 know language right what is h l comma N is a cross entropy between the language
+50:23 and the model and what is the scale Di scale is the difference between l and
+50:30 m right so if you reduce the difference between language and the language model
+50:37 the language model will come closer to the
+50:43 language all right so we have seen what is um okay just forget about all the
+50:50 theories okay just focus on this part just focus on uh just focus on maybe uh
+50:56 this part
+51:02 okay okay and again to simplify this you ignore the limit because when you
+51:09 consider only one sentence whose uh length is infinite we can ignore the limit also right only this part is there
+51:16 1 by minus 1 by n log of P right now my claim is perplexity PP
+51:27 is 2 to the power
+51:34 entropy this is my claim okay now let's see we know the
+51:39 formula perplexity already we have seen the formula perplexity now what is this H H we have seen this is minus 1 by n
+51:48 log of P of W1 w dot
+51:53 WN right so you move this to the power of probability okay then this log and
+52:00 two will vanish because it's a power of two uh Bas is two so this is going to be
+52:06 P of W1 W2 do do w n to the^ minus 1 by
+52:14 n right now pause and Ponder think about it what is entropy entropy intuitively
+52:22 entropy says the average number of bits required
+52:27 to encode an information right log of what is what is log of 1 by
+52:33 pi what is minus log of Pi what is minus log of
+52:41 Pi number of bits equal minimum number of bits to encode Pi log of Pi is what P
+52:48 minus P log of Pi is what expected number of bits required
+52:54 because Pi is essentially the probability of that outcome right so entropy says that what
+53:00 is the expected number of bits required to encode and information number of bits what is two
+53:07 to the power number of bits indicating let's say the number of bits is three what is 2
+53:15 three number of possible cases number of possible words that you can generate with three
+53:20 bits right so entropy says then what so the perplexity is what is the number of
+53:27 possible possible wordss that you can
+53:33 generate okay now assume that you have a sequence of sequence of tokens and you
+53:38 want to estimate what is going to the next word if if a language models entropy is
+53:45 high if the language models entropy is high so two to the power that will also be very high that means that means there
+53:53 are lot there are lots of possible candidates that can come there if a language model's entropy is low
+54:00 that means your your possible set of words is also low that means you you
+54:06 more UNC you more certain about the the next token
+54:13 clear okay so someone can say that why do we need perplexity I can use entropy
+54:18 I can use entropy as a measure of as a measure for evaluation but inop entropy
+54:23 and complexity are proportional right if I use entropy as a measure for
+54:29 evaluation it doesn't make much sense intuitively if I say that okay the average number of bits is three for this
+54:37 language model what what does it mean versus if I say that for this language
+54:43 model this language model can generate eight possible uh tokens for the next
+54:49 word versus this language model can generate three possible tokens for the next word this makes more sense you can
+54:55 say that okay next the the second language model is better than the first language model because the second language model is more
+55:02 certain clear so this is the beauty of perplexity let's look at some of the
+55:09 problems of uh statistical language model we discussed engram models uh we
+55:16 discussed uh smoothing techniques we discussed evaluation measures right so inome models the major problem
+55:24 is this fixed window size because I have to I have to choose the window and based on that I have to measure the count and
+55:30 so on what would be the size of the window is not very clear the second problem is that uh you know uh as the
+55:38 number of byrams increases this Matrix size will increase right even if you do
+55:43 a lot of smoothing you will still see that there are lots of small Valu zero counts and so on and so
+55:49 forth it is very bad in handling uh out of vocab words o I mentioned one
+55:56 technique last last day but that technique is also not that great given the you know the amount of new work
+56:01 coming in every day right and uh of course it is computationally very
+56:07 expensive to create or to to come up with this kind of Ingram uh this this Byram table Byram or trigram trible
+56:14 assuming that you have a trillion size Corpus right so so what is what is
+56:21 needed we we need some sort of better understanding of some sort of uh representation which understand the
+56:26 context properly right we will also look at how we we make the entire thing
+56:32 scalable and so on and so forth so in the next uh lecture we will start uh
+56:39 discussing word embedding methods okay we'll start with a simple distributional
+56:45 semantics hypothesis right and then we look at the problems with distribution semantics then we move to what to and
+56:52 then we'll discuss glove we also look at different limitations of what to and glove and then we move on to the neural
+56:59 neural language model thank you

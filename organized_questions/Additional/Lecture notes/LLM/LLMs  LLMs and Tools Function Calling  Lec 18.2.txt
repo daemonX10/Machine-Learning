@@ -1,0 +1,4333 @@
+00:02 good morning everyone so today let's uh
+00:04 
+
+00:04 resume the second part of the lecture
+00:06 
+
+00:06 where we're going to talk about uh
+00:07 
+
+00:07 function
+00:09 
+
+00:09 calling in the last class we mainly
+00:11 
+
+00:11 focused on
+00:13 
+
+00:13 tools uh during the fine-tuning stage so
+00:17 
+
+00:17 your uh whatever tools you want the llm
+00:20 
+
+00:20 to be aware of uh you'll have to create
+00:22 
+
+00:22 a lot of examples on how to use the tool
+00:26 
+
+00:26 and once the llm uh has enough examples
+00:30 
+
+00:30 for each tool it'll be able to pick up
+00:32 
+
+00:32 how to use that particular tool now uh
+00:35 
+
+00:35 this might this is very limiting because
+00:39 
+
+00:39 uh like as a as a developer or as a
+00:43 
+
+00:43 application developer you might have
+00:45 
+
+00:45 like custom tools written in python or
+00:48 
+
+00:48 you might have a restful Service uh
+00:50 
+
+00:50 that's running that serves a specific
+00:51 
+
+00:51 purpose now creating examples for those
+00:54 
+
+00:54 and fine tuning the model seems like a
+00:56 
+
+00:56 very tough thing to do right and it's
+00:58 
+
+00:58 not scalable as well so that's where
+01:00 
+
+01:00 function calling comes into picture
+01:02 
+
+01:02 let's see how uh llms are taught how to
+01:05 
+
+01:05 adapt to functions and apis very
+01:10 
+
+01:10 quickly so so before jumping into the
+01:13 
+
+01:13 details and and defining what function
+01:15 
+
+01:15 calling is and how to build build them
+01:17 
+
+01:17 let's sort of take a step back and see
+01:20 
+
+01:20 uh how you would build a chatbot like
+01:23 
+
+01:23 you already have let's say that you
+01:25 
+
+01:25 already have access to an awesome llm
+01:27 
+
+01:27 like
+01:28 
+
+01:28 gp4 and uh you know how to use the gp4
+01:32 
+
+01:32 through an API and you are creating an
+01:34 
+
+01:34 application for uh let's say for for
+01:37 
+
+01:37 application that students in I Delhi
+01:39 
+
+01:39 could use and your goal is to develop a
+01:43 
+
+01:43 chatbot using llms and and in to have a
+01:47 
+
+01:47 conversational interface that supports
+01:49 
+
+01:49 let's say if you have any questions
+01:50 
+
+01:50 about Institute rules or policies you
+01:52 
+
+01:52 should be able to answer uh for the
+01:55 
+
+01:55 given semester it should let you uh
+01:57 
+
+01:57 search or ADD and drop courses and if
+02:00 
+
+02:00 you have any questions about like when
+02:02 
+
+02:02 these holidays are and whether a certain
+02:05 
+
+02:05 Saturday is a working day or not uh you
+02:07 
+
+02:07 want it to answer and similarly let's
+02:09 
+
+02:09 say it even will let you know how much
+02:10 
+
+02:10 fees uh you'll have to pay for this
+02:13 
+
+02:13 semester and and easy interface to make
+02:15 
+
+02:15 you pay the fees now this is not a very
+02:18 
+
+02:18 unreasonable uh design for a chatbot
+02:21 
+
+02:21 right so you will have some information
+02:22 
+
+02:22 seeking tasks and you will have some uh
+02:26 
+
+02:26 transactional tasks or even information
+02:28 
+
+02:28 seeking task that is not from a text but
+02:31 
+
+02:31 rather from a database that is exposed
+02:33 
+
+02:33 or a rest service that's being provided
+02:36 
+
+02:36 now how would now given that you know
+02:39 
+
+02:39 how GPT 40 works like you give a
+02:41 
+
+02:41 conversation input and gives you an
+02:43 
+
+02:43 output which part of these would be easy
+02:45 
+
+02:45 to create based on whatever you've been
+02:49 
+
+02:49 taught in this course so
+02:53 
+
+02:53 far first and third so why would first
+02:56 
+
+02:56 be easy
+03:02 
+
+03:02 perfect so you have a document if you
+03:03 
+
+03:03 index them you could use rag leg system
+03:06 
+
+03:06 to get it to work and as long as you
+03:08 
+
+03:08 feed the retrieve document in the
+03:10 
+
+03:10 context in addition to your question you
+03:11 
+
+03:11 should be able to answer it right so how
+03:13 
+
+03:13 is three easy to do does it look like
+03:15 
+
+03:15 it's going to be a easy job or would it
+03:18 
+
+03:18 take like 10 minutes or would it take
+03:20 
+
+03:20 like a day work worth of work to get it
+03:23 
+
+03:23 done because the first one seems like 10
+03:26 
+
+03:26 minutes job right but uh the third one
+03:29 
+
+03:29 looks
+03:31 
+
+03:31 uh maybe if there is some easy way to
+03:33 
+
+03:33 get it to work it might make it easy for
+03:35 
+
+03:35 developers to do right so so
+03:37 
+
+03:37 functionally two three and four are not
+03:40 
+
+03:40 that different right because if you have
+03:43 
+
+03:43 an API that lets you or a SQL database
+03:47 
+
+03:47 where you actually store the uh the
+03:50 
+
+03:50 courses that each student is eligible to
+03:53 
+
+03:53 credit and what they've registered for
+03:56 
+
+03:56 and not then it would be easy to do too
+03:58 
+
+03:58 or if it if there's a rest service that
+03:60 
+
+03:60 lets you do that instead of a database
+04:02 
+
+04:02 uh then like I I mean like all three
+04:04 
+
+04:04 could either be a database or rest
+04:06 
+
+04:06 service and and four seem slightly more
+04:08 
+
+04:08 complicated because you'll have to
+04:10 
+
+04:10 authenticate it has to be secure and
+04:12 
+
+04:12 you'll have to trust it because it's not
+04:14 
+
+04:14 like it says one thing and does another
+04:16 
+
+04:16 thing right you don't want to like
+04:18 
+
+04:18 uh because the second one even dropping
+04:21 
+
+04:21 a course or adding a course may also be
+04:23 
+
+04:23 slightly more tricky right but searching
+04:25 
+
+04:25 for a course and quering academic
+04:26 
+
+04:26 calendar even if it makes a mistake you
+04:28 
+
+04:28 can always like rephrase your query and
+04:29 
+
+04:29 somehow get it working so so let's see
+04:32 
+
+04:32 uh and this is a very common scenario
+04:34 
+
+04:34 right uh imagine if if you want to
+04:37 
+
+04:37 create a conversation interface for a
+04:38 
+
+04:38 banking solution or you want to create
+04:40 
+
+04:40 any any task that you take just pure
+04:43 
+
+04:43 information seeking based on document
+04:46 
+
+04:46 and and simply conversing with an llm is
+04:48 
+
+04:48 a very small subset of use cases that
+04:50 
+
+04:50 you could do right and and and and and
+04:53 
+
+04:53 if you look at it from an Financial
+04:56 
+
+04:56 standpoint right uh most of these
+04:59 
+
+04:59 information seeking
+05:00 
+
+05:00 queries these are not the heavy volumes
+05:03 
+
+05:03 in either a customer support or in any
+05:06 
+
+05:06 services that you would pay to get right
+05:10 
+
+05:10 most of them are going to be
+05:11 
+
+05:11 transactional most of the like the
+05:14 
+
+05:14 information that's uh that will help you
+05:17 
+
+05:17 get money are all going to be stored in
+05:18 
+
+05:18 rest API or backed by a rest API or in a
+05:21 
+
+05:21 database and things like that so so if
+05:25 
+
+05:25 somebody wants to reduce the amount
+05:28 
+
+05:28 of so what are the two ways in which you
+05:30 
+
+05:30 can save money one is you build a chat
+05:32 
+
+05:32 bot so that there is no human
+05:33 
+
+05:33 intervention in between it's available
+05:34 
+
+05:34 all the time it saves cost and and if
+05:36 
+
+05:36 you have to do that you have to support
+05:37 
+
+05:37 all these tases right and and second
+05:40 
+
+05:40 thing is you don't want to as a as a
+05:43 
+
+05:43 organization you don't want to spend lot
+05:45 
+
+05:45 of money in hiring somebody to maintain
+05:47 
+
+05:47 the system or even develop the system if
+05:49 
+
+05:49 there is something that people can do
+05:51 
+
+05:51 quickly and and they know that it's
+05:53 
+
+05:53 going to work then people are going to
+05:55 
+
+05:55 use it a lot more right so so for
+05:57 
+
+05:57 example imagine in the old era before
+05:59 
+
+05:59 the web
+06:01 
+
+06:01 came into picture now advertising like
+06:03 
+
+06:03 say your company it's going to be a very
+06:05 
+
+06:05 tricky job right you need to figure out
+06:07 
+
+06:07 which board uh which Avenue you want to
+06:10 
+
+06:10 spend money on what is what's going to
+06:12 
+
+06:12 give you better rate of like like
+06:14 
+
+06:14 returns like would it work what is your
+06:16 
+
+06:16 demographic so many would you have to
+06:19 
+
+06:19 answer so many questions before you can
+06:20 
+
+06:20 advertise right but now it's so easy
+06:22 
+
+06:22 right you can have very specific
+06:24 
+
+06:24 targeted ads you have Facebook Instagram
+06:26 
+
+06:26 you know exactly who these people are if
+06:28 
+
+06:28 you know who your target clients are
+06:29 
+
+06:29 it's so easy right so so we want to get
+06:33 
+
+06:33 to that point for building chat Bots as
+06:35 
+
+06:35 well it has to be so easy that whatever
+06:37 
+
+06:37 you think of you want to do it very
+06:39 
+
+06:39 quickly right so that's where the third
+06:41 
+
+06:41 one comes into picture like if you know
+06:43 
+
+06:43 if you think like oh I don't know what
+06:45 
+
+06:45 all issues I would face or or how easy
+06:48 
+
+06:48 or difficult is it going to to plug this
+06:49 
+
+06:49 in then maybe that resistance will not
+06:52 
+
+06:52 let you create the chat bot right
+06:53 
+
+06:53 because you don't know what you're
+06:54 
+
+06:54 getting into and after you develop this
+06:56 
+
+06:56 it doesn't work as expected things are
+06:57 
+
+06:57 going to get more tricky right and you
+06:59 
+
+06:59 may even spend a lot more money in
+07:01 
+
+07:01 getting that working system so so so the
+07:03 
+
+07:03 whole industry now has stopped worrying
+07:06 
+
+07:06 about natural language processing when
+07:07 
+
+07:07 it comes to llm right they're not
+07:09 
+
+07:09 worried about whether it understands
+07:10 
+
+07:10 your text or it it responds back in a
+07:12 
+
+07:12 way that you want they're more worried
+07:14 
+
+07:14 about how to make them do
+07:17 
+
+07:17 transactional test because any complex
+07:20 
+
+07:20 task you take has one element of
+07:22 
+
+07:22 transaction involved in it let's say
+07:23 
+
+07:23 even you're like most of you would
+07:25 
+
+07:25 probably use it to as a as a as a
+07:28 
+
+07:28 grammar correction tool while writing
+07:29 
+
+07:29 your paper or before sending an email or
+07:31 
+
+07:31 things like that right so imagine you
+07:33 
+
+07:33 can just type of send an email this
+07:36 
+
+07:36 looks good send an email right that
+07:38 
+
+07:38 might save you a lot more time right if
+07:39 
+
+07:39 it has access to your email and and just
+07:42 
+
+07:42 telling chat GPD to send an email to
+07:44 
+
+07:44 your professor saves so much time right
+07:45 
+
+07:45 it might become more convenient to use
+07:47 
+
+07:47 so if you have to get anything tangible
+07:50 
+
+07:50 making it transactionally is going to
+07:51 
+
+07:51 help you a lot right so let's see how
+07:54 
+
+07:54 llms are going to do that so so this is
+07:56 
+
+07:56 the the sort of the uh whole
+07:58 
+
+07:58 architecture of how function calling
+07:60 
+
+07:60 would typically be used a user comes uh
+08:03 
+
+08:03 gives a query let's say in this
+08:04 
+
+08:04 particular scenario you say I want to
+08:05 
+
+08:05 drop uh two of my courses or things like
+08:08 
+
+08:08 that right so then your application will
+08:11 
+
+08:11 be the chat interface that you have and
+08:13 
+
+08:13 and it would be the server that's
+08:14 
+
+08:14 running your uh the application and it
+08:17 
+
+08:17 would it would already have a list of
+08:19 
+
+08:19 functions that it is it can access right
+08:22 
+
+08:22 like for example it can have a uh API
+08:24 
+
+08:24 for calendar you can have an API for uh
+08:27 
+
+08:27 adding dropping and searching courses
+08:29 
+
+08:29 you can have a calendar for paying sorry
+08:30 
+
+08:30 it can have an API for paying fees so it
+08:32 
+
+08:32 knows a bunch of functions that it's
+08:34 
+
+08:34 allowed to use so all those will be
+08:36 
+
+08:36 defined within the application and and
+08:39 
+
+08:39 and then it sends both the user query
+08:41 
+
+08:41 and the list of functions that it has to
+08:43 
+
+08:43 the llm since now the llm has the
+08:45 
+
+08:45 ability to do use the functions whenever
+08:48 
+
+08:48 it's appropriate it'll it'll figure out
+08:51 
+
+08:51 which function to use for this in this
+08:53 
+
+08:53 for this query it'll also figure out
+08:56 
+
+08:56 what are the parameters this function
+08:57 
+
+08:57 needs and what are the values that it
+08:59 
+
+08:59 should take and then give it back to
+09:01 
+
+09:01 your application now because llm cannot
+09:03 
+
+09:03 execute the function right so the
+09:05 
+
+09:05 application you might have JavaScript
+09:08 
+
+09:08 code or a python code or or any
+09:11 
+
+09:11 interpreter and then you would execute
+09:13 
+
+09:13 the API get the results give the results
+09:15 
+
+09:15 back to the uh llm again which would
+09:18 
+
+09:18 generate a response using the results
+09:19 
+
+09:19 and give it back to the user so from a
+09:21 
+
+09:21 user standpoint they don't know all
+09:23 
+
+09:23 these are happening all they know is
+09:24 
+
+09:24 that they're just giving a prompt and
+09:26 
+
+09:26 they're getting a response back so they
+09:27 
+
+09:27 don't care whether it's coming from an
+09:29 
+
+09:29 API from a python function or or
+09:31 
+
+09:31 everything is hardcoded in the uh in in
+09:34 
+
+09:34 your application layer right so now why
+09:37 
+
+09:37 is this like so important right so let's
+09:39 
+
+09:39 say that you are Amazon web services or
+09:42 
+
+09:42 Azure cloud or IBM Cloud right so your
+09:45 
+
+09:45 functions that you have is going to be
+09:46 
+
+09:46 dicated at a such rapid Pace every 6
+09:49 
+
+09:49 months you'll get a new uh new
+09:52 
+
+09:52 functionality new feature and your
+09:53 
+
+09:53 functions will keep changing over time
+09:55 
+
+09:55 and if you have to redrain your whole
+09:56 
+
+09:56 system every six months it's going to be
+09:58 
+
+09:58 a nightmare right so so as long so in
+10:01 
+
+10:01 this particular setup as long as you
+10:03 
+
+10:03 just change the API specification you
+10:06 
+
+10:06 should be good right the model will
+10:07 
+
+10:07 adapt quickly it's going to be so easy
+10:09 
+
+10:09 for it to and it's going to be easy for
+10:11 
+
+10:11 developers also to maintain a system
+10:13 
+
+10:13 like this right otherwise it's going to
+10:15 
+
+10:15 be like so much expensive just to keep
+10:17 
+
+10:17 the system alive you might probably
+10:19 
+
+10:19 spend more time in more money in
+10:21 
+
+10:21 creating the data rather than like
+10:23 
+
+10:23 saving cost by replacing a uh like like
+10:27 
+
+10:27 by by replacing like existing services
+10:29 
+
+10:29 with a chat boot
+10:31 
+
+10:31 right so now let's see what happens uh
+10:34 
+
+10:34 so like I mentioned there are four uh
+10:37 
+
+10:37 important steps uh in the first step you
+10:39 
+
+10:39 need to Define tools so tools need not
+10:41 
+
+10:41 necessarily be like a rest API it can
+10:44 
+
+10:44 also be a simple python function like
+10:46 
+
+10:46 this in which probably you access just a
+10:48 
+
+10:48 Excel file using pandas in the back
+10:51 
+
+10:51 right it can be as simple as that and uh
+10:53 
+
+10:53 but irrespective of whether it is a uh
+10:57 
+
+10:57 python code or a Java code
+10:60 
+
+10:60 or uh uh a JavaScript code or a rest API
+11:04 
+
+11:04 you need to create a standard way of
+11:05 
+
+11:05 specifying what this particular function
+11:08 
+
+11:08 or API can do right so some simple
+11:10 
+
+11:10 things that you need to fill are just
+11:11 
+
+11:11 the name uh a natural language
+11:14 
+
+11:14 description of what this function or API
+11:16 
+
+11:16 is capable of doing like this is the
+11:18 
+
+11:18 crucial part if you don't give this and
+11:20 
+
+11:20 the model will not be able to figure out
+11:21 
+
+11:21 when to pick a certain API or function
+11:23 
+
+11:23 and in addition to that you might have
+11:25 
+
+11:25 to give all the parameters that it would
+11:27 
+
+11:27 take and what are the required
+11:28 
+
+11:28 parameters so that without that model
+11:30 
+
+11:30 will not be able to like like execute
+11:32 
+
+11:32 that particular API or function now this
+11:35 
+
+11:35 is step one you define the tools that
+11:36 
+
+11:36 are needed and and again as an input you
+11:39 
+
+11:39 have to provide the user quy as well
+11:41 
+
+11:41 that's step one and step two is that the
+11:44 
+
+11:44 llm has to output something that clearly
+11:48 
+
+11:48 specifies what function to call and what
+11:50 
+
+11:50 are the arguments and what are the uh
+11:52 
+
+11:52 argument values that it could take and
+11:54 
+
+11:54 this is done by passing the uh the user
+11:57 
+
+11:57 prompt right and so this is done by the
+12:00 
+
+12:00 llm and and again uh the application
+12:04 
+
+12:04 that you have from an llm standpoint it
+12:06 
+
+12:06 doesn't matter whether the application
+12:07 
+
+12:07 executes it or the user executes it so
+12:09 
+
+12:09 so the llm stops just by giving out the
+12:12 
+
+12:12 API call and and then let's say that
+12:14 
+
+12:14 your application executes it it gets a
+12:16 
+
+12:16 status paid here because the query there
+12:18 
+
+12:18 was what's the status of my payment and
+12:20 
+
+12:20 and they gave the transaction ID the llm
+12:23 
+
+12:23 gave you the right function name the
+12:24 
+
+12:24 right arguments and now you got a
+12:26 
+
+12:26 message back saying the status is paid
+12:28 
+
+12:28 and finally this particular input this
+12:32 
+
+12:32 along with the query uh when given to
+12:34 
+
+12:34 the llm it'll be able to generate a
+12:35 
+
+12:35 natural language response back right it
+12:37 
+
+12:37 says that the status of your transaction
+12:39 
+
+12:39 with ID this is paid and is there
+12:40 
+
+12:40 anything else I can assist you with
+12:42 
+
+12:42 right so this is these are the four
+12:43 
+
+12:43 steps so now uh let's see how you would
+12:47 
+
+12:47 train such a system right so so one
+12:50 
+
+12:50 particular task is like uh you give the
+12:52 
+
+12:52 conversation so far along with the
+12:53 
+
+12:53 current query and a set of tools that
+12:56 
+
+12:56 you have then your output has to be a
+12:58 
+
+12:58 certain way of
+12:60 
+
+13:00 uh figuring out what tool to call and
+13:03 
+
+13:03 what are the parameters and what are the
+13:04 
+
+13:04 values right so you have to create
+13:06 
+
+13:06 examples of this type for fine tuning
+13:08 
+
+13:08 your model second thing is
+13:11 
+
+13:11 that uh you have the tool output and you
+13:14 
+
+13:14 have the conversation so far uh you'll
+13:16 
+
+13:16 have to teach the model how to leverage
+13:19 
+
+13:19 how to effectively use the tool output
+13:21 
+
+13:21 so that it can phrase natural language
+13:23 
+
+13:23 response so this is the second task it
+13:25 
+
+13:25 has to know and the third one is like
+13:28 
+
+13:28 sometimes the user just says what has to
+13:30 
+
+13:30 be done and does not give you all the
+13:33 
+
+13:33 parameters all the required parameters
+13:34 
+
+13:34 that are needed to call the model right
+13:36 
+
+13:36 so in that case the model should be in a
+13:38 
+
+13:38 position to figure out uh which
+13:40 
+
+13:40 particular argument has not been
+13:42 
+
+13:42 provided yet by the uh user and it
+13:46 
+
+13:46 should have the ability to post it back
+13:49 
+
+13:49 to the user in a natural language form
+13:50 
+
+13:50 like here it says that hi I can help you
+13:53 
+
+13:53 with that can you please provide your
+13:54 
+
+13:54 transaction ID right so so this is
+13:57 
+
+13:57 another thing and and of course there
+13:58 
+
+13:58 are lot more uh uh other things as well
+14:01 
+
+14:01 for example if the if if if there are uh
+14:05 
+
+14:05 if if you're if you're a book book my
+14:07 
+
+14:07 sorry if you're book my show.com you can
+14:09 
+
+14:09 say like I want to I'm bored I want like
+14:11 
+
+14:11 get me a ticket right so now it doesn't
+14:13 
+
+14:13 know whether you have to you want a
+14:14 
+
+14:14 movie ticket it doesn't know whether you
+14:15 
+
+14:15 want an events ticket you don't know it
+14:17 
+
+14:17 doesn't know like it's it's it cannot
+14:19 
+
+14:19 even narrow down to the right function
+14:20 
+
+14:20 call right forget about arguments so
+14:22 
+
+14:22 there'll be situations like that so in
+14:23 
+
+14:23 that case uh you should be able to help
+14:26 
+
+14:26 the like make the user understand that
+14:29 
+
+14:29 uh these are the different things you
+14:30 
+
+14:30 can book and and which one are you
+14:33 
+
+14:33 interested in Booking there may be cases
+14:34 
+
+14:34 like in Booking might booking.com you
+14:36 
+
+14:36 can even say like please order snacks
+14:38 
+
+14:38 along with that right maybe it doesn't
+14:39 
+
+14:39 have an API to order snacks so it has to
+14:42 
+
+14:42 handle a few more things as well but
+14:43 
+
+14:43 these are the basic things that the
+14:45 
+
+14:45 model has to uh sort of be aware
+14:48 
+
+14:48 of so now uh so in order to create such
+14:51 
+
+14:51 a data set um so so before going there
+14:54 
+
+14:54 right uh so whatever I I I talked about
+14:57 
+
+14:57 so far uh GPT uh open AI models can
+15:00 
+
+15:00 already do these things because they
+15:03 
+
+15:03 have collected these data by themselves
+15:06 
+
+15:06 and already uh F tune uh GPT models to
+15:10 
+
+15:10 to sort of do this right so the so now
+15:13 
+
+15:13 what the uh the academic people and
+15:16 
+
+15:16 other uh companies which are more uh
+15:19 
+
+15:19 create open models and and and open data
+15:22 
+
+15:22 they are trying to match what gp4 or CH
+15:26 
+
+15:26 GPT can go do already with function call
+15:29 
+
+15:29 right so when I talk about these four
+15:31 
+
+15:31 different uh uh sort of works that
+15:34 
+
+15:34 created these data and funter model uh
+15:37 
+
+15:37 work has already been done for function
+15:39 
+
+15:39 calling and and and open AI already has
+15:41 
+
+15:41 all these enabled so if that's why if
+15:43 
+
+15:43 you see most of the baselines here would
+15:45 
+
+15:45 be uh gp4 or GPT uh three uh gp4 or CH
+15:50 
+
+15:50 GPT and and what they're trying to do is
+15:52 
+
+15:52 to see if you are able to match up to
+15:55 
+
+15:55 that level of accuracy so that's the
+15:57 
+
+15:57 goal here
+15:60 
+
+15:60 right so the first work that got really
+16:03 
+
+16:03 popular was called gorilla and what they
+16:06 
+
+16:06 did was they synthesize the data set uh
+16:09 
+
+16:09 uh named API bench and and the apis or
+16:12 
+
+16:12 the functions that they used in the back
+16:14 
+
+16:14 are basically all the model cards in
+16:17 
+
+16:17 hugging face model Hub torch Hub and
+16:19 
+
+16:19 tensor Hub were sort of used so each
+16:22 
+
+16:22 model would be used for a certain
+16:24 
+
+16:24 specific purpose there are Vision models
+16:26 
+
+16:26 there are time series models uh there
+16:28 
+
+16:28 are uh text to speech models there are
+16:30 
+
+16:30 image generation models so there are a
+16:32 
+
+16:32 lot of models so they sort of so each
+16:34 
+
+16:34 model has a use case right they can do
+16:36 
+
+16:36 certain set of things so so when a user
+16:39 
+
+16:39 comes and asks uh I want to uh generate
+16:42 
+
+16:42 a cat image or something like that then
+16:44 
+
+16:44 uh the goal here is for the uh llm to
+16:48 
+
+16:48 figure out which model to call in which
+16:50 
+
+16:50 Hub and then give a small code that lets
+16:52 
+
+16:52 the user generate that right so that was
+16:54 
+
+16:54 a goal here and they ended up
+16:56 
+
+16:56 fine-tuning Lama 27 billion model and
+16:59 
+
+16:59 and and that that model fine tuned using
+17:02 
+
+17:02 the API bench data is referred to as the
+17:04 
+
+17:04 gorilla model right so this is the this
+17:06 
+
+17:06 is the overall picture of what they did
+17:08 
+
+17:08 and and one of the one one such example
+17:11 
+
+17:11 they synthesized looks like this so our
+17:13 
+
+17:13 customer is a zoo and we want to help
+17:15 
+
+17:15 them dedi movement of different animals
+17:18 
+
+17:18 write a Python program in one or two
+17:19 
+
+17:19 lines to call Api in tens of Lowa so in
+17:22 
+
+17:22 addition to what they want they've also
+17:24 
+
+17:24 given certain constraints right which
+17:26 
+
+17:26 which says that they just want it in
+17:27 
+
+17:27 tensor flow have and uh and and and the
+17:31 
+
+17:31 and the gold API to call is this
+17:33 
+
+17:33 particular
+17:34 
+
+17:34 model right and since it's tensor flow
+17:37 
+
+17:37 Hub it has to be Hub load along with
+17:39 
+
+17:39 other inputs and uh this is what this is
+17:41 
+
+17:41 one of those models intens of flow Hub
+17:43 
+
+17:43 that will let you uh do object detection
+17:46 
+
+17:46 right and there are other parts to it
+17:48 
+
+17:48 which basically helps them generate
+17:50 
+
+17:50 better
+17:52 
+
+17:52 data now uh so this is how the framework
+17:54 
+
+17:54 looks like first let's see the first
+17:57 
+
+17:57 part which is how do they end up
+17:58 
+
+17:58 generating this particular data right so
+18:01 
+
+18:01 so here uh first what they did was uh
+18:05 
+
+18:05 they they sort of curated model cards
+18:07 
+
+18:07 that are specified in detail and they
+18:09 
+
+18:09 match all the specifications not under
+18:11 
+
+18:11 specified and they they got around uh,
+18:15 
+
+18:15 645 uh model cards from these three
+18:19 
+
+18:19 uh websites and and they converted them
+18:22 
+
+18:22 into a very common format because each
+18:25 
+
+18:25 of the hubs would have different uh
+18:27 
+
+18:27 Styles fields and things like that and
+18:30 
+
+18:30 once they have that they use uh so so
+18:33 
+
+18:33 you might you guys might have already uh
+18:35 
+
+18:35 uh read about self instruct right it
+18:37 
+
+18:37 might have been taught in the uh the the
+18:39 
+
+18:39 instruction fine tuning classes so they
+18:41 
+
+18:41 use self instruct exactly that setup to
+18:44 
+
+18:44 generate with in context example
+18:46 
+
+18:46 generate more examples right and and
+18:49 
+
+18:49 once they generated more examples uh
+18:51 
+
+18:51 they find T the model right it's this is
+18:53 
+
+18:53 what the setup is now uh so what they
+18:57 
+
+18:57 did was when they created this data said
+18:59 
+
+18:59 they also created a a database which has
+19:03 
+
+19:03 all these uh Json elements in them right
+19:06 
+
+19:06 or or basically they've written all
+19:07 
+
+19:07 these specifications here so the reason
+19:09 
+
+19:09 why they have this is because once a new
+19:11 
+
+19:11 because imagine you have 1,645 API CS
+19:14 
+
+19:14 you can't put all of them in the prompt
+19:16 
+
+19:16 right because you have only a limited uh
+19:19 
+
+19:19 uh limited input space there and most of
+19:22 
+
+19:22 these API definitions are pretty long
+19:24 
+
+19:24 they describe a lot of things they
+19:25 
+
+19:25 Define all the parameters and things
+19:27 
+
+19:27 like that so it may be really difficult
+19:28 
+
+19:28 to f everything so you need to First
+19:31 
+
+19:31 retrieve a very small sub subset of uh
+19:34 
+
+19:34 apis that you feel are relevant for this
+19:36 
+
+19:36 task and then let the model decide uh
+19:38 
+
+19:38 how to use them right um so so here the
+19:43 
+
+19:43 user says I want to see uh some cats
+19:45 
+
+19:45 dancing in celebration so then the
+19:47 
+
+19:47 retriever would uh would sort of get
+19:50 
+
+19:50 some relevant apis from the database and
+19:52 
+
+19:52 then uh give that API specification to
+19:54 
+
+19:54 the llm and the llm along with the input
+19:56 
+
+19:56 question would be able to generate the
+19:58 
+
+19:58 API which when execute gets you the
+19:59 
+
+19:59 result that you want right so so there
+20:02 
+
+20:02 are so the the good part about this
+20:04 
+
+20:04 paper was that they they they they said
+20:08 
+
+20:08 that it's good not to let the model
+20:10 
+
+20:10 memorize all the apis that you have but
+20:13 
+
+20:13 rather provide them during runtime so
+20:16 
+
+20:16 that they don't overfit on that
+20:18 
+
+20:18 particular specifications right so so
+20:20 
+
+20:20 when you adapt your API or when you
+20:22 
+
+20:22 change your API let's say you like
+20:24 
+
+20:24 everybody releases new version of the
+20:25 
+
+20:25 model all the time right so now when new
+20:27 
+
+20:27 version comes you should not be stuck
+20:28 
+
+20:28 with version right so so that's why they
+20:30 
+
+20:30 say that in here they they do some
+20:32 
+
+20:32 experiments to show even if they change
+20:34 
+
+20:34 their model name the performance doesn't
+20:36 
+
+20:36 wrong right so that was one uh and that
+20:39 
+
+20:39 is achieved by using the retrial
+20:41 
+
+20:41 augmented training right so this was one
+20:43 
+
+20:43 of the main contributions and uh the the
+20:47 
+
+20:47 other contribution that they made was
+20:48 
+
+20:48 that uh they they they they came up with
+20:51 
+
+20:51 how to evaluate uh these uh models that
+20:55 
+
+20:55 can do function calling right so the
+20:57 
+
+20:57 output of most of these models are
+20:59 
+
+20:59 programs or like the apas that they
+21:01 
+
+21:01 supposed to call along with parameters
+21:03 
+
+21:03 so what they mentioned was that uh there
+21:05 
+
+21:05 are certain cases like for example in
+21:07 
+
+21:07 Python you might have default parameters
+21:09 
+
+21:09 uh and and you can change the if you
+21:11 
+
+21:11 provide a variable name you can change
+21:13 
+
+21:13 the order of the uh variable names so so
+21:16 
+
+21:16 stct string match is not probably the
+21:18 
+
+21:18 right thing to do because you will miss
+21:20 
+
+21:20 out a lot of right things uh and so what
+21:22 
+
+21:22 they said was they they they borrowed
+21:24 
+
+21:24 from the programming uh language
+21:27 
+
+21:27 literature where if you want to compare
+21:28 
+
+21:28 two programs rather than comparing the
+21:30 
+
+21:30 surface forms you create a syntax tree
+21:32 
+
+21:32 and then you compare that right abstract
+21:34 
+
+21:34 syntax tree and compare that so so
+21:36 
+
+21:36 that's what they introduced
+21:38 
+
+21:38 here and then they also came up uh with
+21:41 
+
+21:41 this uh way of figuring out where the
+21:43 
+
+21:43 model fails right rather than just
+21:46 
+
+21:46 saying we only have an uh an as match
+21:50 
+
+21:50 accuracy of 60% they also said that
+21:53 
+
+21:53 where exactly are we fa failing so they
+21:55 
+
+21:55 divided the failure cases into two parts
+21:58 
+
+21:58 one is that
+21:59 
+
+21:59 uh you are hallucinating in the sense
+22:01 
+
+22:01 that you are giving out API names that
+22:03 
+
+22:03 don't even exist right they're not in
+22:05 
+
+22:05 the retrieved list they're not provided
+22:07 
+
+22:07 as a part of the context or you cooking
+22:09 
+
+22:09 up arguments that are not a part of the
+22:11 
+
+22:11 function specifications right uh so for
+22:14 
+
+22:14 example in this particular example there
+22:16 
+
+22:16 is no uh possible value for the second
+22:19 
+
+22:19 parameter that can take ASR because it's
+22:22 
+
+22:22 an enm type there are only certain
+22:23 
+
+22:23 specific values it can take and ASR is
+22:25 
+
+22:25 not one of those values and and secondly
+22:28 
+
+22:28 there is no optional parameter called
+22:30 
+
+22:30 Source right so this is clearly
+22:32 
+
+22:32 hallucination so what they say is like
+22:34 
+
+22:34 uh if the model outputs an acceptable
+22:38 
+
+22:38 function that is given as a part of the
+22:41 
+
+22:41 input then it's a wrong Library so the
+22:43 
+
+22:43 failure is because it's it its
+22:45 
+
+22:45 understanding was incorrect maybe the
+22:47 
+
+22:47 description was not right it was
+22:48 
+
+22:48 confusing maybe the user rence was
+22:50 
+
+22:50 confusing there are other reasons for it
+22:52 
+
+22:52 but if the model hallucinates then we
+22:53 
+
+22:53 know for sure it's a model problem like
+22:55 
+
+22:55 it's not any other problem because there
+22:57 
+
+22:57 is under no circumstances you're
+22:58 
+
+22:58 supposed to have in it right you can't
+22:60 
+
+22:60 cook up uh function parameters and
+23:03 
+
+23:03 function names right so so this helped
+23:05 
+
+23:05 them to sort of narrow down where they
+23:06 
+
+23:06 should focus on in in the consecutive
+23:08 
+
+23:08 iterations of their model
+23:11 
+
+23:11 training so if you see here uh so they
+23:15 
+
+23:15 they they have two different uh
+23:16 
+
+23:16 experimental setup uh one setup is that
+23:19 
+
+23:19 uh where you provide retriever results
+23:22 
+
+23:22 based on a was a real retriever system
+23:25 
+
+23:25 right where uh it may so happen that
+23:28 
+
+23:28 sometimes gold
+23:29 
+
+23:29 uh the right API that you need may not
+23:31 
+
+23:31 be there and sometimes it may be there
+23:33 
+
+23:33 right it's most likely that it's going
+23:34 
+
+23:34 to be there but it will also mimic
+23:36 
+
+23:36 failure cases but and this one is the
+23:38 
+
+23:38 Oracle scenario where the right API or
+23:41 
+
+23:41 the function is always present in the
+23:43 
+
+23:43 input at any point in time right so so
+23:46 
+
+23:46 here if you see that at that point in
+23:48 
+
+23:48 time Lama did not support function
+23:50 
+
+23:50 calling and so uh its output was like
+23:54 
+
+23:54 like like the overall percentage of
+23:57 
+
+23:57 cases where it helps is is less than 15%
+24:01 
+
+24:01 and and most of the time it hallucinated
+24:03 
+
+24:03 right so most biggest issue was
+24:06 
+
+24:06 hallucination it was not even like
+24:07 
+
+24:07 incorrect uh uh in incorrect deduction
+24:10 
+
+24:10 and and then uh if you see models that
+24:13 
+
+24:13 have been trained for function calling
+24:17 
+
+24:17 their Hallucination is is very
+24:19 
+
+24:19 low right uh and but they have uh errors
+24:23 
+
+24:23 uh semant they're making semantic error
+24:24 
+
+24:24 they're picking the incorrect apis and
+24:26 
+
+24:26 things like that and what they show is
+24:28 
+
+24:28 that uh gorilla doesn't hallucinate as
+24:30 
+
+24:30 much in this particular setup and uh
+24:33 
+
+24:33 most of its errors are coming from uh
+24:35 
+
+24:35 like just picking the wrong apis or
+24:37 
+
+24:37 wrong uh wrong wrong apis most of the
+24:41 
+
+24:41 time so so similar analysis were done
+24:44 
+
+24:44 for other data sets as well and and the
+24:46 
+
+24:46 summary is that in most of the times the
+24:48 
+
+24:48 the hallucination rate of gorilla is
+24:50 
+
+24:50 much lower than other models on an
+24:52 
+
+24:52 average right and the the other
+24:55 
+
+24:55 important uh point to see here is that
+24:58 
+
+24:58 this helped them figure out that uh GPT
+25:02 
+
+25:02 4 in in many cases uh hallucinated more
+25:06 
+
+25:06 than GPD
+25:09 
+
+25:09 3.5 right uh so this also pointed out
+25:12 
+
+25:12 some of the issues in in in in models
+25:14 
+
+25:14 regressing uh in certain cases I think
+25:18 
+
+25:18 now after the first version of the paper
+25:20 
+
+25:20 got released then gp4 actually corrected
+25:22 
+
+25:22 itself and now their hallucination rate
+25:24 
+
+25:24 also has gone down
+25:26 
+
+25:26 significantly so so so in addition to uh
+25:30 
+
+25:30 releasing the gorilla uh the the the
+25:32 
+
+25:32 data set and the function calling uh uh
+25:35 
+
+25:35 model they also created a leaderboard
+25:38 
+
+25:38 because they they soon realized like
+25:40 
+
+25:40 it's hard to figure out which models are
+25:42 
+
+25:42 doing good Which models are not doing
+25:43 
+
+25:43 good and and the the sort of data that
+25:46 
+
+25:46 they had was very limiting uh so at that
+25:48 
+
+25:48 point in time they released a new data
+25:49 
+
+25:49 set called uh Berkeley function calling
+25:52 
+
+25:52 version zero of the data and and and
+25:54 
+
+25:54 they had few tasks but then as in when
+25:57 
+
+25:57 the field progressed they released the
+25:58 
+
+25:58 first version second version and now
+25:60 
+
+25:60 they have the third version as well uh
+26:02 
+
+26:02 this has become sort of the standard
+26:04 
+
+26:04 place to track uh how GPT is performing
+26:08 
+
+26:08 uh how latest version of opena models
+26:09 
+
+26:09 are performing Google's Cloud are
+26:11 
+
+26:11 performing and also how good are these
+26:13 
+
+26:13 uh new open source models that are
+26:14 
+
+26:14 performing and in and and so this has
+26:16 
+
+26:16 become sort of the uh Benchmark to
+26:18 
+
+26:18 figure out which models are doing good
+26:20 
+
+26:20 function calling and which are not
+26:24 
+
+26:24 right now so the summary of API bench is
+26:27 
+
+26:27 that the D it of apis are very low even
+26:31 
+
+26:31 though they say that if you change the
+26:32 
+
+26:32 names of the parameters and names of the
+26:34 
+
+26:34 functions it still works but still it
+26:36 
+
+26:36 works within the domain right it's low
+26:38 
+
+26:38 diversity and and and it's not very
+26:41 
+
+26:41 complex like it it could not do what we
+26:43 
+
+26:43 initially discussed in the in in the
+26:44 
+
+26:44 motivation we can't do a full-fledged
+26:46 
+
+26:46 conversation you just give the input
+26:47 
+
+26:47 utterance it can give you what API or
+26:49 
+
+26:49 tool to call that's about it right so it
+26:51 
+
+26:51 can't converse with you there are a lot
+26:52 
+
+26:52 of limitations for this and so uh so
+26:56 
+
+26:56 then came the uh Tool alpaka uh uh data
+26:59 
+
+26:59 set so again if you see all these papers
+27:03 
+
+27:03 were published around mid 2023 all of
+27:06 
+
+27:06 them sort of came in parallel right uh
+27:09 
+
+27:09 so here ran using very small number of
+27:13 
+
+27:13 uh apis they they they got a lot more
+27:17 
+
+27:17 real world inspired uh the inspired is
+27:20 
+
+27:20 very important here inspired tools uh
+27:22 
+
+27:22 that spans a lot of categories and again
+27:24 
+
+27:24 uh once they had the data they fine
+27:26 
+
+27:26 tuned a vuna model here rather than a
+27:28 
+
+27:28 Lama model and uh they they created
+27:31 
+
+27:31 their own version of function calling
+27:33 
+
+27:33 models so when I mean real world
+27:35 
+
+27:35 inspired what I mean is that they only
+27:37 
+
+27:37 got the tool name and the tool
+27:40 
+
+27:40 introduction or a small description
+27:42 
+
+27:42 about the tool by scraping the web but
+27:45 
+
+27:45 then they sort of synthesized everything
+27:47 
+
+27:47 else so given the tool name and the
+27:50 
+
+27:50 short description they ended up creating
+27:52 
+
+27:52 a a little larger description of what
+27:55 
+
+27:55 this tool would be capable of and post
+27:57 
+
+27:57 that they came up with with uh names of
+28:01 
+
+28:01 uh function or apis that you could have
+28:03 
+
+28:03 within that tool and then they also came
+28:05 
+
+28:05 up with detailed specifications of how
+28:07 
+
+28:07 to call the tool and and and what all
+28:10 
+
+28:10 parameters it needs and things like that
+28:12 
+
+28:12 so so this is inspired because all these
+28:14 
+
+28:14 are not picked from a real uh
+28:17 
+
+28:17 specification all of them are puted up
+28:20 
+
+28:20 right so but the good thing about this
+28:23 
+
+28:23 is that they they created a really nice
+28:26 
+
+28:26 conversation which could get you and an
+28:28 
+
+28:28 end to end function calling model
+28:29 
+
+28:29 trading right so it's able to figure out
+28:32 
+
+28:32 that there are certain places where you
+28:34 
+
+28:34 have to chat with the user and the
+28:36 
+
+28:36 reason why you need to chat is that uh
+28:38 
+
+28:38 you need the user to provide with a year
+28:41 
+
+28:41 for this particular uh setup because the
+28:43 
+
+28:43 user wants to know the holidays uh
+28:45 
+
+28:45 holidays of Japan next year but the
+28:48 
+
+28:48 model is unable to figure out what next
+28:50 
+
+28:50 year here means so it's explicitly
+28:52 
+
+28:52 asking for the year at this point in
+28:54 
+
+28:54 time right and when the user says 2024
+28:56 
+
+28:56 it's able to figure out that now it's
+28:58 
+
+28:58 now it has enough information to call
+28:59 
+
+28:59 get holiday holidays and here are the
+29:02 
+
+29:02 parameters and the values and then uh it
+29:05 
+
+29:05 executes it and then it's able to
+29:06 
+
+29:06 generate the right uh response back to
+29:08 
+
+29:08 the user right so this is slightly more
+29:12 
+
+29:12 slightly better than what API bench
+29:15 
+
+29:15 had it's a little more diverse and it
+29:19 
+
+29:19 simulates the whole thing so then uh
+29:22 
+
+29:22 these guys did uh an evaluation of tools
+29:25 
+
+29:25 that they did not see during train right
+29:27 
+
+29:27 because the previous gorilla approach
+29:28 
+
+29:28 all they did was they changed the
+29:30 
+
+29:30 arguments and measured but here they're
+29:31 
+
+29:31 changing the tools and they also picked
+29:33 
+
+29:33 a very small software I think 10 or 12
+29:35 
+
+29:35 real world API and generated
+29:37 
+
+29:37 conversations with them and then checked
+29:38 
+
+29:38 how these model perform again as
+29:41 
+
+29:41 expected uh GPT 3.5 was sorry gbd 3.5
+29:47 
+
+29:47 was much better uh and and and at least
+29:50 
+
+29:50 uh two laka 7 billion and 13 billion
+29:53 
+
+29:53 models were were trying to bridge the
+29:55 
+
+29:55 gap compared to the the non-function
+29:57 
+
+29:57 calling version of the model right so
+29:59 
+
+29:59 they're moving in the right direction
+29:60 
+
+29:60 they're pretty close uh but still there
+30:02 
+
+30:02 is a long way to go there's at least 10
+30:04 
+
+30:04 points difference here Five Points
+30:05 
+
+30:05 difference here the overall
+30:08 
+
+30:08 setup now yeah so like I said the tool
+30:12 
+
+30:12 alpaka data set had higher diversity it
+30:14 
+
+30:14 had 400 real world inspired apis and it
+30:17 
+
+30:17 now has multi-on dialogues which could
+30:19 
+
+30:19 support question generation and response
+30:21 
+
+30:21 generation as well in addition to just
+30:23 
+
+30:23 figuring out what API to use and what
+30:25 
+
+30:25 parameters that you should provide
+30:28 
+
+30:28 so then came uh tool llm where in
+30:31 
+
+30:31 addition to we saw API bench tool alpaka
+30:34 
+
+30:34 now you have tool bench so here uh these
+30:37 
+
+30:37 guys scraped real world rest apis from a
+30:42 
+
+30:42 website called rapid API Hub and they
+30:44 
+
+30:44 scraped about 16,000 uh real world apis
+30:48 
+
+30:48 and generated data based on that right
+30:50 
+
+30:50 so this moved a little closer towards a
+30:52 
+
+30:52 more real life scenario but still they
+30:55 
+
+30:55 ended up synthesizing the conversations
+30:57 
+
+30:57 right again they created there using
+30:59 
+
+30:59 their data set they again fine tuned
+31:00 
+
+31:00 Lama 7 billion and called it tool
+31:04 
+
+31:04 Lama so the the the good part here is
+31:07 
+
+31:07 this this particular setup that they
+31:09 
+
+31:09 actually got uh real world apis and and
+31:12 
+
+31:12 developed conversations on top of that
+31:14 
+
+31:14 so this
+31:14 
+
+31:14 will so because you had a certain
+31:17 
+
+31:17 assumptions about how apis would look
+31:19 
+
+31:19 like and you had a very specific way of
+31:20 
+
+31:20 generating API descriptions and AP
+31:23 
+
+31:23 specifications you might not have hit a
+31:24 
+
+31:24 lot bottlenecks when you generated the
+31:26 
+
+31:26 dialogue you would have been because if
+31:28 
+
+31:28 if if everything is of a same format and
+31:30 
+
+31:30 and there are no uh and everything is
+31:32 
+
+31:32 like very clearly defined and it all
+31:34 
+
+31:34 follows the rules then you would not
+31:36 
+
+31:36 face obstacle in this stage where you
+31:38 
+
+31:38 actually end up creating the dialogues
+31:40 
+
+31:40 but now since you're scraping real world
+31:42 
+
+31:42 things they soon figured out that it's
+31:44 
+
+31:44 not generating as good dialogue as the
+31:47 
+
+31:47 previous approaches did right uh and so
+31:51 
+
+31:51 what they did was that they generated
+31:53 
+
+31:53 dialogues in multiple phases first they
+31:55 
+
+31:55 generated only the first instruction
+31:57 
+
+31:57 what the user might start the
+31:58 
+
+31:58 conversation with uh by figuring by
+32:01 
+
+32:01 taking a small subset of apis figuring
+32:03 
+
+32:03 out if you are given these apis what
+32:06 
+
+32:06 sort of queries would you be able to
+32:08 
+
+32:08 answer they prompted this to an llm and
+32:10 
+
+32:10 specifically chat gbt and then they got
+32:12 
+
+32:12 some instructions and they also figured
+32:13 
+
+32:13 out what subset of these apis would be
+32:15 
+
+32:15 used to for the conversation and and
+32:18 
+
+32:18 what they soon realized is that once
+32:20 
+
+32:20 they create one or two utterances some
+32:22 
+
+32:22 of these apis were not linked right or
+32:25 
+
+32:25 they don't have enough description for
+32:26 
+
+32:26 example the description about the tool
+32:27 
+
+32:27 would be empty the arguments would just
+32:29 
+
+32:29 say the name like variable one variable
+32:31 
+
+32:31 two rather than actually defining the
+32:32 
+
+32:32 variable names and and there would be no
+32:34 
+
+32:34 description field so like the model was
+32:36 
+
+32:36 not able to make sense and then use
+32:38 
+
+32:38 information from that API description to
+32:40 
+
+32:40 actually generate something that's
+32:41 
+
+32:41 meaningful right and so they came up
+32:44 
+
+32:44 with a approach in which they can sort
+32:47 
+
+32:47 of uh make it better right and and
+32:50 
+
+32:50 that's where this new technique of
+32:52 
+
+32:52 generating data came in and once they
+32:54 
+
+32:54 used that they ended up creating the
+32:56 
+
+32:56 entire data set which when fine tuning
+32:58 
+
+32:58 on llama gives you two llama and uh the
+33:01 
+
+33:01 good part here is that as a byproduct
+33:04 
+
+33:04 they were able to train a really good
+33:06 
+
+33:06 API retriever so before that people used
+33:10 
+
+33:10 uh retriever systems built for certain
+33:12 
+
+33:12 other applications in mind like for
+33:13 
+
+33:13 example they use but even though B was
+33:15 
+
+33:15 not specifically uh designed for
+33:18 
+
+33:18 retrieving uh or most of the extensions
+33:20 
+
+33:20 of B right where they were not
+33:23 
+
+33:23 specifically done for retrieving apis
+33:25 
+
+33:25 but rather for documents and similar
+33:27 
+
+33:27 documents or query and Doc ments and
+33:28 
+
+33:28 things like that so they they were able
+33:30 
+
+33:30 to generate a a really good data for
+33:33 
+
+33:33 training a retriever and they were able
+33:34 
+
+33:34 to train a retriever as a byproduct of
+33:36 
+
+33:36 this which became a very useful tool
+33:38 
+
+33:38 later on so This Is How They generated
+33:40 
+
+33:40 the data set and and during inference
+33:42 
+
+33:42 it's very clear right like once you get
+33:45 
+
+33:45 uh the first user query or or the
+33:47 
+
+33:47 conversation you you query the use API
+33:50 
+
+33:50 retriever to get a list of relevant apis
+33:52 
+
+33:52 and then you interact with you figure
+33:54 
+
+33:54 out what apis to use and then provide
+33:56 
+
+33:56 the final answer back to the uh user
+34:00 
+
+34:00 so so coming back to synthetic data
+34:02 
+
+34:02 generation before this simple uh I'll
+34:05 
+
+34:05 start with the first utterance I'll
+34:07 
+
+34:07 generate the agent response and then
+34:09 
+
+34:09 I'll again do what tools I should call
+34:11 
+
+34:11 and then I I I'll come and then I'll
+34:13 
+
+34:13 finish the dialogue that was what like a
+34:15 
+
+34:15 single path if you take you would end up
+34:17 
+
+34:17 getting a good dialogue right but that
+34:19 
+
+34:19 was not working anymore because the apas
+34:21 
+
+34:21 were not right maybe they were not uh
+34:24 
+
+34:24 they were not giving out meaningful
+34:26 
+
+34:26 responses back because the response
+34:28 
+
+34:28 doesn't make sense the input also is so
+34:30 
+
+34:30 screwed up so you end up getting some
+34:32 
+
+34:32 garbage and that sort of screwed up the
+34:35 
+
+34:35 conversation following that right so
+34:37 
+
+34:37 they had to figure out some sort of a
+34:39 
+
+34:39 depth first Tre search where they got
+34:42 
+
+34:42 some rules about uh what is a normal uh
+34:46 
+
+34:46 execution they figured out like okay it
+34:47 
+
+34:47 executed well it did not execute well uh
+34:50 
+
+34:50 it it's giving out meaningful trajectory
+34:52 
+
+34:52 it is not giving meaningful trajectory
+34:54 
+
+34:54 and they had a really detailed flowchart
+34:56 
+
+34:56 about how they would figure out
+34:57 
+
+34:57 something is normal or fake
+34:58 
+
+34:58 and and once they hit a failure or an
+34:60 
+
+34:60 error they would backtrack to the point
+35:01 
+
+35:01 where then they did go sample something
+35:03 
+
+35:03 again and then explore a different path
+35:05 
+
+35:05 and things like that so they said by
+35:06 
+
+35:06 doing that they were able to save time
+35:08 
+
+35:08 and also get at least one successful
+35:10 
+
+35:10 path at some point in time rather than a
+35:12 
+
+35:12 lot more
+35:14 
+
+35:14 failures
+35:16 
+
+35:16 right and this way uh they were and and
+35:19 
+
+35:19 and at every stage they were actually
+35:21 
+
+35:21 leveraging uh chat GPD to to to make a
+35:24 
+
+35:24 final call about whether they should
+35:26 
+
+35:26 stop go back or or what what they should
+35:28 
+
+35:28 produce so for almost all generation
+35:30 
+
+35:30 purposes and decision making purposes
+35:32 
+
+35:32 they used llms all they are saying is
+35:35 
+
+35:35 that uh like if some tool fails Now look
+35:38 
+
+35:38 for a different tool right if if this
+35:41 
+
+35:41 particular generation did not give you
+35:43 
+
+35:43 the right sample uh maybe the argument
+35:46 
+
+35:46 was wrong maybe you had to create you
+35:47 
+
+35:47 had to give a value from a certain enum
+35:50 
+
+35:50 that was not specified in the API
+35:51 
+
+35:51 specification to begin with right so
+35:54 
+
+35:54 maybe you generated something you didn't
+35:55 
+
+35:55 accept because uh the argument type was
+35:57 
+
+35:57 not right so try generating two three
+35:59 
+
+35:59 samples again maybe one of the arguments
+36:01 
+
+36:01 would match what the uh API would
+36:04 
+
+36:04 actually agree right accept so these are
+36:06 
+
+36:06 the things that they tried is just a
+36:08 
+
+36:08 pictorial representation of like going
+36:10 
+
+36:10 back to the point wherein you failed and
+36:11 
+
+36:11 trying it again
+36:14 
+
+36:14 right but in the usual case you would
+36:16 
+
+36:16 you you never assume you you never had
+36:18 
+
+36:18 to encounter a failure because
+36:20 
+
+36:20 everything went smooth as expected
+36:22 
+
+36:22 because everything was fabricated or
+36:23 
+
+36:23 synthesized
+36:27 
+
+36:27 right so so now uh even though the the
+36:31 
+
+36:31 the the the data set they created is
+36:33 
+
+36:33 called toolbench using the rapid apis
+36:35 
+
+36:35 but these guys wanted to see if I use
+36:38 
+
+36:38 API bench which is the hugging phase
+36:40 
+
+36:40 model Hub tensorflow model Hub and uh
+36:43 
+
+36:43 torch Hub if if I run it on that data
+36:45 
+
+36:45 set in which this model was never
+36:47 
+
+36:47 trained on then how good or bad does
+36:50 
+
+36:50 this model perform and what they figured
+36:52 
+
+36:52 out is that if they use their version of
+36:54 
+
+36:54 the retriever along with their model it
+36:57 
+
+36:57 was doing good job
+36:60 
+
+36:60 on two of the subsets of the data and on
+37:04 
+
+37:04 one it was doing almost equal to what
+37:06 
+
+37:06 gorilla which was which was fine tuned
+37:09 
+
+37:09 for that particular data was doing right
+37:11 
+
+37:11 so it showcases how general purpose the
+37:13 
+
+37:13 model has become now compared to what
+37:15 
+
+37:15 gorilla was trying to do but again
+37:17 
+
+37:17 there's a small Nuance here which is
+37:19 
+
+37:19 they have conveniently changed the
+37:20 
+
+37:20 retriever this retriever is a lot
+37:22 
+
+37:22 better right and this retriever is is is
+37:25 
+
+37:25 one of the basic retrievers that you
+37:27 
+
+37:27 could have and it has a lot more
+37:28 
+
+37:28 failures than their retriever so so so
+37:31 
+
+37:31 it it so by face value we can't take
+37:33 
+
+37:33 that to Lama is better it just says that
+37:35 
+
+37:35 the combination of tool llama and their
+37:37 
+
+37:37 retriever is better than a very basic
+37:39 
+
+37:39 Retriever and gorilla right and so to to
+37:44 
+
+37:44 to study that better they used Oracle
+37:46 
+
+37:46 retriever so the apas that are needed
+37:48 
+
+37:48 are always there in the context right in
+37:51 
+
+37:51 that case you can see that the model
+37:53 
+
+37:53 that overfit for that use case is
+37:55 
+
+37:55 slightly better but the good part was
+37:57 
+
+37:57 like this is not not that far away
+38:02 
+
+38:02 right so this proved that uh we are
+38:05 
+
+38:05 going in the right direction the models
+38:07 
+
+38:07 that the data sets that are now being
+38:09 
+
+38:09 generated and the models that are now
+38:11 
+
+38:11 being trained with these data sets are
+38:12 
+
+38:12 able to generalize to out of domain apis
+38:15 
+
+38:15 so this sort of gives us the right model
+38:18 
+
+38:18 where if you have to create your chat
+38:20 
+
+38:20 application and you want to introduce
+38:22 
+
+38:22 your own API then you can use to Lama
+38:25 
+
+38:25 along with the retriever this will
+38:26 
+
+38:26 probably give you a better starting
+38:28 
+
+38:28 Point than anything
+38:30 
+
+38:30 else so now like we mentioned now their
+38:33 
+
+38:33 diversity has increased a lot initially
+38:35 
+
+38:35 the previous data set only 400 real
+38:37 
+
+38:37 world inspired apis but now we have
+38:39 
+
+38:39 16,000 good apis and dialogs are also
+38:42 
+
+38:42 multi- turn uh but the reason why I not
+38:45 
+
+38:45 clearly put with question generation and
+38:46 
+
+38:46 response generation is because it is
+38:49 
+
+38:49 sort of restricted in a way chat GPT can
+38:53 
+
+38:53 interact right uh here they were able to
+38:56 
+
+38:56 generate really nice questions because
+38:58 
+
+38:58 they had very specific prompts for
+38:59 
+
+38:59 generating each of these particular type
+39:01 
+
+39:01 of uh agent utterances right they they
+39:05 
+
+39:05 they had coordinated it very well but
+39:06 
+
+39:06 toolbench did not do a really good job
+39:09 
+
+39:09 when it comes to dialogue generation
+39:12 
+
+39:12 like mainly because they were
+39:14 
+
+39:14 overwhelmed with
+39:15 
+
+39:15 the the unexpected quality of the real
+39:18 
+
+39:18 world apis that they C right and so if
+39:21 
+
+39:21 you actually look at the data that
+39:23 
+
+39:23 they've generated it doesn't look as
+39:25 
+
+39:25 clean as what you want the model to
+39:27 
+
+39:27 learn
+39:28 
+
+39:28 right and uh but on the other hand they
+39:31 
+
+39:31 had stepped up in One Direction Where
+39:33 
+
+39:33 rather than using a single tool they
+39:35 
+
+39:35 also explored the possibility of using
+39:37 
+
+39:37 multiple tools within a conversation
+39:39 
+
+39:39 right because it sort of looked in many
+39:41 
+
+39:41 cases that a single tool is not
+39:43 
+
+39:43 something that would always be needed
+39:45 
+
+39:45 there may be cases where you have to
+39:46 
+
+39:46 chain two or three different tools or
+39:48 
+
+39:48 call multiple tools side by side and
+39:49 
+
+39:49 then figure out to get to your
+39:52 
+
+39:52 response so now the three uh work that I
+39:57 
+
+39:57 explained so so far we're all done in
+39:59 
+
+39:59 mid 2023 right right when the right when
+40:03 
+
+40:03 open open AI came up with this function
+40:04 
+
+40:04 calling but then in uh 2024 mid 2024 uh
+40:08 
+
+40:08 people sort of had done like enough good
+40:11 
+
+40:11 work where they were able to generate
+40:13 
+
+40:13 much better data there were lot of good
+40:15 
+
+40:15 open- source uh function calling models
+40:17 
+
+40:17 that were performing almost as good as
+40:19 
+
+40:19 uh gp4 and Claude on gorilla leaderboard
+40:23 
+
+40:23 so so this paper was is one of the
+40:25 
+
+40:25 recent papers and the reason why I
+40:26 
+
+40:26 picked this paper is because they open
+40:28 
+
+40:28 sourced all the data with
+40:31 
+
+40:31 licensing uh that is that lets you to
+40:34 
+
+40:34 use it in commercial purposes or any
+40:36 
+
+40:36 purposes right because most of the
+40:38 
+
+40:38 models or the data creation pipeline
+40:40 
+
+40:40 that I proport earlier were all using
+40:43 
+
+40:43 chat GPD or gp4 synthesized data right
+40:45 
+
+40:45 so that's a problem because you can't
+40:47 
+
+40:47 you can only use it for academic
+40:48 
+
+40:48 purposes you can't use it for any real
+40:50 
+
+40:50 world purposes right so so it was always
+40:52 
+
+40:52 limited by that and so very recently
+40:55 
+
+40:55 they released this data and now you can
+40:58 
+
+40:58 anybody can train their own function
+40:59 
+
+40:59 calling model and they also train two uh
+41:03 
+
+41:03 actually they trained four function
+41:04 
+
+41:04 calling models uh they were
+41:08 
+
+41:08 x large action model which was 1 billion
+41:12 
+
+41:12 they also trained a 7 billion model
+41:14 
+
+41:14 based on deep C coder models and they
+41:16 
+
+41:16 also train mix based models for uh these
+41:19 
+
+41:19 uh action for function
+41:23 
+
+41:23 calling now let's see what they did good
+41:25 
+
+41:25 right so so of course after looking at
+41:27 
+
+41:27 the
+41:28 
+
+41:28 uh the the previous data set that was
+41:30 
+
+41:30 developed using rapid API they everybody
+41:32 
+
+41:32 clearly figured out that the data the
+41:34 
+
+41:34 multi- data that they created is sort of
+41:36 
+
+41:36 not that usable so you can't really
+41:37 
+
+41:37 deploy it in real word application it's
+41:39 
+
+41:39 going to give you junk most of the time
+41:41 
+
+41:41 even though on metrics it look good
+41:43 
+
+41:43 right but the conversations are so bad
+41:45 
+
+41:45 right so so that's not something that's
+41:47 
+
+41:47 usable so they figured out that you'll
+41:48 
+
+41:48 have to create clean conversations for
+41:50 
+
+41:50 this thing to work right and the way to
+41:53 
+
+41:53 create clean conversation is like uh
+41:55 
+
+41:55 while they filtered just based on API
+41:58 
+
+41:58 execution these guys started to
+42:01 
+
+42:01 filter like even at the dialogue level
+42:03 
+
+42:03 to see whether you're generating
+42:04 
+
+42:04 meaningful dialoges or not does it look
+42:06 
+
+42:06 natural and things like that right and
+42:09 
+
+42:09 uh so there so one of the contributions
+42:11 
+
+42:11 is that they they they sort of have a
+42:13 
+
+42:13 very
+42:15 
+
+42:15 uh detailed uh verification phase right
+42:20 
+
+42:20 so here what they say is that first they
+42:24 
+
+42:24 have a they they used the same AP
+42:27 
+
+42:27 library that uh API bench sorry tool
+42:32 
+
+42:32 bench had which is the 16,000 rapid API
+42:35 
+
+42:35 specifications but one of the main
+42:37 
+
+42:37 reasons why uh that failed was because
+42:40 
+
+42:40 most of the apas were not right right
+42:41 
+
+42:41 the first thing they did was reduce 16k
+42:43 
+
+42:43 to 3K they used a lot of rules and
+42:46 
+
+42:46 figured out like there's no description
+42:48 
+
+42:48 here this doesn't execute this is
+42:49 
+
+42:49 replicated so they removed all of those
+42:50 
+
+42:50 things and made this uh clean and once
+42:54 
+
+42:54 they had it clean uh they had some seed
+42:55 
+
+42:55 QA which would serve as few short
+42:58 
+
+42:58 examples and they generated a lot more
+42:60 
+
+42:60 data points and once they generated
+43:02 
+
+43:02 question answers they had a very clean
+43:04 
+
+43:04 verification stage that gets you clean
+43:06 
+
+43:06 data right let's see what these
+43:08 
+
+43:08 verification stages do the first thing
+43:11 
+
+43:11 they did was uh just like how uh the
+43:15 
+
+43:15 first gorilla approach did that they
+43:16 
+
+43:16 created a very clean format that sort of
+43:19 
+
+43:19 uh is uniform for all the tools they
+43:21 
+
+43:21 also created a similar uniform format
+43:24 
+
+43:24 for all the uh apis and functions they
+43:26 
+
+43:26 had right uh and this is an example of
+43:29 
+
+43:29 how an API should look like this is an
+43:30 
+
+43:30 example of how a function should look
+43:32 
+
+43:32 like and and what they did was they
+43:34 
+
+43:34 generated output from the uh llm also
+43:37 
+
+43:37 follow a Json format because at that
+43:39 
+
+43:39 point in time most of the llms uh were
+43:42 
+
+43:42 really giving out nice structured
+43:44 
+
+43:44 outputs if you ask them to generate
+43:46 
+
+43:46 something in Json format with a certain
+43:48 
+
+43:48 schema they they did that right before
+43:50 
+
+43:50 that they were not most of the open
+43:52 
+
+43:52 source models were not doing that good a
+43:53 
+
+43:53 job except for open AI models but since
+43:56 
+
+43:56 now llms
+43:58 
+
+43:58 I've seen lot of code and they've been
+43:60 
+
+43:60 fine- tuned for these generating outputs
+44:02 
+
+44:02 not just as text but as Json with a
+44:04 
+
+44:04 certain schema they were able to do a
+44:05 
+
+44:05 good job and because of that generated
+44:07 
+
+44:07 output became a lot more structured now
+44:09 
+
+44:09 once you have structure in your input
+44:10 
+
+44:10 and output you can write lot of rules to
+44:12 
+
+44:12 clean things up right so for example if
+44:15 
+
+44:15 you had
+44:16 
+
+44:16 hallucinated some parts you can actually
+44:18 
+
+44:18 figure out that you have hallucinated
+44:20 
+
+44:20 because you have structur and input
+44:21 
+
+44:21 structure and output you can see that if
+44:23 
+
+44:23 there's an enm in some parameter value
+44:25 
+
+44:25 and that enm is not used followed then
+44:27 
+
+44:27 we can reject that sample right so there
+44:29 
+
+44:29 are a lot of very simple formatting
+44:32 
+
+44:32 based checks that they were able to do
+44:34 
+
+44:34 with a new version of llms and so they
+44:36 
+
+44:36 were able to leverage that and remove a
+44:38 
+
+44:38 lot of data that were not following the
+44:40 
+
+44:40 certain format now the second thing is
+44:43 
+
+44:43 while the previous approach while
+44:45 
+
+44:45 synthesizing the data figured out that
+44:47 
+
+44:47 executions are failing they also did the
+44:49 
+
+44:49 same thing like execute that python
+44:51 
+
+44:51 function or uh call the uh rest API
+44:53 
+
+44:53 service if it gives you a good output
+44:56 
+
+44:56 then don't don't filter it but if they
+44:58 
+
+44:58 don't then remove them off right so that
+45:00 
+
+45:00 was easy and uh and finally they also
+45:04 
+
+45:04 had a semantic Checker which is this was
+45:06 
+
+45:06 something that previous approaches were
+45:07 
+
+45:07 not doing which is you assume that
+45:11 
+
+45:11 whatever API has specified in the
+45:13 
+
+45:13 description is Right sometimes it may
+45:16 
+
+45:16 not be right right and secondly uh it
+45:20 
+
+45:20 might so happen that the model gave back
+45:22 
+
+45:22 some junk but you interpreted that Json
+45:24 
+
+45:24 in some way and you generated some
+45:25 
+
+45:25 results it just is not making sense
+45:28 
+
+45:28 because because you're trained to assume
+45:30 
+
+45:30 that it gives you the right Json back
+45:32 
+
+45:32 which has the right information
+45:34 
+
+45:34 necessary to solve this task you would
+45:36 
+
+45:36 use that information in one way or the
+45:37 
+
+45:37 other and then phrase your answer right
+45:40 
+
+45:40 but that may not always be the case so
+45:43 
+
+45:43 they sort of used an llm as a judge to
+45:45 
+
+45:45 see to just see the question that the
+45:47 
+
+45:47 last response is generated and then say
+45:49 
+
+45:49 does it look like a cohesive
+45:51 
+
+45:51 conversation right so this sort of
+45:52 
+
+45:52 helped them figure out what all
+45:55 
+
+45:55 dialogues were were not looking like
+45:57 
+
+45:57 natural and they removed all those
+45:59 
+
+45:59 things
+46:00 
+
+46:00 right and if you see here this was a
+46:03 
+
+46:03 really good analysis table that they
+46:04 
+
+46:04 released which is these are the
+46:06 
+
+46:06 different models that they use for
+46:07 
+
+46:07 synthesizing data right and they said
+46:10 
+
+46:10 that they generated uh 40K examples from
+46:13 
+
+46:13 each of these models and what you see
+46:16 
+
+46:16 here is that deep seek version two chat
+46:19 
+
+46:19 was able to give them a lot more good
+46:21 
+
+46:21 data than any other model right and they
+46:24 
+
+46:24 show you exactly where they failed like
+46:27 
+
+46:27 uh for formatting was a big problem with
+46:28 
+
+46:28 the 33 billion model and Mixel 7B also
+46:31 
+
+46:31 had lot of formatting issues they were
+46:33 
+
+46:33 not able to generate output in the right
+46:34 
+
+46:34 format whereas the bigger models were
+46:36 
+
+46:36 able to do a good job and and execution
+46:39 
+
+46:39 failure semantic failure so this this is
+46:41 
+
+46:41 a good part right so the the the actual
+46:43 
+
+46:43 dialogues generated by Deep seek V2 chat
+46:46 
+
+46:46 was so good that they didn't have to
+46:48 
+
+46:48 remove the the dialogues that were
+46:50 
+
+46:50 generated they were all looking cohive
+46:51 
+
+46:51 and natural right so this was uh uh uh
+46:54 
+
+46:54 so then they were able to figure out
+46:56 
+
+46:56 what models to use
+46:57 
+
+46:57 for generating your data rather than
+46:59 
+
+46:59 blindly using all the data generated by
+47:01 
+
+47:01 the model right so so please note that
+47:05 
+
+47:05 this still doesn't mean the 33k is
+47:07 
+
+47:07 perfect it just means that it has
+47:10 
+
+47:10 crossed these filters and reached this
+47:12 
+
+47:12 point but still there may be issues
+47:13 
+
+47:13 there as well but at least it's not as
+47:16 
+
+47:16 bad as what it could
+47:18 
+
+47:18 be now the good part about this all
+47:21 
+
+47:21 these have permissible license so you
+47:22 
+
+47:22 don't have to worry about using them in
+47:24 
+
+47:24 your
+47:25 
+
+47:25 projects whether it's for monitary for
+47:27 
+
+47:27 research purposes so now the the model
+47:31 
+
+47:31 that was fine tuned using this API gen
+47:33 
+
+47:33 Library quickly reached the top one of
+47:36 
+
+47:36 the top positions in the
+47:38 
+
+47:38 leaderboard right and and if you see
+47:40 
+
+47:40 here uh this is a 8 cross 22 billion
+47:43 
+
+47:43 model it's not as big as what gp4 or GPT
+47:46 
+
+47:46 4 is right and
+47:49 
+
+47:49 uh technically gp4 might be slightly
+47:52 
+
+47:52 smaller model as well it might be
+47:53 
+
+47:53 distilled uh but it was able to achieve
+47:56 
+
+47:56 that and and uh they also said they also
+47:59 
+
+47:59 have a xlam 7 billion version uh uh and
+48:03 
+
+48:03 and that and and an xlam 1 billion
+48:05 
+
+48:05 version and they are also like way ahead
+48:07 
+
+48:07 of many big models right
+48:12 
+
+48:12 so so the summary here is that Now xlam
+48:16 
+
+48:16 function calling data set which was
+48:18 
+
+48:18 generated using the API gen framework
+48:20 
+
+48:20 has now really diverse uh
+48:24 
+
+48:24 clean data API data right initially you
+48:26 
+
+48:26 had 6 K not so clean data but it looked
+48:29 
+
+48:29 like it was a good direction to go but
+48:31 
+
+48:31 then these guys figured out that uh it's
+48:33 
+
+48:33 good to have high quality data rather
+48:35 
+
+48:35 than having a lot of bad quality ones
+48:38 
+
+48:38 right and and that's that was the thing
+48:39 
+
+48:39 that helped it boost to higher up in the
+48:41 
+
+48:41 leaderboard so this sort of follows the
+48:43 
+
+48:43 principle of Lima where they say that uh
+48:47 
+
+48:47 small number of good quality examples
+48:49 
+
+48:49 are always better than a lot of moderate
+48:52 
+
+48:52 quality examples right and uh and that
+48:55 
+
+48:55 and and their high quality is reflected
+48:56 
+
+48:56 not just in the apis that they use but
+48:58 
+
+48:58 also in the dialogues that they use to
+48:59 
+
+48:59 find T the model and and in addition to
+49:02 
+
+49:02 whatever these guys expanded uh and the
+49:04 
+
+49:04 type of uh dialogues these guys expanded
+49:07 
+
+49:07 it a little more based on what real life
+49:09 
+
+49:09 situations needed like for example
+49:10 
+
+49:10 sometimes you call single tool sometimes
+49:12 
+
+49:12 you call many Tools in your conversation
+49:13 
+
+49:13 and they also figured out that let's say
+49:15 
+
+49:15 if you want to book flights it's not
+49:17 
+
+49:17 necessary that there exists only one API
+49:19 
+
+49:19 that lets you book flights right there
+49:20 
+
+49:20 will be like thousands of APs that can
+49:22 
+
+49:22 let you book flight but then if you are
+49:24 
+
+49:24 confused at that level now the conf now
+49:26 
+
+49:26 now the nuances are so small that you
+49:28 
+
+49:28 have to pay a lot more attention to what
+49:30 
+
+49:30 specific things the user wants right so
+49:33 
+
+49:33 they created uh examples of those type
+49:35 
+
+49:35 and they made the model do finer grain
+49:38 
+
+49:38 retrieval and and and using
+49:41 
+
+49:41 them so so these are the uh most common
+49:44 
+
+49:44 uh popular open source ones and now I'll
+49:47 
+
+49:47 also talk about in the same time when uh
+49:50 
+
+49:50 API gen came uh we at IBM were also
+49:53 
+
+49:53 working on open sourcing our models and
+49:55 
+
+49:55 and uh and and the same issue that
+49:58 
+
+49:58 people had faced earlier was one of the
+49:59 
+
+49:59 reasons why we also started working on
+50:01 
+
+50:01 it we wanted also to create open source
+50:03 
+
+50:03 data so that the models that you develop
+50:05 
+
+50:05 can have Apache license and anybody can
+50:07 
+
+50:07 use it without having to get permission
+50:08 
+
+50:08 or without having to worry about uh
+50:10 
+
+50:10 using open AIS uh generated data right
+50:14 
+
+50:14 so uh so we were uh so and and and at
+50:17 
+
+50:17 that point in time most of the open
+50:20 
+
+50:20 models did not have right licensing
+50:22 
+
+50:22 right for example gorilla or two alpaka
+50:25 
+
+50:25 all were based on Lama which cannot be
+50:27 
+
+50:27 again used for commercial purposes
+50:29 
+
+50:29 without proper licensing and also the
+50:30 
+
+50:30 data sets were all created using chat
+50:32 
+
+50:32 gbt or gb4 again you cannot use it for
+50:34 
+
+50:34 any commercial purposes right and the
+50:36 
+
+50:36 second thing is like even though these
+50:39 
+
+50:39 guys did out of domain tests they were
+50:42 
+
+50:42 not
+50:43 
+
+50:43 exhaustive right they did it on let's
+50:45 
+
+50:45 say one of the tests was that they did
+50:47 
+
+50:47 it on the uh tool Hub the The Hub the
+50:50 
+
+50:50 all the modelbased data set but they did
+50:52 
+
+50:52 not do on a held out large scale data
+50:54 
+
+50:54 set right so so what so one of the the
+50:57 
+
+50:57 papers that we wrote showcase that even
+50:58 
+
+50:58 though they claim out of domain good
+51:00 
+
+51:00 outof domain generalization but if you
+51:03 
+
+51:03 take a slightly larger set and then
+51:05 
+
+51:05 evaluate none of these models generaliz
+51:07 
+
+51:07 well right and the third issue that we
+51:10 
+
+51:10 were dealing with at that point in time
+51:11 
+
+51:11 was that most of these function calling
+51:13 
+
+51:13 models assumed that you would end up
+51:15 
+
+51:15 building a solution with llms right but
+51:18 
+
+51:18 typically people don't do that what they
+51:21 
+
+51:21 do is they already have existing chat
+51:23 
+
+51:23 Bots that they have designed using uh uh
+51:26 
+
+51:26 sta IAL plus rule based approaches which
+51:28 
+
+51:28 are very interpretable and predictable
+51:31 
+
+51:31 right so they don't want llms to make
+51:33 
+
+51:33 decision all by itself like I want to
+51:35 
+
+51:35 call this API and this is the only
+51:37 
+
+51:37 option I give you with all these
+51:38 
+
+51:38 parameters fixed now if I cannot call
+51:40 
+
+51:40 this API I'll just give you the natural
+51:41 
+
+51:41 language version of what you should ask
+51:43 
+
+51:43 to get more information so this does not
+51:45 
+
+51:45 give enough control for somebody to
+51:46 
+
+51:46 design a chatbot right so so people
+51:49 
+
+51:49 wanted access to application developers
+51:52 
+
+51:52 wanted access to specific parts of
+51:54 
+
+51:54 function calling they just wanted it to
+51:56 
+
+51:56 say no give me what is the most likely
+51:58 
+
+51:58 tool that you would use right or I know
+52:01 
+
+52:01 what tool you have to use like and and
+52:03 
+
+52:03 you just give me the parameters so when
+52:05 
+
+52:05 you started using uh llms to do only
+52:09 
+
+52:09 specific part of the function calling
+52:11 
+
+52:11 tasks then these models were not doing a
+52:14 
+
+52:14 good job and we had empirical evidence
+52:15 
+
+52:15 to show why they were so bad like even
+52:18 
+
+52:18 though the the ASD accuracies would be
+52:19 
+
+52:19 in '90s the single uh task accuracies
+52:23 
+
+52:23 will be in 30s or 40s which which
+52:24 
+
+52:24 doesn't seem to make it usable so so so
+52:28 
+
+52:28 in in parallel to API gen we were
+52:30 
+
+52:30 working on synthesizing our own version
+52:31 
+
+52:31 of the data using open models again we
+52:34 
+
+52:34 were using Mixel and some flan XXL and
+52:37 
+
+52:37 for simple task we use simpler models
+52:39 
+
+52:39 for more complicated task we use
+52:41 
+
+52:41 slightly bigger models and again uh we
+52:43 
+
+52:43 we also repurposed so everybody was
+52:46 
+
+52:46 synthesizing data but there were a lot
+52:48 
+
+52:48 of task oriented dialog data set that
+52:49 
+
+52:49 have been made available and collected
+52:51 
+
+52:51 by humans for a really long time uh like
+52:54 
+
+52:54 from early 2000s but nobody were using
+52:57 
+
+52:57 function like those are actually calling
+52:59 
+
+52:59 functions task or dialog data set and
+53:01 
+
+53:01 they were designed by humans they were
+53:02 
+
+53:02 inspired by real world applications
+53:06 
+
+53:06 and uh we repurposed most of those data
+53:08 
+
+53:08 sets uh for function calling purposes
+53:11 
+
+53:11 right and uh and then we also
+53:13 
+
+53:13 synthesized data with the more open
+53:15 
+
+53:15 version of the model and and we created
+53:17 
+
+53:17 tasks that support granular tasks as
+53:19 
+
+53:19 well and with that we uh we were able to
+53:22 
+
+53:22 get out uh a 20 billion function calling
+53:25 
+
+53:25 model which was again open sourced uh
+53:27 
+
+53:27 along with the data set that was used
+53:28 
+
+53:28 for training the model the good part
+53:30 
+
+53:30 about this data set is that uh it is
+53:32 
+
+53:32 more friendly for application developers
+53:35 
+
+53:35 like because it it supports all these
+53:39 
+
+53:39 uh granular tasks which if you want for
+53:43 
+
+53:43 your application you can always call you
+53:44 
+
+53:44 don't have to necessarily do the whole
+53:45 
+
+53:45 function calling thing where in case you
+53:47 
+
+53:47 just want to generate response with a
+53:49 
+
+53:49 with a certain Json that you obtain
+53:51 
+
+53:51 through some other means you can still
+53:52 
+
+53:52 get it done if you just want the uh topk
+53:56 
+
+53:56 list of intents or or the the aps that
+53:59 
+
+53:59 you are likely to call you can do that
+54:00 
+
+54:00 the other reason why this was helpful is
+54:02 
+
+54:02 because sometimes an Enterprise will
+54:04 
+
+54:04 have 20 30 different chat bot desent by
+54:06 
+
+54:06 20 different applications right so these
+54:08 
+
+54:08 are not functions but still you want
+54:10 
+
+54:10 that that small functionality which lets
+54:12 
+
+54:12 you decide which API to call right which
+54:15 
+
+54:15 will give you in this case it will be
+54:17 
+
+54:17 which tool or which chat bot to call
+54:19 
+
+54:19 right so so we sort of decoupled all
+54:21 
+
+54:21 those things so that it's now lot more
+54:23 
+
+54:23 easier to develop more flexible chat
+54:25 
+
+54:25 Bots by lever ing uh large language
+54:28 
+
+54:28 models ability to understand language
+54:30 
+
+54:30 and process language and at the same
+54:32 
+
+54:32 time also use your traditional systems
+54:33 
+
+54:33 to sort of patch everything together to
+54:35 
+
+54:35 make a single composable
+54:38 
+
+54:38 system So currently we're also working
+54:41 
+
+54:41 on uh so at during the time API gen was
+54:44 
+
+54:44 released uh the granite model was the uh
+54:47 
+
+54:47 top open source model on the leaderboard
+54:50 
+
+54:50 but now again API gen is is is a lot
+54:53 
+
+54:53 better than uh what we
+54:55 
+
+54:55 doing okay so so this is a summary we've
+54:58 
+
+54:58 covered four different uh ways of
+55:01 
+
+55:01 generating synthetic data for function
+55:02 
+
+55:02 calling and and at this point in time it
+55:04 
+
+55:04 looks like AP gen is leading the road
+55:07 
+
+55:07 and we also talked about some other work
+55:08 
+
+55:08 that we are doing in RT okay thank you

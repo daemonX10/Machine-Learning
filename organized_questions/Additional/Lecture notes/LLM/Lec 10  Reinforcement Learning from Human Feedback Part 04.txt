@@ -1,0 +1,2896 @@
+00:00 So till now what we were looking at was
+00:02 
+
+00:02 on policy learning where the task was
+00:04 
+
+00:04 that you have a reward function and you
+00:06 
+
+00:06 want to generate outputs that have high
+00:08 
+
+00:08 reward. Now we'll go to a slightly
+00:11 
+
+00:11 different route. Instead of saying that
+00:13 
+
+00:13 I want to maximize the reward I want to
+00:14 
+
+00:14 generate outputs that maximize the
+00:16 
+
+00:16 reward. We will say that I want to gen
+00:18 
+
+00:18 uh given a preferred and a rejected pair
+00:22 
+
+00:22 I want a policy that generates uh the
+00:27 
+
+00:27 preferred pair with higher probability
+00:28 
+
+00:28 than the rejected pair. So we are going
+00:30 
+
+00:30 to do contrastive learning. Uh and I
+00:34 
+
+00:34 don't know if you guys have familiar
+00:35 
+
+00:35 with contrastive learning. Generally
+00:36 
+
+00:36 contrastive learning is we use let's say
+00:39 
+
+00:39 when we doing metric learning or we are
+00:41 
+
+00:41 trying to learn a similarity function we
+00:44 
+
+00:44 we say that okay this particular example
+00:46 
+
+00:46 should be more similar to A and less
+00:47 
+
+00:47 similar to B. And here the idea is going
+00:49 
+
+00:49 to be very similar that we have a
+00:51 
+
+00:51 preferred pair and a reject preferred
+00:53 
+
+00:53 response and rejected response. And what
+00:55 
+
+00:55 we'll say is that the models output the
+00:59 
+
+00:59 uh increase the probability of the
+01:01 
+
+01:01 preferred response while simultaneously
+01:03 
+
+01:03 decreasing the probability of the
+01:04 
+
+01:04 rejected response.
+01:09 
+
+01:09 Okay.
+01:11 
+
+01:11 And we will study one specific
+01:12 
+
+01:12 contrastive learning framework which is
+01:14 
+
+01:14 DPO and we'll derive it from the PO or
+01:19 
+
+01:19 the policy uh the on policy objective
+01:22 
+
+01:22 that we have on policy objective. We'll
+01:24 
+
+01:24 start with the objective and somehow
+01:25 
+
+01:25 we'll derive DP objective from there.
+01:29 
+
+01:29 Okay. So how does PO GRP and all the
+01:33 
+
+01:33 other algorithms that we saw so far
+01:35 
+
+01:35 proceeded? They you collect preferences.
+01:38 
+
+01:38 Then you first train a reward model
+01:40 
+
+01:40 using those preferences
+01:42 
+
+01:42 and once you have a reward model you uh
+01:46 
+
+01:46 use that reward model to train your
+01:48 
+
+01:48 policy. So there is a uh reward model
+01:51 
+
+01:51 learning framework and then there is a
+01:54 
+
+01:54 policy training framework right
+01:57 
+
+01:57 now ultimately preferences are not
+01:59 
+
+01:59 getting used here right the policy
+02:01 
+
+02:01 learning framework is using the
+02:02 
+
+02:02 preferences indirectly right indirectly
+02:08 
+
+02:08 uses preferences.
+02:14 
+
+02:14 So the question asked by the authors of
+02:15 
+
+02:15 the DP paper is that do we need this
+02:17 
+
+02:17 intermediate step of learning a reward
+02:20 
+
+02:20 model from the preferences or can we
+02:23 
+
+02:23 directly can we remove this all uh this
+02:26 
+
+02:26 learning a reward model step altogether
+02:31 
+
+02:31 and that's what we will try to do. We'll
+02:33 
+
+02:33 try to remove this reward model learning
+02:34 
+
+02:34 step and directly train the policy on
+02:36 
+
+02:36 top of the preferences.
+02:41 
+
+02:41 So firstly why do we need to do that
+02:42 
+
+02:42 like why do we even care about this we
+02:45 
+
+02:45 have we have seen the pipeline right
+02:47 
+
+02:47 pipeline is this the pipeline for doing
+02:50 
+
+02:50 PO it's a pretty complex pipeline we
+02:52 
+
+02:52 have to cover
+02:54 
+
+02:54 actor critic function we talk about
+02:55 
+
+02:55 importance weights we have to batch the
+02:57 
+
+02:57 uh convert the rollouts into mini
+02:59 
+
+02:59 batches then do uh use importance
+03:02 
+
+03:02 weights clipping lots of different
+03:04 
+
+03:04 tricks to make these online algorithms
+03:06 
+
+03:06 work
+03:07 
+
+03:07 so these are expensive uh uh these uh
+03:10 
+
+03:10 rollouts are pretty expensive and having
+03:12 
+
+03:12 an intermediate reward model because the
+03:14 
+
+03:14 reward model is trained on some small
+03:17 
+
+03:17 subset of data that we collected. It's
+03:18 
+
+03:18 not a perfect reward model and it has it
+03:21 
+
+03:21 has its own bias. So if we are we are
+03:23 
+
+03:23 adding bias during the reward model
+03:25 
+
+03:25 training step and then when we use the
+03:27 
+
+03:27 reward model to train the policy we are
+03:29 
+
+03:29 adding another bias. So can we so at
+03:33 
+
+03:33 least let's get rid of one bias which is
+03:36 
+
+03:36 the reward model training step.
+03:44 
+
+03:44 So this is uh the pipeline the online on
+03:49 
+
+03:49 policy uh great uh RL pipeline that we
+03:52 
+
+03:52 have. We have prompts. These are the
+03:54 
+
+03:54 prompts
+03:56 
+
+03:56 and
+03:57 
+
+03:57 for each prompt we have a preferred
+04:01 
+
+04:01 prayer uh sorry preferred response and a
+04:03 
+
+04:03 rejected response. This is the data that
+04:05 
+
+04:05 we have collected right.
+04:08 
+
+04:08 And uh if you are doing policy learning
+04:10 
+
+04:10 without uh sorry if you're doing on
+04:12 
+
+04:12 policy learning what you'll do is you
+04:14 
+
+04:14 will first train a reward model on top
+04:16 
+
+04:16 of these pairs uh preferred rejected
+04:19 
+
+04:19 pairs right and then you will use PP or
+04:22 
+
+04:22 GRPO to get your final policy
+04:28 
+
+04:28 but if you don't want the intermediate
+04:29 
+
+04:29 reward model what you want is that you
+04:31 
+
+04:31 given the preferred and rejected pairs
+04:35 
+
+04:35 somehow you should direct ly learn the
+04:37 
+
+04:37 LM policy. This is what we want
+04:41 
+
+04:41 and this is what is achieved by the DPA
+04:43 
+
+04:43 framework.
+04:48 
+
+04:48 Okay. So what what are the desirable
+04:50 
+
+04:50 characteristics of such a model that we
+04:51 
+
+04:51 want? What do we uh let's say we get a
+04:55 
+
+04:55 policy pi pi theta uh somehow uh using
+05:01 
+
+05:01 which directly learns from preferences.
+05:03 
+
+05:03 What do we want? What is a desirable
+05:05 
+
+05:05 thing?
+05:08 
+
+05:08 Yeah, the preferred response should have
+05:11 
+
+05:11 higher probability than the rejected
+05:12 
+
+05:12 response, right?
+05:16 
+
+05:16 And it should also incorporate the scale
+05:18 
+
+05:18 term somehow, right? Uh we'll see how
+05:21 
+
+05:21 DPU incorporates the KL term, but there
+05:23 
+
+05:23 are other ways to do that.
+05:26 
+
+05:26 So, we want a policy which gives higher
+05:27 
+
+05:27 probability to the preferred response,
+05:29 
+
+05:29 but somehow also incorporates the K
+05:31 
+
+05:31 term. Why do we need a K term? because
+05:34 
+
+05:34 we don't want to deviate too much from
+05:36 
+
+05:36 the reference policy. Okay.
+05:41 
+
+05:41 So let's drive. So now we'll start the
+05:43 
+
+05:43 derivation part.
+05:47 
+
+05:47 Uh we will ignore the theta and phi for
+05:49 
+
+05:49 now. So we'll work in a scenario. We'll
+05:51 
+
+05:51 assume that pi can be optimized
+05:53 
+
+05:53 arbitrarily and the reward the policy
+05:55 
+
+05:55 can be optimized arbitrarily. We can
+05:56 
+
+05:56 reach the global optima somehow and the
+05:59 
+
+05:59 reward function also can be optimized
+05:60 
+
+05:60 arbitrary. can reach the global optimum
+06:02 
+
+06:02 for the reward function also.
+06:05 
+
+06:05 And uh so RAR is the uh so this is the
+06:09 
+
+06:09 reward model training objective right
+06:12 
+
+06:12 log sigmoid of positive response the
+06:14 
+
+06:14 reward of the this is the reward of
+06:18 
+
+06:18 positive response
+06:22 
+
+06:22 and this is the reward of negative
+06:23 
+
+06:23 response.
+06:33 
+
+06:33 [Music]
+06:37 
+
+06:37 So
+06:38 
+
+06:38 uh the optimal policy is the one which
+06:41 
+
+06:41 maximizes the difference between the
+06:44 
+
+06:44 positive out preferred output and the
+06:46 
+
+06:46 reward of the negative uh rejected
+06:48 
+
+06:48 output.
+06:50 
+
+06:50 And what is the so this is optimal
+06:51 
+
+06:51 reward
+06:57 
+
+06:57 and the optimal policy pi star can be
+06:60 
+
+06:60 written as a function of the optimal
+07:02 
+
+07:02 reward function. Right. Uh so this
+07:05 
+
+07:05 optimal policy is the one which
+07:07 
+
+07:07 maximizes this this thing the expected
+07:11 
+
+07:11 reward. This is the expected reward
+07:19 
+
+07:19 and this is the KL ter with respect to
+07:22 
+
+07:22 the reference poly reference policy.
+07:29 
+
+07:29 So the optimal policy is that maximize
+07:31 
+
+07:31 the expected reward as measured by the
+07:32 
+
+07:32 optimum reward model and while
+07:35 
+
+07:35 simultaneously minimizing keeping the K
+07:37 
+
+07:37 term low.
+07:42 
+
+07:42 So now how do we now we want to cut out
+07:44 
+
+07:44 this reward model training step and the
+07:46 
+
+07:46 way we will do is
+07:48 
+
+07:48 we'll use this equation
+07:51 
+
+07:51 to express the reward model as a
+07:54 
+
+07:54 function of the optimal policy. So the
+07:55 
+
+07:55 optimal reward rstar we'll express it as
+07:58 
+
+07:58 a function of pi star and then we'll
+08:01 
+
+08:01 plug it back in the first equation.
+08:02 
+
+08:02 Okay. So there are two step one we
+08:05 
+
+08:05 express rstar as a function of pi star
+08:07 
+
+08:07 and then plugging it in the reward model
+08:08 
+
+08:08 training equation and that will give us
+08:11 
+
+08:11 a pi star training objective. This will
+08:13 
+
+08:13 convert this into a pi star training
+08:15 
+
+08:15 objective. This equation this first
+08:16 
+
+08:16 equation.
+08:20 
+
+08:20 Okay. So as I said we'll convert uh we
+08:23 
+
+08:23 will use the policy training objective
+08:26 
+
+08:26 to
+08:27 
+
+08:27 uh uh represent RAR the optimum reward
+08:31 
+
+08:31 model as a function of the optimum
+08:32 
+
+08:32 policy.
+08:34 
+
+08:34 And how do we do that? We'll derive a
+08:35 
+
+08:35 lrangian for this policy objective. Why
+08:37 
+
+08:37 langen? Because we have a constraint.
+08:39 
+
+08:39 These are this is a probability
+08:40 
+
+08:40 distribution. It has to sum up to one.
+08:42 
+
+08:42 Pi star uh still has to sum up to one.
+08:44 
+
+08:44 So it's a there's a constraint. So we'll
+08:46 
+
+08:46 write the langenian.
+08:48 
+
+08:48 uh we'll set its partial derivative with
+08:50 
+
+08:50 respect to the pi star equal to zero and
+08:53 
+
+08:53 then whatever we get we'll plug it back
+08:55 
+
+08:55 into the reward model training objective
+08:57 
+
+08:57 and then that will give us the DP
+08:58 
+
+08:58 training objective
+09:07 
+
+09:07 okay so first step uh let's so this is
+09:09 
+
+09:09 the uh pi star
+09:15 
+
+09:15 training objective we want to we want a
+09:17 
+
+09:17 policy See such that the outputs sampled
+09:20 
+
+09:20 from the policy have high expected
+09:23 
+
+09:23 reward and the policy should not be very
+09:26 
+
+09:26 far from the reference policy subject to
+09:30 
+
+09:30 the condition that this pi star is a
+09:34 
+
+09:34 this probability distribution sums up to
+09:37 
+
+09:37 one. So what is the lrangian? Let's
+09:39 
+
+09:39 write it l pi and let's add the lrangian
+09:43 
+
+09:43 parameter lambda. This can be written as
+09:49 
+
+09:49 the above equation
+09:59 
+
+09:59 minus beta * KL. L
+10:14 
+
+10:14 plus lambda times the constraint.
+10:24 
+
+10:24 Okay, this is a le engine and now we'll
+10:28 
+
+10:28 compute its partial derivative. with
+10:30 
+
+10:30 respect to pi.
+10:34 
+
+10:34 So what is this partial derivative with
+10:36 
+
+10:36 respect to pi? Let's first write the
+10:38 
+
+10:38 actually uh let's first expand the
+10:40 
+
+10:40 expectation
+10:41 
+
+10:41 uh replace the expectation by summation.
+10:44 
+
+10:44 So the expectation pi y given x can be
+10:47 
+
+10:47 written as summation over y belonging to
+10:50 
+
+10:50 the set of all possible responses
+10:53 
+
+10:53 pi y given x
+10:57 
+
+10:57 into
+10:59 
+
+10:59 r*
+11:01 
+
+11:01 x y is this fine writing the expectation
+11:04 
+
+11:04 as a summation
+11:06 
+
+11:06 the second k term also can be written as
+11:08 
+
+11:08 a summation uh any idea how what will
+11:12 
+
+11:12 look like beta*
+11:15 
+
+11:15 Summation over responses
+11:18 
+
+11:18 pi y given x
+11:21 
+
+11:21 log probability
+11:33 
+
+11:33 and the final term is the grand uh the
+11:36 
+
+11:36 constraint that we had uh that it should
+11:39 
+
+11:39 sum up to
+11:43 
+
+11:43 So this is L. This is simply L pi comma
+11:48 
+
+11:48 lambda.
+11:59 
+
+11:59 Okay.
+12:02 
+
+12:02 Okay. Is this fine? I hope this looks
+12:05 
+
+12:05 fine. Is this fine everybody? Okay. And
+12:08 
+
+12:08 now uh let's comput it partial
+12:11 
+
+12:11 derivative with respect to pi y given x.
+12:13 
+
+12:13 So we'll have to do it for each pi y and
+12:15 
+
+12:15 x combination. And we let's assume x is
+12:17 
+
+12:17 fixed. So for each response the uh the
+12:20 
+
+12:20 reason uh so you can think that each pi
+12:22 
+
+12:22 y1 x pi y all the possible outputs are
+12:26 
+
+12:26 represent one of the parameters. So each
+12:28 
+
+12:28 of pi y given x is one parameter. So
+12:30 
+
+12:30 once you differentiate with resp to pi y
+12:32 
+
+12:32 given x for a specific y
+12:34 
+
+12:34 uh what do you get? D L / D pi Y given X
+12:40 
+
+12:40 for a specific Y let's say generally you
+12:42 
+
+12:42 think of it as pi Y equal to Y not given
+12:45 
+
+12:45 X so this will give you pi sorry uh
+12:57 
+
+12:57 you rar
+12:59 
+
+12:59 x y
+13:01 
+
+13:01 minus beta and not the derivative of
+13:04 
+
+13:04 this quantity
+13:06 
+
+13:06 uh for particular y this will look like
+13:09 
+
+13:09 I'm writing it here but you guys can
+13:12 
+
+13:12 derive it once
+13:14 
+
+13:14 y given x
+13:17 
+
+13:17 pi f y g x
+13:22 
+
+13:22 and for this this will simply lambda
+13:25 
+
+13:25 and this we are equating it to zero.
+13:29 
+
+13:29 So this gives us the
+13:34 
+
+13:34 optimum reward
+13:37 
+
+13:37 and okay uh so when we equating it to
+13:39 
+
+13:39 zero this is pi star right the pi for
+13:42 
+
+13:42 the value of pi star we are equating it
+13:43 
+
+13:43 to zero so rstar the optimum reward can
+13:47 
+
+13:47 be written as beta * 1 + log of
+13:54 
+
+13:54 y given X
+14:13 
+
+14:13 minus lambda
+14:16 
+
+14:16 or let me write it as beta
+14:20 
+
+14:20 log pi*
+14:23 
+
+14:23 pi S
+14:30 
+
+14:30 plus
+14:32 
+
+14:32 beta minus lambda.
+14:39 
+
+14:39 So this is some constant that is there
+14:40 
+
+14:40 right. So the optimum reward is log
+14:45 
+
+14:45 probability ratio of pi star and pi refr
+14:48 
+
+14:48 time beta plus some constant. Okay. And
+14:51 
+
+14:51 so the uh this is this is the expression
+14:54 
+
+14:54 that we will put back into the reward
+14:57 
+
+14:57 model training objective. Okay. And
+15:00 
+
+15:00 before we do that we are going to do a
+15:03 
+
+15:03 side track just for our sake we want uh
+15:06 
+
+15:06 just I mean here we drive the optimum
+15:08 
+
+15:08 reward as a function of the optimum
+15:09 
+
+15:09 policy. But what is optimum policy as a
+15:12 
+
+15:12 function of the optimum reward you can
+15:13 
+
+15:13 just rearrange the terms and that you
+15:15 
+
+15:15 will get that. So we'll just sidet track
+15:18 
+
+15:18 and derive that also just for the sake
+15:19 
+
+15:19 of completion. But this is the equation
+15:20 
+
+15:20 that we need. Ultimately the equation
+15:24 
+
+15:24 that we need is this. This is the one
+15:26 
+
+15:26 that we'll plug it into the reward
+15:27 
+
+15:27 modeling objective.
+15:33 
+
+15:33 So this is the optimum reward in terms
+15:35 
+
+15:35 of optimum policy. What what will be the
+15:37 
+
+15:37 optimum policy in terms of optimum
+15:38 
+
+15:38 reward? Just put the terms here and
+15:40 
+
+15:40 there and that will tell you. So let's
+15:43 
+
+15:43 rearrange the terms. R* XA Y
+15:50 
+
+15:50 minus beta minus lambda
+15:55 
+
+15:55 equal to beta * log of
+15:59 
+
+15:59 I* Y given X
+16:10 
+
+16:10 and let's divide by beta. So r*
+16:14 
+
+16:14 x y by beta
+16:17 
+
+16:17 minus this beta minus lambda by beta
+16:22 
+
+16:22 equal to log of
+16:25 
+
+16:25 pi*
+16:27 
+
+16:27 4 pi ref
+16:34 
+
+16:34 and exponentiate both the sides you'll
+16:36 
+
+16:36 get
+16:38 
+
+16:38 e to the power
+16:41 
+
+16:41 r* X Y by beta
+16:46 
+
+16:46 time E to the power - beta minus lambda
+16:50 
+
+16:50 by beta
+16:53 
+
+16:53 equal to p<unk> star
+16:57 
+
+16:57 by pi f
+17:04 
+
+17:04 and now let's write it write pi star in
+17:07 
+
+17:07 terms of all the everything else what we
+17:10 
+
+17:10 get is pi
+17:12 
+
+17:12 is equal to
+17:18 
+
+17:18 Pref
+17:24 
+
+17:24 exponentiated of
+17:27 
+
+17:27 R star
+17:32 
+
+17:32 times this con quantity E to the power
+17:34 
+
+17:34 so I will just call this as C this
+17:36 
+
+17:36 remain this particular quantity
+17:39 
+
+17:39 I'll call it as capital C and since pi
+17:42 
+
+17:42 star is a probability distribution this
+17:44 
+
+17:44 C will come out to be the normalization
+17:47 
+
+17:47 constant for this uh this quantity. So C
+17:50 
+
+17:50 is just a normalization constant. Okay.
+17:52 
+
+17:52 So the optimum policy that you get uh
+17:55 
+
+17:55 when you uh do let's say PO or whatever
+17:59 
+
+17:59 policy grading algorithm is the
+18:02 
+
+18:02 reference policy the policy that you
+18:03 
+
+18:03 start with times some function of reward
+18:06 
+
+18:06 which makes sense. So we are what does
+18:09 
+
+18:09 it mean actually? What does this mean?
+18:10 
+
+18:10 That your optimum policy will give high
+18:13 
+
+18:13 probability to something only if either
+18:16 
+
+18:16 of the condition hold. It should have
+18:18 
+
+18:18 high probability under the reference
+18:19 
+
+18:19 policy. Actually, both of the conditions
+18:20 
+
+18:20 should hold. It should have high
+18:21 
+
+18:21 probability under the reference policy.
+18:23 
+
+18:23 That means your base model should think
+18:25 
+
+18:25 that output is already correct. Only
+18:27 
+
+18:27 then the optimum policy will give high
+18:28 
+
+18:28 probability to that. And the second
+18:30 
+
+18:30 thing is that it will uh its reward
+18:34 
+
+18:34 should be high. Right? And that's what
+18:36 
+
+18:36 we started with, right? We said that it
+18:37 
+
+18:37 k should be low and the reward should be
+18:39 
+
+18:39 high for the policy. And that's what
+18:41 
+
+18:41 this equation shows that the optimum
+18:43 
+
+18:43 policy will give high probability only
+18:45 
+
+18:45 if it it has high reward and also it is
+18:48 
+
+18:48 desirable under the reference policy. It
+18:49 
+
+18:49 has high probability under the reference
+18:51 
+
+18:51 policy.
+18:53 
+
+18:53 Okay. So actually I kept two slides. Uh
+18:55 
+
+18:55 I was wondering if if I will complete in
+18:57 
+
+18:57 one slide. So we'll leave this slide
+18:59 
+
+18:59 alone.
+19:01 
+
+19:01 Okay. So let's write the two equations
+19:03 
+
+19:03 that we have. What what are the two
+19:04 
+
+19:04 equations? uh pi star
+19:09 
+
+19:09 for a given output is proportional to I
+19:12 
+
+19:12 will write proportional to because I'm
+19:13 
+
+19:13 ignoring the normalization constant pi
+19:15 
+
+19:15 ref
+19:17 
+
+19:17 times
+19:19 
+
+19:19 some function of the reward.
+19:26 
+
+19:26 This is the pi star. And we also had
+19:29 
+
+19:29 another equation. Uh does anybody
+19:30 
+
+19:30 remember what was the other equation
+19:32 
+
+19:32 that we had? What is r* x y
+19:38 
+
+19:38 is beta * log probability ratio of
+19:42 
+
+19:42 pi star
+19:49 
+
+19:49 pf
+19:53 
+
+19:53 plus something else. What was it? Bush
+19:58 
+
+19:58 plus beta minus lambda.
+20:05 
+
+20:05 Okay. And this is the equation that
+20:07 
+
+20:07 we'll plug it in the reward model
+20:09 
+
+20:09 training objective.
+20:13 
+
+20:13 Okay. Uh yeah, we will do that. uh but
+20:15 
+
+20:15 this is what they're saying that the
+20:16 
+
+20:16 optimal reward can be expressed as a
+20:19 
+
+20:19 function of the optimal policy or in
+20:22 
+
+20:22 other words the optimal policy can be
+20:23 
+
+20:23 expressed as a function of the optimal
+20:24 
+
+20:24 reward. So then the DP objective says
+20:27 
+
+20:27 that do we really need to worry about
+20:29 
+
+20:29 all possible reward models if we can
+20:30 
+
+20:30 write the optimal reward in terms of the
+20:32 
+
+20:32 optimal policy? Let's worry about only
+20:35 
+
+20:35 those reward models that can be written
+20:38 
+
+20:38 in this particular form. So if rstar can
+20:40 
+
+20:40 be written as function of pi star let's
+20:42 
+
+20:42 assume let's parameterize reward model
+20:44 
+
+20:44 like this only we'll so all our reward
+20:47 
+
+20:47 models
+20:49 
+
+20:49 will assume to have this form
+21:01 
+
+21:01 plus some constant. We'll assume that
+21:03 
+
+21:03 our reward models have this particular
+21:05 
+
+21:05 form and then we'll put this equation in
+21:07 
+
+21:07 the reward model training objective. So
+21:09 
+
+21:09 this is the the is the motivation to
+21:11 
+
+21:11 them the equation that the optimal
+21:13 
+
+21:13 reward can be written as function of
+21:14 
+
+21:14 optimal policy and then they say that
+21:15 
+
+21:15 okay if the optimum reward can be
+21:16 
+
+21:16 written like this I will assume that all
+21:18 
+
+21:18 my reward models can be written like
+21:20 
+
+21:20 this and then you put that equation in
+21:22 
+
+21:22 the reward model training objective.
+21:25 
+
+21:25 Uh so yeah this is exactly saying what I
+21:27 
+
+21:27 was saying that the reward function can
+21:29 
+
+21:29 be written in terms of the policy
+21:30 
+
+21:30 parameters. Let's assume that and then
+21:33 
+
+21:33 train this directly on the preference
+21:36 
+
+21:36 pairs that you have. Okay. So what does
+21:38 
+
+21:38 that mean? Uh you compute this uh reward
+21:43 
+
+21:43 uh this log probability ratio reward for
+21:47 
+
+21:47 the positive. So you have you have a
+21:49 
+
+21:49 preferred response and you have a
+21:50 
+
+21:50 rejected response. Compute this log
+21:52 
+
+21:52 probability ratio for the preferred
+21:54 
+
+21:54 response. This is the lo uh we'll call
+21:56 
+
+21:56 this as the implicit reward of the
+21:58 
+
+21:58 preferred response. So this is also
+21:60 
+
+21:60 called as implicit
+22:02 
+
+22:02 reward
+22:06 
+
+22:06 because
+22:08 
+
+22:08 uh you are computing it using a policy.
+22:10 
+
+22:10 So compute the implicit reward of the uh
+22:12 
+
+22:12 preferred response compute the implicit
+22:14 
+
+22:14 reward of the rejected response and then
+22:16 
+
+22:16 just apply the uh reward model training
+22:19 
+
+22:19 objective that we used in the first uh
+22:21 
+
+22:21 RL lecture if you guys remember. So log
+22:23 
+
+22:23 sigmoid of reward of positive minus
+22:26 
+
+22:26 reward of negative. So this is the
+22:28 
+
+22:28 training objective. So we come take this
+22:31 
+
+22:31 equation, take this equation and plug
+22:32 
+
+22:32 them here and that gives us the DP
+22:35 
+
+22:35 objective. So let's plug it and see what
+22:36 
+
+22:36 we get. Actually it's quite obvious what
+22:39 
+
+22:39 we get but just let's do it. So what
+22:42 
+
+22:42 we'll get is arg max
+22:46 
+
+22:46 over theta
+22:48 
+
+22:48 summation over all these preferred and
+22:50 
+
+22:50 rejected responses that we have in the
+22:52 
+
+22:52 training data.
+22:58 
+
+22:58 Actually there should be a normalation
+22:60 
+
+22:60 also 1 / data set size
+23:03 
+
+23:03 time log of
+23:07 
+
+23:07 sigmoid of
+23:10 
+
+23:10 the implicit reward of the positives
+23:12 
+
+23:12 which is beta * log probability ratio
+23:27 
+
+23:27 plus beta time the normalization
+23:29 
+
+23:29 constant
+23:35 
+
+23:35 minus
+23:37 
+
+23:37 beta log probability ratio for the
+23:40 
+
+23:40 rejected response
+23:51 
+
+23:51 minus beta
+23:53 
+
+23:53 log normalization constant
+23:58 
+
+23:58 And this is common between the preferred
+24:01 
+
+24:01 and the rejected. So all you get is log
+24:04 
+
+24:04 sigmoid prob uh log probability ratio of
+24:07 
+
+24:07 the so this we can write here log
+24:10 
+
+24:10 probability ratio of the preferred
+24:21 
+
+24:21 minus log probability ratio of the
+24:24 
+
+24:24 rejected response.
+24:35 
+
+24:35 Sigmoid and log.
+24:45 
+
+24:45 So this is your DPO objective that you
+24:47 
+
+24:47 optimize.
+24:48 
+
+24:48 Does that make sense
+24:51 
+
+24:51 till uh till now till here this point?
+24:53 
+
+24:53 Any questions?
+24:55 
+
+24:55 Okay.
+24:57 
+
+24:57 So if you have to implement it, what you
+24:59 
+
+24:59 will do is you will take your preferred
+25:01 
+
+25:01 response,
+25:02 
+
+25:02 pass it through the current policy, pass
+25:05 
+
+25:05 it through that you're training and then
+25:07 
+
+25:07 pass it through the reference policy
+25:09 
+
+25:09 that you started with and compute the
+25:12 
+
+25:12 log probability ratio for the preferred
+25:15 
+
+25:15 response. Similarly, you will take the
+25:16 
+
+25:16 rejected response, pass it through both
+25:18 
+
+25:18 the policies and compute the
+25:23 
+
+25:23 uh this should be minus
+25:29 
+
+25:29 compute the log probability ratio for
+25:31 
+
+25:31 the rejected response and then you will
+25:35 
+
+25:35 maximize the log sigmoid difference
+25:37 
+
+25:37 between those implicit rewards.
+25:41 
+
+25:41 And this is pretty as easy to implement
+25:43 
+
+25:43 as you would do SFT. There's I mean the
+25:46 
+
+25:46 only difference is that there are two
+25:47 
+
+25:47 networks that you'll have to do a
+25:49 
+
+25:49 forward pass through but uh other than
+25:52 
+
+25:52 that it's as easy as there's no you
+25:55 
+
+25:55 don't have to worry about gradient
+25:56 
+
+25:56 explosion or you don't have to worry
+25:58 
+
+25:58 about high variance because you're not
+25:59 
+
+25:59 sampling anything the preferences are
+26:01 
+
+26:01 fixed there is no variance issue or
+26:03 
+
+26:03 anything you can just imple implement it
+26:05 
+
+26:05 the only thing you have to worry about
+26:06 
+
+26:06 is how to choose this beta quantity uh
+26:09 
+
+26:09 what value of the beta to choose
+26:13 
+
+26:13 Okay.
+26:15 
+
+26:15 So, uh
+26:17 
+
+26:17 where is the K divergence term? We saw
+26:18 
+
+26:18 this equation. But,
+26:21 
+
+26:21 uh how do we know that pi theta and pi
+26:23 
+
+26:23 ref will stay close? Because there's no
+26:25 
+
+26:25 k divergence term in this objective,
+26:26 
+
+26:26 right? So, where did the kale divergence
+26:29 
+
+26:29 term disappear? Any idea
+26:32 
+
+26:32 what happened to the kale divergence
+26:34 
+
+26:34 term that we had? We started with a
+26:36 
+
+26:36 objective that had a K divergence term
+26:38 
+
+26:38 and we ended up with an objective that
+26:40 
+
+26:40 does not have a K divergence term or
+26:41 
+
+26:41 anything that looks like K. So uh this
+26:45 
+
+26:45 ratio actually comes from the K
+26:47 
+
+26:47 divergence term the ratio. So if there
+26:49 
+
+26:49 was no K diver you would simply have log
+26:51 
+
+26:51 pi theta but there's a log pi theta by
+26:52 
+
+26:52 pi ref. So what that means uh what are
+26:56 
+
+26:56 we exactly saying when we say that the
+26:58 
+
+26:58 reward is not just your probability
+26:60 
+
+26:60 under the current policy the reward is a
+27:02 
+
+27:02 probability ratio. how much your current
+27:04 
+
+27:04 policy thinks about this output what
+27:06 
+
+27:06 upon what your starting point thought
+27:08 
+
+27:08 about that same point and that ratio is
+27:10 
+
+27:10 your reward.
+27:13 
+
+27:13 So that ratio is what we are trying to
+27:15 
+
+27:15 improve for the preferred response
+27:19 
+
+27:19 and let's assume that your assume that
+27:22 
+
+27:22 your reference policy already gave a
+27:24 
+
+27:24 very good probability to the sample.
+27:25 
+
+27:25 Let's say it was around 0.8 in the
+27:27 
+
+27:27 beginning. Okay.
+27:29 
+
+27:29 And uh when you train
+27:32 
+
+27:32 let's say uh
+27:35 
+
+27:35 yeah so uh so if your reference policy
+27:38 
+
+27:38 already gave 0.8 and the model increase
+27:41 
+
+27:41 that probability to 0.9 how much is that
+27:43 
+
+27:43 ratio 0.9
+27:45 
+
+27:45 by 0.8 8.
+27:48 
+
+27:48 So somewhere around I'm guessing 1.1.
+27:51 
+
+27:51 Right? Now if the reference model
+27:53 
+
+27:53 assigned a low probability to the
+27:54 
+
+27:54 response 0.1,
+27:57 
+
+27:57 the model can achieve that same increase
+28:01 
+
+28:01 by so just increasing the probability
+28:04 
+
+28:04 from 0.1 to 1.1. So the 0 the ratio from
+28:10 
+
+28:10 0 if the model increases the probability
+28:12 
+
+28:12 from 0.8 8 to 0.9 and the ratio of the
+28:14 
+
+28:14 model increase the probability from 0.1
+28:16 
+
+28:16 to 0.11 is approximately the same which
+28:19 
+
+28:19 is 1.1.
+28:21 
+
+28:21 So the what that means is that if the
+28:24 
+
+28:24 model does not assign a very high
+28:25 
+
+28:25 probability to a preferred response if
+28:28 
+
+28:28 the reference policy does not assign a
+28:29 
+
+28:29 very high probability to preferred
+28:30 
+
+28:30 response even after you rep do DP
+28:32 
+
+28:32 training it's not going to assign a very
+28:34 
+
+28:34 high probability there have been a lot
+28:35 
+
+28:35 of papers which show that uh the
+28:39 
+
+28:39 probability if the reference policy does
+28:41 
+
+28:41 not assign high probability to a sample
+28:43 
+
+28:43 after you do DPO the policy the
+28:46 
+
+28:46 probability will still not increase
+28:47 
+
+28:47 drastically.
+28:51 
+
+28:51 So the in absolute terms the probability
+28:52 
+
+28:52 assigned will still be low. Why? And
+28:54 
+
+28:54 this is how it is keeping the model
+28:56 
+
+28:56 close to the reference policy. So
+28:60 
+
+28:60 this is the K divergence term playing
+29:01 
+
+29:01 this is the role that the K divergence
+29:03 
+
+29:03 term is playing. It's saying that
+29:04 
+
+29:04 whatever your starting point was uh
+29:07 
+
+29:07 scale relative to that not absolutely
+29:10 
+
+29:10 you don't absolutely scale in
+29:11 
+
+29:11 probability you just scale relative to
+29:13 
+
+29:13 that.
+29:15 
+
+29:15 Does that make sense?
+29:19 
+
+29:19 What is the role of beta? So we we said
+29:22 
+
+29:22 that uh the only thing in DQ that we
+29:24 
+
+29:24 have to worry about is the is beta.
+29:26 
+
+29:26 There also learning rate but which is
+29:27 
+
+29:27 true anyway. Whenever you are doing
+29:29 
+
+29:29 training you have to worry about
+29:30 
+
+29:30 learning rate and other optimizer
+29:32 
+
+29:32 hyperparameters. But the special
+29:34 
+
+29:34 parameter that is added by is the beta
+29:36 
+
+29:36 parameter.
+29:38 
+
+29:38 So
+29:39 
+
+29:39 in when we were doing RLHF the role of
+29:41 
+
+29:41 beta was simple that if beta is high
+29:45 
+
+29:45 that means I give more weight to the
+29:47 
+
+29:47 kale uh higher the value of beta give
+29:50 
+
+29:50 more weight to kale so your policy will
+29:52 
+
+29:52 not deviate from the reference policy
+29:57 
+
+29:57 uh so but in the case of DPO the role is
+30:00 
+
+30:00 slightly more slightly weirder so let's
+30:03 
+
+30:03 see what is what happens here so if you
+30:05 
+
+30:05 look at this equation what does this
+30:07 
+
+30:07 equation suggest that beta might be. If
+30:08 
+
+30:08 I increase the value of beta, what do
+30:10 
+
+30:10 you think will happen here?
+30:14 
+
+30:14 Any idea?
+30:20 
+
+30:20 So if I increase the beta of this in
+30:22 
+
+30:22 this objective while training the model
+30:24 
+
+30:24 will say okay let me increase this
+30:27 
+
+30:27 difference even more. It will try to
+30:29 
+
+30:29 increase this difference. Think of beta
+30:31 
+
+30:31 like a scaling right? So it's not doing
+30:34 
+
+30:34 the same role as it was doing uh in the
+30:36 
+
+30:36 case of RHF where in RHF its role was
+30:39 
+
+30:39 clear. It's trying to prevent the policy
+30:42 
+
+30:42 from deviating from your reference
+30:43 
+
+30:43 point. Here it's actually saying that
+30:45 
+
+30:45 increase the difference between the two
+30:47 
+
+30:47 rewards. So it appears that higher the
+30:49 
+
+30:49 value of beta the model will attempt to
+30:51 
+
+30:51 increase the gap between the positive
+30:53 
+
+30:53 and negative response. It's not true. So
+30:56 
+
+30:56 and there's a reason why it is not true
+30:58 
+
+30:58 and we'll look at the curve for this.
+30:60 
+
+31:00 Let's look at some graph for this. So
+31:03 
+
+31:03 this graph
+31:05 
+
+31:05 uh is basically computes the derivative
+31:07 
+
+31:07 of your uh uh so this function
+31:11 
+
+31:11 log sigmoid beta x
+31:17 
+
+31:17 with respect to x. So this is the
+31:18 
+
+31:18 derivative of log sigmoid beta x with
+31:21 
+
+31:21 respect to x
+31:25 
+
+31:25 for
+31:27 
+
+31:27 for uh with respect to so this yeah this
+31:30 
+
+31:30 is the derivative of loss moment beta x
+31:32 
+
+31:32 with resp to x and the x-axis is your
+31:34 
+
+31:34 beta.
+31:35 
+
+31:35 So what it says is that if your beta
+31:38 
+
+31:38 increases
+31:39 
+
+31:39 the derivative actually increases till a
+31:42 
+
+31:42 certain point. What does that mean? That
+31:44 
+
+31:44 so X is your think of X that is the as
+31:47 
+
+31:47 the implicit reward difference that we
+31:49 
+
+31:49 want to that we care about. So
+31:53 
+
+31:53 as your beta increases the model says
+31:56 
+
+31:56 tries to maximize the difference between
+31:57 
+
+31:57 this implicit reward even more as your
+31:59 
+
+31:59 beta. So if you choose a higher beta the
+32:01 
+
+32:01 model says that okay now maximize this
+32:03 
+
+32:03 implicit reward difference even more
+32:06 
+
+32:06 until a point this is the saturation
+32:07 
+
+32:07 point and after this point if you
+32:11 
+
+32:11 further increase beta the model says
+32:12 
+
+32:12 okay now let's
+32:14 
+
+32:14 not increase the implicit reward
+32:16 
+
+32:16 difference further let's start uh let's
+32:19 
+
+32:19 start giving lower weight to the
+32:20 
+
+32:20 implicit reward difference further so
+32:22 
+
+32:22 after the saturation point the gradient
+32:24 
+
+32:24 for the implicit reward difference
+32:25 
+
+32:25 actually decreases and policy becomes
+32:28 
+
+32:28 less contrasting So the role of beta is
+32:30 
+
+32:30 not very uh linear like in the case of
+32:34 
+
+32:34 RLHF. Here beta can actually increase
+32:38 
+
+32:38 the difference between the implicit
+32:39 
+
+32:39 reward or decrease this. So beta has to
+32:42 
+
+32:42 be chosen uh quite carefully
+32:45 
+
+32:45 and most of this choice is done in a
+32:47 
+
+32:47 hyperparameter training framework.
+32:49 
+
+32:49 Although I wonder there might be more uh
+32:51 
+
+32:51 people should come up with more better
+32:53 
+
+32:53 strategies for choosing beta. uh but
+32:55 
+
+32:55 right now the current uh approach is
+32:57 
+
+32:57 that uh the way people do is that they
+33:01 
+
+33:01 choose to take assume beta is your k
+33:03 
+
+33:03 strength ratio just like in PO they
+33:05 
+
+33:05 assume that beta is your k strength
+33:07 
+
+33:07 higher the value of beta uh the closer
+33:10 
+
+33:10 the policy will stay with the reference
+33:12 
+
+33:12 policy and uh if you are lower beta then
+33:15 
+
+33:15 your policy can deviate faster from the
+33:17 
+
+33:17 reference policy and if you're doing DP
+33:19 
+
+33:19 training start with beta somewhere
+33:20 
+
+33:20 around 0.1.05 05 or something
+33:24 
+
+33:24 and then keep a watch on this KL
+33:27 
+
+33:27 divergence term and your accuracy term
+33:29 
+
+33:29 and if the K diver term starts
+33:31 
+
+33:31 increasing uh then you decrease uh sorry
+33:34 
+
+33:34 increase the beta and if your accuracy
+33:36 
+
+33:36 starts uh decreasing or uh or accuracy
+33:39 
+
+33:39 starts saturating then you can uh
+33:42 
+
+33:42 decrease the beta.
+33:50 
+
+33:50 Okay. So this completes uh the DPO
+33:54 
+
+33:54 objectives.
+33:56 
+
+33:56 We talked about reward hacking when we
+33:58 
+
+33:58 started policy gradient and reward
+33:59 
+
+33:59 hacking generally means that if you have
+34:01 
+
+34:01 a reward model uh the reward model has
+34:05 
+
+34:05 some bias because it is not perfect. It
+34:07 
+
+34:07 has some bias. It may assign higher
+34:10 
+
+34:10 reward to let's say outputs that start
+34:11 
+
+34:11 with a specific token. And if you use
+34:14 
+
+34:14 that reward model for training, what
+34:15 
+
+34:15 will happen is that uh the model may
+34:18 
+
+34:18 start generating that token
+34:19 
+
+34:19 repetitively. Or it might be the case
+34:21 
+
+34:21 that your reward model likes outputs
+34:24 
+
+34:24 that are longer, more verbose, have a
+34:26 
+
+34:26 lot of repeat the same thing multiple
+34:28 
+
+34:28 times. I mean your reward model can have
+34:29 
+
+34:29 a lot of different biases and when you
+34:31 
+
+34:31 whenever you do uh whenever you try to
+34:33 
+
+34:33 optimize with that uh reward model, you
+34:36 
+
+34:36 will end up with a policy that keeps on
+34:38 
+
+34:38 repeating. So this is called reward
+34:41 
+
+34:41 hacking. And uh each reward model can
+34:44 
+
+34:44 have its own bias.
+34:46 
+
+34:46 So what people do is they ensemble a
+34:48 
+
+34:48 bunch of reward model. Ensemble means
+34:50 
+
+34:50 that instead of feeding the output to
+34:52 
+
+34:52 one reward model getting one number, you
+34:54 
+
+34:54 will take two reward models, three
+34:56 
+
+34:56 reward models and take the average
+34:57 
+
+34:57 across them. And what the idea is that
+34:59 
+
+34:59 the more reward models you can average
+35:01 
+
+35:01 across, the less bias will be present in
+35:04 
+
+35:04 the in that average reward. This is just
+35:06 
+
+35:06 like ensembling that you do uh in your
+35:09 
+
+35:09 ensemble methods reducing the uh
+35:13 
+
+35:13 reducing
+35:14 
+
+35:14 the bias effect of bias
+35:17 
+
+35:17 uh the reward model bias by averaging.
+35:20 
+
+35:20 Does that make sense? Okay. The other
+35:22 
+
+35:22 thing you can do is that you put a
+35:24 
+
+35:24 constraint that the outputs should be
+35:26 
+
+35:26 diverse and uh that will prevent the
+35:28 
+
+35:28 model from sticking to a specific mode
+35:31 
+
+35:31 of the reward model distribution. Reward
+35:32 
+
+35:32 model X has a let's say has a mode on
+35:34 
+
+35:34 the word the you say though no the
+35:37 
+
+35:37 output should be diverse. So the model
+35:38 
+
+35:38 will be forced to look at output other
+35:41 
+
+35:41 outputs which are not in that mode.
+35:44 
+
+35:44 So this is a problem of reward hacking
+35:46 
+
+35:46 in policy gradient. What happens with
+35:48 
+
+35:48 DPM? In DV we don't have a reward model.
+35:50 
+
+35:50 So does reward hacking still occur? Can
+35:53 
+
+35:53 still occur but so we don't have a
+35:55 
+
+35:55 reward model. But what we do have is a
+35:58 
+
+35:58 preference pair.
+35:60 
+
+35:60 So what can happen is that the if you
+36:03 
+
+36:03 train using DPO the preference pairs may
+36:07 
+
+36:07 uh may be preferred or rejected for some
+36:08 
+
+36:08 reason the user may have selected a
+36:10 
+
+36:10 output over another output for some
+36:13 
+
+36:13 reason right but the reason is not there
+36:16 
+
+36:16 in the I mean there's no way for DPO to
+36:18 
+
+36:18 understand that reason and use it right
+36:21 
+
+36:21 and we will look at how those reasoning
+36:22 
+
+36:22 can be used uh when we talk about
+36:24 
+
+36:24 reasoning much later in the lectures but
+36:27 
+
+36:27 DPO itself cannot does not have any way
+36:30 
+
+36:30 to use that reasoning information.
+36:34 
+
+36:34 So what DP can do is that it can look at
+36:37 
+
+36:37 those output can think oh maybe this
+36:39 
+
+36:39 particular sentence has uh this
+36:42 
+
+36:42 particular word or maybe this particular
+36:44 
+
+36:44 sentence has this particular grammatical
+36:46 
+
+36:46 structure and that's why it's it was
+36:47 
+
+36:47 preferred and your policies probability
+36:50 
+
+36:50 of that grammatical structure can
+36:51 
+
+36:51 increase. So this is your uh so it's not
+36:54 
+
+36:54 hacking the reward model here but it's
+36:56 
+
+36:56 hacking the preference pair because it
+36:57 
+
+36:57 does not have complete information about
+36:59 
+
+36:59 the preference pair. So you can solve it
+37:02 
+
+37:02 by having a lot more preference pairs
+37:03 
+
+37:03 where the model learns okay that was not
+37:05 
+
+37:05 the reason maybe there is some other
+37:07 
+
+37:07 reason. So it will try try to ignore the
+37:09 
+
+37:09 obvious reasons. So uh so you can uh or
+37:13 
+
+37:13 you can and you can add an extra loss
+37:15 
+
+37:15 which is the supervised loss on top of
+37:17 
+
+37:17 your positive response to uh deal with
+37:21 
+
+37:21 this preference hacking problem.
+37:27 
+
+37:27 Finally we want to talk about uh so
+37:29 
+
+37:29 there's one more thing we talk want to
+37:30 
+
+37:30 talk about which is that there's a bias
+37:32 
+
+37:32 inherent bias in the DP objective.
+37:36 
+
+37:36 Uh so let's look at the DP objective
+37:38 
+
+37:38 again. It says that uh increase the
+37:41 
+
+37:41 implicit reward. This is your implicit
+37:43 
+
+37:43 reward of the positive response
+37:53 
+
+37:53 and this is your implicit reward of the
+37:54 
+
+37:54 negative response.
+37:56 
+
+37:56 So given a preference pair it says
+37:58 
+
+37:58 increase the implicit reward of positive
+37:59 
+
+37:59 decrease the implicit reward of
+38:00 
+
+38:00 negative. Right? This you want to
+38:02 
+
+38:02 decrease and this you want to increase.
+38:06 
+
+38:06 So now let's assume that you have just
+38:09 
+
+38:09 started training and your reference
+38:11 
+
+38:11 policy assigns the same probability to
+38:13 
+
+38:13 the preferred and the rejected and both
+38:15 
+
+38:15 of them have a probability of 0.5. Okay.
+38:17 
+
+38:17 And there is some output y not which is
+38:20 
+
+38:20 just a repetition of the word. This is
+38:21 
+
+38:21 some output whose probability you have
+38:24 
+
+38:24 not mentioned in the objective. See this
+38:26 
+
+38:26 particular y not does not occur in this
+38:27 
+
+38:27 objective at all. But ideally you don't
+38:30 
+
+38:30 want it probability to increase. Right?
+38:31 
+
+38:31 So you only care about preferences or
+38:34 
+
+38:34 outputs that are there in your data. you
+38:36 
+
+38:36 don't care about outputs uh some random
+38:38 
+
+38:38 outputs right but when you do training
+38:42 
+
+38:42 so initially because at the beginning of
+38:44 
+
+38:44 training both of them are.5 pi ref and
+38:46 
+
+38:46 because you're starting training pi
+38:48 
+
+38:48 theta and pi ref are same so they also
+38:50 
+
+38:50 will be 0.5 does that make sense
+38:54 
+
+38:54 so after few steps of training either
+38:57 
+
+38:57 this ratio will increase
+39:00 
+
+39:00 this particular ratio
+39:03 
+
+39:03 and this ratio will decrease.
+39:07 
+
+39:07 Right?
+39:11 
+
+39:11 So let's say this ratio went from 0.5 to
+39:14 
+
+39:14 0.6.
+39:15 
+
+39:15 Sorry, the pi theta went from 0.5 to 0.6
+39:19 
+
+39:19 and the pi theta y minus went from 0.5
+39:21 
+
+39:21 to 0.1.
+39:24 
+
+39:24 So I see ideally what you want is that
+39:26 
+
+39:26 if the probability of a certain output
+39:28 
+
+39:28 decreases all the change in probability
+39:30 
+
+39:30 should go to the y+ it should not go to
+39:32 
+
+39:32 something else. But you're not telling
+39:33 
+
+39:33 it anywhere in the objective. So this
+39:35 
+
+39:35 probability can actually go to a sample
+39:37 
+
+39:37 which is which was not in the objective
+39:39 
+
+39:39 at all. Right? It can go to certain y
+39:41 
+
+39:41 not. So here pi the y plus increased
+39:43 
+
+39:43 from 0.5 to 0.6 and y minus it decreased
+39:46 
+
+39:46 from 0.5 to 0.1. But now some new
+39:49 
+
+39:49 outputs appeared whose probability also
+39:52 
+
+39:52 increased because you're not telling the
+39:54 
+
+39:54 model what to do with the other outputs.
+39:57 
+
+39:57 uh you decreasing the probability of
+39:58 
+
+39:58 yness but you're not saying where the
+39:60 
+
+39:60 probability mass should go and that is a
+40:01 
+
+40:01 risky part and this is something that
+40:03 
+
+40:03 happens if you keep on doing dp training
+40:05 
+
+40:05 you encounter outputs you had did not
+40:08 
+
+40:08 have the objective whose probability
+40:09 
+
+40:09 increase suddenly and there will be uh
+40:11 
+
+40:11 be meaningless outputs so this is a very
+40:14 
+
+40:14 common experience if you try if you do
+40:17 
+
+40:17 dp for a long time if your policy is not
+40:19 
+
+40:19 very sharp to begin with if your
+40:21 
+
+40:21 starting policy was very sharp then
+40:23 
+
+40:23 deviation is a bit difficult but if your
+40:26 
+
+40:26 policy was more smoother like it's
+40:28 
+
+40:28 didn't uh it had high entropy then it
+40:30 
+
+40:30 can start deviating if you do DPO
+40:33 
+
+40:33 so how do you deal with this
+40:36 
+
+40:36 the solution is online DPO so what is
+40:39 
+
+40:39 online DPO it's just like uh we had PO
+40:43 
+
+40:43 and everything uh you have a reward
+40:46 
+
+40:46 model or you have LM as a judge
+40:51 
+
+40:51 and uh now instead of using the
+40:54 
+
+40:54 preference pairs
+40:56 
+
+40:56 uh you will sample the outputs from the
+40:60 
+
+40:60 policy and ask the judge to create those
+41:03 
+
+41:03 preference pairs. So you you will create
+41:04 
+
+41:04 the preference pairs in an online
+41:06 
+
+41:06 fashion. So instead of having a fixed
+41:07 
+
+41:07 set of preference pairs, you will sample
+41:09 
+
+41:09 the out outputs, create pairs out of
+41:12 
+
+41:12 them and get them judged by a reward
+41:15 
+
+41:15 model or a judge model or whatever and
+41:18 
+
+41:18 then use that to do DPO
+41:21 
+
+41:21 and then once you have done DPO you will
+41:23 
+
+41:23 repeat the cycle. You will now sample
+41:24 
+
+41:24 again bunch of outputs get them labeled
+41:27 
+
+41:27 by a judge of judge model and again dop
+41:30 
+
+41:30 and you will repeat the cycle. So what
+41:31 
+
+41:31 is the advantage here? Suppose certain
+41:33 
+
+41:33 output like the the the or what certain
+41:35 
+
+41:35 weird outputs whose probability you
+41:37 
+
+41:37 don't want to be high suppose that
+41:39 
+
+41:39 output appears uh when you give it to
+41:42 
+
+41:42 the judge model the judge model will
+41:43 
+
+41:43 immediately say this is a bad output and
+41:45 
+
+41:45 so your model will learn to decrease the
+41:47 
+
+41:47 probability of those outputs. So it's a
+41:49 
+
+41:49 feedback loop where if any error signal
+41:53 
+
+41:53 appears in your model, if some the model
+41:55 
+
+41:55 starts making a certain type of error,
+41:57 
+
+41:57 it will be immediately corrected. So
+41:58 
+
+41:58 this feedback loop has been shown to
+42:01 
+
+42:01 improve the performance of DPO by a huge
+42:04 
+
+42:04 amount.
+42:07 
+
+42:07 And uh as you can see here, the online
+42:09 
+
+42:09 DPO methods actually work much better
+42:12 
+
+42:12 than the offline DP methods. You can see
+42:14 
+
+42:14 the win rate difference between online
+42:17 
+
+42:17 and offline DPO.
+42:21 
+
+42:21 So this is where we will end
+42:23 
+
+42:23 reinforcement learning and alignment
+42:25 
+
+42:25 lectures. So what we learned is that DPO
+42:28 
+
+42:28 can learn the policy directly from human
+42:30 
+
+42:30 preferences.
+42:32 
+
+42:32 But there are some issues. It can
+42:33 
+
+42:33 capture differences which are
+42:34 
+
+42:34 unimportant because it does not have any
+42:36 
+
+42:36 way to know what are the important
+42:37 
+
+42:37 differences. And also it can be biased
+42:39 
+
+42:39 towards samples that it has not seen
+42:41 
+
+42:41 during training uh in it preference
+42:44 
+
+42:44 players. And you can prevent these bias
+42:48 
+
+42:48 by doing it in DP in an online session
+42:51 
+
+42:51 where you sample get for feedback train
+42:53 
+
+42:53 again sample get feedback and train.
+42:57 
+
+42:57 Okay. And these are some of the
+42:58 
+
+42:58 resources that uh so what the first one
+43:01 
+
+43:01 is the original DPO paper. The second
+43:03 
+
+43:03 one is a more uh easy to understand
+43:06 
+
+43:06 explanation about DPO. The third one is
+43:09 
+
+43:09 a link is the online DPO paper. And
+43:13 
+
+43:13 fourth one is the hugging face DPO
+43:15 
+
+43:15 trainer. And fifth one actually teaches
+43:17 
+
+43:17 you how to build DPO from scratch.
+43:21 
+
+43:21 Okay.

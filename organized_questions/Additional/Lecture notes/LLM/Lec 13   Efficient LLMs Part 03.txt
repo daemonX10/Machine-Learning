@@ -1,0 +1,600 @@
+00:00 Hello everyone and welcome to the third lecture in the series. So we will
+00:05 continue today our discussion that we were having last time and before that we need to recap what we were discussing.
+00:12 So I think I'll need input from you guys to recap what we have been discussing till now
+00:18 anyone
+00:26 okay parallelization on different GPUs distributing 0 0 1 02 03 why why we were
+00:32 doing it why were we interested in parallelizing
+00:38 to to reduce the idle time of GPUs if we
+00:44 have multiple GPUs. Okay, we don't want different the other GPUs to sit idle. Yeah, that's true at a meta level. Uh
+00:50 right, but uh when we are training big models, uh we saw that when we train them on one GPU, there are multiple
+00:56 issues that we face. One is that the model itself does not fit into the
+01:02 memory, right? And then we looked at uh what actually occupies the GPU memory,
+01:07 right? And uh we saw that there are four major components. Model weights, parameter gradients, optimizer states.
+01:14 Uh these three are proportional to
+01:19 H cross H the weight matrix plus H.
+01:25 Right? We saw that in in one layer of transformer, we have 12 of these and 13 of these. Right? So L * this becomes our
+01:34 uh memory requirement for keeping model parameters. This is the number of model
+01:40 parameters. Uh gradients are proportional to that because for every w we need to have dw in the memory. And
+01:47 then because we are using atom or any other optimizer we will have uh persistent state which which for example
+01:54 Adam stores first moment and second moment. So we'll have uh twice of this
+01:59 uh right uh memory. So overall total memory would be Z
+02:06 and then uh Z + Z. These are the parameters and each parameter would take
+02:12 two GP two bytes or four bytes depending on the precision that we are dealing with. Right? For example in mix
+02:18 precision we will have them have the model parameters in two bytes. So 2 Z then gradients also in two bytes. So
+02:26 we'll have 2 Z. And then in optimizer states we will have them in four bytes. So we have 4z plus 4z and we also want
+02:33 to keep because we are doing computation in mixed in lower precision we want to keep a copy of the model weights in high
+02:40 precision which we also count in the optimizer states right and we saw that going from uh 0 1 to 3 we were able to
+02:47 first make this 1 by n where n is the number of GPUs that we have then in 02
+02:53 we were able to make this 1 by n which is optimizer state and then in 03
+02:59 We were able to make this also 1 by n but everything was coming at an additional
+03:05 communication cost right. a total communication tax uh in in naive data
+03:11 parallel is only Z right because once we have the gradients on all the GPUs right
+03:19 those gradients are computed using different inputs on different GPUs by doing the same computation the same
+03:25 forward pass and backward pass we need to aggregate them do all reduce right so that is I mean all the gradients are
+03:31 floating in the communication channel we have Z communication tax Right? But uh
+03:39 if we shard the optimizer as in 01 or 02 then we need to gather the in addition
+03:45 to that we also need to gather what else
+03:52 optimizer states remain there. Right? We are transferring the gradients because then we need gradients everywhere.
+03:59 Right? Corresponding gradients. Then what increases the communication cost in
+04:04 01 or 02? What additional operation are we doing?
+04:12 That happens in DP as well, right? Gradients are there on all the GPUs and
+04:17 then we need to do all reduce on them right that is all reduce communication
+04:23 cost in vanilla DP as well. So what increases in 01 and 02
+04:36 anyone? So what are we doing in 01 and 02? What are we sharding?
+04:45 Optimizer on different GPUs, right? If we have optimizers on different GPUs,
+04:51 where do why do we use optimizers? What does it change?
+04:58 the weights, right? So now updated weights are on
+05:04 different GPUs, right? If we have first shard on first GPU and second shard on second GPU, we have only updated weights
+05:11 for the first shard on first GPU, right? So we need to all gather the weights.
+05:17 That was the extra communication cost in 01 and 02. Why did we not occur that in deep speed uh in in vanilla DP?
+05:26 Because yes, so we are distributing the
+05:32 gradients. We're all reducing the gradients. All GPUs have exactly the same gradients after all reduce and they simultaneously update the parameters.
+05:39 Right? So we have two Z communication cost in 01 and 02. And what happens in
+05:45 03?
+05:53 Right? So we need to gather the parameters as well on the fly. Right? So we have three ZI communication cost
+05:59 there. Right? Okay. So so this was all about the
+06:04 sharding of the model. Right? But we saw that the biggest culprit or the biggest occupier of the memory is
+06:12 what? The activations. And uh what is the order of the activations? uh we have bat
+06:19 size. Now this is dependent on the data as well right batch size uh sequence length number of tokens right and then
+06:28 the hidden dimension h right so we will have these
+06:34 right these activations will flow in the in the GPU right and then uh we have
+06:40 attention as well where each token is attending on every other token right at
+06:45 least in the causal if in the causal model every you know Each token is attending on the token that occurs
+06:51 before that. Right? So we have sequence length cross sequence length
+06:57 times number of heads times batch size. Right? So we have five of these and 34 of these. And we saw that uh as the
+07:05 model size becomes bigger or if you want to train on larger sequences right this becomes a problem activation
+07:12 and that is what we will tackle u in this part of the lecture right but
+07:19 before we move ahead I just wanted to you know show you the how is it done in
+07:25 exactly in the code deep speed uh thing right uh so there are two ways of using it one is uh using pytor the way you
+07:32 would Usually right when you train a model you use PyTorch to create a model, load a model, data loader and and then
+07:38 train right uh now PyTorch provides uh native I mean provides the support for
+07:45 FSDP natively right there are libraries for that. So for example here if you are
+07:50 loading the model once you load the model right you you iterate over each
+07:56 layer and then shard. So it provides a function called fully shard. This will take care of sharding the model on the
+08:02 and the optimizer sits and everything on the uh so so here this is sharding only the model because we're providing only
+08:07 the model here right on different GPUs right and uh so this this would be the
+08:12 training loop and uh this is similar to what you would have usually right so back end will take care of of of
+08:20 everything here right uh but there is one catch here in this toy example we
+08:27 are creating the input as as a random tensor, right? But if you have your data
+08:32 loader and you are splitting it across, you have you're splitting data across
+08:37 multiple GPUs in data parallel, right? So how do you do that for that? Uh so
+08:43 this is how you would create a data loader on one GPU. If you're training on one GPU, you will provide your data set,
+08:49 right? And this data loader and then you do for for batch
+08:55 in train loader, right? And then you compute the
+09:00 loss and backward and and optim uh update, right? Optim. But here uh you
+09:08 need to do one more thing which is distributed sampler, right?
+09:14 Here you provide the data set. I mean data set is an input and then you provide the number of world size is the
+09:19 number of GPUs that you have. and rank as we discussed earlier as
+09:24 well. Rank is the ID of this particular GPU on which it is running. So the same code will run on all the
+09:31 GPUs but will have a different value of rank and and we are getting the rank here. Uh
+09:38 so when you create the data loader you you have to pass this train sampler here
+09:44 right and then the the training loop will be as usual. Uh now another alternative is to use uh you know there
+09:53 are more abstractions on top of uh PyTorch FSGP right? So for example within hugging phase there is an SFT
+09:60 trainer which is provided by TRL library and you can use that they also hugging
+10:06 face also provides uh something called accelerate which is a highle uh you know
+10:11 abstraction on top of torsion. So, so recall that earlier we saw that to run the code uh we were doing torch run then
+10:19 some arguments to torch run which will help it parallelize right and then the script.
+10:25 Similarly, accelerate is an alternative to that. Uh we will not go into the details but you can you know go through the tutorials here. Uh everything is
+10:33 abstracted here. It's as simple as passing these arguments uh to the trainer. Right? So you do accelerate
+10:39 launch and provide a config file which has details of uh your configuration you
+10:45 know whether you are using uh DDP or something else 0 1 2 or 3 right in the
+10:51 other configurations uh and and the there are a lot of so there's something called SFT config which is again u you
+10:59 know which provides all the configuration parameters for running the training and uh I have highlighted here
+11:05 which are relevant to us for example here you provide the micro batch size per device training batch size right uh
+11:14 here you are providing gradient accumulation step so this is the first thing that we covered before data before
+11:20 DP right you are running each macro batch sequentially and that is what we
+11:25 parallelized in DP so so if you want to do that if you want to combine DP with gradient accumulation this this is the
+11:31 argument for that and then uh we saw that we need gradient checkpointing to reduce the activation right so what is
+11:36 gradient checkoint comput the activations again after in
+11:42 the back backward pass. So for each pass you passing then
+11:49 very good. Yeah. So when you so for example if you have a simple layer like y= wx and you want to compute the
+11:55 gradient in the backward pass which is dw which will be d y by d l by d y
+12:02 uh time x transpose right so x is the input to
+12:07 this layer and this is the activation for this layer right we need to save this right uh but instead of saving this
+12:14 uh you know what we can do is that you know you can we can recmp compute it must be the output of some other layer
+12:19 previously, right? So, we can we can recmp compute this. Okay, so so yeah, this is where uh we were
+12:27 but you know and we know that the biggest culprit is the activations, right? So uh so what should we do? I
+12:37 mean in data parallel we split the model and we split the data, right? Remember that across the bat size dimension. So
+12:44 we uh this is sequence len we take first few examples and run them on GPU 1 and
+12:52 then next few run them on GPU 2 right and so and so forth but then now the
+12:58 issue is that even a single sequence is not fitting right then then what should we do or if the model size is is really
+13:04 big right so the idea here is that uh we
+13:11 will take the activation memory and and try to see if we can split the
+13:17 computation for one input on multiple GPUs.
+13:22 That's the only thing that we can do. Right? Till now if we have two GPUs, we were passing two
+13:28 different micro batches through it. We were parallelizing gradient accumulation, right? But now because the
+13:36 input has become big enough or the model has become big enough that we cannot process one sequence through one GPU. So
+13:43 the alternative is to split right. So for one sequence use two GPUs
+13:50 right. So let's see how do we do that and let's focus on the uh MLP block for now or or any linear layer. Right? So
+13:57 here focus on uh these top three neurons
+14:02 right and bottom two. So what are the weights that are used to compute the top
+14:10 three neurons here right? So this is the W matrix that we have right. Uh so this U is U is X transpose
+14:24 W right and the output is uh yeah output
+14:29 is U and there are you know different different neurons there's U1 to Uh for example right now
+14:39 I mean I can write W this W as let's say W1 W2 Right? Then each column here it's
+14:49 xr. So what is the first neuron? This is xrpose * w1 which is the first column. Right? And
+14:56 what is the second neuron? This is this is xrpose w1. This is xrpose w 2 and this is xrpose w
+15:07 3. Right? So what have we done here? We have split
+15:13 the the computation we have split the activations right across two different GPUs.
+15:20 We can compute these on one GPU and these on the other GPU. And then how are
+15:28 we splitting our W? We are splitting it column wise, right? So XRpose
+15:34 W1, XRpose W2 till Xrpose W, let's say.
+15:39 And then we have u know xrpose w + 1 till xrpose w + uh till 2 h and so and
+15:48 so forth right so let's say we have fourpus and you know we can compute
+15:53 these h on one gp which means that we have taken our w which
+15:60 had w1 w2 till w4 h four h columns each column corresponding to each neuron and
+16:06 we have split that like this Right? This part sits on GPU 1 and last this sits on
+16:14 GPU 4. Right? So notice here that we have achieved both. We have split the
+16:21 parameters as well across GPUs as well as activations. And this is this is amazing. Right?
+16:27 Earlier we were splitting in 0 1 2 and 3. We were splitting the parameters and the optimizer states and all. Right?
+16:33 here you know if let's say let's call this W1
+16:40 W2 till W4 this W1 will sit on one GPU these
+16:46 parameters will sit on one GPU the gradients will also come there we don't need them on the on any other GPU as
+16:51 well right does that make sense is this part clear
+16:57 so we have and and across which dimension have we been able to reduce
+17:03 activations. So if this is batch size, this is sequence length and this is the
+17:08 hidden dimension. Right?
+17:14 What we have done is that we have split it across the hidden dimension.
+17:19 In this case the the hidden dimension was 4 H and we have been able to split that into H each. Right? If you are
+17:26 using let's say uh four uh four GPUs, right? So is this part clear? Okay. Now
+17:35 what happens? So this is an example. I think we have gone through it. So yeah, we're cutting it across the column. Uh
+17:42 the same input is on both the GPUs. Remember the tensor parallel means same
+17:48 in one input is big enough that we can't process it on one GPU. Therefore, we are processing it on multiple GPUs. Right?
+17:54 So the same input is on both the GPUs. We have part of first column here on one
+17:59 GPU. second column here on second GPU we get uh the this is the first output neuron and this is the second output
+18:05 neuron right so we right and we can combine this okay now
+18:10 let's focus on the second uh layer right these two and and what would
+18:17 this look like so we have uh u transpose
+18:22 right and then this let's say this is uh this was w let's call this
+18:28 uh m. Okay, we we have this uh m.
+18:35 Now we know that uranspose is split. We have
+18:41 U1 transpose, U2 transpose and U4 transpose,
+18:48 right? We have split. We have first four 1/4 of the neurons in first GPU, second
+18:54 four on the second GPU and so forth, right? Now, and we have M here. So, what
+18:59 would be a natural way of splitting M in this case?
+19:08 Okay, so let me recap. Let me let me reiterate the objective. The objective is that this is sitting on GPU 1. This
+19:16 is sitting on GPU 2 and this is sitting on GPU 4. Right now I want to split this
+19:24 M on the four different GPUs so that I don't have to transfer these
+19:30 intermediate activations across GPUs otherwise there will be a lot of communication.
+19:35 Right? So let's let's look at the this the output is a single this right and uh
+19:43 let's look at what are the values in m that interact with the first
+19:50 uh few neurons of the intermediate uh layer. What would this get multiplied with the
+19:56 first four?
+20:03 Sorry, this this gets multiplied with this column, right? So these first four are
+20:10 getting multiplied with
+20:17 no everything is getting multiplied to the first column, right? For the first neuron, if you're focusing on the first neuron, let's say in the output.
+20:24 So what is the value of this first neuron here? That is U transpose
+20:31 M1. If M1 is let's say this first correct
+20:38 now what I want to do is I do not want to move my use across GPUs. How should I
+20:45 split M?
+20:51 Which part of M is interacting with U1 first? I mean yeah say these uh neurons
+21:01 exactly right. the first few rows, right? So if if these are let's say 10
+21:08 uh neurons here, all of these are getting multiplied with just top 10 rows, right? First 10 rows here.
+21:18 So the output here is going to be let's look at this. Okay, U trans this output let's say this is O1
+21:24 is Uranspose M1 where M1 is this row this first column. This is equal to u1
+21:31 transpose m 1
+21:37 2 h right this multiplied by this plus this u2
+21:44 transpose the next part here right which is m_sub_1
+21:50 uh h + 1 2
+21:56 2 h right + U 3 transpose M1
+22:04 2 H + 1 to 3 H + U 4 transpose M1
+22:13 comma 3 H + 1 2 4 H is this is this clear I mean is there any doubt in this
+22:20 equation right so essentially the first four
+22:26 one first 1/4 right of of this matrix this is getting multi this is interacting with U1 here and this is
+22:34 true for all the neurons if you look at this neuron the second O2 O2 is also
+22:39 this entire U multiplied with M2 and then we can split this M2 also in
+22:46 you know these four equal chunks 1 2 3 and four right corresponding to the four
+22:52 GPUs right and what is the final output O1 0 O1 is addition of these four.
+23:02 Right? Now, U1 is sitting on GPU 1 and
+23:08 we are splitting our M also in a row-wise fashion such that this one is
+23:13 on GPU 1, this is on GPU 2, this is on GPU 3 and the last one is on GPU 4.
+23:20 Right? So, this input will be on this out this output will be on GPU 1.
+23:28 Right. This part is also on this part is on GPU
+23:33 2 and the last part is on GPU 4. Right.
+23:39 And and what would be the dimension of you know so okay um let's
+23:46 yeah right so we have u and then we have m
+23:51 we are splitting m into m_sub_1 m_sub_2 m3 m4
+23:58 right and this will be I can write this as u * m1
+24:04 now the dimension of m1 is
+24:10 It's u1 * m1 and so what is the dimension of u1 here
+24:19 guys I don't know I mean this is simple I
+24:24 don't know whether it is too simple for you guys or uh is no one following I don't know it's it's difficult to
+24:31 understand so show me a raise of hand how many of you are following this are able to
+24:37 follow this there.
+24:47 Okay. So, what is the people who are not following you? Are you able to follow? Okay. Who is not? So, okay. Raise your
+24:53 hand if you're not able to follow. Okay. What is your doubt?
+25:04 Yeah. here let let's create yeah we have we are here let's say okay we are here
+25:12 U let's let's take let's assume that we have two GPUs for now we'll simplify our uh thing right U is computed first half
+25:20 of U we are calling U1 and second half of U we are calling U2
+25:28 U1 let's say there are 10 neurons here and 10 neurons here right so total dimension is 20
+25:36 20 + 1 and in the output also in the output let's say we have uh
+25:48 let's say we have uh okay I want to this is 10 10 this this
+25:55 has to be 20 right so this u is uh what what we have 20 cross 1
+26:03 and m is going to be
+26:09 no. So we we u is 1 + 20 sorry yeah it's 1 + 20 right
+26:16 it's a it's a flat it's a row 1 + 20 m is 20 cross let's say uh 30 so that you
+26:26 avoid confusion right now what would be the out size of the output
+26:32 1 + 30 right so it's going to be 30 neurons in the output right 1 + 30 okay now we have u which split into two parts
+26:40 u1 and u2 okay now if if you write
+26:48 this let's say let's say I divide m into two parts m1 and m2 I can do that
+26:54 dimensions of m is this is 10 and this is also 10 right so this is 10 10 + 30
+27:04 because in the output you have 30 you know right this is also 10 cross
+27:10 Right now each element in the output is so let's let's look at the first neuron
+27:15 first output O1 okay that is uh
+27:22 U transpose M
+27:27 uh one this is the first column of M and this is U is now U1 and U2 there are
+27:37 two parts to And m is also m11 and m12. This is also
+27:46 uh 10 and this is also 10. Right? This is equal to u1 m11
+27:55 u1 transpose m11 right plus u2 transpose m12
+28:03 right. So this part plus this part. This is
+28:11 true for all neurons. This is this is this is O1. Similarly, O2 is the same. U1 transpose
+28:18 M uh 2 1 plus U2 transpose M2. This two
+28:24 is the second column of M. Right? So for all
+28:29 the neurons there are two parts in the output. Right? So the first part
+28:35 I mean now if I can aggregate this right I write it in multip matrix multiplication. The first part is U
+28:42 1 transpose M1. Verify this.
+28:48 So dimension is 1 + 10. This is 10 + 30.
+28:54 Dimension is going to be 1 + 30. Right? we have the entire uh part
+29:02 plus u1 transpose m_sub_2 this is 1 + 10 this
+29:08 is 10 + 30 again so this will be the I mean this is
+29:13 this is this is one vector 30dimensional this is also another vector 30dimensional and sum of we have split
+29:21 the computation into two parts right so we need to add these to get the final 1 + 30 output
+29:27 Is that clear now? Okay, cool. So now I mean so this is called row linear or row
+29:33 parallel because we have split our our matrix M into
+29:39 row wise, right? But notice here that on all the GPUs we have only a fraction of
+29:45 the answer. We need to add them together, right? So so that means we
+29:51 need to communicate again, right? So okay uh so this is the animation which I
+29:58 think we have already gone through this in pretty much in in in great detail. Uh
+30:03 yeah. So in the first part in the first uh layer we do column wise splitting
+30:10 column linear we compute different neurons on different machines right the
+30:16 output here input here is two dimensional these are the two neurons in the input and we have a bat size of four
+30:22 right so we have this is the bat size four and this is the uh the dimension of
+30:27 the input neurons right the dimension of the output neurons is also two right and we are splitting it across neurons right
+30:35 so therefore first neuron is computed on the one GPU second neuron is computed on the second GPU for all uh the elements
+30:42 in the batch here right now we have to multiply this with uh W in the second
+30:48 layer we split this into by row right and do a multiplication on this GPU and
+30:56 this GPU this will give us the whole matrix right the dimension of the output matrix is going to be the complete is
+31:01 going to be the same and we need to add them to get the final output. Right? And
+31:06 that requires an all reduce. Yeah. Right. So how have we been able to
+31:13 you know split our MLP layer? Right. There are we know that there are two
+31:19 linear layers within the MLP block. For the first we do a column wise split on
+31:25 the first and row Y split on the second. Why are we choosing this? Because to avoid the communication in between in uh
+31:32 in in the intermediate layer, right? This way we are able to avoid the communication in the intermediate layer, we just need an all reduce in the end.
+31:39 Right? So this is how tensor parallelism looks like in MLP block. We have we
+31:45 start with the same input sequence on both the machines, right? Both the
+31:51 machines are doing different computations on same input, right? Okay.
+31:59 Now what will happen in the uh multi retention block? How can we use this in
+32:06 multi retention block?
+32:11 We want to parallelize our computations on the same input. Right? So what happens in multi head uh
+32:18 attention?
+32:31 Right. Right. So good. So, so what we do is I mean naturally in multi-headed
+32:36 attention we have multiple heads and each head has its own set of parameters. So we can naturally par you
+32:43 know parallelize that each head can be computed on a different uh machine right. But then uh let's say
+32:51 if our input dimension is 100 and we have four heads each head gives
+32:58 me uh 25dimensional output right
+33:04 and in the final layer within multi-headed detention what do we do after that we concatenate them and pass
+33:12 them through a linear layer right linear layer
+33:17 so uh How will we do that here? Let's say four heads are split on four
+33:23 different uh GPUs, right? Uh if we were training it
+33:30 on one GPU, we will have one hdimensional output which we will multiply uh one H dimensional output
+33:37 which we will multiply with a w and get our final output. This is the uh you
+33:44 know the this the last layer with the multi head detention where we concatenate inputs from uh different
+33:50 heads and pass them through a linear layer. Right? Now
+33:56 if I look at this edge part of it is on GPU 1 right and in the end it is on GPU 4
+34:04 let's say. So how will we split this W
+34:11 on row wise right because we don't I mean
+34:16 this first half is using only the uh first the first half of W. So we can
+34:22 split this row wise and put them on on different GPUs right and then we have to
+34:27 do an all reduce after that right to get the
+34:33 final output. Okay, so this is how it it looks that you know you have two GPUs GPU 1 and GPU
+34:40 2 remember same input X going through both uh the GPUs these are KQVs of the
+34:48 first head KQV of the second head we compute the attention here right we get
+34:54 the uh first part and the second part here on one GPU we we have we
+35:00 concatenate them and then pass them through a linear layer here uh we We have split our B the the linear matrix
+35:07 in row wise. We have uh B1 here and B2 on the second GPU because our Y1 and Y2
+35:15 are on two different GPUs. We get uh Z1
+35:20 here and Z2 here. We need to add them to get the final uh output which is all
+35:26 reduced. Right? So uh yeah let's let's see you know how it looks like uh in
+35:36 so we will have a I mean before self attention we will have layer normalization
+35:41 right so what happens in layer normalization so we have two GPUs
+35:46 right and uh same input X is going through them we need to do
+35:52 layer norm here and layer norm here same exactly same layer norm
+35:59 Right now what is the issue here? Do you see any issue here?
+36:07 Very good. Yes. Right. So before entering the attention block we have to
+36:12 apply layer normalization and we are doing exactly the same thing on exactly the same input twice. So we are wasting
+36:19 resources. Right? So we'll address this soon. So uh
+36:26 we will come to this. This is a good observation. But notice here that this is an exposed communication which means
+36:31 that we cannot we have to do all reduce right otherwise we do not have the input
+36:37 for the next layer right we have fraction of the input on one fraction of the input on the other and we need to
+36:42 add them. So this is yeah so so here synchronization is not overlapping with the computation. Uh we
+36:51 yeah synchronization which is which requires communication is not overlapping with the computation. Right. And then uh we have drop out right after
+37:01 the synchronization everything have the same input all the both the GPU have the same input. Now we are applying dropout on both. Now here also same operation on
+37:12 same input on different GPUs and and this will also require some communication because dropout mask has
+37:18 to be same. Now right if you are we need to drop out exactly the same neurons on both the GPUs because they are
+37:23 processing the same input. So this may this will also require some communication. So we need to address this as well. Right? Then layer norm
+37:30 again and then we go to the again a tensor parallel region uh which is which is the
+37:37 MLP layer. Right? This linear layer is column parallel
+37:42 column uh parallel and this is row parallel. Right? And after that we need
+37:48 to synchronize again. Okay. Then drop. So
+37:54 drop out and layer norm are doing the same operation on the same data on all the TPGPUs
+37:60 right how can we avoid this
+38:07 so let me just give you some hint uh we have one sequence X which has many
+38:16 tokens X1 to X uh T right and we are processing is on
+38:23 both the GPUs, right? And uh in tensor parallel, which
+38:29 dimension have we been able to cut off? This is the hidden dimension that we have, right? So, we are able to compute
+38:36 some neurons on one GPU, second half of neurons on another GPU and so on and so
+38:41 forth, right? both in uh multi-headed detention this in multi-headed detention this is uh you know first head this is
+38:48 second head and in uh MLP we split uh the the internal the inner activation
+38:55 right so now what can we do about dropout and layer
+39:02 norm recall that both of these
+39:08 just like MLP they are operating on each token independently, right? Tokens
+39:13 interact with each other in attention layer and after attending on
+39:19 each other once they have the contextualized embedding, they go through some processing which is applied
+39:25 independently on each token embedding. Right? Then again they attend on each other then again some processing which
+39:30 is independent. Right? So layer and dropout are both such operations which
+39:36 are applied independently on each token. Right. With that background,
+39:45 can you help me in uh figuring out what can we do about uh layer and dropout?
+39:52 Is there any way of uh splitting?
+40:09 So, so we'll focus let's say here right so at this point far after self
+40:15 attention we have which operation is this all reduce
+40:24 no because what is this all reduce doing this is adding right we have the output
+40:32 I mean we can't we don't have the final number final number is sum of uh four
+40:38 numbers we have individual numbers on each GPU. This is true for each neuron,
+40:44 right? We can't we can't do that. We can't.
+40:60 Okay. So, uh let me introduce another thing here which is sequence parallel.
+41:05 And here what we are doing is that we are parallelizing across the
+41:11 sequence length right as I said that you know this dropout and layer norm they have to be
+41:18 applied independently on each token right let me process one half of the
+41:26 tokens on one GPU and the remaining half on the second GPU let's say if I have
+41:31 two GPUs now we don't require any interaction as well right even in the dropout because
+41:39 right they don't need to synchronize now as well because they're applying different op I mean they're applying the
+41:45 same operation on different input now in some sense because we have divided our input into chunks
+41:51 is that does that make sense okay so that's that's what we will do in
+41:58 sequence parallel uh at a high level you know uh this is the sequence parallel
+42:03 block where uh we are
+42:08 applying layer norm. So let's say we have one subsequence which is x1 another
+42:13 subsequence which is x2. My entire sequence is concatenation of these two x1 x2 in this layer norm apply a layer
+42:20 norm on this and I apply a layer norm on this. Right? Now for this tensor
+42:27 parallel remember tensor parallel is
+42:33 different processes different function on same input. So on both the GPUs this is on
+42:40 this is going on GPU 1 this is on GPU 2. Now on both the GPUs I would need the
+42:47 entire X right for applying uh let's say first
+42:52 head in multi- detention I want to do attention over the first on the first head for the first head right I need
+42:59 both the input x1 and x2 right so we need to gather we need to all gather
+43:06 so we we we all gather here we have x1 x2 the entire sequence on both the GPUs
+43:12 we apply attention first head, attention second
+43:17 head. Let's say there are two heads only. This will give me uh let's say y1
+43:24 again split. This will give me yeah y1 and y2
+43:30 right we need to concatenate them and we pass them through the MLP. So we have
+43:36 row linear split right let's say this is the output after the row linear split I
+43:41 need to so so this will be of the entire dimensions right
+43:48 is this is this making sense or no actually wait a minute is there a way to erase this there is a mistake here uh
+44:02 Right.
+44:07 Yeah. So this dimension is of the uh
+44:12 number of tokens. X1 is number of tokens and X each token has its own hidden dimension embedded. This layer norm is
+44:19 operating on this hidden dimension. Right? After layer I have this X1 tilda
+44:25 and X2 tilda. These are um I mean after layer norm I will have x1 tilda here
+44:31 which is of the same dimension as this right x1 and number of u hidden dimension here and then I do a
+44:39 uh all gather to get x1 tilda x2 tilda and then there is a hidden dimension
+44:44 here as well right h and h right
+44:51 and and these two are now exactly same this is equal to this after all gather copy of each
+44:56 when I'm applying attention on first I mean the same input is going to the
+45:01 attention block same input is on both the GPUs this will give me the entire x x1 x2 and
+45:10 half of h of two hx2 this will also give me x1 x2
+45:16 half of it hx2 and we would have split we would have done a row linear split of the uh you
+45:23 know the the linear block after the attention Right? So this will go through that B1 and B2 right and we will have
+45:31 full H here now right and this is X1 X2 and then full H but this is partial we
+45:37 need to add this to this here H
+45:43 right both B1 and B2 will give me the output of the same the same dimension
+45:48 right and we have to add them so this addition will require my will require
+45:56 I need to yeah I need to um add them or all reduce in some sense right
+46:04 now once I reduce once I do all reduce I get the same copy on on both
+46:10 right which is uh let's say after addition I have the same copy on both which is x1
+46:17 x2 and this h x this is equal to this x1 X1
+46:23 X2 X dimension but now I want to split it by this
+46:28 dimension for applying dropout or layer now because first half first half tokens we are splitting here and you know we
+46:34 processing on first GPU second half we're processing on the other GPU right so we are reducing here and then we are
+46:40 again scattering but although in the other dimension right so we are reducing
+46:46 and then scattering some sense right so and and we get you know X1 again back
+46:53 here and X2 again back here. X1 is the first sequence, X2 is the second half of the sequence. Right? So therefore we have this reduce scatter operation here
+46:60 we are reducing and then scattering by some with some other dimension. Does
+47:05 that make sense? Is this clear? Good. Okay. Yeah. So therefore we have reduce scatter here and reduce scatter here. So
+47:12 if this is clear I think I will not uh go through this. This is exactly the same thing. uh we we have sequence by
+47:19 two sequence by two right in the sequence parallel block because both the GPUs are processing first 10 tokens each
+47:26 let's say there are 20 tokens 10 tokens each and after that when we do all gather you know it's again full when we
+47:33 are adding and then we scatter it again uh becomes hx2 right u here sx2 again in
+47:40 the in the next block within this uh within this uh you know uh MLP block for
+47:45 example We are splitting by the hidden dimension, right? Okay. Cool. So I think we have
+47:52 gone through this. Okay. And this is how the communication computation timeline will look like for
+47:58 the MLP layer. Uh after the layer norm, we need to do an all all gather because
+48:06 different tokens are on different machines. Now first 10 tokens here, 10 to 20 tokens here. We need to
+48:12 concatenate them, right? So we do an all gather here. Right? After that we do
+48:17 fully connected I mean again this is tensor par region and after that we do a
+48:22 uh reduce scatter before layer right this reduction is because we need to add
+48:27 the partial outputs that we have on different uh GPUs because of the ro linear split and then we scatter in the
+48:34 dimension of tokens right yeah so again this is uh this synchronization is not
+48:41 overlapping with computation and this is an exposed communication which we which we need right here we and we can avoid
+48:46 that. Okay. Uh so this is the issue here which is
+48:52 exposed communication and if we uh you know look at the the the throughput
+48:58 graph here which is if we increase the number of GPUs am I able if I double the
+49:03 GPUs am I able to double the throughput right because I have double resources now which is definitely not the case because there is communication and we
+49:10 see a huge dip uh when we go from 8 to 16 right this is happening because uh you
+49:18 So generally there are the GPU clusters that we have we have eight GPUs on one
+49:24 node right and there's fast communication between those if you go to another node which has
+49:30 eight more then you know you have inter node communication which is slow and that is why we see this uh this drop
+49:38 right but nevertheless I mean there is a drop in the throughput but functionally
+49:43 it is good because we are able to process more uh you know batches together if you are adding
+49:48 uh GPUs we are able to at least maximize the maximum bat size right okay
+49:57 so uh right
+50:09 so even in tensor parallelism right if I increase the sequence length
+50:19 my memory is still going to blow up because attention is attending to all of
+50:24 them, right? So we I would need all the tokens the entire input on one GPU,
+50:30 right? But we as we saw in sequence parallel that layer norm is something which is applied
+50:36 you know individually and independently to each token and same is true for MLP as well
+50:43 right I mean MLP layer is also taking each token and processing that there is no communic there's no interaction
+50:50 across tokens so we can very easily split the MLP block right and that's
+50:55 what we do in in something we call context parallelism it is very similar to sequence parallelism
+51:01 But you know we will use uh them differently right in in context parallelism
+51:07 what we are doing is that we are splitting the entire model right we right and and and how we
+51:15 are doing that we're splitting the entire sequence so so uh we will say that we want to process x1 to x10 here
+51:24 and x1 to x20 here right the entire thing so so what is
+51:30 this This is the first first 10 tokens then the uh 11 to 20th tokens
+51:39 right everything is going to be fine dropout is going to be fine layer is going to be fine ML is going to be fine
+51:45 right so what is what will be the issue here attention so how do we deal with that
+51:53 right so for attention
+51:58 Um yeah so okay so I'll do this later on
+52:07 and so in in context parallelism what we are doing is that we partitioning the we are partitioning along the sequence length dimension right and we saw that
+52:15 it is easy to do for MLP the only culprit here is uh attention block if we have different different tokens on
+52:21 different uh GPUs in the attention block they have to attend on each other how do we do that right so what would be the
+52:27 naive way of doing it right. So if I have uh x1 to x10 here and I have x11 to x20
+52:36 here on uh two different GPUs, right? GPU
+52:45 one and GPU 2, right? I mean
+52:51 functionally I need the embeddings all the embeddings all the activations on
+52:56 both the both the GPUs right for that. So
+53:02 in effect I have to do an all reduce or all gather actually not all reduce all
+53:07 gather my bad right I need to gather this here and I need to gather this here so that I have the entire sequence x1 to
+53:13 x 20 and x1 to x20 on both uh the GPUs
+53:21 right can we do something uh smarter than this
+53:28 instead of instead of all gathering this this will be a blocking call right we have to this is we cannot overlap this
+53:33 with any other communication as well we cannot overlap this with any other computation as well right this all
+53:39 comput communication so uh you know any guesses okay let's
+53:46 ask that first what can we
+54:02 So what happens in attention block? We have K, Q and V
+54:11 of the IT token, right? In in this case I is going from 1
+54:18 to 10, right? So I is going from 1 to 10. And here on the other GPU I is going
+54:23 from 11 to 20. Right? And what is the output? Uh each
+54:32 query QI let's say is attending to
+54:40 the K of the J
+54:46 token. Right? This is giving me the score attention
+54:52 score and I'm doing e to the part of that
+54:59 right times v of j right.
+55:06 Yeah. this
+55:13 and this is this we do for all J less than or equal to I in in the causal thing
+55:21 right and uh because this has to be the probability
+55:27 this is soft max we have a summation layer here right e to the power k j
+55:35 transpose q i
+55:40 J is again going from U J is less than equal to Y. Right?
+55:48 Now the way it is implemented is you know in
+55:54 the traditionally the way it is implemented is that we have the entire uh K Q transpose this will give me
+56:03 KQRpose gives me in you know a 20 + 20 in this
+56:08 case right we have 20 sequence length 20 + 20 uh attention scores right uh each
+56:14 row would correspond to each if row would you know attend to all the J's which are less than less than I right
+56:21 and all of this we mask them to zero right that's how we implement this in in
+56:27 matrix multiplication and then we multiply it with GI and then do summation right now here
+56:33 on the first GPU I have only first 10 sequences right I can do this for f you know first
+56:41 10 at least right and and I'll be good and for this second
+56:48 GPU X11 to X20. Let's focus on X20, right?
+56:54 X20 can compute its attention score. It has all the keys from 11 to 9 11 to 20.
+57:00 It has to end on itself as well from for all 11 to 20. It has the uh keys. It has
+57:07 its query as well and the corresponding value matrix as well. Right? For the
+57:13 20th token, I can compute e to the power
+57:19 uh k transpose j qi. This is the attention score for all j from 11 to 20,
+57:27 right? And you know I have the corresponding value as well vj and I can
+57:32 keep a sum. I can maintain this sum. I can compute the sum and I can maintain this right and I can also maintain
+57:39 another variable for the total weight that I have till now which is uh
+57:46 which is uh summation e ^
+57:53 uh yeah e ^ k jpose qi j is going from
+57:59 11 to 20. I can maintain this sum as well. Numerator and denominator separately, right? I can maintain that.
+58:07 Now, what do I need for the for for all of these tokens? What is missing is
+58:14 the first 10 tokens. Right? Now, I can communicate after I have
+58:19 computed this. I ask for the for this one, right? For the first GPU to give me
+58:25 the keys and values, right? I get those keys and values and then I communicate
+58:31 them. Right? So what we what we are doing here is that we are going in the ring fashion
+58:36 and asking our neighbor to give me whatever key values that they have and then use that to compute the attention
+58:45 you know for my token and and and maintain that in the buffer. Is that is that clear here? Right. So for example
+58:51 in this animation we have four GPUs right? uh yeah each GPU what is
+58:58 happening here is that at each time step each GPU is transferring its KV KQ uh Q
+59:08 and V block we don't need to transfer queries right uh it's corresponding K2
+59:14 and V2 let's say these are matrices right of the second half of the sequence to GPU3 and this is transferring
+59:23 K3 and V3 to GPU 4. And this is transferring
+59:29 K 4 and V4. And you know this is transferring K1 and V_sub_1, right? So
+59:39 after first round of communication GP what will GPU2 have? GPU2 would have
+59:45 already seen K1 V_sub_1 and K2 V2. Yeah. So let's actually uh No.
+60:02 Yeah. So after one round it would have se it would have created K1 V_sub_1 and K2
+60:09 V_sub_2. So if I have this as a matrix right it it needs all of that in the
+60:15 second round you know uh because GPU one would have received K4 V4 it will
+60:22 accumulate K4 and V4 and finally it will get K3 V3 as well
+60:32 right yeah so this is what happens and uh yeah this is again for the causal
+60:38 mask uh you know we have let's say first four tokens on GPU 1 next four on GPU 2
+60:44 then and this this is how we have divided this right so uh
+60:51 so what will happen in first round GPU 1 would have computed everything
+60:57 using its own tokens right and because of causality it will
+61:03 what it doesn't need anything else right it doesn't need the K's and V's from the
+61:09 uh the other GPUs, right? So after first round it will sit
+61:14 idle after first round,
+61:21 right? And similarly GPU 2 will be idle after second round only this GPU will
+61:27 keep on processing because it needs information from all. So is this good or is this bad?
+61:35 Right? I mean it's bad. We don't want our GPUs resources to be idle. So what
+61:40 should we do?
+61:50 Another data on one GPU first GPU. But then you know
+61:55 remember that they need to synchronize in tensor parallel and context parallel they after some time they have to synchronize with each other right.
+62:03 So even if it goes ahead it'll have to wait.
+62:11 Come on guys, someone should be able to answer this.
+62:29 So why is this issue happening? What is the root cause of the issue?
+62:37 That first GPU is processing first four tokens.
+62:43 So you know who let's say there is an an allocator who's allocating jobs to these GPUs. So this is the problem with the
+62:50 GPU or is is the problem with the allocator, right? So
+62:57 can the allocator learn the lesson and improve this? How should it allocate?
+63:07 I've almost told the answer, right? So now I want at least some someone to take
+63:12 it forward from here. should
+63:18 process. It should process
+63:28 but the next token is already allocated to GPU2 right there. GPU2 is already computing is doing that.
+63:37 Okay. Can there be a better allocation?
+63:46 Very good. Yes. Which means
+63:57 very good. This is exactly the solution. Right. So now
+64:04 you know look at this allocation and confirm for yourself that all the GPUs
+64:11 you know will be busy. No GPU will sit idle because we can see this for uh GPU one right. It has to
+64:20 process the last two. So it needs information from from all the other for sure and GPU 1 needs the information
+64:27 from all because it is processing the last two right and uh what about GPU 3?
+64:37 So what about GPU? So GPU 2 has these two and these two
+64:46 right? GPU 2 needs all the tokens which are before
+64:52 that right. So what are the tokens before that? These tokens are with these
+64:58 tokens are with GPU 11 and 12 are with GPU3 right? So it needs 11 and 12. GPU 2
+65:05 is dependent on GPU 3 right and uh GPU 2 needs 1 and two as
+65:14 well. the 13 and 14 will be GPU 2, right? They would need one and two as well. So, they're dependent on GPU 1 as
+65:19 well, right? And GPU 4
+65:27 has been given which two? This is for GPU 1, GPU 2, GPU 3 and this is GPU 4.
+65:35 Right? So, these are with these tokens are with GPU 4. Look at the color coding. Right?
+65:43 GPU 1 is this color which is here. So this is GPU 1 and this is GPU 1. This is
+65:50 exactly what what you suggested right and you can verify it for yourself that
+65:56 you know each GPU will have to wait all the steps all the four steps all the
+66:01 three steps
+66:08 but no GPU will be idle. So the total amount of commun computation that you are doing will is split uniformly across
+66:15 uh different uh nodes right earlier here this GPU this GPU was sitting idle after
+66:22 processing the first four it doesn't need any information from anywhere else so it's sitting idle it is not doing any computation as well whereas this is
+66:28 overloaded GP4 is overloaded right it is summing over all it has to sum over all right these these it has to wait for
+66:37 these packets right these tokens the emitting of these tokens, right? Okay. So, if you look at the
+66:44 computation communication timeline again here, uh so we are looking at the ayat GPU,
+66:51 right? IAT GPU is fetching uh you know before it starts fetching it
+66:59 can compute the attention scores for all the tokens which are on that GPU. So it
+67:04 can compute this attention over QI, KI and VI. Right? The communication is going on in
+67:10 parallel for the I + 1 from the I + 1 GPU. As soon as it gets that it can
+67:16 compute the Qi query I is attending now on K I + 1 and VI plus 1 block. Right?
+67:23 And when this is comput when this computation is happening we are in the process of fetching I + 2 block data
+67:30 from I + 2 GPU. And when we get that we compute the iat again iat block query is
+67:36 computing uh attention scores on i + 2 block using k keys and value right.
+67:42 Yeah. So this is how it compares with live implementation versus this all to all ring ring implementation. Right. So
+67:48 what we have been able to do in in context parallelism we have been able to split our sequence input sequence into
+67:56 multiple GPUs because one GPU was not sufficient to handle the entire sequence
+68:04 right okay so I think we'll stop here we are already over time and uh in the next
+68:10 class we'll begin with something called pipeline valid we'll see

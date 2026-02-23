@@ -1090,9 +1090,76 @@ Modern approach: Use pre-trained model embeddings rather than hand-crafted reduc
 
 ## Question 21
 
-**Explain the concept of “concentration of measure” and how it relates to theCurse of Dimensionality.**
+**Explain the concept of “concentration of measure” and how it relates to the Curse of Dimensionality.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+**Definition:**
+
+The **concentration of measure** phenomenon states that in high-dimensional spaces, most of the probability mass of a distribution concentrates in a thin shell far from the center, and random variables become tightly concentrated around their expected values.
+
+**Core Intuition:**
+
+In low dimensions, points spread broadly. In high dimensions, they cluster near a specific distance from the center — a “thin shell” effect.
+
+**Mathematical Illustration:**
+
+For a d-dimensional unit Gaussian:
+- Expected distance from origin: $\sqrt{d}$
+- Standard deviation of distance: $\approx \frac{1}{\sqrt{2}}$ (nearly constant)
+- Relative spread: $\frac{1}{\sqrt{2d}} \to 0$ as $d \to \infty$
+
+So all points cluster near a sphere of radius $\sqrt{d}$.
+
+**Key Manifestations:**
+
+| Phenomenon | Description |
+|-----------|-------------|
+| **Distance concentration** | All pairwise distances become nearly equal |
+| **Norm concentration** | All points lie near a thin shell |
+| **Volume concentration** | Most volume of hypersphere is near its surface |
+| **Angle uniformity** | Random vectors become nearly orthogonal |
+
+**Formal Statement (Lévy’s Lemma):**
+For a Lipschitz function $f$ on a high-dimensional sphere:
+$$P(|f(x) - \mathbb{E}[f]| > \epsilon) \leq 2 \exp\left(-\frac{(d-1)\epsilon^2}{2L^2}\right)$$
+where $L$ is the Lipschitz constant — deviations from the mean become exponentially unlikely.
+
+**Impact on Machine Learning:**
+
+**1. KNN Breaks Down:**
+- Nearest and farthest neighbors have nearly the same distance
+- Relative contrast: $\frac{d_{max} - d_{min}}{d_{min}} \to 0$
+- Neighborhood-based methods lose discriminative power
+
+**2. Clustering Degrades:**
+- Inter-cluster and intra-cluster distances converge
+- Euclidean distance loses meaning
+- Cluster boundaries become ambiguous
+
+**3. Gaussian Mixture Models:**
+- Components overlap as dimensions increase
+- All points appear equidistant from all cluster centers
+
+**4. Kernel Methods:**
+- Gaussian kernel: $K(x,y) = \exp(-\|x-y\|^2/2\sigma^2)$
+- All kernel values converge to same value → kernel matrix becomes uninformative
+
+**Practical Consequences:**
+
+```
+Low-D: Distances vary → meaningful neighborhoods → learning works
+High-D: Distances concentrate → all points "equally far" → learning fails
+```
+
+**Mitigation Strategies:**
+- Use dimensionality reduction before distance-based methods
+- Choose distance metrics robust to high dimensions (e.g., fractional norms $L_p$ with $p < 1$)
+- Use learned representations instead of raw features
+- Apply feature selection to reduce irrelevant dimensions
+
+**Interview Tip:**
+Concentration of measure is the *mathematical foundation* behind the curse of dimensionality — it explains *why* distance-based methods fail in high dimensions, not just *that* they fail.
 
 ---
 

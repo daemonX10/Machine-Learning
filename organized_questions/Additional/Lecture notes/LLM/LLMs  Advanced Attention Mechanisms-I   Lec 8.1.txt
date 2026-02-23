@@ -1,0 +1,547 @@
+00:04 hello students so I'm Professor sish dupta I teach at duai Amani Institute of
+00:10 information and communication technology that's in Gandhi nagar in Gujarat and I've been teaching uh among
+00:18 other things where I've been teaching neural NLP and NLP over there as
+00:23 well so hopefully I will see your enthusiastic crowd so today's lecture is
+00:30 about Advanced attention mechanisms so by Advanced what we would want to focus
+00:37 on is uh different optimization techniques right in terms of uh time and
+00:44 space complexity and we would see what are the new uh research that has happened so far
+00:53 we'll cover some of the most important ones and we'll try to understand them
+00:59 okay one thing I want to tell you is that uh no rocket science involved is pretty
+01:06 common sense once you get through get through this uh material you'll see that it's pretty common sense so it's not
+01:12 something that's difficult to understand okay so so let's just have a very quick recap
+01:21 of what self attention is so basically in a full in a full complete self
+01:27 attention what you would do is you would have this is uh this query Matrix right
+01:33 so the query Matrix would be uh basically a sequence would would capture
+01:39 a sequence of uh of of tokens let's say if I have John loves ice cream made in
+01:47 uh Made in India then John would be one of the row vectors loves will be one of
+01:53 the row vectors and and so on of of Qui Q right and the idea is to get the
+01:59 contextual in of Q right so so what we usually do is that we have two different
+02:06 uh vectors one is the key vector and one is the value Vector for uh for each
+02:12 single token so the objective being that the token has we have to get the
+02:18 contextual embedding of the token right so we first convert the token into a query Vector we and we call it query
+02:25 because that's basically the target that's what you are trying to get at and then we look at the value right so uh
+02:34 which means uh to what extent the the context tokens influence uh that
+02:41 particular token so if I say John loves ice cream made in New York so to what
+02:47 extent John is influencing love if love is the query to what extent uh ice cream
+02:52 is influenc influencing love and made is influencing love in is influencing love
+02:58 and New York is influencing love right so the idea over here is that we uh try
+03:05 to take certain percentage of the influence uh as if and we say that okay
+03:12 to what extent when I say to what extent what it means is that what is a percentage right so if I have to say
+03:19 let's say John loves ice cream made in New York and
+03:30 let's say if this is my query then what I'm trying to do is I'm
+03:35 trying to see what is the percentage of influence that each one of them
+03:44 have individually independently
+03:51 independently so what is the independent influence of each one of them on loves
+03:58 right now when we do that we consider John to be
+04:03 the V okay ice cream also is another V made is a v in is a V and New York is a
+04:12 v right so these are the values so v stands for
+04:18 values right so that constitutes the value Matrix and of course love itself
+04:23 so this is something interesting that love itself can influence it uh you know
+04:29 itself right but then this percentage is computed in terms
+04:35 of the dot product which is a similarity between
+04:41 loves and John but as a key so you have two
+04:48 different aars so to say of John one is John which influences and one is John's
+04:56 Key which is sort of a representative of John which tries to figure you know so
+05:02 that you can understand to what extent uh loves is similar or related to John
+05:07 and the idea behind why John K is important and why it should be different
+05:14 than John V is because while John can be something that is quite unrelated or not
+05:22 that similar but is influencing in a language modeling sense uh you know in
+05:27 terms of love but then if that happens then John's embedding would be quite far
+05:32 away than loves and then you wouldn't get a good dot product so the idea over here is that you don't necessarily have
+05:39 to be close in a neighborhood in order to influence somebody but how do we then do that so
+05:47 that's why you need a representative key of John that would now go and do the dot
+05:53 product with love so that's the essence that's basically the essence that while
+05:59 I am I don't if I have to influence you I don't really have to stand beside you
+06:05 and then influence you so my representative is going to go in front I mean beside you and then we'll we will
+06:11 figure out to what extent uh you are similar to my representative right so
+06:16 that's the philosophy and that's that's the key and then you do this
+06:26 similarity computation so dot product would become um if you want to look at
+06:31 it as a multiplication it becomes the you know you take the transpose and uh I am not going to do
+06:39 the soft Max so when you do the soft Max of this in the example you don't have the
+06:45 soft Max but when you do the soft Max of this you get the percentage right so so that's how you
+06:53 get the percentage so that's the that's the thing to what extent of John's vector or embedding will I bring it
+07:00 inside L's embedding and add it up or combine together to form the resultant
+07:08 love embedding right and that becomes a contextual embedding and that's contextual embedding is also called
+07:15 attention so you you can also look at it like this so this is a contextual
+07:23 eming of everybody so this is a matrix so it will have the contextual eming of
+07:29 John loves ice cream everyone right so so that's what it is and so so this is a
+07:38 recap now uh when you look at a causal uh
+07:45 attention which means if if you if you're looking only at the decoder of the Transformer or a decoder only
+07:52 Transformer based model like GPT style models you'll see that uh you have
+07:57 something called forward mask uh I guess you have already uh you know
+08:03 studied this probably but just again a very quick recap so in some loose sense
+08:10 it is called causal why because uh this attention you are restricting the
+08:16 attention in a way such that love is not allowed to be
+08:22 influenced or to get the influence from ice cream made in and love can only get
+08:28 the influence from John and similarly ice cream cannot get influenced by made
+08:35 in and New York ice cream can only get the influence from John loves John and
+08:41 loves and of course ice cream itself so so that would mean that you need to mask whatever is
+08:50 in front of a particular token right or whatever is upcoming and the way to do
+08:56 that is you just put a minus uh infinity uh in in front of uh let's say if the if
+09:04 the sequence or the senten is the cat is on a chair then the after the you just
+09:11 keep everything as minus infinity you don't show it so minus infinity when you plug it into soft Max it becomes zero so
+09:19 we have not shown the soft Max over here but when it when you plug that into a soft Max it becom zero right so uh and
+09:27 and and this is this is how uh causal attention would work and for from
+09:33 here onwards we are going to focus mostly on on
+09:38 causal language models or or causal attention we want to understand that
+09:44 whether we can optimize the causal attention in in terms of time and space
+09:50 so if you if you carefully look at what's what's happening uh in terms of
+09:56 the uh time complexity you see that over here you first have a DOT product
+10:03 that's going on between q and k k being the representative right so that dot
+10:09 product is uh represented by this so this is the dot product this is the
+10:19 similarity right and this takes n² multiplied D where D is what the
+10:25 dimension so what is the dimension of of each
+10:33 token right so n Square why n Square because uh you're just doing Q cross k k
+10:41 uh K transpose and that would give you an N Square time complexity after that
+10:47 you do a soft Max and the soft Max would take n
+10:54 square and then uh you again do uh
+11:01 uh you know the multiplication with v right so that's the final
+11:07 multiplication so the percentage being multiplied with the V embedding and you are adding up all the V embedding so
+11:13 that would take another n Square multiplied by D so that overall the the
+11:19 complexity becomes uh big of n Square mtip by D and uh the space complexity on the
+11:27 other hand you start with q and K and
+11:33 V so that's this so three times so you have q you
+11:39 have K and you have V so you have three * n multiplied by D where n is the
+11:45 sequence length so by the way n is the sequence length so in this example what would be the sequence length 1 2 3 4 5 6
+11:53 so six is a sequence length so six is a sequence
+11:58 length right so N is a sequence length so three
+12:03 times n multipli by D so that's the that's to store q and K and B and then
+12:11 you have n squar so that's again the you know the storage that is required once
+12:18 you do the dot product and then you have n multiplied by D which is the final uh
+12:25 storage that is required for the attention uh attention Matrix of the scores right so how much you would uh uh
+12:34 so so the final attentional or the contextual embeding so the storage that is required to store the contextual
+12:40 embeding so that is n multip by T so overall that would mean that you have
+12:47 n² uh plus n multiplied by D complexity so uh if you want to look at it from a
+12:55 in terms of what is the bite size then that would be like three time n multi by
+13:01 D multi uh plus n² multipli by the size of a float so if the float if you're
+13:06 taking let's say uh 16 16 bit then it
+13:11 would be multiplied by that many number of uh that many number of bites if you take 32 then it will be multiplied by
+13:19 that many number of bytes and so on right so whatever is your architecture whatever 64 bit if you take 64 bit so
+13:26 whatever is the Precision so that that many number of B so that would be the the the exact space
+13:35 complexity right and how it is computed uh you can look at the animation so it
+13:42 so as one query comes after the other query after the other query so you have
+13:47 the query coming in so token one then token two then token three then token four and at the same time the keys are
+13:55 also uh uh being stored they are also being they also coming in and then the
+14:02 qkt which is the dot product so that is being computed keeping the forward mask
+14:08 in place right so every time you are you are for every row you're Computing
+14:15 everything all over again so that's the that's what is going on over here right
+14:22 so so can we do better so that's the that's the thing so
+14:30 so why do we need to do better so first of all uh again the context is what
+14:36 causal causal means you don't look at what is come upcoming right you look at
+14:42 what has already happened so if you look at it from that point of view you'll see that so when you look at this
+14:49 particular this particular uh row which is the second query when the second
+14:54 token comes in the query right so you will see that this part is already
+15:01 computed before isn't it right so you just kind of like almost
+15:07 recomputing the same thing which you have already computed when you look at the third row you'll see that these two
+15:14 things are already computed in previously right and recursively this
+15:20 one has already been computed previously right so essentially what you're doing is that you are unnecessarily Computing
+15:27 the same thing over and over over and over again as new Keys new new tokens
+15:33 come in in terms of the query right uh interestingly if you look very carefully
+15:39 you'll see that since it's a language model you're always interested in what's going to happen now or next right you're
+15:48 not really interested in what has already happened before right because the entire point of language model is to
+15:54 predict the next linguistic unit so in our case if the linguistic unit is the token so the the problem becomes what is
+16:02 the next what is the probability of the next token right so essentially what we
+16:07 are what we are really interested in is this so This is actually the
+16:18 goal yeah so this is actually the goal right so this is what we are
+16:25 interested in although we have to keep Computing whatever is happening before but this is actually
+16:32 the goal right and interestingly while calculating this goal this part is
+16:37 already computed before and we are still recomputing it so that's the
+16:42 problem right so this is getting
+16:51 recomputed unnecessarily
+16:60 the first three parts right okay so
+17:06 so what what what is going on is we we also don't need to another thing that uh
+17:12 you need to understand is we also don't need to store no need to store
+17:22 this the first four things and it's only this one that we are interested then
+17:30 it's only it's only this final one that's the
+17:37 goal that's what we are interested in as a language model because that's the token that we want to predict at every
+17:43 time step at a particular time step right so that's what we is most mostly interesting so what we would see is
+17:52 something called KV caching or key value caching so the idea is very stra simple
+17:59 I mean it's just that you know if why do you have to recompute something that you
+18:04 have already computed so what's the idea the idea is cash it as simple as that why don't we just cach it and then just
+18:11 read it from the cache simple idea right so this is basically the the difference
+18:19 the animation shows you a very clear difference of what is the difference between something without the cash and
+18:25 something with KB cash so this is with KB
+18:31 cash okay so in K cash what happens is that you don't uh pile up your queries
+18:38 as well as you can see first that's the first difference which is in the query so the query you are not trying to pile
+18:44 up the P query why because you don't care about what has happened in the past you care about the what's going to
+18:51 happen right now what is the next thing to happen that's what you care about so
+18:56 you don't pile up token one token two token three and token you just take one at a time right so
+19:02 that's the first thing so instead of 4 cross D you only always going to deal
+19:08 with one cross D you know and as far as the query is
+19:14 concerned so it's basically always 1 cross D instead of n cross D so that's first thing the second thing is that
+19:23 uh your in the same way of course the query the key is also going to work in
+19:30 the same way but then you cannot really forget K1 and K2 why
+19:38 because you can't forget K1 and K2 because at the end of the day you are
+19:44 you know when I'm dealing with IC let's say when I want to understand what is
+19:49 the influence of IC I have to look back at loves and I also have to look back at
+19:55 John I cannot simply forget John it cannot be like oh I'm only dealing with
+20:00 love no I have to look back at John but John's influence I can do something
+20:07 because I know the K of John I don't have to recompute the K of John so I can just cash it and get
+20:15 that key of John from here right so the key so when I look at
+20:21 toen 2 then token three then token four so so the so this so what is happening
+20:28 over here is that the the purple ones are actually being FedEd from the cash
+20:35 so instead of being recomputed is being F fetched from the cash so
+20:41 essentially uh your KT as it grows it
+20:46 starts fetching the previous case from the cash right so that instead of comp
+20:52 recomputing it all over again and then finally the most important part
+20:59 which actually gives us the optimization is over here so what is going on is that you don't maintain a
+21:07 matrix like what was happening over here right so you don't have to maintain that
+21:12 Matrix because all you care about is a specific row at a specific time
+21:19 point right so that's all you care about why because all you care about is
+21:25 predicting the next token and that would that you can only that you can get only from that particular you don't have to
+21:31 need to know about the entire Matrix you can you can get what to predict from
+21:37 that particular time step row only right so so so so so basically I don't care
+21:46 about the first row or the second row or the third row or the fourth row or sorry the third row in this example as I
+21:53 progress I just keep going on and compute uh a in know uh this thing so
+22:00 when I talk about query token 4 I only look at what's the influence of uh K1 on
+22:07 query token 4 K2 on query token 4 K3 on query token 4 and K4 on query token 4
+22:14 and that's the last row that's the last row so I don't care about the third row and the second row the first row right
+22:22 and again when I look at the value I need the previous value but I would just
+22:27 fetch it from the cash why I need the previous value because again in order to get the final contextual embedding of
+22:33 the attention I need the previous BS also because I have to finally get the arrows the incoming arrows from all the
+22:39 vs which were in the pre which were previously previous to a particular
+22:44 token so essentially so again I am getting all this uh all this from the
+22:51 cash and what matters is this final uh
+22:57 final value or the final token and then I am only interested
+23:04 in token 4 so that's what I'm only interested in at time at time Point T4
+23:13 so if at time Point T5 similarly you can you can generalize I'm only interested in token five and so on and so forth so
+23:20 that's what I'm doing so what with KV cashing what is going on is that I can
+23:26 actually reduce drastically reduce the complexity to n multili by T the big go
+23:34 and from a from a bite point of view while previously I was having 3 * n * D
+23:44 plus n² whole multiplied by the size of the float right now I can just do it
+23:49 with 2 * n MTI D that's it I don't need an N Square because I don't have to
+23:55 create that Matrix you know the square Matrix I don't need the square Matrix so the N Square goes away and I'm only
+24:03 dealing with two because I'm not piling up the query so one of the threes are
+24:08 gone so I'm only dealing with two which is K and B right so that's the that's the idea so
+24:18 that's one way on and that's this is the KV casing if you look at any kind of
+24:23 modern implementation of language models you will see that everybody everybody does g casing so it's not that it comes
+24:30 with cave caching so Cav cashing is basically a part of it by the way one caveat one important disclaimer right
+24:38 now we are only talking about one head and one layer now the same thing the
+24:43 same animation is happening in every head and every
+24:49 layer so of course if you look at the complexity you might ask me that sir you know well where is the number of heads
+24:57 so you should multiply it with the number of heads and where is the layers so you should multiply with the number of layers and I said that yes that's
+25:04 correct but this complexity computation is only for one head and one layer so
+25:10 you can then just multiply it with the number of heads and the number of layers right so that is something that we have
+25:18 to uh understand okay
+25:23 now that was like year what 27
+25:29 right when Transformers came in and then people came up with KV casing now in
+25:34 2020 like some somewhat around three years later um Allan Institute for AI
+25:41 they came up with this interesting idea and they said that for many many NLP problems you really don't have
+25:49 to get the influence or the incoming edges from everybody you don't have to
+25:55 do that your which means your context window doesn't necessarily have to be very
+26:01 long right so right now John loves ice cream made in New York is a very small sentence but let's say you have like
+26:08 multiple sentences and you are trying to like a whole paragraph or maybe a whole
+26:15 page of a document and you want to get the influence from all over the place
+26:20 sort of to a particular Target you know so so incoming edges coming from everywhere and what these guys said
+26:28 rather showed is that for many NLP problems you don't need that much of
+26:34 context window you can just fix a small context window uh let's say the window size
+26:42 maybe some so the window fix a window size maybe small
+26:50 W and W can be maybe four five whatever
+26:57 six whatever you want want to okay so this is your
+27:02 contexual context window rather and it can suffice for most uh of
+27:12 your problems so which means you don't really need the full and square attention so if you have John loves ice
+27:18 cream movie here let's say John loves ice cream
+27:27 made in India or New York whatever and if you
+27:32 have John Lo ice cream made
+27:40 in
+27:47 India I'm pretty shabby in terms of diagrams
+27:53 so so you don't really need to uh
+27:60 um to compute everybody with everybody so so what you can do is you can take a
+28:05 window size so like over here the window size is how much W is equals to 1 2 3 4 5 6
+28:16 7 and what you do is you take the first one the first one do not have anything
+28:21 in before it so you just go after it and you take the first 1 2 3
+28:30 4 let's say and then you take the next
+28:35 one and you then take the four so so basically seven would mean that plus 4
+28:41 over here and sorry uh + three and minus 3 in terms of
+28:49 particular uh Target word right so if this is the word so+
+28:55 three if this is the word then plus three
+29:02 and once you this is the then this is+
+29:07 three and this is minus 3 so you just have just like how you
+29:15 design a context window so you have plus three on this side minus three on this side but this of
+29:21 course uh doesn't necessarily have to be applied on you know whatever you're
+29:26 seeing right now doesn't necessarily apply on causal language model which means that you are able to in this
+29:32 particular diagram you are able to get
+29:40 information from the future in order to build your attention
+29:49 or contextual embedding right so in this diagram you are not really causal so this this diagram is for any LL
+29:59 not just causal but can you do it for causal
+30:05 the answer is yes you don't have plus so if you have to do it for clausal
+30:12 causal then this does not
+30:17 apply this does not apply for causal LM so you only do the minus you
+30:25 don't do the plus so that's the only difference right so self sliding wind
+30:30 and this is called sliding window because you are sliding the contextual uh window at every given time point so
+30:37 the idea is again simple you don't need all these white spaces is because you
+30:44 don't need them that's the hypothesis that's a linguistic hypothesis that for
+30:49 many NLP problems you don't need that much of gathering of information right you don't need that
+30:56 much of influence okay so an example in our case would be this
+31:04 sort of thing where in in you know continuing with the previous example so
+31:10 your minus infinity will all become zero and this is causal by the way this is uh
+31:16 an example of cause sliding window applied on caal so where your everything coming up
+31:24 is all zero uh and you have a w size of how
+31:31 much three so the first you can't apply minus
+31:36 three the second you can't apply minus three the from the third you can actually apply minus
+31:44 3 right so that's how it works okay
+31:52 uh what happens to the KV cach let's say that we are also applying KV cach to
+31:58 sliding window nobody can stop you from doing that you can always apply because the KV cash issue the problem that we
+32:04 discussed in KV cash that you recomputing over and over over the same thing also applies over here as well
+32:11 it's just that you're not seeing everybody but you're seeing some people and the same recomputation will happen
+32:18 even here so you can get rid of that recomputation even in this
+32:23 case right the only difference being instead of every one you're just saying
+32:29 the W that's the only difference otherwise everything Remains the Same
+32:34 right so uh so again you know uh when a
+32:41 particular token comes let's say this is token number eight in this particular example this is token number eight so
+32:48 when token number eight comes uh you need
+32:53 to cash till seven and it should come from this
+33:01 cash so you're fetching till seven you're fetching the case from cash
+33:06 and since it's sliding window you don't need all of them so you only need this
+33:12 much right which is in purle so four so if your W equals to four so you don't
+33:19 need all the seven so instead of seven instead of seven you go for
+33:26 four so basically 1 2 3 4 so this is how
+33:32 much you you you fetch you don't fetch everybody so the idea is do
+33:39 not fetch
+33:46 everyone but just the four whatever that's the W and again uh when you are finally
+33:56 trying to predict what coming next you don't have to have an entire prediction
+34:03 Matrix you just predict only what's coming next which is the output token of
+34:09 eight which is the contextual embering of eight and for that this is the W you
+34:17 just need the W you don't need the N you don't need you don't need n you need W
+34:24 you don't need the entire sequence you need W so that's the thing thing so so what's going on it's very simple what
+34:31 happens in in in in KV casing or the KV C Storage what happens is that instead
+34:36 of n instead of n it gets replaced by
+34:43 W everything Remains the Same right so bit more compress compression of the
+34:50 storage of of of the KV cast so you basically uh you end up spending less
+35:01 GPU memory if you if you do this right uh
+35:07 what about the space complexity again uh it's bit low because
+35:13 it's no more n but it's w so this W comes up and it adds on to the space
+35:20 complexity what about time complexity again uh because of the because of the
+35:27 because of the W okay by the way there is a there is an error there is an error
+35:33 so this would be n multili w multili
+35:40 d this is instead of this n multiplied by
+35:45 W and then multiply by D right
+35:52 so and then uh uh you you get this complexity so basically the time
+35:58 complexity also reduces so essentially it helps you to have better inference
+36:06 and better faster inference and faster training so that what happens with uh
+36:13 sliding attention however uh in many cases in many tasks NLP
+36:20 tasks sliding window attention will not do well what kind of work what kind of
+36:27 task as an example let's say you're doing a chain a dialog chaining kind of
+36:33 uh prediction where you are essentially initiating a dialogue with a bot like CH
+36:40 chat zip or something and you need to keep a long history right and over there
+36:47 the sliding window will not work that much because some influence may come from a conversation that happened maybe
+36:54 even yesterday right so you need longer you need to maintain longer uh contextual
+37:03 window or context window for many other kind of NLP problems right
+37:10 uh uh so so so so that's the or maybe something is very descriptive extremely
+37:16 descriptive let's say you want to explain something you know in in a language model that is able to explain
+37:22 what it is predicting so and this explanation involves a lot of uh let's say explanations related to let's say
+37:30 physics or other kind of mathematical reasoning and so on right and that takes
+37:37 up a good length so so you it's not uh then you can't really limit the context
+37:44 window only to a few tokens before and ahead or before uh and expect that it will give
+37:52 you good results so it can end up giving you so even though you speed up the
+37:57 process and everything for several other kind of NLP problems it uh it won't
+38:04 work right okay so uh now uh let's go back to
+38:16 2017 uh uh the attention is all you need paper what published in news right so uh
+38:25 what happened at that time was they also realize something else so apart from
+38:32 which you have already studied so apart from dealing with only one head they felt that okay let's why not do the same
+38:40 thing or repeat the same thing independently by using multiple
+38:46 heads right so why not do the Q dok and
+38:51 then get that percentage apply that on B add it up to get the contextual
+38:56 numbering why not do that separately everywhere in many different places in a particular layer right the the rational
+39:04 what was the rational what was the thinking behind it the thinking was that while when you do that you may be
+39:13 able to capture certain relations certain incoming
+39:18 edges uh that you are not able to do in one
+39:23 particular uh using only one particular single head as an example let's say that
+39:32 uh you have John and you have ice cream and there is an edge from John coming
+39:38 into ice cream right now what does that edge
+39:43 signify does that signify that John uh has a lexical lexical relationship with
+39:52 ice cream which means when John you get to see John and ice cream a lot of times
+39:58 they cooccur a lot of times does that what it signifies or does that signify that you have a proper noun John and you
+40:08 have ice cream which is a common noun and they are associated
+40:14 closely it can be both right so you can look at it at a lexical Association
+40:19 level you can look at it at a syntactic Association level right so and then the syntactic association there are so many
+40:26 types of syntactic Association iations and there are so many types of lexical
+40:31 associations also right so so but when I say lexical Association
+40:38 it may also mean that they go together or they don't go together whatever that
+40:43 is so what what if I have to capture all
+40:49 the different aspects of an association right now that cannot be
+40:55 captured with one Edge having one percentage because one percentage of the
+41:01 weight or the information coming in the invo information will only correspond to
+41:07 one kind of Association like what is the strength of this Association that's all you can say
+41:13 so if it if if that is 50% let's say if the percentage is 50% all that you can say is that okay with 50% of Association
+41:22 strength I can find this particular kind of linguistic Association but what about other kind of
+41:29 linguistic associations that may happen between two tokens so how about that one of them can be 72 another can
+41:37 be 41% another can be 53% so what about that kind of Association so for that
+41:43 what I do is I repeat the process independently right and that's what is
+41:49 multi-head self attention but by doing that what am I doing I'm creating some trouble in terms of the time complexity
+41:56 and the space complexity because I am multiplying whatever is my big old the
+42:02 wor complexity I'm multiplying that with the number of heads let's say the number of heads
+42:09 being the number of heads let us assume that is
+42:15 H right and what is going on right now is this is H1 H2 H3 H4
+42:25 H5 h8 let's say in this example and in each of the
+42:31 age what is going on in each of the a this q.k is first happening the
+42:44 similarity getting the percentage applying that to the values and
+42:50 then adding it all together right so that's going on at every single head
+42:56 right so that's the thing okay so
+43:02 uh now two years
+43:09 later a paper came up uh uh from Google
+43:15 that was Google uh Google Google brain but this is Google and they came up with
+43:22 an optimization technique and they called it multi multi-query attention and keyway so what happens in multi
+43:30 attention is very simple so what they say that they I'm they didn't they didn't like the idea that you are using
+43:37 every head is using separate keys and values right so what they thought is
+43:44 that why don't we do something okay I can understand that you need to have different associations for ice cream how
+43:52 ice cream is related to John in all sorts of ways so that's why you need different
+43:58 heads because each head has to figure out what for each kind of aspects sort
+44:03 of as if as if like there are eight aspects in this example and I have to figure out how ice cream is related to
+44:10 John in eight different ways in terms of lexicos syntactic variations right so
+44:16 what they said is that okay let's do let's try to do this experiment and
+44:21 let's say that while the queries will differ the cues will differ in different
+44:29 heads but the ks and the v's won't
+44:34 differ and what is the logic behind this the logic is
+44:40 that I am looking at let's say I am uh a
+44:46 value right and you are all queries and I'm looking at each one of you in
+44:54 different ways in terms of what is our relationship you know in the classroom on the playground in the gym and so on
+45:02 and so forth right what is our relationship and I'm looking at that but I'm looking at you as a different
+45:08 personality in every single context right so that's what is going on so while you are different and in every
+45:14 single location but I am not different in the sense the way I will
+45:21 process you and take a decision about how much I should influence you that
+45:27 means my personality do not does not change my personality Remains the Same
+45:34 irrespective of whether I'm in the classroom or whether I'm in the gym or whether I'm in the playground with you
+45:42 so to give you an an analogy so that's the philosophy over here and that's why
+45:48 since I am single and I'm looking at you my personality is not changing therefore
+45:55 my Representatives personality will also not change which is k k is my
+46:00 representative right my secretary sort of so K is not going to change as well
+46:05 so there will be only one K right so your personality is changing
+46:13 always remember that so as you move from one place to the other your personality is changing but my personality is not
+46:18 changing so the people who are going to influence you their personality is not
+46:23 changing while you are changing from one context to the other context other context you're you know so that's the
+46:29 idea basically and that's why it's very simple to understand why it should be
+46:34 the KV cash size would be reduced by a factor of AG because that was getting
+46:40 multiplied before and now it gets again gets dropped off you know so uh the
+46:48 overall uh reduction of the KV C size will be by a factor of H right so that's
+46:56 multiquery as simple as that
+47:04 now what's the problem with this approach the problem that was found
+47:09 later on and quite later on in fact sort of like I think last year emnlp that's
+47:18 when it got sorted out sort of it got released we came to understand that uh
+47:26 you know there is a decline in the performance quality of course because uh this very
+47:32 assumption that the influencers personality does not change is also not
+47:38 true so you made that assumption right that the influences while the guy who is getting influenc change gets changed its
+47:46 personality changes but whoever is influencing them their personality don't change now that's an assumption and
+47:52 that's not a correct assumption right and that's why
+47:58 obviously you know certain degradation will happen in terms of the accuracy and
+48:03 that what happened but then there something else started happening which is the a training instability started uh
+48:12 you know we started we started to see certain kind of training in instability when we started training these sort of
+48:19 models right now because of
+48:25 that sometime around 2023 a paper came up this paper came up in 2022 was in AR
+48:31 for a long time and then got accepted in iclr in 20123 and that was uh by some
+48:39 people uh some some people from Georgia Tech and Google research and they came up with this idea that okay why can't we
+48:46 do something like this so uh instead of having one key and randomly initializing
+48:53 that key and then corresponding V randomly initializing that V and uh well
+48:60 technically speaking you don't initialize the K and the V but you initialize WK and WB so that's what you
+49:07 initialize so instead of randomly initializing that why don't we do something why don't we take a propose
+49:14 model that was working well like a proper mha model multi-head attention
+49:20 model let's say Transformer or T5 or whatever which works well or or even GPT
+49:26 2 three four whatever works well take all their keys after the training is
+49:32 over take their keys or take a snapshot a particular snapshot that is working well uh take the keys and then
+49:41 what you do is you make a mean pool a mean pull is simple basically a fancy way of saying you you you just average
+49:49 it out all the key Matrix K matrices you average them up right create one Matrix
+49:56 that The kmq Matrix and then use that
+50:04 instead okay so now what you do you actually averaged out all the keys of an
+50:10 existing model instead of training it from scratch which earlier people were trying
+50:16 to do so they said that don't do that don't train everything from scratch take
+50:22 an mha model and convert that into an mqa model
+50:28 by first doing this so this is step
+50:34 one so this is Step One by first doing this mean pulling and then in step
+50:42 two you then do
+50:49 further pre-training what is further further
+50:56 means you you did the you were doing the training of mha this was getting
+51:04 trained and let's say you the idea was to you know to make it go through K
+51:14 EO let's say so what you do is you stop it you
+51:20 hold or you stop the training at K Prime
+51:32 e get this thing done step one done okay merge
+51:41 everything K and therefore you have to merge the the V also if you're merging
+51:47 the K the representative you have to merge the master also so you have to merge the v as well and then start doing
+51:55 the fur the you know complete the further uh
+52:01 training till K so from K Prime till K so this is from K Prime to K finally
+52:08 finish the training right so what we saw was and
+52:15 this this proportion Alpha so Alpha would be
+52:21 what Alpha would be the proportion of uh
+52:26 let's say okay so so this is
+52:34 Alpha so this is the proportion so how much proportion so zero would mean that you are not doing you're not doing any
+52:41 kind of Step Zero so zero means no step two so that is
+52:48 Zero versus when you start doing step two you see there's a huge jump in the
+52:56 performance right so so and and then it keeps going
+53:03 on as this is this is 10% so this is 10% this is 0% so so as
+53:12 you do this you see that you start gaining the stability the training
+53:18 stability and the performance also starts increasing right so that was not happening before so this is called up
+53:24 trining this process is called up trining right it was termed of training
+53:30 so you got the training instability but what's still missing is
+53:37 you still get a decline in the performance quality why because whatever
+53:42 performance increase that you got over here is relative you will never get the
+53:47 kind of performance that you were getting in an mha right because already you have made
+53:54 a big assumption that's quite wrong that your V's do not differ or do not
+54:02 change and your KS do not change from one head to the other head so that's not
+54:07 true right okay so then we in in 2023 emnlp Google
+54:15 research came up with this new technique and they said that okay we are what we are going we going to do a little
+54:21 modification to mqa and they came up with this idea called grouped query attention so gqa so
+54:29 what gqa is it says that okay so instead of making that big assumption that there
+54:35 is only one V like me I am the influencer and I am only one and my
+54:41 personality doesn't change let's say that yes I do change but not that many
+54:47 number of times as you are changing as the guy who
+54:53 is getting influenced so the query gets changed every time for every head but
+54:58 the value do not get changed every time for
+55:03 every head right so there are a lot fewer number of values lot
+55:10 fewer number of values as compared to what was going on
+55:15 before but it is not also taking the other
+55:21 extreme that there should be only one guy that's also not happening
+55:28 right so you you're kind of get doing the good of both the worlds thought of
+55:34 and you group these quaries into one sort of a
+55:39 head so this is H1 and this is you know you can group it in two you can group it in three you can
+55:46 group it in four and so on so if you are grouping more which means you are decreasing the the
+55:53 yellow values right so if you want less values then you will
+55:58 group more so this gqa becomes an mqa when when you group everything together
+56:06 into one group so when there is only one group The the gqa collapses into an mqa
+56:13 simple so so that's the that was the idea and what we saw was they did some
+56:21 uh run run it over some NLP tasks you know on different data
+56:27 sets and uh they you know uh like the CNN the
+56:33 arip the pment these were the media some these were summarization task and uh multi- newss as well
+56:41 uh multi-document summarization task then WMT the machine machine translation
+56:46 task and trivia keway is question answering task and then they try to
+56:51 understand the uh the differences that uh one can see gqa versus mqa and gqa
+56:60 versus the mha right and what they saw was on an
+57:05 average the performance of gqa was actually better than even the
+57:13 mhas right and the uh inference
+57:23 time also of course it cannot be like mqa
+57:28 because you have drastically reduced everything into just one but it got
+57:35 really good uh reduction and comparable reduction as compared to mqa and it only
+57:41 starts increasing from here onwards the time which means the
+57:48 groups so how many number of groups so which means if the group size is small
+57:53 then definitely you will end up getting more number of these yellow guys this
+57:60 yellow yellow this this will increase right say the group size is small so or
+58:05 rather if the group numbers are large so so that's uh that's the thing
+58:12 and in terms of performance you're saying something that if this is the the
+58:21 best so you are near nearing that best very near to
+58:29 the best but at a lot
+58:38 less time right as compared to the
+58:44 best so so that's the thing so final uh sort of a key
+58:54 takeaway is uh are we all said so the gqa mqa aim was
+59:01 to reduce the need for storing a large amount of KV
+59:07 cash right because the head and the layers there you know the heads were was
+59:13 increasing the KV cach by a factor of age so the idea of GQ and mq the real
+59:19 aim was that and if because this happened therefore this also happened
+59:24 which is the llm server can now handle more requests larger bat
+59:30 sizes and increase throughput thereby increase throughput right
+59:37 but this is the problem the problem is we have not been able to from a Time
+59:44 complexity or a speed point of view we have not been able to significantly reduce the computational load because at
+59:50 the end of the day the dot product and the soft Max and then the final that's
+59:56 going to happen irrespective that's going to happen exactly like how it was happening in KV caching so you have not
+60:03 reduced that part all you have done is that so you have not reduced anything at a single head
+60:10 level so whatever was happening at a single head level you have not touched that all you
+60:17 did was okay since it was multiplying across a lot of heads let's reduce a lot of number of heads simple idea the idea
+60:25 is extremely simple since you are doing the same thing across multiple heads let's reduce the number of heads but you
+60:31 did not optimize it any further at the KV caching level that's not something
+60:37 that you did right so there therefore the quality
+60:43 at a single uh head level the quality still is
+60:49 degraded still hasn't changed much right
+60:54 so that's the thing so next class I'm going to talk
+61:01 about can we actually do better at the single head uh
+61:08 KV caching level can we actually make that better and the answer is
+61:14 yes and then surprisingly the answer is that we don't have we can actually get an
+61:20 exact performance like without any approximation no approximation involved
+61:26 whatever was the mha doing model doing we can do the exact same thing but with a way reduced time and we will de talk
+61:35 about Flash attention so which is currently going on yeah

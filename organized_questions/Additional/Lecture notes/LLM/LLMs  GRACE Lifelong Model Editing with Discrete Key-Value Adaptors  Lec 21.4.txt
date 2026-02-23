@@ -1,0 +1,1558 @@
+00:03 hello everyone now these three
+00:05 
+
+00:05 categories you see a lots of method uh
+00:08 
+
+00:08 methods proposed in last two three years
+00:10 
+
+00:10 we discussed knowledge editor from
+00:12 
+
+00:12 Global optimization category we discuss
+00:15 
+
+00:15 R from this category all right now let's
+00:18 
+
+00:18 move into the next uh method for
+00:21 
+
+00:21 knowledge editing and this is called
+00:22 
+
+00:22 Grace we update knowledge with
+00:25 
+
+00:25 Grace and uh and this is essentially a
+00:31 
+
+00:31 technique which belongs to the this
+00:33 
+
+00:33 category of um external memory right you
+00:37 
+
+00:37 you basically include uh you insert
+00:39 
+
+00:39 external memory to the model and this
+00:41 
+
+00:41 external memory will be responsible for
+00:43 
+
+00:43 capturing the edits capturing the new
+00:46 
+
+00:46 knowledge this is comparatively easier
+00:50 
+
+00:50 than um the previous
+00:52 
+
+00:52 one okay but let's first understand the
+00:55 
+
+00:55 heuristics or hypothesis intuition
+00:57 
+
+00:57 behind Grace the idea is as
+01:01 
+
+01:01 follows what we do
+01:04 
+
+01:04 here we will add an external memory
+01:07 
+
+01:07 which they call Grace adapter now this
+01:10 
+
+01:10 is not the adapter that that that you
+01:12 
+
+01:12 already learned right this is not that
+01:14 
+
+01:14 kind of adapter this is not
+01:16 
+
+01:16 a parameter efficient F tuning method
+01:19 
+
+01:19 this is adapter they call it adapter
+01:22 
+
+01:22 adapter is just a caching memory an
+01:24 
+
+01:24 external memory you can think of it as a
+01:26 
+
+01:26 as a database right or some sort of code
+01:29 
+
+01:29 base
+01:31 
+
+01:31 okay so this adapter is responsible for
+01:33 
+
+01:33 storing the edits so storing the new
+01:36 
+
+01:36 knowledge okay now when a knowledge is
+01:40 
+
+01:40 stored into the adapter right or when a
+01:43 
+
+01:43 knowledge is stored into the memory of
+01:45 
+
+01:45 llm they said that along with the
+01:49 
+
+01:49 knowledge the knowledge also has a
+01:51 
+
+01:51 periphery of uh its spread right let's
+01:56 
+
+01:56 say if you think of a knowledge a
+01:58 
+
+01:58 specific knowledge right let's say you
+02:00 
+
+02:00 represent the knowledge by a key value
+02:02 
+
+02:02 pairer okay now this key again this key
+02:05 
+
+02:05 value pairer that I'm talking about here
+02:07 
+
+02:07 this is not the key value that we
+02:08 
+
+02:08 discussed in
+02:09 
+
+02:09 attention Okay this is a different uh
+02:12 
+
+02:12 different uh terminology of uh you know
+02:15 
+
+02:15 key value which we'll discuss maybe in
+02:17 
+
+02:17 the next lecture right which essentially
+02:20 
+
+02:20 says that that uh uh you know that that
+02:25 
+
+02:25 this uh multier perceptron MLP is is a
+02:30 
+
+02:30 knowledge torer right there so you you
+02:35 
+
+02:35 know that in MLP there are two layers
+02:37 
+
+02:37 right one layer is essentially kind of a
+02:40 
+
+02:40 fan out right it it up projects things
+02:43 
+
+02:43 and the other layer down projects things
+02:45 
+
+02:45 right fan
+02:45 
+
+02:45 in so uh when we do fan out right the
+02:51 
+
+02:51 the resultant embedding is will act as a
+02:54 
+
+02:54 key it's a complicated concept we'll
+02:57 
+
+02:57 discuss in the when you talk about
+02:59 
+
+02:59 interpretability right
+03:01 
+
+03:01 but the idea is that I mean for the time
+03:03 
+
+03:03 being you assume that every key or every
+03:06 
+
+03:06 every knowledge is essentially uh
+03:09 
+
+03:09 essentially represented by a key value
+03:13 
+
+03:13 pair okay now when we store a key now
+03:16 
+
+03:16 key is just a representation again an
+03:18 
+
+03:18 embedding right when you store a key so
+03:21 
+
+03:21 in a vector space this is this is one
+03:24 
+
+03:24 vector right and the vector as a span
+03:27 
+
+03:27 let's say this is a vector space and
+03:30 
+
+03:30 this is the key the key has a
+03:33 
+
+03:33 span and the span essentially
+03:35 
+
+03:35 intuitively captures different
+03:37 
+
+03:37 paraphrased version of the key right and
+03:41 
+
+03:41 so every every knowledge has this center
+03:44 
+
+03:44 right and some sort of periphery and
+03:47 
+
+03:47 this periphery is is is captured using a
+03:50 
+
+03:50 radius R here the radius is
+03:53 
+
+03:53 Epsilon
+03:55 
+
+03:55 Epsilon okay so when a new knowledge
+03:58 
+
+03:58 comes in it comes
+04:00 
+
+04:00 with a key and a
+04:03 
+
+04:03 radius and all the knowledge which are
+04:06 
+
+04:06 already stored into the memory they also
+04:08 
+
+04:08 have keys and radius right this is the
+04:12 
+
+04:12 concept and we will see how you how we
+04:16 
+
+04:16 update this okay so they came up with
+04:19 
+
+04:19 the concept of Grace
+04:21 
+
+04:21 adapter Grace adapter consist of two
+04:24 
+
+04:24 components one is one is the simple code
+04:27 
+
+04:27 base or a knowledge base Okay C
+04:30 
+
+04:30 and the other is called a defal
+04:33 
+
+04:33 mechanism again we'll discuss what is
+04:35 
+
+04:35 defal
+04:37 
+
+04:37 mechanism a code base and a defal
+04:40 
+
+04:40 mechanism please pay attention to this
+04:42 
+
+04:42 okay please don't get
+04:44 
+
+04:44 lost so as I mentioned let's say let's
+04:48 
+
+04:48 say this is my code base let's say this
+04:50 
+
+04:50 is my code base okay here all the
+04:53 
+
+04:53 knowledge are stored every knowledge has
+04:55 
+
+04:55 a key and a value and a radius
+05:01 
+
+05:01 Okay small K small V and radius
+05:06 
+
+05:06 Epsilon okay and we learned this Epsilon
+05:09 
+
+05:09 learn key we learn V we learn
+05:12 
+
+05:12 Epsilon right but let's say this is this
+05:15 
+
+05:15 is my memory in this memory there are
+05:18 
+
+05:18 four Concepts which are stored four
+05:20 
+
+05:20 knowledge which are stored right and
+05:22 
+
+05:22 this small circles indicate the actual
+05:25 
+
+05:25 knowledge embedding and the and the the
+05:28 
+
+05:28 the the peripheral Circle indicates
+05:30 
+
+05:30 their there the
+05:32 
+
+05:32 span
+05:34 
+
+05:34 okay all right uh
+05:37 
+
+05:37 now let's look at the algorithm I'll
+05:40 
+
+05:40 discuss the algorithm as well as the
+05:42 
+
+05:42 pictorial representation of the
+05:44 
+
+05:44 algorithm so code base is just a memory
+05:48 
+
+05:48 a memory which looks like a code base
+05:50 
+
+05:50 right where you stored the key the value
+05:54 
+
+05:54 and the radius k v and Epsilon for every
+05:59 
+
+05:59 for for every concept for every uh
+06:02 
+
+06:02 knowledge so this Grace adapter is
+06:04 
+
+06:04 basically attached to a
+06:08 
+
+06:08 layer think of this Transformer right we
+06:10 
+
+06:10 have layers right layers so you
+06:13 
+
+06:13 basically add this Grace adapter to one
+06:15 
+
+06:15 of these layers now which layer it's not
+06:19 
+
+06:19 clear right so in the next uh algorithm
+06:23 
+
+06:23 which we discuss Rome we'll see that
+06:25 
+
+06:25 Rome identifies a layer which is
+06:27 
+
+06:27 responsible for this editing now you can
+06:29 
+
+06:29 actually combine
+06:30 
+
+06:30 combine Rome and uh Grace together with
+06:33 
+
+06:33 Rome identifying the uh the the the
+06:37 
+
+06:37 location and then you add this adapter
+06:39 
+
+06:39 for the time being you assume that you
+06:42 
+
+06:42 you will add this adapter to the lth
+06:45 
+
+06:45 layer okay so this is the code base
+06:49 
+
+06:49 memory that we want to add
+06:51 
+
+06:51 adapter this is my model
+06:54 
+
+06:54 if okay what is X subt x subt is a
+06:58 
+
+06:58 desired output Jo
+07:01 
+
+07:01 Biden right what is XT XT is the input
+07:06 
+
+07:06 the president of the US right now XT is
+07:09 
+
+07:09 such an input for which the output is
+07:12 
+
+07:12 not
+07:13 
+
+07:13 YT right the output is Barack Obama but
+07:16 
+
+07:16 you want it to be updated to Jo bidon
+07:20 
+
+07:20 right what is this Epsilon init Epsilon
+07:24 
+
+07:24 unit is the initialization of the
+07:25 
+
+07:25 Epsilon for every knowledge as I
+07:28 
+
+07:28 mentioned for with every knowledge we
+07:29 
+
+07:29 have this Epsilon radius right so we
+07:32 
+
+07:32 initialize this with Epsilon
+07:35 
+
+07:35 init okay for this algorithm we need a
+07:39 
+
+07:39 distance function distance function can
+07:41 
+
+07:41 be cosine can be equan let's assume that
+07:43 
+
+07:43 the distance function is
+07:45 
+
+07:45 D okay algorithm starts look at this
+07:51 
+
+07:51 line so now this is the L layer which
+07:55 
+
+07:55 I'm interested in and I would like to
+07:57 
+
+07:57 add an adapter here and this is my L
+07:59 
+
+07:59 minus 1 layer this is L minus one e
+08:02 
+
+08:02 lay okay so so if L minus1 XT is what so
+08:09 
+
+08:09 XT is the input to the model right to
+08:11 
+
+08:11 the model and this is the output of L
+08:14 
+
+08:14 minus one it's layer right and we denote
+08:16 
+
+08:16 this by h l minus one so the output that
+08:19 
+
+08:19 I obtained from this H from this L minus
+08:22 
+
+08:22 one layer is h l minus one
+08:25 
+
+08:25 clear clear what is h capital L XT
+08:30 
+
+08:30 capital L is the number of
+08:31 
+
+08:31 layers so capital L is the last layer
+08:35 
+
+08:35 right so the last layer output is y hat
+08:39 
+
+08:39 so what is why hat for the query the US
+08:41 
+
+08:41 president
+08:44 
+
+08:44 is bar why hat is Barak Obama this is
+08:48 
+
+08:48 this is the outdated knowledge that I
+08:50 
+
+08:50 want to update
+08:52 
+
+08:52 right all right now this h l minus one
+08:56 
+
+08:56 this h l minus one is the key is the key
+09:00 
+
+09:00 for my for my
+09:03 
+
+09:03 knowledge okay
+09:06 
+
+09:06 now I already have this code base C the
+09:10 
+
+09:10 adapter C where all the knowledge have
+09:12 
+
+09:12 already been
+09:14 
+
+09:14 stored right now this ised by K K1 K2 K3
+09:20 
+
+09:20 dot dot dot dot dot there are these are
+09:22 
+
+09:22 these are knowledges which have already
+09:23 
+
+09:23 been stored right assume that this
+09:25 
+
+09:25 algorithm have has been has been
+09:28 
+
+09:28 executed multiple times and you added
+09:29 
+
+09:29 you already added some knowledge into
+09:31 
+
+09:31 the code
+09:33 
+
+09:33 base now when this new knowledge comes
+09:36 
+
+09:36 in which is L which is HL minus
+09:39 
+
+09:39 one right what I will do I will check
+09:44 
+
+09:44 whether this knowledge exist this
+09:46 
+
+09:46 knowledge already exist into the uh into
+09:49 
+
+09:49 the code base or
+09:50 
+
+09:50 not it may happen that it already exists
+09:54 
+
+09:54 right how do you check this how do you
+09:56 
+
+09:56 check this now remember all this
+09:58 
+
+09:58 knowledge right they have they have a uh
+10:03 
+
+10:03 so all this knowledge are basically
+10:06 
+
+10:06 circles right they have their radius so
+10:10 
+
+10:10 knowledge k i and their radius Epsilon
+10:15 
+
+10:15 I right now this is a new knowledge this
+10:18 
+
+10:18 is this is again represented by a circle
+10:21 
+
+10:21 right and what is the radius for this
+10:24 
+
+10:24 what is the radius for this new
+10:25 
+
+10:25 knowledge the radius is Epsilon init
+10:31 
+
+10:31 okay so what I will do now I will check
+10:33 
+
+10:33 the similarity between the new knowledge
+10:35 
+
+10:35 and all the existing knowledge present
+10:37 
+
+10:37 in the code
+10:39 
+
+10:39 base okay to check whether they exist or
+10:42 
+
+10:42 not this particular knowledge exist or
+10:44 
+
+10:44 not and how do you do that you measure
+10:47 
+
+10:47 the distance distance between h l minus
+10:51 
+
+10:51 one to each of these
+10:52 
+
+10:52 KS so distance between h l minus one and
+10:56 
+
+10:56 each of these KS k i right and and and
+11:01 
+
+11:01 which one I should I'll pick I'll pick
+11:03 
+
+11:03 the minimum one because the minimum
+11:05 
+
+11:05 distance knowledge essentially indicates
+11:07 
+
+11:07 that this is the similar the most
+11:09 
+
+11:09 similar knowledge which is present in
+11:10 
+
+11:10 the code base right let's say this is
+11:14 
+
+11:14 Ki clear so far so good so Ki is the
+11:19 
+
+11:19 most similar knowledge which is present
+11:21 
+
+11:21 in the code based with respect to HL
+11:23 
+
+11:23 minus
+11:24 
+
+11:24 one
+11:26 
+
+11:26 now how do you know whether um
+11:30 
+
+11:30 these two knowledges should be marged or
+11:33 
+
+11:33 what now now depending on the situation
+11:37 
+
+11:37 there can be multiple ifs condition the
+11:40 
+
+11:40 first if condition says look at this if
+11:43 
+
+11:43 condition now what is this D mean d mean
+11:46 
+
+11:46 is the minimum distance is the distance
+11:48 
+
+11:48 between essentially these two k i and HL
+11:51 
+
+11:51 minus one right this is D mean so the
+11:54 
+
+11:54 the minimum distance between the new
+11:56 
+
+11:56 knowledge and uh the existing knowledge
+11:58 
+
+11:58 present
+12:01 
+
+12:01 so if D mean so basically let's say this
+12:05 
+
+12:05 is the new knowledge and this is the
+12:06 
+
+12:06 existing knowledge which is similar and
+12:08 
+
+12:08 this is D mean the distance between
+12:10 
+
+12:10 these two huh and this circle has a
+12:15 
+
+12:15 radius um Epsilon init and this has a
+12:19 
+
+12:19 radius of Epsilon I I knowledge Epsilon
+12:24 
+
+12:24 I so if the distance between two
+12:28 
+
+12:28 centers is greater than epon I plus
+12:31 
+
+12:31 Epsilon init what does it
+12:34 
+
+12:34 mean they're not
+12:36 
+
+12:36 overlapping they're not overlapping
+12:39 
+
+12:39 right it means that this new knowledge
+12:41 
+
+12:41 HL minus one is a new
+12:43 
+
+12:43 knowledge that you that you need to
+12:46 
+
+12:46 store separately it's a new
+12:49 
+
+12:49 knowledge clear it's a new knowledge
+12:52 
+
+12:52 because this a minus one doesn't come
+12:55 
+
+12:55 under the span of XI
+13:00 
+
+13:00 right so this needs to be stored
+13:03 
+
+13:03 separately so I now I knew that the key
+13:06 
+
+13:06 is HL minus one so key value pair right
+13:09 
+
+13:09 the key is h l minus one but what is the
+13:11 
+
+13:11 value corresponding to this
+13:13 
+
+13:13 key I know that the so I already
+13:16 
+
+13:16 mentioned that in in a in a code base
+13:19 
+
+13:19 the every knowledge is stored using a
+13:20 
+
+13:20 triplet k v and Epsilon I know the K
+13:24 
+
+13:24 which is HL minus one I know the Epsilon
+13:27 
+
+13:27 which is Epsilon in it what what is
+13:31 
+
+13:31 V we don't know what is V we need to
+13:34 
+
+13:34 train we need to learn V right and how
+13:36 
+
+13:36 do you learn
+13:38 
+
+13:38 this so when a new knowledge comes
+13:42 
+
+13:42 in the value is initialized with a
+13:46 
+
+13:46 random vector v in
+13:48 
+
+13:48 it when this new knowledge comes in so H
+13:51 
+
+13:51 for h l minus one there's a v
+13:54 
+
+13:54 init okay and I pass this V in it to the
+13:59 
+
+13:59 next layer of the Transformer which is L
+14:02 
+
+14:02 l+
+14:03 
+
+14:03 one I pass this to l+1 and this will be
+14:07 
+
+14:07 propagated till the end and the loss
+14:10 
+
+14:10 will be computed right how do you
+14:12 
+
+14:12 compute the
+14:13 
+
+14:13 loss what is the ground truth the ground
+14:16 
+
+14:16 truth I already know the ground truth is
+14:18 
+
+14:18 Joe
+14:20 
+
+14:20 Biden right so if the model returns
+14:24 
+
+14:24 Barack Obama instead of Joe Biden there
+14:26 
+
+14:26 will be a loss and the loss will be back
+14:28 
+
+14:28 propagated and the inter loss will be
+14:32 
+
+14:32 differentiated not only with respect to
+14:34 
+
+14:34 the parameters of the model W but also
+14:37 
+
+14:37 this V
+14:42 
+
+14:42 init okay so V init will also act as a
+14:45 
+
+14:45 parameter this will also be updated
+14:47 
+
+14:47 clear and this is written here this look
+14:49 
+
+14:49 at this
+14:52 
+
+14:52 line so P of ppf Y given V init means
+14:56 
+
+14:56 what Y is the output right V init is the
+14:59 
+
+14:59 is the is the is the input from that
+15:01 
+
+15:01 layer condition on this and I fine tune
+15:03 
+
+15:03 the model and that fine tuning will I
+15:07 
+
+15:07 mean periodic fine tuning will basically
+15:10 
+
+15:10 return uh V new which is the value for
+15:15 
+
+15:15 the new
+15:16 
+
+15:16 knowledge and the paper they said that
+15:19 
+
+15:19 for every new knowledge they fine tune
+15:22 
+
+15:22 the model 100 times 100 or 20 days I
+15:24 
+
+15:24 don't remember exactly but they
+15:25 
+
+15:25 basically F tuned it multiple
+15:28 
+
+15:28 times clear so that is going to give me
+15:32 
+
+15:32 V new and so I have this new knowledge
+15:34 
+
+15:34 which is h l minus one the so this will
+15:38 
+
+15:38 act as a key what is the value value is
+15:40 
+
+15:40 the V new and what is the radius radius
+15:43 
+
+15:43 is the uh Epsilon
+15:45 
+
+15:45 unit this will be stored to the code
+15:47 
+
+15:47 base separately it's a database it will
+15:50 
+
+15:50 be stored appended okay now this
+15:54 
+
+15:54 condition will be executed when the
+15:56 
+
+15:56 distance between two centers is greater
+15:59 
+
+15:59 than the sum of the radius this will
+16:01 
+
+16:01 also be executed when the code base is
+16:05 
+
+16:05 empty if the code base is empty there's
+16:08 
+
+16:08 no knowledge so in this way new
+16:11 
+
+16:11 knowledge knowledge will be added to the
+16:12 
+
+16:12 to the code base now look at the second
+16:16 
+
+16:16 condition if this doesn't satisfy then
+16:20 
+
+16:20 the second condition is what the second
+16:21 
+
+16:21 condition can be look at this one right
+16:24 
+
+16:24 Focus only this one so the second
+16:27 
+
+16:27 condition says that the
+16:30 
+
+16:30 output the output of the model for this
+16:33 
+
+16:33 new
+16:34 
+
+16:34 key is Joe
+16:37 
+
+16:37 Biden that means you don't need to
+16:40 
+
+16:40 change
+16:41 
+
+16:41 anything right so the new so essentially
+16:45 
+
+16:45 what is happening is
+16:47 
+
+16:47 that is that this new knowledge comes in
+16:50 
+
+16:50 which is H the key is HL minus one and
+16:54 
+
+16:54 the minimum uh the the the the uh the
+16:57 
+
+16:57 concept or the knowledge which is
+16:59 
+
+16:59 similar to this is Ki right and the
+17:03 
+
+17:03 output is essentially the the desired
+17:05 
+
+17:05 output what does it
+17:07 
+
+17:07 mean what I need to change
+17:09 
+
+17:09 now so this concept and this concept is
+17:13 
+
+17:13 the
+17:14 
+
+17:14 same so it means I need to expand the
+17:18 
+
+17:18 periphery of the existing knowledge
+17:20 
+
+17:20 because because because I need to also I
+17:24 
+
+17:24 I need to also Encompass this one right
+17:26 
+
+17:26 that means I need to increase the
+17:28 
+
+17:28 periphery of this
+17:31 
+
+17:31 knowledge right so how do you do that
+17:34 
+
+17:34 you basically update the
+17:37 
+
+17:37 radius of the existing knowledge earlier
+17:40 
+
+17:40 it is Epsilon I now this is Epsilon I
+17:43 
+
+17:43 plus Epsilon unit so if I do if you do
+17:46 
+
+17:46 that the new knowledge which has come
+17:49 
+
+17:49 will be added will be included to the
+17:52 
+
+17:52 New
+17:55 
+
+17:55 Circle what is the what is the uh third
+17:59 
+
+17:59 condition
+17:59 
+
+17:59 the third condition
+18:03 
+
+18:03 is the output is not
+18:06 
+
+18:06 Joon right the output is different so
+18:08 
+
+18:08 this is the
+18:11 
+
+18:11 condition they are
+18:13 
+
+18:13 intersecting because this condition is
+18:16 
+
+18:16 violated if this condition is violated
+18:18 
+
+18:18 means what the distance between two
+18:22 
+
+18:22 centers is lesser than the summation of
+18:26 
+
+18:26 these two that means they
+18:28 
+
+18:28 intersected right if they
+18:30 
+
+18:30 intersected but their outputs are not
+18:32 
+
+18:32 the same what does it
+18:35 
+
+18:35 mean it means you need to separate them
+18:38 
+
+18:38 out right you need to separate them out
+18:41 
+
+18:41 how do you separate them you need to
+18:43 
+
+18:43 reduce the radius of the existing
+18:46 
+
+18:46 knowledge the the radius of the existing
+18:48 
+
+18:48 knowledge is Epson
+18:50 
+
+18:50 I right what the did they said that the
+18:55 
+
+18:55 updated radius will be D mean what is D
+18:59 
+
+18:59 mean d mean is the distance between two
+19:01 
+
+19:01 centers D mean by two very
+19:04 
+
+19:04 simple right so the
+19:07 
+
+19:07 updated so the updated radius for the
+19:11 
+
+19:11 existing knowledge which is
+19:14 
+
+19:14 Ki is D
+19:16 
+
+19:16 mean by
+19:18 
+
+19:18 two this is the updated
+19:21 
+
+19:21 radius but remember this these two
+19:23 
+
+19:23 concepts are different because their
+19:26 
+
+19:26 outputs are different that means the new
+19:28 
+
+19:28 knowledge also needs to be
+19:30 
+
+19:30 stored you separated them out by
+19:32 
+
+19:32 reducing the radius right you also need
+19:36 
+
+19:36 to add this uh uh you know new knowledge
+19:39 
+
+19:39 into the
+19:40 
+
+19:40 memory right how do you do that the same
+19:43 
+
+19:43 concept the key is h l minus one the
+19:47 
+
+19:47 value you need to learn is B init to V
+19:52 
+
+19:52 new right and the the radius is D mean
+19:57 
+
+19:57 by two which you already
+19:60 
+
+19:60 identified and how do you learn this the
+20:02 
+
+20:02 same the same way you calculate the loss
+20:04 
+
+20:04 you back propagate the loss and you act
+20:08 
+
+20:08 you basically assume these as the as the
+20:10 
+
+20:10 parameters of the model and you take the
+20:12 
+
+20:12 gradient
+20:13 
+
+20:13 of okay so the new entry will be added
+20:16 
+
+20:16 the existing entry will be updated right
+20:20 
+
+20:20 only the uh radius will be updated
+20:22 
+
+20:22 that's
+20:23 
+
+20:23 all this is it so this is Grace So G
+20:28 
+
+20:28 Grace maintains a code base and the
+20:30 
+
+20:30 defal so so these eils conditions are
+20:33 
+
+20:33 called defal
+20:35 
+
+20:35 mechanisms okay so the they tested their
+20:39 
+
+20:39 method right on two different data sets
+20:42 
+
+20:42 U this is a zero shot relation
+20:44 
+
+20:44 instruction data and this is a legal
+20:45 
+
+20:45 data right U the so this is their method
+20:49 
+
+20:49 Grace right and they tested is on on
+20:52 
+
+20:52 T5 and bought bought um uh 110 million
+20:57 
+
+20:57 million size B with full fine tuning
+20:60 
+
+20:60 right they also compared their method
+21:02 
+
+21:02 with Rome they tested their method
+21:04 
+
+21:04 method um with respect to uh these two
+21:07 
+
+21:07 evaluation measures you see here Grace
+21:10 
+
+21:10 uh beats all the existing methods
+21:12 
+
+21:12 including Rome uh in terms of TR which
+21:15 
+
+21:15 is the uh which is basically success
+21:18 
+
+21:18 rate and ER is the retention rate of old
+21:21 
+
+21:21 edits they call this method lifelong
+21:25 
+
+21:25 editing lifelong editing means this new
+21:29 
+
+21:29 knowledge which need to be updated are
+21:31 
+
+21:31 coming in stream streaming fashion and
+21:33 
+
+21:33 you keep on editing this models again
+21:36 
+
+21:36 and again right so what happens is that
+21:39 
+
+21:39 after certain edits it may be possible
+21:41 
+
+21:41 that some of the old
+21:42 
+
+21:42 edits will be
+21:44 
+
+21:44 lost right you keep on editing it's a
+21:46 
+
+21:46 life lifelong editing you keep keep on
+21:48 
+
+21:48 editing whenever new knowledge comes in
+21:51 
+
+21:51 some the old edits can be lost right so
+21:53 
+
+21:53 this eror checks uh what is the accuracy
+21:57 
+
+21:57 of the model in terms of retaining some
+21:59 
+
+21:59 of the old
+22:00 
+
+22:00 edits okay now this is their accuracy
+22:03 
+
+22:03 and the average this is the average of
+22:05 
+
+22:05 both er error and
+22:07 
+
+22:07 error okay so this is the end of Grace
+22:11 
+
+22:11 in a Nell what Grace does Grace
+22:14 
+
+22:14 essentially adds a gra adapter which is
+22:17 
+
+22:17 just an external code base right
+22:19 
+
+22:19 external knowledge base and when a new
+22:23 
+
+22:23 knowledge comes in it basically checks
+22:24 
+
+22:24 whether that knowledge is present in the
+22:26 
+
+22:26 external code base or not if it is
+22:28 
+
+22:28 present in external code base the
+22:30 
+
+22:30 corresponding value will be returned the
+22:32 
+
+22:32 value is is assumed to be the updated
+22:35 
+
+22:35 value that value will be returned and
+22:36 
+
+22:36 that value will be passed to the next
+22:38 
+
+22:38 layer right if the uh if it is not
+22:42 
+
+22:42 present here right uh if if the new
+22:45 
+
+22:45 knowledge is not present in the code
+22:46 
+
+22:46 base right it will essentially be added
+22:49 
+
+22:49 to the code base and the corresponding V
+22:51 
+
+22:51 new will be laar and VI new will be
+22:54 
+
+22:54 passed through the next layer in this
+22:56 
+
+22:56 way the pretend knowledge will not be
+22:59 
+
+22:59 not be tampered the pretend knowledge
+23:02 
+
+23:02 will remain the same additional
+23:04 
+
+23:04 knowledge will be added and the of
+23:06 
+
+23:06 course the criticism would be that
+23:08 
+
+23:08 number one you are adding more
+23:11 
+
+23:11 parameters right but the they said that
+23:14 
+
+23:14 you know the billion size of parameters
+23:16 
+
+23:16 you are able to handle billion size of
+23:17 
+
+23:17 parameters why are you afraid of
+23:20 
+
+23:20 handling only a few parameters present
+23:21 
+
+23:21 in the in the adaptor right the second
+23:25 
+
+23:25 criticism is where to which layer is is
+23:28 
+
+23:28 selected for the edits uh they said that
+23:31 
+
+23:31 you can add Grace adapters to all the
+23:33 
+
+23:33 layers right uh or you can pinpoint
+23:36 
+
+23:36 certain layer your favorite layer maybe
+23:38 
+
+23:38 the middle layer or the last layer and
+23:40 
+
+23:40 you add this Grace adapters okay that's
+23:43 
+
+23:43 it uh this is the survey paper that I
+23:46 
+
+23:46 strongly suggest you guys to read uh
+23:48 
+
+23:48 this is a survey paper on knowledge
+23:50 
+
+23:50 editing many methods are presented here
+23:53 
+
+23:53 in a very nice way I read this paper and
+23:55 
+
+23:55 I also want you guys to read this s
+23:57 
+
+23:57 paper so after this
+23:59 
+
+23:59 uh lecture I I request you to read the
+24:02 
+
+24:02 three papers and hopefully things will
+24:04 
+
+24:04 be clear okay thank you

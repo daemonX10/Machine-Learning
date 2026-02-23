@@ -1,0 +1,452 @@
+00:03 okay everyone uh so today we will cover the second part of reward maximization
+00:08 uh I don't know how many of you guys had a chance to look at the slides of the previous lecture uh so in the previous
+00:16 uh lecture we covered uh how to define a policy using a language model how to define a reward
+00:23 model using a language model and how to train that language model we spe specifically we saw that Brad lary
+00:29 formulation for training it's the reward model sorry okay so now we have a reward
+00:34 model we know how to train a reward model what is the next step the next step is how to train the policy using
+00:40 the reward model and that's what today's uh slides are going to be about uh how
+00:45 to train the policy okay um okay so we defined the problem of
+00:54 training the policy as regularized reward maximization uh so what what does that
+01:00 mean uh you want a policy whose outputs on an average have high reward right so
+01:09 that is a maximiz reward maximization problem so how do you write that if you have to write that okay I want a policy whose outputs whose samp if I generate
+01:17 output from that they have on an average high reward what does that mean in mathematically what does that mean any
+01:23 idea does anybody remember what does that mean so your policy is pi Theta
+01:31 and if I sample an output from this P
+01:37 Theta the reward of that output on an average should be high this is what it
+01:42 means uh to maximize the reward and uh we also said that we don't
+01:49 want the policy to deviate Too Much from the starting point the base policy also called the reference policy right uh and
+01:57 how do we achieve that we minimize the K Divergence with respect with that policy so the second term is the K Divergence
+02:06 between the policy
+02:12 and the reference
+02:17 policy and we said we can also write this as expected value under the
+02:27 policy this quantity log of the Pol uh the probability that policy
+02:35 assigns over the probability that P ref the base policy
+02:42 assigns so this we want the first ter we want to maximize the reward the second term we want to
+02:50 minimize so uh when you do reg reward maximization you combine both the terms
+02:56 by adding a beta Factor so that you can control how much you want to maximize the reward how much you want to minimize
+03:01 the K stay close to the reference policy so the com
+03:08 combined uh objective can be written
+03:18 as r x Yus beta *
+03:27 log this is what we covered in the last class uh is everybody fine with this
+03:34 formulation
+03:40 okay so this is how it looks how you will Implement so whenever
+03:46 as I mentioned earlier also that whenever you think of expectation you uh the immediate picture that you should
+03:52 come that should come to your mind is sampling okay expectation is almost always done using samples nobody
+03:58 computes expectation exactly because it's generally impossible to compute exact expectation so this is what should
+04:05 come to your mind so that uh you you have this
+04:11 policy and uh you have it there's a prompt that goes and input to the
+04:17 policy and it you uh you get a bunch of outputs these are the uh y12 YN that uh
+04:26 samples from the policy then for each of the output that you get you compute the
+04:33 reward you com uh and you compute the K term this is
+04:39 the uh the second term you the reference model log probability you require for the Computing the kale term and then you
+04:45 combine them by using a beta scaling factor and finally you take the average
+04:51 so everybody should convince themselves that this particular image captures
+04:57 exactly the expression that we saw previously this last expression uh sampling from the policy and then
+05:03 Computing the reward and uh as well as the K term
+05:10 okay okay so we have this objective that we want to objective is f how do we maximize this objective is what we need
+05:17 to find out so looking at the figure can anybody think how do you like if you
+05:22 have a graph generally if you have a graph like this uh the the standard way
+05:28 to optimize this loss this so this is this is the what we want to maximize right this is the maxim we want to
+05:35 maximize the average reward right so generally if you want to maximize some quantity which can as graph what is what
+05:43 can generally do is that you can basically back propagate this reward all
+05:49 the way to the parameters and train it there's a uh I mean whenever you have a
+05:54 graph structure you can always back prop but here there's a problem with back propagation here can anybody see why we
+05:59 can cannot just maximize the reward by back propagation here what is preventing me so see what
+06:08 generally people will do is that if I call this output as uh
+06:14 R uh I will compute the gradient of this r with respect to this policy parameter so gradient of r with respect to Theta
+06:21 and then uh not even don't need to compute actually I can just back propagate R and that will give me the
+06:26 gradient and then update it right let me the gr uh the gradient will be computed
+06:32 automatically by back pration but here there's something preventing me from backing the gradient all the way till
+06:39 the policy and which that is the sampling step this is a non differentiable step
+06:47 why because you are sampling uh discrete quantities which are the poems right and
+06:52 it's highly non differentiable in fact because you're not even sampling one discrete token you are sampling a sequence of discrete tokens so the gr
+07:00 there's no way for the gradient to flow from here to there otherwise you could have simply done back propagation and you would have been done with it
+07:08 uh so what do you do in that case if you cannot back propagate the gradient from here all the way to the policy then you
+07:14 have to do something else okay so this is just a note on regularized reward uh
+07:19 that uh max if you maximize the regularized reward you ensure that
+07:25 outputs uh that are generated by the policy have high reward and they have reasonable probability under the
+07:31 reference model this is just a small note on regular okay also I'm using this notation RS for
+07:38 the regularized reward uh okay so okay so now the question is
+07:45 how do we maximize since we cannot backr Gant what we need to do is something which is called the uh the reinforce
+07:52 trick uh the reinforce algorithm and uh uh the idea is that you compute the
+07:59 gradient of the object objective first of all so uh and the objective is your expected value of the regularized reward
+08:06 so how does the gradient look like let's comp that just a analytical gradient
+08:11 computation uh so first thing is expand this expectation uh this you can write this
+08:18 as summation over summation over y belonging to the domain of all possible
+08:25 outputs Pi Theta y given x times the regular
+08:30 reward X Y the gradient of this quantity this is
+08:36 the gradient that we want to compute then you can take this gradient inside this is fixed this reward function is
+08:43 fixed let's assume we have already trained the reward function okay so this can be written as sumission over all
+08:52 outputs gradient of the policy times the
+09:12 reward okay there nothing uh interesting about uh this so let's see what
+09:21 next so this is the expression we got yeah okay this is the expression that we got now this exact summation if we try
+09:30 to compute it we have to sum it over all possible outputs which is not possible so what can we do so uh we want to
+09:37 replace it with something that we can approximate so can question is can we
+09:44 approximate this quantity using samples this quantity can we approximate
+09:50 using samples if I directly take some samples
+09:56 so forget whatever is written below if you have to just look if you just look at the expression where should these y's
+10:02 come from I mean uh just looking at the expression it's not telling me where the Y should come from uh it is not telling
+10:09 me where to sample these W in fact okay so I want to convert the expression to an expectation uh why why do I want to
+10:17 convert it to an expectation so that once there is expectation then I expectation immediately tells you where
+10:22 the samples should come from and that's what I want I want this expression to
+10:27 become an expectation okay so uh so we need an expression of this
+10:33 form expectation under some distribution here it is WR the policy but it can be
+10:39 any distribution I am fine as long as I get expectation under any distribution because then I can approximate it using
+10:45 samples so this is uh and basically what this means this is how I want the expression to look like so that's what
+10:52 we will achieve in the next slide does this make sense the why do first of all this does it make sense that why do I
+10:58 want an expression in the form of expectation so so the thing is if you look at the expression at the top it
+11:04 tells you that for each output comp possible so there are infinitely many sequences possible right uh for each
+11:12 sequence compute the gradient of the policy times the reward
+11:18 of that sequence now this is not possible so I need somehow need to replace this with a few samples right
+11:26 and this is so the question is where should these samples come from
+11:32 okay when there is an expectation I immediately know where the sample should come from it should come from the
+11:37 distribution for which you comping the expectation but so that's why I want this to become an expectation does uh
+11:44 does it make sense okay so we use this trick called The Log
+11:52 derivative trick and it's a not a uh it's a very small trick which basically uh says that the gradient of if uh if
+12:00 you have this term log of policy and somebody asks you what is the gradient uh how how would you write the
+12:07 gradient of it one by
+12:13 policy and what does this mean if I just if I just now I want to bring this to
+12:19 the left hand side so this quantity can WR
+12:28 as uh uh policy Times log gradient of
+12:35 log so this is what I'm going to this quantity is what I'm going to replace in the term that we had so let me write
+12:41 down what we had earlier what we had is this quantity uh the earlier derivative that we had was summation over y
+12:47 belonging to Y the domain of all outputs gradient Theta Pi Theta y given
+12:57 x * RS comma Y and now I want to replace this
+13:04 quantity by this okay so this will
+13:10 become summation Yong to the or domain
+13:18 policy times gradient of theta of log of the
+13:25 policy times reward
+13:30 and now does it start looking like an expectation can anybody see if it is an expectation and if it is what what is
+13:37 the next how do I write it in as expect what is the distribution for the expectation and what is the function
+13:44 that whose expectation I Computing yes policy is the distribution and the function whose
+13:50 expectation I'm Computing is gradient times rewards so let me
+13:56 write the reward first times
+14:02 gradient is this fine with everybody so this is the log derivative trick uh it's
+14:07 a very small trick there's nothing fancy about it it's just a small trick but uh it allows you to compute the gradient
+14:15 using samples because now we have an expectation and I can replace so as I mentioned earlier whenever you think of
+14:20 expectation think of samples coming from the distribution under which you are Computing expectation so let's look at
+14:27 it so now this expectation can be computed right how would you compute
+14:33 this expectation this is uh what you can do is you can take the input feed it to
+14:39 your policy get bunch of outputs compute the reward of each output and M also compute
+14:48 the gradient of the policy and multiply the reward and the gradient and then take an
+14:54 average uh so this image is just uh
+14:59 Computing the expectation uh of the uh gradient times reward that this maybe
+15:05 exactly Computing what we had in this expression so
+15:10 uh so with just looking at the expression you should imagine what how you should be able to comput it you uh
+15:17 the way you think is that this is the policy I should get the samples and then compute both of these quantities individually and multiply and aage them
+15:24 out that's all and that's all this figured does so this is all this is I mean uh Monte Carlo is a fancy term
+15:32 for uh whenever an expectation is replaced by a samples then we call it a
+15:39 Monte approximation so it's approximation
+15:45 of expectation probably Monte Carlo were the first who thought about this
+15:51 approximation of expectation through
+15:57 samples okay so now now we know how to compute the gradient uh let's expand the
+16:04 gradient in terms of token so because see ultimately you have a language model
+16:09 and your actions are tokens uh a sequence the output that you generate is a sequence of action it's not an
+16:14 individual action it's a sequence of actions sequence and each action is one token okay so what I want to know is
+16:21 that for each action that I have taken for each token that I have generated uh what is the weight that I
+16:30 give to that generated token how I mean do I increase the probability of the generated token do I decrease what is happening at the token level is what I
+16:36 want to know okay so let's expand it in terms of tokens so let's say y equal to A1 to am and the Y the reason why I'm
+16:42 using A1 to am is because uh a are the actions actually I should use A1 to a t
+16:49 so let me make this t Okay so uh this
+16:55 becomes reward times gradient
+17:00 of Now log of a log probability of a sequence of actions uh I can expand this
+17:06 as summation over T = 1 to t log
+17:14 probability of a t given St and where St
+17:21 is the input prompt and all the tokens that I have generated so far
+17:30 and uh now I can uh take the summation outside the gradient I can write this
+17:36 as X comma y thanks so this becomes summation T = to
+17:44 1 2T PR Theta log of Pi
+17:51 Theta 80st and let's take this reward also
+17:57 inside this submission t = to 12T reward
+18:06 times so basically each token is getting the same reward here so uh we'll see the
+18:14 example but uh from this expression uh what it tells you is that the uh the
+18:20 first token the second token the third token all the tokens will get the same reward and that reward is the reward of
+18:26 the complete output so even if you have generated only one token uh the reward that it will get is the reward that you
+18:33 will get uh of the complete output that you generate okay this is how uh it will
+18:38 look like you have you'll have a decoder model a language large language model a policy you will have your
+18:47 input uh prompt and you will have the tokens that your model uh generates so
+18:53 let's say this is what is generated by the model OKAY by generate
+19:01 so each uh so the log probability of the token so this you will generate the first token condition on the last uh uh
+19:08 condition on the user prompt uh so the uh weight that will be that the first
+19:15 token of will get is the reward of the complete output similarly the uh so similarly for
+19:23 each each token here and I not written gradient here I just directly written log probability uh uh
+19:30 when I'm doing reinforce when I ear I derived the reinforce as the gradient of
+19:36 the uh expected lock like but there's no gradient term here so can anybody guess
+19:42 why there no gradient term here so uh the idea is that uh you are multiplying
+19:48 the log probability of token with the reward and then summing them up and then you back propagating so when you back
+19:53 propagate uh these gradients will be uh computed automatically so you don't have
+19:59 to explicitly compute the gradient back propagation a will automatically do the job of computing gradients and then you
+20:04 will do the updates okay so basically what this figure says is that you can Implement three Force simply by feeding
+20:11 the input the feeding the output uh both generated output both to the large
+20:16 language model you have and multiplying each token's lock probability with the reward and then summing it up it's it's
+20:23 very similar to how you do superise fineing like if there was no reward there was no this R term was not there
+20:29 and if I was just doing this this exactly as fine tuning but on the generated outputs so what reinforce adds
+20:36 is uh is this art this rward term uh that is that extra in
+20:41 reinforce does it make sense so uh reinforce is super fing of generated
+20:47 outputs times the reward of the generated output so now what is the problem with this let's think about it
+20:53 let's go back to the old figure and think what is the problem this Tok I generated the token Taj here and it the
+20:59 reward that it gets is R now the entire sent if you look at Taj Mahal is in Agra
+21:05 end of text this uh sentence is correct so the reward will probably be
+21:11 positive uh but that doesn't mean that Taj I should increase the probability of
+21:16 Taj because the output could have been equally Taj Mahal is in Paris so if the
+21:22 output turns out to be Taj m is in Agra I increasing the probability of the word Taj see whenever this say postive that
+21:29 means I'm increasing the probability whenever reward is negative that means I'm decreasing the probability So based on the reward of the entire
+21:36 output I'm deciding whether to increase the probability of Taj or not uh so if the model had generated Taj m
+21:42 is in Paris the reward would be negative and I would be decreasing the probability of every word decre the probability of the word t decre the
+21:48 probility of word Mel every word because the log probability of each token is getting multiplied by the
+21:53 reward and if the model had generated Taj in Agra the reward would be positive and you would be increasing the lock
+21:58 prob of every token and that is problematic right because ultimately the
+22:04 generation of the uh token does not that the Taj is not highly dependent on the
+22:09 reward the token right Taj is not dictating what the reward will be so this variance the reward depend it leads
+22:15 to very unstable training I don't want the weight that the word Taj get depends
+22:21 on the output of the final sequence right because it might generate an arbitrary lots of sequences right uh and
+22:27 every time this word Taj might get a different reward so there is huge amount of Randomness in the reward that this
+22:34 lock probability of the word Taj is getting so what do I do I I want to reduce this variance so think about it
+22:40 like you don't want the word Taj the reward the weight this word Taj gets
+22:45 depend on what gets generated in the future so what do you do like yeah can
+22:53 anybody think you have so many sequences that that are possible from a given token
+22:59 and uh you want to somehow remove the dependence of the the random sequence that you end up generating right you
+23:05 don't want to make the reward dependent on which sequence that you ended up generating so what you do you try to you
+23:12 basically say okay I'm already generated Taj the what assume that I can generate all
+23:19 possible sequence after Taj okay and for each of the sequence I could compute the reward and that average reward is what
+23:26 the word t should get so the word t should not get the reward based on the random sequence that you ended up
+23:31 generating after that but over average over all possible sequences so that is called the Q
+23:41 function does this yeah so I will not go in lot of mathematical deta but some math some detail about what the Q
+23:48 function but intuitively the idea is the Q function is uh the average cumulative
+23:55 reward you will end up getting if you generate a huge number of sequences
+23:60 after touch from the policy so and because you're averaging this becomes
+24:06 this becomes I mean the you have uh reduce the randomness in the reward that
+24:11 you're giving to the word t so does it make sense right so when we do the final
+24:17 expectation uh but if uh when we do the final expectation we are Computing the average of the gradient right now but
+24:25 how much weight should uh this if you look at the word if you look at the word this word right this is not coming from
+24:32 any average this is coming from this particular sequence that whatever reward that this sequence got is the reward
+24:39 here if the sequence was correct Taj Mahal is in arra so this reward would be positive if this sequence was incorrect
+24:45 this reward will be negative but and what this happen what what as a result what happens is that the model sometimes
+24:51 think okay thinks that okay Taj is the correct thing to do here and sometimes thinks that the K is not the correct thing to do here but it doesn't matter
+24:58 right Taj or not that whether it's it's the re it contribution to the reward is
+25:03 negligible what matters is the final word Agra right so there should be some mechanism that you can okay you can run
+25:10 multiple policies from here and find so multiple sorry multi generate multiple outputs from here and compute the reward
+25:17 of each output and use that quantity here so you somehow you want to replace
+25:25 this an average that's what you want to
+25:33 do and similarly for all the other rewards you for each of the rewards you want to see if I continue generating
+25:39 lots of sequences from this point what will be the average reward that I get and uh use that as the reward so let's
+25:46 say you want there are 100 possible sequences from different this point okay and you want to look at all those sequences computer reward of all those
+25:52 sequences and take the average and put it here
+25:58 you want to look at all possible sequence that can yeah but you will not do it but that's what you want to do actually and you will do try we will not
+26:05 do that obviously that is not possible to do like generating all possible sequences at every point is kind of impossible right uh you'll have 100
+26:11 times 100 times 100 times like 100 to the power number of tokens that are there like that is impossible to handle
+26:17 so what can we do so first of all we should convince ourselves that this is this is a good idea replacing uh random
+26:23 reward is a uh is actually bad for training and you should replace it with something that is is more stable so so
+26:31 uh what what I have done here is that instead of the reward I have replaced it with the Q function the uh so earlier
+26:38 there was a reward and this Q function is uh an average of all average
+26:46 reward over all possible or
+26:53 all likely sequences let's start with T
+26:59 that start with
+27:05 DOD so what I mean likely is that uh uh these this Q is actually a function of
+27:11 the policy I'm not written the subscript policy here for Simplicity but uh this Q
+27:16 depends uh on your current status of the policy so you will run the policy at this from Taj generate multiple sequence
+27:23 take the average reward and put it here okay so what this has removed all
+27:29 POS all the randomness was that was there in the reward for Taj now the reward at the token Taj is fixed it's uh
+27:36 and that is the Q function does this make sense
+27:43 okay yeah so the Q function is as I mentioned is the average discounted there is another thing in RL called
+27:50 discount Factor where which basically says that you don't uh the for the
+27:56 current token not all the tokens if you're if you're Computing the weight for the current token the tokens that
+28:02 are closer to this token should have higher weight compared to the tokens that are further like the reward that
+28:08 the nearer tokens receive should be given higher weight than the reward that the future tokens will receive okay uh
+28:14 so the Q function of uh State action
+28:20 pair is the
+28:26 average you basically generate uh uh
+28:32 sorry bunch of outputs sorry yeah 80 + 1 80 you generate a sequence uh bunch of
+28:44 sequences the state and
+28:50 then compute the reward of the entire sequence
+29:01 and this is called the discount Factor so what this discount this
+29:06 discount factor is actually close to one it's somewhere around 0.9 or 0.95 or what and what the discount Factor does
+29:14 is that it says that when I am Computing the Q function for uh at T for the token
+29:22 T then I need to look at tokens the rewards that I get get in the immediate future uh that those are more important
+29:29 and the reward that I get later on those are less important because uh and this is I mean this idea originates in
+29:36 reinforcement learning in games so when you are playing games the step that you take right now will have uh more likely
+29:43 to impact immediately and the later impacts that it will have uh you don't know whether it is because of this
+29:48 particular action you took or some other action that you took in the future so this discount Factor actually originates from uh in uh in game from games use of
+29:57 reinforcement learning in games so that's a q function the value
+30:02 function uh so Q function is defined for a state action pair that if this in this particular State I took this action what
+30:08 is the average uh uh discounted cumulative reward that I will receive right the value function is defined only
+30:15 for a state the value function is basically uh if given that I have reached the
+30:21 state uh what if I continue running my policy what is the average discounted
+30:26 reward that I will end up receiving so Q function is the only difference between q and value is that Q function depends
+30:33 on the action that you took at a particular State and value function depends only on the state that okay I have now that I have reached this
+30:42 state now that I reach the state uh if I keep running my
+30:50 policy so 8 + 1
+31:02 how uh what is the average reward that I will end up
+31:08 getting
+31:14 yes but so even if you don't uh let's say don't understand this expression uh
+31:19 okay by the way this St plus where does this st+ one come from so st+ one is as
+31:25 in the case of language model STD plus1 is simply the previous state and you upend your token so St plus1 is
+31:32 just uh when you append your token 0 to the previous state
+31:39 yeah yeah yeah it will get squared actually let me GMA Square let me put this gamma Square so that get that is
+31:47 squaring yes okay so even if you don't like this
+31:54 expression mathematical expression because generally these Expressions originate in uh when you do a proper
+31:59 reinforcement learning course uh but this these are just few classes for covering po so you can get an intuitive
+32:06 picture of what this q and value function is it's just the average reward from a particular state or from a
+32:11 particular State action is that fine so as I mentioned for we are dealing with language models and the next state is
+32:18 completely determined by the action that you take at that State okay so st+ one is uh St uh appended by
+32:26 at so the Q fun function for uh the Q function uh for can be written here as
+32:34 in this form the Q function for state and an action pair is equal to the reward of that state and action pair
+32:40 plus discount Factor times the value function of the next state so this is the well next
+32:48 state and you can derive this from the equations that we wrote here but uh for
+32:54 now you can just take it for granted that this is true okay
+32:60 okay so uh so to further reduce actually I
+33:05 mentioned earlier right that the Q function is used because you don't want a lot of Randomness in the reward that this token receives right now uh to
+33:12 further reduce variance and uh uh what what is generally done that
+33:18 you sub uh you subtract the value function from the Q function to get the
+33:24 advantage function and that's what you use uh during training and uh proof that
+33:31 this actually reduces variance uh uh is not included here but for now what the
+33:37 way you can think is that the smaller numbers you multiply with the gradient the lower the variance is going to be so
+33:42 this Q function this Q values can be actually pretty high and value function
+33:47 uh removes the contribution uh so basically what you want is the
+33:53 contribution of the specific action at at time time T right and so value function remove prove the average
+33:59 contribution of any action so that you can have taken at that particular point so it's a sort of an
+34:07 average average over all
+34:13 actions at STD so by subtracting the value function you saying that okay
+34:20 given that I have reached STD if I take an average action what is the average reward uh what is the reward that I will
+34:26 end up getting compared to if I take action 80 what is the uh cumulative reward I will end up getting so you
+34:32 subtract this quantity and that's called the advantage function so this is ultimately how your uh how your
+34:40 reinforce with Advantage functions looks like so initially we had reward uh that
+34:45 that was getting multiplied by the log probity of the tokens then we had the Q function that was getting multiplied and now finally we have the advantage
+34:52 function uh times the loog probability of the tokens so how Okay so uh in the
+34:58 previous slide I showed that the advantage function dep can be computed only from the value function so all you need is to know that given that I'm at a
+35:05 particular State what is the value of that state if you know the value you can compute the advantage as follow the
+35:10 reward plus the value of the next state time discount Factor minus value of the
+35:16 current state right so so how do you implement this value
+35:21 function so just like uh we had the reward function the value function can be implemented by adding a linear layer
+35:29 on top of a decoder model you take a decoder model and decoder model at every
+35:34 step you it gives you a probability over distribution over the next token right so you uh add another linear layer so
+35:40 this giv so the this is this already exists in a decoder exist
+35:46 already and what you the this is what you are newly adding to your decoder a
+35:52 linear layer which takes the embedding of the last token and outputs a scalar
+35:57 quantity a number that is your value so
+36:02 implementation wise that's all you have to do add a linear layer on top of an existing decoder and you have to do it for each
+36:09 token so I mean uh the same linear layer will act on at each
+36:14 token does this make
+36:20 sense okay so how do you learn the value function uh you have an input X you
+36:26 sample uh an output Y which is a sequence of token a0 to 0 from the policy and uh so okay
+36:35 uh before that if you if you have to if you think about how to learn this value function uh value function is basically
+36:41 the average reward you will get if you comp uh keep running the policy from at that point right so what you do is you
+36:46 do that you run a policy get a sample and uh compute uh the cumulative
+36:54 discounted reward at each time step so RT is basically the reward that you will receive at that particular time step
+37:01 plus discount Factor times reward for the next time
+37:10 step plus GMA Square reward of the
+37:17 next so on so forth so this you do it for each token at each token you can compute what the future reward is this
+37:23 is also known as the reward to go
+37:33 and now you simply train you you you know that value function is a new network that what we saw here this is
+37:39 this is the value function so you just minimize the uh Le Square between your
+37:50 VST minus RT whole square and this you do over
+37:59 uh all the tokens and that's how you learn the value
+38:04 function let me put a five over here so that we know that y function is
+38:09 parameterized by
+38:15 five and you do it over an entire batch uh and that will give you the value
+38:25 function so this gives you the vanilla policy gradient uh you what you will do is you
+38:32 will mix the value function training and your policy the reinforce algorithm and
+38:38 you uh you will inter leave those two okay so for you'll repeat the ental convergence you will sample a batch of
+38:44 prompts for each prompt you will generate one or more outputs and for each output you will compute the reward
+38:50 at each token compute the cumulative discounted reward for each token and then compute the value and Advantage
+38:56 function for each token so these three things you have to compute for and then you will apply few gradient
+39:02 updates using the reinforce algorithm uh with the advantage values that you got and then you will apply few gradient
+39:08 updates to train the value function that we uh by minimizing the mean squ error and this you need to keep on doing until
+39:14 convergence now the issue is that this requires so if you look at the algorithm
+39:20 for each prompt you have to sample outputs and then train a sample and then train so it requires every time you want
+39:26 to do a gradient update you have to generate new outputs so and that's a bit
+39:32 problematic you don't want to continue sampling outputs from the policy uh
+39:37 during training because that slows training slows down training a lot and also it makes training a bit
+39:44 difficult because every time your samples are coming from a different distribution so your loss function doesn't uh your uh because you're doing
+39:51 a stochastic gradient descent the the algorithm doesn't know where there's no fixed distribution where the samples
+39:57 come from so the training gets a bit unstable so somehow you want to uh fix the distribution sample the outputs get
+40:03 the outputs and then run the algorithm so how do I do this so uh
+40:11 let's go back to our starting point when we derived the reinforce our objective
+40:16 was expectation under the policy Pi
+40:21 Theta times reward right but I'm saying say that uh I don't
+40:29 want to sample from PI Theta again and again and again can I fix the policy at time some time step and do some
+40:36 updates uh of training and not uh use these samples from P every time so so I
+40:44 can write so the expectation as follows summation over y belonging to
+40:50 Y policy times reward right now what I want to do here
+40:57 is I want to get an expectation the final explation that I want is get an expectation with respect to a different
+41:03 policy P pre policy of a previous time step so how do I get uh expectation
+41:10 under different policy what I will do is I will multiply and divide by a previous policy here so I will what I do
+41:17 is uh multiply with the previous policy let's say Theta
+41:24 K and divide by the same quty
+41:33 and what does this give me now what I can do is uh I will bring this quantity
+41:39 here so this will give me pi Theta
+41:46 k x time Pi Theta by given X
+42:01 times the reward and if I have to write it as an
+42:08 expectation this will become expectation under Pi Theta
+42:16 k
+42:24 y times reward
+42:30 so I took an expectation under the uh current policy Pi Theta and I replaced
+42:35 it by an expectation under the previous policy of previous time step uh and why
+42:40 did I do that so that I can get samples from I don't need to continue sampling from the policy I can get samples from a
+42:46 fixed policy and then do the training and this term that we get here this is known as the importance
+42:53 weight okay so this is how reinforce with importance it look like okay uh
+42:60 before that uh uh as an as a practice at home you
+43:06 can try Computing this quantity uh gradient of the objective
+43:12 that we got here what is it expectations
+43:18 under y coming from PI Theta k i an X
+43:28 and again uh when you do this again in order to convert this gradient to an
+43:33 expectation you will have to apply the re uh the log derivative trick okay so let me
+43:39 apply log derivative trick and I write down the final
+43:46 expression uh because that's what I that's in the next next figure uh but
+43:52 you can drive it at home this will look something like this why coming from
+43:59 [Music]
+44:07 next okay uh so here I assumed
+44:12 reward RS but instead you can use the advantage function so wherever there is a reward is WR you can replace that by
+44:18 the advantage function also and uh if you have to implement this expression uh
+44:24 the way you will Implement is this way uh you will have an input you will have
+44:29 uh the output tokens and you'll feed the generated tokens as well as the input to
+44:35 both policies the fixed policy this is fixed and the trainable policy this is
+44:41 trainable and you will get the importance weights uh multiply them with the
+44:47 advantage you can I mean I although I wrote reward earlier you can use the advantage wherever reward is written and
+44:55 you can sum up those quantities and back propagate so this is your reinforcement uh reinforce with importance
+45:04 weights now PPO does one extra thing which is a very small thing uh what it does is that it says that if you look at
+45:10 this these fractions that that are there right these quantities Pi Theta by pi Theta K if you keep on training Pi Theta
+45:17 this these fractions may become very big uh so what might happen is that the uh
+45:24 during training this uh these fractions Pi Theta by th May dominate your
+45:29 training and they may make your training unstable so what po does it bounce this
+45:36 fraction it says okay the pi Theta by pi Theta ratio should be within uh this
+45:43 range of 1 minus Epsilon and 1 plus Epsilon during what whenever I do an update okay so the way it ensures that
+45:50 these ratios are bounded is that if when Advantage is positive it
+45:58 maximizes uh this quantity the this quantity this is what
+46:05 is getting maximized and when Advantage is negative this is the quantity that gets
+46:10 maximized uh so we will see why uh how that makes a
+46:17 difference okay so let's look at when we have
+46:23 positive Advantage Advantage is positive okay so when Advantage is positive uh what this means is if you are
+46:31 maximizing uh let's say so when Advantage positive that means this quantity will increase right so
+46:37 initially this initially this should be K initially this ratio is one the importance of it
+46:45 is one Pi Theta of St Pi Theta K of a given s t at the
+46:54 beginning of training this is quantity is equal to 1 because you initialize Theta with Theta K and now because uh this this quantity
+47:03 is positive this entire expression will increase right this F1 is and Which is less than one is less than 1 plus Epsilon so initially this is just
+47:10 maximize over Theta Pi
+47:16 Theta or Pi Theta K times advantage
+47:28 but as uh you as you train Theta this quantity will become slowly bigger uh this quantity will keep on growing
+47:34 because Pi Theta will keep growing far away from P Theta K and there will come a time when it will become greater than
+47:40 1 plus Epsilon and as soon as that happens the training will stop because
+47:45 as if this quantity becomes B than 1 plus Epsilon uh then the minan of Min will
+47:53 become equal to 1 + Epsilon *
+47:59 advantage and there's no parameters here so this basically your objective will become a constant so as soon as your
+48:05 policy deviates Too Much from the current policy uh it uh the model will stop
+48:12 training okay similarly for negative Advantage you can drive for negative Advantage uh
+48:18 in the same way that uh the negative Advantage is negative so this also so
+48:25 what will happen is that this initially Pi Theta will keep on decreasing with respect to Pi Pi Theta K but as soon as
+48:30 it goes with less than 1 minus Epsilon below your training will stop
+48:38 okay so this is the pp it's exactly the same as the reinforce algorithm the only
+48:43 difference is that uh instead of gradient updates using reinforce we do the gradient update
+48:49 using PPU clip now that's it the algorithm is algorithm wise there is no difference you sample a batch of prompts
+48:56 sample in uh sample outputs compute the reward compute the advantage uh and then
+49:02 apply few gradients of PB clip with the advantage
+49:08 values okay so I know this was a very mathematical class too too much of
+49:14 mathematics was there and there were too many things uh to remember but key factors to remember was one of the key
+49:20 factor was a log derivative trick to derive the gradient and the reason why needed the why we needed the log derivative trick then we replace the
+49:28 reward of the uh the total reward by the advantage function so that we can reduce
+49:34 variance that the reward at the intermediate tokens receive and finally we use importance weight so that we can
+49:41 allow we can sample from a fixed policy rather than keep sampling from uh updated policy so in PP what is done is
+49:47 that you sample uh from fixed policy and then do some updates of pop and then
+49:52 update the policy fixed policy again so it's not like you will always fix the policy policy will the fixed policy will
+49:58 also keep getting updated from time to time and finally po does this clipping of importance weights to prevent large
+50:04 gradient updates

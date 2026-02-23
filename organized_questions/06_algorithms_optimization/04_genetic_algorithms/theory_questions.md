@@ -1502,15 +1502,192 @@ Modern evolutionary computation is increasingly hybrid, combining evolutionary g
 
 **What is the significance of ‘multi-level selection’ in GAs?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+**Definition:**
+
+**Multi-level selection** in genetic algorithms applies selection pressure at multiple hierarchical levels — not just on individual solutions, but also on groups (subpopulations) of solutions — mimicking biological group selection theory.
+
+**Biological Inspiration:**
+
+| Level | Biology | GA Equivalent |
+|-------|---------|---------------|
+| **Individual** | Organism fitness | Solution quality |
+| **Group** | Colony/tribe success | Subpopulation performance |
+| **Species** | Species survival | Algorithm configuration |
+
+**How It Works:**
+
+```
+Level 1 (Individual): Select best solutions within each group
+Level 2 (Group): Select/reward best-performing groups
+Level 3 (Meta): Evolve group-level parameters (optional)
+```
+
+**Key Mechanisms:**
+
+**1. Individual Selection:**
+- Standard fitness-based selection within subpopulations
+- Crossover and mutation among group members
+- Local competition drives individual improvement
+
+**2. Group Selection:**
+- Groups compete based on aggregate fitness (mean, best, diversity)
+- Successful groups grow (more resources/individuals)
+- Poor groups shrink or are eliminated
+- Groups can split or merge
+
+**3. Migration Between Groups:**
+- Controlled individual transfer between groups
+- Prevents excessive inbreeding within groups
+- Balances group identity with genetic diversity
+
+**Advantages:**
+
+| Advantage | Description |
+|-----------|-------------|
+| **Diversity preservation** | Groups maintain different search strategies |
+| **Emergent cooperation** | Individuals within a group can evolve cooperative behaviors |
+| **Exploration-exploitation balance** | Groups explore different regions; individuals exploit locally |
+| **Robustness** | Loss of one group doesn’t collapse the search |
+| **Multi-objective handling** | Different groups can specialize on different objectives |
+
+**Applications:**
+
+- **Co-evolutionary problems**: Where solutions interact (game strategies, predator-prey)
+- **Multi-modal optimization**: Different groups find different optima
+- **Evolving cooperative behaviors**: Robotics swarms, multi-agent systems
+- **Complex systems modeling**: Hierarchical organization mirrors real-world complexity
+
+**Comparison with Island Model:**
+
+| Feature | Island Model | Multi-Level Selection |
+|---------|-------------|----------------------|
+| Group interaction | Migration only | Competition + migration |
+| Group-level fitness | Not used | Drives selection |
+| Group size | Fixed | Dynamic |
+| Hierarchy | Single | Multiple levels |
+
+**Example: Evolving Team Strategies**
+```
+Group = team of agents
+Individual selection: Best agents reproduce within team
+Group selection: Teams that win more games get more resources
+Result: Emerges cooperative team strategies naturally
+```
+
+**Interview Tip:**
+Multi-level selection is particularly powerful when the problem itself has hierarchical structure — the GA’s selection levels mirror the natural organization of the solution space.
 
 ---
 
 ## Question 30
 
-**What are the advantages of using GAs forensemble model selection?**
+**What are the advantages of using GAs for ensemble model selection and optimization?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+**Definition:**
+
+Using **genetic algorithms for ensemble model selection** means evolving the composition, weights, and hyperparameters of an ensemble of models — deciding which models to include, how to combine them, and how to configure each.
+
+**Why GAs Are Well-Suited for Ensembles:**
+
+The ensemble selection problem is:
+- **Combinatorial**: Choose subset from N candidate models → $2^N$ possibilities
+- **Non-differentiable**: Discrete model inclusion decisions
+- **Multi-modal**: Many good ensembles exist
+- **Multi-objective**: Accuracy, diversity, complexity trade-offs
+
+GAs handle all of these naturally.
+
+**Encoding Schemes:**
+
+**1. Binary Encoding (Model Selection):**
+```
+Chromosome: [1, 0, 1, 1, 0, 1, 0, 0, 1, 1]
+              ↑                              
+         Include model 1, skip model 2, ...
+```
+
+**2. Real-Valued Encoding (Weighted Ensemble):**
+```
+Chromosome: [0.3, 0.0, 0.25, 0.15, 0.0, 0.3]
+              ↑
+         Weight for model 1 (0.0 = excluded)
+```
+
+**3. Mixed Encoding (Selection + Hyperparameters):**
+```
+[model_flags | weights | hyperparams_model1 | hyperparams_model2 | ...]
+```
+
+**Key Advantages:**
+
+| Advantage | Description |
+|-----------|-------------|
+| **Global search** | Explores diverse ensemble combinations, avoids local optima |
+| **No gradient needed** | Works with any model type (trees, SVMs, NNs) |
+| **Multi-objective** | Simultaneously optimize accuracy, diversity, and model count |
+| **Automatic diversity** | Population naturally produces diverse ensemble candidates |
+| **Flexible encoding** | Can encode model selection, weights, and hyperparameters together |
+| **Scalability** | Parallelizable fitness evaluation across ensemble candidates |
+
+**Fitness Function Design:**
+
+```python
+def ensemble_fitness(chromosome):
+    selected_models = decode_models(chromosome)
+    weights = decode_weights(chromosome)
+    
+    # Weighted ensemble prediction
+    predictions = weighted_vote(selected_models, weights, X_val)
+    
+    accuracy = compute_accuracy(predictions, y_val)
+    diversity = compute_diversity(selected_models)  # e.g., Q-statistic
+    complexity = len(selected_models)               # fewer is better
+    
+    # Multi-objective fitness
+    return alpha * accuracy + beta * diversity - gamma * complexity
+```
+
+**GA Operations for Ensembles:**
+
+| Operation | Implementation |
+|-----------|----------------|
+| **Selection** | Tournament selection on ensemble validation accuracy |
+| **Crossover** | Swap model subsets between two ensemble chromosomes |
+| **Mutation** | Flip model inclusion bits, perturb weights |
+| **Elitism** | Preserve best-performing ensembles across generations |
+
+**Comparison with Other Ensemble Methods:**
+
+| Method | Approach | Limitation |
+|--------|----------|------------|
+| **Bagging** | Random subsets, equal weights | No model selection |
+| **Boosting** | Sequential, adaptive weights | Greedy, may overfit |
+| **Stacking** | Meta-learner combines | Fixed model pool |
+| **GA-based** | Evolve selection + weights | Computationally expensive |
+
+**Real-World Applications:**
+
+- **Kaggle competitions**: GA-selected ensembles often outperform manual stacking
+- **Medical diagnosis**: Optimize ensemble for sensitivity-specificity trade-off
+- **Financial forecasting**: Evolve adaptive ensembles that change with market regimes
+- **AutoML pipelines**: TPOT uses GA to evolve entire ML pipelines including ensembles
+
+**Example: TPOT (Tree-based Pipeline Optimization Tool):**
+```
+GA evolves:
+  ├── Preprocessing steps
+  ├── Feature selection methods
+  ├── Model choices (RF, SVM, XGB, ...)
+  ├── Hyperparameters for each
+  └── Ensemble combination strategy
+```
+
+**Interview Tip:**
+GA-based ensemble selection bridges the gap between manual ensemble design and fully automated AutoML — it provides intelligent search over the combinatorial space of model combinations that greedy methods cannot efficiently explore.
 
 ---
 

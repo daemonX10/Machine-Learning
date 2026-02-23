@@ -1,0 +1,701 @@
+00:03 hello everyone so in this uh lecture we will talk about what representation last
+00:10 class we finished uh the language model uh the language modeling part of it
+00:16 right we discuss statistical language model uh different types of smoothing techniques and uh how to evaluate a
+00:22 language model right perplexity we discussed in details what is perplexity how it is linked to U entropy and how
+00:30 you can use perplexity as an intrinsic measure to evaluate the performance of a language model okay
+00:38 so now we are moving towards the semantics you remember the different
+00:43 layers of NLP I mentioned morphology synx semantics
+00:48 right uh and so on and so forth so here we start talking about semantics right
+00:55 the first thing in any semantic understanding of language right what we do is to represent a word or represent a
+01:02 sentence represent a token right and we will discuss in this class we will discuss old school methods to represent
+01:08 a word and then we will see how modern days we represent a word using word Vector okay but uh first things first as
+01:16 usual breaking news so on July 25th uh Google deep mind uh announced that there
+01:25 are alpha proof and Alpha geometry two which are import by gini
+01:31 uh they have uh a great reasoning ability right they uh they perform
+01:37 significantly well in international math Olympia uh questions and uh they claim that out of
+01:45 six questions that are usually given to uh students who appear for Mass Olympiad
+01:52 uh this model uh solved four questions right so this is the this is
+01:58 the Tweet posted by Jeff D he mentioned that uh you know so far any AI model uh
+02:07 was able to solve maximum two problems right out of six problems but this time
+02:13 uh this model uh was able to solve four problems out of six problems each problem has seven points so you know the
+02:21 alpha proof model so it got 28 uh marks out of the total marks right and this
+02:29 this marks is equivalent to getting a silver medal in uh International math
+02:35 olymp okay so this basically says that you know these kind of models are quite
+02:42 efficient in uh solving math reasoning problem and these are extremely tough Mass raising problems right and these
+02:49 kind of models like Gemini models which which is significantly large this has this kind of capability to solve U
+02:57 complex problems but again this is is a significantly large model we do not know
+03:03 whether small model will be able to solve these kind of things efficiently or not but if you know if you want to
+03:08 know more about Alpha geometry 2 which is the second version of alpha geometry
+03:13 right you can look at this link and you get more information about
+03:19 it okay so let's get started meaning of a word right so let's see what uh a
+03:26 dictionary says about a meaning of a word if you look at the maram webstar dictionary online dictionary it says
+03:33 that a meaning is essentially the idea that is represented by a word or a phrase right Etc or it can be an idea
+03:41 that a person wants to express by using different words signs and so on and so
+03:47 forth right so effective representation of words
+03:52 meaning right is has been one of the major challenges right because we use a
+03:57 word in different context right I mentioned about the word bank right for example Apple Mouse these words are used
+04:04 in different context with uh different uh meanings and so on and so forth so
+04:10 it's it is very tough to come up with a single representation or single meaning of a
+04:16 word right if you think that okay let me curate a dictionary where for every word
+04:21 I have a single meaning and whenever I need the uh need the meaning of that word I just retrieve that meaning from
+04:27 the dictionary and then I basically uh solve the problem right but this is not
+04:32 going to work because of the complicacy okay
+04:38 so so so far if you look at the old school NLP techniques the way people
+04:44 used to solve the semantics problem is that they used to look at uh documents
+04:49 and from documents there were human ANS who were employed to read thousands of thousands of documents and then they
+04:57 they used to create big onology like a wet right where nodes are uh I mean
+05:02 entities are nodes and entities are linked through different relations right
+05:07 one sense of an entity is linked to another sense of an entity and and and these relationships can be of different
+05:13 types right holon meron synonym antonym hyper hypony and so on and so forth
+05:20 right and then and then whenever you are interested in uh you know understanding a meaning of a word you you look at the
+05:28 ontology you retrieve the let's say the neighboring uh words
+05:33 of that given word right and you try to guess the meaning of it right but then
+05:38 people realize that this might not be a good approach I'll tell you why and then
+05:43 uh what is what is needed is that we essentially need some sort of vectorized
+05:49 representation of a word right computer doesn't know
+05:55 characters right computer knows uh numbers right so we we all know ask
+05:60 values right so you can say okay why do we need a complicated Vector
+06:05 representation let me take a word and let me take the character let me take the Sky value of every character right
+06:11 and then we concen it right the problem is that wordss have different lens right
+06:17 so if you just concatenate all the SQ values then the length of the vector
+06:22 would be different for different words and there are also other problems right I'll tell you the other problems
+06:28 so the simple way to represent a word using a vector is something called one
+06:34 hot encoding right one hot Vector right what
+06:39 is a one hot Vector very simple idea let's say you already have a dictionary where all the unique words
+06:45 are listed right and each word has an ID
+06:51 right let's say the word a has an ID word n has an ID dot dot dot word zebra
+06:57 as an ID word Zoo has an idid and so on and so forth id1 id2 ID3 and so on and
+07:02 so forth right and let's say the size of the dictionary is um is 1
+07:08 million right so what we do in one encoding one not Vector is that for
+07:14 every word I create a vector of size 1 million right and let's say if the ID of
+07:21 that word is five right what I do I will I will add one at the fifth position of
+07:28 the vector and the remaining positions will be will be marked as
+07:33 zero right so one position corresponding to the ID will be marked as one and the
+07:38 remaining Position will be zero right very simple idea and it also makes sure
+07:44 that um wordss have different different wordss have different representations right all the representations are unique
+07:51 right but the problems are there are there are many problems there are multiple problems here the first problem
+07:58 is that now all these vectors are
+08:03 orthogonal right so if we take the dot product between two vectors you'll always get zero right now if you think
+08:10 of uh if you take a synonymous two synonymous words like say motal and
+08:16 hotel motal and hotel they are kind of same right if you take the dot product
+08:23 of these two vectors you see the do produ would be zero it means that they are basically orthogonal to each other
+08:29 all although they they semantic their semantics is almost the
+08:35 same okay so one not encoding is not a good approach the second the second
+08:40 problem here is that as the dictionary size increases the vector size will also
+08:45 increase right in fact you you may need to recompute the vector again and again
+08:51 and there are multiple problems okay
+08:56 so so uh if two words share Mutual mutually similar semantics right this
+09:04 kind of one not encoding may not be a good solution for that okay so the what
+09:09 is the next solution the next solution is to look at the wnet right as I mentioned earlier wnet is
+09:15 a semi-automatically generated uh onology right where you see many nouns
+09:23 verbs mostly nouns verbs adjectives and adverbs they are linked through uh different relations right every
+09:31 word in uh the wordnet is represented by something called a
+09:37 sinet every word has a sinet okay what is sinset sinet is a synon synonymous
+09:44 set or synonym set okay so each word each sense of a word not
+09:52 not every word so remember every word has multiple senses right a word can
+09:57 have multiple senses so every sense of a word is represented by by a synonym set
+10:04 or sinet right and the description of the sinet is called the
+10:12 GLA okay for example uh let's look at the word
+10:17 chump okay the gloss or the description of the of this word is a person who is
+10:23 gullible and easy to take advantage of so this is the description of the sense
+10:29 one sense sense of the word chump okay and this description is
+10:35 written manually by the way okay it's a huge manual effort and what are the different senses
+10:43 of the word Chum now if you look at wordnet Wet will say that chump has
+10:50 these many senses okay one sense of chump is same
+10:57 as the second sense of fool now remember fool is also an entry in
+11:02 the word net fool also has the word fool also has multiple senses sense one sense
+11:08 two sense three sense four and every sense has a gloss right so so the particular sense
+11:15 of the word Chum is linked to the second sense of the word fools right to the
+11:23 first sense of the word Gull to the ninth sense of the word word Mark right
+11:30 and so on and so forth now imagine the amount of effort
+11:35 okay every word has multiple senses right the senses are linked not the
+11:40 words the senses are linked okay so now this is one entry in
+11:48 the wordnet right the word Bas B SS if you look at the word net onology
+11:55 you see that the word buz has multiple senses the first sense
+11:60 is B is a musical some sort of a musical range right B can be can can also be a
+12:07 fish right B can also be a some sort of singing uh male singing voice B bass
+12:13 guitar right so it has multiple multiple senses right of course the pronunciations are different but the the
+12:21 surface word is the same okay so this is the first sense of BZ this a second
+12:27 sense of BZ third sense of BZ and so on and so forth okay so and and if you look at
+12:35 every sense there's this GLA these are different
+12:42 glaes so now one can say that you know we don't need one out encoding I will
+12:48 just look at the wordnet F the corresponding sense and that's that will be sufficient right so what are the
+12:55 problems with this kind of tus based approach tus means resource right tus
+12:60 based approach or onology based approach okay the first problem is
+13:05 that there may be other meanings which are not captured into the wordnet
+13:12 version right word net has multiple versions by the right uh for
+13:18 example the word proficient and the good the word good right they are synonymous
+13:24 in certain context but they are not synonymous in all the contexts
+13:31 right secondly it's very difficult to add
+13:37 newly coined words right you need manual effort for example uh the ninja right uh Nifty and
+13:46 so on and so forth these kind of newly coin words uh if you want to add them into the onology you need to actually
+13:54 study a lot about their usage right what are the senses where they are used and so on and so forth right and then you
+14:01 also have to remember what are the other senses that can be linked to this sense of nifty for example right so it's it's
+14:08 actually very complicated uh up toate information is difficult to
+14:14 obtain the the other problem is that wnet only wnet mostly considers noun
+14:20 adjective adverb and um what else uh noun adjective adverb and verb right the
+14:27 other prepos the other of speech words are not covered
+14:33 appropriately this is also subjective because uh if you ask one annotator they
+14:39 may feel that okay this is not the sense if you ask another annotator they may feel that no this is the sense and so on
+14:45 and so forth it depends on who is annotating right it requires a lot of
+14:50 human laor to address this we will use uh the
+14:56 notion of distributional semantics if you if you remember the second lecture
+15:01 where we talked about NLP right I mentioned three ways to understand semantics of a word what are the three
+15:08 ways ontological semantics then decomposition semantics dis
+15:15 semantics right very good so distribution semantics is the the the the the premise based on which most of
+15:23 the existing uh uh what representation techniques are proposed okay and what is
+15:29 the philosophy behind the distri semantics uh jr4 in
+15:36 1957 he said this famous quote that you shall keep a word by the company uh you
+15:42 you shall know the word by the company it keeps okay so now based on this
+15:48 philosophy again if you go back to Old School NLP right uh people came up with many many approaches right one simple
+15:55 approach is to look at the documents right you you the sentence in the
+16:00 document and you look at the neighboring words of every word and from the neighboring word from the neighbor
+16:06 neighborhood you try to imply or you try to guess the meaning of that word right for example the word
+16:14 banking if you look at this three sentences here the first sentence government uh date problems turning into
+16:22 banking crisis as happened in 2009 right here essentially you talking some sort
+16:28 of Crisis right right where the next one uh saying that Europe needs unified
+16:33 banking regul regulation here you're talking about some sort of regular regulation rules and regulations third
+16:40 one India has just given its banking system a sh in the arm so this is more of a banking system right the literal
+16:48 meaning of banking system so you look at the neighbors and from the neighbors you guess the meaning of the particular word
+16:54 right now how do we systematically do it we systematically do it using count based
+17:00 approach a very simple count based approach where the idea is that let's say you have multiple documents okay you
+17:08 have a bunch of documents you have corpora and you
+17:14 see uh for how many times this part a particular word appears in a document
+17:21 how many times this word appears in other documents and so on and so forth it's just a account right a bag of word
+17:26 kind of approach okay uh let's look at uh this example this is u a simple
+17:35 example where um right we will we we basically
+17:40 create this kind of Matrix this Matrix is called T context
+17:46 Matrix what is a ter term context Matrix here rows are individual terms
+17:53 individual wordss individual tokens and columns are also individual tokens right
+17:59 and and you see how many times let's see here let's say this entry says how many times the word
+18:08 computer appears as a neighbor of the word
+18:13 apicot okay some sort of Byram count table very similar to Bagram count table but what
+18:20 is the difference here in case of Byram these two words should appear side by side wus 1 wi right but here when I look
+18:29 at the uh the the context I first decide the size of the context okay let's say I
+18:36 have a context size of 10 I look at 10 words at a time right and I see I I'll
+18:44 see how many times the word apricot and computer appear together right in in the
+18:49 same context right and that's going to be the count here so term context and
+18:55 this is a square Matrix a square Matrix right so from the TM Contex Matrix now if you
+19:02 look at um every row okay now you can think of every
+19:10 row as a vector right let's say first row is a vector for the word apricot right when
+19:17 apricot is used as a term as as a term right you can also and
+19:24 and and and aot will also appear in a row right here also you'll see an entry
+19:30 for apricot right and there'll be a column corresponding to the word apricot
+19:35 right so that column can be treated as as a context Vector for the word
+19:42 aot so row can be treated as a t Vector for the word aot column can be treated
+19:48 as a Contex Vector for the word aot right now it is up to you to decide
+19:53 which Vector you want to consider one option is that you you take both the vectors and you sum them
+19:59 right other option is that you you try with contest Vector as well as uh turn
+20:05 vector and see which one is useful right very simple idea so let's say uh you are given this
+20:13 kind of documents it's a stylized example there are multiple sentences
+20:19 right uh you scan through the documents and you create this kind of metrics okay
+20:25 so now if you look at two entries here let's say and
+20:31 pineapple you see both these words coae with similar context words pinch and
+20:39 sugar right but they did not appear coae with the context was artwork or computer
+20:46 data right so you can say that okay maybe these two words are
+20:51 similar okay similarly if you look at digital and information you see both
+20:57 these words coar with the word computer and data right also results but they did not
+21:04 coopar with uh the word ARB pinch and sugar so maybe these two words are similar right a simple idea you look at
+21:12 you you you take every column you take a pair of columns you do some sort of dot product cosine similarity and then you
+21:19 you figure out the similarity right so here what are the
+21:25 problems the first problem is that uh again this metrix size can can increase
+21:30 with the increasing number of vocabulary terms right second problem is that
+21:36 Vector size will also be very large if the vocabulary has let's say millions of words then the size of the vector should
+21:43 be very very large and also this this Matrix is sparse most of the entries are
+21:49 zero right the sparse sparse Matrix the fourth problem is
+21:54 that we see stop words right frequently appearing words uh article uh
+22:02 preposition right they their corresponding entries will be very very high
+22:10 obviously right so we need some sort of normalization after this right so what
+22:17 we do here so from term a raw raw count a raw
+22:23 count of terms and context Now we move towards an advanced slightly Advanced uh
+22:30 concept called tfidf okay so what is tfidf in tfidf also we are going to
+22:37 create this Matrix remember this okay TF stands for term frequency and IDF stands
+22:43 for inverse document frequency TF IDF okay let's first
+22:49 discuss TF so what is TF term frequency of a
+22:55 term T right with respect to a document
+23:00 D is the number of times that particular term appears in the document so remember this is a tle
+23:08 this is a this is a function of T comma D you can't say that the time frequency
+23:14 of T is this you have to say the time frequency of t with respect to the document D is
+23:21 this okay so by the way when I say a document a document can be a Wikipedia
+23:27 document a document can can be a novel a document can also be a paragraph a
+23:33 document can also be a sentence it depends on how you define a document right because if you have only one
+23:41 document then how do you compute tfidf you consider every paragraph As a document and then you measure this so
+23:47 count of this a raw count of this now the raw count will be very very
+23:52 high for again frequently appearing words stop words right to just uh dampen
+23:58 the effect of this we squash this a bit instead of taking the raw count I take
+24:03 the log of the raw count right log of the raw count and if the count is zero
+24:09 then log zero will be undefined right then therefore we just add one just a
+24:15 smoothing technique so log count + one is the TF measure what is the problem in
+24:22 TF the problem with TF is that again frequently appearing words stop words
+24:28 will have very high TF count okay to address this we will use another uh
+24:34 component of tfidf called inverse document frequency
+24:40 IDF okay IDF so what is inverse document
+24:46 frequency let's first uh see what is document frequency a document
+24:51 frequency is the number of documents where the particular word
+24:57 appears it is not the number of counts of all the documents where this particular uh entry appears right only
+25:05 the number of documents where the particular entry appears it's called document frequency
+25:11 okay uh let's say there are two words Romeo and action the word Romeo appears only one
+25:19 document not in the other documents of Shakespeare for example okay
+25:24 so the term frequency will be very high for that document but the document
+25:30 frequency will be very low why out of let's say thousand documents only one document has this word
+25:36 Romeo right so document frequency will be let's say one by the way what is this collection
+25:42 frequency collection frequency is uh the count of uh the the the sum of count of
+25:49 this word across all the documents time frequency is with respect to one document collection frequency is
+25:58 the sum of counts of all counts in all the documents and document frequency is
+26:03 the number of documents where this particular entry appears clear
+26:10 okay for the word Romeo we'll have a document count of one whereas the word
+26:15 action which is a more generic word than Romeo right let's say is collection frequency still
+26:22 113 right but this collection frequency is distributed across documents it is not that uh only only in one document
+26:30 the the word action appears 113 times in total it appears 113 times FR fragmented
+26:37 right and let's say there are 13 documents 31 documents where the word action
+26:43 appears okay so so this is document
+26:48 frequency okay now I will take the inverse of this inverse document frequency so 1 by 1 1 by 31 now what is
+26:56 the meaning of this inverse doent frequency the in when we take the inverse of this
+27:03 if a word appears in all the documents like like the word action or stop words
+27:09 if it appears all the documents its importance will be reduced which is obvious we don't want
+27:15 to capture those words which are which which appear in all the documents rather than this we should consider those words
+27:21 which are representative right so this is IDF this is the formula of ID d f so DF
+27:30 1 by DF is inverse document frequency right of the term T remember here IDF is
+27:37 a function of only the term T not t comma d right and we take a log of this and
+27:47 just to normalize the value we normalize it by n what is n n is the number of
+27:54 documents okay so we just normalize it by n
+27:59 now this is the this is the general generic idea formula but as you can see
+28:06 uh you know DF if DF is zero then what would happen right so we sometimes we
+28:11 also add one here right to the denominator sometimes what we do we uh
+28:17 also add one here there are there are multiple
+28:23 variations of TF IDF right in in TF also time frequency uh instead of taking the
+28:29 log log of count right what we do we normalize it by number of tokens in the
+28:36 document right let's say the number of tokens is V for example right sometimes we normalize it normalize it by Max
+28:43 count not the total count Max count and there are different variations of this okay now look at uh the idea value of
+28:52 the different words the word Romeo has the idea value of 1.57 whereas the word
+28:58 good or the word sweet which are frequently occurring in all the documents their ID values are
+29:04 zero so you are penalizing those words which appears uh in all the documents
+29:10 okay so the combined version of this metric is TF IDF where we multiply TF
+29:16 with IDF right so this is the this is the formula of TF
+29:22 IDF uh this is the raw count table right before TF ID
+29:29 uh this is the uh tfidf table okay in in
+29:34 the Raw ter raw term document Matrix you see that uh there are entries like
+29:41 um let's say let's say the word uh battle right appears only in the zulia
+29:47 Caesar novel right is is it count is seven but in in in tfidf its value is
+29:54 significantly high 0.22 right whereas the word fo which is kind of a common
+29:59 word uh uh whose TF which whose count is pretty high 58 but TF IDF is pretty
+30:08 low so from raw count we moved to TF Ida
+30:13 right so every entry here that is the tfidf value for that document right with
+30:19 respect for for that word with respect to the document right and each row is a
+30:25 vector now similar to uh earlier case right so it address the problem of
+30:32 frequently appearing words right but it there's still other problems for example
+30:38 if the document size increases the vocabulary size increases the Matrix will increase right the vector size will
+30:45 also increase there are so many zeros and so on sparity and so on and so
+30:50 forth okay so now these are the problems of count based approaches so one can say that uh
+30:58 one can say that you know so this sparity problem or you know bigger size
+31:04 Matrix problems right we can easily address by doing some sort of decomposition right we can use SVD for
+31:11 example right on top of this uh count Matrix or tfid Matrix I do SVD and then
+31:18 I I decompose it right and we'll take the decomposed version of it but SVD is
+31:23 again SBD is again uh um time consuming right right it is
+31:29 quadratic uh in the number of rows and columns and uh the other problem is that
+31:35 as new words comes in right you re you have to reconstruct the table you have to again apply SBD on top of this and so
+31:43 on and so forth the last and most important drawback of this kind of count based metrics is that it doesn't
+31:51 consider the ordering ordering of words right I look at a particular
+31:57 context and within the context this context window of size 10 for example all the words are same right it's a bag
+32:04 of word representation all the words are the same right so it it doesn't take into account the fact that if some word
+32:10 appears before the other word or some word appears after the other word their meaning may
+32:16 change okay so SVD may not be a good approach because of the quadratic complexity and uh you know incorporating
+32:24 difficulties in in incorporating new words and so on and so forth okay so to
+32:29 address this problem now we move to the uh the recent approach called word to f a prediction
+32:35 based approach we have seen count based approach now we look at prediction based
+32:41 approach okay uh so let us go back to
+32:48 2013 when um Google uh Thomas mikolov and Jeff D they came up with the idea of
+32:56 what vector and this term what vector was coined that at that time what Vector is nothing but the vector that we have
+33:02 been discussing but it is dense now it is not of size 1 million the size
+33:09 could be 100 or 200 or 500 right
+33:15 so what Vector is a dense Vector now why a dense Vector is important instead of a
+33:21 sparse Vector because if if if the feature size is if the feature number of
+33:27 features is is high right it may it may it may be prone to
+33:33 overfitting we need lots of parameters to train right we all know uh scars of
+33:39 dimensionality right so if we squeeze it maybe we don't need to uh of course we
+33:44 don't need to uh train many parameters the second problem is that it will be more uh generalizable right the other
+33:53 good part is that if you do this kind if you take this kind of dense vectors
+33:58 right often times we see that the words car and automobile right they are
+34:03 synonymous but if we if we look at the um the traditional count based
+34:09 approaches or one one not one not in one not encoding kind of approaches uh you
+34:14 know this kind of synonymous words are not captured properly in fact often times we say that if a word w coae with
+34:22 the word car as well as with the word automobile right let's say there are
+34:27 there's a word W1 which Co which coars with the word car there W2 which coars
+34:33 with the word automobile W1 and W2 can also be synonymous right so this kind of
+34:38 inference uh may not be uh may not be very straightforward from a raw count
+34:44 based approach okay so what du was proposed in
+34:51 2013 and uh the the in the what to package there are two types of
+34:59 um there are two types of approaches right almost the same but you know
+35:06 prediction wise are slightly different remember these are prediction based approaches we are moving from count
+35:12 based approach to the prediction based approach okay so the first one is called
+35:17 cow continuous bag of word model and the second one is called the
+35:23 scram model okay so the idea is almost the
+35:30 same in let's say there is a there is a word uh there's a sequence of tokens
+35:37 let's say I am going to school
+35:43 right I want to I want to measure the
+35:48 vector corresponding to the word going I want to measure the word Vector
+35:53 corresponding to the word going right in cow
+35:59 what I do I will take the context tokens right to predict the word embedding of
+36:07 the given word in skip gram I will use the uh the
+36:15 the the the the the center token to predict the word embedding of the context words it's just
+36:22 opposite I have a sequence of words sequence of tokens and let's say there is a central word for example in this
+36:29 case the central word is going for which I want to predict the embedding in C I will look at the
+36:36 context words to predict the uh representation of the central word in
+36:41 skip gram I look at the central word to predict the representations of the context
+36:47 words right in a neural network terminology this is very straightforward let's say you have you have a
+36:53 multi-layer perceptron kind of network a two layer uh Network right
+36:58 uh in in Cal what I do I feed the representation of uh the context word
+37:06 and I will try to generate the representation of the central word in
+37:11 skip gram I feed the representation of the central word and try to generate the representation of the uh context
+37:19 word okay so let's focus on skip gram because this is this is uh more popular
+37:25 right skip gram with negative sampling okay skip gram with negative sampling
+37:31 we'll discuss what is negative sampling and so on okay
+37:36 so so what to make is an is an unsupervised approach I would say this
+37:42 is a self-supervised approach you do not need any labeling any human label data
+37:48 right number one number two this is just a prediction task right a simple logistic regression
+37:56 task it's a simple logistic regression task all of you know logistic regression is a simple L logistic regression
+38:03 classifier it's a classifier which will classify that this this word is not a
+38:09 context word this word is a context word that's all very simple idea okay
+38:16 so let's look at the approach so we have a Target word t now
+38:24 remember we will use two terminologies one is called the target word
+38:29 Target word and the other is called context
+38:35 word right T and C okay given a particular Target
+38:44 word I will look at what are the context words and how do we identify a context word I have this window right I have
+38:52 this window of size 10 we have the documents multiple sentences I move the
+38:57 window uh one step at a time right at every step I look at 10 words at a time
+39:03 right let's the middle word is a central word and the remaining uh nine words are the context words right so what I do for
+39:11 every Central word I make a pair right let's say let's say uh W WT is a is the
+39:21 context is a target word and WT minus1 WT minus 2 w W T minus 3 right WT + 1 WT
+39:32 + 2 WT + 3 this is the context size moving window size right and there
+39:39 are of course other words here it's a wt+ T minus 4 WT minus 5 right WT + 4 WT
+39:48 + 5 and so on and so forth and this is my sliding window okay this is my target
+39:55 word so what are the positive context words the positive context words are WT
+40:01 so w for WT Target word the positive context words are WT minus 3 right WT
+40:08 minus 2 WT minus1 WT + 1 WT + 2 WT + 3
+40:17 these are the positive context words because these words appear uh these words coae with the word WT within the
+40:24 context so right so these are the pairs these are
+40:32 the positive pairs given a
+40:37 particular window size right I identify I I will first identify the context
+40:44 words and make these pairs what are the non-c context words with respect to this
+40:52 context size at this position what are the non-c context words non-c context words are those words which which are
+40:58 which are outside of this uh particular window right right so there are there are if if the size of the document is n
+41:06 there are n minus how many uh 3 + 3 6 + 7 n minus 7
+41:14 uh tokens which are non- context words
+41:19 right okay so I will sample non-c context words from the document so this
+41:27 is my cont text uh word pairs I will sample equal number of non-c context
+41:34 pairs from the document in fact in what to bre what we do in skip ground
+41:39 specifically we take K times more negative samples these are negative
+41:45 samples these are positive samples and those are negative samples non- Contex words are negative samples so if I take
+41:52 if I take 10 positive samples I will take 40 negative samples four times or
+41:58 five times why why it will give you more more more
+42:04 evidence right not only that sometimes what happens is that when when you sample negative examples it may happen
+42:12 that some of the positive examples can also come right because you are sampling from some some
+42:18 distribution it may happen that some of the positive samples can also come in fact that that particular word can also
+42:23 come as a context negative context right of course you can have to remove those
+42:29 duplicates but it is always safe to consider more negative examples we will
+42:34 discuss how to sample negative examples later okay so this is the sequence of uh
+42:40 tokens I fix the context window I sample positive instances negative instances I
+42:48 Cur positive inst instances sample negative instances then I run this
+42:55 classifier okay and the classifier will classify positive instances from the negative instances now how I will tell
+43:00 you right so they again again you move this context to window one word forward
+43:07 right again you cured all these things again you run the classifier and you keep on do doing this thing until unless
+43:13 the entire document gets scaned overall philosophy okay let's
+43:20 look at examples so let's say this is an real example
+43:25 lemon air tablespoon of capric apricot jam a pinch this is a sequence of words
+43:32 right and let's say the context window is this one from here to here okay and the target is applicant uh T tablespoon
+43:40 and off are context words jam and a are also context words and other are non-
+43:45 context words right right these are context pairs so for every word w now this is W
+43:54 okay for every word w we have a Contex context Vector C now remember this W
+44:01 this word w is represented by a vector the word embedding Vector which
+44:07 we are going to learn right through this classification we are going to learn the embeddings of
+44:15 w and C what is c c is the context words and W is the target word
+44:20 t we need a representation for C we need a representation for
+44:25 w right and and over the itations we will learn the representations of w and
+44:32 C we start with a random uh initialization of w1c it can be let's
+44:37 say one hot encoding for example simple or it can be Rand random uh random initialization and then you keep on
+44:44 iterating right okay what is the task of the classifier the task of the classifier is
+44:53 that a given a pair of instances W and C
+44:58 what is w what is w w is a target word central word what is c c is the context
+45:04 word given this pair W and C we measure the probability that this
+45:10 is a positive pair so given that we have W and C what
+45:15 is the probability that this is a positive positive instance this is a positive instance if it's a Contex is a
+45:21 positive instance right if C is a negative instance
+45:28 then I will measure given this probability given this tle W and C what
+45:34 is the probability that this is a negative instance so we will measure these two
+45:40 probabilities okay now negative probability is same as 1 minus positive
+45:46 probability right so essentially we will measure this positive
+45:52 probability okay what is the probability that the that a particular pair is a
+45:57 positive pair okay so how do how do we measure this probability we measure this
+46:02 probability using dot product right dot product is a measure
+46:09 of similarity we all know what is dot product right now let's look at the the equation
+46:16 here a very simple equation so I mentioned that this is just a classifier this is this is a logistic
+46:23 regression right to measure this probability that W and C are positive
+46:29 instances right W and C is pair is a positive instance what I do I measure this probability using a sigmoid
+46:37 function right what is the sigmoid function right and the beauty of the
+46:43 sigma function is that it it basically squashes everything between 0o to one right machine learning uh researchers
+46:50 always prefer this uh the sigmoid function because uh not only produces a
+46:56 probability but also the derivative has beautiful some beautiful formula right
+47:01 if you take the derivative of sigmo this is essentially sigmo into 1 minus sart and there are also other properties
+47:08 very interesting properties of course if you ask a statistician uh they will say that you know we I I I will not consider
+47:14 Sigmar as a as a as a probability because probability has certain aumes
+47:20 and certain other properties but for a machine learning researcher I think this is a good enough uh function right so
+47:29 so sigmoid of c and W remember C is a vector embedding Vector right W is also
+47:34 a vector right so this is computed by 1 by 1 + e^ minus C * X this is a DOT
+47:44 product okay right and how do you compute the negative one 1 minus positive remember
+47:52 uh what is 1 minus sigo of X 1us sigmoid of x sigmo of minus X so sigmoid
+47:60 function has very beautiful properties right so 1 minus the sigmoid is basically Sigma of minus of that right
+48:09 and if you if you do this math you see that this is essentially this one 1 by 1 plus exponential of C *
+48:17 W okay so now this is for one pair this is for
+48:23 for a single pair of word and context right Target and context there are multiple such pairs right if if the
+48:31 Contex size is 10 there are nine such pairs of positive instances and there are there are 40 such pairs of negative
+48:38 instances if it is four times right so this is for one pair so how do we then
+48:43 consider all the other pairs for other pairs also I measure this and we assume that all these pairs are independent
+48:50 right if they are independent then this is just a product of all the probabilities this is just a product of
+48:56 all the probabilities isn't it there are there are eight such
+49:03 instances right and sigo of c c i * W where I tends to I ranges from 1 to l l
+49:11 is the Contex size the window size is this clear okay so this is essentially the uh
+49:21 the the you know all the probability is considered together so we we do not
+49:26 consider consider the sum where we do not consider the product often times we take the log of it right we take the log
+49:33 of this probability and which will essentially be the sum of all the logs
+49:40 right right so so what what we have done so far tell
+49:46 me we fixed the context window size right for every context window we sample
+49:52 positive instances and negative instances we curate positive instances and sample negative instances right and
+49:59 then we measure the probability okay and then the positive the positive probability should be higher than the
+50:04 negative probability that the classifier needs to make sure right the classifier basically you know uh listic regression
+50:14 uh Works based on the log likelihood estimate right so we will have this log likelihood estimate and that's my
+50:21 objective function then we take the derivative because this is the objective function l l we we maximize is the log
+50:27 likelihood right then we take the derivative what are the parameters
+50:34 here the parameters are the vectors of the the C and W vectors now here's the
+50:41 question so tell me for every word how many vectors we
+50:48 are Computing two vectors right C and W or C and T right
+50:56 where where uh you know a time when the word is the word acts as a central word
+51:02 and the time when the word acts as a context word right so if you think of this
+51:08 Matrix if if you think of the embedding as a bulky Matrix and assume that there are v v
+51:16 number of uh vocabulary tokens or vocabulary entries present in the
+51:21 document right V is the size of the V is the number of tokens right so we
+51:28 have V entries here and we have V entries here right let's say from a to
+51:35 from a to zoo here from a to zoo right and this entries the upper part of the
+51:42 Matrix uh represents the target embedding and the lower part represents
+51:48 the context embedding so we are essentially learning
+51:55 to V number of vectors right and what is the size of
+52:02 the vector is the hyper parameter you have to decide beforehand
+52:08 let's say the size of the vector is 10 right so what's the size of this Matrix 2 V * 10 this many number of parameters
+52:16 we are updating okay so now look at this one so
+52:22 this is this bulky Matrix which we are uh estimating so the word starts from
+52:27 artor to let's say zebra right and this mod V uh size part of the metrix
+52:35 corresponds to the Target words and the similar mod V type size submatrix
+52:40 corresponds to the context words okay and when I say when I say
+52:47 that uh the word adver for example the word artor and the word apricot just
+52:54 again for the sake of you know give an example let's say when I say that the target was what is adfor
+53:02 and the context what is appc let's say and the apricot is a positive context for the word
+53:09 Ador right let's say this is my initial uh Matrix when you initialize it right
+53:17 and when I say that this is a positive positive context of this what does it
+53:25 mean it means that over the iterations I will try to move the representation of
+53:31 the of of the context of apricot closer towards the target of uh Target of
+53:39 Target of artor let me repeat what I what I just
+53:45 mentioned hard work is the target word and aicard is the context
+53:51 word right when you initialize this Matrix at the beginning all this initial
+53:57 initiation happened randomly right and over the iterations what is the target
+54:02 the target is that positive context should come closer to the Target and
+54:07 negative context should basically be far from the Target right so over the iterations I
+54:14 update this Matrix such that the positive context will come closer and negative context will basically Go
+54:20 Far So after record you will see that over the iterations right if you look at
+54:25 the embedding space let's say these are the these are the this dots indicate
+54:31 different uh embeddings right in the vector space let's say this is
+54:37 artor and this is apricot this is the target of artor this
+54:43 is the context of aot right over the iterations we will say that this will
+54:48 move closer and closer this two things move closer and closer and the negative
+54:53 instances will move further and further
+54:59 okay okay now let's look at the training uh process of what to okay uh at every
+55:08 context window I have a Target and I have a context I have multiple contexts right so in this case apricot and
+55:15 tablespoon apricot and off apricot jam apricot a these are positive instances
+55:21 right and uh we we sample key negative instances from the remaining documents
+55:27 right for example app cot artwork appli cot my app cot where app cot if these
+55:33 are all negative instances okay okay so and then I I
+55:39 train the logistic regression so that uh this and the the positive pair should be
+55:44 classified from the negative pair okay how do we sample negative
+55:50 examples we sample negative examples based on the unigram distribution
+55:57 right so for every word I have a I have a probability from the document I can
+56:05 easily measure the unigram distribution of every word unig probability of every word right so there is this unigram
+56:13 probability and then I sample every time I toss a coin and Sample a negative
+56:18 example from the unon probability
+56:23 okay but with a small tricks here because what what will happen if I only
+56:28 consider unigram probability what will happen Only The Words which are frequently occurring because there their
+56:35 probability is high those words will be sampled again and again but those words are not at all meaningful non contextual
+56:43 words right if I keep on sampling word if if I keep on sampling the word let's
+56:49 say the or a right these are not meaningful words right so what I do
+56:55 instead of a raw unigram probability I will use some sort of modified unram probability so count of this W by sum of
+57:03 count this is the unram probability I will essentially use another parameter
+57:09 Alpha so count to the power Alpha by sum of count and every count has this
+57:16 Alpha okay as a power why this is needed this Alpha addition of this Alpha
+57:24 will give you a slightly higher to the rarely occurring
+57:30 words or low frequent words right let's if you're not convinced Let me Give an
+57:36 example let's say there are two words A and B and these are the raw uh unigram
+57:43 probability 99 and 01 right now if you use Alpha if you add
+57:50 Alpha as a as as a power and let's say the value of alpha is 75
+57:57 okay so the modified unigram probability of a is 97 and the modified unigram
+58:04 probability of B is 03 so 03 is higher than 01 although uh
+58:12 you know highly frequent word has still higher frequency higher probability but
+58:17 at least after this modification rarely uh occurring words they will have
+58:24 slightly higher uh probability and high frequent words will have slightly lower
+58:30 uh probability right and now you can control the value of so this is the probability based on
+58:37 which I will sample negative instances okay
+58:42 so how to learn word vectors we will maximize the target word context word
+58:49 pairs probability we will minimize the target word negative context word pair
+58:55 probability this is the target so what is the final objective
+59:01 function for the logistic regression logistic regression maximizes the likelihood right uh or Min minim
+59:08 minimizes the negative block likelihood right
+59:14 so probability of the positive instance and there are K negative
+59:21 instances I I have sampled right negative probability of uh uh sorry um
+59:29 uh positive instance and the negative instance and um we will see that whether
+59:36 this uh this pair this negative pair is what is the probability that this pair
+59:41 is a negative pair so P of w c pause what is C pause C pause is
+59:51 the uh embedding of the positive context right and W is the Target word right so
+59:58 what is the probability that this is positive right
+60:03 similarly I have a w and C NE okay this is a negative uh this one
+60:11 negative uh context right what is the probability that this is a negative
+60:17 context right okay and there are K number of such negative samples that I
+60:22 have already sampled so I take up product of all this
+60:28 K and I maximize both this and this I mean you can you can say that why I
+60:34 maximizing this I should minimize this the second part what is the second
+60:42 part what is the second part given a Target word and a negative
+60:49 context word what is the probability that this is a negative
+60:54 instance right should I maximize or should I minimize maximize right I want to
+61:01 maximize this also I also want to maximize this so I take the product right log of
+61:08 this so this is the log likelihood minus negative loog
+61:13 likelihood I want to minimize this okay now if you do some small
+61:20 arithmetic so you move log inside so log this plus sum of log this
+61:28 right and we we have already seen that okay so what is this by the way P of
+61:35 minus uh minus given W comma C is same as 1 minus P of plus given this yes
+61:44 right this as this is same as this and how do we measure this probability using sigmoid sigmoid and Dot product right so
+61:52 this is this probability is replaced by sigmoid this will be this will be replaced by
+61:59 sigmoid 1 minus sigmoid is one one minus sigmoid X6 Sigma minus X so this is same
+62:07 as Sigma minus X okay so this is objective function
+62:14 that I want to minimize now okay and what are the parameters
+62:21 parameters are C positive C negative W by the way C positive see negative these
+62:28 are just notations right both of them are C right just just for our
+62:34 understanding C positives are those instances which are positive and C negative are those instances which is negative so in this bulky uh embedding
+62:42 Matrix we have only W and C or what about T and
+62:48 C okay this I already mentioned and and I will use gradient descent to update
+62:55 this so this is the loss function okay uh there are parameters w
+63:02 c NE and C pause and we take the derivative let's look at the derivative
+63:08 a very simple state for our derivative uh you take the derivative of this with respect to C
+63:15 Pauls okay so this part will be ignored right we only look at this part
+63:20 log of x 1 by X right so so this will be
+63:26 1 by 1 by sigmoid right and then we take the derivative of this right what is the
+63:33 derivative of sigmoid sigo into 1us sigo so sigmo into 1us Sig Sig Sig will
+63:39 cancel out right 1us sigo will will basically remain now we already have a
+63:44 negative here so this will be Sigma minus one and of course there's a
+63:50 w so this is the derivative similarly if you do a small calculation here this
+63:57 will be the derivative with respect to C and this will be the derivative with respect to
+64:04 W okay once we obtain the derivative this is these are the update
+64:10 rules the the the the positive vectors will be updated using this formula the negative
+64:18 vectors will be updated using this formula and W will be updated using this
+64:24 formula right now we we obtain two M two matrices W and c I mentioned multiple
+64:31 times two matrices W and C now you can ask which one I should choose right the
+64:38 best option is that you choose two things separately and see which one is better the default option is that you
+64:44 take the sum of apricot using apricot acting as a context apricot acting as a
+64:51 Target you take the sum of both the vectors and that's going to be your fin Vector what to V is a static embedding
+65:00 remember this it's a static embedding meaning that for every word w
+65:08 you will only obtain one vector I mean of course you can say two vectors But ultimately one vector it is not the case
+65:15 that for every sensus of this word you will have different vectors modern approaches like uh both
+65:23 kind of methods there you will see that we will you will get contextual Tings
+65:29 okay okay so summary this is the summary uh slide we start with a random initiation
+65:38 of this entire Matrix what's the size of the Matrix D Dimension V plus v so 2v *
+65:45 D Matrix we start with the random initialization and then I move the sliding window every movement I will I
+65:53 will curate positive instances negative instances K times more negative instances I will run the logistic
+65:59 regation update the parameters I again move uh run and so on and so forth okay
+66:04 so this is prediction based approach what is the difference between
+66:10 count based approach and a prediction based approach count based approaches including tfidf raw count and prediction
+66:18 bestas approaches like what to W right what are the differences count based approaches uh create create this Matrix
+66:28 one time scans you just scan all the do the entire document and create the Matrix and you are done right so it
+66:35 preserve the statistics very very very carefully whereas in case of B to there is no such thing right count based
+66:42 approaches the negative part is that as the as the size increases the metrix
+66:48 size will increase and you keep you need to recompute all the entries here as the size increases you may just need to
+66:55 learn or you you may need to run uh the LTI regression one more
+67:02 time okay so couple of small tricks that this
+67:08 water to paper considered another tricks that they considered is called sub subsampling frequent words let's say
+67:15 this is the sentence the quick brown fox jumps over the lazy dog okay and this is
+67:22 my window what are the samples I can c the quick the brown right from here
+67:29 let's say quick quick the quick brown quick Fox and so on and so forth
+67:34 right if you look at here very carefully quick the quick and quick the
+67:42 they're basically the same isn't it because ultimately we will take the dot dot product of two
+67:49 vectors so I can I can ignore one of this in instances the second problem is
+67:56 that the word the right the second problem is that the word
+68:03 da is not at all a very uh meaningful word right because uh you know it is
+68:12 unclear whether the word the acts as an article I mean acts as a meaningful
+68:17 article here or the you know the the the literal meaning of the is useful in this
+68:23 context or not right so what we do here in subsampling is
+68:30 that we we use another
+68:35 probability and with this probability I will remove some of the words from the documents and I will not
+68:42 consider those words while curating the positive samples and negative samples what does it
+68:48 mean now this is the probability this is again uh kind of an unram probability
+68:54 but small changes here and there right so P of w is a probability of a
+69:00 particular word this is what is z of w z of w is the raw uh
+69:09 raw frequency okay of of the word w and this
+69:14 is a some sort of complicated formula that they proposed without much
+69:19 rationally behind it right but you can also think of many such formula which at
+69:25 list which can guarantee that this trend you know remains as it is what is this
+69:32 trend it says so the xaxis is zwi and y- axis is
+69:41 pwi okay so if a what is less likely in
+69:46 terms of frequency they will be sampled more and if it is highly likely they
+69:52 will be sampled less Z SL meaning that if a word appears
+69:58 a lot of times like the word the you will ignore or you will remove that word
+70:03 from the document if it appears less number of times you will keep those
+70:10 words when I say remove a word from the document means with certain probability not all
+70:17 the times okay with certain probability so let's look at some of the
+70:24 uh values right so in order to make the value of P to be
+70:31 one if you really want to make a probability to be one right the
+70:38 frequency the the the the the frequency should be 26% less than
+70:46 26% so it means that if a word appears in a
+70:52 document 26% of time it is highly likely with
+70:58 probability one you will sample that what okay if the word appears right
+71:06 with this probability right you will with 50%
+71:11 chance you will with with 50% chance you will sample that
+71:16 word if a word appears 100% what does it mean it means
+71:24 that there's only one one word in the document right I mean there is only one
+71:30 word appearing multiple times in there's no other word so the chance that this word will be sampled is
+71:37 033 probability this is just a just a hack to remove frequent frequently appearing
+71:45 words uh from the training instances that's all about water right
+71:51 uh this is a very nice analogy that they showed in the paper that that uh with now you have all
+71:58 these embeddings right so with this embeddings now you can do all sorts of
+72:04 word analogy test right in fact you can you can do linear operations
+72:10 here there's a beautiful example you take the embedding of
+72:15 king and you subtract the embedding of man from the embedding of King so King
+72:21 the word King has an embedding the word man also has an embedding okay you subtract this from King you get
+72:30 a resultant embedding right so and then you add the embedding of
+72:36 woman right to that resulted embedding this will be equivalent to the embedding
+72:42 of Queen right so you subtract man from
+72:49 King add woman you get the embedding of Queen what are the problems of what Bing
+72:56 the first problem is this a static approach right it doesn't consider different different senses of it the
+73:02 second problem is that when an unknown word comes in the teste set word
+73:08 embeding is already trained on a training set right you have a dictionary where the embeddings are stored already
+73:14 stored now in a test set when you see a new embedding uh when you see a new
+73:20 word which which did not appear in the training set how do you how do you get the embeding of this
+73:26 you'll not get it right to address this problem uh what people suggested is
+73:33 something called subword embedding so from word I move to subword what is a
+73:38 subword subword is a sequence of
+73:43 characters right so the method that was proposed by Facebook is called Fast text
+73:49 fast text is a subord embedding method right what is a subord embedding
+73:54 method very same as skip gram right so here and again I will not going go into
+73:60 details of this so the idea is that in in skip gram word embedding
+74:06 method in in what to V what is our vocabulary our vocabulary is the set of
+74:12 words right here the vocabulary is set of sub subwords and how do we Define a subw a
+74:19 subord is defined by engrams right let's say the word where w h w h e r e here if the Ingram size is
+74:28 three I will take w h e h e r e r e
+74:34 these are three subwords right uh along with this I will
+74:40 use this uh this angle bracket as the start of the word and the end of the
+74:46 word and those angle brackets are also considered as characters so you have this as a INR as a three G this is also
+74:54 Three G character Three G character Three G character Three G character and the word
+74:59 itself so for every word I have a set of subwords that word itself and the
+75:07 other ingrams Ingram characters once we got it I will just run the
+75:15 skrum I will just run the skrum and Skip grum will give you uh subw level
+75:21 embeddings now let's say a new word's coming a new word comes in which is let's say let's say uh
+75:30 Nifty okay so the hope is that n if if
+75:36 for this sub word I have an embedding right the this this uh engram
+75:43 character this character engram has appeared maybe right so I will take the
+75:48 uh sub embedding of N I will take the subord embedding of if I will take the
+75:55 body buing of fty right and of course this angle brackets right and I will sum sum them
+76:02 up okay so this is the idea of U first text I'll stop
+76:07 here and maybe in the next lecture I will start discussing uh glove Ting
+76:14 thank you

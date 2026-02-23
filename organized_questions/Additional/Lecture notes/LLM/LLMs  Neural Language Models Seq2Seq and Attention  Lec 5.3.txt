@@ -1,0 +1,398 @@
+00:04 okay hello everyone in today's class we will discuss sequence to sequence modeling right and we'll also start
+00:12 attention so uh in the last class we discussed RNN methods Advanced methods
+00:17 lstm Gru and so on and so forth right we have seen how GED uh getting mechanism
+00:24 uh can address the vanishing gradient problem right we will see how RNN can be used in
+00:30 the other types of problems like sequence to sequence uh labeling problems right before that today's
+00:35 breaking news can you guess what what is going to be today's breaking news yeah so jimr 2 2 billion released right and
+00:44 um this is one of the smaller language models proposed by Google right uh 2
+00:51 billion model uh this is essentially a distilled model from the bigger Gemini
+00:57 version of it right and it was also uh
+01:03 shown to be very effective in uh in safe gardening some of the to toxic content
+01:09 right so uh they also released this sealed Gemma right which is basically a
+01:16 suite of safety content classifier models to filter the input and outputs
+01:21 of AI models and keep the user safe okay so uh you can use this uh GMA 2 2
+01:29 billion already suppresses some of the larger models like GPD 3.5 turbo uh
+01:36 Mixr mix is different model by the way okay don't mix up with mistel uh Lama to
+01:43 uh 70 billion and then other models also okay let's get started so sequence
+01:51 to sequence models we are we are discussing those things which were proposed in in
+01:58 2015 2016 right uh right so in sequence to
+02:04 sequence model what what is a sequence to sequence problem a sequence to sequence problem is you you are given a
+02:10 sequence and the output would also be a sequence right let's say machine translation you are given a Hindi
+02:16 sentence and the output would be English sentence uh let's say summarization you are given a longer document and your
+02:23 task would be to basically generate a shorter document right these are all sequence to sequence uh prop s right it
+02:31 can be many to many it can be many to one it can be one to many and so on and
+02:36 so forth many to many sequence to sequence model sequence to sequence the
+02:42 term can also be abbreviated as s to se okay so many to many SE to S problems
+02:49 uh include summarization dialogue right uh many to one what do you
+02:57 think many to many to one set to set problem can be
+03:05 classification classification or no huh uh in so it's not a sequence to
+03:13 sequence as such because ultimately we generating a label but I mean you can think of it as sequence to sequence it
+03:20 also depends on the way you map it what is one too
+03:26 many example of one too many no speech is a SE sequence to sequence
+03:33 speech generation music generation what's the input in input will be a prompt right or
+03:41 so that's that that that is many to many what about uh image
+03:49 captioning your input is an image and output is a text a
+03:55 sequence h of course you can say that uh
+04:00 you know I can I can basically flatten the image make a matrix or whatever
+04:06 right that will be a many to many but high level this is one to me okay so let's look at this machine uh
+04:14 machine translation uh problem for the time being in a sequence to sequence model
+04:20 what we do since there are two sequences involved input and output we will use two rnns right one RNN will process the
+04:29 uh the input another RNN will process the output okay let's say this is the
+04:34 this is the FR sentence uh I'm not able to pronounce it at all I don't know fren uh French let's say this is the French
+04:41 sentence and you use a simple RNN right to encode the the sequence and let's say
+04:48 this is the last hidden state right and this is your output the
+04:53 output the the translated version of this F sentence is he he hit me with a p
+05:01 okay so the last state of the previous
+05:07 uh RNN will be Fade to the first state of the output RNN and the remaining
+05:14 process will follow now if you look at this thing very carefully where is the
+05:20 loss we are Computing so we Computing the loss at the output hidden State at
+05:26 the output RNN this is the output RNN right now look at the time stamp so here
+05:33 let's say when you allow so this is the input right ideally uh you know the first
+05:40 input of the first hidden state will be a start symbol right and it should be
+05:45 able to generate the next uh next word which is he right now you pass this he to the
+05:52 next hiden state it will generate something last day I mentioned uh something called teacher forcing right
+05:59 what is the teacher forcing see in teacher foring I instead of feeding he
+06:04 let's see here the model generat C so ideally I should Feit C and then I
+06:11 I will see what the next word is going to be right this is a normal process but in in teacher forcing I will feed the
+06:19 actual input right for example even if it generate C I will feed he uh in the
+06:24 next St right which is kind of a cheating but uh this is it I mean it was
+06:30 it turned out to be much more effective in at least training the modu during inference you you can't you can't do
+06:37 this but during training you can do okay so at this stage you'll have some uh
+06:45 error at this stage some error and so on and so forth right look at this so here
+06:51 you have an error J1 error J2 j3 j4 J5 dot dot dot j7 right and the total error
+06:58 is basically sum of this this is the total error and you normalize it by the number of uh number of output tokens t
+07:06 Okay and then when you back prop when you do back prop pression right so this
+07:12 loss will affect all the hidden States this is end to endend training this is
+07:18 called end to end training end to end
+07:25 training okay so this error will be back propagated and all the hidden states in
+07:30 the decoder as well as encoder will be updated so the input RNN is called
+07:37 encoder and the output RN is called decoder this is in to end training
+07:45 clear okay and how do we do this back propagation we'll use bptt back propagation through
+07:52 time okay now if you think of this uh sequence to sequence problem carefully
+07:59 this is essentially a conditional language model why this is a conditional language model what is what is it
+08:06 conditioned on it is conditioned on the input right so X let's say x is the
+08:15 input here input is the in case of machine translation input is the French sentence and the output is the English
+08:21 sentence right so you are basically Computing this probability so this is now if you think
+08:29 of y as y1 Y2 Y3 dot dot dot so the first probability that you are Computing at
+08:35 the first hidden state right what is the input there the input is the final final
+08:41 hidden state of the encoder right so that is X but you have already processed the
+08:48 Entre input sentence right so probability of y1 given
+08:53 X the next one this one what is this one this is probability
+08:59 of Y2 given X and y1 right and so on and so
+09:06 forth the last one the last word will be probability of YT given y1 Y2 y Y3 dot
+09:13 dot dot YT minus one and X right so conditioned on the generation
+09:22 the tokens that you have generated so far and the input Tok
+09:27 Okay so now when we decode this how do we decode
+09:34 this during the inference stage can somebody tell me let's say the model has been trained okay how the model is
+09:40 trained I I think it is I think it is clear right how the model is trained we will we will do uh we'll do teacher
+09:47 forcing right and we will compute the loss at every time stamp right and then
+09:53 we backrop the entire loss end to end okay and you do it for all the machine
+09:59 translation pairs now during the inference stage what you do you are given a now since there there
+10:06 are two in pars encoder and decoder how many weight matrices are
+10:12 there so in encoder how many weights are there there are there is this
+10:18 W right there is this w e and there's this U so U is not there in the encoder
+10:26 U is there or not what is U the U Matrix was the linear uh the
+10:33 linear projection Matrix right that is not the in the encoder because in
+10:38 because at the encoder stage you are not predicting anything so you need a wh and a
+10:45 we what is we W is the weight Matrix corresponding to the
+10:51 embeddings and at the decoder stage what are the uh matrices wh Dash we e Dash
+10:60 and youu okay and these matrices
+11:06 are are trained or learned during the training time remember uh the embeddings
+11:14 right the embeddings that you are uh uh you are using here are different because
+11:20 input is a French sentence output is an English sentence the embeddings are different right let's say if it is a
+11:27 let's say if it is a um uh summarization problem then the embeddings will be same
+11:32 because the languages are same okay language is same okay
+11:38 so now during the inference time what we'll do uh we are given the uh pH
+11:46 sentence we pass it through the encoder right we will use this matrices this
+11:52 using this matrices we will get the final hidden state of the encoder right
+11:58 that hidden state will be given to the decoder and in the decoder I already know wh Dash and we Dash right so based
+12:05 on that I will generate the this this hidden State the first hidden state of decoder right and then I pass it through
+12:12 this uh linear layer U followed by nonlinearity it will project it to a 1
+12:19 million dimensional Vector 1 million is the size of the vocabulary right now so it will project
+12:27 it will project it to a 1 billion d probability Vector then you sample one
+12:34 token from the probability right and the hope is that the token which has maximum
+12:40 probability will be sampled so let's say you sampled
+12:46 heat okay and then you uh Fe feed here it will generate heat you you feed so
+12:53 when I say I feed he to the next layer what does it mean it means means I feed the embedding
+13:02 of he to wh the wh Dash is the same for all the
+13:10 uh tokens that you are generating in the decoder in a gred decoding
+13:18 strategy instead of sampling uh uh the token based on the probability I will
+13:24 choose the token which has the maximum probability I will not do any sampling
+13:31 okay this is grey decoding so what is the problem with G greed decoding the problem is that let's
+13:39 say if you um if you made a mistake at any point
+13:46 you won't be able to recover it let's say you wanted to generate I hit uh so
+13:51 you wanted to generate he hit me with the pi so you generated he and then you
+13:57 generated heat and suddenly you generated a but you should have generated
+14:03 me isn't it you won't be able to backtrack because it has already been
+14:09 generated the a will be fed to the next St and in the next St uh something else will be
+14:15 generated this is the problem with gitty decoding right now now tell me uh what
+14:22 do you think like uh how do you address this problem is it possible to do some sort of exhaustive search to address
+14:28 this problem so instead of now think about it instead of generating one token at a
+14:35 time right if I could have generated V number of tokens what is v v is 1
+14:43 million right I generated all V number of tokens now again for for each of this
+14:50 V tokens that I've generated I pass it to the next layer it will generate again V tokens and so on and so forth right V
+14:56 tokens and so on and so forth is it possible to do that it is not possible to do that and let's say if it is
+15:04 possible to do what would be the complexity there are t number of time
+15:11 stamps in the decoding state right stage and let's say V number of V number of
+15:19 possible tokens that you can generate how many how many uh how many possible branches you need to keep track
+15:29 right we T this is extremely exhaustive okay so how to then solve
+15:36 this problem let's not make it that exhaustive let's let's squeeze it as as much as we can and to to basically
+15:43 squeeze the entire thing we'll use something called beam search Okay in beam search what we do
+15:52 the beam search is the idea of beam search is very same as the exhaustive search only difference is that instead
+15:57 of keeping track of V possible op itions I will only keep keep track of K possible options where K is the size of
+16:04 the beam right it means that instead of
+16:09 generating only one token as we did for gitty decoding or V tokens and as we did
+16:16 for um for uh exhaustive search I will generate K tokens K can be five or
+16:23 10 whatever you set the value of K Okay so
+16:30 at every stage at every stage here let's say I generate K tokens now from each of
+16:37 these K tokens I further generate K tokens and so on and so forth so complexity is still significantly High
+16:44 complexity is still K to the T isn't it but K is much much smaller than V right
+16:50 and you can decide the value of K okay so now what we do now think about it you
+16:58 you generate a token here at time T right you generated a k number of tokens
+17:03 right token one token two k number of tokens here okay and from each of these
+17:09 tokens you again further generate K number of tokens and so on and so forth right and then you stop at certain
+17:15 point right when do we stop when do we stop the decoding uh decoding
+17:22 phase when we stop I give a friend sentence when this
+17:27 decoding stage will stop when it generates a token called
+17:34 EOD there are two tokens special tokens start and uh EOD end of sentence or
+17:41 whatever end of decoding EOD right full stop
+17:47 basically right so this is one way of basically stopping the decoding phase
+17:53 there are other ways also so each of these branches right so
+17:58 let's say this Branch will lead to end of end of token uh this Branch will also uh lead
+18:05 to end of token this Branch will also lead to end of token so there are multiple branches right each of these
+18:11 branches is called hypothesis why hypothesis because we do not know which of this hypothesis is
+18:18 correct which of these branches is correct therefore this is called hypothesis
+18:25 right so now which hypothesis I will choose at the
+18:30 end I'll choose a hypothesis whose score would be higher and how to measure this
+18:36 score this score is essentially the log probability of the sequence that we have generated so far clear so two things I
+18:44 mentioned one is the value of K right we decide a k and then every hypothesis
+18:49 will will will be assigned as score okay now let's look at example
+18:57 this is an example so beam starts of size two I start with this special token
+19:04 start this is the decoding stage inference time decoding stage inference time not the training time remember
+19:11 this let's say the value of K is two so I generate I I I have generated two
+19:17 tokens I and he right and what is this probability
+19:22 this log probability how do we get this probability we we will get the probability from the distribution
+19:29 isn't it because we have this linear layer and then soft Max right we we
+19:35 we'll get the probability from the distribution now we take the log probability log probability is basically
+19:41 we sum all the log probabilities which is same as multiplying all the probabilities now since this is
+19:49 probability it will range between 0 to one the log of this will be
+19:55 negative right so all this negative number will be added and I will choose
+20:01 that hypothesis whose value is maximum Which is less negative uh here the the
+20:08 score till this point is 7 -7 -0.9 which one I will
+20:14 choose which one I choose I don't need to choose because the value of K is already two right let's explore this
+20:22 further now from a from he the next two tokens Can Be heat and St
+20:30 right from I the next tokens Can Be was and got so till this part what is the
+20:38 probability so at this stage the probability is uh the probability of
+20:43 this plus the previous one right so the total probability is
+20:50 minus 1.7 here the total probability is minus 2.9 - 1.6 - 1.8 so out of this
+20:59 how many we choose we choose only two so which which two we choose we will choose
+21:06 the the the highest one right two two two maximum one so one is minus 1.7 the
+21:11 other is minus 1.6 right and then we explore
+21:18 further a it so heat will generate further from heat I generate a and me
+21:23 from was I will generate heat and Stark and so on and so forth here again from this four I will decide
+21:31 to right now look at here this branch is
+21:37 gone right now only I'm exploring the top Branch from each of these again I'll
+21:42 generate two right and so on and so forth again this two will be selected from these two I will generate two from
+21:48 each right this two will be selected and this right let's assume that here after
+21:55 this uh the EOD uh is generated
+22:01 okay so so among this among this which one is the maximum the maximum one is
+22:07 this one minus 4.3 then I will backtrack and this is the
+22:14 backtracked right so I will generate this the problem here
+22:19 is longer hypothesis will be penalized shorter hypothesis will be
+22:26 will be given more Advantage why if it's a longer hypothesis then you keep on
+22:32 adding multiple minuses or basically you are multiplying so many probabilities
+22:37 which will lead to uh you know lower probability value let's say you had one
+22:43 hypothesis where there are only two tokens versus you have an hypothesis where there are 10 tokens so which one
+22:49 will be preferred let's say both these hypothesis were successfully led to a
+22:55 end of token right which will be preferred the shorter will
+23:01 be preferred because of this one right so what I do here we will um normalize the score by
+23:12 the number of tokens it has generated so if a longer token is
+23:19 generated right I will normalize it by the number of tokens sort a token again number of tokens that will nullify the
+23:26 this one clear is it
+23:33 clear okay so sequence to sequence problem uh was very popular right
+23:42 sequence sequence model was very popular in 2014 in fact it turned out to be one
+23:48 of the popular models which basically uh you know outperformed all the
+23:54 statistical machine translation models that were out there right 40 years of statistical machine learning history
+24:00 statistical machine translation history right suddenly the sequence to sequence model outperformed all the
+24:07 statistical models okay and then in
+24:12 2016 right people noticed that uh you know some more tweaks or some more
+24:19 modifications can also be done on top of sequence to sequence okay in 2016 uh a
+24:26 new method was proposed which is called the attention
+24:31 okay now let's look at attention here so now so far sequence to sequence is also
+24:36 annn there are two rnns right there are three problems which still persist what
+24:42 are the three problems the first problem is you can't you can't access all the tokens in parallel right the first
+24:50 problem the second problem if you think about it very
+24:55 carefully the sequence to sequence model essentially considers every every each
+25:03 pair of interactions right let's say hidden State T hidden state t plus one this interaction hiden State one hiden
+25:09 state two hiden State uh t + 5 hiden State t + 6 every consecutive pair of
+25:17 interactions are considered in a similar way so the interaction distance is
+25:24 considered as linear
+25:31 right so the way we treat one versus two the way we treat uh t ius1 t we will
+25:38 treat the same way uh let's say t + 5 t t + 6 the third problem is very important
+25:46 the third problem is called the bottleneck problem what is the bottleneck problem let's go
+25:51 back so the bottleneck problem says
+25:56 that look at this one okay so this guy this is the final hidden state of the
+26:02 decoder right so this input is fed to the this is the final uh hidden state of
+26:10 the encoder this input will be fed to the decoder right the the decoder has access to only
+26:18 this hidden state right for the decoder this is the input decoder doesn't have access to
+26:24 this hidden States right so this guy has a lot of
+26:30 responsibility of remembering the entire input sequence right so there is a bottom leg
+26:39 on this in terms of remembering the inter sequence of the
+26:47 input right if you if you're not able to compute it properly you'll not be able to uh process it but think about it very
+26:54 carefully the the word he the word he corresponds to the word
+27:04 I the word Pi corresponds to the word this right but at this time at this
+27:12 stage this hidden state has no access to the to to to the first hi state of deod
+27:18 of the encoder so due to Vanishing radiant problem due to other problems
+27:23 right over smoothing and etc etc it will happen that this hidden
+27:28 state will essentially forget about the first hiden state right and when you come here this
+27:35 guy will completely forget about this one so instead of this if we had a
+27:42 direct connection from decoder to encoder from decoder to
+27:48 encoder right that could have solved this problem maybe let's say there let's say there's a direct connection from he
+27:55 to Ill from a d con from PI to this
+28:01 one right then that could have solved the problem because through the shortcuts right information can move
+28:08 from encoder to decoder okay so this is the philosophy
+28:13 of attention so attention let's look at the attention it's not it's not a complicated uh architecture though it's
+28:22 simple I already mentioned about this bottleneck problem right so what is
+28:28 attention the core idea here is that on each step of the decoder we use a direct
+28:34 connection to the encoder to focus on a particular part of the source sequence
+28:40 so let's look at the architecture first and then we'll understand let's look let's take a DIY
+28:46 example okay okay and you want to convert this
+28:53 Hindi to English so in attention what we do
+28:59 now this is my encoder state right and this is the final uh hidden state of the encoder the first hidden state of the
+29:07 decoder this will have access to all the previous encoder
+29:13 States right and how do we do that here we introduce a concept of query and
+29:18 value each of this decoder hidden States will act as a
+29:24 query and each of the encoder hiden States will act as a value
+29:30 right so the decoder hidden state will basically check which of the encoder
+29:36 hidden States will be relevant for that decoder state right relevant means which encoder
+29:44 States will be helpful for for the decoder state to generate the correct output okay how do you do
+29:52 that so let's first look at the computation so this is my query and this
+29:57 is value V so what I do I'll first measure the similarity between query and
+30:03 value and how do you measure this we measure this using simple dot product so this vector and this Vector will will
+30:11 will be passed for DOT product right and we get a scalar here scalar this vector and this Vector
+30:19 will will will pass through dot product right and then similarly this is my
+30:25 query this is V so each of the decoder state will basically be used to do the
+30:32 dot product of every encoder State separately so this is the second dot
+30:39 product third dot product fourth dot product what are these dot products
+30:44 indicating they are indicating the similarity right so these are called
+30:50 attention scores all of these elements are scalars
+30:56 remember this from attention score I pass them through S Max s Max will produce a distribution
+31:05 and this distribution is called attention distribution let's say let's say this is
+31:12 P1 this is P2 this is P3 and this is P4 right and let's say this
+31:20 is V1 vs2 V3 V4 V1 vs2 V3 V4 are vectors
+31:28 P1 P2 they are scalars right and from from there from
+31:34 this uh computation what I do I will generate something called attention
+31:39 Vector attention Vector right what is the attention
+31:46 Vector attention Vector is the weighted the weighted sum of the encoder
+31:55 States weighted sum of the encoder States and what are the weights weights are the
+32:01 probabilities so attention Vector will be P1 and the corresponding Vector V1
+32:07 plus P2 vs2 plus P3 V3 plus P4
+32:15 P4 this times this plus this times this right and plus so on and so
+32:22 forth right so P are the weights so what is this vector this
+32:28 Vector is the weighted sum of the incor state and how does how these weights are
+32:35 computed the weights are computed based on the similarity between the decoder
+32:40 State and the incoder states right remember this weights will
+32:46 be different when I move to the next deoda state right so I I got this attention
+32:52 Vector I already have a hidle state here right and the attention Vector here
+32:58 which which I compute and then so this is attention vector and this is the U
+33:03 decoder Vector decoder hidden State I I just concatenate
+33:08 them so at this time at time stamp one hidden state is H1 right attention
+33:16 Vector is let's say A1 I concatenate them right and then what I do I pass it
+33:22 through a linear layer U followed by nonlinearity and it will generate a probability
+33:29 so instead of passing the hidden State directly to the linear layer I will pass
+33:34 this concatenation of hidden State and attention Vector
+33:40 right so similarly for the for the next decoda state this is my q and this is my
+33:48 attention distribution now look at this distribution of the previous distribution they are different right
+33:57 now if you look at the distribution carefully for the to generate the first
+34:02 output token of the decoder look at the probability which
+34:08 which encoder was useful which encoder state was useful the first one was useful therefore the corresponding
+34:15 probability was high to generate the second input had
+34:22 which one is useful the last one was useful to generate the third one
+34:28 the third one was useful to generate the fourth one the second one was
+34:34 useful right and how do we get this usefulness from the probability dot product
+34:40 probability this is clear there is no bottleneck problem here why there's no
+34:45 Bott problem now we have a shortcut from every decoder state to all
+34:50 the encoder States every decoder State can access to access all the encoder States
+35:01 clear so this is attention uh now tell me due to this attention due to
+35:07 incorporating the attention concept did I incorporate any additional parameter answer me quick no there is no parameter
+35:17 involved what are the parameters here the parameters are same
+35:23 w we e w h Dash w w e Dash and here U
+35:30 that's all there's no U here there's no U here attention score attention distribution there's no U
+35:37 here so this is vanilla attention Okay of course there are modified versions of
+35:43 attention I will discuss but this is the van attention Okay
+35:51 so let's look at the equation once again the attention equation I already mentioned so H1 H2 H3 look at this
+35:59 equation right H1 H2 H3 hn these are the hidden States hidden states of the encoder e right what is St St is the
+36:07 hidden state of the decoder at the th time period so St will basically uh
+36:13 access all the hidden states of the encoder so St H1 St do product H1 right
+36:22 st. product H2 and so on and so forth right so we generate these numbers
+36:30 these are DOT products these are attention scores right let's say this is
+36:36 ET attention scores will be passed to short Max so Alpha T is the attention
+36:42 distribution which will act as weights right so Alpha T will then be then act
+36:49 as a weight for each of these hidden states of the decoder so Alpha so Alpha
+36:54 I hi I right T ranges from 1 to n what is at at is the attention Vector
+37:02 right then at and St St is the hidden
+37:07 state of the decoder this will be concatenated right and then this will be passed through the linear layer
+37:14 attention is great why attention not
+37:20 only gives you a shortcut from decoder to encoder it also gives you many
+37:26 additional information right what are the information it it reduces the problem of
+37:33 bottleneck problems right I already mentioned okay bottom neck problem will not be there it will also help address a
+37:40 Vishing gradient problem why because now there's a shortcut right one gradient is
+37:46 moved through this one gradient is moved through the shortcut very similar to skip
+37:54 connection right the most important important beauty of this um attention is that it
+38:03 gives you interpretability for example here based on this distribution
+38:12 you can say that to generate the last word of the decoder second word was more
+38:22 responsible you will not get this kind of information from a vanilla RNN right
+38:28 so if somebody exp tells you can you explain that why you generated this you
+38:33 can say that look look at the probability so this is my attention map so my French inputs and the English
+38:42 outputs and you see so so this entry for each of these rows indicates okay
+38:48 attention distribution if one in is dark it means
+38:53 the probability is high right so to generate the word Heat the word ill was responsible to generate
+39:01 the word the word with a and Pi the last word of the encoder was responsible
+39:08 therefore Stark right so from the attention Matrix you can identify the portions
+39:15 which are responsible so this will give you an alignment also so in in a
+39:21 statistical mine translation model which I did not discuss there are three components one is
+39:28 two components one is the translation so you basically so me Bazar J I am going
+39:35 to the market right so it is not one toone translation if you think of it carefully this is not what by what
+39:42 translation sometimes we need to change things here and there so in statistical machine translation there are two
+39:47 components one is this one to one translation and then you do some alignment so alignment will rearrange
+39:54 the token right so for the alignment you need a separate model but here you do this alignment for
+40:03 free due to this attention by the way sometimes I mean
+40:10 there are papers which claim that attentions are used for interpretability there are papers which claim that
+40:16 attention can't be used as can't be used to for interpretability this this is
+40:21 debatable but therefore I said it gives some interpretability so I discussed
+40:27 attention with respect to sequence to sequence problem right but attention is not
+40:34 restricted to sequence to sequence problem attention can also be used in other other um other models you can use
+40:41 attention in normal RNN for example right so in general you can think of
+40:47 this attention as a generic con Concept in deep learning where you have a query and
+40:53 you have some values and you want to measure the importance of query uh with
+40:58 respect to all the values right you can use attention you can also think of an
+41:04 attention the the the attention Vector that you generated remember attention Vector is one vector that you generated
+41:10 right for every decoder for every decoder instead you generated one attention Vector right so attention
+41:18 Vector can also be thought of as the summary of all the value
+41:26 vectors think about it attention Vector can also be considered as a summary of
+41:32 all the value vectors in our case the value vectors are encoders encoder
+41:37 hidden States it's a summary right irrespective of the size of the encoder
+41:43 layers how many encoded layers let's say let's say there's a sequence where there are 100 encoded layers there is another
+41:51 sequence where there are 10 encoded layers irrespective of the size of the
+41:56 encoded layers you can always generate one vector attention Vector right so it basically you can
+42:03 think of attention as a summary of the value vectors you can think of attention
+42:09 as something which can squash the entire uh encoder States into a single
+42:18 Vector okay why I said all these things because when you apply attention to some
+42:24 other problems you you can you need to understand and all these factors these are uh some variations of attentions the
+42:32 one that I discussed was a simple attention method right I I basically discuss this one
+42:39 this is called dot product attention right this is the one that I discussed you can also think of some sort of uh
+42:46 parameter right because we we have a lot of data we are we will be very happy if
+42:53 we if we are able to add more parameters right so you can also add a parameter between the
+43:01 query and the value right what you can do you can pass the query to parameter
+43:08 Matrix right you can also pass the value toward the same parameter Matrix basically a bilinear product right and
+43:14 then it will generate some Vector you can also think of U um you
+43:20 know doing some complex uh formula for example you concatenate the query and
+43:27 value then pass it through a linear layer right some nonlinearity then pass
+43:32 it through another another linear layer right that will give you uh Vector right
+43:38 the Transformer paper they use something called scaled attention scaled dot product where we
+43:46 take the dot product and this is this dot product is
+43:51 normalized by the size of the vector what is mod k mod K is the size
+43:59 of the value right and you take the root of this so this is scaled by the size of the
+44:04 vector there's no intution by the way I mean these are different hacks engineering
+44:11 hacks okay so this is all about attention we stop here and in the next
+44:19 class we will discuss self attention and then the Transformer model okay thank you

@@ -1,0 +1,2521 @@
+00:00 Hi everyone. Um uh so welcome to this
+00:04 
+
+00:04 course on advances in LLMs and this is
+00:06 
+
+00:06 the lecture on instruction tuning or
+00:09 
+
+00:09 instruction fine-tuning.
+00:12 
+
+00:12 So, so far we have discussed
+00:13 
+
+00:13 pre-training right and also fine-tuning
+00:16 
+
+00:16 techniques right pre-training gives you
+00:18 
+
+00:18 a lot of ideas about the language in
+00:20 
+
+00:20 general right uh also there are studies
+00:23 
+
+00:23 which show that pre-training actually
+00:25 
+
+00:25 gives you the idea of reasoning right uh
+00:26 
+
+00:26 relational reasoning and other reasoning
+00:29 
+
+00:29 u task or uh you know objective and
+00:32 
+
+00:32 instruction fine-tuning but the problem
+00:34 
+
+00:34 with pre-tuning pre-trend models uh is
+00:37 
+
+00:37 that those models cannot follow your
+00:40 
+
+00:40 instruction uctions right so let's say
+00:42 
+
+00:42 because ultimately you know their their
+00:46 
+
+00:46 objective was to predict the next word
+00:47 
+
+00:47 auto reggressive model next word
+00:49 
+
+00:49 prediction so let's say if you ask the
+00:50 
+
+00:50 question right um uh where is this where
+00:54 
+
+00:54 where is the school located right um um
+00:58 
+
+00:58 so and let's say this is the this is the
+01:02 
+
+01:02 prompt or the input the model will start
+01:05 
+
+01:05 asking more questions where is your
+01:08 
+
+01:08 college located at rise and so on and so
+01:10 
+
+01:10 forth instead of giving the answer. So
+01:13 
+
+01:13 people realize again in 2020 after the
+01:16 
+
+01:16 after the uh GPT3 paper uh so GPT3 paper
+01:20 
+
+01:20 came in 2020. First CPD paper came on uh
+01:24 
+
+01:24 came in 2018, GPT2 came in 2019 and GPT3
+01:29 
+
+01:29 came in 2020. And uh what they realized
+01:33 
+
+01:33 is that uh these preend models are so
+01:36 
+
+01:36 powerful. Now GPD2 to GPD3 if you look
+01:39 
+
+01:39 at the size this is 100 times 175
+01:42 
+
+01:42 billion.
+01:44 
+
+01:44 So what they realized is that uh noticed
+01:46 
+
+01:46 is that with the scaling of the model
+01:49 
+
+01:49 the model is able to essentially do in
+01:51 
+
+01:51 context learning right if you ask
+01:53 
+
+01:53 questions the model would be able to
+01:55 
+
+01:55 respond to questions sometimes right if
+01:58 
+
+01:58 you give examples the model is able to
+01:59 
+
+01:59 follow the examples and so on
+02:02 
+
+02:02 but they also realized that model is not
+02:04 
+
+02:04 suitable to follow all the instructions
+02:07 
+
+02:07 properly okay so therefore they thought
+02:10 
+
+02:10 that we need further finetuning right
+02:13 
+
+02:13 which We'll teach the model how to
+02:15 
+
+02:15 follow instructions, how how to follow
+02:16 
+
+02:16 human instructions. We'll discuss about
+02:19 
+
+02:19 different techniques in this lecture.
+02:21 
+
+02:21 But before that huge news or very big
+02:24 
+
+02:24 news is that GP GPT5 came and I told you
+02:28 
+
+02:28 at the beginning that no you know I
+02:30 
+
+02:30 don't know how many new models will come
+02:31 
+
+02:31 during this course right as we as the
+02:33 
+
+02:33 time progresses maybe new new models
+02:36 
+
+02:36 will come in. GPD GPD5 came uh on August
+02:39 
+
+02:39 7
+02:41 
+
+02:41 and u uh GPD5 is open latest model which
+02:46 
+
+02:46 is you know according to the CEO this is
+02:49 
+
+02:49 smart reasoning models true multimodel
+02:52 
+
+02:52 advanced coding and so on as usual they
+02:54 
+
+02:54 performed uh the they check the
+02:57 
+
+02:57 performance of GPT3 GPT5 across multiple
+03:01 
+
+03:01 benchmark right and benchmark results
+03:03 
+
+03:03 are quite amazing so if you are
+03:04 
+
+03:04 interested you can look at this blog.
+03:09 
+
+03:09 Okay. So, and they call this next
+03:11 
+
+03:11 generation AI. So,
+03:14 
+
+03:14 maybe yeah, I'm not very sure about the
+03:18 
+
+03:18 efficiency of or you know uh
+03:20 
+
+03:20 effectiveness of these models because
+03:22 
+
+03:22 there are uh many posts on social media
+03:25 
+
+03:25 which says that you know GPD5 is not
+03:27 
+
+03:27 able to uh simply subtract 9.8US 8 -
+03:31 
+
+03:31 9.11
+03:33 
+
+03:33 right
+03:35 
+
+03:35 but anyways this is all about hype and
+03:37 
+
+03:37 we will just leave up with this hype
+03:40 
+
+03:40 okay so we are discussing pre-trained
+03:42 
+
+03:42 models and let us understand the
+03:46 
+
+03:46 uh uh the problems of pre-trained models
+03:48 
+
+03:48 okay let's say if you ask llama 38
+03:52 
+
+03:52 billion right which is also a
+03:55 
+
+03:55 open-source model that write a poem that
+03:58 
+
+03:58 describes a son getting dipped in
+04:00 
+
+04:00 chocolate.
+04:02 
+
+04:02 Okay. And you see the model will produce
+04:04 
+
+04:04 this kind of responses. The model used
+04:07 
+
+04:07 to produce this kind of responses
+04:09 
+
+04:09 uh two years back. It should be a hyaku.
+04:12 
+
+04:12 It should be about a son getting dipped
+04:14 
+
+04:14 in a chocolate and these two sentences
+04:15 
+
+04:15 getting uh these two sentences would get
+04:18 
+
+04:18 repeated multiple times and this is not
+04:20 
+
+04:20 a poem at all. So you see that the model
+04:23 
+
+04:23 is not able to understand the prompt
+04:25 
+
+04:25 properly the instruction properly. So we
+04:27 
+
+04:27 need further fine-tuning to teach the
+04:29 
+
+04:29 model how to follow instructions. So so
+04:32 
+
+04:32 after pre-training we will talk about
+04:34 
+
+04:34 instruction fine-tuning which which
+04:37 
+
+04:37 basically u let the model follow natural
+04:39 
+
+04:39 language instructions right and then we
+04:42 
+
+04:42 will also you know also see later that
+04:45 
+
+04:45 instruction finetuning may also not be
+04:48 
+
+04:48 sufficient. we need more finetuning
+04:50 
+
+04:50 right and for more for for further
+04:52 
+
+04:52 finetuning we need human alignment
+04:55 
+
+04:55 for example let's say after instruction
+04:57 
+
+04:57 finetuning you have an instruction tune
+04:59 
+
+04:59 model and you ask u what is the best way
+05:02 
+
+05:02 to lose weight quickly right you may see
+05:06 
+
+05:06 that the model produ produces a response
+05:08 
+
+05:08 like this reduce carb intake increase
+05:11 
+
+05:11 fiber and protein content and so on or
+05:13 
+
+05:13 the model can say that you should stop
+05:15 
+
+05:15 eating entirely for a few is
+05:18 
+
+05:18 >> right. Both of these answers basically
+05:22 
+
+05:22 are okay in terms of question. I mean at
+05:24 
+
+05:24 least if the model generates these
+05:26 
+
+05:26 answers, you can say that the model
+05:28 
+
+05:28 knows how to follow instruction. But
+05:30 
+
+05:30 among these two answers, this answer is
+05:32 
+
+05:32 harmful.
+05:34 
+
+05:34 Okay. So the model should not generate
+05:37 
+
+05:37 this kind of answer. The model should
+05:38 
+
+05:38 generate this kind of answer. So for
+05:41 
+
+05:41 that we need another fine-tuning
+05:43 
+
+05:43 technique which we call RLHF
+05:44 
+
+05:44 reinforcement learning from human
+05:46 
+
+05:46 feedback. We'll discuss different
+05:48 
+
+05:48 variations of parallel HF you know
+05:50 
+
+05:50 different alignment techniques later on
+05:52 
+
+05:52 but in today's class we'll just see how
+05:54 
+
+05:54 from this um prompt we get this these
+05:57 
+
+05:57 kind of answers right
+06:01 
+
+06:01 okay so why instruction fine-tuning is
+06:04 
+
+06:04 needed
+06:07 
+
+06:07 so next word prediction is quite uh now
+06:09 
+
+06:09 quite obvious model knows how to predict
+06:12 
+
+06:12 next words but model doesn't know how to
+06:14 
+
+06:14 follow instructions right the Second
+06:17 
+
+06:17 objective is that we sometime wants we
+06:20 
+
+06:20 sometime want the model to basically
+06:23 
+
+06:23 follow follow certain style or certain
+06:24 
+
+06:24 meta information or meta instruction.
+06:27 
+
+06:27 What is a meta instruction? For example,
+06:30 
+
+06:30 write a poem uh which would look like
+06:33 
+
+06:33 something written by Robin for example,
+06:37 
+
+06:37 right? Or write a sixpear style novel,
+06:40 
+
+06:40 right? So here the objective is not only
+06:43 
+
+06:43 to produce a novel or a poem but also
+06:45 
+
+06:45 the style should also be maintained
+06:47 
+
+06:47 right. So this is called meta meta
+06:49 
+
+06:49 instruction
+06:52 
+
+06:52 u but the problem is that for
+06:54 
+
+06:54 instruction finetuning we do not have
+06:56 
+
+06:56 data ready made data.
+06:59 
+
+06:59 What do we have? We have uh either free
+07:02 
+
+07:02 flow text data right or what we have we
+07:05 
+
+07:05 have task specific data set. Task
+07:07 
+
+07:07 specific data set means glue, super
+07:09 
+
+07:09 glue, right? Big bench this kind of
+07:11 
+
+07:11 benchmark where different tasks are
+07:12 
+
+07:12 there and the corresponding outputs are
+07:14 
+
+07:14 given.
+07:15 
+
+07:15 But these task specific data sets are
+07:18 
+
+07:18 not exactly instructions,
+07:20 
+
+07:20 isn't it? So the point is how do we
+07:23 
+
+07:23 basically um
+07:26 
+
+07:26 curate data for instruction fine-tuning.
+07:29 
+
+07:29 Okay. So let's let's assume that you
+07:32 
+
+07:32 have curated instruction fine-tuning
+07:35 
+
+07:35 data sets where there are instructions
+07:37 
+
+07:37 and the corresponding answers. Okay. And
+07:41 
+
+07:41 during your training time you know the
+07:43 
+
+07:43 instruction and the answer right you
+07:46 
+
+07:46 feed uh the instruction and the and and
+07:48 
+
+07:48 the answer u to the model right and what
+07:51 
+
+07:51 is the task of the model? The task would
+07:53 
+
+07:53 be to predict the answers the tokens in
+07:55 
+
+07:55 the answer one by one
+07:58 
+
+07:58 right. So where is IID Delhi located at?
+08:03 
+
+08:03 This is your instruction. U your answer
+08:06 
+
+08:06 would be it is located at uh Hoskas for
+08:08 
+
+08:08 example, right? So so so both these
+08:12 
+
+08:12 things will be your input and you
+08:14 
+
+08:14 calculate the loss at the at the token
+08:17 
+
+08:17 corresponding to IIT Delhi and so on and
+08:20 
+
+08:20 so forth. Clear? Right?
+08:23 
+
+08:23 So if you have encoded decoder model
+08:26 
+
+08:26 then it is straightforward. Your input
+08:27 
+
+08:27 will be the instruction
+08:29 
+
+08:29 and your output will be the uh response
+08:32 
+
+08:32 right and then then you measure the
+08:33 
+
+08:33 cross entrop
+08:35 
+
+08:35 log likelihood u uh log likelihood of at
+08:38 
+
+08:38 at every token and you take the sum of
+08:41 
+
+08:41 the log likelihood right conditional log
+08:44 
+
+08:44 likelihood
+08:46 
+
+08:46 but here the important point to note is
+08:48 
+
+08:48 that we are calculating the loss only at
+08:51 
+
+08:51 the decoder level not at the encoder
+08:53 
+
+08:53 level
+08:55 
+
+08:55 right so so this is the loss instruction
+08:59 
+
+08:59 finetuning loss that people use in
+09:01 
+
+09:01 general, right?
+09:04 
+
+09:04 And if it is a decoder model, your input
+09:07 
+
+09:07 and output will be fed together to the
+09:09 
+
+09:09 model and you will start calculating
+09:12 
+
+09:12 loss from here. So this is your
+09:13 
+
+09:13 instruction, right? And you and you
+09:16 
+
+09:16 expect the model to generate this. So
+09:18 
+
+09:18 you calculate the loss here with respect
+09:19 
+
+09:19 to the first token, then loss here with
+09:22 
+
+09:22 respect to the second token, right? And
+09:24 
+
+09:24 so on and so forth.
+09:28 
+
+09:28 clear
+09:30 
+
+09:30 and then again conditional log
+09:32 
+
+09:32 likelihood.
+09:35 
+
+09:35 So this is the this this is the
+09:37 
+
+09:37 objective function that people generally
+09:40 
+
+09:40 follow for all instruction finetuning uh
+09:42 
+
+09:42 task.
+09:44 
+
+09:44 But we realized we meaning our lab.
+09:48 
+
+09:48 Okay. So we thought that uh this
+09:51 
+
+09:51 objective may not be entirely correct
+09:54 
+
+09:54 because one can also I mean if you
+09:56 
+
+09:56 completely ignore the instruction if you
+09:58 
+
+09:58 do not compute loss on top of the
+09:60 
+
+09:60 instructions the model may not
+10:02 
+
+10:02 understand the instruction properly
+10:04 
+
+10:04 right. So we also understood that loss
+10:08 
+
+10:08 at the decoder level uh at the at the at
+10:10 
+
+10:10 the response token level would be more
+10:12 
+
+10:12 important than the loss at the
+10:14 
+
+10:14 instruction level. But both the losses
+10:16 
+
+10:16 should be important both the loss loss
+10:19 
+
+10:19 losses should be considered uh together.
+10:24 
+
+10:24 So uh
+10:26 
+
+10:26 so if you do not calculate loss on top
+10:28 
+
+10:28 of instruction right this is kind of
+10:31 
+
+10:31 same as teaching a child how to answer
+10:35 
+
+10:35 without understanding the question
+10:39 
+
+10:39 isn't it?
+10:41 
+
+10:41 So what we thought in one of our very
+10:43 
+
+10:43 recent papers
+10:46 
+
+10:46 that u let us uh think of an objective
+10:49 
+
+10:49 function which uh gives weightage to
+10:52 
+
+10:52 both instruction as well as uh as well
+10:55 
+
+10:55 as output. Right?
+10:58 
+
+10:58 So you see here u
+11:02 
+
+11:02 so n t is the number of tokens okay
+11:04 
+
+11:04 present in the input and and uh so p is
+11:10 
+
+11:10 the instruction mod p i is the uh is the
+11:13 
+
+11:13 so so so i i i= to 1 to n means so you
+11:17 
+
+11:17 have you have nt number of nt number of
+11:20 
+
+11:20 data points right and and within so so
+11:24 
+
+11:24 you take one i right and first E is the
+11:28 
+
+11:28 instruction and then rest R is the
+11:31 
+
+11:31 response.
+11:33 
+
+11:33 So you take the cross entropy you
+11:34 
+
+11:34 measure the cross entropy of the u the
+11:38 
+
+11:38 instruction tokens and cross entropy of
+11:41 
+
+11:41 the response tokens and this is the
+11:43 
+
+11:43 weight this is basically weighted
+11:45 
+
+11:45 average and this is the weight
+11:47 
+
+11:47 associated with this right and this is a
+11:49 
+
+11:49 normalizing factor which uh which
+11:52 
+
+11:52 essentially um
+11:54 
+
+11:54 takes care of the fact that um you know
+11:57 
+
+11:57 if the size of I mean this basically
+11:59 
+
+11:59 balances the size the length of the
+12:01 
+
+12:01 token right So what we said is that this
+12:04 
+
+12:04 lambda p and lambda r which basically
+12:07 
+
+12:07 balance the importance of um of
+12:10 
+
+12:10 instruction tokens loss and the uh and
+12:13 
+
+12:13 the output tokens loss. These two things
+12:15 
+
+12:15 should be there but we but in our paper
+12:18 
+
+12:18 we haven't discussed how to how to come
+12:22 
+
+12:22 up with or how to assign these values of
+12:24 
+
+12:24 lambda p and lambda r. But what we
+12:26 
+
+12:26 showed is that if you and we basically
+12:28 
+
+12:28 showed experiments across different
+12:30 
+
+12:30 combinations of lambda P and lambda R
+12:33 
+
+12:33 and it turned out that uh these are
+12:36 
+
+12:36 these are some of the observations and
+12:37 
+
+12:37 these observations are interesting. So
+12:40 
+
+12:40 it it turned out that if the weight of
+12:44 
+
+12:44 the
+12:46 
+
+12:46 the the weight of the instruction token
+12:49 
+
+12:49 should should range between 0 to 6 and
+12:51 
+
+12:51 the weight of the response token should
+12:53 
+
+12:53 range between 6 to 1. I mean this range
+12:56 
+
+12:56 will basically give you the best best
+12:58 
+
+12:58 answer right. Um we also showed across
+13:02 
+
+13:02 multiple sets of uh experiments models
+13:05 
+
+13:05 that um that if we if you zero down the
+13:10 
+
+13:10 loss on the promp token or the
+13:12 
+
+13:12 instruction token the result will be
+13:14 
+
+13:14 suboptimal. And this is this is true
+13:16 
+
+13:16 across all the um models encoder only
+13:18 
+
+13:18 decoder only sorry encoder decoder only
+13:21 
+
+13:21 decoder only and different types of
+13:23 
+
+13:23 decoder only models
+13:25 
+
+13:25 and we call this finetuning as weighted
+13:27 
+
+13:27 instruction finetuning technique WIT and
+13:30 
+
+13:30 we also show that um you know it is it
+13:35 
+
+13:35 it consistently shows improvement in
+13:38 
+
+13:38 generalization over conventional
+13:39 
+
+13:39 instruction instruction model but there
+13:43 
+
+13:43 also but But but um I mean this is not
+13:47 
+
+13:47 only
+13:48 
+
+13:48 this not only produces better answer but
+13:51 
+
+13:51 also it is less sensitive to prompts
+13:54 
+
+13:54 prompt variation
+13:56 
+
+13:56 right if you change the prompt here and
+13:59 
+
+13:59 there we see in most cases that the
+14:01 
+
+14:01 model produces completely different
+14:02 
+
+14:02 answer. So we showed using so in in one
+14:05 
+
+14:05 of our previous papers we uh we came up
+14:09 
+
+14:09 with a metric to measure the prompt
+14:11 
+
+14:11 sensitivity right of a model
+14:15 
+
+14:15 and we showed that if we do weighted
+14:17 
+
+14:17 instruction finetuning then the model
+14:19 
+
+14:19 will be less sensitive to prompt
+14:21 
+
+14:21 perturbation right and may give you a
+14:24 
+
+14:24 stronger baselines for your experiments
+14:26 
+
+14:26 I'm not going to details of this uh
+14:28 
+
+14:28 paper but this is something that just to
+14:30 
+
+14:30 note if you're interested this is a
+14:32 
+
+14:32 recent TSL paper uh you can uh you can
+14:35 
+
+14:35 look at it
+14:37 
+
+14:37 okay but the remaining lectures we will
+14:41 
+
+14:41 assume that the the conventional
+14:43 
+
+14:43 instruction finetuning objective will be
+14:45 
+
+14:45 followed okay not the weighted one so
+14:48 
+
+14:48 here the biggest problem or the major
+14:51 
+
+14:51 problem is the data set collection
+14:53 
+
+14:53 because we really do not have uh enough
+14:55 
+
+14:55 data set uh and and manual curation of
+14:58 
+
+14:58 such data sets are impossible right so
+15:01 
+
+15:01 if you look at the uh GPT3 model which
+15:05 
+
+15:05 came in in 2020 and chat GPD came in
+15:09 
+
+15:09 2022. In between people tried out this
+15:12 
+
+15:12 GPT model and we basically fed we we
+15:14 
+
+15:14 gave free uh free instructions to open
+15:18 
+
+15:18 AAI right so open AI basically took our
+15:20 
+
+15:20 instructions our prompts and they
+15:23 
+
+15:23 curated their own data sets but at the
+15:26 
+
+15:26 same time you know there are open source
+15:28 
+
+15:28 models right which showed how to come up
+15:30 
+
+15:30 with better data sets. So for example
+15:32 
+
+15:32 the FL data set the FL data set is the
+15:35 
+
+15:35 first instruction finding data set very
+15:37 
+
+15:37 effective publicly available handcrafted
+15:40 
+
+15:40 data set
+15:42 
+
+15:42 and in the T5 paper they showed that if
+15:44 
+
+15:44 you use so this so this model is called
+15:47 
+
+15:47 FL T5
+15:48 
+
+15:48 if you use this instruction data set
+15:51 
+
+15:51 then uh it would help model improve the
+15:53 
+
+15:53 performance and let's look at this FL
+15:55 
+
+15:55 data set curation strategy
+15:58 
+
+15:58 so let's Okay,
+16:02 
+
+16:02 let's say you have this NL task, right?
+16:04 
+
+16:04 What is this NLI? What is NLI task? NLI
+16:07 
+
+16:07 task is that you are given a you are
+16:09 
+
+16:09 given a premise and a hypothesis and
+16:11 
+
+16:11 your task is to basically you know
+16:16 
+
+16:16 identify whether the hypo so so whether
+16:19 
+
+16:19 you know this is an intelment or not an
+16:22 
+
+16:22 intelment.
+16:24 
+
+16:24 Okay. So Russian cosmonaut etc etc said
+16:28 
+
+16:28 uh you know set the record for the
+16:30 
+
+16:30 longest continuous amount of time spent
+16:32 
+
+16:32 in space right and so on and then your
+16:35 
+
+16:35 hypothesis Russia Russians hold the
+16:37 
+
+16:37 record for the longest in space right so
+16:40 
+
+16:40 this entails this
+16:43 
+
+16:43 right
+16:44 
+
+16:44 so the the the the label is yes
+16:49 
+
+16:49 and this data set is already given in
+16:51 
+
+16:51 your task right because this is an
+16:53 
+
+16:53 entment task NLI task
+16:56 
+
+16:56 from this data set how can we get a
+16:58 
+
+16:58 instruction fine-tuned data set how can
+17:02 
+
+17:02 I get the instruction right so what they
+17:04 
+
+17:04 said is that they manually curated for
+17:06 
+
+17:06 every task they manually curated uh you
+17:09 
+
+17:09 know instruction templates
+17:12 
+
+17:12 for example this is the first template
+17:14 
+
+17:14 based on the paragraph can you conclude
+17:16 
+
+17:16 whether the hypothesis is correct or not
+17:18 
+
+17:18 right this is first template second
+17:20 
+
+17:20 template is read the following and
+17:22 
+
+17:22 determine if the hypothesis can be
+17:23 
+
+17:23 inferred from the premise, right? Third
+17:26 
+
+17:26 template is can we infer the following
+17:29 
+
+17:29 hypothesis and hypothesis and the
+17:31 
+
+17:31 option, right? And so on and so forth.
+17:33 
+
+17:33 So these templates are manually curated
+17:36 
+
+17:36 and and then then what you do
+17:40 
+
+17:40 you uh you convert such data set to an
+17:44 
+
+17:44 instruction fine-tuned data set. Now how
+17:47 
+
+17:47 do you do that? You can use
+17:50 
+
+17:50 I mean you can use an LLM to do that do
+17:52 
+
+17:52 that. So if you give so you give this to
+17:54 
+
+17:54 LLM and you ask the LLM to essentially
+17:57 
+
+17:57 follow the template and generate a
+17:58 
+
+17:58 question.
+18:01 
+
+18:01 Okay.
+18:03 
+
+18:03 So this is the FL data set 2021.
+18:06 
+
+18:06 Uh
+18:09 
+
+18:09 so the problem with the FL data set was
+18:11 
+
+18:11 that uh it's a very simple data right
+18:14 
+
+18:14 mostly they they used NLI for the data
+18:18 
+
+18:18 curation. So then the next paper came
+18:20 
+
+18:20 and this is called supernatural
+18:22 
+
+18:22 instructions data set. In supernatural
+18:24 
+
+18:24 instructions they hired NLP
+18:26 
+
+18:26 practitioners
+18:28 
+
+18:28 and then what they said is that you know
+18:31 
+
+18:31 for every task definition again we are
+18:34 
+
+18:34 given a set of task uh let's say in glue
+18:36 
+
+18:36 or super glue for every task definition
+18:39 
+
+18:39 you come up with the positive examples
+18:41 
+
+18:41 and the negative examples.
+18:43 
+
+18:43 the the the data can also be curated
+18:45 
+
+18:45 from let's say let's say uh the g commit
+18:49 
+
+18:49 um you know comments and issues in
+18:51 
+
+18:51 github and so on and so forth. So they
+18:53 
+
+18:53 actually employed NLP practitioners and
+18:56 
+
+18:56 they converted um the existing data into
+18:59 
+
+18:59 task uh specific instruction task
+19:02 
+
+19:02 specific instruction data sets and they
+19:04 
+
+19:04 claimed that here u the tasks or the
+19:08 
+
+19:08 instructions are more complicated than
+19:10 
+
+19:10 than FL plan data
+19:13 
+
+19:13 right
+19:15 
+
+19:15 so so these are some of the ways to
+19:19 
+
+19:19 curate human uh you know uh human error
+19:22 
+
+19:22 data Right. But then a bunch of papers
+19:25 
+
+19:25 came which said that we do not need any
+19:27 
+
+19:27 human intervention as such. We use LLMs
+19:31 
+
+19:31 to generate instruction finetuning data.
+19:33 
+
+19:33 Right? And we do not need any human
+19:35 
+
+19:35 intervention at any point in time.
+19:39 
+
+19:39 So these are synthetic instruction
+19:40 
+
+19:40 tuning data set. These are cheap and
+19:43 
+
+19:43 easy to obtain. But of course it is not
+19:46 
+
+19:46 as useful or not as quality uh I mean at
+19:49 
+
+19:49 least quality wise it is not as useful
+19:51 
+
+19:51 as human curated data but at the same
+19:54 
+
+19:54 time you can actually curate a lot of
+19:56 
+
+19:56 data sets right silver label data. So
+20:01 
+
+20:01 these are the four papers or four
+20:03 
+
+20:03 techniques which turned out to be really
+20:05 
+
+20:05 effective. The first one is self
+20:07 
+
+20:07 instruct.
+20:09 
+
+20:09 Second one is evolve instruct. Third one
+20:11 
+
+20:11 is Orca and the fourth one is
+20:13 
+
+20:13 instruction uh back translation
+20:17 
+
+20:17 and all these are synthetic instruction
+20:19 
+
+20:19 tuning data set generation techniques.
+20:22 
+
+20:22 Okay,
+20:24 
+
+20:24 let's go through this one by one. First
+20:25 
+
+20:25 one is self instruct.
+20:29 
+
+20:29 So for the self instruct what is my
+20:31 
+
+20:31 input? My input is the task specific
+20:33 
+
+20:33 data. I hope you understood the
+20:34 
+
+20:34 difference between task specific data
+20:37 
+
+20:37 and the instruction fine-tuning data.
+20:39 
+
+20:39 Right? So there are 175 seat tasks and
+20:43 
+
+20:43 the task are available in the let's say
+20:46 
+
+20:46 glue benchmark or super glue benchmark
+20:49 
+
+20:49 big bench benchmark and so on
+20:52 
+
+20:52 and for every task one instruction is
+20:56 
+
+20:56 given and one instance is given. Now
+20:59 
+
+20:59 these instruction and instance are
+21:02 
+
+21:02 manually curated
+21:05 
+
+21:05 and this is a very you know less effort
+21:08 
+
+21:08 for every t you need one instruction
+21:11 
+
+21:11 right and one instance
+21:15 
+
+21:15 okay this is the input and what they do
+21:18 
+
+21:18 is that
+21:22 
+
+21:22 for from every instruction
+21:25 
+
+21:25 let's say you take a task T you have an
+21:28 
+
+21:28 instruction I right now for from every
+21:31 
+
+21:31 instruction you curate any number of
+21:35 
+
+21:35 other instructions
+21:37 
+
+21:37 right I mentioned earlier that let's say
+21:38 
+
+21:38 for the NLI task you can think of
+21:40 
+
+21:40 multiple instruction templates right so
+21:42 
+
+21:42 these are like templates or instructions
+21:46 
+
+21:46 right so what they did and how they did
+21:47 
+
+21:47 that I I'll tell you later
+21:51 
+
+21:51 so
+21:53 
+
+21:53 so there are two sets okay one set is
+21:56 
+
+21:56 the human curated instruction and the
+21:59 
+
+21:59 other set is synthetic instruction.
+22:03 
+
+22:03 Okay. So in the first stage so when the
+22:06 
+
+22:06 process starts there is no synthetic
+22:08 
+
+22:08 instruction present in the data set. So
+22:10 
+
+22:10 this set is null whereas you have
+22:13 
+
+22:13 instructions u you have one instruction
+22:15 
+
+22:15 per task which is part of this human
+22:17 
+
+22:17 curated instruction data. Right? So what
+22:20 
+
+22:20 you do you first sample eight instances
+22:23 
+
+22:23 and they took eight you sample eight
+22:27 
+
+22:27 instructions from this set.
+22:32 
+
+22:32 Okay. So initially only the human
+22:35 
+
+22:35 curated instructions will be sampled.
+22:37 
+
+22:37 Right. So you you sampled eight
+22:39 
+
+22:39 instructions
+22:42 
+
+22:42 and then you ask a GPD model let's say
+22:44 
+
+22:44 GPT3 a big model to generate more
+22:47 
+
+22:47 instructions right from 8 to let's say
+22:49 
+
+22:49 800
+22:51 
+
+22:51 right now the instructions that the GPD
+22:53 
+
+22:53 model will generate some of the
+22:55 
+
+22:55 instructions are let's say the you know
+22:56 
+
+22:56 kind of same instructions that were
+22:58 
+
+22:58 already there in your data set right so
+23:00 
+
+23:00 what you do here you check the
+23:02 
+
+23:02 similarity between the existing
+23:03 
+
+23:03 instructions and the GPT generated
+23:05 
+
+23:05 instructions and if the similarity is uh
+23:08 
+
+23:08 very high you discard. If it is low then
+23:12 
+
+23:12 you you basically add this to the
+23:14 
+
+23:14 synthetic instruction set.
+23:18 
+
+23:18 Okay. So now you are basically
+23:20 
+
+23:20 populating this SI set. You have human
+23:22 
+
+23:22 instruction and and synthetic
+23:25 
+
+23:25 instruction. Again you do the same
+23:27 
+
+23:27 thing. You sample eight instructions
+23:29 
+
+23:29 from the set and you repeat.
+23:34 
+
+23:34 Right? Now what they said is that um
+23:39 
+
+23:39 among this 175 tasks
+23:42 
+
+23:42 some of the task are classification task
+23:44 
+
+23:44 and some of the task are generation task
+23:47 
+
+23:47 right for example sentiment analysis is
+23:49 
+
+23:49 classification task. So they said that
+23:51 
+
+23:51 we we need different treatments for
+23:53 
+
+23:53 these two different task classification
+23:55 
+
+23:55 task we need a different treatment uh
+23:57 
+
+23:57 non-classification task we need a
+23:59 
+
+23:59 different treatment
+24:01 
+
+24:01 by the way. So we have only generated
+24:03 
+
+24:03 instructions. What else we need to
+24:05 
+
+24:05 generate?
+24:07 
+
+24:07 Follow.
+24:09 
+
+24:09 Huh? Instances.
+24:11 
+
+24:11 The answers. Right. We only generate
+24:15 
+
+24:15 instructions. But we don't have uh the
+24:18 
+
+24:18 So what is instruction? An instruction
+24:21 
+
+24:21 can be find the sentiment of the
+24:23 
+
+24:23 following sentence. This is the
+24:24 
+
+24:24 instruction. What is the sentiment of
+24:26 
+
+24:26 the following sentence? This is another
+24:28 
+
+24:28 instruction, right? But we we we also
+24:30 
+
+24:30 need the input output pair right the
+24:33 
+
+24:33 sentence itself and the corresponding
+24:35 
+
+24:35 label. So we need another you know
+24:37 
+
+24:37 another iteration.
+24:39 
+
+24:39 So what they said is that let us just
+24:42 
+
+24:42 first classify or identify the
+24:45 
+
+24:45 classification task instructions and
+24:48 
+
+24:48 non-classification task instructions by
+24:51 
+
+24:51 because if it is a classification task
+24:54 
+
+24:54 instruction then in order to generate
+24:57 
+
+24:57 inst uh instances or input output pair I
+25:01 
+
+25:01 will write my in context prompts or in
+25:03 
+
+25:03 context examples in a different way. If
+25:06 
+
+25:06 it is a non-classification task then I
+25:08 
+
+25:08 will write my uh uh in context examples
+25:11 
+
+25:11 in a different and these are all so
+25:14 
+
+25:14 there is no finetuning as such all you
+25:15 
+
+25:15 know basically prom based probased
+25:18 
+
+25:18 output.
+25:20 
+
+25:20 So if it's a classification task
+25:24 
+
+25:24 then um
+25:27 
+
+25:27 then your um if it's a classification
+25:29 
+
+25:29 task
+25:31 
+
+25:31 then your uh your your instructions
+25:34 
+
+25:34 right or your prompts would be output
+25:37 
+
+25:37 first prompt. What is output first
+25:39 
+
+25:39 prompt?
+25:41 
+
+25:41 Find the sentiment of the so uh your
+25:44 
+
+25:44 output first prompt in your output first
+25:46 
+
+25:46 prompt your output will be f uh given
+25:49 
+
+25:49 first and the corresponding uh instance
+25:51 
+
+25:51 for example
+25:54 
+
+25:54 for example uh you know let's say um
+25:59 
+
+25:59 this is my task description given the
+26:01 
+
+26:01 classification task definition and the
+26:03 
+
+26:03 class labels generate an input that
+26:06 
+
+26:06 corresponds to each of the class labels
+26:08 
+
+26:08 if the task doesn't require input just
+26:10 
+
+26:10 gener ate the correct class level and
+26:13 
+
+26:13 this is my task description. Classify
+26:15 
+
+26:15 the sentiment of the uh sentence into
+26:17 
+
+26:17 positive, negative and mix. Okay. And
+26:20 
+
+26:20 you see the first input is the class
+26:23 
+
+26:23 itself. So you want to generate a mixed
+26:26 
+
+26:26 class sentence
+26:30 
+
+26:30 this. So right so your so in in this
+26:34 
+
+26:34 line you are writing class level is
+26:36 
+
+26:36 mixed and let us generate a sentence
+26:38 
+
+26:38 whose sentiment is mixed class. Now this
+26:41 
+
+26:41 is your sentence I enjoy the flavor of
+26:43 
+
+26:43 restaurant but the service is too slow.
+26:47 
+
+26:47 Then your class is positive and then you
+26:51 
+
+26:51 ask the model to generate the sentence
+26:53 
+
+26:53 of positive sentiment and this is your
+26:55 
+
+26:55 so so this is called output first
+26:57 
+
+26:57 prompt. Why? because you first write the
+26:60 
+
+26:60 output and you ask the model to generate
+27:02 
+
+27:02 the uh corresponding instance as opposed
+27:05 
+
+27:05 to this if it's a non-classification
+27:08 
+
+27:08 task then it will be input first uh
+27:12 
+
+27:12 prompt right where uh basically let's
+27:15 
+
+27:15 say your task is which exercises are the
+27:18 
+
+27:18 best for reducing belly fat at home. So
+27:20 
+
+27:20 this is your task and you ask the model
+27:22 
+
+27:22 to produce the output. So input uh so
+27:25 
+
+27:25 input first and the output
+27:28 
+
+27:28 see the difference. Now tell me why we
+27:31 
+
+27:31 need uh output first in case of in case
+27:34 
+
+27:34 of classification.
+27:38 
+
+27:38 >> So the number of classes is known to us.
+27:41 
+
+27:41 Why do we need output first?
+27:45 
+
+27:45 >> Yes. Very nice. So if if if we ask the
+27:49 
+
+27:49 model to generate uh first n instances
+27:52 
+
+27:52 with positive class next n instances
+27:55 
+
+27:55 with negative class right we always want
+27:57 
+
+27:57 the data set to be balanced right so if
+27:59 
+
+27:59 you do output first prompting then you
+28:02 
+
+28:02 will make sure that the data set will
+28:04 
+
+28:04 always be balanced because this is up to
+28:06 
+
+28:06 you to decide
+28:08 
+
+28:08 okay by the way these are very simple
+28:10 
+
+28:10 concepts but they use a different fancy
+28:13 
+
+28:13 name for this
+28:15 
+
+28:15 okay So
+28:17 
+
+28:17 now this is the overall pipeline
+28:20 
+
+28:20 175 tasks seat task one instruction per
+28:24 
+
+28:24 se task one instance per task you have
+28:26 
+
+28:26 the task pool right you ask a model you
+28:30 
+
+28:30 use a G GPT3
+28:33 
+
+28:33 to generate instruction right with the
+28:36 
+
+28:36 same process right and then you classify
+28:38 
+
+28:38 whether the task is a classification
+28:40 
+
+28:40 task or non-classification task if it's
+28:43 
+
+28:43 a classification task then you do output
+28:45 
+
+28:45 first. If it's a non-classification
+28:47 
+
+28:47 task, then you do input first, right?
+28:50 
+
+28:50 And you basically and then you and they
+28:52 
+
+28:52 also have a filtering stage where they
+28:54 
+
+28:54 remove some of the spurious instances
+28:57 
+
+28:57 which are not that useful.
+28:59 
+
+28:59 That's it.
+29:01 
+
+29:01 self-destruct and they showed that
+29:06 
+
+29:06 you know GPT3
+29:09 
+
+29:09 this is this is GPT3 this is T0 T5
+29:16 
+
+29:16 uh they showed that if if you um you
+29:21 
+
+29:21 know if you
+29:24 
+
+29:24 uh if you if you in if you do
+29:27 
+
+29:27 instruction fine-tuning um on GPT3 3
+29:32 
+
+29:32 right um with the self- instruct data
+29:35 
+
+29:35 you see a boost
+29:40 
+
+29:40 right and if you use their model which
+29:42 
+
+29:42 is called instruct instruct GPT right
+29:45 
+
+29:45 you can see further boost right they
+29:47 
+
+29:47 also showed that if you f if you first
+29:52 
+
+29:52 fine-tune GP3 with supernatural data set
+29:55 
+
+29:55 I mentioned earlier supernatural data
+29:56 
+
+29:56 right you do finetuning on supernatural
+29:59 
+
+29:59 data and then you further fine tune with
+30:01 
+
+30:01 self-instruct data you get further
+30:03 
+
+30:03 boosting and so on.
+30:09 
+
+30:09 Evolve instruction is another paper
+30:12 
+
+30:12 where they showed that uh self-instruct
+30:15 
+
+30:15 produces very simple questions right let
+30:17 
+
+30:17 us make it more complicated because the
+30:19 
+
+30:19 more you generate complicated
+30:20 
+
+30:20 instructions the model will learn
+30:22 
+
+30:22 complicated thing right and they said
+30:25 
+
+30:25 that there are two ways to make the make
+30:26 
+
+30:26 the instruction complicated one is
+30:28 
+
+30:28 called the um one is called the um uh
+30:33 
+
+30:33 the indepth evolution so you are
+30:36 
+
+30:36 basically evolving the instruction so
+30:38 
+
+30:38 one is indepth evolution and other is in
+30:41 
+
+30:41 breath evaluation uh u evolution. So
+30:44 
+
+30:44 what is in-depth evolution? Very simple
+30:46 
+
+30:46 very simple idea.
+30:49 
+
+30:49 You start with u you start with a simple
+30:52 
+
+30:52 prompt. Let's say uh add x + y add x and
+30:56 
+
+30:56 y right and then you ask the language
+30:59 
+
+30:59 model to keep on adding more constraints
+31:04 
+
+31:04 to the instruction. So you have a seed
+31:06 
+
+31:06 you have a seed instruction right uh so
+31:09 
+
+31:09 you have a seed instruction and you ask
+31:12 
+
+31:12 either uh you know big models to make
+31:14 
+
+31:14 the instruction more complicated by
+31:17 
+
+31:17 adding more constraints. This is called
+31:19 
+
+31:19 indepth evolution because you are you
+31:21 
+
+31:21 are basically uh producing more
+31:25 
+
+31:25 complicated um in depth complicated uh
+31:29 
+
+31:29 prompt
+31:31 
+
+31:31 in brethalation is very straightforward.
+31:33 
+
+31:33 This is basically saying that you know
+31:35 
+
+31:35 given a seed instruction you curate
+31:38 
+
+31:38 multiple instructions of similar types.
+31:41 
+
+31:41 So breadth will increase.
+31:44 
+
+31:44 Okay. And this this I mean when you
+31:48 
+
+31:48 generate multiple instructions let these
+31:49 
+
+31:49 instructions be complicated.
+31:54 
+
+31:54 All these are done by GPS by the way. No
+31:56 
+
+31:56 human intervention. You humans will only
+31:58 
+
+31:58 write the prompt. So this is the prompt
+32:01 
+
+32:01 they wrote. I want you act as a prompt
+32:04 
+
+32:04 create creator your goal is to draw
+32:07 
+
+32:07 inspiration from the given prompt. So
+32:10 
+
+32:10 given prompt is your seat prompt. Okay
+32:12 
+
+32:12 to create a a brand new prompt. This new
+32:15 
+
+32:15 prompt should belong to the same domain
+32:18 
+
+32:18 right as the given prompt and so on and
+32:20 
+
+32:20 so forth. This is the prompt that they
+32:22 
+
+32:22 wrote and the model generated the
+32:24 
+
+32:24 instructions.
+32:27 
+
+32:27 Okay. the the orchestra style orchestra
+32:30 
+
+32:30 style uh instruction generation data is
+32:32 
+
+32:32 is very straightforward. So you know
+32:34 
+
+32:34 some of you know knowledge distillation.
+32:36 
+
+32:36 In knowledge distillation what you do
+32:38 
+
+32:38 for example there was this allegation uh
+32:40 
+
+32:40 to deepse that deepseek used GPD's data
+32:45 
+
+32:45 right some of you have heard of this. So
+32:47 
+
+32:47 in knowledge distillation in in data
+32:49 
+
+32:49 knowledge distillation what we do is
+32:51 
+
+32:51 that we generate data uh from big models
+32:54 
+
+32:54 and you use those those data uh to train
+32:56 
+
+32:56 a small model right for example let's
+32:58 
+
+32:58 say you have a small uh 8 billion model
+33:01 
+
+33:01 so you know that GPT4 is superior to
+33:04 
+
+33:04 this 8 billion model so you essentially
+33:07 
+
+33:07 write prompts to GPT4 GPD4 will produce
+33:11 
+
+33:11 responses then you take this uh this
+33:14 
+
+33:14 instruction and the response and you
+33:16 
+
+33:16 fine-tune a small model that's an 8
+33:18 
+
+33:18 billion model this is pure knowledge
+33:21 
+
+33:21 distillation right datadriven knowledge
+33:23 
+
+33:23 distillation
+33:25 
+
+33:25 but in ora paper they showed that GPT
+33:29 
+
+33:29 you know ends up producing just the
+33:31 
+
+33:31 answer okay let us make it complicated
+33:34 
+
+33:34 okay so what they did they wrote system
+33:38 
+
+33:38 level instruction
+33:40 
+
+33:40 to GPD4 and then they asked GPD4 to
+33:43 
+
+33:43 write uh the chain of thoughts
+33:47 
+
+33:47 the steps.
+33:49 
+
+33:49 Okay, instead of only producing the
+33:51 
+
+33:51 answer,
+33:53 
+
+33:53 you write the chain of thoughts
+33:55 
+
+33:55 and this and this will be the data for
+33:60 
+
+33:60 your model
+34:05 
+
+34:05 instruction back translation.
+34:07 
+
+34:07 So at the name suggests,
+34:09 
+
+34:09 what do you think back translation model
+34:12 
+
+34:12 instruction back translation you have?
+34:15 
+
+34:15 You you have a lot of unlabelled data.
+34:19 
+
+34:19 You have a lot of human written
+34:22 
+
+34:22 templates, right? You take a model, an
+34:26 
+
+34:26 an LLM model.
+34:29 
+
+34:29 You ask the model to essentially
+34:34 
+
+34:34 generate questions from the data. So
+34:36 
+
+34:36 these are unlabelled data sets,
+34:38 
+
+34:38 unlabelled texts, right? So you first
+34:41 
+
+34:41 teach this model to generate questions
+34:45 
+
+34:45 from the data right and that question
+34:48 
+
+34:48 and the data itself that will be your uh
+34:51 
+
+34:51 your instruction fine-tuning data.
+34:56 
+
+34:56 Okay. So here you basically need to
+34:58 
+
+34:58 train two different uh LLMs.
+35:02 
+
+35:02 These are like simple approaches but it
+35:04 
+
+35:04 turned out to be really effective in
+35:05 
+
+35:05 terms of because these you know after
+35:07 
+
+35:07 all these are synthetic data set
+35:08 
+
+35:08 generation process and you end up
+35:10 
+
+35:10 producing a lot of data right some of
+35:12 
+
+35:12 part of the data might be noisy but uh
+35:15 
+
+35:15 such data sets are very useful for
+35:18 
+
+35:18 training bigger models
+35:20 
+
+35:20 okay so some of the data sets which are
+35:22 
+
+35:22 publicly available for instruction
+35:24 
+
+35:24 fine-tuning include FL T5 data 11
+35:28 
+
+35:28 billion size token Alpaka data this is
+35:30 
+
+35:30 also a good good data Right. So
+35:35 
+
+35:35 um right so um we uh so so people showed
+35:39 
+
+35:39 uh people fine-tuned llama 7 billion
+35:41 
+
+35:41 with alphaka data. Then you have wizard
+35:44 
+
+35:44 language model wizard lm data which was
+35:47 
+
+35:47 uh which was used to finetune llama 7b
+35:50 
+
+35:50 and then of course the orca style orca
+35:52 
+
+35:52 style data generation which was used to
+35:54 
+
+35:54 fine-tune a mistro 7 billion model.
+35:58 
+
+35:58 Okay.
+35:60 
+
+36:00 All right. So uh
+36:03 
+
+36:03 if you look at the the side effects of
+36:06 
+
+36:06 instruction fine-tuning, instruction
+36:08 
+
+36:08 fine-tuning not only helps the model
+36:11 
+
+36:11 understand
+36:12 
+
+36:12 uh the instruction human instruction,
+36:15 
+
+36:15 but they also showed in in different
+36:17 
+
+36:17 papers they also showed
+36:19 
+
+36:19 that you do not need a lot of data set
+36:21 
+
+36:21 for instruction finetuning. Even let's
+36:23 
+
+36:23 say you have a model conventional model
+36:26 
+
+36:26 with no instruction finetuning and you
+36:28 
+
+36:28 have a model with only 6% instruction
+36:30 
+
+36:30 finetuning. You see the the jump from
+36:33 
+
+36:33 54% to 70%.
+36:37 
+
+36:37 With 24% of instruction finetuning data
+36:40 
+
+36:40 70 to 73 and uh you know with 100%
+36:43 
+
+36:43 instruction finetuning data you may not
+36:45 
+
+36:45 you may not see uh much jump right. So
+36:48 
+
+36:48 it's so the paper concluded that
+36:51 
+
+36:51 instruction finetuning models are quick
+36:52 
+
+36:52 learners.
+36:54 
+
+36:54 Even a small instruction fine-tuning
+36:56 
+
+36:56 would always help.
+36:60 
+
+36:60 Okay, that's it about instruction
+37:02 
+
+37:02 finetuning. Uh in the next class we'll
+37:05 
+
+37:05 discuss Ralizer.
+37:08 
+
+37:08 Thank you.

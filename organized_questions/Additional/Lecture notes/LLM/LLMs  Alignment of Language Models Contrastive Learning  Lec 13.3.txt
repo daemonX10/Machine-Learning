@@ -1,0 +1,367 @@
+00:01 so this is the third lecture in uh alignment of language models in the previous two lectures uh we saw how to
+00:09 make create a reward model how to train a reward model uh how to train a policy using rlf
+00:17 or uh different variants of rlf we looked at reinforce algorithm we looked at the policy vanilla policy gradient
+00:24 which uses the reinforce method and finally we looked at proximal policy optimation uh today we'll look at a more
+00:32 intuitive way of aligning language models so it's something that should
+00:38 come into your mind as a uh without the without lot of complex math okay and uh
+00:46 so it's called direct preference optimization and if time permits we will also look at another approach which is
+00:52 called distribution matching so let's uh first go with this uh with direct preference
+00:58 optimation okay before that let's recall uh what policy gradient and po
+01:05 object training objective looked like so the first step was you collect a lot of
+01:11 human preferences from uh from so these outputs can come
+01:17 from anywhere okay outputs can come
+01:23 from any language model or or even human yeah output can come from any language
+01:30 mod model and based on these outputs you learn a reward function and and why you need a reward
+01:38 function because during the training of the policy uh you will use this policy
+01:44 you use the reward function to actively label samples that come from the policy
+01:49 okay so uh while learning a reward function you're trying to find the
+01:55 parameters that maximize maximize the
+02:00 Brad this is the Brad lary log likelihood actually so this maximize the uh log likelihood of of predict
+02:09 observing the correct preference
+02:18 spare so this loss is very intuitive right it's just saying that uh maximize
+02:23 the reward of the positive sample uh you have to maximize this and minimize the reward of the negative
+02:29 sample Sol this loss of so if you can train a reward function using directly
+02:36 on the preferences can you train a policy directly on the preferences that's what the DPO paper attempts to
+02:43 ask that why do you need this intermediate step of learning a reward function before you can actually train
+02:50 the policy can you directly train the policy on top of human
+02:55 preferences because in po you had to do a lot of things say you have to learn
+03:01 reward function learn value function ensure that the gradient is within a ensure that the importance weights are
+03:08 clipped so you have to do a lot of things to make sure that the policy gladient works so can we do away with
+03:14 that that we have given preferences and we know how to train a reward function can we uh directly train a policy if if
+03:21 I frame this question like this that you uh how how would you go about trading a policy does anything come to mind
+03:28 here so this is is a general idea of what DPO is trying to achieve that uh
+03:34 PPO RF the standard RF process that uses policy gradient so uh uh what it does is
+03:40 that it collects reference data either from humans or using an AI trains a reward
+03:48 model and finally trains a uh policy using that reward model and
+03:55 what DP is trying to achieve is that given preference data you directly train your policy don't have this intermediate
+04:02 step of reward mod that's all it's trying to same it's the same previous slide in the form of
+04:09 figure okay so uh the first slide that I show you was had this parameters for I
+04:17 and has parameters for the reward model and parameters for the policy now consider the case where you can learn
+04:23 any arbitrary reward you don't have the limitation in terms of your optimization algorithm or the uh your parameter you
+04:30 can you basically uh let's say you can optimize this loss function EXA
+04:41 exactly and you can optimize this also exactly
+04:52 okay so uh so you can get an optimal policy so the question is
+04:58 uh uh can I uh so the idea of DPO is that can I remove reward function from
+05:04 this can I combine these two equations in certain way such that the reward function gets removed that's the idea so
+05:12 it's it's a uh standard problem that you must have seen several time right it's you're trying to eliminate one variable
+05:17 because you have two equations uh you have two uh variables you're trying to
+05:23 eliminate one of them so can anybody think from looking at this equations how can I eliminate the reward function from
+05:29 the optimiz
+05:36 so uh so the idea is let's look at the relationship
+05:42 between this optimal policy and the reward function uh in the in the
+05:48 assuming uh to this you can learn arbitrary reward function and arbitrary policy you're not limited by the
+05:54 optimization algorithm or the parameter then in that case what what uh
+05:59 how do does your optimal policy looks like in terms of your optimal reward function okay
+06:05 so how would you get the optimal policy you have this objective uh is everybody familiar with
+06:12 this objective this is your regularized reward maximiz objective of policy
+06:18 gradient or
+06:26 P objective so how you maximize this
+06:31 quantity the first thing would be to uh Define
+06:36 aent so you want to optimize this over uh uh Pi y given X so you define this
+06:43 grent L uh Pi comma
+06:50 Lambda s uh this quantity
+06:60 beta K Y
+07:07 X Plus Lambda *
+07:14 constraint and now what will you do differentiate this with respect to
+07:22 Pi so let's differentiate with the two specific value of Pi Pi uh let's say y not given X not
+07:30 overall Pi let's say we want to do do it for a specific
+07:35 pi and set it equal to zero okay this that's what we will do in
+07:42 the next slide so let's expand this uh expectation that we have uh so what is
+07:49 this L Pi comma lamb this is given by
+07:55 sorry summation over y belong to y
+08:01 i y given X into R
+08:07 star X Yus
+08:12 y k Divergence uh can also be
+08:21 expanded now gradient of this lren with respect
+08:26 to y y not given X
+08:33 be so differentiate this quantity so only uh 5 y not given X this is a linear
+08:40 function of Y not given X and what you'll get here is RAR X comma
+08:45 Y and what about this so uh you can try
+08:50 differentiating this it will come out to be 1 + log of Pi y given X
+09:04 and uh we know at that at the optimal policy at the optimal value of Pi Pi
+09:09 star this quantity should be zero right so we
+09:16 know gradient of Pi star y not given X should be equal to
+09:24 zero what does this mean this means
+09:29 R star X comma Y and there should be Lambda also
+09:37 right Lambda summation
+09:43 y this is the leg because right okay so then there will be Lambda here
+09:51 also and so this will be ARX minus 1 +
+09:58 log p y not given x
+10:06 5 x Lambda
+10:13 thisal is this fine so uh yeah so now uh there are two
+10:20 ways I can write this equation I can write RAR in terms of P star or P star in terms of R star let me write P star
+10:26 in terms of R star what will it look like so so um let's go back to the previous
+10:33 equation we have
+10:39 RAR XY + Lambda uh minus
+10:51 one bracket
+10:57 yeah is equal to log of Pi
+11:02 star y not given X or
+11:12 p is this fine I just rearrange the terms and uh exponentiate this both
+11:20 sides you will get e to the power so Lambda is a constant right so I will just put Lambda minus 1 as Lambda bar
+11:27 for now e to^ RAR X Comm
+11:33 y+ Lambda bar okay and if you expon this part this
+11:38 becomes Pi star of Y not given X over
+11:46 pi and this gives you P
+11:52 star y not given X is equal to P of Y
+11:57 not given x * exponentiated reward
+12:05 function why not so I expressed my optimal policy in
+12:12 terms of the optimal reward function that is there okay now uh uh how do get this Lambda
+12:21 Lambda bar how do I remove this Lambda bar
+12:26 anybody we had a constraint in the beginning right uh that Pi star should sum up to one right
+12:32 so uh if you use that condition so since P star is a probability distribution it
+12:40 should sum up to one over all the
+12:47 outputs if you put this condition here what you will get is
+12:55 uh what does this mean summation over y y Pi
+13:02 ref y given X exponential of R
+13:07 star X Comm y + Lambda bar should be equal to 1 Lambda bar this
+13:15 exponential of Lambda does not depend here
+13:22 so this comes out to be exponential
+13:27 of Lambda bar = to 1
+13:34 / summ y by y
+13:41 x times the reward
+13:48 function basically it's the normalization constant that's it
+13:53 uh okay so uh so now what is your
+13:59 distribution look like it's basically P the optimal policy is base policy times
+14:05 some function of the reward function is it fine
+14:13 okay now I can re okay uh I think it will be good to have one more slide so
+14:19 that we can okay so let me uh add the final equations that we have Pi
+14:26 star y given X is p ref y given
+14:34 X exponential RAR
+14:41 XY over normalization constant okay this is how you can write
+14:47 it and uh I can now the other can I express R star in terms of P star if you
+14:54 uh try to uh write it in another way this becomes uh actually uh you you can get
+14:59 the other direction from this itself so from here itself you can get
+15:05 the other direction how can you expect R star in terms of by star so let me copy this over
+15:12 there R star X
+15:18 Y plus Lambda bar equal
+15:24 to log P star y not given
+15:30 x pi x other words R star X
+15:41 yal to
+15:47 this minus Lambda bar and Lambda bar is log of the normalization
+15:52 constant the way we Define our Z is lamb is simply the log of the normal
+16:02 [Music]
+16:13 constant so we have two equations now the
+16:19 reward the optimal reward can be written as uh in terms of the optimal policy as
+16:24 follows and the optimal policy can be written in terms of the optimal like
+16:30 this both can be expressed as a function of each other these are the two important
+16:36 functions remember so why are we doing all this what is our purpose why did we write the
+16:42 optimal reward in terms of the optimal policy remember we have two equations one for the optimization of the reward
+16:48 function for getting the optimal reward function and another equation for getting the optimal policy and what we
+16:53 want to do is we want to remove this intermediate step of learning optimal reward function and the way we will
+16:59 achieve this is by defining the optimal reward function in terms of the optimal policy and we will replace it back in
+17:05 our reward maximization algorithm which is the next step so let's parameterize everything so
+17:11 till now we were working with optimal policy and optimal reward we said that the optimal reward function can be def
+17:18 uh described as a function of the optimal policy but uh if but now I want
+17:24 to learn this reward function right I don't have an optimal reward function my whole job is to learn this op
+17:29 optimal policy and everything so how do I do this so the idea of the DPO paper the main idea of the D paper was that
+17:37 can we write the parameterized reward function as a function of the parameterized policy so we know that the
+17:44 optimal reward function can be expressed in terms of the policy as shown
+17:49 here uh but can I Define nonoptimal reward function that reward function
+17:55 that I'm training as a function of my policy which is also not so so this constraints the reward
+18:03 you're not learning an arbitrary reward function anymore it uh so this is what DP assume DP assumes that any reward
+18:10 function can be uh that that DPO cares about can be written
+18:16 in this form so DP assumes that your reward function can be written in terms of your parametric policy like this and
+18:23 then you uh you train this reward function this reward function that you
+18:29 have on top of the preference plays we'll see that in the next slide but does anybody
+18:35 have any questions about this that uh why can we write my reward function in
+18:41 this form I mean this may be slightly counter intutive that uh why have we
+18:47 defined our reward function like this right so we we that the previous slide just showed that the optimal policy and
+18:54 optimal reward function had this relationship but now we are saying that even while training we will assume that
+18:59 my reward function and policy relates like this I will Define my reward function in terms of policy and then
+19:05 what will I do then where I was training the reward function the reward function optimization algorithm I will put this equation over there that's the whole
+19:13 idea okay okay so this is how you will train
+19:21 we'll get a pair of human preferences y + and Y minus for the prompt X
+19:29 and then we'll compute reward of the positive output which is uh so what is
+19:36 the reward of the positive output according to our new definition of the reward function is beta * log uh uh log
+19:44 ratio of probabilities okay we'll call this as log ratio of
+19:55 probabilities okay minus uh a normalization constant which
+20:01 depends only on X and not on y uh similarly reward of the negative uh
+20:07 output can be expressed as a log ratio of probabilities minus same normalization
+20:13 constant see the these two quantities are equal right and the training objective now uh where
+20:20 the training objective for the reward function if you remember was if does anybody remember what the training objective for the reward function was it
+20:26 was log sigmoid difference between reward right that's what we optimizing we'll use the same training objective
+20:32 but with this new parameterization of the reward function so let's uh replace the new
+20:39 reward function values that we got into our training objective
+20:46 okay this is the bradle likelihood yes so everything is the objective is
+20:52 same we kept the same equations we just eliminated reward function the uh
+20:58 learning
+21:06 yeah so what would be the training objective let's replace it now uh let's do it for 1 x y + and Y minus
+21:15 okay this will be log sigmo RX y
+21:22 + - RX Yus which is equal to log L
+21:31 sigo what your Rx y+ it's beta time log ratio of
+21:36 probabilities log Pi Theta let me call it Theta training
+21:43 Theta y + given X over the reference model
+21:52 probabilities minus the normal constant
+21:60 minus beta log this is your uh reward for the positive output
+22:08 and similarly you have reward for the negative
+22:21 output minus log vxa
+22:31 so is there something that we can cancel out here
+22:41 yeah the log Z ter can be canceled out and what does this give me log
+22:50 Sigma beta * log P
+22:55 Theta y + x
+23:13 and if you want you can also write it like this the sigmo time uh beta uh
+23:20 becomes a soft Max beta
+23:26 * log Pi Theta y + given
+23:33 x x on same quantity exponential
+23:42 of beta log y 1 +
+23:59 [Music]
+24:11 so I just expressed oh sorry uh did I no this fine right so I just opened the
+24:18 sigmoid function that's it uh so you can express it like this also so effectively what is it doing if you look at this
+24:25 objective uh does it remind you of any loss function any loss function that we
+24:31 use yeah it reminds us of softx Right Where the uh these quantities the quantity inside the exponential these
+24:37 look like the Logics this the logits of y+ this is the log of Y plus and this is
+24:43 the log of Y minus so for input if you have two outputs all you do is compute
+24:49 the logic for each of the output and uh increase the Logics increase the
+24:54 probability of the correct output and decrease the probability of the negative output that's all do it's a very simple
+24:59 loss function and it's very intuitive loss function but there's a difference with respect to when we use soft Max
+25:06 when you use this multiclass classification compared to when what we using here there's a difference uh can
+25:12 youbody think what the difference is here is with compared to what we use in M Class classification or Bing class
+25:23 class so the primary difference there actually two difference one is the way we are Computing the Logics here okay
+25:29 that's an obvious difference that we are using the probability of the model and
+25:34 probability of the output under the policy and the reference model to comput the logic that's one difference but another difference to remember here is
+25:41 this y plus and Y minus are not the only outputs possible here actually the output space is very large it's
+25:47 interactable and but uh we are uhal in our loss function we're defining only
+25:53 using Y plus and Y minus it has advantages that now this objective is very easy to
+25:59 but it will have its disadvantage that we'll discuss but is this fine for everybody
+26:04 the soft Max over the positive output and the negative outputs
+26:11 okay so let's look uh this is how uh it looks like you have an input prompt you
+26:19 have a positive output and an negative output that comes from Human preferences
+26:24 or it might also be an AI preference okay
+26:30 okay then you compute uh the probability of the model under the current
+26:37 policy you compute the probability of the output both the outputs under the current policy the probability of both
+26:42 the outputs under your reference policy and compute your uh the reward function
+26:48 the the loog ratio of probabilities as your reward
+26:59 and then just apply your uh loss function that you use for training rewards that's the idea and we have
+27:07 completely eliminated the task of learning a intermediate reward function so uh so we have already interpreted the
+27:14 objective uh but why what is the role of this pyre uh if you think I mean if you
+27:19 have to do it without coming through this all this process you won't have a pyre right what you will do is you will compute the probability of that the
+27:25 model gives to this positive output and the probability that the model gets to this negative output and just apply soft
+27:31 Max on top of this why do we need this
+27:37 spyf so uh one of the reason that I have not mentioned here why we use spyf is
+27:44 because uh these uh sequences that you generate right uh they can have variable
+27:51 number of length variable length Okay so sequences that are very long will have very low probabilities and sequence that
+27:57 are small will have very High probabilities uh uh what this pyf does is actually
+28:06 removes it takes care of the length it says that okay if it is a long output even the reference model will give very
+28:12 low probability so this ratio will become reasonable so the ratio irrespective of the length this ratio
+28:18 will be a reasonable quantity uh and so that's one intuitive
+28:23 reason why P dividing Pi P helps practically that's one practical reason
+28:28 white helps okay if you don't divide by PF you will either end up with very long outputs or very short outputs depending
+28:34 on how you compute this probability okay so so that's one reason but another
+28:42 reason is that if you remember why this pyre comes into the picture it comes because we had a k diverence St in our
+28:48 policy gradient right and the purpose of pyre in policy gradient was to keep the
+28:54 policy close to your reference policy you don't want to deviate too much and that purpose is served somewhat here
+29:00 also so if you look at uh so let's say there's an output for which the model assigns the there's a positive output y+
+29:08 and the model already assigns high probability to it so in order to increase this
+29:14 quantity what will the model have to do it will have to let's say it was assigning earlier point8 the model can
+29:21 increase the probability to 0.9 okay but if it was an output that the model assigned lower probability earlier say
+29:30 0.1 then even a small increase in the probability is enough for it to get the
+29:36 same ratio so 0.9 by8 is approximately equal
+29:42 to11 by one approximately right uh so that
+29:49 means that if the model assigned low probability then even a slight increase for the model is find so effectively the model is not drastically changing the
+29:57 probability or it can still change but uh uh we are we hoping that the model
+30:02 will not drastically change the probability of the mod uh of the output compared to what the reference model
+30:07 assigned okay it will still keep it close to the reference model's
+30:13 probability although in reality this does not always happen perfectly which
+30:18 we will see next okay second thing what is beta uh
+30:25 so here if you if beta is High what will happen if you think in this objective if let's say this beta is very high let's
+30:33 say 100 then what will happen in that case uh the model will try to make this
+30:41 far away from this quantity as much as possible it will try to make increase the Gap by a lot right if beta is small
+30:48 the model will be okay to keep these values so beta sort of plays the role uh uh s sort of plays the role of a
+30:56 learning rate also it's how much weight uh that uh you want to give during
+31:02 training okay so generally it's uh kept around so depending on the on the length of your outputs uh it will be somewhere
+31:09 around between. 3 to 003 actually you can depending on how
+31:15 big your lens are so it's a huge range uh and you'll have to find the optimal beta for your purpose that makes the
+31:21 model train okay so we have seen poo we have
+31:27 seen DPO and which one is better it's still not clear no uh DPO has its own
+31:33 set of problems poo the issue with poo is it's very implementing it it's challenging right you have to learn a
+31:39 reward function you have to define a value function you have to clip the uh importance weight so that the grade
+31:45 policy does not deviate too much and you need to do a lot of stuff in order to make PP work if you don't do all that stuff it's uh there's no guarant that
+31:52 will even converge anywhere DPO is simpler right that you don't have to learn a reward function don't have to a
+31:58 value function you just compute the probability of the positive output probability of the
+32:04 negative output under both current policy and reference policy and apply your brary laws
+32:11 right but the problem with DPO is that its objective function as I mentioned earlier it does not try to look at all
+32:20 possible output space it's just if you look at let's go back to the previous equation that we
+32:26 had yeah so if you look at the denominator of the last
+32:31 expression the denominator only has the positive and the negative output it doesn't care about what the output
+32:36 distribution actually looks like and what why is this a problem the model can
+32:43 actually make this quantity Pi Theta y minus to be zero and if the this
+32:48 quantity Pi Theta Yus becomes zero log of P Theta Yus will minus infinity
+32:53 exponential of that qu will Zero and this whole quantity will reach its maximum so the model can simply assign
+32:58 zero probability to the negative output and give uh uh and suddenly uh the
+33:05 objective will be Optimum and we will see why this is a problem so let's look at that uh why
+33:10 this becomes a problem okay one so pop what people have
+33:18 observed with PP is that uh many of the reward function that we use for training PPO they have a length bias they prefer
+33:24 outputs of longer length than shorter length and when you do PPO train with such reward functions uh you will
+33:30 automatically get very long outputs from the uh from the policy
+33:38 okay okay so why is DPO biased so this is your DPO loss
+33:43 function now let's assume that the reference model assigns equal probability initially to both Pi y + and
+33:50 Y minus both the outputs have equal probability and there is a some nonsensical output the the the whose
+33:56 probability is zero okay okay so ideally what would you want that this nonsensical output since it is anyway
+34:02 has zero probability it probability should not increase it should probability should remain at zero which is what pop would do but DPO would not
+34:10 do that let's see why DP would not do that so initially when you start trading
+34:19 uh your model will be exactly same as P it will assign the same probability 0.5
+34:25 to the positive 05 to the negative and zero to the uh out output the out of distribution
+34:30 output okay now you start training after some steps of training either what will
+34:37 happen either this can go up or this has to go down right something has to happen
+34:42 in order to for this loss for for this objective to increase so if the first
+34:47 quantity increases let's say this ratio of probabilities if this quantity increases then there's no issue uh
+34:55 because if let's say this become 0.5 to 6 uh and this quantity remains same this quantity then this will also probably
+35:01 decrease to 04 and that probably the sequence will still have zero probability the issue is when this uh uh
+35:08 the negative output the output uh the rejected output that output's
+35:14 probability start decreasing so when it probability start decreasing what would happen to the distribution either that
+35:19 this probability will go to y+ when which is fine if it all of that decrease
+35:25 so here it decreas from 0.5 to 0.1 right y minus decrease .5 to 0.1 so if this
+35:31 decrease all of it went to y+ it is fine but I in general what will happen is
+35:37 that this difference of point4 it will get distributed between y+ and this y
+35:42 not and the other output whatever are there it will go to uh mix of both the place so for example in this case this
+35:47 point 40.1 part went to here so it became from 0.5 to
+35:53 6 and this became from 0 to3 so
+35:58 an output whose probability was Zero initially it was completely non output by DPO training it probability will
+36:04 become reasonable and this happens very often when we do DPO training that if
+36:09 you do not if you do not if you let's say continue training for some time uh very nonsensical outputs will start
+36:16 emerging in in is this is there any question about
+36:23 this why the problem with DP generally people uh stop uh have will
+36:30 have some validation data to stop training uh early
+36:43 enough right so if the probability of the negative output decre ideally we want that right probility of negative decree but the question is where should
+36:49 that probability go to if it goes to the positive output see because your your loss is over the positive and negative
+36:55 output only so if that all the probability of NE decrease in probability of negative output goes to the positive output then there is no
+37:01 issue because you are comparing these two and that's what you want but that's what doesn't happen what will happen is
+37:07 that model does not have any way to control this the probability will some of it will flow to the positive output some of it might flow to an output which
+37:13 was not in the loss at all because the loss did not say that don't generate this y not output ever right so it might
+37:19 still end up generate giving some probability to y not outut so that the probability of this why not this
+37:24 nonsensical sequence increases and that is a problem problem
+37:31 okay so how to deal with out of distribution bias this is also called as out of distribution bias what we
+37:37 mentioned that outputs that are out of distribution their probability also increases so one possible solution is
+37:44 online DPO uh so in online DPO it's similar to poo so basically you learn a
+37:51 reward function here or you assume that you are given a reward function and you generate outputs y1 Y2 and get them uh
+37:59 so uh so this is your this is your reward function LM
+38:04 Andor this your reward model you can think of this as a reward
+38:12 model okay you generate outputs y1 Y2 and uh or this can also be a human
+38:18 being show it to the reward model and the reward model says okay y1 was a better output for this input compared to
+38:24 Y2 and now you apply DP on top of it again generate again get them labeled by
+38:30 the reward model and then again apply DPO so you repeat this DPO iteratively and what is the advantage here of
+38:36 repeating iteratively so let's say that the probability of this the the the
+38:43 increased at some point a probability of some weird sequence increased then what will happen that you will end up
+38:49 sampling this weird sequence uh because it's probility increase you will end up sampling at some point and now the L
+38:55 will Clearly say no don't repeat tokens repeating tokens is a bad idea it will give immediately give a negative reward
+39:01 to this those sequence in which start tokens start repeating and immediately your model will learn to forget so
+39:08 whatever bad outputs that get generated by DPO are getting fed to DPO as negative samples and because of which it
+39:15 is it will forget those bad output so it's uh the reward model here is working like an adversary to uh the DPO policy
+39:24 objective DPO policy objective May encourage bad outputs but immediately the reward model will start discouraging
+39:30 them so there some kind of balance is restored between uh the policy training
+39:36 and uh uh reward model and you have to make sure that you
+39:41 resample frequently uh so that anytime such an bad output emerges from the policy immediately you can suppress them
+39:49 uh suppress those output by giving them negative reward so this is an online setting
+39:56 right uh uh you are showing samples uh that that get gen uh that get
+40:04 generated from the policy and then labeling them using reward model but what if I have preferences available
+40:10 human preferences available can I use them to train the policy without uh getting into this out of distribution
+40:16 bias this is something that I would encourage everybody to think about that how would you do uh deal with this out
+40:22 of distribution bias in an offline setting this is an open question and we don't have any answer uh it's an
+40:28 interesting problem to think of is there any question about this
+40:37 slide okay so this online DP actually works quite well compared to offline DPO on a range of task this is tldr
+40:43 helpfulness and harmlessness these are anthropic
+40:48 tasks anthropic uh and as you can see online DPO performs uh so uh much better than
+40:56 offline DPO in all almost all the cases so what are the main takeaways from here uh DPO can learn reward model
+41:06 with learn a policy without uh intermediate reward model or a value function but it can be biased towards
+41:12 outof distribution samples to prevent bias you can optionally learn a reward model and then sample frequently from
+41:19 the policy and rank them using the reward model okay all right

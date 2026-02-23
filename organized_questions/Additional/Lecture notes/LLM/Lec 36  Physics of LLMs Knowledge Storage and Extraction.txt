@@ -1,0 +1,4186 @@
+00:00 Hello everyone, I'm Yatin and uh in
+00:03 
+
+00:03 today's lecture we will uh start with
+00:06 
+
+00:06 physics of LLMs.
+00:08 
+
+00:08 Right. So uh so far in the course uh we
+00:13 
+
+00:13 have looked at what are language models.
+00:17 
+
+00:17 Right? We looked at the architecture of
+00:20 
+
+00:20 transformers which has become the most
+00:22 
+
+00:22 common uh language model these days.
+00:25 
+
+00:25 Then uh we looked at how to pre-train
+00:29 
+
+00:29 the language models, how to post-train
+00:32 
+
+00:32 them and then we looked at various
+00:34 
+
+00:34 alignment techniques as well where we
+00:35 
+
+00:35 covered RLHF, DPO, PO, right? All of
+00:38 
+
+00:38 these were training techniques.
+00:41 
+
+00:41 We also looked at how to efficiently
+00:43 
+
+00:43 scale the training because pre-training
+00:45 
+
+00:45 is really massive. Without scaling, we
+00:47 
+
+00:47 really cannot uh do anything, right? So
+00:50 
+
+00:50 we looked at how to efficiently scale
+00:51 
+
+00:51 the pre-training.
+00:54 
+
+00:54 Then uh in the applications we also
+00:57 
+
+00:57 looked at how to use LLMs in real world
+00:59 
+
+00:59 scenarios. For example, if you want LLMs
+01:02 
+
+01:02 to answer questions from uh specific
+01:05 
+
+01:05 document or specific domain, then rag is
+01:07 
+
+01:07 the go-to technique. But then rag alone
+01:10 
+
+01:10 may not suffice. So we looked at various
+01:12 
+
+01:12 agentic patterns which also included
+01:14 
+
+01:14 tool calling and all of those. So these
+01:16 
+
+01:16 were essentially applications of LLMs to
+01:18 
+
+01:18 solve the real world problems.
+01:22 
+
+01:22 Okay. uh and then we'll also looked at
+01:25 
+
+01:25 how to mimic and induce reasoning within
+01:27 
+
+01:27 these language models right so till now
+01:33 
+
+01:33 our focus has been mainly on what are
+01:35 
+
+01:35 language models how LLMs work as a
+01:39 
+
+01:39 blackbox how can we adapt them for real
+01:41 
+
+01:41 world scenarios how to use them right we
+01:45 
+
+01:45 haven't yet focused on
+01:47 
+
+01:47 you know why behind the how
+01:52 
+
+01:52 Right? We know how they work. But do we
+01:54 
+
+01:54 know why they work? Is there any theory
+01:57 
+
+01:57 behind
+01:59 
+
+01:59 the workings of uh you know uh modern
+02:02 
+
+02:02 age transformer language models? And
+02:04 
+
+02:04 that is the focus of uh this lecture and
+02:07 
+
+02:07 maybe the next lecture as well.
+02:09 
+
+02:09 Right? But before we begin uh when we
+02:12 
+
+02:12 look at the word theory, what does it
+02:15 
+
+02:15 mean? What do you guys understand with
+02:17 
+
+02:17 this word? When we say we want to look
+02:19 
+
+02:19 at the theory of language models,
+02:22 
+
+02:22 what pops up in your mind?
+02:25 
+
+02:25 Anyone?
+02:30 
+
+02:30 Fundamentals of what?
+02:37 
+
+02:37 >> So again, what do you mean by first
+02:39 
+
+02:39 principles there?
+02:42 
+
+02:42 What do you mean by basics?
+02:46 
+
+02:46 >> Exams, right? So essentially what you
+02:48 
+
+02:48 are trying to reach where you're trying
+02:51 
+
+02:51 to reach essentially is mathematics of
+02:53 
+
+02:53 transformers right can we have some
+02:55 
+
+02:55 computational learning theories or
+02:57 
+
+02:57 statistical learning theories we we
+02:59 
+
+02:59 understand for example linear regression
+03:01 
+
+03:01 very well we have a lot of theories
+03:02 
+
+03:02 behind it right we also understand
+03:06 
+
+03:06 shallow networks right we have learning
+03:08 
+
+03:08 bounds for those right so this
+03:11 
+
+03:11 essentially includes this essentially
+03:13 
+
+03:13 means you know the maths
+03:16 
+
+03:16 behind the science. Right? So, uh again
+03:20 
+
+03:20 in the learnability theory we cover VC
+03:23 
+
+03:23 dimensions, pack learnability,
+03:25 
+
+03:25 formalism, generalization, error bounds.
+03:27 
+
+03:27 Right? So, this is one extreme.
+03:30 
+
+03:30 But then in some other world theory also
+03:33 
+
+03:33 means ethology
+03:35 
+
+03:35 which is you know science of animal
+03:36 
+
+03:36 behavior which essentially means that
+03:38 
+
+03:38 you take a monkey put put it in an
+03:43 
+
+03:43 environment and observe how it behaves
+03:45 
+
+03:45 right and try to formalize from their
+03:48 
+
+03:48 behavior
+03:49 
+
+03:49 right and this is what uh people have
+03:53 
+
+03:53 been doing right now they're treating
+03:54 
+
+03:54 these LLMs as monkeys playing with it to
+03:57 
+
+03:57 come up with general theories
+04:01 
+
+04:01 Right? Well, now both have their pros
+04:03 
+
+04:03 and cons. For example, if you look at
+04:06 
+
+04:06 the math side of things, when you look
+04:08 
+
+04:08 at statistical learning theories, the
+04:10 
+
+04:10 biggest pro is it's formalism, right?
+04:13 
+
+04:13 It's very rigorous. We get theorems
+04:15 
+
+04:15 which will hold.
+04:17 
+
+04:17 But then the difficulty there is that
+04:19 
+
+04:19 it's too hard to understand even for
+04:20 
+
+04:20 experts,
+04:22 
+
+04:22 right? I mean, I also don't understand
+04:25 
+
+04:25 most of the learning theory behind
+04:27 
+
+04:27 machine learning, right? So it's very
+04:29 
+
+04:29 difficult to understand and it it takes
+04:31 
+
+04:31 it's very slow it takes a lot of time to
+04:32 
+
+04:32 develop those over years right and the
+04:36 
+
+04:36 assumptions are also very idealistic
+04:39 
+
+04:39 when you have to make a lot of
+04:40 
+
+04:40 idealistic assumptions when you are
+04:42 
+
+04:42 dealing with for example you need to
+04:43 
+
+04:43 assume the data distribution but the
+04:45 
+
+04:45 real data may not follow that
+04:47 
+
+04:47 distribution right so there are a lot of
+04:49 
+
+04:49 assumptions idealistic assumptions that
+04:51 
+
+04:51 you have to make which are which which
+04:53 
+
+04:53 makes it you know difficult uh to to
+04:57 
+
+04:57 understand real world application of
+04:60 
+
+04:60 real world thing like
+05:02 
+
+05:02 today's large language models
+05:05 
+
+05:05 whereas if you look at ethology its
+05:08 
+
+05:08 biggest pro is that everyone can do
+05:09 
+
+05:09 theory anyone can take the APIs and play
+05:12 
+
+05:12 with the language model and try to come
+05:14 
+
+05:14 up with some conclusions right and this
+05:17 
+
+05:17 has been useful as well for example the
+05:19 
+
+05:19 phenomena of chain of thought or tree of
+05:21 
+
+05:21 thought right the uh all of these came
+05:25 
+
+05:25 from this kind of science where people
+05:29 
+
+05:29 were playing with the language models,
+05:31 
+
+05:31 right? And then of course here the the
+05:35 
+
+05:35 major issue is that it's too subjective.
+05:38 
+
+05:38 It's it's less rigorous and it may lead
+05:40 
+
+05:40 to false claims, right? Uh whatever we
+05:44 
+
+05:44 observe for two language models may not
+05:47 
+
+05:47 hold in general, right? We may not be
+05:49 
+
+05:49 able to derive uh generic phenomenas or
+05:52 
+
+05:52 generic laws which applies to all
+05:54 
+
+05:54 language models or transformer based
+05:55 
+
+05:55 language models, right? So, so let's
+05:58 
+
+05:58 first uh in detail look at what are the
+06:01 
+
+06:01 issues with it theology as a science if
+06:04 
+
+06:04 we try to apply it to language models.
+06:06 
+
+06:06 So the first major issue is that we are
+06:09 
+
+06:09 studying a very specific model and the
+06:12 
+
+06:12 learnings may not generalize to other
+06:14 
+
+06:14 LLMs. Right? uh so if I look at the
+06:17 
+
+06:17 history of science uh it resembles
+06:20 
+
+06:20 geocentricism
+06:22 
+
+06:22 where people looked at two models sun
+06:24 
+
+06:24 and the moon and came up with the
+06:27 
+
+06:27 conclusion that earth is at the center
+06:28 
+
+06:28 of the universe
+06:30 
+
+06:30 right so that's the issue if you if you
+06:32 
+
+06:32 observe only few models and try to draw
+06:34 
+
+06:34 conclusions you may draw false
+06:36 
+
+06:36 conclusions and that is the biggest
+06:38 
+
+06:38 issue here that we are studying very
+06:40 
+
+06:40 specific models that is one
+06:43 
+
+06:43 the the other issue is that you know uh
+06:47 
+
+06:47 there is no control over the training
+06:49 
+
+06:49 data for example if I have a model which
+06:52 
+
+06:52 gives me 90% performance on mathematical
+06:56 
+
+06:56 reasoning task let's say GSM 8K right so
+06:58 
+
+06:58 GSM 8K is a data set which contains
+07:01 
+
+07:01 mathematical reasoning problems 8,000
+07:03 
+
+07:03 mathematical reasoning problems now is
+07:06 
+
+07:06 it because it genuinely has those
+07:09 
+
+07:09 reasoning capabilities or is it because
+07:12 
+
+07:12 uh there was some data leak somewhere
+07:14 
+
+07:14 right? That the model has seen uh those
+07:17 
+
+07:17 problems during their training, right?
+07:21 
+
+07:21 Model creators may not do it
+07:23 
+
+07:23 intentionally, but it can happen
+07:25 
+
+07:25 unintentionally as well, right? Because
+07:27 
+
+07:27 they're crawling the web and someone
+07:29 
+
+07:29 might have released similar problems or
+07:30 
+
+07:30 translated those problems and put them
+07:32 
+
+07:32 on the web, right? So, so that is the
+07:35 
+
+07:35 other issue that uh the conclusions that
+07:37 
+
+07:37 we draw based on some benchmarks may not
+07:40 
+
+07:40 be may not hold because we do not know
+07:42 
+
+07:42 there is no control over the training
+07:44 
+
+07:44 setup and the testing setup. We don't
+07:46 
+
+07:46 know whether they are uh non-over
+07:48 
+
+07:48 overlapping or not right then. So, so
+07:52 
+
+07:52 there was this paper uh a sarcastic one
+07:54 
+
+07:54 which said that pre-training on test set
+07:56 
+
+07:56 is all you need to get good performance.
+07:59 
+
+07:59 Right? So if you train on the test then
+08:02 
+
+08:02 of course your performance is going to
+08:03 
+
+08:03 be 100%.
+08:05 
+
+08:05 All right. Uh
+08:08 
+
+08:08 the third issue is that when we play
+08:11 
+
+08:11 with APIs or the language models like
+08:13 
+
+08:13 that uh if you treat them as black box
+08:15 
+
+08:15 we do not come to know what is happening
+08:18 
+
+08:18 inside right we do not it doesn't reveal
+08:20 
+
+08:20 the inner mechanisms.
+08:24 
+
+08:24 Then uh the another big challenge is you
+08:27 
+
+08:27 know the attribution for example uh
+08:31 
+
+08:31 let's take this this example was Joe
+08:34 
+
+08:34 Biden born earlier than Nancy
+08:36 
+
+08:36 now what do you think will ch or llama
+08:39 
+
+08:39 be able to answer this question or not?
+08:45 
+
+08:45 Yes, I also thought so. But then I was
+08:49 
+
+08:49 also surprised that its answer was
+08:52 
+
+08:52 incorrect.
+08:54 
+
+08:54 Even though it has the correct
+08:55 
+
+08:55 information, it knows that Joe Biden was
+08:59 
+
+08:59 born on November 20th, 1942 and Nancy
+09:03 
+
+09:03 was born on March 20th, 1940.
+09:07 
+
+09:07 Even then it says yes.
+09:09 
+
+09:09 Right.
+09:11 
+
+09:11 And
+09:13 
+
+09:13 yeah and and same holds for meta as
+09:15 
+
+09:15 well. It also says yes. So I was
+09:17 
+
+09:17 surprised when I looked at this this
+09:19 
+
+09:19 example, right? Uh I took it from a
+09:21 
+
+09:21 tutorial that I actually had to go and
+09:25 
+
+09:25 test it myself. So I I asked Chad JPT
+09:28 
+
+09:28 was Gangali born before Sachin. It says
+09:31 
+
+09:31 no. Suchin was born before Gangali.
+09:36 
+
+09:36 Right? And look at the birth years of
+09:38 
+
+09:38 Sachin and Gangali. it's incorrect. So
+09:41 
+
+09:41 it's it's really it was striking for me
+09:43 
+
+09:43 as well when I looked at it for the
+09:45 
+
+09:45 first time after uh reading this paper,
+09:48 
+
+09:48 right? And you can go on and on. Uh for
+09:51 
+
+09:51 example, was Suchin born in an even
+09:53 
+
+09:53 year? Yes, Suchin was born in an even
+09:55 
+
+09:55 year in 1973
+09:57 
+
+09:57 and then after it has spit out the year,
+10:00 
+
+10:00 it goes on to correct itself. No, he was
+10:03 
+
+10:03 not born in an even year.
+10:06 
+
+10:06 Right? and then it is uh you know uh
+10:09 
+
+10:09 unabashedly claiming that I'm GPT5 right
+10:11 
+
+10:11 so so these examples were these examples
+10:14 
+
+10:14 from the paper they are with GPT4 and
+10:17 
+
+10:17 even GPT5
+10:19 
+
+10:19 right fails this is the most latest
+10:21 
+
+10:21 version of uh of Ghat GPT
+10:26 
+
+10:26 so if we try to analyze
+10:29 
+
+10:29 this question
+10:31 
+
+10:31 and if we have to understand whether you
+10:34 
+
+10:34 know why is model failing here we need
+10:37 
+
+10:37 to attribute its failure right it could
+10:40 
+
+10:40 be because the model cannot extract the
+10:42 
+
+10:42 birth year of suchin so if you look at
+10:44 
+
+10:44 the question carefully it needs two
+10:46 
+
+10:46 things it needs to first extract the
+10:48 
+
+10:48 birth year and then needs to reason over
+10:50 
+
+10:50 it right so first failure point could be
+10:54 
+
+10:54 that the model cannot extract the birth
+10:55 
+
+10:55 year it doesn't have the knowledge so
+10:57 
+
+10:57 this is the knowledge
+11:01 
+
+11:01 part of the model or
+11:04 
+
+11:04 it doesn't know What even means right?
+11:07 
+
+11:07 So this is also part of the knowledge or
+11:08 
+
+11:08 or concepts right this is this is
+11:11 
+
+11:11 knowledge this is concept or you can mix
+11:12 
+
+11:12 them together right
+11:15 
+
+11:15 or is it that
+11:18 
+
+11:18 model can extract the birth year knows
+11:21 
+
+11:21 what is even but still cannot answer
+11:24 
+
+11:24 right so so if if we have to categorize
+11:27 
+
+11:27 this failure case into one of these
+11:28 
+
+11:28 three buckets we cannot do if you are
+11:31 
+
+11:31 working with blackbox LLMs because their
+11:34 
+
+11:34 training is not controlled Right? If we
+11:38 
+
+11:38 can ensure that this and this holds only
+11:41 
+
+11:41 then we can claim about about E.
+11:44 
+
+11:44 Right? So this is this is one of the
+11:46 
+
+11:46 challenges you know in ethology applying
+11:48 
+
+11:48 ethology to understand language models
+11:51 
+
+11:51 which is that success and failure
+11:53 
+
+11:53 attribution is very difficult.
+11:56 
+
+11:56 Is it failing due to lack of knowledge
+11:58 
+
+11:58 or lack of ability to extract the
+11:60 
+
+12:00 knowledge? These are also two different
+12:02 
+
+12:02 things. It may know but it is not able
+12:04 
+
+12:04 to extract that knowledge. Right or is
+12:06 
+
+12:06 it due to the lack of ability to reason
+12:09 
+
+12:09 over that knowledge right and if it is
+12:12 
+
+12:12 succeeding that is also difficult
+12:14 
+
+12:14 because
+12:16 
+
+12:16 I mean even in the case of success
+12:18 
+
+12:18 attribution is difficult because uh
+12:21 
+
+12:21 let's say you know after I have asked
+12:23 
+
+12:23 this question they will use this as a
+12:25 
+
+12:25 training data in the next month it may
+12:26 
+
+12:26 get updated so it might have seen that
+12:28 
+
+12:28 compound fact as it is without
+12:30 
+
+12:30 understanding it it might it might just
+12:32 
+
+12:32 memorize it right without doing any
+12:34 
+
+12:34 reasoning So we need to control for that
+12:36 
+
+12:36 as well.
+12:38 
+
+12:38 Right? So so this is is is very crucial
+12:40 
+
+12:40 that uh you know we
+12:44 
+
+12:44 attribution of whatever we observe is
+12:46 
+
+12:46 very difficult if you're playing with
+12:47 
+
+12:47 blackbox language models. So what is the
+12:50 
+
+12:50 alter alternative to this? What should
+12:52 
+
+12:52 we do? Right? And uh
+12:56 
+
+12:56 that's what uh the series of paper
+12:59 
+
+12:59 physics of language models propose. They
+13:02 
+
+13:02 it's a series of work by Alan Zoo. he's
+13:05 
+
+13:05 in meta
+13:06 
+
+13:06 and uh they define four fundamental
+13:10 
+
+13:10 principles founding principles of of
+13:12 
+
+13:12 their study. The first is that you know
+13:15 
+
+13:15 they decompose intelligence into
+13:17 
+
+13:17 multiple building blocks. So they want
+13:19 
+
+13:19 to understand. So if you have to do this
+13:21 
+
+13:21 for example error attribution we need to
+13:24 
+
+13:24 understand whether it is knowledge
+13:28 
+
+13:28 or you know reasoning
+13:32 
+
+13:32 which is missing right. So if we take
+13:36 
+
+13:36 one complex language model it's
+13:38 
+
+13:38 difficult to bifurcate these two. So, so
+13:41 
+
+13:41 what they're proposing essentially is
+13:42 
+
+13:42 that we should take each of these
+13:44 
+
+13:44 components and try to understand them
+13:48 
+
+13:48 separately and and have control
+13:50 
+
+13:50 experiments for that. So that is the
+13:52 
+
+13:52 second second uh con proposal which is
+13:55 
+
+13:55 that we should do controlled study which
+13:57 
+
+13:57 essentially means that uh so for example
+14:00 
+
+14:00 to understand reasoning we should first
+14:03 
+
+14:03 control for the fact that the model
+14:05 
+
+14:05 knows we should ensure that the model
+14:07 
+
+14:07 knows the the information knows the
+14:09 
+
+14:09 birth year only then we should check
+14:11 
+
+14:11 whether it can infer whether it is even
+14:12 
+
+14:12 or odd
+14:16 
+
+14:16 right so that is the second fundamental
+14:18 
+
+14:18 principle we and this also avoids data
+14:20 
+
+14:20 leaks we can ensure that there is no
+14:22 
+
+14:22 leak of the test data during training.
+14:25 
+
+14:25 Right? Then uh the third principle is
+14:30 
+
+14:30 that our experiments should be highly
+14:33 
+
+14:33 repeatable. Right? We if if if there are
+14:36 
+
+14:36 several knobs that we want to turn on
+14:37 
+
+14:37 and off, we should be able to do that,
+14:40 
+
+14:40 right? But if uh we take the uh the
+14:44 
+
+14:44 language models which are popular these
+14:45 
+
+14:45 days, they're really huge and their
+14:47 
+
+14:47 training cost is really high. So
+14:48 
+
+14:48 therefore they they uh they advocate
+14:51 
+
+14:51 experimenting with smaller models 100
+14:53 
+
+14:53 million or 300 million not 800 million
+14:56 
+
+14:56 maximum size models and so so that you
+14:59 
+
+14:59 know it is uh it's easy to repeat those
+15:01 
+
+15:01 experiments multiple times and and
+15:03 
+
+15:03 change the knobs and then repeat the
+15:05 
+
+15:05 experiments again. Right now one may
+15:06 
+
+15:06 argue that if we reduce the size of the
+15:09 
+
+15:09 language models the laws that we derive
+15:11 
+
+15:11 will they be universal because a lot of
+15:13 
+
+15:13 capabilities
+15:15 
+
+15:15 you know they are uncovered when with
+15:18 
+
+15:18 with scale right smaller models may not
+15:20 
+
+15:20 have the capacity and that's where the
+15:23 
+
+15:23 first two things help that we because we
+15:26 
+
+15:26 are studying each individual uh
+15:29 
+
+15:29 intelligence block we don't want to
+15:30 
+
+15:30 study the overall intelligence in one go
+15:32 
+
+15:32 we are looking at one specific block
+15:34 
+
+15:34 let's say knowledge or reasoning
+15:36 
+
+15:36 Right? And then we are studying in a
+15:38 
+
+15:38 controlled environment. Right? We we
+15:41 
+
+15:41 know the training data that we have.
+15:43 
+
+15:43 Therefore, because we are working in a
+15:45 
+
+15:45 controlled environment and we are
+15:46 
+
+15:46 looking at very specific aspects of
+15:48 
+
+15:48 intelligence, smaller models are more
+15:50 
+
+15:50 than sufficient to mimic those aspects.
+15:54 
+
+15:54 Right? Okay. Then uh the fourth
+15:57 
+
+15:57 principle essentially is probing
+15:59 
+
+15:59 techniques. So we recall that when we
+16:01 
+
+16:01 are treating these language models as
+16:02 
+
+16:02 black boxes, we do not know what is
+16:04 
+
+16:04 going on inside them, right? So can we
+16:08 
+
+16:08 maybe look at the uh embeddings in the
+16:11 
+
+16:11 inner layers of the transformer and try
+16:13 
+
+16:13 to see what information it contains,
+16:15 
+
+16:15 right? So they advocate for probing
+16:16 
+
+16:16 techniques
+16:18 
+
+16:18 and uh now you know we have been talking
+16:22 
+
+16:22 about ethology and maths. So if I try to
+16:25 
+
+16:25 develop an analogy with the history of
+16:26 
+
+16:26 science uh
+16:30 
+
+16:30 so the the you know coming up with
+16:31 
+
+16:31 computational stat or statistical
+16:34 
+
+16:34 learning theories is similar to you know
+16:36 
+
+16:36 writing principia mathematica where
+16:38 
+
+16:38 Newton derived the entire maths to
+16:40 
+
+16:40 understand what's going on in the real
+16:42 
+
+16:42 world to understand the physics right so
+16:44 
+
+16:44 it's it's difficult and it takes time as
+16:46 
+
+16:46 well right so his objective was also to
+16:50 
+
+16:50 understand what's the gravitational laws
+16:51 
+
+16:51 and the laws of the physics but for that
+16:53 
+
+16:53 he had to develop entire mathematical
+16:55 
+
+16:55 theor the entire calculus. Right? The
+16:58 
+
+16:58 other extreme is ethology which is the
+17:00 
+
+17:00 science of animal behavior and and we
+17:03 
+
+17:03 saw that this is similar to
+17:04 
+
+17:04 geocentricism
+17:06 
+
+17:06 right where we observe two models and
+17:07 
+
+17:07 try to draw universal physics laws
+17:10 
+
+17:10 whereas what these guys are advocating
+17:13 
+
+17:13 it's similar to
+17:15 
+
+17:15 Kepler's laws right which were based on
+17:19 
+
+17:19 the data observed by his supervisor Taco
+17:23 
+
+17:23 so taco obser made a lot of astronomical
+17:25 
+
+17:25 observations for 20 years Kepler's laws
+17:28 
+
+17:28 were based on those and then Newton's
+17:32 
+
+17:32 laws were also based on the Kepler's
+17:33 
+
+17:33 laws. Right? So what we are trying to do
+17:36 
+
+17:36 what they're trying to do right now is
+17:38 
+
+17:38 you know derive something which is akin
+17:42 
+
+17:42 to Kepler's laws in
+17:44 
+
+17:44 in language models or for language
+17:46 
+
+17:46 models right so uh yeah so with this
+17:50 
+
+17:50 with this background let's delve into uh
+17:53 
+
+17:53 what these guys are proposing they have
+17:56 
+
+17:56 uh they divide the study into three
+17:57 
+
+17:57 parts part three is understanding the
+18:00 
+
+18:00 knowledge basically trying to answer the
+18:03 
+
+18:03 question whether models contain the
+18:05 
+
+18:05 knowledge to answer any specific
+18:07 
+
+18:07 question or not. Then in part two they
+18:09 
+
+18:09 look at reasoning and then in part one
+18:12 
+
+18:12 they look at uh language structures
+18:14 
+
+18:14 right. So uh
+18:17 
+
+18:17 all of their so they have a very good
+18:20 
+
+18:20 project page for this where they have
+18:22 
+
+18:22 put all of their material and there is a
+18:24 
+
+18:24 YouTube channel by the author and all of
+18:27 
+
+18:27 these slides are actually taken from
+18:29 
+
+18:29 from his videos.
+18:32 
+
+18:32 Right. Okay. So
+18:36 
+
+18:36 let's get started with part 3.1
+18:40 
+
+18:40 and uh let's go back to our counter
+18:44 
+
+18:44 example uh you know question which is
+18:48 
+
+18:48 was such an born in an even year right
+18:50 
+
+18:50 now if this question is being answered
+18:52 
+
+18:52 incorrectly
+18:55 
+
+18:55 is it because the model cannot extract
+18:57 
+
+18:57 the birth year of such or
+19:01 
+
+19:01 that the model doesn't know what even
+19:03 
+
+19:03 means or is it something else? It's in
+19:06 
+
+19:06 this part we will focus on the on on
+19:08 
+
+19:08 this aspect.
+19:10 
+
+19:10 Under what conditions can model extract
+19:13 
+
+19:13 the knowledge and under what condition
+19:15 
+
+19:15 it fails. Okay. And we can further
+19:17 
+
+19:17 divide it into three questions
+19:21 
+
+19:21 or uh or three uh probable reasons. The
+19:24 
+
+19:24 first one is that you know if if model
+19:28 
+
+19:28 did not see that data during training it
+19:31 
+
+19:31 will definitely not be able to extract
+19:32 
+
+19:32 that. So is is it is this the reason
+19:35 
+
+19:35 that model did not see the biography of
+19:36 
+
+19:36 suchin during training.
+19:40 
+
+19:40 Second aspect is that you know if it
+19:43 
+
+19:43 sees a biography it's going to be in the
+19:44 
+
+19:44 form of sentences whereas we are posing
+19:46 
+
+19:46 a question. So we need to fine-tune the
+19:49 
+
+19:49 model to extract that knowledge from
+19:53 
+
+19:53 from its parameters. Right? So
+19:55 
+
+19:55 extraction is different from
+19:56 
+
+19:56 memorization. Right? So is the reason
+19:59 
+
+19:59 that model was not fine-tuned enough to
+20:01 
+
+20:01 extract the birth years
+20:05 
+
+20:05 or uh is it that model knows these two
+20:09 
+
+20:09 things? model knows Suchin's model has
+20:12 
+
+20:12 seen Suchin's biography but it is not
+20:16 
+
+20:16 able to extract the birth dates of all
+20:19 
+
+20:19 the celebrities right it's able to
+20:21 
+
+20:21 extract it knows the concept of birth
+20:23 
+
+20:23 date it knows the concept of uh
+20:25 
+
+20:25 biographies but it is not able to
+20:26 
+
+20:26 extract that knowledge for some specific
+20:28 
+
+20:28 individuals such in this case
+20:32 
+
+20:32 right so this is what we will study and
+20:35 
+
+20:35 uh to do that they this is they have
+20:40 
+
+20:40 controlled setup. They're training 100
+20:42 
+
+20:42 million or 300 million GPT2 models,
+20:45 
+
+20:45 right? And uh they start from pre from
+20:48 
+
+20:48 from scratch random initialization of
+20:50 
+
+20:50 model weights
+20:51 
+
+20:51 and uh
+20:55 
+
+20:55 they create synthetic data so as to you
+20:57 
+
+20:57 know uh the data that they're using for
+20:60 
+
+20:60 training uh is has to be controlled and
+21:03 
+
+21:03 to do so they create roughly one lakh uh
+21:07 
+
+21:07 biographies, right?
+21:10 
+
+21:10 And uh a biography would contain six
+21:14 
+
+21:14 different attributes for an individual.
+21:17 
+
+21:17 So all everything is synthetic here.
+21:19 
+
+21:19 Nothing is real. There's no no one
+21:20 
+
+21:20 called Anna, right? In the real world
+21:24 
+
+21:24 who was born on October 2nd, right? So
+21:27 
+
+21:27 there are six attributes here. Uh the
+21:31 
+
+21:31 birth date,
+21:34 
+
+21:34 birth place,
+21:36 
+
+21:36 and where the person studied.
+21:42 
+
+21:42 and uh you know uh what did the person
+21:47 
+
+21:47 study
+21:49 
+
+21:49 where the person works and what are the
+21:52 
+
+21:52 headquarters of that place. So these
+21:54 
+
+21:54 first five are independent of each other
+21:57 
+
+21:57 this uh location of the uh of the
+22:01 
+
+22:01 workplace is tied. So if it is met, it
+22:04 
+
+22:04 has to be Menlo Park, California, right?
+22:06 
+
+22:06 These two are tied, right? So and and
+22:09 
+
+22:09 for now, let's assume that for all the
+22:14 
+
+22:14 uh biographies, the data that they're
+22:16 
+
+22:16 using for training, it appears in the
+22:18 
+
+22:18 they follow the same order. First
+22:20 
+
+22:20 sentence will talk about the birth date.
+22:23 
+
+22:23 Second sentence will talk about the
+22:24 
+
+22:24 birth place. Third will talk about the u
+22:28 
+
+22:28 the place where the person studied.
+22:30 
+
+22:30 fourth about the subject and then fifth
+22:33 
+
+22:33 about the workplace.
+22:36 
+
+22:36 But then there are and they have some 50
+22:38 
+
+22:38 templates from where they are choosing
+22:39 
+
+22:39 each of the sentences.
+22:42 
+
+22:42 Right? Okay. So this is bio s data which
+22:45 
+
+22:45 is S stands for synthetic here and they
+22:48 
+
+22:48 also create another data set which is a
+22:52 
+
+22:52 realistic version of this. they uh they
+22:55 
+
+22:55 take this paragraph and pass it to llama
+22:60 
+
+22:60 right and ask it ask it to trans
+23:02 
+
+23:02 paraphrase it essentially. So this this
+23:04 
+
+23:04 is more realistic paraphrasing of the
+23:06 
+
+23:06 same u information right. So they have
+23:10 
+
+23:10 uh these two different data sets bios
+23:13 
+
+23:13 and bio r stands for realistic.
+23:17 
+
+23:17 All right. U
+23:20 
+
+23:20 now let's first define the task of
+23:23 
+
+23:23 knowledge extraction. Right? And let's
+23:25 
+
+23:25 let's first see what are they using to
+23:27 
+
+23:27 train the model. What is the training
+23:29 
+
+23:29 data? So training data consists consists
+23:32 
+
+23:32 of uh
+23:35 
+
+23:35 these biographies.
+23:40 
+
+23:40 These are 100k biographies, right? Out
+23:43 
+
+23:43 of these 100k biographies, they split
+23:45 
+
+23:45 this into 50k 50k group. This is train
+23:49 
+
+23:49 and this is test.
+23:52 
+
+23:52 Recall that in addition to memorization,
+23:54 
+
+23:54 it has to learn the art of extracting
+23:57 
+
+23:57 that knowledge as well. So to induce
+23:59 
+
+23:59 that they create synthetic QA standard
+24:03 
+
+24:03 QA on these 50k individuals right. So
+24:07 
+
+24:07 for each sentence or each bit of
+24:09 
+
+24:09 information we have one question. So for
+24:12 
+
+24:12 each biography we will have six
+24:14 
+
+24:14 questions. Right? So what is the birth
+24:16 
+
+24:16 date of Ana? Right? And then what is the
+24:19 
+
+24:19 birth city of Ana? What major did Ana
+24:22 
+
+24:22 study? And so and so forth. The idea of
+24:26 
+
+24:26 this is to induce the the skill of
+24:28 
+
+24:28 knowledge extraction, right? And what we
+24:31 
+
+24:31 want to test are two things. Whether the
+24:34 
+
+24:34 model has memorized the knowledge and
+24:37 
+
+24:37 whether it is able to extract it or not,
+24:39 
+
+24:39 right? So if I ask a question from the
+24:43 
+
+24:43 train set and the model is able to
+24:45 
+
+24:45 answer that, would we call it would we
+24:48 
+
+24:48 say that it has learned the art of
+24:49 
+
+24:49 extracting the knowledge?
+24:53 
+
+24:53 We can't say right. So if it is able to
+24:56 
+
+24:56 answer the questions from the train set
+24:59 
+
+24:59 then it's essentially memorization. We
+25:01 
+
+25:01 know that it has memorized only if it is
+25:05 
+
+25:05 able to answer questions from the test
+25:06 
+
+25:06 set right which consists of completely
+25:10 
+
+25:10 different 50 50,000 biographies only
+25:13 
+
+25:13 then we can say that model has learned
+25:15 
+
+25:15 the skill of extracting the knowledge.
+25:18 
+
+25:18 Right? Okay. So uh the training setup in
+25:23 
+
+25:23 the first experiment is that they mix
+25:28 
+
+25:28 these two train data. This is for uh in
+25:32 
+
+25:32 the this is this is the you can call it
+25:34 
+
+25:34 pre-train data and this is uh QA data
+25:38 
+
+25:38 right
+25:41 
+
+25:41 and uh they mix the two data sets
+25:44 
+
+25:44 together and learn via next token
+25:46 
+
+25:46 prediction. Right? So, so uh
+25:51 
+
+25:51 understand that you know they have QA
+25:53 
+
+25:53 data which is in the form of question
+25:55 
+
+25:55 one and answer one. Right? When we
+25:59 
+
+25:59 typically train uh using using QA data
+26:03 
+
+26:03 or instruction tuning data, we try to
+26:05 
+
+26:05 maximize probability of A1 given Q1,
+26:09 
+
+26:09 right? But they are mixing it all
+26:11 
+
+26:11 together in the pre-training stage where
+26:14 
+
+26:14 they're creating a sentence with Q1, A1.
+26:17 
+
+26:17 And this becomes my new sentence in the
+26:20 
+
+26:20 the data set. Right? And they're trying
+26:22 
+
+26:22 to maximize the probability of the
+26:24 
+
+26:24 sentence X with respect to theta. That's
+26:27 
+
+26:27 what the pre-training objective is. I
+26:29 
+
+26:29 hope uh everyone knows that by now,
+26:31 
+
+26:31 right?
+26:32 
+
+26:32 Right. So this is this is the uh the
+26:35 
+
+26:35 training setup and then testing setup is
+26:37 
+
+26:37 the remaining 50k QAS.
+26:40 
+
+26:40 And what they observe is is that it it
+26:44 
+
+26:44 works. If you do mix training,
+26:48 
+
+26:48 right? If you have question answers in
+26:50 
+
+26:50 the training data set, you're able to
+26:53 
+
+26:53 get more than 85% performance, which is
+26:56 
+
+26:56 good. We can say that it has learned the
+26:58 
+
+26:58 art of extracting the knowledge as well.
+27:00 
+
+27:00 Right? But there is a catch here and the
+27:03 
+
+27:03 catch is that the ratio of q which
+27:06 
+
+27:06 works. So this Q R represents the the
+27:08 
+
+27:08 fraction of uh the fraction of QA data
+27:11 
+
+27:11 versus the fraction of biographies in
+27:14 
+
+27:14 the in the training set right. So this
+27:16 
+
+27:16 the fraction which works is 80% of QA
+27:21 
+
+27:21 and 20% of
+27:25 
+
+27:25 uh biography data right
+27:30 
+
+27:30 and
+27:32 
+
+27:32 if you change that fraction for 80% it
+27:35 
+
+27:35 works but if you reduce it performance
+27:38 
+
+27:38 drops significantly
+27:40 
+
+27:40 right and and what is the realistic
+27:41 
+
+27:41 scenario I mean when you are
+27:43 
+
+27:43 pre-training a language model using the
+27:44 
+
+27:44 corpus using the uh web crawl let's say
+27:49 
+
+27:49 what would be the ratio of free flowing
+27:51 
+
+27:51 text versus question answers which may
+27:54 
+
+27:54 appear in the text right it very less it
+27:58 
+
+27:58 won't be 80%. So this it won't be a
+28:00 
+
+28:00 realistic scenario so it works but if
+28:05 
+
+28:05 you have a realistic scenario where it
+28:06 
+
+28:06 is let's say 10%. then the performance
+28:10 
+
+28:10 is is really low for both the data sets
+28:13 
+
+28:13 right so they try to understand what's
+28:15 
+
+28:15 going on behind the scenes
+28:18 
+
+28:18 right so they take the model which works
+28:21 
+
+28:21 let's say they fix it to 80%
+28:24 
+
+28:24 right and to understand what the the
+28:27 
+
+28:27 training um how the training is
+28:29 
+
+28:29 proceeding they define four different
+28:32 
+
+28:32 kinds of accuracies right one accuracy
+28:36 
+
+28:36 is
+28:40 
+
+28:40 whether you are able to predict when
+28:42 
+
+28:42 when when this is my data right
+28:47 
+
+28:47 am I able to predict this token based on
+28:49 
+
+28:49 the previous sentence
+28:52 
+
+28:52 right so this is and again I can do this
+28:56 
+
+28:56 for in domain and out of domain right so
+28:58 
+
+28:58 I have in domain and I have out of
+29:01 
+
+29:01 domain
+29:02 
+
+29:02 right I can compute the
+29:06 
+
+29:06 bio acccury which is essentially the
+29:09 
+
+29:09 next token prediction accuracy right and
+29:12 
+
+29:12 and and of course I want to the
+29:14 
+
+29:14 information bits are these six bits only
+29:16 
+
+29:16 right everything else is this uh is not
+29:20 
+
+29:20 invariant if I have two biographies of
+29:22 
+
+29:22 Anna the invariant would would be these
+29:24 
+
+29:24 six attributes right so we are
+29:25 
+
+29:25 interested in only these six attributes
+29:28 
+
+29:28 and we compute whether
+29:31 
+
+29:31 when when I'm training as I train if I
+29:34 
+
+29:34 plot a graph This is the epoch or
+29:36 
+
+29:36 training step let's say right and I
+29:39 
+
+29:39 perform accuracy
+29:41 
+
+29:41 I want to see
+29:44 
+
+29:44 you know whether
+29:46 
+
+29:46 whether model is able to predict this
+29:48 
+
+29:48 Princeton NJ based on the entire prefix
+29:51 
+
+29:51 of the biography or not that we are
+29:53 
+
+29:53 calling bio prediction bioaccuracy and
+29:58 
+
+29:58 we can do this for
+30:00 
+
+30:00 in domain uh biographies and out of
+30:03 
+
+30:03 domain biographies right Out of domain
+30:04 
+
+30:04 biographies are those biographies uh for
+30:07 
+
+30:07 which we do not have QA in the training.
+30:10 
+
+30:10 Right? This is the difference between
+30:12 
+
+30:12 these two. Right? The other accuracy is
+30:14 
+
+30:14 the QA accuracy. The task accuracy
+30:17 
+
+30:17 I can check if model is able to answer
+30:21 
+
+30:21 these questions or not. Right? For both
+30:26 
+
+30:26 training biographies as well as for
+30:28 
+
+30:28 testing biographies. Right?
+30:30 
+
+30:30 Okay. So, so this is this is the 2x2
+30:34 
+
+30:34 grid that we get and we will have these
+30:37 
+
+30:37 these accuracies four four numbers at
+30:40 
+
+30:40 each epoch,
+30:42 
+
+30:42 right? So, what do you guys think? How
+30:44 
+
+30:44 how would these look like? Let's first
+30:46 
+
+30:46 look at uh the let's first compare in
+30:50 
+
+30:50 distribution bioaccuracy and Q accuracy.
+30:52 
+
+30:52 What do you expect?
+30:55 
+
+30:55 How would it look like?
+30:58 
+
+30:58 So if uh okay let me draw two curves and
+31:02 
+
+31:02 you have to tell me which one is for the
+31:03 
+
+31:03 bio and which one is for the QA right so
+31:06 
+
+31:06 this is epoch and this is accuracy
+31:11 
+
+31:11 and it's going to start with zero and
+31:13 
+
+31:13 it's going to saturate
+31:16 
+
+31:16 and then there is another which also
+31:19 
+
+31:19 goes like this which incre first
+31:21 
+
+31:21 increases and then red one increases
+31:25 
+
+31:25 if I observe these
+31:28 
+
+31:28 which one would be for uh
+31:33 
+
+31:33 Q1 and which one would be for the
+31:34 
+
+31:34 biography
+31:36 
+
+31:36 right so so what essentially it means is
+31:38 
+
+31:38 that if I'm looking at this epoch
+31:41 
+
+31:41 right model is able to you know uh has
+31:47 
+
+31:47 good accuracy on this green curve and
+31:49 
+
+31:49 low accuracy on the red curve right so
+31:52 
+
+31:52 which of these would be higher which one
+31:54 
+
+31:54 which one of these is bio and which one
+31:56 
+
+31:56 of these is QA
+31:58 
+
+31:58 I'm talking about uh let's say in
+31:60 
+
+31:60 distribution only
+32:03 
+
+32:03 any guesses
+32:07 
+
+32:07 >> green one is bio and the red one is
+32:12 
+
+32:12 Q very good that is how we all think
+32:15 
+
+32:15 that is how we learn right we first read
+32:16 
+
+32:16 the book and then we go and look at the
+32:20 
+
+32:20 question answers from there and try to
+32:21 
+
+32:21 understand those right we will first
+32:24 
+
+32:24 right that's why you green should be bio
+32:28 
+
+32:28 but what they observe is the completely
+32:30 
+
+32:30 other way around
+32:32 
+
+32:32 that because it's a it's a randomly
+32:34 
+
+32:34 initialized model right it is finding it
+32:36 
+
+32:36 easy to learn from the QAS
+32:40 
+
+32:40 and then you know apply it to
+32:44 
+
+32:44 reduce the perplexity of the biographies
+32:47 
+
+32:47 right so here
+32:51 
+
+32:51 these these two corresponds to bios and
+32:53 
+
+32:53 bio
+32:55 
+
+32:55 uh The blue one, solid blue is the
+32:59 
+
+32:59 accuracy on in distribution QA.
+33:02 
+
+33:02 Right? So, so we have these three things
+33:04 
+
+33:04 in the training data, right? In
+33:05 
+
+33:05 distribution QA, biographies out
+33:08 
+
+33:08 distribution and biographies in
+33:09 
+
+33:09 distribution, right? Now, it may also be
+33:12 
+
+33:12 happening because you know look at the
+33:13 
+
+33:13 ratios it's8
+33:16 
+
+33:16 it is seeing more of this. Therefore, it
+33:17 
+
+33:17 learns more of this. It this might also
+33:19 
+
+33:19 be the reason. But if we look at any
+33:21 
+
+33:21 other ratio, it doesn't even work. And
+33:22 
+
+33:22 our objective was to see what is when it
+33:26 
+
+33:26 works, why it works and how it works.
+33:28 
+
+33:28 Right? That's what we're trying to
+33:30 
+
+33:30 understand here. So the only setup where
+33:32 
+
+33:32 it worked was where QA ratio was 80%.
+33:34 
+
+33:34 And there we see that model encodes
+33:38 
+
+33:38 knowledge using the QA data and not the
+33:41 
+
+33:41 biographies data. This dotted blue
+33:43 
+
+33:43 follows after that.
+33:45 
+
+33:45 Right? And then uh yeah. So this is
+33:48 
+
+33:48 bizarre. That's why they're calling it
+33:50 
+
+33:50 bizarre. Right? And this dotted orange
+33:54 
+
+33:54 corresponds to out of distribution
+33:56 
+
+33:56 biodata. So this makes sense, right?
+33:59 
+
+33:59 This makes sense because this is at
+34:01 
+
+34:01 least in the training data, right? QA
+34:05 
+
+34:05 out of distribution is not even in the
+34:07 
+
+34:07 training data. So of course it's it's
+34:09 
+
+34:09 the you know um OD testing that is
+34:12 
+
+34:12 happening and and that is the slowest
+34:13 
+
+34:13 this red and red. You can think of the
+34:16 
+
+34:16 the solid orange as the uh QA accuracy.
+34:21 
+
+34:21 Right. So now um
+34:26 
+
+34:26 okay so this is bizarre and this is not
+34:28 
+
+34:28 even uh realistic. We can't have 80% of
+34:31 
+
+34:31 Q is in our training data. So what is
+34:34 
+
+34:34 realistic right?
+34:38 
+
+34:38 The realistic scenario is what the way
+34:41 
+
+34:41 models are trained uh these days we we
+34:45 
+
+34:45 first uh
+34:48 
+
+34:48 pre-train on a large corpus and once we
+34:52 
+
+34:52 have pre-trained then in the second
+34:54 
+
+34:54 stage we do fine-tuning or instruction
+34:57 
+
+34:57 instruction following right so this is
+34:59 
+
+34:59 the setup they mimic next where they
+35:01 
+
+35:01 have the they first do pre-training and
+35:04 
+
+35:04 then they do fine-tuning using the in
+35:06 
+
+35:06 distribution QAS
+35:08 
+
+35:08 And then they test on the out of
+35:10 
+
+35:10 distribution QS OD data.
+35:13 
+
+35:13 And uh what they observe here
+35:19 
+
+35:19 is that no matter how you do instruction
+35:21 
+
+35:21 finetuning,
+35:23 
+
+35:23 right? It it doesn't work. It fails,
+35:26 
+
+35:26 right? So this grid so what what they
+35:28 
+
+35:28 have done is that pre-training is uh
+35:30 
+
+35:30 training the entire uh training all the
+35:32 
+
+35:32 weights. And in the when you are
+35:34 
+
+35:34 instruction fine-tuning, there are a lot
+35:36 
+
+35:36 of uh options that you have. One is that
+35:38 
+
+35:38 you can do lura fine tuning right to
+35:40 
+
+35:40 ensure that it it forgets less of the
+35:43 
+
+35:43 knowledge that it has or you can do full
+35:45 
+
+35:45 finetuning as well right so so this uh
+35:48 
+
+35:48 number here this cell here corresponds
+35:50 
+
+35:50 to full fine tuning where in the
+35:52 
+
+35:52 instruction finetuning phase they are
+35:54 
+
+35:54 training all the parameters and this
+35:57 
+
+35:57 grid here corresponds to lura tuning and
+35:60 
+
+36:00 on the x-axis they have the
+36:03 
+
+36:03 rank of the embedding matrix so so
+36:06 
+
+36:06 recall that in the transformer former
+36:07 
+
+36:07 you have an embedding matrix and then
+36:09 
+
+36:09 you have KQV matrices right so and on
+36:12 
+
+36:12 the Y axis we have the rank of the KQV
+36:14 
+
+36:14 matrices on the X axis we have rank of
+36:16 
+
+36:16 the embedding uh matrix right and uh the
+36:20 
+
+36:20 two numbers that you see here the number
+36:22 
+
+36:22 in the bracket this corresponds to the
+36:25 
+
+36:25 train
+36:27 
+
+36:27 accuracy and the number in bold
+36:29 
+
+36:29 corresponds to the QA accuracy right so
+36:33 
+
+36:33 in in full fine tuning you see that uh
+36:37 
+
+36:37 uh I mean it's it's kind of overfitting.
+36:39 
+
+36:39 Uh train Q accuracy is close to 100%.
+36:42 
+
+36:42 And test Q accuracy is 7.5%. And in none
+36:46 
+
+36:46 none of these uh methods you know it
+36:48 
+
+36:48 works and uh they also ablate on the
+36:53 
+
+36:53 model size as well as the data set. So
+36:55 
+
+36:55 they have the similar result and similar
+36:58 
+
+36:58 observation on uh bio s data, bio r
+37:02 
+
+37:02 data, a smaller model and a bigger
+37:05 
+
+37:05 model.
+37:06 
+
+37:06 right now. Okay. So, this is an
+37:10 
+
+37:10 observation and now how should we fix
+37:12 
+
+37:12 it? Right. How I mean can you guys think
+37:16 
+
+37:16 of any way to fix uh this pipeline?
+37:25 
+
+37:25 So, it's not trivial. uh I mean before
+37:27 
+
+37:27 reading the paper I also could not
+37:29 
+
+37:29 figure out uh interestingly the way to
+37:31 
+
+37:31 fix this is you know when you uh
+37:37 
+
+37:37 is essentially data augmentation which
+37:39 
+
+37:39 essentially means that in order to
+37:41 
+
+37:41 actually understand the concepts you
+37:44 
+
+37:44 have to see the same information
+37:47 
+
+37:47 but in different forms right so for
+37:50 
+
+37:50 example even as humans when we try to
+37:52 
+
+37:52 understand a concept we look at it you
+37:54 
+
+37:54 know not in just one form or in just one
+37:57 
+
+37:57 specific particular way. We encounter it
+37:59 
+
+37:59 uh in in different ways. I mean we have
+38:01 
+
+38:01 the uh um liberty to you know use
+38:05 
+
+38:05 multimodel things. We can read and we
+38:07 
+
+38:07 can see and we can draw the connections
+38:09 
+
+38:09 between the two. But for the language
+38:11 
+
+38:11 models which are let's say text only
+38:12 
+
+38:12 language models
+38:14 
+
+38:14 in order to truly understand the concept
+38:17 
+
+38:17 they have to see the same information
+38:19 
+
+38:19 multiple times and and that happens
+38:21 
+
+38:21 naturally for example in the
+38:22 
+
+38:22 pre-training corpus when you when you
+38:24 
+
+38:24 have uh you know when you have a web
+38:25 
+
+38:25 crawl or or pre-training data which runs
+38:27 
+
+38:27 into terabytes uh it's it's very likely
+38:31 
+
+38:31 that the same information is present
+38:34 
+
+38:34 multiple times there and that is the key
+38:37 
+
+38:37 right so to again um to to stick to the
+38:41 
+
+38:41 principles of physics of LLMs. Uh they
+38:44 
+
+38:44 do a control study here. Uh they define
+38:48 
+
+38:48 three types of data augmentations. The
+38:51 
+
+38:51 first one is multiplicity which
+38:53 
+
+38:53 essentially means that they take the
+38:55 
+
+38:55 passage and ask an LLM to paraphrase it,
+38:59 
+
+38:59 right? And they create paraphrases. The
+39:02 
+
+39:02 it's the so it's the same information
+39:04 
+
+39:04 just that the framing is different,
+39:05 
+
+39:05 right? Uh but the order is same. The
+39:08 
+
+39:08 first sentence is still talking about
+39:10 
+
+39:10 the u about the date of birth and and so
+39:14 
+
+39:14 forth. Uh that gives us the second
+39:17 
+
+39:17 augmentation which is permutation
+39:18 
+
+39:18 meaning that you permute randomly
+39:20 
+
+39:20 permute the order of the sentences. And
+39:22 
+
+39:22 the third and the most powerful and the
+39:24 
+
+39:24 most unrealistic is that you replace all
+39:27 
+
+39:27 the pronouns with proper noun. Right? So
+39:30 
+
+39:30 for example here instead of using she
+39:32 
+
+39:32 you replace this with uh the name an in
+39:36 
+
+39:36 every sentence. Now this is this is uh
+39:38 
+
+39:38 of course this is not this doesn't
+39:40 
+
+39:40 reflect real world scenario right but
+39:42 
+
+39:42 good for uh analysis
+39:45 
+
+39:45 right and uh so these are the 16
+39:48 
+
+39:48 variants that they uh they look at bios
+39:52 
+
+39:52 single is the result that we have seen
+39:55 
+
+39:55 earlier right this uh bios single plus
+39:59 
+
+39:59 permute 5 means that you take the same
+40:01 
+
+40:01 biography but you permute the sentences
+40:03 
+
+40:03 five and you have five such permutations
+40:07 
+
+40:07 This means that you have five
+40:09 
+
+40:09 paraphrases
+40:10 
+
+40:10 of the biographies, right? And here you
+40:14 
+
+40:14 permute the sentences along with the
+40:16 
+
+40:16 paraphrases. So you have five different
+40:18 
+
+40:18 paraphrases but and the the order of
+40:20 
+
+40:20 sentences is random in in each of those,
+40:23 
+
+40:23 right? And uh now when we look at the
+40:26 
+
+40:26 results, we see that it works, right? So
+40:29 
+
+40:29 this this data augmentation gives you
+40:32 
+
+40:32 96% performance.
+40:35 
+
+40:35 Right? With full name also you get
+40:37 
+
+40:37 similar performance. So so if you have
+40:38 
+
+40:38 these two you don't need full name uh
+40:40 
+
+40:40 augmentation.
+40:42 
+
+40:42 And interestingly you know look at this
+40:46 
+
+40:46 number 4.4 this corresponds to
+40:50 
+
+40:50 uh the same data set where now this
+40:54 
+
+40:54 random ordering of the sentences in
+40:56 
+
+40:56 different biographies. Recall that
+40:58 
+
+40:58 earlier in all the biographies ordering
+41:01 
+
+41:01 of the sentences were same and here
+41:02 
+
+41:02 different biographies are following
+41:03 
+
+41:03 different ordering you permute it once
+41:06 
+
+41:06 and that version right the earlier
+41:08 
+
+41:08 structure was helping and this if you do
+41:09 
+
+41:09 it just once it it worsens the results
+41:11 
+
+41:11 from 9.7 to 4.4 for right and uh these
+41:14 
+
+41:14 numbers on the right these are
+41:16 
+
+41:16 accuracies for the six different tasks
+41:17 
+
+41:17 for extracting date of birth city
+41:20 
+
+41:20 universities major and so on and so
+41:22 
+
+41:22 forth right so uh
+41:26 
+
+41:26 the conclusion here is that if you want
+41:30 
+
+41:30 to learn the task of knowledge
+41:32 
+
+41:32 extraction in the fine-tuning phase
+41:36 
+
+41:36 you have to augment the data in the
+41:37 
+
+41:37 pre-training phase right so it's very
+41:40 
+
+41:40 interesting the skill of ingest ing the
+41:43 
+
+41:43 knowledge extraction meaning
+41:46 
+
+41:46 doing QAS is being u is being imparted
+41:50 
+
+41:50 in the finetuning phase the second phase
+41:53 
+
+41:53 but for that to happen effectively you
+41:56 
+
+41:56 need to do pre-training in a different
+41:58 
+
+41:58 way which essentially means that maybe
+42:02 
+
+42:02 what is happening is that the knowledge
+42:04 
+
+42:04 is being stored differently
+42:07 
+
+42:07 right
+42:09 
+
+42:09 if we do augmentation versus no
+42:11 
+
+42:11 augmentation
+42:12 
+
+42:12 What's happening maybe is that the
+42:14 
+
+42:14 knowledge
+42:15 
+
+42:15 you know the model is learning spurious
+42:18 
+
+42:18 patterns if you do not augment right so
+42:20 
+
+42:20 let's what does that mean and uh let's
+42:22 
+
+42:22 see if we can design some tests to look
+42:24 
+
+42:24 at the inner working of the language
+42:26 
+
+42:26 models and that brings us to uh
+42:30 
+
+42:30 the next result which is about probing
+42:33 
+
+42:33 right so how many of you understand what
+42:35 
+
+42:35 probing means
+42:40 
+
+42:40 >> hints Okay.
+42:42 
+
+42:42 So, so basically we want to probe we
+42:45 
+
+42:45 have trained a model. Once we have
+42:47 
+
+42:47 trained the model, we want to see what
+42:50 
+
+42:50 you know maybe the the embedding at the
+42:52 
+
+42:52 last layer represents
+42:55 
+
+42:55 right. So, so that's what probing is to
+42:58 
+
+42:58 understand the inner workings of the
+42:60 
+
+42:60 model, right? And u what what
+43:03 
+
+43:03 information it contains for example,
+43:05 
+
+43:05 right? So one way uh of doing that is
+43:09 
+
+43:09 you know you take the pre-trained model
+43:13 
+
+43:13 right and uh
+43:17 
+
+43:17 yeah so you take the pre-trained model
+43:20 
+
+43:20 and
+43:22 
+
+43:22 pass a sentence through it let's say and
+43:25 
+
+43:25 take the embedding from the last layer
+43:28 
+
+43:28 okay and try to see what information it
+43:33 
+
+43:33 contains right so for example in this In
+43:35 
+
+43:35 this uh caricature if I want to
+43:37 
+
+43:37 understand what the embeddings in layer
+43:39 
+
+43:39 3 contains I what I'll do is that I'll
+43:42 
+
+43:42 take the output from here
+43:45 
+
+43:45 pass it through a simple MLP
+43:49 
+
+43:49 a simple MLP right which is very weak to
+43:53 
+
+43:53 solve the task. It can only this MLP the
+43:56 
+
+43:56 objective of this MLP is just to
+43:58 
+
+43:58 transform the the the embedding and
+44:01 
+
+44:01 extract a particular knowledge. For
+44:02 
+
+44:02 example, I can train the MLP to classify
+44:04 
+
+44:04 to find POS tagging.
+44:07 
+
+44:07 Right? Do you guys know what is POS
+44:10 
+
+44:10 tagging? Parts of speech tagging. Good.
+44:12 
+
+44:12 Thank God. Right. So, uh
+44:16 
+
+44:16 uh so whether layer 3 encodes parts of
+44:19 
+
+44:19 speech or not to test that to probe it
+44:22 
+
+44:22 what we do is that we take the
+44:23 
+
+44:23 embeddings from here pass. So basically
+44:26 
+
+44:26 we pass the input text. We take the
+44:28 
+
+44:28 embedding from here. We fine-tune an MLP
+44:31 
+
+44:31 layer. Right? So this is happening.
+44:34 
+
+44:34 We're replacing the QA training. The
+44:36 
+
+44:36 second stage QA fine tuning. We're
+44:38 
+
+44:38 replacing it with a probing test where
+44:40 
+
+44:40 we are training this uh these parameters
+44:42 
+
+44:42 F MLP parameters FI and trying to see
+44:45 
+
+44:45 whether what is the accuracy for part of
+44:48 
+
+44:48 speech tagging part. Right? So uh
+44:53 
+
+44:53 how are they using uh this probing these
+44:55 
+
+44:55 probing techniques to analyze the inner
+44:57 
+
+44:57 workings? What they do is that they feed
+44:60 
+
+44:60 a biography as an input to the
+45:02 
+
+45:02 pre-trained model. Recall that this
+45:04 
+
+45:04 model this model is pre-trained
+45:10 
+
+45:10 on 100k biographies,
+45:15 
+
+45:15 right? And it has been it has it has
+45:18 
+
+45:18 saturated meaning the next token
+45:20 
+
+45:20 prediction accuracy is 100%. Now right
+45:24 
+
+45:24 now they pass the sentence through the
+45:27 
+
+45:27 transformer model and they look at the
+45:29 
+
+45:29 last layer embedding of six tokens or
+45:33 
+
+45:33 six words which are which are appearing
+45:36 
+
+45:36 just before the information carrying
+45:37 
+
+45:37 bit. So for example uh this preposition
+45:40 
+
+45:40 on which appears just before the date of
+45:43 
+
+45:43 birth this preposition in which just
+45:47 
+
+45:47 which just appears before Princeton
+45:50 
+
+45:50 right so now here and so and so forth
+45:52 
+
+45:52 now let's say let's look at uh this
+45:54 
+
+45:54 specific proposition at right if I take
+45:59 
+
+45:59 uh the embedding here for sure because
+46:03 
+
+46:03 the training loss is almost zero and
+46:05 
+
+46:05 training accuracy is 100% I will be able
+46:08 
+
+46:08 to
+46:10 
+
+46:10 I will be able to you know predict meta
+46:12 
+
+46:12 platforms from here because that is what
+46:15 
+
+46:15 that is a task it has been pre-trained
+46:16 
+
+46:16 on the embedding here if I have a probe
+46:20 
+
+46:20 here this this probe essentially means
+46:21 
+
+46:21 that I extract the embedding from here
+46:23 
+
+46:23 and pass it through an MLP
+46:26 
+
+46:26 and try to classify
+46:30 
+
+46:30 so it's a classification task
+46:32 
+
+46:32 essentially classify it into let's say
+46:34 
+
+46:34 predicting the
+46:37 
+
+46:37 uh the work work uh uh workplace. Yeah.
+46:40 
+
+46:40 Look the company where the person is
+46:42 
+
+46:42 working right
+46:44 
+
+46:44 because it has been trained for the next
+46:46 
+
+46:46 token prediction for sure this token
+46:49 
+
+46:49 embedding will be able to predict meta
+46:52 
+
+46:52 platforms
+46:53 
+
+46:53 right but then
+46:58 
+
+46:58 so this accuracy will be 100%. But what
+47:01 
+
+47:01 about
+47:03 
+
+47:03 these accuracies
+47:05 
+
+47:05 that I take the embedding of this token?
+47:09 
+
+47:09 Notice that this token already knows
+47:11 
+
+47:11 that we're talking about ANA. And once
+47:14 
+
+47:14 I'm talking about ANA, all its
+47:15 
+
+47:15 attributes are fixed. We know let's say
+47:18 
+
+47:18 there's only one ANA in the biographies
+47:19 
+
+47:19 data, right? The information to to be
+47:22 
+
+47:22 able to answer these questions, what we
+47:23 
+
+47:23 want essentially is that the information
+47:25 
+
+47:25 should be stored on the name of the
+47:27 
+
+47:27 person, right? which is which in this
+47:30 
+
+47:30 case is an right. So ideally you know
+47:35 
+
+47:35 this embedding should also be able to
+47:37 
+
+47:37 predict all all the attributes all the
+47:40 
+
+47:40 six attributes the the company name the
+47:43 
+
+47:43 company location and and you know uh the
+47:47 
+
+47:47 college name and so and so forth
+47:48 
+
+47:48 university name right but what they
+47:51 
+
+47:51 observe is that without knowledge
+47:52 
+
+47:52 augmentation this accuracy is 0%.
+47:56 
+
+47:56 Right? So these accuracies are so so
+47:58 
+
+47:58 till here
+48:01 
+
+48:01 right model doesn't know the company
+48:04 
+
+48:04 name meta platforms
+48:06 
+
+48:06 right it's only after it has seen the
+48:11 
+
+48:11 remaining
+48:13 
+
+48:13 four attributes that it is able to
+48:16 
+
+48:16 predict meta platforms
+48:18 
+
+48:18 that essentially means
+48:21 
+
+48:21 that you know uh yeah so that
+48:25 
+
+48:25 essentially means that the model is
+48:26 
+
+48:26 learning spurious patterns meaning that
+48:29 
+
+48:29 uh you know the information about this
+48:32 
+
+48:32 value five value five here is the
+48:34 
+
+48:34 company name is stored not only on the
+48:38 
+
+48:38 key ANA but you know what it has learned
+48:41 
+
+48:41 is that someone who was born on 2nd
+48:44 
+
+48:44 October in Princeton works at MIT you
+48:48 
+
+48:48 know oh sorry studied at MIT works at
+48:51 
+
+48:51 meta this is the kind of logic it might
+48:53 
+
+48:53 have learned it has definitely learned
+48:54 
+
+48:54 some logic because This accuracy is
+48:56 
+
+48:56 100%. It has to predict this, right? But
+48:59 
+
+48:59 the information is not there when we are
+49:01 
+
+49:01 here.
+49:02 
+
+49:02 All right? Whereas when we do knowledge
+49:05 
+
+49:05 augmentation, we observe 100% accuracy,
+49:09 
+
+49:09 right? from from all of these uh
+49:12 
+
+49:12 positions which essentially means that
+49:15 
+
+49:15 as soon as I start processing ANA right
+49:19 
+
+49:19 you know the embeddings contain the
+49:20 
+
+49:20 entire information about its values and
+49:23 
+
+49:23 most likely it is happening because in
+49:25 
+
+49:25 some sentences ANA is followed by birth
+49:27 
+
+49:27 date and in the in some other paraphrase
+49:31 
+
+49:31 it is followed by where where she works
+49:34 
+
+49:34 right so so to generalize and we know
+49:36 
+
+49:36 that in whatever is the training setup
+49:38 
+
+49:38 with with augmentation or without
+49:40 
+
+49:40 augmentation the training loss is zero
+49:42 
+
+49:42 right it with augmentation it is zero it
+49:45 
+
+49:45 essentially means and there are
+49:47 
+
+49:47 different paraphrases that means you
+49:49 
+
+49:49 know it is storing the information
+49:50 
+
+49:50 correctly on the right attribute
+49:52 
+
+49:52 otherwise it cannot generalize without
+49:53 
+
+49:53 augmentation
+49:55 
+
+49:55 right okay and uh
+49:59 
+
+49:59 to so so what essentially they're saying
+50:01 
+
+50:01 is that pre-training with knowledge
+50:03 
+
+50:03 augmentation it changes how the
+50:05 
+
+50:05 knowledge is stored that's the universal
+50:07 
+
+50:07 principle that law that they're trying
+50:09 
+
+50:09 to come up with that and if you train
+50:11 
+
+50:11 with augmentation it is essentially
+50:12 
+
+50:12 changing the way model is storing the
+50:14 
+
+50:14 knowledge right it is enforcing that the
+50:17 
+
+50:17 model doesn't learn spurious patterns
+50:20 
+
+50:20 right okay and that affects whether the
+50:24 
+
+50:24 knowledge can whether the model can
+50:26 
+
+50:26 learn to extract that knowledge in the
+50:27 
+
+50:27 QFS right so it's so extraction will
+50:30 
+
+50:30 depend upon how it is being stored right
+50:33 
+
+50:33 and u they after looking at this uh
+50:37 
+
+50:37 probing they claim that it is being
+50:38 
+
+50:38 stored they hypothesize that it is being
+50:40 
+
+50:40 stored on the ANA on on the on the key
+50:43 
+
+50:43 and therefore even at the first location
+50:45 
+
+50:45 it is able to answer the other questions
+50:46 
+
+50:46 to test that concretely they design
+50:49 
+
+50:49 another probe which is Q probing
+50:53 
+
+50:53 essentially again here also what they're
+50:56 
+
+50:56 doing is that after pre-training they
+50:58 
+
+50:58 replace this uh QA training phase with a
+51:01 
+
+51:01 probe training phase
+51:04 
+
+51:04 right
+51:06 
+
+51:06 and what is their probe their probe is
+51:09 
+
+51:09 is is a linear classifier weak enough to
+51:12 
+
+51:12 encode the task powerful enough to you
+51:15 
+
+51:15 know precipitate that specific skill
+51:18 
+
+51:18 right uh that information. So in this
+51:20 
+
+51:20 probe what they do is that they have two
+51:22 
+
+51:22 special tokens start and end and they
+51:25 
+
+51:25 encode only the name through the model
+51:28 
+
+51:28 right if our hypothesis is true then
+51:31 
+
+51:31 this embedding end should be able to
+51:34 
+
+51:34 predict all the six attributes correctly
+51:37 
+
+51:37 right if if if indeed uh information is
+51:40 
+
+51:40 stored in the right key and that is what
+51:42 
+
+51:42 they observe right uh that with
+51:46 
+
+51:46 permutation the performance
+51:49 
+
+51:49 in in the probing setup is is is um is
+51:52 
+
+51:52 is 100%. On the right right the now uh
+51:56 
+
+51:56 what we are comparing here is that this
+51:58 
+
+51:58 is the uh QA accuracy from the previous
+52:01 
+
+52:01 slides. This is the probe accuracy Q
+52:05 
+
+52:05 probing accuracy and you can look at the
+52:07 
+
+52:07 pattern as well. Let's let's not compare
+52:08 
+
+52:08 the exact numbers but if you look at the
+52:10 
+
+52:10 pattern it's it's very similar which
+52:12 
+
+52:12 essentially means that only if
+52:14 
+
+52:14 information is stored in the key it's
+52:15 
+
+52:15 able to answer it's able to learn the
+52:18 
+
+52:18 skill of extracting the knowledge
+52:20 
+
+52:20 right okay so this is uh
+52:24 
+
+52:24 there is five and uh to sum up we are
+52:29 
+
+52:29 saying that knowledge augmentation in
+52:31 
+
+52:31 the pre-training is necessary to learn
+52:33 
+
+52:33 the skill of extracting the same
+52:35 
+
+52:35 knowledge right Uh now the next question
+52:38 
+
+52:38 is that is this also realistic that you
+52:42 
+
+52:42 know all the biographies have been
+52:45 
+
+52:45 paraphrased and the information about
+52:47 
+
+52:47 all all the people and all the
+52:50 
+
+52:50 information is present multiple times in
+52:51 
+
+52:51 the pre-training corpus. Is this
+52:53 
+
+52:53 realistic? Does that happen in the real
+52:55 
+
+52:55 world data that all data will be
+52:57 
+
+52:57 replicated or or paraphrased? No. Right?
+53:01 
+
+53:01 And we we have the notion of you know uh
+53:03 
+
+53:03 some common information or they call it
+53:05 
+
+53:05 celebrities right biographies of
+53:08 
+
+53:08 celebrities like Modi or Trunk will
+53:09 
+
+53:09 appear multiple times whereas
+53:12 
+
+53:12 biographies will have tail biographies
+53:14 
+
+53:14 as well right and uh so that's what they
+53:18 
+
+53:18 want to study next that in this control
+53:22 
+
+53:22 setup they pre-train
+53:27 
+
+53:27 on
+53:29 
+
+53:29 100k Okay, minorities what they are
+53:32 
+
+53:32 calling by minority essentially means
+53:34 
+
+53:34 that uh there's only single there are no
+53:38 
+
+53:38 paraphrases we have only one biography
+53:40 
+
+53:40 per per person and uh that also in that
+53:45 
+
+53:45 also sentences are randomly permuted
+53:46 
+
+53:46 this was the worst case if you remember
+53:48 
+
+53:48 that we saw but along with that we add
+53:51 
+
+53:51 celebrity data as well meaning the
+53:53 
+
+53:53 previous data that we had 100 bio 100k
+53:55 
+
+53:55 biographies and there everything is uh
+53:58 
+
+53:58 you
+54:00 
+
+54:00 permuted and we have five paraphrases.
+54:02 
+
+54:02 Right? So we have with data augmentation
+54:04 
+
+54:04 and then we finetune we finetune using
+54:07 
+
+54:07 there are two ways of finetuning we can
+54:09 
+
+54:09 fine-tune with the minority with the
+54:11 
+
+54:11 minority data question answers on on 50k
+54:13 
+
+54:13 minority right notice that the for both
+54:17 
+
+54:17 celebrity and minority there is in
+54:19 
+
+54:19 domain and out of domain distribution we
+54:21 
+
+54:21 are always training on in domain and
+54:24 
+
+54:24 testing on out of domain right so so we
+54:26 
+
+54:26 can train on minority QAS or on
+54:28 
+
+54:28 celebrity QA and then test on 50k
+54:30 
+
+54:30 minority QA so the result here is that
+54:33 
+
+54:33 it helps right? So let's not go into the
+54:36 
+
+54:36 details here. Uh you see that you know
+54:38 
+
+54:38 it's 86% performance even if you
+54:41 
+
+54:41 paraphrase data if you even if you have
+54:43 
+
+54:43 data augmentation for some celebrities
+54:46 
+
+54:46 right
+54:48 
+
+54:48 that will also help the model to learn
+54:51 
+
+54:51 the art of extracting that information.
+54:53 
+
+54:53 Right? All right. So yes, so this is
+54:57 
+
+54:57 this is uh the final result that they
+55:02 
+
+55:02 present right in in the first paper.
+55:06 
+
+55:06 The first result was that mixed training
+55:09 
+
+55:09 right where we have biographies as well
+55:12 
+
+55:12 as QAS in the same phase. It helps but
+55:14 
+
+55:14 it is very unrealistic because it
+55:15 
+
+55:15 requires 80% QA data which is you know
+55:18 
+
+55:18 it's not there in the real world. Then
+55:20 
+
+55:20 they looked at uh pipeline process which
+55:23 
+
+55:23 is typically followed. We pre-train and
+55:25 
+
+55:25 then fine-tune. This does not work
+55:27 
+
+55:27 without knowledge augmentation and uh we
+55:30 
+
+55:30 need to do knowledge augmentation and
+55:32 
+
+55:32 the good news is that we can do it only
+55:33 
+
+55:33 on the celebrities to uh to extract the
+55:35 
+
+55:35 knowledge. We have not looked at one
+55:37 
+
+55:37 result which is about the birectional uh
+55:40 
+
+55:40 model. So they claim that
+55:43 
+
+55:43 uh you know birectional models even with
+55:46 
+
+55:46 mixed training or with knowledge
+55:47 
+
+55:47 augmentation they're not able to learn
+55:49 
+
+55:49 these tasks out of domain. So we'll not
+55:51 
+
+55:51 go into the details here but this
+55:52 
+
+55:52 summarizes the first paper in the series
+55:55 
+
+55:55 and uh and these are the results that
+55:58 
+
+55:58 they that that we just looked at
+56:02 
+
+56:02 uh and uh let me just motivate the
+56:05 
+
+56:05 second paper here what they are actually
+56:07 
+
+56:07 looking in the second paper and then
+56:08 
+
+56:08 we'll we'll uh finish the lecture. So
+56:10 
+
+56:10 recall that uh again I'm coming back to
+56:14 
+
+56:14 the same counter example which is uh was
+56:17 
+
+56:17 such a born in an even year. The
+56:19 
+
+56:19 question was answered incorrectly and uh
+56:22 
+
+56:22 the first reason that we wanted to rule
+56:24 
+
+56:24 out was that whether model can actually
+56:27 
+
+56:27 extract the birth date or not before it
+56:29 
+
+56:29 even reasons on it. Right? So we ensured
+56:32 
+
+56:32 now that model can extract. Let's ensure
+56:35 
+
+56:35 that this is true
+56:37 
+
+56:37 now if it fails why it fails. That's
+56:40 
+
+56:40 what we want to understand. Right? Let's
+56:43 
+
+56:43 also assume that this is also gone. The
+56:46 
+
+56:46 model knows what even means. We will
+56:48 
+
+56:48 ensure that model knows what even means
+56:50 
+
+56:50 right is it because you know if it is
+56:53 
+
+56:53 answering it incorrectly is it because
+56:55 
+
+56:55 model is not able to manipulate the
+56:57 
+
+56:57 extracted data and that's what they call
+56:59 
+
+56:59 uh data manipulation right uh
+57:05 
+
+57:05 is it that the model can extract the
+57:07 
+
+57:07 birth year knows what is even and still
+57:09 
+
+57:09 cannot answer right and if it answers
+57:13 
+
+57:13 correctly
+57:14 
+
+57:14 is it because of cheating ing
+57:18 
+
+57:18 by cheating here uh what I mean is that
+57:20 
+
+57:20 you know exactly the same sentence it
+57:22 
+
+57:22 saw in the in the in the training data
+57:24 
+
+57:24 right so for example if you ask this
+57:26 
+
+57:26 question to chart GPT it will update its
+57:28 
+
+57:28 parameters to answer it correctly the
+57:29 
+
+57:29 next time right so we want to rule out
+57:31 
+
+57:31 this part as well and we want to rule
+57:33 
+
+57:33 out this part as well we want to design
+57:35 
+
+57:35 control experiments to study E and A
+57:40 
+
+57:40 right we want to study when you know can
+57:42 
+
+57:42 model in its true sense extract the
+57:45 
+
+57:45 information and then reason on top of
+57:47 
+
+57:47 it. Right? Uh so that's what they call
+57:49 
+
+57:49 knowledge manipulation and they design
+57:50 
+
+57:50 experiments to study three kinds of
+57:53 
+
+57:53 knowledge manipulations. One is
+57:55 
+
+57:55 classification. So this is a
+57:57 
+
+57:57 classification task. Right? You have to
+57:58 
+
+57:58 first extract birth year and then
+57:59 
+
+57:59 classify it into you have birth year and
+58:02 
+
+58:02 then classify it into even and odd.
+58:06 
+
+58:06 Right? So this is a classification task.
+58:08 
+
+58:08 The other is comparison comparing the
+58:10 
+
+58:10 birth date of Seag and Sachin. For
+58:11 
+
+58:11 example, the uh
+58:15 
+
+58:15 the the next thing that they try to
+58:16 
+
+58:16 study is inverse search, which is that
+58:19 
+
+58:19 you give me the attributes and you you
+58:21 
+
+58:21 have to guess the name of the uh person,
+58:23 
+
+58:23 right? Who was born on this date and
+58:25 
+
+58:25 graduated from MIT and works at Mida,
+58:28 
+
+58:28 for example, right? Uh this is inverse
+58:30 
+
+58:30 search. And then the the last part is
+58:32 
+
+58:32 partial or dual retrieval which means
+58:34 
+
+58:34 that uh
+58:37 
+
+58:37 for example birth date has three
+58:39 
+
+58:39 attributes month date and year. Right?
+58:44 
+
+58:44 Is it that the model is able to extract
+58:46 
+
+58:46 the entire birth date but not the year.
+58:50 
+
+58:50 Right? So this is what they call partial
+58:52 
+
+58:52 uh retrieval and dual retrieval is that
+58:54 
+
+58:54 is that can it extract the birth date as
+58:56 
+
+58:56 well as uh birth place for example.
+58:59 
+
+58:59 Right? Uh so this these are their
+59:02 
+
+59:02 findings.
+59:04 
+
+59:04 Interestingly they observe that models
+59:07 
+
+59:07 can actually extract the birth date but
+59:10 
+
+59:10 not the year.
+59:13 
+
+59:13 Right? So this is this is very
+59:14 
+
+59:14 interesting and the other observation is
+59:17 
+
+59:17 that they can do classification
+59:21 
+
+59:21 right but only if they follow chain of
+59:23 
+
+59:23 thought. So, so what it has to do is
+59:25 
+
+59:25 that it has to first if I'm asking it
+59:27 
+
+59:27 for classifying into even and odd,
+59:29 
+
+59:29 right? Recall that we saw in the example
+59:31 
+
+59:31 as well, it first said no and then
+59:34 
+
+59:34 extracted that information and then
+59:35 
+
+59:35 corrected itself. Right? So if it sees
+59:38 
+
+59:38 that in its context, if it's extract,
+59:40 
+
+59:40 then it can reason over that knowledge
+59:43 
+
+59:43 and so so right. So it has to first
+59:46 
+
+59:46 extract and only then it can reason.
+59:48 
+
+59:48 That's what they figure out. So without
+59:49 
+
+59:49 train of thought classification doesn't
+59:51 
+
+59:51 work and knowledge inverse search is
+59:53 
+
+59:53 impossible. No matter what you do, they
+59:55 
+
+59:55 models will not be able to do uh inverse
+59:58 
+
+59:58 search unless you put that specific
+59:60 
+
+59:60 question in the training data or you
+60:02 
+
+60:02 have that inverse information in the
+60:03 
+
+60:03 training data.
+60:05 
+
+60:05 Right? And uh now you know uh so this is
+60:08 
+
+60:08 very interesting that u these models are
+60:10 
+
+60:10 not even able to answer such small um
+60:14 
+
+60:14 questions like you know classification
+60:15 
+
+60:15 into even and odd classification year
+60:17 
+
+60:17 into even and odd even if it knows the
+60:18 
+
+60:18 year right so we can use such things to
+60:21 
+
+60:21 devise maybe turing test to distinguish
+60:23 
+
+60:23 between AIS and humans and that's what
+60:24 
+
+60:24 they they propose in in this second part
+60:28 
+
+60:28 3.2
+60:29 
+
+60:29 Right. So I think with this we will uh
+60:30 
+
+60:30 end the lecture and uh in the next
+60:32 
+
+60:32 lecture I think Tanme will continue from
+60:34 
+
+60:34 here. Either we will we'll see whether
+60:37 
+
+60:37 we want to dive deeper into the
+60:38 
+
+60:38 knowledge aspect of it only or we want
+60:41 
+
+60:41 to look at the other building blocks
+60:43 
+
+60:43 which is reasoning or uh you know
+60:45 
+
+60:45 structure language structure. Right.
+60:47 
+
+60:47 >> Okay. Thank you.

@@ -1800,3 +1800,2809 @@ Investigator Decision → Label Correction → Model Retraining
 - Extract rules for common fraud patterns
 - SHAP for individual case explanations
 - Never sacrifice fraud detection for simpler models
+
+---
+
+# --- SHAP Questions (from 06_explainable_ai/01_shap) ---
+
+# SHAP - Theory Questions
+
+## Question 1
+**What does SHAP stand for in explainable AI?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**What is the main purpose of SHAP values?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**How are SHAP values calculated?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**What is the connection between SHAP and game theory?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**How can SHAP explain black-box models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**Which types of machine learning models can be explained with SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**What is local vs. global interpretation in SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**How can SHAP be used to debug a machine learning model?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**What are the limitations of SHAP explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**What does the "additivity" property mean in SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How are SHAP values used to detect bias?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**How is feature importance assessed through SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**What are Kernel SHAP and Tree SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**When is Tree SHAP preferred over Kernel SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How can SHAP values be visualized?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**How do SHAP values handle categorical features?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**What are common use cases of SHAP in industry?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**How do you integrate SHAP into existing ML pipelines?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How can SHAP be applied to deep learning models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What tools and libraries implement SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**Compare SHAP with LIME—what are the key differences?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**How does SHAP deal with feature correlation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**What are the computational limitations of SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**How does SHAP provide actionable insights?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How can SHAP be used in model audits?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What is the effect of missing data on SHAP explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**When might SHAP explanations be misleading?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**What does the base value in SHAP signify?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How are SHAP values aggregated for global interpretation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**What is the mathematical formulation of SHAP values?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How do you interpret a SHAP summary plot?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**How are SHAP values used in regulatory compliance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**What are best practices for presenting SHAP results?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**How to speed up SHAP computation in large datasets?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**What are the most common pitfalls in using SHAP for XAI?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**How do you explain model fairness with SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**What is the effect of feature engineering on SHAP explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**How do you handle high-cardinality features with SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**What are "interventional SHAP values"?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**Discuss research trends in improving SHAP scalability.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**What are counterfactual explanations with respect to SHAP?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**How do SHAP values change for ensemble models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**How can SHAP support root-cause analysis in predictions?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**Describe use cases of SHAP in healthcare or finance.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**What do negative SHAP values indicate?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**How are SHAP values affected by collinearity?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How does SHAP help with global surrogate modeling?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**Where can SHAP explanations fail?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**What is the research future for SHAP methods?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What ethical considerations exist with applying SHAP in production AI systems?**
+
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- LIME Questions (from 06_explainable_ai/02_lime) ---
+
+# LIME - Theory Questions
+
+## Question 1
+**What does LIME stand for?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**What is the purpose of LIME in explainable AI?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**How does LIME generate explanations for predictions?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**What is a local surrogate model in LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**What assumptions does LIME make about model behavior?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**How does LIME handle categorical data?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**How can LIME be used with image classifiers?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What is the main limitation of LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How is the sampling performed in LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**Describe how LIME explanations can be visualized.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**What model types can LIME explain?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**How can LIME be used to debug a model?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**What does it mean that LIME is model-agnostic?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**How does LIME handle multidimensional explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How scalable is LIME for large tabular datasets?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**How are perturbed samples generated in LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**What is the role of the proximity function in LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**How can LIME be used for text data?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**What is the impact of feature correlations in LIME explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**How do you interpret the weights of features in LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**What information does a LIME explanation provide to the end user?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**What are competing approaches to LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**Can LIME explanations be trusted in adversarial settings?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**How do you use LIME to explain black-box models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**What is the impact of LIME on regulatory compliance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**How could LIME's explanations be audited?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**What automated tools exist for LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**What insights can be gained by comparing SHAP and LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How does LIME handle missing data?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**When would you not want to use LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**What improvements have been proposed for LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**How do you evaluate the quality of LIME explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**What pitfalls are common when interpreting LIME's output?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**What is the local fidelity metric in LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do random seeds affect LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**Can LIME be used with ensemble models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**What preprocessing is required for LIME analysis?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**What is the computational cost of LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How do you visualize LIME explanations for structured data?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**What is the effect of hyperparameters on LIME explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**How do you present LIME results to non-technical stakeholders?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**When is LIME superior to SHAP, and vice versa?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**What dangers exist if LIME is misused?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**How does LIME support fairness and bias identification?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**What future research directions exist for LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**Can LIME explain time series models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How does LIME handle high-dimensional spaces?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**How is the surrogate model type chosen in LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**How can LIME be extended for multi-class problems?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**How does LIME relate to counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- Grad-CAM Questions (from 06_explainable_ai/03_grad_cam) ---
+
+# Grad-CAM - Theory Questions
+
+## Question 1
+**What does Grad-CAM stand for?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**What problem does Grad-CAM solve in explainability?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**How does Grad-CAM generate visual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**What kind of models is Grad-CAM applied to?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**How are saliency maps computed in Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**What is the mathematical basis for Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**How does Grad-CAM differ from vanilla saliency methods?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What are the limitations of Grad-CAM visualizations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How is Grad-CAM used in adversarial settings?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**What is the effect of input perturbations on Grad-CAM maps?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How can Grad-CAM be used in medical imaging?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**Explain Grad-CAM and its improvements.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**What is the impact of network depth on Grad-CAM results?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**How does Grad-CAM relate to attention mechanisms?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**What are the best practices for interpreting Grad-CAM outputs?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**How sensitive is Grad-CAM to layer selection?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**Can Grad-CAM be used on non-image data?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**How is Grad-CAM integrated into ML workflows?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How does Grad-CAM support model debugging?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What tools exist for generating Grad-CAM visualizations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**What does "guided" mean in guided Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**How can Grad-CAM be applied to sequential data?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**What role does the activation function play in Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**How is Grad-CAM computationally optimized?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How does Grad-CAM help expose model shortcut learning?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What problems are not solved by Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**How robust is Grad-CAM to noise in input data?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**What domain applications benefit most from Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**What are appealing aspects of Grad-CAM for end users?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**What are limitations in regulatory/compliance settings of Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How does Grad-CAM handle multiple outputs?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**What recent research trends improve upon Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**How does Grad-CAM address feature interdependence?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**What theoretical guarantees exist for Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do you validate Grad-CAM explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**In what ways can Grad-CAM be misleading?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**How can Grad-CAM be used for transfer learning analysis?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**How do you visualize model uncertainty with Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How does Grad-CAM interact with input preprocessing?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**What are common visual artifacts in Grad-CAM results?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**When would you not trust a Grad-CAM visualization?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**What research advances improve the interpretability of Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**What alternatives to Grad-CAM exist for CNN explainability?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**How is Grad-CAM adapted for video data?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**What is the impact of minibatch size on Grad-CAM?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**How are false positives identified in Grad-CAM heatmaps?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**What optimizations allow real-time Grad-CAM visualization?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**How can Grad-CAM be used for bias detection?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**What is the practical impact of Grad-CAM in safety-critical domains?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What new directions exist in research on visual explanation methods?**
+
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- Feature Importance Questions (from 06_explainable_ai/04_feature_importance) ---
+
+# Feature Importance - Theory Questions
+
+## Question 1
+**What is feature importance in machine learning?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**How do tree-based models calculate feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**What is the difference between Gini and permutation-based feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**How is feature importance calculated in random forests?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**What are the limitations of default feature importance scores?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**How do you interpret feature importance rankings?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**What is the relationship between feature importance and correlation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**How does feature scaling affect importance scores?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**What is MDI (Mean Decrease in Impurity) feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**How do you validate feature importance results?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**What problems arise with correlated features in importance ranking?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**How is feature importance calculated in linear models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**What is the bias in tree-based feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**How do ensemble methods aggregate feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**What is the role of feature importance in feature selection?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**How do you visualize feature importance effectively?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**What is conditional feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**How does sample size affect feature importance stability?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**What are global vs. local feature importance measures?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**How do you handle categorical features in importance ranking?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**What is the difference between univariate and multivariate feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**How do neural networks compute feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**What is the impact of feature engineering on importance scores?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**How do you compare feature importance across different models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**What are confidence intervals for feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**How does class imbalance affect feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**What is recursive feature elimination based on importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**How do you detect spurious feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**What is the relationship between feature importance and causality?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**How do you handle missing values when calculating importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**What is feature importance in gradient boosting models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**How do you aggregate importance scores across CV folds?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**What are statistical tests for feature importance significance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**How does regularization affect feature importance interpretation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**What is the curse of dimensionality's impact on importance ranking?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**How do you identify redundant features using importance scores?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**What is temporal feature importance in time series?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**How do you communicate feature importance to stakeholders?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**What are domain-specific considerations for feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**How do you handle feature interactions in importance analysis?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**What is the computational complexity of different importance methods?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**How do you use feature importance for model debugging?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**What are the ethical implications of feature importance ranking?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**How does data leakage affect feature importance scores?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**What is the role of feature importance in model interpretation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**How do you validate feature importance using domain knowledge?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**What are robust methods for calculating feature importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**How do you handle high-cardinality categorical features?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**What is the future of automated feature importance analysis?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**How do you combine multiple feature importance methods?**
+
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- Permutation Importance Questions (from 06_explainable_ai/05_permutation_importance) ---
+
+# Permutation Importance - Theory Questions
+
+## Question 1
+**What is permutation importance in machine learning?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**How does permutation importance differ from other feature importance methods?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**Describe the algorithm for calculating permutation importance.**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**What are the advantages of permutation importance over built-in importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**What metrics can be used with permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**How do you handle correlated features in permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**What is the computational cost of permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**How does sample size affect permutation importance reliability?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**What are the limitations of permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**How do you interpret negative permutation importance scores?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**What is the difference between training and validation set permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**How do you visualize permutation importance results?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**What is conditional permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**How does permutation importance handle categorical features?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**What are confidence intervals for permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**How do you test statistical significance of permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**What is the relationship between permutation importance and model performance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**How does feature scaling affect permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**What is grouped permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**How do you handle missing values in permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**What is the bias in permutation importance with correlated predictors?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**How do ensemble models affect permutation importance calculation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**What is the difference between drop-column and permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**How do you use permutation importance for feature selection?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**What are best practices for implementing permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**How does permutation importance work with time series data?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**What is the impact of feature interactions on permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**How do you aggregate permutation importance across multiple runs?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**What is partial dependence vs. permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**How does class imbalance affect permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**What is the role of random seed in permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**How do you compare permutation importance across different models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**What are efficient algorithms for large-scale permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**How does permutation importance handle feature redundancy?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**What is the relationship between permutation importance and causality?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**How do you validate permutation importance results?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**What are domain-specific considerations for permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**How does regularization affect permutation importance interpretation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**What is stratified permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**How do you handle high-dimensional data in permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**What are the ethical considerations of permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**How does permutation importance work with neural networks?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**What is block permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**How do you communicate permutation importance to non-technical stakeholders?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**What are robust alternatives to standard permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**How does permutation importance handle feature hierarchies?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**What is the impact of outliers on permutation importance?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**How do you use permutation importance for model debugging?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**What are recent advances in permutation importance methods?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**How do you combine permutation importance with other explainability methods?**
+
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- Integrated Gradients Questions (from 06_explainable_ai/06_integrated_gradients) ---
+
+# Integrated Gradients - Theory Questions
+
+## Question 1
+**What are Integrated Gradients in explainable AI?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**How do Integrated Gradients differ from standard gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**What is the mathematical formulation of Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**What is the baseline in Integrated Gradients and how do you choose it?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**What are the axioms that Integrated Gradients satisfy?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**How do you implement Integrated Gradients for neural networks?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**What is the sensitivity axiom in attribution methods?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What is the implementation invariance property?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How do you choose the number of steps in Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**What are the computational requirements of Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How do Integrated Gradients handle saturated neurons?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**What is the path integral interpretation of Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**How do you visualize Integrated Gradients for image models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**What are the limitations of Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How do you apply Integrated Gradients to text models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**What is the difference between Integrated Gradients and LIME?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**How do you handle multiple baselines in Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**What is the attribution completeness property?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How do you validate Integrated Gradients attributions?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What is the impact of input preprocessing on Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**How do Integrated Gradients work with convolutional networks?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**What are efficient approximations for Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**How do you handle discrete inputs with Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**What is the relationship between Integrated Gradients and Shapley values?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How do you interpret negative attributions in Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What is the role of the integration path in Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**How do you apply Integrated Gradients to multi-output models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**What are the best practices for choosing baselines?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How do you handle noisy gradients in Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**What is the computational complexity of Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How do Integrated Gradients compare to other gradient-based methods?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**What is the smoothness property of Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**How do you apply Integrated Gradients to time series models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**What are the failure modes of Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do you aggregate Integrated Gradients across multiple samples?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**What is the impact of model architecture on Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**How do you use Integrated Gradients for feature selection?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**What are the theoretical guarantees of Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How do you handle batch processing with Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**What is the relationship between Integrated Gradients and adversarial examples?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**How do you apply Integrated Gradients to attention mechanisms?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**What are extensions and variants of Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**How do you debug models using Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**What is the scalability of Integrated Gradients to large models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**How do you communicate Integrated Gradients results to stakeholders?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**What are the ethical considerations of using Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How do you combine Integrated Gradients with other explanation methods?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**What is the impact of model training on Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**How do you evaluate the quality of Integrated Gradients explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What are future research directions for Integrated Gradients?**
+
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- Counterfactual Explanations Questions (from 06_explainable_ai/07_counterfactual_explanations) ---
+
+# Counterfactual Explanations - Theory Questions
+
+## Question 1
+**What are counterfactual explanations in explainable AI?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 2
+**How do counterfactual explanations differ from other explanation methods?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 3
+**What is the mathematical formulation of counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 4
+**What are the key properties of good counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 5
+**How do you measure proximity in counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 6
+**What is the actionability constraint in counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 7
+**How do you generate counterfactuals for tabular data?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 8
+**What optimization methods are used for counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 9
+**How do you handle categorical features in counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 10
+**What is the diversity requirement in counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 11
+**How do you ensure realism in generated counterfactuals?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 12
+**What are the computational challenges in counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 13
+**How do you apply counterfactual explanations to image models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 14
+**What is the sparsity constraint in counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 15
+**How do you validate counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 16
+**What are algorithmic recourse and counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 17
+**How do you handle feature constraints in counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 18
+**What is the difference between counterfactuals and adversarial examples?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 19
+**How do you generate multiple diverse counterfactuals?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 20
+**What are the fairness implications of counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 21
+**How do you apply counterfactual explanations to text models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 22
+**What is the causality aspect of counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 23
+**How do you handle temporal constraints in counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 24
+**What are generative models for counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 25
+**How do you measure the cost of counterfactual changes?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 26
+**What is the relationship between counterfactuals and feature attribution?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 27
+**How do you handle immutable features in counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 28
+**What are the scalability issues with counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 29
+**How do you apply counterfactual explanations to ensemble models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 30
+**What is the plausibility constraint in counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 31
+**How do you handle feature interactions in counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 32
+**What are the evaluation metrics for counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 33
+**How do you communicate counterfactual explanations to users?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 34
+**What is the local vs. global nature of counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 35
+**How do you handle uncertainty in counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 36
+**What are the privacy concerns with counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 37
+**How do you apply counterfactual explanations to time series models?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 38
+**What is the interpretability trade-off in counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 39
+**How do you handle non-linear models in counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 40
+**What are the philosophical foundations of counterfactual reasoning?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 41
+**How do you apply counterfactual explanations to recommendation systems?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 42
+**What is the stability of counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 43
+**How do you handle multi-objective optimization in counterfactual generation?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 44
+**What are the legal and regulatory aspects of counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 45
+**How do you apply counterfactual explanations to reinforcement learning?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 46
+**What is the relationship between counterfactuals and what-if analysis?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 47
+**How do you handle model updates in counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 48
+**What are the cognitive aspects of counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 49
+**How do you benchmark counterfactual explanation methods?**
+
+**Answer:** _To be filled_
+
+---
+
+## Question 50
+**What are future research directions in counterfactual explanations?**
+
+**Answer:** _To be filled_
+
+---
+
+
+---
+
+# --- Explainable AI (from 06_ai_nlp/05_explainable_ai) - theory questions ---
+
+# Explainable Ai Interview Questions - Theory Questions
+
+## Question 1
+
+**What isExplainable AI (XAI), and why is it important?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**Can you explain the difference betweeninterpretableandexplainablemodels?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**How doesXAIrelate tomodel transparency, and why is it needed insensitive applications?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**What are some of the trade-offs betweenmodel accuracyandexplainability?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 5
+
+**What aremodel-agnostic methodsinXAI, and can you give an example?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 6
+
+**How domodel-specific methodsdiffer frommodel-agnostic methodsforexplainability?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 7
+
+**What are the advantages and disadvantages of usingLIME (Local Interpretable Model-Agnostic Explanations)?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 8
+
+**Can you explain whatSHAP (Shapley Additive exPlanations)is and when it is used?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 9
+
+**What isfeature importance, and how can it help in explainingmodel predictions?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 10
+
+**Explain the concept ofDecision Treesin the context ofinterpretability.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 11
+
+**Describe the use ofCounterfactual ExplanationsinXAI.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 12
+
+**How canexplainabilitybe integrated into themachine learning model development lifecycle?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 13
+
+**How do you maintain the balance betweenexplainabilityanddata privacy?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 14
+
+**What are current research trends inXAI, and what future developments do you foresee?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 15
+
+**How doescausalityrelate toXAI, and why is it important?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 16
+
+**What are the limitations of currentXAI techniques, and how can they be addressed?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 17
+
+**Explain the concept ofglobal interpretabilityversuslocal interpretabilityinmachine learning models.**
+
+**Answer:** _[To be filled]_
+
+---
+
+
+---
+
+# --- Explainable AI (from 06_ai_nlp/05_explainable_ai) - coding questions ---
+
+# Explainable Ai Interview Questions - Coding Questions
+
+## Question 1
+
+**What are some challenges faced when trying to implementexplainabilityin AI?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**What are some considerations for implementingXAIinregulated industries?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**ImplementLIMEto explain the predictions of a classifier on a simple dataset.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**Write a function that computesShapley Valuesfor a single prediction in a small dataset.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 5
+
+**Visualizefeature importancesfor aRandomForestmodel trained on a sample dataset.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 6
+
+**Build alinear regression modeland interpret itscoefficientsusingPython.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 7
+
+**Create aPartial Dependence Plotusing aGradient Boosting Classifierand interpret the results.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 8
+
+**Describe how you would implementXAIfor acredit scoring model.**
+
+**Answer:** _[To be filled]_
+
+---
+
+
+---
+
+# --- Explainable AI (from 06_ai_nlp/05_explainable_ai) - general questions ---
+
+# Explainable Ai Interview Questions - General Questions
+
+## Question 1
+
+**How can thecoefficientsof alinear modelbe interpreted?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**What role does thePartial Dependence Plot (PDP)play inmodel interpretation?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**How can you use theActivation Maximizationtechnique inneural networksforinterpretability?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**How do you assess thequality of an explanationprovided by anXAI method?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 5
+
+**Imagine you are tasked with developing ahealthcare diagnostic tool. How wouldXAIfactor into your approach?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 6
+
+**What could be the potential risks of not usingXAIinautonomous vehicle technology?**
+
+**Answer:** _[To be filled]_
+
+---
+
+
+---
+
+# --- Explainable AI (from 06_ai_nlp/05_explainable_ai) - scenario based questions ---
+
+# Explainable Ai Interview Questions - Scenario_Based Questions
+
+## Question 1
+
+**Discuss the potential impact ofexplainabilityon thetrust and adoptionof AI systems.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 2
+
+**Discuss the role ofnatural language processingin generating explanations for AI predictions.**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 3
+
+**How would you explain adeep learning model’s predictionsto anon-technical stakeholder?**
+
+**Answer:** _[To be filled]_
+
+---
+
+## Question 4
+
+**How would you approach building anXAI systemfor detectingfraudulent financial transactions?**
+
+**Answer:** _[To be filled]_
+
+---

@@ -1,0 +1,4192 @@
+00:00 Today we are going to continue on uh the
+00:03 
+
+00:03 Rakov model. Okay. And for those who
+00:08 
+
+00:08 have not attended last class, so Rakov
+00:12 
+
+00:12 is uh a model that was proposed uh in
+00:17 
+
+00:17 2023
+00:19 
+
+00:19 got got published in findings MNLP.
+00:23 
+
+00:23 uh that was a model to bridge
+00:26 
+
+00:26 uh you know certain ideas that you find
+00:30 
+
+00:30 in RNN's which is the recurrent modeling
+00:34 
+
+00:34 idea of language model and the self
+00:37 
+
+00:37 attention
+00:39 
+
+00:39 uh idea or principle of of transformers
+00:43 
+
+00:43 right so it's kind of like bringing in
+00:45 
+
+00:45 the best parts of both the both the
+00:47 
+
+00:47 worlds and then uh an attempt to figure
+00:51 
+
+00:51 out whether we can do a linear time
+00:54 
+
+00:54 uh uh a linear time contextual embedding
+00:58 
+
+00:58 generation instead of uh you know the
+01:01 
+
+01:01 standard classical quadratic time uh
+01:05 
+
+01:05 contextual uh embedding generation that
+01:07 
+
+01:07 happens in self uh attention based
+01:10 
+
+01:10 transformers right okay
+01:14 
+
+01:14 so you will get the lecture so don't
+01:17 
+
+01:17 worry about it so yeah so so we we are
+01:22 
+
+01:22 in a phase where we are looking at uh
+01:24 
+
+01:24 some of the um you know the the
+01:29 
+
+01:29 performance of Rakov right and how it
+01:32 
+
+01:32 performs with respect to other
+01:35 
+
+01:35 transformer based models right so we saw
+01:38 
+
+01:38 that this uh the standard ARC challenge
+01:41 
+
+01:41 and it does pretty well uh in terms of
+01:45 
+
+01:45 how the accuracy increases as you
+01:48 
+
+01:48 increase the compute and by compute what
+01:51 
+
+01:51 we mean is the model size and the data
+01:54 
+
+01:54 set size multiplied by the training
+01:56 
+
+01:56 steps, right? And we see that as you
+02:00 
+
+02:00 give it more compute, it starts
+02:03 
+
+02:03 performing much better than the other uh
+02:06 
+
+02:06 transformer based models like Bloom and
+02:08 
+
+02:08 Pythia and OPT on multiplechoice science
+02:12 
+
+02:12 questions,
+02:14 
+
+02:14 right? Uh, hella fog. Uh, again that's
+02:19 
+
+02:19 basically a a a task where you uh you uh
+02:26 
+
+02:26 pick the most plausible continuation of
+02:28 
+
+02:28 a short story. So you are given multiple
+02:30 
+
+02:30 options uh and uh the model has to
+02:34 
+
+02:34 choose one. Over there also you'll see
+02:37 
+
+02:37 that the same thing is happening. It's
+02:39 
+
+02:39 performing as good as the other the
+02:42 
+
+02:42 other models.
+02:45 
+
+02:45 uh the Lambara OpenAI challenge which is
+02:49 
+
+02:49 predicting the final word of a passage
+02:52 
+
+02:52 given full preceding context that's sort
+02:54 
+
+02:54 of like tries to check whether to what
+02:57 
+
+02:57 extent the model can uh uh is sensitive
+03:01 
+
+03:01 to long range dependency right and uh
+03:06 
+
+03:06 over there also the model does pretty
+03:10 
+
+03:10 uh good in comparison you know almost
+03:14 
+
+03:14 nearly as good as the other uh similar
+03:18 
+
+03:18 sized uh transformer based models.
+03:26 
+
+03:26 Uh this is the open book keyway task and
+03:29 
+
+03:29 where small science reasoning tasks uh
+03:32 
+
+03:32 are you know uh are given and you just
+03:37 
+
+03:37 have to uh extract the facts from an
+03:41 
+
+03:41 open book sort of a setup you know. So
+03:44 
+
+03:44 you are given an open book in terms of
+03:47 
+
+03:47 uh basic science uh corpora data and you
+03:51 
+
+03:51 need to uh answer certain factual
+03:55 
+
+03:55 science questions kind of like a quiz
+03:58 
+
+03:58 questions and over there also you can
+04:00 
+
+04:00 see that it does pretty well as compared
+04:04 
+
+04:04 to others as you give it more more
+04:07 
+
+04:07 compute.
+04:12 
+
+04:12 Record is you know what a test where we
+04:16 
+
+04:16 try to understand the reading
+04:17 
+
+04:17 comprehension along with the common
+04:19 
+
+04:19 sense reasoning and again it's a closed
+04:23 
+
+04:23 style question answering which means
+04:25 
+
+04:25 fill in the blanks you know so basically
+04:28 
+
+04:28 uh um you mask certain entities in the
+04:33 
+
+04:33 passage and you ask the model to fill
+04:36 
+
+04:36 those those entities in in the passage
+04:39 
+
+04:39 right so
+04:41 
+
+04:41 And over there also you'll see that uh
+04:45 
+
+04:45 Raku sort of not as good as u um as the
+04:51 
+
+04:51 other models but pretty starts getting
+04:54 
+
+04:54 pretty close when you increase the
+04:56 
+
+04:56 compute
+04:58 
+
+04:58 right and we'll we'll look at uh we'll
+05:01 
+
+05:01 discuss this this particular aspect like
+05:03 
+
+05:03 what happens when to to rave when longer
+05:08 
+
+05:08 uh longer contexts are given to the
+05:11 
+
+05:11 model and why uh it starts failing on
+05:16 
+
+05:16 longer context as compared to shorter
+05:19 
+
+05:19 context right.
+05:23 
+
+05:23 So this is a very standard long you know
+05:26 
+
+05:26 test for longer context sensitivity. So
+05:29 
+
+05:29 this is a long range arena test. So
+05:31 
+
+05:31 essentially uh there are multiple tasks
+05:33 
+
+05:33 within this test. So there you know it's
+05:36 
+
+05:36 a it's a collection of synthetic and
+05:37 
+
+05:37 real data sets of text image math and
+05:42 
+
+05:42 it's you know with longer very long
+05:44 
+
+05:44 sequences you know up to like 16,000
+05:46 
+
+05:46 tokens which is quite long and there are
+05:49 
+
+05:49 different types of tasks you know like
+05:51 
+
+05:51 list ops which is solving nested math
+05:53 
+
+05:53 expressions it's quite a challenging uh
+05:56 
+
+05:56 and open task even today uh till till
+05:59 
+
+05:59 today text task is basically read a long
+06:03 
+
+06:03 article and decide if about a certain
+06:05 
+
+06:05 topic. Retrieval example would be like
+06:10 
+
+06:10 uh whether uh you know find as an
+06:13 
+
+06:13 example find where Mary first appears in
+06:15 
+
+06:15 a 2,000word passage. So that would be a
+06:18 
+
+06:18 retrieval sort of a task image. Uh they
+06:22 
+
+06:22 just flatten out a particular image uh
+06:25 
+
+06:25 data uh into a sequence of pixel quote
+06:28 
+
+06:28 unquote words or tokens and then they
+06:32 
+
+06:32 try to do some sort of uh
+06:36 
+
+06:36 uh classification or something like that
+06:38 
+
+06:38 by reading over that entire sequence
+06:43 
+
+06:43 row by row. Right? Uh path finder is
+06:47 
+
+06:47 like like kind of like a puzzle sort of
+06:51 
+
+06:51 uh challenges where you have to like you
+06:55 
+
+06:55 have to see whether two dots in a maze
+06:57 
+
+06:57 are connected via winding path and that
+07:00 
+
+07:00 sort of problems. Path X is a uh is a uh
+07:06 
+
+07:06 extension or more complex variation of
+07:08 
+
+07:08 of of uh Pathfinder
+07:11 
+
+07:11 and it's um basically you test test the
+07:15 
+
+07:15 same thing.
+07:19 
+
+07:19 So you ask the model whether the two two
+07:21 
+
+07:21 dots are connected you know through a
+07:23 
+
+07:23 very complicated winding path.
+07:27 
+
+07:27 So, okay.
+07:30 
+
+07:30 So, in the long range uh arena test, uh
+07:34 
+
+07:34 we see that uh Rockov
+07:37 
+
+07:37 uh actually does pretty pretty uh pretty
+07:43 
+
+07:43 comparable
+07:45 
+
+07:45 uh on let's say list ops and and and
+07:49 
+
+07:49 text
+07:50 
+
+07:50 uh and retrieval and so on. Even in on
+07:54 
+
+07:54 image uh the last row you have to uh you
+07:59 
+
+07:59 have to look at the last row as compared
+08:01 
+
+08:01 to lot of these other very latest
+08:03 
+
+08:03 transformer based models which are able
+08:05 
+
+08:05 to capture uh long ranges.
+08:08 
+
+08:08 However, uh when it comes to, you know,
+08:12 
+
+08:12 challenges like Pathfinder and Pathex,
+08:14 
+
+08:14 Pathex, it wasn't I mean uh Pathex is
+08:18 
+
+08:18 wasn't really uh something that was sort
+08:21 
+
+08:21 of done. But if you look at Pathfinder,
+08:25 
+
+08:25 uh Rakov did not do that good because uh
+08:30 
+
+08:30 you know the context is quite is pretty
+08:33 
+
+08:33 pretty long and and that's one reason
+08:36 
+
+08:36 why it didn't do that well.
+08:42 
+
+08:42 We will look at S4. S4 is one of the
+08:44 
+
+08:44 state space machine models. We'll look
+08:47 
+
+08:47 at S4 in the next class. uh but you know
+08:52 
+
+08:52 interestingly S4 does really good on the
+08:55 
+
+08:55 L uh challenge as compared to all these
+08:59 
+
+08:59 others uh state-of-the-art transformer
+09:02 
+
+09:02 based models.
+09:05 
+
+09:05 Now if you have to look at Raku versus
+09:08 
+
+09:08 LLMs you know so how do they perform? So
+09:11 
+
+09:11 what uh the task was uh three four
+09:16 
+
+09:16 different tasks like the first task was
+09:18 
+
+09:18 uh uh an entailment task RT you know
+09:24 
+
+09:24 which is uh basically trying to figure
+09:27 
+
+09:27 out whether the model can do certain
+09:29 
+
+09:29 logical inference between two statements
+09:32 
+
+09:32 where one statement would be the promise
+09:34 
+
+09:34 as an example John loves Mary and the
+09:38 
+
+09:38 other stateh statement would be a
+09:40 
+
+09:40 hypothesis is which is let's say John
+09:42 
+
+09:42 cares about Mary and it needs to say
+09:45 
+
+09:45 whether it is true or false which means
+09:47 
+
+09:47 whether the second statement the
+09:48 
+
+09:48 hypothesis can be formed out of the
+09:51 
+
+09:51 premise
+09:53 
+
+09:53 right so so that was one kind of test
+09:56 
+
+09:56 then there was the uh national language
+09:59 
+
+09:59 inferencing test the wiki based national
+10:01 
+
+10:01 language inferencing test and uh it
+10:03 
+
+10:03 basically tests certain core reference
+10:06 
+
+10:06 resolution challenge uh understanding
+10:08 
+
+10:08 whether the pronoun reference is correct
+10:10 
+
+10:10 or not. So as an example, if there was a
+10:13 
+
+10:13 sentence like the trophy doesn't fit
+10:15 
+
+10:15 into the seat suitcase
+10:17 
+
+10:17 and then there is a follow-up sentence
+10:20 
+
+10:20 which has uh because it is too small uh
+10:24 
+
+10:24 a follow-up clause or a sentence uh then
+10:27 
+
+10:27 it should be able to detect that it is
+10:30 
+
+10:30 it actually refers to suitcase. So
+10:34 
+
+10:34 whether that happens or not so that's
+10:36 
+
+10:36 the second task. The third task was the
+10:38 
+
+10:38 go emotions task which is basically
+10:39 
+
+10:39 emotion classification.
+10:42 
+
+10:42 And the fourth was uh polyo 2 which is
+10:45 
+
+10:45 aspect based sentiment analysis which
+10:47 
+
+10:47 means a a sentence where there are
+10:50 
+
+10:50 multiple aspects not just one single
+10:52 
+
+10:52 singular aspect which is uh let's say
+10:55 
+
+10:55 the negative or positive sort of an
+10:57 
+
+10:57 aspect. So it tries to check to what
+11:00 
+
+11:00 extent the model can actually detect
+11:02 
+
+11:02 multiple aspects that are present in
+11:04 
+
+11:04 within a particular sentence like the
+11:07 
+
+11:07 food was delicious but the service was
+11:08 
+
+11:08 slow. So it has two different uh aspects
+11:12 
+
+11:12 a positive aspect and a negative aspect
+11:14 
+
+11:14 right
+11:17 
+
+11:17 and what happened was so these are the
+11:19 
+
+11:19 tasks on which Raku were challenged with
+11:23 
+
+11:23 respect to the LLMs.
+11:27 
+
+11:27 So what they did was they first created
+11:31 
+
+11:31 something like uh the Rakov GPT sort of
+11:34 
+
+11:34 a family which is basically rau at the
+11:39 
+
+11:39 base as the base model and uh they try
+11:43 
+
+11:43 to do some zeros you know instruction
+11:46 
+
+11:46 like input in inputs and try to see
+11:48 
+
+11:48 whether uh there is in context learning
+11:51 
+
+11:51 capability
+11:53 
+
+11:53 u within within uh the the rau
+11:57 
+
+11:57 U uh model, right? So they took Raku 4
+12:02 
+
+12:02 uh Raven 14 billion model uh uh you know
+12:06 
+
+12:06 and evaluated that under this u
+12:09 
+
+12:09 tangibility style prompting techniques
+12:13 
+
+12:13 and they also created another version
+12:15 
+
+12:15 which is u you know the same thing but
+12:18 
+
+12:18 what they did was they fine-tuned it
+12:21 
+
+12:21 through uh through certain instruction
+12:23 
+
+12:23 basically what we call as instruction
+12:24 
+
+12:24 tuning. So did some instruction tuning
+12:27 
+
+12:27 on Rakov and uh came up with this
+12:32 
+
+12:32 version which they called Rakov adapted
+12:35 
+
+12:35 uh on uh certain conversational and
+12:38 
+
+12:38 reasoning data right so just for certain
+12:43 
+
+12:43 you know to check whether it aligns
+12:44 
+
+12:44 better in terms of following uh
+12:48 
+
+12:48 instructions which are chat JPD style
+12:52 
+
+12:52 prompt based instructions
+12:55 
+
+12:55 And as you can clear you can see that
+12:58 
+
+12:58 you know uh for each of these four uh
+13:03 
+
+13:03 four tasks
+13:05 
+
+13:05 uh they uh they sort of uh uh compared
+13:09 
+
+13:09 with chat GPT GPT4
+13:12 
+
+13:12 uh as the state-of-the-art uh LLMs and
+13:16 
+
+13:16 they also showed at the final and the
+13:19 
+
+13:19 last uh column you also see what's the
+13:23 
+
+13:23 uh as of now what's as of then which is
+13:25 
+
+13:25 2023 what was the best uh best result
+13:30 
+
+13:30 and you can clearly see that the moment
+13:32 
+
+13:32 you do instruction tuning uh raov
+13:37 
+
+13:37 uh the the performance immediately jumps
+13:40 
+
+13:40 up for RT uh even to some extent for NLI
+13:44 
+
+13:44 and to some extent for Paul EMO too
+13:48 
+
+13:48 right u however for certain reasons
+13:52 
+
+13:52 the go emotions didn't really jump up
+13:56 
+
+13:56 that much and it wasn't that good which
+13:58 
+
+13:58 means emotion classification is not
+13:60 
+
+13:60 really good for you know uh when it
+14:03 
+
+14:03 comes to rau right as compared to typity
+14:07 
+
+14:07 but if you look at uh rau adapted it
+14:11 
+
+14:11 pretty much come starts coming closer to
+14:13 
+
+14:13 at least typ 4 right for RT and uh at
+14:19 
+
+14:19 least for RT
+14:21 
+
+14:21 So, so clear clearly it's not an
+14:26 
+
+14:26 like the Raku 4 as of now. I mean right
+14:28 
+
+14:28 now there's the current Raku version is
+14:31 
+
+14:31 Raku 7. They did a lot of other
+14:32 
+
+14:32 interesting things on top of that. But
+14:35 
+
+14:35 the original Rockco 4 uh clearly you
+14:38 
+
+14:38 know even after uh instruction tuning
+14:41 
+
+14:41 and all is not really a model that you
+14:44 
+
+14:44 can just replace that uh uh you know
+14:48 
+
+14:48 replace charge or LLMs with that sort of
+14:51 
+
+14:51 a model and can use that for certain
+14:54 
+
+14:54 more complex tasks.
+14:57 
+
+14:57 So is there a fundamental limitation
+15:00 
+
+15:00 right on on on on for for Rakov?
+15:04 
+
+15:04 So if you look at uh the the most key
+15:09 
+
+15:09 you know the the core of the Rakov model
+15:12 
+
+15:12 you see this recurrence of this state a
+15:16 
+
+15:16 uh where alpha is the exponential decay
+15:20 
+
+15:20 that you apply on the previous state and
+15:22 
+
+15:22 beta t is the update gate uh that is
+15:27 
+
+15:27 applied on the value right and uh and
+15:33 
+
+15:33 then you into the you you get the final
+15:36 
+
+15:36 state ST as some sort of a percentage uh
+15:42 
+
+15:42 of uh of the value right and that that
+15:46 
+
+15:46 comes out of dividing a by bt so
+15:50 
+
+15:50 basically every pass token of this
+15:53 
+
+15:53 sentence let's say John loves Mary who
+15:55 
+
+15:55 lives in New York City gets compressed
+15:57 
+
+15:57 into this single vector ST right so
+15:59 
+
+15:59 that's what is going on and at every
+16:02 
+
+16:02 time step all the past tokens are
+16:05 
+
+16:05 getting compressed into that particular
+16:07 
+
+16:07 state. If you unfold it, you will see uh
+16:10 
+
+16:10 we saw that. So in our running example,
+16:12 
+
+16:12 you know, as an example, so so so John
+16:15 
+
+16:15 would be, you know, the decay would be
+16:17 
+
+16:17 alpha raised 5, loves will be alpha 4,
+16:21 
+
+16:21 Mary will be alpha 3, who would be alpha
+16:25 
+
+16:25 raised 2, uh lives will be alpha 1, and
+16:29 
+
+16:29 in would be alpha alpha zero. Where
+16:32 
+
+16:32 where are we at? We are at the step in.
+16:35 
+
+16:35 So we are at the in step. So at the at
+16:38 
+
+16:38 the at the at the time step where you
+16:40 
+
+16:40 find the token where the where the token
+16:42 
+
+16:42 comes where the new token is in. This is
+16:45 
+
+16:45 what is going on
+16:47 
+
+16:47 in in in in Raku, right? So, so the
+16:51 
+
+16:51 entire prop prior sequence is compressed
+16:56 
+
+16:56 at that particular time step state
+16:60 
+
+16:60 but compressed in this fashion
+17:02 
+
+17:02 you know in an exponential decay
+17:04 
+
+17:04 fashion. So basically John is nearly
+17:06 
+
+17:06 forgotten as you can see right and uh
+17:11 
+
+17:11 and you know if because of and also
+17:14 
+
+17:14 because of the factor that let's say for
+17:16 
+
+17:16 an example just just as an example let's
+17:19 
+
+17:19 say that beta is small then it will be
+17:21 
+
+17:21 basically nearly forgotten because
+17:23 
+
+17:23 you're not uh beta is that knob which
+17:26 
+
+17:26 helps you to retain the uh the essence
+17:30 
+
+17:30 of John and if beta is also small then
+17:35 
+
+17:35 it will be forgotten. So alpha alpha is
+17:38 
+
+17:38 the knob that that basically does the
+17:40 
+
+17:40 decay and beta is the knob that
+17:43 
+
+17:43 refreshes that information back. So if
+17:46 
+
+17:46 the refreshing is not happening uh if
+17:48 
+
+17:48 that is small then it's going to faint
+17:52 
+
+17:52 right. So that's what's let's say in
+17:54 
+
+17:54 this example John and love's happening
+17:56 
+
+17:56 at at the stage uh when when you find
+17:58 
+
+17:58 when you get to in right Mary may be
+18:02 
+
+18:02 still active just because of the factor
+18:04 
+
+18:04 that the weight beta for Mary is medium
+18:09 
+
+18:09 uh who may be moderate so it's just
+18:12 
+
+18:12 basically a syntactic link is the uh is
+18:14 
+
+18:14 the glue causal glue uh leaves is high
+18:18 
+
+18:18 so it's very fresh and in definitely
+18:22 
+
+18:22 will be strong because that's the
+18:23 
+
+18:23 current current token right so this is
+18:25 
+
+18:25 how things move and it's just a example
+18:29 
+
+18:29 of how things move in Rakov
+18:33 
+
+18:33 now that's the information bottleneck
+18:35 
+
+18:35 because you cannot it's very hard to
+18:37 
+
+18:37 bring uh the influence or the you know
+18:43 
+
+18:43 the effect of of past words if at if
+18:46 
+
+18:46 they actually matter because most of the
+18:49 
+
+18:49 times they will be forgotten
+18:51 
+
+18:51 like John got forgotten. So that's the
+18:54 
+
+18:54 information bottleneck that is
+18:56 
+
+18:56 intrinsically there in Rakov. Okay. So
+18:60 
+
+18:60 just as an example if you look at the
+19:01 
+
+19:01 vinogi uh uh grant uh task which is
+19:05 
+
+19:05 basically pronoun resolution task which
+19:07 
+
+19:07 actually requires good amount of long
+19:09 
+
+19:09 context understanding
+19:12 
+
+19:12 uh you'll see that raov is not doing
+19:16 
+
+19:16 really that good as as compared to other
+19:20 
+
+19:20 models and we also saw some examples
+19:22 
+
+19:22 before as well uh if you remember and
+19:25 
+
+19:25 this is the reason that you know of that
+19:28 
+
+19:28 deck on the exponential decay that you
+19:30 
+
+19:30 know although it can take a lot of a lot
+19:33 
+
+19:33 bigger sequence but it starts forgetting
+19:35 
+
+19:35 them also
+19:37 
+
+19:37 because of that because of the alpha.
+19:40 
+
+19:40 Okay.
+19:41 
+
+19:41 So what else might be going wrong?
+19:46 
+
+19:46 So so Raku
+19:48 
+
+19:48 uh updates memory in discrete time steps
+19:53 
+
+19:53 you know. So every single time step a
+19:56 
+
+19:56 new word comes in and it updates the the
+19:60 
+
+19:60 the state and uh in in this fashion
+20:04 
+
+20:04 right so it's elegant it's it's
+20:07 
+
+20:07 efficient uh you can you can you can
+20:10 
+
+20:10 parallelize the updates and make it
+20:12 
+
+20:12 linear time however uh as I as we saw
+20:16 
+
+20:16 that you know it it it
+20:19 
+
+20:19 kind of starts forgetting the the the
+20:22 
+
+20:22 past And but the problem is that that
+20:26 
+
+20:26 language meaning uh flows like almost
+20:30 
+
+20:30 like a fluid uh between tokens and and
+20:34 
+
+20:34 doesn't really uh the semantic drift
+20:38 
+
+20:38 doesn't really happen as a as a jump at
+20:42 
+
+20:42 every token boundary. If uh you know if
+20:46 
+
+20:46 like as an example let's say John loves
+20:48 
+
+20:48 Mary who lives in New York. Now Mary was
+20:53 
+
+20:53 the object of John and Lo's, right? So
+20:57 
+
+20:57 Mary was the object of loves. Love's
+21:00 
+
+21:00 subject was John. And then
+21:04 
+
+21:04 on in the second part of the sentence,
+21:06 
+
+21:06 who lives in New York? Mary becomes the
+21:08 
+
+21:08 subject
+21:10 
+
+21:10 of live.
+21:12 
+
+21:12 Now this transition from object to
+21:15 
+
+21:15 subject
+21:17 
+
+21:17 has to be smooth. Smooth in what sense?
+21:20 
+
+21:20 smooth in the sense that the content of
+21:22 
+
+21:22 the the embedding cannot just move from
+21:25 
+
+21:25 one coordinate and jump to a very
+21:28 
+
+21:28 different coordinate of the embedding
+21:29 
+
+21:29 space
+21:32 
+
+21:32 if if you have to look at the embedding
+21:34 
+
+21:34 of the state as of now until Mary.
+21:38 
+
+21:38 So the moment Mary becomes the subject
+21:42 
+
+21:42 from the object what happens in rockov
+21:44 
+
+21:44 is there's a sudden jump of the state
+21:49 
+
+21:49 from the previous state to the I mean
+21:51 
+
+21:51 there's a sudden jump from the previous
+21:52 
+
+21:52 state to the next state just simply
+21:54 
+
+21:54 because Mary has become a subject and a
+21:58 
+
+21:58 very you know it starts believing as if
+21:60 
+
+21:60 like okay the conversation has all moved
+22:02 
+
+22:02 into a very different theme or topic but
+22:06 
+
+22:06 it's not really so if you look at Mary
+22:08 
+
+22:08 who lives lives in New York is not
+22:09 
+
+22:09 disconnected from John who John loves
+22:12 
+
+22:12 Mary. So it's not that the topic has
+22:14 
+
+22:14 suddenly moved to a very different
+22:15 
+
+22:15 thing.
+22:18 
+
+22:18 So there has to be so the topic is still
+22:22 
+
+22:22 within that neighborhood
+22:24 
+
+22:24 of John loves Mary
+22:26 
+
+22:26 and there has to be a smooth smoother
+22:28 
+
+22:28 transition. So that's the problem with
+22:31 
+
+22:31 with with uh models like Raku even
+22:34 
+
+22:34 that's the problem with models like LSTM
+22:38 
+
+22:38 right or or RNN based models.
+22:42 
+
+22:42 So language structure does not abruptly
+22:44 
+
+22:44 change. So that's the idea. So me must
+22:47 
+
+22:47 smoothly shift from the object of loves
+22:48 
+
+22:48 to the subject of lives.
+22:52 
+
+22:52 So memory should evolve continuously not
+22:55 
+
+22:55 just be replaced at token boundaries.
+22:58 
+
+22:58 Right? So a closer loop would be like
+23:01 
+
+23:01 let's say you have the first first word
+23:04 
+
+23:04 comes which is John that's fine you add
+23:07 
+
+23:07 John you start the subject trace then
+23:09 
+
+23:09 loves comes in you slightly forget John
+23:12 
+
+23:12 focus on the verb that's still okay
+23:14 
+
+23:14 still fine then Mary comes in you keep
+23:18 
+
+23:18 both John and love that should that
+23:20 
+
+23:20 ideally what it should be ideally what
+23:22 
+
+23:22 that should be that you know so may John
+23:25 
+
+23:25 should not get decayed a lot and when
+23:28 
+
+23:28 Mary comes in. But when w who comes in,
+23:32 
+
+23:32 uh okay, you are adding who, but you are
+23:34 
+
+23:34 als you also need to recall Mary
+23:38 
+
+23:38 as not only as the subject of who but
+23:41 
+
+23:41 you need to recall Mary as the object of
+23:44 
+
+23:44 John as well. That should not be
+23:47 
+
+23:47 forgotten.
+23:51 
+
+23:51 So you cannot see Mary independent of
+23:53 
+
+23:53 John. Right? So but if John starts
+23:56 
+
+23:56 getting decayed and love starts getting
+23:59 
+
+23:59 decayed when woohoo arrives that's
+24:02 
+
+24:02 problem
+24:04 
+
+24:04 right so that's what we call as smoothly
+24:07 
+
+24:07 shifting the role of Mary right and then
+24:11 
+
+24:11 all these other uh tokens come come in
+24:15 
+
+24:15 lives in New York even then John cannot
+24:19 
+
+24:19 be just suddenly be forgotten all of a
+24:22 
+
+24:22 sudden so there has to be a smooth
+24:24 
+
+24:24 transition
+24:25 
+
+24:25 uh of the conversation just like how we
+24:28 
+
+24:28 are discussing right right from the
+24:29 
+
+24:29 beginning of this lecture we you know
+24:33 
+
+24:33 whatever I'm discussing till now
+24:36 
+
+24:36 there's a smooth transition of what I
+24:39 
+
+24:39 have discussed and whatever you you
+24:41 
+
+24:41 heard right you did not completely
+24:43 
+
+24:43 forgotten you know you did not forget
+24:46 
+
+24:46 what I started out with because there is
+24:48 
+
+24:48 a continuation in terms of the topic but
+24:51 
+
+24:51 it's perfectly fine if you forgot let's
+24:54 
+
+24:54 say what I taught three lectures back
+24:57 
+
+24:57 right now I mean that is not relevant to
+25:00 
+
+25:00 at this point time point but what is
+25:03 
+
+25:03 relevant is what I discussed yesterday
+25:06 
+
+25:06 or sorry Saturday and what I what I'm
+25:09 
+
+25:09 discussing today and it has to be a
+25:11 
+
+25:11 smooth continuation whatever I do in the
+25:13 
+
+25:13 future right now today what I'm whatever
+25:16 
+
+25:16 I'm going to do in the future there has
+25:18 
+
+25:18 to be a smooth transition right okay
+25:23 
+
+25:23 So, so this is the thing. So, older info
+25:27 
+
+25:27 starts getting decayed and that's the
+25:30 
+
+25:30 problem of of Rakov and the similar sort
+25:34 
+
+25:34 of models, right? Okay.
+25:38 
+
+25:38 So, so an analogy, you know, I like this
+25:42 
+
+25:42 analogy. An analogy is like Rakov is
+25:44 
+
+25:44 almost like flipping through a photo
+25:46 
+
+25:46 album like where every page being one
+25:49 
+
+25:49 word.
+25:50 
+
+25:50 And however what we need is like a movie
+25:54 
+
+25:54 you know like language is more like a
+25:56 
+
+25:56 movie where when the frames keep going
+25:59 
+
+25:59 on you don't feel like there are
+26:01 
+
+26:01 discrete frames right you feel like it's
+26:03 
+
+26:03 a continuous so even within one scene of
+26:05 
+
+26:05 a movie there are multiple frames in
+26:07 
+
+26:07 that scene but you don't feel that there
+26:10 
+
+26:10 are multiple frames in that scene right
+26:12 
+
+26:12 you feel like this is one single scene
+26:14 
+
+26:14 which is moving on right one single
+26:16 
+
+26:16 event that is happening within that
+26:18 
+
+26:18 scene so that's how language languages
+26:21 
+
+26:21 are just to give you an analogy versus
+26:24 
+
+26:24 what Raku does. Okay. So, so the world
+26:29 
+
+26:29 is not just transformers. That's the
+26:30 
+
+26:30 lesson we got. So, Raku offers a linear
+26:33 
+
+26:33 time alternative. However, uh it is as I
+26:36 
+
+26:36 said it's bridging the world of
+26:38 
+
+26:38 recurrence with attention. So, that was
+26:40 
+
+26:40 the that was the entire idea. However,
+26:43 
+
+26:43 uh and it sets some sort of a setting
+26:46 
+
+26:46 stepping stone towards the state space
+26:48 
+
+26:48 machines including you know S4 Mamba and
+26:53 
+
+26:53 you know all the other variations of
+26:55 
+
+26:55 Mamba and all of these sort of hyena and
+26:58 
+
+26:58 so on. So that's why I felt that you
+27:01 
+
+27:01 should understand Rakov. You should
+27:03 
+
+27:03 understand the limitations of Rakov and
+27:05 
+
+27:05 then only you can go to the next state
+27:07 
+
+27:07 of you know the next real deal which is
+27:09 
+
+27:09 state space machines which we are going
+27:11 
+
+27:11 to discuss today. Right? So it opens up
+27:14 
+
+27:14 that that that direction
+27:17 
+
+27:17 uh of of of uh uh looking at state space
+27:23 
+
+27:23 special machines is also shows how you
+27:26 
+
+27:26 can bring in exponential recency uh uh
+27:31 
+
+27:31 within the context of attention
+27:35 
+
+27:35 skip gram attention right we can move on
+27:39 
+
+27:39 to the next topic which is uh state
+27:43 
+
+27:43 space mission machines. So we we are
+27:45 
+
+27:45 basically we are trying to continue with
+27:48 
+
+27:48 whatever we learned the drawbacks of
+27:51 
+
+27:51 rahov and we are not going to see
+27:53 
+
+27:53 statebased machines. I'm going to
+27:55 
+
+27:55 initially my my intention was to cover
+27:58 
+
+27:58 also S4 and Mamba. uh but I thought that
+28:02 
+
+28:02 let's just slow down a bit because this
+28:04 
+
+28:04 is a very new kind of uh concept new
+28:08 
+
+28:08 kind of model and particularly
+28:13 
+
+28:13 take takes a little bit of time to
+28:15 
+
+28:15 understand
+28:16 
+
+28:16 the connection of state space machines
+28:18 
+
+28:18 because it came from control theory
+28:21 
+
+28:21 people right so from that discipline so
+28:24 
+
+28:24 how does it apply to language
+28:26 
+
+28:26 particularly so that takes a bit of time
+28:28 
+
+28:28 to understand.
+28:30 
+
+28:30 Okay. So the core idea is that language
+28:35 
+
+28:35 is like a diffusive field. So it's
+28:38 
+
+28:38 almost like let's say it's a
+28:43 
+
+28:43 let's say it's let's say if the room is
+28:48 
+
+28:48 filled with some fluid and you have to
+28:50 
+
+28:50 swim through this fluid and the density
+28:53 
+
+28:53 is different at different pos point of
+28:55 
+
+28:55 this room. Right? So this room is all
+28:57 
+
+28:57 filled with the fluid and you have to
+28:59 
+
+28:59 you have to somehow float through and
+29:02 
+
+29:02 the density and the viscosity and
+29:04 
+
+29:04 everything is different and how you are
+29:06 
+
+29:06 going to drift in this fluid in this
+29:10 
+
+29:10 room through this fluid. So imagine it
+29:13 
+
+29:13 imagine the language or whatever we talk
+29:16 
+
+29:16 whatever we discuss the theme that
+29:20 
+
+29:20 carries over as we are having let's say
+29:23 
+
+29:23 a conversation is is like that like like
+29:27 
+
+29:27 the fluid that keeps on changing that
+29:30 
+
+29:30 keeps moving but in a slow way. So it's
+29:35 
+
+29:35 a continuously evolving field but it
+29:38 
+
+29:38 doesn't do some abrupt changes. Right?
+29:42 
+
+29:42 So that's what the core idea is. So
+29:45 
+
+29:45 instead of discrete jumps which you see
+29:46 
+
+29:46 in Rakov and LSTM or RNN based models,
+29:50 
+
+29:50 state space models treat hidden meaning
+29:53 
+
+29:53 as a continuously evolving field where X
+29:56 
+
+29:56 is the state. So whatever we saw S S
+29:60 
+
+30:00 over there that is represented as X and
+30:03 
+
+30:03 U is the current input.
+30:07 
+
+30:07 So U is the current input uh at time
+30:10 
+
+30:10 point T. X is the state so far at time
+30:13 
+
+30:13 point T. A uh so XT is basically the uh
+30:19 
+
+30:19 the latent semantic field at till that
+30:21 
+
+30:21 point. Uh a XT is how the field drifts
+30:26 
+
+30:26 or decays on his own. So if you which
+30:28 
+
+30:28 means that let's imagine that there is
+30:30 
+
+30:30 no other word coming up. You took a
+30:32 
+
+30:32 pause. Let's say I am I'm talking and
+30:35 
+
+30:35 I'm taking taking a pause and now
+30:38 
+
+30:38 whatever I said you are processing that
+30:41 
+
+30:41 in your brain. Now how that process is
+30:45 
+
+30:45 going to move in terms of you know in
+30:49 
+
+30:49 terms of what would be that
+30:50 
+
+30:50 interpretation.
+30:52 
+
+30:52 So if if I keep on talking then there's
+30:55 
+
+30:55 a smooth transition. If I talk very
+30:57 
+
+30:57 fastly, very quickly, then if I talk
+31:01 
+
+31:01 then then you're you would not be able
+31:04 
+
+31:04 to understand me that well, right? If I
+31:06 
+
+31:06 talk very fast, if I just give a pause,
+31:11 
+
+31:11 you might start forgetting what I saw,
+31:14 
+
+31:14 what I what I told so far.
+31:17 
+
+31:17 You know, you might start forgetting
+31:19 
+
+31:19 that if I give a long pause or you might
+31:22 
+
+31:22 start thinking that okay, this is it.
+31:26 
+
+31:26 there is no further conversation and you
+31:28 
+
+31:28 might want to freeze that thing that
+31:32 
+
+31:32 whatever you we have discussed so far in
+31:34 
+
+31:34 your memory. So three things can happen
+31:37 
+
+31:37 right one is you completely forget what
+31:42 
+
+31:42 I just said because I'm I'm pausing one
+31:47 
+
+31:47 is that you are anticipating okay new
+31:50 
+
+31:50 information may come in and you are
+31:52 
+
+31:52 developing on that uh on that on
+31:55 
+
+31:55 whatever you have heard so far and you
+31:58 
+
+31:58 are developing over that to uh uh to to
+32:02 
+
+32:02 gauge what is the real meaning of
+32:04 
+
+32:04 whatever you have heard. so far or uh
+32:08 
+
+32:08 you will just figure out that okay this
+32:10 
+
+32:10 is it the lecture has ended or the
+32:13 
+
+32:13 discussion has ended and this is what I
+32:15 
+
+32:15 have with me and you freeze that right b
+32:20 
+
+32:20 which is you is being the current uh you
+32:23 
+
+32:23 know whatever I say next is going to
+32:26 
+
+32:26 nudge that that memory field that is
+32:29 
+
+32:29 inside your brain. So every single new
+32:32 
+
+32:32 word that I say is going to push your
+32:36 
+
+32:36 understanding that you have in your
+32:38 
+
+32:38 brain
+32:39 
+
+32:39 with certain degree. So it's basically
+32:41 
+
+32:41 perturbs your understanding a bit more.
+32:45 
+
+32:45 You know like as an example how many
+32:47 
+
+32:47 number of times it happens to you that
+32:50 
+
+32:50 somebody gives a lecture and you
+32:52 
+
+32:52 understood something and then he or she
+32:55 
+
+32:55 says something else and you have to go
+32:57 
+
+32:57 back and unlearn what you understood and
+32:60 
+
+32:60 oh no no no I got it wrong this is how
+33:02 
+
+33:02 what it should have been right so you
+33:04 
+
+33:04 keep on updating
+33:06 
+
+33:06 what you already learned which means you
+33:09 
+
+33:09 have to retain what you have and keep on
+33:13 
+
+33:13 updating or perturbing doing that you
+33:16 
+
+33:16 know that understanding. So as the
+33:18 
+
+33:18 lecture moves on you are constantly
+33:21 
+
+33:21 carrying forward
+33:23 
+
+33:23 what you got and you are perturbing that
+33:27 
+
+33:27 information uh in in every particular
+33:30 
+
+33:30 state at every particular time step.
+33:33 
+
+33:33 Right? Okay. We we we it's kind of like
+33:36 
+
+33:36 a a bit philosophical right now but you
+33:40 
+
+33:40 first need to understand this at a
+33:42 
+
+33:42 philosophical level before we get into
+33:44 
+
+33:44 the math right so this is important
+33:48 
+
+33:48 so example would be John let's say John
+33:51 
+
+33:51 comes at the first word right so
+33:53 
+
+33:53 introduces a subject wave so let's look
+33:55 
+
+33:55 at it like a wave right and loves
+33:58 
+
+33:58 injects a relation pulse into that
+34:01 
+
+34:01 already existing wave and reshapes the
+34:04 
+
+34:04 reshapes the wave and Mary comes in adds
+34:07 
+
+34:07 a strong entity trace and propagates
+34:10 
+
+34:10 forward into that wave into the same
+34:13 
+
+34:13 wave and then you have uh and before who
+34:18 
+
+34:18 comes that wave sort of like morphs
+34:21 
+
+34:21 smoothly
+34:22 
+
+34:22 and moves towards where
+34:27 
+
+34:27 whose wave or wave embedding would would
+34:31 
+
+34:31 be. So think of it like okay if I pause
+34:35 
+
+34:35 after Mary so let's say John loves Mary
+34:38 
+
+34:38 and I pause now where would that wave go
+34:42 
+
+34:42 so it's think of it more like that so it
+34:45 
+
+34:45 starts drifting
+34:46 
+
+34:46 keeps drifting and if nothing comes
+34:49 
+
+34:49 let's say then it will decay
+34:53 
+
+34:53 so it's like a sound eco so it echoes
+34:56 
+
+34:56 and the e and eco keeps going on but if
+34:59 
+
+34:59 nobody else is saying anything in this
+35:02 
+
+35:02 in this room let's say that the eco will
+35:04 
+
+35:04 die down after some time so it's like
+35:07 
+
+35:07 that right so think of it like that yeah
+35:10 
+
+35:10 it's kind of uh it's kind of hard to
+35:15 
+
+35:15 bring SSM it's easy for signal
+35:18 
+
+35:18 processing and for for speech you know
+35:22 
+
+35:22 how to connect SSM to speech and signal
+35:25 
+
+35:25 processing it's a bit hard how to
+35:27 
+
+35:27 connect it with language but you know
+35:29 
+
+35:29 bear with me and I'll try my best to to
+35:32 
+
+35:32 to give you that connection.
+35:35 
+
+35:35 So the takeaway is SSM view language as
+35:38 
+
+35:38 a fluid process
+35:40 
+
+35:40 pretty much like speech or signal
+35:43 
+
+35:43 and meaning doesn't jump from token to
+35:45 
+
+35:45 token. It flows continuously evolving
+35:47 
+
+35:47 and feeding like ripples in a in a pond.
+35:52 
+
+35:52 So think of it like that sort of an
+35:53 
+
+35:53 analogy. Okay.
+35:57 
+
+35:57 All right. So, so meaning doesn't jump
+35:59 
+
+35:59 is what is the takeaway uh which where
+36:03 
+
+36:03 we actually move away from
+36:06 
+
+36:06 you know RNN style models or rau and so
+36:09 
+
+36:09 on and so forth okay and it's also very
+36:12 
+
+36:12 different you know this this take on
+36:13 
+
+36:13 language as a fluid process is very
+36:16 
+
+36:16 different than transformers as well like
+36:19 
+
+36:19 transformers doesn't look at it like it
+36:20 
+
+36:20 looks at it at a very discrete level and
+36:22 
+
+36:22 what kind of attention is coming into a
+36:24 
+
+36:24 particular token from the neighboring
+36:26 
+
+36:26 tokens at
+36:28 
+
+36:28 at a discrete level, right? So
+36:30 
+
+36:30 independently of each other. So there's
+36:32 
+
+36:32 no uh notion of how the wave carries
+36:36 
+
+36:36 over and hits a new word. So that's
+36:39 
+
+36:39 notion is not there in transforms. Okay.
+36:44 
+
+36:44 So how every token independently
+36:47 
+
+36:47 influences each other. That's the like
+36:48 
+
+36:48 John how John independently influences
+36:50 
+
+36:50 let's say lives or how loves
+36:52 
+
+36:52 independently influences lives. That's
+36:54 
+
+36:54 how transformer works.
+36:58 
+
+36:58 So what exactly is smoothness of the
+37:01 
+
+37:01 meaning? So if you look at this
+37:02 
+
+37:02 particular
+37:03 
+
+37:03 uh
+37:05 
+
+37:05 uh uh equation which is the SSM equation
+37:09 
+
+37:09 and it looks you know forget about you
+37:12 
+
+37:12 know a being stable or not stable and
+37:14 
+
+37:14 what it actually means a being a matrix
+37:16 
+
+37:16 just a linear transformation. Think of
+37:18 
+
+37:18 it like a linear transformation. Uh
+37:21 
+
+37:21 forget about that for now. Just look at
+37:23 
+
+37:23 this. The second uh relation that you
+37:26 
+
+37:26 can get out of it which is that xt plus
+37:28 
+
+37:28 delta where delta is a small change on
+37:31 
+
+37:31 the t you know uh implies you would have
+37:36 
+
+37:36 something like an exponentiation of e a
+37:40 
+
+37:40 delta of xt. How do we get to the
+37:43 
+
+37:43 exponentiation? We will look at the
+37:45 
+
+37:45 derivation bit later. But if you solve
+37:48 
+
+37:48 this different this is an ordinary
+37:49 
+
+37:49 differential equation right? dx by dt
+37:51 
+
+37:51 equals to ax + b u. If you solve this uh
+37:55 
+
+37:55 you will get that if you solve this
+37:58 
+
+37:58 equation right with the integrating
+37:60 
+
+37:60 factor to be e of a delta
+38:05 
+
+38:05 uh and you have an analytical function
+38:07 
+
+38:07 over t because of this which is
+38:10 
+
+38:10 infinitely differentiable uh and
+38:13 
+
+38:13 doesn't have jumps right it's continuous
+38:17 
+
+38:17 so that is the mean that is what we mean
+38:19 
+
+38:19 mathematically by smoothness of meaning
+38:23 
+
+38:23 which means the rate changes gradually.
+38:25 
+
+38:25 No abrupt token brown boundary jumps.
+38:28 
+
+38:28 The rate of change is bounded by this uh
+38:31 
+
+38:31 which means uh x dot t would be the
+38:34 
+
+38:34 different and the time differentiation
+38:36 
+
+38:36 over x right. So that is bounded by uh
+38:40 
+
+38:40 the the norm of the matrix A can be the
+38:44 
+
+38:44 tribenous norm of something or uh
+38:47 
+
+38:47 multiplied by the the norm of XT plus
+38:50 
+
+38:50 the norm of B multiplied by the norm of
+38:52 
+
+38:52 UT right kind of like you know let's say
+38:56 
+
+38:56 that a sculpture is working with a clay
+38:60 
+
+39:00 you know like a clay pottery and how you
+39:03 
+
+39:03 would reshape the clay so you don't
+39:06 
+
+39:06 Right? You know, as you it's not it's
+39:08 
+
+39:08 the same clay and you keep on reshaping
+39:10 
+
+39:10 it. So that's what SSM is doing. It's a
+39:13 
+
+39:13 continuous process of how you reshape
+39:15 
+
+39:15 the clay and it's not discrete, you
+39:17 
+
+39:17 know, like every time there is a new
+39:20 
+
+39:20 thing to be done. And it's not like, you
+39:22 
+
+39:22 know, you make a how you do a snowman in
+39:25 
+
+39:25 in Christmas time. You make a ball
+39:27 
+
+39:27 snowball. You make a a smaller snowball,
+39:30 
+
+39:30 you put it on top of the bigger
+39:31 
+
+39:31 snowball, you put a carrot in as a nose.
+39:34 
+
+39:34 No, that's not how uh that's what you
+39:38 
+
+39:38 know AR rau or RNN would be working.
+39:42 
+
+39:42 That's not how SSMs work. SSN work just
+39:46 
+
+39:46 like how a pottery happens as if like
+39:48 
+
+39:48 the snow the snowman in the Christmas is
+39:50 
+
+39:50 being done out of like a pottery
+39:52 
+
+39:52 sculpturing. So that's what assassins
+39:54 
+
+39:54 do, right? So it makes the head out of
+39:58 
+
+39:58 the body only.
+40:01 
+
+40:01 So it's like that. So there's no edges
+40:02 
+
+40:02 as such in terms of jumps.
+40:06 
+
+40:06 Okay. All right.
+40:10 
+
+40:10 So to give you a visual so how the state
+40:14 
+
+40:14 changes uh over time which means but by
+40:18 
+
+40:18 time we mean the token time steps right.
+40:20 
+
+40:20 So John loves Mary who lives
+40:24 
+
+40:24 you know in New York City as it goes
+40:25 
+
+40:25 till city. So this is how discrete
+40:29 
+
+40:29 updates happen in Raku the blue right
+40:33 
+
+40:33 where whereas if you look at what
+40:36 
+
+40:36 happens uh in in SSM uh uh SSM including
+40:41 
+
+40:41 S4 mamba these are all different types
+40:43 
+
+40:43 of SSM only uh what happens is that the
+40:47 
+
+40:47 influence of John decays continuously a
+40:51 
+
+40:51 particular aspect of John let's say as a
+40:54 
+
+40:54 subject of the sentence that decays
+40:58 
+
+40:58 slowly and continuously over time till
+41:00 
+
+41:00 you get to the point of sitting.
+41:04 
+
+41:04 Right? So the effect of John, the effect
+41:06 
+
+41:06 of loves, they decay gradually. And and
+41:11 
+
+41:11 by the way, I showed you a decay. It may
+41:12 
+
+41:12 not necessarily be a decay. It can also
+41:15 
+
+41:15 be that it comes up again. The effect of
+41:18 
+
+41:18 John again is injected back, but even
+41:21 
+
+41:21 then it will be a continuous
+41:24 
+
+41:24 arise.
+41:26 
+
+41:26 So the effect of John if it decays it
+41:29 
+
+41:29 will be continuous if it comes up it
+41:30 
+
+41:30 will be again continuous right so that's
+41:33 
+
+41:33 what happens in a in in SSMs
+41:42 
+
+41:42 so yeah so so it makes clear sense for
+41:47 
+
+41:47 as I said for streaming signals like
+41:49 
+
+41:49 speech and video
+41:51 
+
+41:51 uh bit difficult to connect with
+41:55 
+
+41:55 language language but you can think of
+41:56 
+
+41:56 it more like the thought I gave you that
+41:58 
+
+41:58 thought analogy right if I'm talking you
+42:01 
+
+42:01 are you know it it creates certain
+42:03 
+
+42:03 thoughts in your brain and you are
+42:06 
+
+42:06 processing that and you are you are you
+42:08 
+
+42:08 are carrying forward that thought kind
+42:11 
+
+42:11 of in a continuous manner as I keep
+42:14 
+
+42:14 speaking
+42:16 
+
+42:16 and you are updating that thought that
+42:18 
+
+42:18 you you know in terms of your
+42:19 
+
+42:19 understanding so that's what it means
+42:21 
+
+42:21 for language
+42:24 
+
+42:24 So solving the continuous case. So if
+42:28 
+
+42:28 you have to solve this uh this equation
+42:31 
+
+42:31 dx by dt the od uh uh is equals to a x +
+42:36 
+
+42:36 b u you will get this solution x of t +
+42:42 
+
+42:42 delta is equals to e a e raised
+42:44 
+
+42:44 exponentiation of a delta mult* xt plus
+42:51 
+
+42:51 the integration over that period of
+42:53 
+
+42:53 delta the 0 to the delta period the
+42:56 
+
+42:56 small delta per over e of a
+43:00 
+
+43:00 toao b of u t + delta minus the toao
+43:05 
+
+43:05 which means from when you are the the
+43:07 
+
+43:07 variable that you are integrating. Okay.
+43:10 
+
+43:10 So how do you get till here? So I will
+43:15 
+
+43:15 show you but basically it means that the
+43:17 
+
+43:17 information this equation means that the
+43:19 
+
+43:19 information diffuses and decays
+43:20 
+
+43:20 smoothly. uh new tokens which are coming
+43:23 
+
+43:23 in are going to notch that field keeping
+43:26 
+
+43:26 uh you know while while the field
+43:28 
+
+43:28 evolves right so
+43:32 
+
+43:32 so that's the thing so I give you a
+43:36 
+
+43:36 scalar intuition and I have this slides
+43:38 
+
+43:38 you you can see how the for the matrix
+43:42 
+
+43:42 how to derive it this the scalar
+43:45 
+
+43:45 equation the scalar intuition is very
+43:46 
+
+43:46 simple you know what you do is that you
+43:49 
+
+43:49 multiply
+43:51 
+
+43:51 the uh this equation uh by you know you
+43:56 
+
+43:56 multiply both the sides you have dx by
+43:58 
+
+43:58 dt equals to ax plus b u right I you
+44:01 
+
+44:01 know you can also write dx by dt as x
+44:03 
+
+44:03 dot that's basically a notation for time
+44:06 
+
+44:06 v you know differentiation
+44:09 
+
+44:09 uh and then you multiply both the sides
+44:12 
+
+44:12 by e raised minus a t right where a is a
+44:18 
+
+44:18 scalar right now And if you do that, you
+44:22 
+
+44:22 get uh to to this point uh to this
+44:27 
+
+44:27 point, right? So
+44:31 
+
+44:31 you know um no it's not really working.
+44:35 
+
+44:35 So if you do that uh you get d of dt by
+44:39 
+
+44:39 uh of e of raised minus a t xt uh which
+44:44 
+
+44:44 equals to b of e raus a t u t. And then
+44:48 
+
+44:48 if you integrate over t2 t 2 t plus
+44:52 
+
+44:52 delta then you get this right it's it's
+44:56 
+
+44:56 pretty simple actually you know you you
+44:59 
+
+44:59 just the basically the uh the
+45:02 
+
+45:02 fundamental theorem of of of of calculus
+45:05 
+
+45:05 right you just get the um
+45:08 
+
+45:08 uh you integrate both the sides and you
+45:11 
+
+45:11 get this uh and then you solve for x of
+45:14 
+
+45:14 t plus delta which will give you uh
+45:17 
+
+45:17 which which will give you e of a uh uh
+45:21 
+
+45:21 raised delta uh a e raised a delta xt
+45:26 
+
+45:26 plus that particular uh integration
+45:29 
+
+45:29 factor. Right? So that's how you get to
+45:32 
+
+45:32 the the solution
+45:35 
+
+45:35 and it's a closed form solution.
+45:39 
+
+45:39 So,
+45:42 
+
+45:42 so the so the exponential integration
+45:44 
+
+45:44 factor for the matrix form would be you
+45:46 
+
+45:46 know you just have to remember that uh
+45:48 
+
+45:48 if a is not a scalar like this unlike
+45:51 
+
+45:51 here but if is a a if a is a matrix then
+45:55 
+
+45:55 uh if you apply tailor expansion over e
+45:59 
+
+45:59 raised a delta and this is a tailor
+46:02 
+
+46:02 expansion right and and if you integrate
+46:05 
+
+46:05 over that uh you will get something like
+46:07 
+
+46:07 something like this and uh by the way
+46:11 
+
+46:11 you know it's if you if you
+46:14 
+
+46:14 differentiate over with respect to delta
+46:16 
+
+46:16 for of for e for the tailor this is this
+46:19 
+
+46:19 is for the tailor expansion just to uh
+46:22 
+
+46:22 so that you understand how the square is
+46:24 
+
+46:24 coming and the cube is coming. So if you
+46:26 
+
+46:26 just do the differentiation with respect
+46:29 
+
+46:29 to delta of of e raised a delta you get
+46:34 
+
+46:34 this right. Okay. Uh
+46:38 
+
+46:38 so you can go through this things you
+46:41 
+
+46:41 know how to solve for the for the SSM OD
+46:44 
+
+46:44 for uh for for the matrix case. But
+46:48 
+
+46:48 finally you will get this final whatever
+46:50 
+
+46:50 you see in that box which is the final
+46:53 
+
+46:53 uh which is the final expression uh the
+46:55 
+
+46:55 equation.
+46:59 
+
+46:59 So some special cases uh so you just
+47:03 
+
+47:03 have to understand what really is going
+47:06 
+
+47:06 on in this solution and the some why the
+47:09 
+
+47:09 solution is important is very simple you
+47:12 
+
+47:12 know you can get these special cases get
+47:13 
+
+47:13 to understand the special cases like
+47:15 
+
+47:15 what happens if there is no further that
+47:17 
+
+47:17 pause no input means pause which means
+47:22 
+
+47:22 the thought is stuck in some sense no
+47:25 
+
+47:25 new words are coming in I'm not talking
+47:28 
+
+47:28 anymore
+47:28 
+
+47:28 So that would just be that x of t plus
+47:32 
+
+47:32 delta whatever is that drift is
+47:34 
+
+47:34 happening the drift is the drift is a
+47:36 
+
+47:36 function of e raised a delta xt so it's
+47:40 
+
+47:40 an exponential drift now can be a decay
+47:43 
+
+47:43 can be a increase can be an oxillation
+47:46 
+
+47:46 whatever that is depends upon what a is
+47:49 
+
+47:49 but
+47:51 
+
+47:51 uh depends upon the nature of a the
+47:53 
+
+47:53 matrix a but it could be it it's
+47:57 
+
+47:57 basically an exponential drift of your
+47:59 
+
+47:59 thought if no further input comes in.
+48:03 
+
+48:03 Right? No dynamics means a is zero. A is
+48:06 
+
+48:06 zero means it's basically
+48:08 
+
+48:08 a collapse. You know the matrix doesn't
+48:11 
+
+48:11 really exist in that sense. So uh in
+48:14 
+
+48:14 that sense it would be xt plus it would
+48:17 
+
+48:17 be just xt and whatever is the whatever
+48:21 
+
+48:21 is that term uh infinite similarly small
+48:25 
+
+48:25 step uh delta
+48:28 
+
+48:28 you can see what it means it basically
+48:30 
+
+48:30 comes down to the very simple case of uh
+48:34 
+
+48:34 ax plus b u right so that's the thing
+48:37 
+
+48:37 anyway
+48:39 
+
+48:39 So,
+48:42 
+
+48:42 so how to interpret this delta for
+48:45 
+
+48:45 language?
+48:47 
+
+48:47 So, between Mary and who, let's say
+48:49 
+
+48:49 there is a delta between Mary and who.
+48:51 
+
+48:51 Now, Rau, for Raku, it simply waits. So,
+48:54 
+
+48:54 it's just discrete update at next token.
+48:57 
+
+48:57 It just waits. It does nothing. It just
+48:58 
+
+48:58 stands still and waits for the next
+48:60 
+
+48:60 word, right? For SSM, it doesn't wait.
+49:04 
+
+49:04 It It waits. It doesn't wait. It just it
+49:07 
+
+49:07 doesn't stand still. It starts drifting
+49:11 
+
+49:11 a bit more till the new word joins in.
+49:16 
+
+49:16 Right? That is where the continuity
+49:17 
+
+49:17 comes from. Right? So, so treats that
+49:21 
+
+49:21 interval as a smooth semantic drift. The
+49:24 
+
+49:24 meaning of Mary gently moves from object
+49:26 
+
+49:26 of loves to subject of lives.
+49:30 
+
+49:30 Okay. So that's the reason how you can
+49:32 
+
+49:32 actually so it's almost like a a fine
+49:35 
+
+49:35 let's say a spline and there is a curve
+49:38 
+
+49:38 till till a particular point and you are
+49:41 
+
+49:41 just bending that curve continuing till
+49:44 
+
+49:44 the next point and again you're bending
+49:46 
+
+49:46 from there till the next point and that
+49:48 
+
+49:48 that curve is your semantic drift
+49:50 
+
+49:50 instead of some instead of doing
+49:53 
+
+49:53 something like tuck tuck tuck tuck you
+49:55 
+
+49:55 know instead of that so you just keep on
+49:57 
+
+49:57 bending that curve like this in a
+49:59 
+
+49:59 continuous manner So that's what is
+50:01 
+
+50:01 happening here. So delta measures this
+50:04 
+
+50:04 conceptual span. So it's not really a
+50:06 
+
+50:06 real sense
+50:10 
+
+50:10 uh which which can happen for signal uh
+50:12 
+
+50:12 signals and speech but is basically a
+50:14 
+
+50:14 conceptual span.
+50:17 
+
+50:17 Okay. So
+50:19 
+
+50:19 so delta controls how long the internal
+50:22 
+
+50:22 state xt evolves before the next token
+50:26 
+
+50:26 arrives. So the linguistic view is acts
+50:28 
+
+50:28 as a semantic time step how far meaning
+50:31 
+
+50:31 drifts between two between the words. So
+50:33 
+
+50:33 which means if the two words are very
+50:35 
+
+50:35 different than each other
+50:38 
+
+50:38 let's say Mary and then something
+50:40 
+
+50:40 completely abruptly some other word
+50:42 
+
+50:42 comes in then then the drift will be
+50:45 
+
+50:45 quite far it will drift quite far away
+50:48 
+
+50:48 and then it will catch up with the next
+50:50 
+
+50:50 word. So that's what it means how far
+50:52 
+
+50:52 meaning drifts between the words.
+50:55 
+
+50:55 Okay. So if it's a very different topic
+50:58 
+
+50:58 or if the topic ends as an example let's
+51:00 
+
+51:00 say full stop
+51:03 
+
+51:03 you get a full stop there will the drift
+51:06 
+
+51:06 will be lot more after the full stop
+51:08 
+
+51:08 because now you know that a a particular
+51:11 
+
+51:11 topic has ended and a new topic will
+51:13 
+
+51:13 arise. Let's say the paragraph ends that
+51:16 
+
+51:16 drift will be even more
+51:20 
+
+51:20 right but the sentence hasn't ended just
+51:24 
+
+51:24 certain words have come in the drift
+51:26 
+
+51:26 wouldn't be that much
+51:28 
+
+51:28 right so that's what it means
+51:32 
+
+51:32 so
+51:33 
+
+51:33 normal flow would be like like let's say
+51:35 
+
+51:35 if if if if semantic space is steady
+51:38 
+
+51:38 which means just a simple language you
+51:41 
+
+51:41 know for all practical purposes
+51:43 
+
+51:43 Delta you keep delta as one only in
+51:46 
+
+51:46 language for all practical purposes
+51:48 
+
+51:48 right because is usually that sense of
+51:53 
+
+51:53 you know this sense of slight hesitation
+51:56 
+
+51:56 and you know and then there is something
+51:58 
+
+51:58 like that that happens in speech that
+51:60 
+
+51:60 doesn't happen really in in textual
+52:02 
+
+52:02 language right in speech it happens and
+52:04 
+
+52:04 I'm hesitating before say telling you
+52:06 
+
+52:06 something that might mean something that
+52:09 
+
+52:09 really doesn't happen in text so if in
+52:11 
+
+52:11 text John loves Mary who lives in New
+52:12 
+
+52:12 York
+52:13 
+
+52:13 It's a steady semantic pace. You can
+52:15 
+
+52:15 keep your delta as one.
+52:19 
+
+52:19 Small delta greater than one mean would
+52:22 
+
+52:22 mean short pause. Long pause would mean
+52:25 
+
+52:25 that the delta is very very much higher
+52:28 
+
+52:28 than one. Rapid speech is essentially u
+52:33 
+
+52:33 when I am not able to understand
+52:34 
+
+52:34 anything the tokens are arriving very
+52:36 
+
+52:36 fast on which means you're speaking very
+52:38 
+
+52:38 fast. So that would be delta less than
+52:40 
+
+52:40 one and variable delta which means
+52:43 
+
+52:43 that's irregular you know which means
+52:45 
+
+52:45 it's very
+52:48 
+
+52:48 so those sort of sequences is very
+52:50 
+
+52:50 difficult to understand what really you
+52:52 
+
+52:52 are trying to say so it's incoherent you
+52:55 
+
+52:55 know very incoherent conversation that
+52:57 
+
+52:57 I'm having with you that would be
+52:59 
+
+52:59 oxillating sort of an oscillating delta
+53:03 
+
+53:03 sometimes it's greater than one
+53:04 
+
+53:04 sometimes it's less than one and so on
+53:07 
+
+53:07 Right.
+53:10 
+
+53:10 So, so intuition is again the same
+53:14 
+
+53:14 thing. Uh,
+53:19 
+
+53:19 again what happens if the flow stops two
+53:22 
+
+53:22 cases. Case one is that the sentence has
+53:24 
+
+53:24 ended which means there's no XT + 1. So
+53:27 
+
+53:27 XT + 1 is XT only and the semantics just
+53:31 
+
+53:31 freeze. So it's almost like you're
+53:33 
+
+53:33 watching a movie and you're pausing the
+53:36 
+
+53:36 movie at certain point. So it just froze
+53:39 
+
+53:39 there. So there's no drift going on
+53:42 
+
+53:42 further, right? So there's no delta in
+53:45 
+
+53:45 that case.
+53:46 
+
+53:46 In the second case, there will be some
+53:48 
+
+53:48 delta and it will start drifting. So xt
+53:53 
+
+53:53 + delta exists and it is e raised a
+53:57 
+
+53:57 delta xt.
+53:59 
+
+53:59 So even if there is no new you the drift
+54:03 
+
+54:03 will be there because it is anticipating
+54:06 
+
+54:06 that new things will come up at some
+54:08 
+
+54:08 point or the other. So that's why which
+54:12 
+
+54:12 means unfinished sentence as an example
+54:16 
+
+54:16 right so it knows that something is
+54:18 
+
+54:18 going to come up the next word will be
+54:20 
+
+54:20 written or I will read the next word at
+54:23 
+
+54:23 some point.
+54:27 
+
+54:27 So in practice language models free
+54:29 
+
+54:29 state so case A uh after every sequence
+54:34 
+
+54:34 ends
+54:36 
+
+54:36 uh but the math allows case B
+54:41 
+
+54:41 as I said it's useful for continuous
+54:43 
+
+54:43 signals like audio
+54:48 
+
+54:48 any questions so far
+54:53 
+
+54:53 I know it sounds a bit tantric esoteric
+54:56 
+
+54:56 esoteric sort of a model right and
+54:59 
+
+54:59 particularly for language. Any any any
+55:02 
+
+55:02 questions anyone so far
+55:05 
+
+55:05 before I move into a now we have to see
+55:07 
+
+55:07 what A means. I have to be quick.
+55:12 
+
+55:12 So A governs how internal meaning drifts
+55:14 
+
+55:14 when no input arrives.
+55:17 
+
+55:17 Now it can be a decay. It may not
+55:18 
+
+55:18 necessarily be a decay. So that's what
+55:20 
+
+55:20 we are going to see. So this is what we
+55:24 
+
+55:24 have seen so far. Now
+55:28 
+
+55:28 if imagine that A is diagonalizable
+55:31 
+
+55:31 which means you can do a
+55:35 
+
+55:35 decomposition of the matrix A. A is a
+55:37 
+
+55:37 matrix right. So where
+55:42 
+
+55:42 so in that case what will happen is that
+55:46 
+
+55:46 each of the on vectors
+55:50 
+
+55:50 will represent a particular aspect
+55:53 
+
+55:53 of this meaning of the semantics and
+55:56 
+
+55:56 I'll give you an example and the igon
+55:58 
+
+55:58 value represents the intensity of that
+56:00 
+
+56:00 aspect
+56:02 
+
+56:02 in the sense of whether that aspect will
+56:06 
+
+56:06 decay or will intensify. I right
+56:12 
+
+56:12 or will be remaining as it is. So think
+56:16 
+
+56:16 of it like a the a matrix contains all
+56:21 
+
+56:21 the different aspects of the meaning
+56:24 
+
+56:24 right and every on vector will represent
+56:29 
+
+56:29 one of those aspects
+56:31 
+
+56:31 and as a moves from time point t1 to t2
+56:35 
+
+56:35 to t3 certain aspects will die down.
+56:38 
+
+56:38 certain aspects will reinforce and so on
+56:43 
+
+56:43 right so so so the vector as I you know
+56:47 
+
+56:47 is is like this semantic direction that
+56:50 
+
+56:50 that that you are you you get over time
+56:53 
+
+56:53 as an example let's say uh John loves
+56:56 
+
+56:56 Mary who lives in New York City so so
+56:58 
+
+56:58 let's say that the let let us write the
+57:01 
+
+57:01 the lambda which is the value as in in
+57:05 
+
+57:05 terms of both real and imaginary because
+57:08 
+
+57:08 sometimes it can be imaginary as well.
+57:10 
+
+57:10 So let's say that it has let's imagine
+57:12 
+
+57:12 that it has an imaginary component to
+57:15 
+
+57:15 it. Then you can write rewrite E raised
+57:18 
+
+57:18 lambda I for that particular vector
+57:21 
+
+57:21 u that particular vector as this right.
+57:24 
+
+57:24 So if you have an imaginary component
+57:27 
+
+57:27 you can rewrite it as like this. Then uh
+57:31 
+
+57:31 if you decompose you see there is a real
+57:33 
+
+57:33 part which is ai uh which is which tells
+57:39 
+
+57:39 you the exponential growth or decay of
+57:42 
+
+57:42 that aspect of that amplitude means of
+57:45 
+
+57:45 that aspect and the imaginary part which
+57:48 
+
+57:48 is b i tells you the oxilation because
+57:52 
+
+57:52 it's a sinosidal curve right it's a sign
+57:54 
+
+57:54 curve so it tells you the oxillation of
+57:57 
+
+57:57 that particular aspect whether it will
+57:59 
+
+57:59 recur whether that aspect recurs over
+58:02 
+
+58:02 time comes back over time or not that
+58:05 
+
+58:05 will be uh that you can check from from
+58:08 
+
+58:08 the imaginary part. So as an example the
+58:12 
+
+58:12 linguistic intuition is that if ai is
+58:14 
+
+58:14 less than zero which means that memory
+58:16 
+
+58:16 decays
+58:19 
+
+58:19 exponentially
+58:21 
+
+58:21 right like Mary eventually fades. Ai
+58:24 
+
+58:24 equals to zero means memory persists.
+58:26 
+
+58:26 John stays in focus across the sentence
+58:30 
+
+58:30 right and uh bi if bi is not zero which
+58:35 
+
+58:35 means there is a you know lambda is a
+58:38 
+
+58:38 complex number you know it's not which
+58:41 
+
+58:41 means bi is not zero it means that that
+58:43 
+
+58:43 particular aspect will recur will
+58:46 
+
+58:46 reappear
+58:49 
+
+58:49 that's what it means right and together
+58:51 
+
+58:51 if you sum all of this up then uh it's
+58:56 
+
+58:56 Almost like every web vector
+58:59 
+
+58:59 is
+59:01 
+
+59:01 kind of talking
+59:04 
+
+59:04 in sort of like a in almost like an
+59:07 
+
+59:07 orchestra. You know, I I like to look at
+59:10 
+
+59:10 it like everybody every one of you is an
+59:13 
+
+59:13 vector and every one of you uh is flu is
+59:17 
+
+59:17 in a flux. Sometimes you intensify,
+59:20 
+
+59:20 sometimes you stay the same, sometimes
+59:22 
+
+59:22 you decay. And together all of this,
+59:26 
+
+59:26 whatever is going on in the room, that
+59:28 
+
+59:28 is a
+59:30 
+
+59:30 the capital A,
+59:33 
+
+59:33 right?
+59:36 
+
+59:36 So,
+59:39 
+
+59:39 so for as an example, Q1, which is one
+59:43 
+
+59:43 of the vectors, let's imagine can be the
+59:46 
+
+59:46 entity mode. They say it tracks proper
+59:48 
+
+59:48 nouns like Mary or city. So that is one
+59:50 
+
+59:50 aspect one aspect proper nouns right uh
+59:54 
+
+59:54 and if there is a small negative real
+59:56 
+
+59:56 part it means slow decay slow decay. So
+59:59 
+
+59:59 the proper nouns will always be kept
+60:01 
+
+60:01 intact that that is what it means. Q2
+60:04 
+
+60:04 let's say predicate mode which is the
+60:06 
+
+60:06 predicate aspect. So loves lives and so
+60:08 
+
+60:08 on. So medium decay and Q3 let's say the
+60:12 
+
+60:12 syntactic rhythm you know like who and
+60:15 
+
+60:15 all these clausal clues and so on. So it
+60:17 
+
+60:17 may have because you can have this
+60:20 
+
+60:20 coming back who which while it can keep
+60:24 
+
+60:24 going on and you can stretch that
+60:26 
+
+60:26 sentence like this right so it can come
+60:28 
+
+60:28 back over time so it has an oscilly
+60:31 
+
+60:31 behavior right and Q4 is the function
+60:34 
+
+60:34 words like in the and so on that glues
+60:37 
+
+60:37 glues everything into a phrase right so
+60:41 
+
+60:41 it can fade fast
+60:44 
+
+60:44 so if you collect all of these vectors
+60:47 
+
+60:47 together sum it up you get the overall
+60:51 
+
+60:51 XT. So that is how you should be
+60:53 
+
+60:53 interpreting a SSM.
+60:59 
+
+60:59 So
+61:01 
+
+61:01 so what what what does it mean for A to
+61:04 
+
+61:04 be diagonalizable? We just discussed uh
+61:09 
+
+61:09 so nondiagonalizable A. Now the question
+61:12 
+
+61:12 can be why A needs to be diagonalizable?
+61:15 
+
+61:15 A may be something that is
+61:16 
+
+61:16 nondiagonalizable as well, right? But
+61:18 
+
+61:18 then the problem with nondiagonalizable
+61:20 
+
+61:20 A is that it becomes much harder. You
+61:24 
+
+61:24 won't get those vectors.
+61:26 
+
+61:26 It becomes much harder to interpret it.
+61:29 
+
+61:29 What is really going on as AS becomes
+61:32 
+
+61:32 much much harder to interpret uh and to
+61:35 
+
+61:35 control the learning, right? And and uh
+61:40 
+
+61:40 so so how to ensure diagonalizability?
+61:44 
+
+61:44 So that is the reason why when you are
+61:46 
+
+61:46 initializing a the matrix a during
+61:49 
+
+61:49 before training when you initialize a
+61:51 
+
+61:51 you cannot just do a random
+61:53 
+
+61:53 initialization that's this is the reason
+61:56 
+
+61:56 because if you do the random
+61:57 
+
+61:57 initialization you won't get all these
+61:59 
+
+61:59 good things these three good things
+62:02 
+
+62:02 right so easy to exponentiate exponent I
+62:05 
+
+62:05 mean exponentiate which is from the
+62:08 
+
+62:08 computational point of view you get this
+62:10 
+
+62:10 independent uh vectors which is easy to
+62:14 
+
+62:14 understand what's going on and and so on
+62:18 
+
+62:18 and uh and that's why there are all
+62:22 
+
+62:22 different ways of initializing it uh
+62:26 
+
+62:26 which I put in in in that table right so
+62:29 
+
+62:29 like you can have all the distinct I1
+62:30 
+
+62:30 values computed and construct the u
+62:36 
+
+62:36 construct the matrix in that manner the
+62:40 
+
+62:40 a matrix in that manner you can do a
+62:42 
+
+62:42 hernian symmetric You can make the A
+62:44 
+
+62:44 matrix initialize the A matrix such a
+62:46 
+
+62:46 way that A is symmetric or A is
+62:49 
+
+62:49 hermission for that matter. If you want
+62:51 
+
+62:51 to make hermission means if you want to
+62:53 
+
+62:53 have the complex uh parts as well uh
+62:57 
+
+62:57 normal matrices
+62:59 
+
+62:59 uh also uh you can you can you can you
+63:02 
+
+63:02 can do that as well. You can do a uh uh
+63:06 
+
+63:06 you can keep it in a spectrum form as
+63:08 
+
+63:08 well uh just like what I what what what
+63:11 
+
+63:11 I just showed you. You can do it do it
+63:13 
+
+63:13 that way also. And there are many other
+63:16 
+
+63:16 things you know like many other ways of
+63:18 
+
+63:18 doing uh things such that you you can
+63:22 
+
+63:22 guarantee certain uh you can guarantee
+63:24 
+
+63:24 this full rank on spaces. So basically
+63:28 
+
+63:28 the idea is can we seed it in a way such
+63:30 
+
+63:30 that we can guarantee full rank uh full
+63:33 
+
+63:33 rank spaces.
+63:35 
+
+63:35 Right. So that's the that's the idea. So
+63:39 
+
+63:39 the idea the key thing is that we need
+63:41 
+
+63:41 to design it which means when we
+63:43 
+
+63:43 randomize it uh we don't randomize it we
+63:46 
+
+63:46 actually seed it in a very thoughtful
+63:49 
+
+63:49 process manner right
+63:52 
+
+63:52 uh like if you look at mamba mamba also
+63:55 
+
+63:55 did the same thing if you look at S4 S4
+63:57 
+
+63:57 did the same thing S4 does just a di it
+64:00 
+
+64:00 just computes the lambdas and creates
+64:04 
+
+64:04 the diagonal matrix and that becomes the
+64:06 
+
+64:06 A for for S4
+64:10 
+
+64:10 right
+64:12 
+
+64:12 interestingly
+64:14 
+
+64:14 is a very very trivial form of A. It's
+64:18 
+
+64:18 that minus W which you saw multiplied by
+64:21 
+
+64:21 an identity matrix which makes it minus
+64:24 
+
+64:24 W only.
+64:26 
+
+64:26 So there is no drift or nothing because
+64:29 
+
+64:29 it's identity matrix right? So it just
+64:31 
+
+64:31 stays where it is. So if if I have to
+64:34 
+
+64:34 look at rau as a special case of SSM
+64:39 
+
+64:39 it does it just doesn't make sense but
+64:41 
+
+64:41 from a math point of view I can do it I
+64:43 
+
+64:43 can show that okay ra also has a a
+64:47 
+
+64:47 exponentiation of a which is that alpha
+64:49 
+
+64:49 that alpha is basically e of capital a
+64:52 
+
+64:52 where a is minus w and multiplied by the
+64:56 
+
+64:56 identity matrix as simple as that
+65:02 
+
+65:02 the alpha that was there to control the
+65:05 
+
+65:05 DK. Right? So,
+65:08 
+
+65:08 so interpretation is that
+65:10 
+
+65:10 diagonalizability ensures a uh acts like
+65:14 
+
+65:14 a set of independent semantic
+65:15 
+
+65:15 resonators.
+65:20 
+
+65:20 So coming up for next class would be S4
+65:24 
+
+65:24 and Mamba which are particular
+65:26 
+
+65:26 realizations of SSM only
+65:30 
+
+65:30 right. So we'll look at S4 first and
+65:32 
+
+65:32 then Mahamba uh as two different types
+65:36 
+
+65:36 of SSMs
+65:39 
+
+65:39 right
+65:44 
+
+65:44 okay any question
+65:57 
+
+65:57 any question regarding that see there
+65:59 
+
+65:59 are two things that if you understand
+66:01 
+
+66:01 them well you have understood SSM one is
+66:03 
+
+66:03 the delta and one is the a
+66:07 
+
+66:07 so it's not just any
+66:11 
+
+66:11 linear transformation that you just
+66:12 
+
+66:12 threw into the equation
+66:15 
+
+66:15 and let that learn that's not how SSMs
+66:18 
+
+66:18 work there's a very very clear meaning
+66:21 
+
+66:21 of a because if you don't do it that way
+66:23 
+
+66:23 you will lose the continuity so the igon
+66:26 
+
+66:26 values sorry the igon vectors must mean
+66:29 
+
+66:29 something for the semantic drift to be
+66:34 
+
+66:34 meaningful.
+66:44 
+
+66:44 >> Yeah. Like what what happened here, you
+66:46 
+
+66:46 know, like these guys actually do that.
+66:49 
+
+66:49 S4 does it. A is basically the diagonal
+66:54 
+
+66:54 uh matrix where you keep all the veum
+66:58 
+
+66:58 values.
+67:03 
+
+67:03 Yeah. Yeah. Or you can uh you can do it
+67:06 
+
+67:06 uh even you know like this also. Well S4
+67:10 
+
+67:10 doesn't do that. Mamba doesn't do it.
+67:11 
+
+67:11 But you can you can do this also. I mean
+67:14 
+
+67:14 you can do the
+67:16 
+
+67:16 look at the third
+67:19 
+
+67:19 uh row of the table. You can do the no
+67:23 
+
+67:23 not not the third the fourth row
+67:24 
+
+67:24 explicit spectral form like the
+67:26 
+
+67:26 decomposition diagon value de
+67:27 
+
+67:27 composition that we just did. You can
+67:29 
+
+67:29 just do that and keep a you know
+67:31 
+
+67:31 computed backwards like that. Okay. So I
+67:34 
+
+67:34 will create an a such that a is uh
+67:38 
+
+67:38 a is diagonalizable
+67:41 
+
+67:41 and a is
+67:43 
+
+67:43 uh a has a is decomposible in terms of
+67:46 
+
+67:46 vectors. So I I create a Q. I create I
+67:50 
+
+67:50 create a Q. I create a I I look at the
+67:52 
+
+67:52 lambda uh and then I just decompose
+67:57 
+
+67:57 uh and create the A. I can do the other
+67:59 
+
+67:59 I mean I can go backwards and I can
+68:01 
+
+68:01 create a and I can initialize it that
+68:04 
+
+68:04 way as well. There are many interesting
+68:06 
+
+68:06 you know like there's something called
+68:08 
+
+68:08 hippo like what S4 does. So there are
+68:10 
+
+68:10 different ways which I I'm not aware of
+68:15 
+
+68:15 but there are a lot of research that
+68:17 
+
+68:17 happens in for SSM people who work in
+68:20 
+
+68:20 SSM there are a lot of research that
+68:22 
+
+68:22 goes on in how to initialize because
+68:24 
+
+68:24 that is extremely important when it
+68:26 
+
+68:26 comes to SSM when it comes to
+68:28 
+
+68:28 transformers no you can just do a random
+68:32 
+
+68:32 initialization out of some gorgein
+68:34 
+
+68:34 distribution or something and then you
+68:35 
+
+68:35 can let the training training do the job
+68:39 
+
+68:39 uh for SSMs
+68:42 
+
+68:42 you are at a risk. You can do it but
+68:45 
+
+68:45 people don't do it
+68:50 
+
+68:50 right
+68:54 
+
+68:54 so now probably you are in a better
+68:57 
+
+68:57 position to understand why I started out
+68:58 
+
+68:58 with rau
+69:01 
+
+69:01 you know that the essence of recurrence
+69:04 
+
+69:04 together with attention
+69:06 
+
+69:06 was needed to help you you know
+69:10 
+
+69:10 transition into assessence that's what I
+69:12 
+
+69:12 Not
+69:15 
+
+69:15 and SSM as you can see they are very
+69:18 
+
+69:18 very competitive in terms of
+69:20 
+
+69:20 performances very very competitive like
+69:23 
+
+69:23 the long uh long arena uh
+69:28 
+
+69:28 uh performance table that we saw where
+69:31 
+
+69:31 S4 performs so well as compared to the
+69:34 
+
+69:34 other other models. So they are very in
+69:37 
+
+69:37 fact they are pretty competitive even in
+69:40 
+
+69:40 terms of the most latest LLMs as well in
+69:43 
+
+69:43 many of the standard benchmarks.
+69:46 
+
+69:46 Okay then.

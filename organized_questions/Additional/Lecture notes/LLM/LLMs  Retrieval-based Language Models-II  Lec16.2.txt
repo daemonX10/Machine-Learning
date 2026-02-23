@@ -1,0 +1,545 @@
+00:04 hello everyone so today we will continue our discussion on retrieval based language models right recall uh that you
+00:12 know in the last lecture we motivated uh retrieval based LMS by comparing closed book exams with open
+00:19 book exams right so closed book exams are like the language the way language
+00:25 models currently typically answer at the time of training you show it all the information that is like preparing for
+00:32 the exam but during the exam you're not allowed to access that information you have to answer from your own memory
+00:37 right so these language models mostly answer from their own parameters that's why I'm calling it parametric llms right
+00:44 whatever is the query they have to answer from the knowledge that is stored in the parameters and generate the answer this is similar to closed book
+00:51 exam now compare it with open book exam where uh at the time of exam itself you
+00:57 can access the book right you can you have access to the information now how can you use that
+01:03 information right so this is what we are calling retrieval based language models
+01:09 right and we looked at three ways of using this information first is output
+01:14 interpolation where you know you look at the question solve the question get the answer and now go back and read the book
+01:22 to verify search it in the book and then verify so that is output interpolation that then uh we looked at
+01:29 intermediate Fusion which is that you start solving the question and then now you are not sure so you go back to the
+01:35 book read and then come back and solve the question right so that we are calling intermediate
+01:40 fusion and then uh the most popular approach is uh input augmentation where
+01:46 when you read the book when you read the question you go back to the book search for the relevant
+01:52 information right extract all of that information and now start solving it after that so basically in terms of
+01:59 language model you will first search for the information and then pass that
+02:04 searched information along with the question to the language model and then it will answer right but in all of these
+02:09 question in all of these uh paradigms the common question is how to read from
+02:15 the book right because uh the knowledge Corpus is going to be huge right and uh
+02:21 during the exam you would not have time to go through it again all of it right so you need some faster ways of searching the book and that is precisely
+02:29 what we covered in the last lecture uh we looked at retrieval methods right
+02:34 and today uh we will focus on how to use the information that you have searched
+02:41 in the book right so let us start with our uh discussion on um on the first way
+02:48 where which is output interpolation so what happens here is that let's say the question is Obama's birthplace is and
+02:54 you have to fill in the blanks right so this is a language model right in the language model the task is to predict
+02:59 the next token right so this is the prefix that you have this is the context that you have right and you have to fill in the next
+03:07 predict the next token right so you solve the question yourself first you pass it through the language model you
+03:13 get a distribution over the possible answers right
+03:21 now imagine that this was the information which was present in the book somewhere what you have done is
+03:26 that you have already indexed it right and what is it that you are indexing you
+03:32 are indexing all possible subsequences right so if the sentence is Obama was
+03:38 born in Hawaii and graduated so I'm focusing on uh this part Obama was born
+03:43 in Hawaii and graduated from right so you will create how many how many keys
+03:49 you will enter as many number of tokens as there are in the Corpus right so Obama is a key and the following word
+03:56 there is vs here right so this is this becomes an entry in the in the knowledge
+04:01 uh the knowledge in the index essentially right and then Obama was is again an entry key and the corresponding
+04:08 value is Senator right and so on so forth so Obama was born in this is a key and the
+04:15 corresponding information the value is Hawaii right so this is how you parse the
+04:20 information size of this Corpus is going to be number of is the size of the the
+04:26 entire Corpus the size of the entire knowledge base that you have right now when you are presented with the uh with
+04:33 the question or the input context Obama's birthplace is you search for this
+04:39 in the index right you
+04:44 get the uh you restrict yourself to top K right so when you are searching you will find some cosine similarity or
+04:51 distance from each of the keys right so let's say these are the distances for for each of the uh Keys here that are
+04:57 indexed right so for Obama was sanitor for key has a distance of four and Obama was born in has a distance of five right
+05:05 so when you get the distances you focus on only nearest K because you can't take a soft Max or you can't compute it over
+05:12 the entire Corpus which could run in billions right so you focus on top K only and then you convert these
+05:18 distances into you normalize it to get a probability distribution now because a
+05:24 token can be repeated right Hawai can come multiple times in the Corpus so you
+05:29 aggregate that right so you get a distribution over the next token from the knowledge base right
+05:36 from the index correct so this is the probability distribution of the next token that you
+05:42 get from the parametric from the language model itself and this is the distribution that you obtain from
+05:48 the from the index right from the Retriever and now what you have to do is that you have to combine this combine
+05:54 these two distributions right so how do you do that you simply take a linear interpolation or convex sum where Lambda
+06:00 is a hyper parameter essentially right so what we are doing here is that when we are parsing the
+06:08 Corpus we are indexing all possible subsequences
+06:14 prefixes right and then we are storing the next token as a Target when we get a
+06:19 sentence right whenever we get a context we search for that context in the Corpus
+06:25 in the index and get a distribution over the next possible next tokens
+06:30 right and then we combine that distribution that non-parametric distribution here with the distribution
+06:37 that you get from the parametric language model which is this right now
+06:43 let's look at the computational cost here right so you have to create the Corpus once you have to create the index
+06:50 once right so that will require a single forward pass over the data one forward pass which is roughly fraction of the
+06:56 cost of training for oneoc then you build the cash using some uh you know some index let's
+07:03 say here they're using Firs it took roughly two hours on a single CPU for Vick 103 million right and then uh
+07:11 because this is a language modeling task they just have to run inference on the validation data or the test data once
+07:18 right so it contained 250 tokens and it roughly took 25 minutes right so so the
+07:25 advantage here is that we are able to use the language model as it is we can
+07:30 have any pre-trained language model and combine it with the with the Corpus
+07:35 right with the with the external knowledge right so in this graph what we see is U so on the xaxis we have the
+07:42 size of the Corpus external knowledge that we are using and on the y- axis we have perplexity so lower the better
+07:49 right uh this is the perplexity of the no retrieval LM the language model that you have which is trained on 103 million
+07:57 wikitext Corpus right and then you train another language model on a bigger data
+08:04 right which has 30X larger data size right which you're using as the Corpus and this is the perplexity that you get
+08:10 using that right the blue curve is the can and LM here the language model is
+08:16 the smaller one right which is which is same as this so you're starting from this 21
+08:22 perplexity and now you are using external knowledge right when you predicting the next token you go back to
+08:28 the index look look for the most closest context right topk context which are
+08:34 similar to the input context and get a distribution of the next tokens and you combine that right so here you can see
+08:39 that if you if you use the entire three billion Corpus your perplexity is much
+08:45 better than training a language model on the entire thin data right and even with
+08:52 a smaller Corpus of less than 1 billion you are able to you know surpass uh the
+08:57 performance of the language model trained pre-trained on a much bigger Corpus of three milon data right and
+09:06 uh right so and then here you have the performance with respect to the uh
+09:11 number of context that you retrieve from the Corpus if you keep on increasing
+09:17 that your performance keeps on increasing right uh and and this is very
+09:22 interesting here they are saying that you know such a language model can work out of the box in
+09:30 out of domain data sets as well right so I train my language model on Vicki 103
+09:37 million data set right this is this is used for training now at for testing I'm testing
+09:45 it on books data right right
+09:52 so this red curve is the language model which is trained on the books data and
+09:57 using the knowledge which the index knowledge of the books data itself right so this red curve is
+10:05 trained on books and external knowledge is also of
+10:12 the is also from books data set
+10:21 right right and this blue is trained
+10:26 on Wiki right Lang anguage model trained on Viki but when we are creating the
+10:32 index right external knowledge external knowledge is that of
+10:37 books right now this is the Lambda parameter Lambda is the amount of weight
+10:43 that you give to the external knowledge right so when so look at this curve blue
+10:49 curve because it is trained on the uh on Vick data set right uh you you have a
+10:57 higher value of Lambda because it wants to now rely more on the par non-parametric knowledge right it is
+11:03 relying more on the external Source whereas when you have the uh when you have the language model which is trained
+11:08 on the books data itself then the value of Lambda that is optimal is is less right roughly around 0.25 so because you
+11:15 know the language model itself has a knowledge about that data set and therefore it doesn't it need not rely more on the uh external knowledge right
+11:23 but still that helps right even even if it is trained on in domain having that Knowledge from the external source helps
+11:30 because you know perplexity is deducing from here to here right okay so now so we looked at
+11:39 uh this as a language modeling task right where the task is to predict the next token right and uh in in the
+11:46 language modeling task an input is a subsequence or the context and the output is the next word right and
+11:52 essentially what we uh indexed right the external knowledge we indexed it in the
+11:57 form of input output tokens we we indexed all possible uh you know
+12:02 subsequences and and the corresponding next tokens right this is what our index
+12:07 contained so essentially what we have indexed here is you know whatever
+12:13 question that we are getting at the test time in this case at the test time we are just predicting the next token so
+12:19 input at the time of testing is a subsequence or or or partial sentence
+12:24 and output is the next token and this is precisely what we have indexed as well right so we search for the most similar
+12:30 input in the Corpus right and use its corresponding output but then if you have to fine-tune such a model for a
+12:37 downstream task how would you do that because then this will require indexing all the possible questions maybe
+12:43 whatever the question is right let's say you are training it for uh open domain question
+12:49 answers right now in that case index should contain the questions right so
+12:54 which becomes infusible right so this is one of the drawbacks and that's why this paper also
+12:60 K in LM uh they do not experiment on any Downstream task they just propose it as a as a language model and only compute
+13:07 perplexity over the data sets right and it is not clear how would you organize the unstructured text into
+13:13 you know input output pairs for the desired task right if the unstructured test is text is like uh Wikipedia pages
+13:21 right then you you know how do you organize it as questions and answers right okay so
+13:30 uh there are two drawbacks here right one is that we are querying the retriever for predicting every token one
+13:37 two frequent calls to the retriever second is that it's not clear how to use
+13:43 it for the downstream tasks right so with that motivation uh let's look at
+13:49 the next architecture right intermediate Fusion where you know we'll we'll essentially uh try to solve the question
+13:57 ourselves the language model will try solving the question itself right and then if it is unclear then it will go
+14:03 back to the Retriever and index multiple chunks right so let's look at the first
+14:08 work which is retrieval enhanced Transformers uh the idea here is that
+14:14 instead of creating a key for every token right that is what we had earlier
+14:19 for every token senator for example here right we
+14:25 created a key Obama was what we do is that
+14:30 uh you know so so what are the issues with creating your retrial in this way
+14:35 there are two issues that we discussed it restricts the size of the Corpus that can be indexed right because size of the Corpus will be equal to number of tokens
+14:42 here right and uh when you do a k neighbor search nearest neighbor search it returns only K tokens distribution
+14:48 over only K tokens that are the values right so uh what we do here is that we
+14:54 instead of uh indexing and retrieving only a single token we try to retrieve
+14:59 the entire continuation right so let's say let's say this this is the key that we are
+15:05 indexing instead of just retrieving the next token why don't we you know
+15:10 retrieve the next the continuation itself right so for example uh let's say
+15:15 we index Obama was born in Hawaii and this is the key that we are indexing and
+15:21 when we are retrieving we are retrieving its continuation as well graduated and graduated from
+15:26 Columbia University right along with whatever key is so the retriever will now res return the corresponding key
+15:34 concatenated with the with its continuation in the knowledge right so now we are retrieving chunks and and the
+15:42 size of uh the index will also reduce drastically right if if we are indexing a key which is let's say 100 tokens then
+15:51 the size of the index will reduce by 100 by factor of 100 right okay now the question is how do we
+15:59 use the K retrieved chunks whatever we have retrieved how do we use that right
+16:04 so uh what they do is that you know they first split the input into smaller
+16:11 chunks right again this is also a language modeling task we'll start with the language modeling task only right
+16:16 let's say the input was this x World Cup 2022 was the last with 32 teams before
+16:21 the increase to 48 in 2026 right now this input has been split into three
+16:27 parts X1 X2 and X3 three right and at the end of each input chunk what we do
+16:34 is that we retrieve K chunks which are similar to the first chunk right so so we have a decoder only language model
+16:41 when we reach here was when we are processing this token was to get a distribution over the next token right
+16:49 we have already decoded till here then right what we can do is that we can use
+16:55 this X1 to retrieve
+16:60 information from the index right and we retrieve K chunks simultaneously right and
+17:07 uh and not notice that the retrieved values will contain the continuations as well right so now how will
+17:13 we retrieve right so X1 and X1 X2 and X3 are the three retrieval queries that we
+17:19 have right it will go to a retrieval encoder we will get the encodings we
+17:25 will go to the index and we retrieve k chunks for each of the text
+17:32 split right we are doing it in parallel at the time of training because we know right we know the entire sequence
+17:38 otherwise at the time of testing it will have to be done as we decode right at the time of training we can we can uh
+17:45 fetch this parall right so these are the K chunks that we get and uh now we
+17:51 encode each of these chunks and let's say we get the E1 E2 and E3 are the
+17:57 encodings of the retrieved output put for corresponding to X1 X2 and X3 right
+18:02 so E1 will have encoding of let's say there are K chunks that we
+18:09 are retrieving right each chunk is of size R right and each token has an embedding
+18:18 which is D dimensional right so each of this A1 is a tensor of Dimension K cross
+18:25 R cross d right it's K cross R cross d what is K number of chunks that you are
+18:31 encoding that you're retrieving R is the number of tokens in each chunk which is
+18:37 fixed and D is the dimension of the embeding right now you have these three
+18:43 tensors for each of the three splits and now you know how would you
+18:50 use that information right you have the information encoded in the form of
+18:55 tensor now you have to use it in the in the Transformer right so for that what they do is that they change the regular
+19:02 Transformer block and insert a cross attention layer in between right so once
+19:07 you get the uh once you have you know self attention this is the self attention block right you have the self
+19:14 attended embeddings here of the input the calling it h here right and now what
+19:21 you do is that you attend over E1 E2 and E3 as well right so for which tokens will you attend on
+19:31 E1 X1 okay now imagine at the time of
+19:38 inference when will you be able to retrieve
+19:45 E1 after decoding X1 right so you cannot attend on it to gen to get the embedding
+19:52 of the tokens in X1 right
+19:57 right so at the end of X1 itself whatever is the last
+20:02 token when you are Computing its embedding then you can still use it because by that time you already know
+20:08 the entire X1 right so for the last token of
+20:15 X1 when you start you know Computing its key value Pairs and everything you
+20:20 already have that as an input right so you can right so so you can use
+20:26 these embeddings even to compute the embedding for the last token
+20:31 of X1 and the remaining X2 block till you reach the last token of X2 because
+20:37 when you reach the last token of X2 then you can start attending on
+20:43 E2 right yeah so this is what it is and this is the diagram from the uh from the
+20:49 from the from the paper once you have the input tokens here right you are
+20:55 going to the Retriever and right so so retriever is is frozen retriever is frozen you get
+21:02 the corresponding neighbors these are the K neighbors that you are getting for each uh of these plates X1 X2 and X3 and
+21:08 these are the two to two embeddings that you are getting E1 and E2 that we discussed earlier right what is the size of E1 it is K cross R cross d k is the
+21:18 number of neighborhoods which is two here and R here is five right you
+21:23 have five tokens in the context and D would be the dimension which they have not shown here right so this would be the D
+21:29 yeah and and uh this is
+21:34 learnable what so what is this Transformer encoder when when you get so these are these These are sentences
+21:40 right these are English sentences that you get from the rever
+21:45 and then you encode them through a Transformer encoder to get their embeddings right and notice that when
+21:53 you are in when you are getting the embedding of the external knowledge you
+21:59 are also conditioning on the self attended embeddings of the input right
+22:06 because this is the self attention layer and you have the output embeddings here
+22:11 right you can attend on these as well okay and uh this is the cross attention
+22:18 um block right and let's quickly look at how this chunked cross attention looks like right so uh for for the last token
+22:26 of the first block and for the remaining token of of X2 right we will attend on E1 and we get its
+22:36 embeddings and similarly for the last token of H2 till uh and nx3 right till
+22:42 last token we get uh we uh attend on E2 right and get its embedding we
+22:49 concatenate them and then we get the final embedding right so this is this again was a language modeling
+22:55 task right and uh so therefore they are computing perplexity to measure it
+23:02 and the whole idea here was what are the things that we improved here we were because we were indexing chunks right
+23:09 the the size of the of the index we were able to reduce it by a factor of you
+23:15 know 100 if 100 is the size of each chunk right so we are able to index more
+23:21 so they were able to index let's say about 1.7 billion or 1.7 trillion tokens
+23:27 they were able to index so this is the size and if you're able to index that much that reduces the perplexity
+23:32 drastically right so so this is what we saw earlier K and LM in the case of output interpolation and perplexity
+23:39 reduces from 16 to 4 right okay now the question is how
+23:45 would you f tune it for the downstream task this was also one of the drawbacks of K and LM that we were not able to fine tune it for the downstream task
+23:51 because the index contained essentially questions right so what they do here is
+23:59 that uh whatever the task is that they fune it on question answering task right
+24:04 they pad the input so this is the format that they use for the input question
+24:10 colon question and answer colon and this is what they are expecting the language
+24:15 model to generate right so they pad it so that this last
+24:23 token in the input coincides with whatever uh chunk size that they are taking which let's say 64 in that case
+24:30 right so the size of X1 X2 and X3 fixed size right and uh now then you they're
+24:36 retrieving information using this input and then they are generating after
+24:41 that okay right so these are the results that
+24:46 we get uh now notice here that you know it performance is comparable to the
+24:53 remaining methods the the methods that were there at that time except for another approach is FID right okay and
+25:01 they also observed that if they increase the number of retrieved passages Beyond 20 that did not help them right whereas other methods U noticed that the
+25:09 performance kept on increasing as you increase the number number of retrieved passes right okay so now here the
+25:16 question is how frequently are you calling the retriever right they are calling the retriever at a fixed frequency after
+25:24 every L tokens but is that optimal right and and this work was very
+25:30 important because it kind of sparked uh you know a new direction of research which is essentially calling retriever
+25:36 on demand in some sense right so retro triggers retriever after every L tokens
+25:43 and let's see whether we can trigger It On Demand or not right so there is some there's a work called tool
+25:49 forer which uh generates a special token that triggers retrieval right so you
+25:55 will study that DH will cover this and then there is another work which flare which calls the language model when it
+26:03 is uncertain about the predictions right so yeah so this is this is tool forer
+26:09 what they're doing is that uh so the language model will generate
+26:15 this right and this question will go to now the Retriever and you'll retrieve
+26:20 information and fill it in here right now they can also invoke not just some
+26:26 external knowledge but some external tools as well that's where the name Tool per they can invoke let's say calculator right so they they train the
+26:33 model to generate special tokens that will trigger you know accessing some external tool right and then uh this is another
+26:42 work active retrieval augmented generation the idea here is that you first retrieve something with
+26:49 the question DX is the first set of retrial result with the question you generate a response and if you are
+26:56 confident about your response then you accept it it right how would you compute whether
+27:01 you confident about the response or not yeah probability right you can use
+27:07 that now when you generate the second sentence you're not confident about it
+27:13 therefore you go back to the retriever fetch information this D2 and then generate again and then you accept this
+27:20 and so on so forth right and there is a very recent work which came only last
+27:25 month uh which is retriever inter Le generation the idea is very much similar to Tool forer right and uh so what they
+27:34 doing is that they create a public open source uh Knowledge Graph which they're calling data
+27:39 Commons right and they're training the language model to to generate queries
+27:46 which can be answered using that Knowledge Graph right so the the major
+27:52 innovation of the major contribution here is creation of that data Commons which is publicly available huge
+27:58 knowledge graph which contains a lot of you know a lot of publicly available
+28:03 data right statistics from various sources and and currently it includes more than 250 billion data points so now
+28:11 this brings us to the the most popular method that we have for you know using
+28:18 the external knowledge which is rag retrieval augmented generation and so
+28:23 the idea here is that you call the retriever only once you have the input you call the retriever and then you use
+28:30 that information right so um so this is how a rag architecture overall looks
+28:37 like that you first index all the documents that you have then when a query comes you call the you query the
+28:45 index you get some passages topk passages and this component is a
+28:50 retriever then you concatenate those passages with the query and pass it to the language model to get the system
+28:57 response so this is the generator or the reader right now the good thing about here is
+29:05 that you know you can use any offthe shelf retriever right or you can use even Google search to get relevant
+29:13 information and you can use any off-the-shelf uh language model as a generator because most of these language
+29:19 models these days are you know fine tuned for uh reading comprehension tasks
+29:25 at least right they know how to answer from from a given context right so that
+29:30 is the advantage and there are many tools which are available which you using which you can create this entire pipeline like Lang chain and Lama index
+29:37 these are the two most popular tools right so the two papers that we will cover um in this are the seminal Works
+29:45 realm and rag their beauty is that uh you know
+29:50 they create an end to end architecture where they are fine-tuning
+29:55 both the Retriever and the generator right so these are this is essentially they're creating a specialized uh model or an architecture
+30:03 or a pipeline where both Retriever and the generator will be fine tuned right
+30:09 so what are the components that we need to train in the Retriever and let me repeat my question my question is that there are two parts in it one is
+30:16 Retriever and the other is generator right generator is the any llm
+30:24 right now I'm saying that these two Works jointly the Retriever and the
+30:30 generator right the the task of retriever is that you give a
+30:36 query right and it can rank all the documents based on some similarity of
+30:42 distance metric right now my question is what are the trainable components in the
+30:48 retriever so the trainable component in the retriever are query and coder and the document encoder right because you
+30:55 you you have the query you pass it through an encoder to get its embedding
+31:01 embedding of the query right you have a document
+31:07 encoder you pass all the documents through it and create an
+31:14 index right Vector index and then you search by com by Computing the
+31:22 similarity between this embedding of the query and the embedding of the documents here right and that's what we looked at
+31:28 in the last lecture as well right so the two trainable components are query encoder and document encoder and here it
+31:36 is the the language model that we are training right so three components that we need to train in in the end to end
+31:42 architecture okay so let us see how does this work uh realm focuses on mask
+31:48 language models right like B okay so the way it works is that you
+31:53 know this is the input that will go and it will have a mask and the task is to
+31:59 predict the mask tokens right this is the pre-training of the language model of the Mask language model and uh the
+32:05 way they modify the pre-training is that whatever the query is they will pass it
+32:11 through the Retriever and get the K chunks right they will append these K
+32:17 chunks here one by one first they will append
+32:23 chunk one pass it through the language model
+32:30 right and get a distribution they can then they can append chunk two pass it
+32:37 through the language model and get another distribution that is one way of doing it the other way would be that you
+32:42 concatenate all the chunks together and then pass it once right now let's see what they
+32:48 do right so at the time of pre-training they what they do is that
+32:53 they process each chunk separately right so this is the first chunk they
+33:01 pass it through the language model you will get an embedding over every token
+33:08 right you have the probability distribution and now how would you combine this distribution to get the
+33:14 output one single output distribution how will you do that guys the answer is on the
+33:20 screen right so it's basically you marginalize what this language model will give you the probability
+33:26 distribution over all the tokens conditioned on query X as well as the
+33:31 retrieved chunk Z1 right so what essentially I mean you want probability
+33:38 of Y given X right and these are the different paths through which you can
+33:43 generate y given X right you select zed1 and then you generate y given X and
+33:51 zed1 so probability of Y is probability of this path plus probability of this path plus probability of this path and so on so forth right and what is the
+33:57 probability of each path this is the probability of this Edge is probability of Genera selecting zed1 given X and
+34:05 this is probability of generating y given X and Z1 right so this is what we have written
+34:10 here right and now we have to maximize
+34:17 this okay now how will you maximize this what are the issues that you see
+34:27 here and and uh where are the parameters of the trainable component different
+34:33 trainable components coming into picture let's say Theta are the weights for the uh language model right
+34:40 generator for this language model let say it's parameterized by Theta and let's say the retriever is parameterized
+34:46 by ETA right in this expression where would Theta and EA come so this is the
+34:52 retriever part and therefore ITA will come here right so ITA will come here
+34:58 and this distribution is parameterized by Theta right now you can in an Ideal
+35:05 World you have an equation right which depends on both ITA and Theta and you can maximize that
+35:12 jointly right so now what are the issues here what do you see what are the issues that practical issues that you see here
+35:18 corresponding document good they also have a f document which is a null document they always include that so if
+35:24 I have to write this probability of Y given X I have to Summit over
+35:29 all the documents and the size of the index is going to be in billions can we
+35:34 do that we can't right so what we assume is that whatever top K documents that we
+35:42 get from the retriever only for that this probability is going to be non zero for everything else P of Z given X is
+35:50 going to be zero so so this sum
+35:56 essentially right uh here essentially we sum over
+36:03 topk right instead of summing over the entire
+36:08 Corpus okay now this we covered what are the trainable components for the retriever you have document encoder
+36:15 query encoder and for the leader you have the language model and uh this is what you have to maximize notice that
+36:21 here we have Zed from Top k p of Zed
+36:27 given X how you compute this let's say uh you have ITA q and EA D are the
+36:36 parameters of the query and the document encoder and you have the encoder
+36:41 function which takes X as input and gives you the embedding of
+36:49 X right and then you have an incoder e which is parameterized with e d that
+36:55 takes Zed as input and gives you embedding of Zed right and this probability EA Z
+37:05 given x is proportional to cosine similarity or whatever some
+37:12 similarity or distance whatever you want to use right similarity or distance between e x and e z
+37:21 right okay but then this is again proportional to unnormalized you will have to normalize
+37:26 it okay and uh this probability is simple right I
+37:32 mean you get you pass it through the language model and then you have the embedding of every token and you use the
+37:37 embedding of the token Mass to get this probability okay so this gives us P the
+37:46 retriever gives us P at given X we saw how and this gives us the probability of
+37:54 the Mask token by and uh yeah so this is what we covered this is the embedding of Zed
+38:01 this is the embedding of the query their dot product and then exponential just
+38:06 like we do in soft softmax right and uh okay so now notice that here we are
+38:14 training both Retriever and uh and the generator or or the
+38:20 language model right what will happen in the beginning let's say all the parameters are randomly initialized
+38:27 retriever is expected to give you just junk right and now what will the
+38:33 language model learn will it learn to rely on that information right so it will learn to ignore that completely
+38:41 right so this problem always occur whenever you're are doing joint training right and this is called cold start
+38:46 problem and the idea and and the way you solve it is that you pre-train both the
+38:53 language model as well as the retriever separately
+38:58 right once you see that you know they have each at a good certain State then you start the joint
+39:04 training right so so this is the idea so you first you have to do the warm starting okay now uh what are the
+39:11 approximations that we are making here right so because once you do a back propagation over once you back propagate
+39:18 right over this now what all would have
+39:24 changed right ITA query and Ita D both would have
+39:30 changed but e was used to create the index now are you going to reindex
+39:38 again right so you I mean you can't do that so you will have
+39:44 to update the index at certain frequency right so they update the index every T
+39:49 steps they right so they they the freeze ITA D have the index only but notice
+39:57 that even if the index is frozen your ITA Q is still getting updated right ITA D is not
+40:04 getting is not getting updated but ITA Q is still getting updated right you're not changing the index but you are still
+40:11 changing the Transformer uh for the for encoding the query okay and then how
+40:16 will you use it for the fine tuning task right so when you're fine tuning in
+40:23 math language model what you had the language model was giving you probability of each mask right this was
+40:30 easy but now you have a question and you now have an answer you have an you have X comma y
+40:35 pairs right so uh what they do is that so for example this is this is the
+40:42 example where this is the retrieved information and this is the question right and the
+40:48 answer is 60° right angle internal angle of the equilateral triangle this is what you expected to uh generate right so
+40:57 what it asum assumes is that uh this is an assumption that this model is making that the answer is one of the spans of
+41:04 the documents so 60° is a span right right so at the time of training
+41:11 they find all the spans which matches exactly with the answer 60° right so
+41:18 this is the span that they find right and they will try to maximize the probability of this span and how are did
+41:26 they're doing it so well this entire sequence Zed and question is passed
+41:31 through a language model and you have an embedding over all the tokens here
+41:37 right so you take the let's say this is 60 and this is degrees you this is the
+41:44 starting eming of the starting token and this is the emding of the ending token right to find the probability of this
+41:52 60° as an answer what they do is that they concatenate these two S and E and pass pass it through a simple
+41:60 MLP to give you the score right so this is how they are fin
+42:05 tuning for the downstream task a span here is a contigous tunks of question to for example here the will be a span the
+42:14 internal will be a span the internal angle will be a span now let's say we restrict that answers are going to be
+42:20 only three tokens otherwise it's going to be n square right then internal will
+42:25 be a span internal angle will also a span and the internal angle of is also a span right and how are you Computing the
+42:33 probability of a span for example if you have to compute the probability of equilateral this span only you will take
+42:38 the embedding of this equilateral this is the start embedding as well and this is the end embedding as
+42:44 well right you concatenate them and pass it through the MLP this will give you a
+42:50 score right this will be the and and then you normalize to get the probability right so this is how they
+42:56 are fine tuning it for the Downstream task okay so this we have already discussed cold start problem that you
+43:03 solve it by uh pre-training and to pre to pre-train the retriever embeddings they use something called inverse close
+43:09 task so the idea in inverse close task is that uh you use for example this is
+43:15 the sentence right this is the sentence you take a random sentence in
+43:21 between right here this this acts as the query right and its context remaining
+43:29 part of it acts as the the document and you try
+43:35 to increase their similarity right so the document will not contain this right this is part of the query only document
+43:42 will not contain this the remaining part is the document So This Is How They this is an unsupervised way right of training
+43:48 uh the retriever So This Is How They want start the retriever okay
+43:55 so right so these are the results on various open domain question answers
+44:00 right so they get uh exact match of 40% on NQ and compare it with Ora the
+44:08 difference between Orca and their method is that Orca is does not have any
+44:14 pre-training step as such for the language model with the retriever they're pre-training it separately and then they're kind of jointly training
+44:21 right so so this this is a direct comparison where they're freezing whatever retriever that they get using
+44:26 the Clos task and they're not fine tuning it later whereas uh this paper uh
+44:32 right real they are fine tuning the retriever as well later on when when
+44:37 they're jointly training right so this is a direct comparison and uh yeah so Ora is realm minus joint pre trining
+44:44 with the retriever okay now um you know we saw that we here
+44:50 we have to update the index often right so uh they have some ablations where
+44:55 they show that if you update the index often then your performance is
+45:01 much better so this is the performance that you get 10 10 points down if you are updating you know 30X lower at a 30X
+45:08 lower frequency okay so now uh let's move so so the issue here so this was a very
+45:14 good work because it introduced the concept of joint training but it was working with M language models mostly
+45:21 right so it was restrictive in the sense it it cannot uh it's it's not a generative decoder only model right so
+45:27 rag which also came simultaneously at the same time except that this focused
+45:33 on the generation task right so because it is focusing on generation task it can
+45:38 work on any any problem as it is as such right so for example I mean if this is question answering question Define
+45:44 middle ear and then you know you can encode the query and
+45:50 do maximum inner product search through the index get the retrieve documents
+45:55 right Z1 to Z four for example and then pass the retrieve documents through the
+46:00 generator right and then it it it essentially now this is a decoder that we have it's a decoder only model right
+46:09 so let us see uh how does the joint training equation for rag looks like
+46:15 Okay so this equation is exactly same as what we saw earlier right so this is p z
+46:21 given X the probability of retrieving Zed given the query X and this is the probability of generating
+46:28 the output y given the retrieve document and
+46:33 X right so now the question is how do you
+46:38 compute this P Theta of Y given x and z right
+46:45 so this in a decoder only model this factorizes right I this is a normal
+46:51 standard factorization right so you find the probability of the entire sequence
+46:56 at once okay and then you multiply it with the probability of retrieving the document
+47:04 so you are essentially generating the entire sequence the entire output sequence
+47:10 using that document Z1 right and then using the document Z2
+47:17 you again compute the probability of generating the entire sequence by given Z2 right and then you take the the then
+47:24 the marginalize over Z here right so can we do something else here so this is basically rag sequence
+47:32 model okay where given a document you compute the
+47:39 probability of the entire sequence at once and then multiply it with the probability of retrieving the document
+47:44 now can you generate each token so let's say the way I want to do it is that uh
+47:52 when I'm generating token y1 right at that time itself when when
+47:57 I'm Computing the probability distribution over all the tokens for y1 I somehow use you know I somehow combine
+48:05 P Theta of Y given X Z1 and Y yes let's say this is y t so
+48:15 I'll have to combine y1 to Y T minus one let's say I'm talking about t token here okay and then I get P Theta YT given
+48:25 X Z2 and and y1 to T minus1 right now can I can I combine
+48:34 these two distributions these are distributions over the entire vocabulary space and generate only
+48:41 single token right instead of right instead of computing the probability separately I'm essentially combining the
+48:47 distributions at each token level right so at the time of inference
+48:53 I'll generate one token only and then
+48:59 when I'm going to the next token I will com condition it on all the document Z 1
+49:06 Z2 and ZN and then combine the distributions there and then I will proceed right whereas if you are using
+49:13 this model at the time of inference what you will do you will first pass zed1 and
+49:19 X through the language model you will get some response let's say the entire sequence y1 you pass Zed two and X
+49:27 through the language model you get Y2 entire sequence and so and so forth and then you will have to somehow pick the
+49:34 best out of these right whereas here right we are using all the
+49:39 documents for generating each token right so this is the second model that
+49:46 they have right so this rack sequence model is generating the entire sequence by given a retrieve document and we
+49:52 marginalize over all the retriev documents after that right and now the other form will generate one token given
+49:58 all the documents and then proceed to the next token right and and how are they doing it you have y1 to Y IUS one
+50:06 right this gives you the distribution over the entire vocabulary of Yi and
+50:12 then you marginalize it here Itself by multiplying it with the probability of the getting the document given X right
+50:20 so these are distribution over entire tary space right and and how
+50:28 many of these we have we have K of these and then we take a weighted average of these K what are the weights the retrial
+50:35 probabilities are the weights right and and this will give me this
+50:40 entire sum is the probability
+50:45 of generating y i given X and all the Zs Z1 2 Z
+50:53 K right and y1 to y IUS y i minus one
+51:01 right this is what it is and you just need to M now take a product here right
+51:07 this product will give you the distribution of the entire sequence and then you can maximize this okay so yeah
+51:13 this is the rag token model and uh yes so compare it with real they are
+51:23 doing it on the same task right and they get 44 % uh exact match on on R sequences right
+51:32 so uh so with this we cover you know various architectures for uh that that use the
+51:38 retrieved information right we started with uh with with KNN language models which
+51:45 was doing output interpolation generating only one token at a time it could not be fine-tuned right and we we
+51:51 are invoking the retriever for generating every token and the output of the retriever was also a single token these are the drawbacks of that then we
+51:58 looked at retro which is a very promising approach where we are calling the retriever on demand uh in retro we
+52:05 call it every L sequences after every L tokens but you know we can extend it to
+52:10 calling it on demand and then we very quickly looked at three Works which are calling it on demand including uh
+52:16 retriever inter Le generation right which is is quite latest which which uses data Commons Knowledge Graph right
+52:24 and then uh we looked at the most common and the most popular approach of creating a retrieval augmented uh
+52:31 generation right retrial augmented language model which is real and rag the advantage here and the was that you know
+52:38 these were the seminal work first of all and then they trained or fine tuned the model the retriever as well as the
+52:45 generator into end right so it was essentially retriever aware generation that we doing in some sense right so now
+52:52 notice that uh at what point are you using it is Dimension that we covered output
+52:59 interpolation intermediate Fusion or at the time of input when you are invoking the retriever what are you invoking is
+53:04 another dimension are you invoking tokens are you invoking chunks or are you invoking multiple Passages at the
+53:10 same time right and then there are different ways of training uh the
+53:15 different components right so let's very quickly look at this in the independent training we train the language model and
+53:22 we train the retriever model model separately right this is actually what happens these days when you're using out
+53:28 of the box retriever when you take when you using out of the box language model and applying it for your own data set
+53:34 and on for your specific task right you're using it for your own company documents so the data set which is used
+53:40 for training the retriever is different but it has learned to map questions to passages in some sense right and then
+53:48 uh if you're using any Lama model or any GPT model then that you're again that model is also not trained uh considering
+53:56 retriever into account right so this is independent training then uh here we see
+54:01 that the performance will improve with the perform with the if you you know U
+54:07 if you uh improve each component separately you can improve the performance of the overall system right
+54:14 so if you have better retriever your performance will go up if you have a better generator then your performance
+54:20 will go up right so it the advantage is that it works with offthe shelf models
+54:25 and each part can be improved in independently but then the language model is not trained to Leverage The
+54:31 retrieval results that's a drawback and maybe we can improve that right and then there is sequential training which is
+54:37 like retro where we did not train anything in the retriever it was frozen but we were training the language model
+54:43 right so we can so this is retro where we this
+54:48 uh retriever is Frozen and and we are fine tuning only the language model and then we can do the other way around as
+54:54 well we freeze the language model and then we find in the retrial right uh
+55:00 right and here also the issue is that one component is still fixed and it is not trained right and uh we can then jointly
+55:08 train the retriever in the language model as we saw in Rag and R right but then the issue is that you know training
+55:14 becomes very complicated there's a cold start problem and then there is a train test discrepancy as well right now
+55:22 uh have we solved all the issues or all the drawbacks that you know we use to
+55:27 motivate uh this retrial augmented generation or retrieval aware language
+55:33 models right so let's let's look at that so one U issue that people uh see was
+55:40 that so this is an experiment where they're seeing that if the context of
+55:47 the language of the generator increases a lot right the model focuses either on
+55:52 the starting tokens or on the last Tokens The Tokens which are in the middle position model is not attending to that so if you
+55:59 retrieve more information and you know put it there then the order also matters and then most of the information which is in the middle the generator may not
+56:06 be you know giving any may not be attending to those right so this is one issue which kind of uh which is a big
+56:12 issue when you have to use rag right because your retrieved information could be could be
+56:18 huge and then uh there is no guarantee that the models will not hallucinate
+56:23 right they can still hallucinate right and uh then another approach there
+56:29 could be that you know can we somehow quantify the hallucination in a postao manner let's say we use a rag setup we
+56:37 generate the answer but then we use another model or another method to quantify whether the answer is faithful
+56:44 to the retrieved faes or not right so I mean there is this is an active line of
+56:50 research you know which focuses on quantifying the hallucination and using that you can maybe create a pipeline
+56:56 where if the language model generates something and it is not faithful you can revert back to the user saying that I don't know which is much safer yeah yeah
+57:04 this is yeah this is Shameless advertisement okay and then uh even in
+57:11 these systems there could be retriever failures you may not be able to retrieve the correct information and even if you
+57:18 retrieve the correct information then there could be reasoning failures as well right so I mean I'm showing the
+57:24 example of both um you can go through it and then there are Works recently which
+57:29 are trying to adapt these language models to domain Corpus right so what they're saying is that you f tune the
+57:35 language model based on the retrieved passages right so basically you're
+57:40 trying to infuse the knowledge as well in the in the parameters of the language model itself right but then the
+57:46 disadvantage here is that your language model cannot be may may lose its generic
+57:51 capabilities and it may start focusing on the down on on the specific task of answering from a particular domain right
+57:59 okay so uh yeah so that's pretty much it for the talk today and these are some important resources so this this rag
+58:07 Pipeline and rag approach is quite popular in the industry and these are the certain uh resources which are you
+58:13 know available publicly and you know they are kind of very professional resources which you can
+58:18 use right and uh in the end so I just I would just like to give credit to the uh
+58:24 these two people gr nigs I used it lecture slides to prepare slide and there was an ACL tutorial as well which
+58:30 Ive used heavily thank you

@@ -1,0 +1,3754 @@
+00:00 Uh hello everyone. So this is the third
+00:02 
+
+00:02 lecture of reinforcement learning and uh
+00:05 
+
+00:05 uh we have covered we were building up
+00:08 
+
+00:08 towards reward maximization. We looked
+00:09 
+
+00:09 at reward models and we looked at two
+00:12 
+
+00:12 ways for doing reward maximization. Uh
+00:14 
+
+00:14 one was a vanilla policy gradient
+00:16 
+
+00:16 algorithm and then we looked at actor
+00:18 
+
+00:18 critic algorithm.
+00:20 
+
+00:20 So today uh okay yeah so uh vanilla
+00:26 
+
+00:26 policy gradient is what we looked at as
+00:29 
+
+00:29 the first way to do reward maximation
+00:31 
+
+00:31 where we just optimize the reward minus
+00:33 
+
+00:33 some baseline the simplest baseline
+00:35 
+
+00:35 which was the average of reward right
+00:38 
+
+00:38 and we showed uh it's very simple to
+00:40 
+
+00:40 implement it's unbiased but the problem
+00:43 
+
+00:43 is that it has a very high variance you
+00:45 
+
+00:45 need a lot of samples to get a gradient
+00:47 
+
+00:47 estimate that would result in stable
+00:49 
+
+00:49 training
+00:50 
+
+00:50 So uh then what we said okay uh why is
+00:54 
+
+00:54 it high uh variance because uh uh
+00:58 
+
+00:58 because depending on which sample you
+00:60 
+
+00:60 choose you will get a very different
+01:01 
+
+01:01 variance estimate right. So how to
+01:03 
+
+01:03 reduce variance? One of the methods we
+01:04 
+
+01:04 looked at was learning a value function
+01:07 
+
+01:07 and using that to predict advantage. So
+01:10 
+
+01:10 basically it what it adds it adds a
+01:13 
+
+01:13 trainable baseline which the baseline
+01:15 
+
+01:15 here is the value function.
+01:21 
+
+01:21 So you it trains a baseline on top of
+01:24 
+
+01:24 data to reduce variance. So these are
+01:27 
+
+01:27 two things we covered. uh we will look
+01:29 
+
+01:29 at acttoitic to some uh we will recap
+01:32 
+
+01:32 the acttoitic algorithm again today a
+01:35 
+
+01:35 little bit and then we will see how uh
+01:39 
+
+01:39 uh to make it more sample efficient by
+01:42 
+
+01:42 sample efficient what I mean uh is that
+01:45 
+
+01:45 uh you don't you should not sample and
+01:47 
+
+01:47 then train and then sample and then
+01:49 
+
+01:49 train that we want to break that loop we
+01:51 
+
+01:51 want to sample once and then train once
+01:52 
+
+01:52 and then after train a bunch of times
+01:55 
+
+01:55 and then again sample after some steps
+01:57 
+
+01:57 so we'll see what sample efficiency
+01:59 
+
+01:59 means as we go along. Uh so we'll use
+02:02 
+
+02:02 we'll have importance rates come into
+02:04 
+
+02:04 the picture where we can use the
+02:07 
+
+02:07 previous samples the samples that were
+02:09 
+
+02:09 generated in the previous steps of
+02:10 
+
+02:10 training and we can do multiple updates
+02:13 
+
+02:13 on top of the samples
+02:15 
+
+02:15 and uh then we will look at TRPO and PO
+02:19 
+
+02:19 which is a way to ensure that the
+02:21 
+
+02:21 importance weights don't blow up. uh so
+02:25 
+
+02:25 TRPO addits adds a trust region and TPO
+02:28 
+
+02:28 clips the weights so that the uh
+02:30 
+
+02:30 important don't blow up and finally
+02:32 
+
+02:32 we'll look at GRPO which uh removes the
+02:36 
+
+02:36 critic part so remember we are training
+02:38 
+
+02:38 a value function so uh no value function
+02:41 
+
+02:41 training is required in gpo
+02:52 
+
+02:52 and that's where we will end way. Okay.
+02:54 
+
+02:54 So let's recap uh the reinforce
+02:58 
+
+02:58 algorithm. Uh so our input is a prompt
+03:02 
+
+03:02 where is Taj Mahel. The response is that
+03:04 
+
+03:04 Taj Mahel is in Agra and uh we want to
+03:09 
+
+03:09 now compute the gradient for this input
+03:11 
+
+03:11 output pair. So the way you so first you
+03:15 
+
+03:15 need is an advantage function at per
+03:16 
+
+03:16 time step. So what is advantage
+03:18 
+
+03:18 function? It's it captures how useful
+03:21 
+
+03:21 the token that particular token is uh at
+03:24 
+
+03:24 that point relative uh relative useful.
+03:28 
+
+03:28 Okay. Uh so if we have let's assume we
+03:30 
+
+03:30 have some the advantage function
+03:32 
+
+03:32 magically at every time step at every
+03:34 
+
+03:34 time step we can tell the how useful
+03:37 
+
+03:37 this token is going to be in the future
+03:39 
+
+03:39 right then uh then what we have to do is
+03:42 
+
+03:42 just do a forward pass of the output
+03:44 
+
+03:44 tokens get the log probability of the
+03:46 
+
+03:46 output tokens multiply by the advantage
+03:49 
+
+03:49 for that token and uh sum it up and back
+03:52 
+
+03:52 propagate and uh this will be the
+03:54 
+
+03:54 reinforcement simplest reinforcement
+03:56 
+
+03:56 learning algorithm with advantage
+03:58 
+
+03:58 function here we are magically assuming
+03:60 
+
+03:60 that advantage function is available
+04:01 
+
+04:01 somehow right so we saw this in the last
+04:04 
+
+04:04 class there's nothing new here
+04:10 
+
+04:10 uh is there any question on this slide
+04:13 
+
+04:13 okay so next uh we also talked about how
+04:16 
+
+04:16 to estimate this advantage function for
+04:18 
+
+04:18 each token so uh
+04:22 
+
+04:22 so the advantage function is derived
+04:25 
+
+04:25 from two things the Q function and the
+04:27 
+
+04:27 value function which we talked in the
+04:28 
+
+04:28 last class and we said in the last class
+04:30 
+
+04:30 that the value function is what we learn
+04:33 
+
+04:33 from the data. You can call those uh
+04:36 
+
+04:36 input output pairs the trajectories and
+04:39 
+
+04:39 in uh traditional reinforcement learning
+04:41 
+
+04:41 when we are dealing with games and
+04:42 
+
+04:42 robotics we call it trajectories but uh
+04:45 
+
+04:45 in language models these are just uh
+04:47 
+
+04:47 natural language outputs for uh for
+04:49 
+
+04:49 input right. So the way you learn value
+04:54 
+
+04:54 function in the case of a language model
+04:57 
+
+04:57 is you take the input tokens. These are
+04:58 
+
+04:58 your input tokens like where is Tajmail.
+05:02 
+
+05:02 Uh you take the generated tokens. This
+05:04 
+
+05:04 is the generated output
+05:10 
+
+05:10 and often this is fed to the same policy
+05:13 
+
+05:13 on from which you generated. Okay. you
+05:14 
+
+05:14 feed it to the same policy
+05:17 
+
+05:17 and uh you add one extra linear layer to
+05:21 
+
+05:21 your policy. This this is a extra
+05:26 
+
+05:26 linear layer to the
+05:30 
+
+05:30 you add extra linear layer on top of the
+05:32 
+
+05:32 pre-log layer. This is a pre-log layer
+05:42 
+
+05:42 and the job of this extra linear layer
+05:44 
+
+05:44 is to predict the value at each time
+05:47 
+
+05:47 step. So what is the value? Uh if I have
+05:50 
+
+05:50 if I have uh I have let's look at the
+05:54 
+
+05:54 value at this point time step one or
+05:56 
+
+05:56 let's look at the value at time step
+05:57 
+
+05:57 zero. So what is the value here that
+06:00 
+
+06:00 given this prompt what is the average
+06:04 
+
+06:04 reward that I will get at this point
+06:07 
+
+06:07 like uh G given that I follow the policy
+06:09 
+
+06:09 if I continue follow the policy pi theta
+06:12 
+
+06:12 so this is the policy pi theta and if I
+06:15 
+
+06:15 continue to follow this policy what is
+06:17 
+
+06:17 the average what I will get uh similarly
+06:21 
+
+06:21 uh the
+06:23 
+
+06:23 value at time step one will be that
+06:25 
+
+06:25 given that the first token has been
+06:27 
+
+06:27 generated
+06:28 
+
+06:28 Now what is the average reward I will
+06:30 
+
+06:30 get if I follow the policy? So the value
+06:32 
+
+06:32 at each time step is trying to predict
+06:33 
+
+06:33 the future reward average future reward.
+06:36 
+
+06:36 There's also a discounting factor which
+06:38 
+
+06:38 we assume to be one in language models.
+06:40 
+
+06:40 So we don't have to worry about
+06:41 
+
+06:41 discounting factors for now. And we
+06:44 
+
+06:44 train this value function by how do you
+06:46 
+
+06:46 train this? Basically you have the
+06:47 
+
+06:47 future reward at each time step. You
+06:50 
+
+06:50 just minimize the error between the
+06:53 
+
+06:53 value predicted by the network and the
+06:56 
+
+06:56 value and the average uh future and the
+06:59 
+
+06:59 future reward not necessarily average
+06:60 
+
+07:00 just the future reward. Minimize the
+07:02 
+
+07:02 distance minimize the squared error
+07:03 
+
+07:03 between the value function uh prediction
+07:07 
+
+07:07 and the reward. Does it make sense? So
+07:11 
+
+07:11 this is how we train the value function.
+07:20 
+
+07:20 Okay. So and the advantage function for
+07:24 
+
+07:24 a so advantage is a function of state
+07:27 
+
+07:27 and action. So in the case of LLM state
+07:29 
+
+07:29 is all the past tokens. Action is the
+07:31 
+
+07:31 token that you generated the current
+07:32 
+
+07:32 token that you generated and advantage
+07:36 
+
+07:36 uh is basically uh how useful this token
+07:39 
+
+07:39 is compared to an average token from the
+07:43 
+
+07:43 policy. So it's a different so this this
+07:46 
+
+07:46 Q function this is this is saying that
+07:48 
+
+07:48 uh given that I have taken this action
+07:50 
+
+07:50 80 at time step at the for state ST
+07:55 
+
+07:55 what is the average reward that I will
+07:57 
+
+07:57 get if I follow the policy okay and this
+08:00 
+
+08:00 is saying that I have not taken any
+08:03 
+
+08:03 action yet I have just reached the state
+08:05 
+
+08:05 ST what is the average reward I will get
+08:07 
+
+08:07 so difference between these two quantity
+08:09 
+
+08:09 is saying that how useful the token 80
+08:12 
+
+08:12 is
+08:13 
+
+08:13 uh compared to other tokens.
+08:17 
+
+08:17 So now how do you estimate? So we know
+08:20 
+
+08:20 how to estimate this quantity. This we
+08:22 
+
+08:22 know this we saw in the previous slide.
+08:24 
+
+08:24 You learn a value function estimator,
+08:26 
+
+08:26 right? Uh this is a llm
+08:32 
+
+08:32 vi that gives you the value for each
+08:35 
+
+08:35 state. But how do you estimate the Q
+08:37 
+
+08:37 function? So there are different
+08:39 
+
+08:39 approaches there. one the full Monte
+08:42 
+
+08:42 Carlo estimate which we saw in the last
+08:45 
+
+08:45 lecture actually where you just compute
+08:48 
+
+08:48 the reward of whatever sequence you have
+08:51 
+
+08:51 generated reward to go of the at each
+08:54 
+
+08:54 time step you ask that what is the
+08:57 
+
+08:57 future reward for that particular time
+08:59 
+
+08:59 step so you can do it for each time step
+09:01 
+
+09:01 and uh you say that oh that's my Q
+09:03 
+
+09:03 function so you just take one sample and
+09:06 
+
+09:06 use that to estimate Q function now the
+09:08 
+
+09:08 problem is that it's going to be very
+09:10 
+
+09:10 noisy because depending on which sample
+09:12 
+
+09:12 you generated this Q function will
+09:14 
+
+09:14 change a lot right so so this estimate
+09:18 
+
+09:18 so if you assume gamma equal to 1 is
+09:20 
+
+09:20 just the sum of the future rewards so
+09:23 
+
+09:23 gamma = 1 implies Q is the sum of
+09:28 
+
+09:28 future rewards
+09:37 
+
+09:37 so if you're doing full Monte Carlo
+09:38 
+
+09:38 estimate you're using only one sample to
+09:40 
+
+09:40 predict the entire Q function and uh in
+09:43 
+
+09:43 which case it's going to be very noisy
+09:45 
+
+09:45 very high variance and you will probably
+09:46 
+
+09:46 need a lot of samples to get a good
+09:48 
+
+09:48 estimate here.
+09:51 
+
+09:51 So this is one extreme of estimating the
+09:53 
+
+09:53 Q function and what will be the
+09:55 
+
+09:55 advantage function just the difference
+09:56 
+
+09:56 between Q and value. Okay.
+10:02 
+
+10:02 So the other way of estimating this
+10:04 
+
+10:04 advantage function uh estimating the Q
+10:07 
+
+10:07 function is called the temporal
+10:09 
+
+10:09 difference approach temporal uh and uh
+10:12 
+
+10:12 uh basically what it says is that the Q
+10:15 
+
+10:15 function can be estimated by looking at
+10:18 
+
+10:18 the reward of that particular action and
+10:20 
+
+10:20 adding it to the value function of the
+10:22 
+
+10:22 next state. See once you take once
+10:23 
+
+10:23 you're in a state ST
+10:26 
+
+10:26 and you have taken an action 80 then
+10:29 
+
+10:29 this becomes a new state in the case of
+10:30 
+
+10:30 LM this is a new state
+10:33 
+
+10:33 you can call this as ST + one
+10:37 
+
+10:37 right
+10:38 
+
+10:38 because in the case of LMS the state
+10:41 
+
+10:41 changes just by appending the token if
+10:43 
+
+10:43 you append whatever token was generated
+10:45 
+
+10:45 you will get to the new state right so
+10:48 
+
+10:48 the temporal difference estimate of the
+10:52 
+
+10:52 uh Q function can be obtained by just
+10:54 
+
+10:54 taking the reward that you got for
+10:56 
+
+10:56 taking the action plus the value of the
+10:59 
+
+10:59 next state.
+11:02 
+
+11:02 Uh
+11:04 
+
+11:04 >> how would you capture long-term
+11:08 
+
+11:08 dependencies
+11:09 
+
+11:09 >> long-term? So this value function
+11:12 
+
+11:12 caps basically says that okay if I have
+11:14 
+
+11:14 taken this action 80 and uh from that
+11:17 
+
+11:17 point onwards what is the if I follow
+11:19 
+
+11:19 the policy what is the average reward
+11:21 
+
+11:21 you'll get? So this is capturing the
+11:22 
+
+11:22 long-term
+11:23 
+
+11:23 uh effect of taking the action 80 this
+11:27 
+
+11:27 so this is one extreme uh the so we saw
+11:30 
+
+11:30 the previous extreme where you look
+11:32 
+
+11:32 generated the entire trajectory and
+11:34 
+
+11:34 computed the reward for the trajectory
+11:37 
+
+11:37 uh and then you use that as function.
+11:39 
+
+11:39 This is the other extreme where you say
+11:41 
+
+11:41 I will look only at the reward of the
+11:42 
+
+11:42 current action and I will add the value
+11:44 
+
+11:44 function of the next state that it will
+11:46 
+
+11:46 reach.
+11:48 
+
+11:48 So these are two different extremes. And
+11:51 
+
+11:51 again advantage is the difference
+11:52 
+
+11:52 between this Q and value function.
+11:57 
+
+11:57 Now you can do a lot of different. So
+11:59 
+
+11:59 these were too extreme but there are in
+12:00 
+
+12:00 between there are a lot of different uh
+12:03 
+
+12:03 possibilities. So let's this quantity
+12:05 
+
+12:05 the difference uh the difference between
+12:08 
+
+12:08 this and this let's call it as delta t.
+12:12 
+
+12:12 Delta t
+12:14 
+
+12:14 is the advantage uh the temporal uh
+12:16 
+
+12:16 advantage if I take a temporal
+12:19 
+
+12:19 difference estimate. So it's Qhat
+12:22 
+
+12:22 minus Vhat
+12:25 
+
+12:25 ST. Okay. So this is what I'm calling as
+12:28 
+
+12:28 delta T the difference the between the Q
+12:32 
+
+12:32 and the value function in the case of
+12:34 
+
+12:34 temporary difference estimate. Okay. So
+12:38 
+
+12:38 the one step advantage is simply
+12:41 
+
+12:41 your delta T. the two-step advantage.
+12:45 
+
+12:45 If you want to incorporate uh the reward
+12:48 
+
+12:48 for the next two tokens, then the
+12:51 
+
+12:51 estimate that you got get for the first
+12:53 
+
+12:53 token plus gamma times estimate that you
+12:56 
+
+12:56 get for uh for the
+13:01 
+
+13:01 second token. Okay.
+13:03 
+
+13:03 And uh similarly you define
+13:06 
+
+13:06 the three-step advantage as
+13:12 
+
+13:12 gamma*
+13:14 
+
+13:14 uh the temporal difference for the
+13:15 
+
+13:15 second token plus gamma squar * temporal
+13:19 
+
+13:19 difference for the third token. And uh
+13:23 
+
+13:23 at the end of the sequence this will
+13:25 
+
+13:25 look like delta t + gamma delta t + 1
+13:31 
+
+13:31 plus dot dot dot
+13:34 
+
+13:34 gamma to the power t minus t
+13:37 
+
+13:37 delta t.
+13:41 
+
+13:41 Yeah.
+13:43 
+
+13:43 So, so these are different possible
+13:45 
+
+13:45 estimates for the same advantage
+13:47 
+
+13:47 function.
+13:49 
+
+13:49 Uh and uh
+13:51 
+
+13:51 uh this has the
+13:54 
+
+13:54 lowest variance
+13:58 
+
+13:58 and this has the lowest bias.
+14:07 
+
+14:07 So what generalized advantage estimation
+14:10 
+
+14:10 estimate does is that it takes a
+14:11 
+
+14:11 weighted combination of all these
+14:12 
+
+14:12 estimates. It says okay we have these
+14:15 
+
+14:15 possible estimates where I just look at
+14:16 
+
+14:16 the first token and its reward or I look
+14:19 
+
+14:19 at the uh uh first two tokens or the
+14:22 
+
+14:22 first three tokens. Uh so I have these
+14:24 
+
+14:24 different estimates possible. I just
+14:27 
+
+14:27 take a weighted average of all these
+14:29 
+
+14:29 estimates and that gives me the
+14:31 
+
+14:31 generalized advantage estimate. So this
+14:34 
+
+14:34 how does this uh uh you can put the
+14:38 
+
+14:38 expression that we derived previously
+14:41 
+
+14:41 and put it here and you will get this
+14:42 
+
+14:42 expression
+14:45 
+
+14:45 this you can try.
+14:48 
+
+14:48 So uh basically it's just a weighted sum
+14:51 
+
+14:51 of these delta t's that we looked
+14:55 
+
+14:55 uh and uh typically gamma as is assumed
+14:58 
+
+14:58 to be gamma is the discounting factor we
+15:01 
+
+15:01 discussed in the case of llm we choose
+15:02 
+
+15:02 it to be one and lambda is generally
+15:05 
+
+15:05 chosen to be 0.95 these are almost fixed
+15:09 
+
+15:09 values people I mean you generally don't
+15:10 
+
+15:10 touch these values
+15:15 
+
+15:15 okay so this covers till the extra
+15:18 
+
+15:18 credit algorithm. So what all we have
+15:20 
+
+15:20 seen so far if you have a sample of if
+15:23 
+
+15:23 you have a data set of prompts uh you
+15:26 
+
+15:26 sample a batch of prompts and then you
+15:29 
+
+15:29 pass them through the policy you get
+15:32 
+
+15:32 some outputs for each prompt
+15:37 
+
+15:37 and then
+15:39 
+
+15:39 uh you for each of those outputs you
+15:41 
+
+15:41 compute the advantage. The advantage can
+15:44 
+
+15:44 be computed. We saw uh the generalized
+15:46 
+
+15:46 advantage estimation. But there are a
+15:48 
+
+15:48 bunch of different ways to compute
+15:49 
+
+15:49 advantage. We whatever way we compute
+15:51 
+
+15:51 the advantage
+15:53 
+
+15:53 and then we do a forward pass to get the
+15:55 
+
+15:55 log probability of each token
+15:60 
+
+15:60 we multiply these two quantities sum it
+16:02 
+
+16:02 up across tokens and then back
+16:04 
+
+16:04 propagate. So this this is the overall
+16:06 
+
+16:06 picture of uh all the algorithms we have
+16:09 
+
+16:09 discussed so far. Sampling, computing
+16:12 
+
+16:12 the out, getting the outputs, uh,
+16:13 
+
+16:13 sampling the problem, sampling the
+16:15 
+
+16:15 outputs, computing advantage, doing a
+16:17 
+
+16:17 forward pass to get lock probability,
+16:19 
+
+16:19 and then multiply, sum, and
+16:26 
+
+16:26 then you update the weights. Yeah.
+16:31 
+
+16:31 And then you repeat the cycle is
+16:32 
+
+16:32 repeated again. Okay.
+16:38 
+
+16:38 Now the problem with this approach is
+16:40 
+
+16:40 that you every time you're sampling and
+16:44 
+
+16:44 doing one update of the weights and then
+16:46 
+
+16:46 you're throwing away the samples. Uh we
+16:49 
+
+16:49 uh we'll see why we have to throw away
+16:51 
+
+16:51 why we can't use the samples those
+16:54 
+
+16:54 samples again. So every time you sample
+16:56 
+
+16:56 the pro uh sample some outputs
+16:60 
+
+17:00 you compute your advantage compute your
+17:03 
+
+17:03 uh loss function update the weights and
+17:05 
+
+17:05 then you throw away and get a new samp
+17:07 
+
+17:07 set of samples if sampling sampling is
+17:10 
+
+17:10 generally the bottleneck in these kind
+17:11 
+
+17:11 of training algorithms. So if sampling
+17:13 
+
+17:13 is not and and you have to communicate
+17:16 
+
+17:16 these weights back to pi theta right
+17:18 
+
+17:18 because this needs to be updated
+17:21 
+
+17:21 after
+17:29 
+
+17:29 every step
+17:33 
+
+17:33 of training right so this needs to be
+17:35 
+
+17:35 updated now let's say you are using VLM
+17:37 
+
+17:37 to generate outputs and you did one pass
+17:40 
+
+17:40 you updated the weights now you have to
+17:44 
+
+17:44 every time you update the weights you
+17:45 
+
+17:45 will have to communicate back to VLM
+17:47 
+
+17:47 that these weights have been updated now
+17:49 
+
+17:49 update yourself so this becomes very
+17:50 
+
+17:50 slow and this becomes a bottleneck in
+17:52 
+
+17:52 training So generally we don't we want
+17:55 
+
+17:55 to be able to use samples huge samples
+17:58 
+
+17:58 from a previous policies not only the
+18:01 
+
+18:01 latest policy
+18:03 
+
+18:03 and that's where uh importance weights
+18:05 
+
+18:05 will come into the future
+18:11 
+
+18:11 we call the problem of data efficiency.
+18:14 
+
+18:14 So every time you update the weights the
+18:17 
+
+18:17 policy changes. So now the samples that
+18:21 
+
+18:21 you uh used the samples that you have
+18:24 
+
+18:24 are from the previous policy. Now the
+18:26 
+
+18:26 policy has changed. So you cannot use
+18:28 
+
+18:28 those samples because this algorithm
+18:30 
+
+18:30 requires that the samples should come
+18:31 
+
+18:31 from the latest policy. Right?
+18:35 
+
+18:35 So you have to throw away the samples
+18:37 
+
+18:37 because they're not on policy anymore.
+18:39 
+
+18:39 On policy means that you only use
+18:42 
+
+18:42 samples that come from the policy and
+18:44 
+
+18:44 don't use anything else.
+18:47 
+
+18:47 So this is highly wasteful because every
+18:48 
+
+18:48 time you're doing this uh generation
+18:51 
+
+18:51 training throwing away the samples and
+18:53 
+
+18:53 also you have to communicate these
+18:54 
+
+18:54 weights again and again to the sampler.
+18:57 
+
+18:57 So can we use samples from the previous
+18:60 
+
+19:00 policies? Can can we get more out of the
+19:02 
+
+19:02 samples before throwing them away? And
+19:04 
+
+19:04 that's where the importance come into
+19:06 
+
+19:06 the picture.
+19:08 
+
+19:08 [Applause]
+19:12 
+
+19:12 Okay. So,
+19:17 
+
+19:17 so uh let's write the objective again.
+19:20 
+
+19:20 Uh what we have what uh we have a uh
+19:24 
+
+19:24 trajectory or an output that I have
+19:26 
+
+19:26 sampled from the policy pi theta.
+19:29 
+
+19:29 What does the gradient of the training
+19:31 
+
+19:31 objective look like? It's
+19:35 
+
+19:35 it's uh
+19:38 
+
+19:38 summation
+19:40 
+
+19:40 t =0 to t
+19:44 
+
+19:44 the gradient of the log probability of
+19:47 
+
+19:47 the policy
+19:51 
+
+19:51 given ST. So 80 is a token. ST is all
+19:54 
+
+19:54 the previous tokens times the advantage.
+19:60 
+
+19:60 Whatever advantage estimate you have
+20:06 
+
+20:06 the it's this is the
+20:09 
+
+20:09 gradient
+20:11 
+
+20:11 estimate for a particular sequence.
+20:22 
+
+20:22 Okay.
+20:25 
+
+20:25 Okay. So now if suppose we are assuming
+20:28 
+
+20:28 here that this sequence comes from pi
+20:30 
+
+20:30 theta. What if this sequence came from a
+20:32 
+
+20:32 different distribution pi theta old? If
+20:35 
+
+20:35 this sequence came from a distri what
+20:37 
+
+20:37 will this how will this change is the
+20:39 
+
+20:39 question this particular estimate
+20:43 
+
+20:43 how will this change if this sequence
+20:45 
+
+20:45 was not from pi theta and that's we will
+20:47 
+
+20:47 what we'll try to answer. So in general
+20:51 
+
+20:51 uh if if I ask you that okay you're
+20:53 
+
+20:53 trying to uh compute the expectation of
+20:55 
+
+20:55 a function under a distribution p but
+20:58 
+
+20:58 suppose your samples you don't have
+21:00 
+
+21:00 samples from p you have samples from q
+21:03 
+
+21:03 can you estimate that expectation x so
+21:07 
+
+21:07 you're trying to estimate an expectation
+21:08 
+
+21:08 of function
+21:10 
+
+21:10 the function is fx and you're trying to
+21:12 
+
+21:12 estimate its expectation under the
+21:14 
+
+21:14 probability distribution pas
+21:18 
+
+21:18 has anybody
+21:19 
+
+21:19 Ever seen how would one would go about
+21:22 
+
+21:22 this? It's simple uh mathematical
+21:24 
+
+21:24 rewriting. So let's see. So expectation
+21:28 
+
+21:28 under P for of a function can be written
+21:30 
+
+21:30 as
+21:31 
+
+21:31 let's assume that we are working with
+21:33 
+
+21:33 discrete space. So summation X belonging
+21:35 
+
+21:35 to whatever the space is PX * FX.
+21:43 
+
+21:43 Now we don't have samples from P. We
+21:45 
+
+21:45 have samples from Q. So somehow I have
+21:47 
+
+21:47 to bring Q into the picture. So what I
+21:49 
+
+21:49 will do is I will multiply and divide by
+21:50 
+
+21:50 Q.
+22:02 
+
+22:02 So this Q term this Q term I'll I'll
+22:05 
+
+22:05 bring it here. So this will become px
+22:09 
+
+22:09 by qx
+22:15 
+
+22:15 into qx. Oh wait one second let me write
+22:18 
+
+22:18 the first term first.
+22:25 
+
+22:25 So this will be qx * px by qx
+22:34 
+
+22:34 into f_sub_x.
+22:40 
+
+22:40 What what is uh is can I write this in a
+22:44 
+
+22:44 better way? What is this quantity?
+22:49 
+
+22:49 This is the expectation under Q.
+22:53 
+
+22:53 expectation under Q
+22:56 
+
+22:56 of the quantity
+22:58 
+
+22:58 px by qx
+23:03 
+
+23:03 into fx.
+23:08 
+
+23:08 So I uh what have I done? I mean just by
+23:11 
+
+23:11 uh multiplying and dividing by Q. What
+23:13 
+
+23:13 have I done is that any expectation
+23:15 
+
+23:15 under P
+23:17 
+
+23:17 can be converted into an expectation
+23:19 
+
+23:19 under Q by multiplying with these
+23:21 
+
+23:21 quantities PX by QX. And these
+23:24 
+
+23:24 quantities are what we call as
+23:26 
+
+23:26 importance weights.
+23:38 
+
+23:38 So why is this importance rates useful?
+23:41 
+
+23:41 What uh what we so remember what we are
+23:44 
+
+23:44 trying to do is we are trying to use
+23:45 
+
+23:45 samples we can't we don't want to sample
+23:48 
+
+23:48 from the latest policy all the time
+23:49 
+
+23:49 because that is very very slow. So what
+23:51 
+
+23:51 we are trying to do is we are trying to
+23:52 
+
+23:52 use samples from previous policies older
+23:54 
+
+23:54 policies. But how do we you uh but so
+23:58 
+
+23:58 here we saw uh here you can think that P
+24:02 
+
+24:02 is the latest policy from which we want
+24:03 
+
+24:03 to sample and Q is an old policy from
+24:07 
+
+24:07 which we can sample. So then if you want
+24:10 
+
+24:10 to use samples from the old policy you
+24:12 
+
+24:12 have to multiply by this quantity the
+24:14 
+
+24:14 importance the latest policy by the old
+24:16 
+
+24:16 policy.
+24:18 
+
+24:18 Does that make sense? If you want to use
+24:20 
+
+24:20 samples from an old policy, you have to
+24:21 
+
+24:21 multiply with this importance rate.
+24:32 
+
+24:32 Okay. So we saw the gradient previously
+24:35 
+
+24:35 what it was uh it was the for a given
+24:39 
+
+24:39 sequence it was this particular
+24:41 
+
+24:41 quantity.
+24:43 
+
+24:43 So the gradient if your sample is coming
+24:45 
+
+24:45 from an older policy what what will it
+24:47 
+
+24:47 look like?
+24:49 
+
+24:49 just this quantity times the importance
+24:52 
+
+24:52 rate.
+24:54 
+
+24:54 So what will be uh so if
+24:57 
+
+24:57 uh uh so uh let's say if this sample is
+24:60 
+
+24:60 not from theta this is from old.
+25:03 
+
+25:03 Let's say you have a sequence y which is
+25:05 
+
+25:05 a sample not from the latest policy but
+25:07 
+
+25:07 from theta old. So what will the
+25:10 
+
+25:10 gradient look like in that case? Just
+25:12 
+
+25:12 the expression that we had summation t =
+25:16 
+
+25:16 0 to t
+25:20 
+
+25:20 the importance rate.
+25:25 
+
+25:25 Uh
+25:34 
+
+25:34 so what is the importance weight in this
+25:36 
+
+25:36 case? The pi theta by pi theta old for
+25:39 
+
+25:39 each time step.
+25:53 
+
+25:53 times the advantage function
+26:02 
+
+26:02 times the gradient of the log policy.
+26:14 
+
+26:14 And these are the per step importance
+26:16 
+
+26:16 weight. So for each token we have
+26:17 
+
+26:17 computed these importance weights.
+26:24 
+
+26:24 We also use the symbol called RT theta
+26:27 
+
+26:27 to denote them. And uh RT is also used
+26:31 
+
+26:31 sometimes for reward. So uh if I use the
+26:34 
+
+26:34 theta with RT assume that these are the
+26:36 
+
+26:36 importance weights and not reward. Okay
+26:37 
+
+26:37 because when when I remember when I
+26:40 
+
+26:40 first read them long back I was very
+26:41 
+
+26:41 much confused about what is this RT
+26:44 
+
+26:44 actually. So these are importance
+26:45 
+
+26:45 weights. If you see a theta with RT
+26:47 
+
+26:47 these are importance weights.
+26:54 
+
+26:54 Okay. So now if you're doing reinforce
+26:58 
+
+26:58 uh computing this reinforce gradient
+26:60 
+
+26:60 estimate with perstep importance weights
+27:02 
+
+27:02 what will look like very similar setup
+27:05 
+
+27:05 you have the prompt this is the prompt
+27:09 
+
+27:09 you have the generated output and
+27:13 
+
+27:13 you're trying to compute the
+27:17 
+
+27:17 uh gradient estimate but now this
+27:19 
+
+27:19 generated output is not coming from pi
+27:21 
+
+27:21 theta old let's assume that it's coming
+27:24 
+
+27:24 from pi Pi theta old not from pi theta.
+27:28 
+
+27:28 So you will pass this output through the
+27:29 
+
+27:29 policy from which it was generated from
+27:31 
+
+27:31 and in this case the output was
+27:33 
+
+27:33 generated from pi theta old
+27:36 
+
+27:36 and you will also pass this output
+27:37 
+
+27:37 through the policy through the latest
+27:39 
+
+27:39 policy that you're trying to train. Okay
+27:42 
+
+27:42 why are you doing this? Because you want
+27:43 
+
+27:43 to compute the ratio, the importance
+27:45 
+
+27:45 weight, right? And for each token,
+27:48 
+
+27:48 you will get this ratio
+27:52 
+
+27:52 which is the importance weight. You'll
+27:55 
+
+27:55 multiply by the advantage. This is the
+27:57 
+
+27:57 uh
+27:59 
+
+27:59 ratio.
+28:01 
+
+28:01 Uh you'll multiply that advantage and
+28:03 
+
+28:03 then the log probability of that token
+28:07 
+
+28:07 under the policy. And you will do it for
+28:09 
+
+28:09 each of the tokens and then sum and back
+28:12 
+
+28:12 propagate. Okay. So this is your
+28:15 
+
+28:15 reinforce gradient estimate using
+28:18 
+
+28:18 importance weights.
+28:23 
+
+28:23 Is there any equation uh so far?
+28:29 
+
+28:29 Uh yeah. Okay. This you already know
+28:31 
+
+28:31 that uh we are doing when we do the sum
+28:34 
+
+28:34 and back propagation we are only
+28:36 
+
+28:36 training this part. This is the only
+28:37 
+
+28:37 thing that we want to train
+28:39 
+
+28:39 uh because this is the gradient estimate
+28:41 
+
+28:41 right. So these quantities in the square
+28:43 
+
+28:43 brackets are kept as fixed.
+28:48 
+
+28:48 So why are these importance weights
+28:50 
+
+28:50 useful? So if you did not have this
+28:53 
+
+28:53 importance weights, how will you do
+28:54 
+
+28:54 training? You will do you will sample a
+28:56 
+
+28:56 batch of prompts and then sample some
+28:58 
+
+28:58 outputs for the prompts. Right? So when
+29:00 
+
+29:00 I say roll out, roll out means you uh
+29:04 
+
+29:04 get prompts and get some outputs for the
+29:07 
+
+29:07 prompts.
+29:13 
+
+29:13 You do one update with the reinforced
+29:15 
+
+29:15 gradient estimate whatever grad uh
+29:17 
+
+29:17 advantage function you uh using and
+29:21 
+
+29:21 after that update you immediately do
+29:23 
+
+29:23 roll out of another prompts and outputs
+29:25 
+
+29:25 again do the update and then you have to
+29:27 
+
+29:27 roll out again and update again. So
+29:29 
+
+29:29 update is when I say update these are
+29:31 
+
+29:31 updating the weights of the policy. So
+29:32 
+
+29:32 this roll out and update has to happen
+29:34 
+
+29:34 alternatively uh after every update you
+29:37 
+
+29:37 have to do roll out again you have to
+29:38 
+
+29:38 throw away the samples and this is very
+29:40 
+
+29:40 expensive. So if you don't have
+29:41 
+
+29:41 importance weights you cannot use the
+29:43 
+
+29:43 old policy samples for training
+29:47 
+
+29:47 uh the objective requires the samples to
+29:49 
+
+29:49 come from the latest policy. And uh
+29:51 
+
+29:51 another issue is that because the
+29:54 
+
+29:54 samples on which you are training uh
+29:56 
+
+29:56 they come from uh they don't they come
+29:58 
+
+29:58 the policy that from that come from they
+30:00 
+
+30:00 keep changing right initially it was
+30:02 
+
+30:02 from py theta 1 then pi theta 2 pi theta
+30:04 
+
+30:04 3 the samples keep changing so this
+30:06 
+
+30:06 leads to some unstable training
+30:08 
+
+30:08 dynamics. What you ideally want to do is
+30:11 
+
+30:11 fix the policy for some time, get a lot
+30:14 
+
+30:14 of samples from them and just do a lot
+30:16 
+
+30:16 of training on those samples. Sort it
+30:18 
+
+30:18 become sort of off policy not completely
+30:20 
+
+30:20 off policy but uh you take the policy
+30:23 
+
+30:23 generate a lot of samples do lot of
+30:25 
+
+30:25 training and once you are done with the
+30:26 
+
+30:26 training then you update the weights and
+30:28 
+
+30:28 keep on doing this process. You don't
+30:30 
+
+30:30 want to update the weights uh you don't
+30:33 
+
+30:33 want to update the weights in the
+30:34 
+
+30:34 generator after every training step.
+30:39 
+
+30:39 So with importance weights uh as I said
+30:42 
+
+30:42 you don't have to uh do this uh sample
+30:46 
+
+30:46 update sample update after uh every
+30:48 
+
+30:48 training step you can do a a roll out on
+30:51 
+
+30:51 a large batch of prompts let's say
+30:52 
+
+30:52 thousand prompts and you generated let's
+30:55 
+
+30:55 say 16 outputs per prompt so you have
+30:57 
+
+30:57 16,000 prompt and output pairs and on
+31:01 
+
+31:01 now you can treat this as a data set so
+31:03 
+
+31:03 this 16,000 input output pairs become a
+31:06 
+
+31:06 data set for you. And how do you do
+31:08 
+
+31:08 training on such a large data set if you
+31:09 
+
+31:09 have let's say then it becomes a
+31:11 
+
+31:11 standard uh training problem supervised
+31:14 
+
+31:14 training problem because now you don't
+31:15 
+
+31:15 have to uh sample for some time all you
+31:18 
+
+31:18 have to do you have given these input
+31:19 
+
+31:19 output pairs and you have to do training
+31:21 
+
+31:21 so you do on top of the data set
+31:23 
+
+31:23 multiple rounds of updates
+31:30 
+
+31:30 and once you're done with multiple
+31:32 
+
+31:32 rounds of updates then you will call the
+31:34 
+
+31:34 yeah
+31:36 
+
+31:36 we multiple old policies. So right so
+31:40 
+
+31:40 currently we're just having one old
+31:42 
+
+31:42 policy but what if there are multiple
+31:43 
+
+31:43 round
+31:44 
+
+31:44 >> you can have multiple old policies
+31:47 
+
+31:47 although in that case the importance
+31:48 
+
+31:48 weights become slightly unstable and uh
+31:51 
+
+31:51 but uh generally when I say old I mean
+31:53 
+
+31:53 the immediate old policy the last policy
+31:55 
+
+31:55 but if you have multiple old you have to
+31:56 
+
+31:56 use uh you have in this py theta you'll
+31:60 
+
+31:60 have to use the corresponding
+32:03 
+
+32:03 pol uh so wherever the sample sample
+32:05 
+
+32:05 came from whatever see that pi theta
+32:07 
+
+32:07 you'll have to Although if this ratio
+32:09 
+
+32:09 becomes so we'll see what the problem is
+32:10 
+
+32:10 that using if the policy deviates too
+32:13 
+
+32:13 much from the old policy if there is a
+32:14 
+
+32:14 lot of deviation then there are some
+32:16 
+
+32:16 problems
+32:23 
+
+32:23 okay so I mentioned that your rollout
+32:25 
+
+32:25 can be very large you can have thousand
+32:26 
+
+32:26 prompts you can have 16 outputs per
+32:27 
+
+32:27 prompt total 16,000 prompt output pairs
+32:31 
+
+32:31 uh how do you do deal with this large
+32:33 
+
+32:33 rollout so what uh these algorithms uh
+32:37 
+
+32:37 do is that uh they take the 16,000 pairs
+32:41 
+
+32:41 and then they compute the reward for
+32:43 
+
+32:43 each pair input pair and uh they compute
+32:46 
+
+32:46 the advantage using the reward they
+32:49 
+
+32:49 comput advantage for each uh at per
+32:51 
+
+32:51 token level. uh what is the per token
+32:53 
+
+32:53 advantage uh using the different
+32:55 
+
+32:55 algorithms that we saw
+32:58 
+
+32:58 and uh
+33:04 
+
+33:04 oh okay uh and then they compute the log
+33:07 
+
+33:07 probability under the
+33:09 
+
+33:09 log pi but can I wrote it actually let
+33:11 
+
+33:11 me write this as log
+33:14 
+
+33:14 pi
+33:16 
+
+33:16 theta old
+33:20 
+
+33:20 of
+33:21 
+
+33:21 A t given st.
+33:23 
+
+33:23 So compute the log probability under the
+33:25 
+
+33:25 old policy for each token.
+33:30 
+
+33:30 But uh so now you have this huge data
+33:32 
+
+33:32 set. Uh generally if you one thing you
+33:34 
+
+33:34 can do is you can make an entire batch
+33:36 
+
+33:36 one single batch out of this data set
+33:37 
+
+33:37 and do training. The problem with that
+33:40 
+
+33:40 is that uh you each update will take you
+33:43 
+
+33:43 have to go through the 16,000 example
+33:44 
+
+33:44 for each update and that will take a
+33:47 
+
+33:47 huge amount of time for one step of
+33:49 
+
+33:49 training. So generally how do you deal
+33:51 
+
+33:51 with uh if you have a big data set how
+33:53 
+
+33:53 and you have to train how do you do it
+33:54 
+
+33:54 generally divide it into mini batches
+33:56 
+
+33:56 right so that's what is done here also
+33:58 
+
+33:58 you take this uh 16,000 prompt output
+34:02 
+
+34:02 pairs shuffle them and then divide make
+34:04 
+
+34:04 mini batches out of them and then do the
+34:06 
+
+34:06 training.
+34:11 
+
+34:11 Yeah. So this we discussed that we have
+34:13 
+
+34:13 to uh for each output you compute the
+34:15 
+
+34:15 log probability of the output and uh
+34:18 
+
+34:18 compute the advantage per token uh for
+34:21 
+
+34:21 each you have to do it for each output.
+34:23 
+
+34:23 Okay. So now we have almost reached po
+34:26 
+
+34:26 uh not completely po but uh there's one
+34:29 
+
+34:29 step small step remaining. So we assume
+34:33 
+
+34:33 that we have already rolled out some uh
+34:35 
+
+34:35 prompts and gotten some outputs. We have
+34:37 
+
+34:37 computed their advantages per token and
+34:39 
+
+34:39 the log pi theta old per token. And we
+34:42 
+
+34:42 have all this data huge data available
+34:43 
+
+34:43 to us. You shuffle the data and divide
+34:46 
+
+34:46 it into mini batches
+34:51 
+
+34:51 and now you compute the log pi theta
+34:54 
+
+34:54 from the policy. So the log pi theta old
+34:56 
+
+34:56 can be computed beforehand because the
+34:58 
+
+34:58 old policy is not changing the policy
+34:60 
+
+34:60 from which data came but log pi theta
+35:02 
+
+35:02 will change as you update. So this has
+35:03 
+
+35:03 to comput on the fly. So you compute the
+35:05 
+
+35:05 log pi theta of each token and the
+35:08 
+
+35:08 importance. So what is the importance?
+35:10 
+
+35:10 It's
+35:12 
+
+35:12 pi theta of the token
+35:17 
+
+35:17 by pi theta
+35:20 
+
+35:20 old of the token.
+35:25 
+
+35:25 And you can write this as
+35:28 
+
+35:28 exponential of
+35:32 
+
+35:32 log pi theta
+35:37 
+
+35:37 minus log pi theta old.
+35:47 
+
+35:47 So you compute this quantity for each
+35:49 
+
+35:49 token for each output for each prompt.
+35:51 
+
+35:51 Okay.
+35:53 
+
+35:53 And you use this importance weight to
+35:55 
+
+35:55 compute your final objective which is
+35:58 
+
+35:58 the product of all this and then sum and
+35:59 
+
+35:59 then average. We have discussed how to
+36:01 
+
+36:01 compute it. And then you back propagate
+36:04 
+
+36:04 and update the weights.
+36:07 
+
+36:07 And this entire big circle is done
+36:11 
+
+36:11 multiple times. This this is this loop
+36:13 
+
+36:13 is represented multiple times.
+36:18 
+
+36:18 And you can see that there's no
+36:19 
+
+36:19 generation happening. you are just you
+36:21 
+
+36:21 have to just take in the outputs that
+36:22 
+
+36:22 got generated and just you are just
+36:24 
+
+36:24 training on top of those outputs. So
+36:26 
+
+36:26 this simplifies training a lot.
+36:34 
+
+36:34 So you do this loop for each mini batch
+36:37 
+
+36:37 and you also do multiple epochs of
+36:40 
+
+36:40 training means let's say your data was
+36:41 
+
+36:41 16,000 you create a mini batch of size
+36:43 
+
+36:43 100 uh so you have 160 mini batches but
+36:47 
+
+36:47 you can do further multiple epochs on
+36:49 
+
+36:49 top top of those mini batches also just
+36:50 
+
+36:50 like you would do SF2 training right
+36:55 
+
+36:55 okay so we have almost reached PO the
+36:58 
+
+36:58 problem as I mentioned is of importance
+37:00 
+
+37:00 weights uh what is the issue So
+37:03 
+
+37:03 generally these importance when you
+37:05 
+
+37:05 start let's so I said right pi theta
+37:07 
+
+37:07 that we start pi theta old is generally
+37:09 
+
+37:09 assumed whatever the latest policy is uh
+37:12 
+
+37:12 and uh then we start training right so
+37:14 
+
+37:14 in the beginning when you start doing
+37:16 
+
+37:16 the training the pi theta the ratio pi
+37:18 
+
+37:18 theta by pi theta this is going to be
+37:20 
+
+37:20 one because the old policy and the
+37:22 
+
+37:22 current training policy are exactly same
+37:23 
+
+37:23 right but as the training proceeds uh
+37:27 
+
+37:27 these weights will start moving away
+37:29 
+
+37:29 from one and uh the graph that you see
+37:32 
+
+37:32 below
+37:33 
+
+37:33 This is one.
+37:35 
+
+37:35 So one you uh there's a lot of weight
+37:37 
+
+37:37 that are still at one. Uh but there are
+37:40 
+
+37:40 a lot of weights that have probably
+37:43 
+
+37:43 reached 10 20. So these importance
+37:46 
+
+37:46 weights can become very large or they
+37:48 
+
+37:48 can become very small. They can become
+37:50 
+
+37:50 0.1 let's say they can.
+37:55 
+
+37:55 And we in both of the cases so if it
+37:59 
+
+37:59 becomes very large the gradient update
+38:01 
+
+38:01 that will happen is going to be huge and
+38:04 
+
+38:04 if it becomes very small then basically
+38:06 
+
+38:06 there will not be any gradient update
+38:10 
+
+38:10 and we want to prevent both the
+38:13 
+
+38:13 scenarios.
+38:17 
+
+38:17 So if pi theta moves very far away so
+38:20 
+
+38:20 from pi theta old the starting point
+38:22 
+
+38:22 then these weights can become very uh
+38:24 
+
+38:24 drastic. So what should we do? I mean
+38:27 
+
+38:27 one possibility is you can say that oh I
+38:29 
+
+38:29 will remove all the weights from the
+38:31 
+
+38:31 left side of the curve and from the
+38:33 
+
+38:33 right side of the curve and only the
+38:34 
+
+38:34 weights that are in the middle of the
+38:36 
+
+38:36 curve and that
+38:38 
+
+38:38 the problem with that is that it's
+38:41 
+
+38:41 difficult to predict uh a lot of samples
+38:43 
+
+38:43 that you can train well on get removed.
+38:46 
+
+38:46 So there was a clever. So there are two
+38:49 
+
+38:49 tricks here. One the uh let me talk
+38:52 
+
+38:52 about the simplest trick first. Uh so uh
+38:55 
+
+38:55 if your ratios are very high then the uh
+38:59 
+
+38:59 gradient uh the gradients can blow up
+39:01 
+
+39:01 and training become destructive.
+39:05 
+
+39:05 So the first solution is that of TRPO
+39:08 
+
+39:08 and what it does it says that
+39:11 
+
+39:11 if you uh this is your old policy this
+39:14 
+
+39:14 the blue curve this is the old policy
+39:19 
+
+39:19 pi theta old
+39:25 
+
+39:25 it says that it will constrain the old
+39:28 
+
+39:28 policy
+39:29 
+
+39:29 uh from moving away constraint the
+39:31 
+
+39:31 policy that you're training from moving
+39:33 
+
+39:33 away from the old policy it will put a
+39:35 
+
+39:35 scale regularizer at every update
+39:39 
+
+39:39 so that the policy py theta does not
+39:41 
+
+39:41 move away from the old policy.
+39:44 
+
+39:44 U so it uh
+39:46 
+
+39:46 so every time it will every update will
+39:49 
+
+39:49 make sure that the policy stays within
+39:51 
+
+39:51 the trust region. So this is called the
+39:53 
+
+39:53 trust region of the uh trust region of
+39:56 
+
+39:56 the policy. So this gives you very
+39:59 
+
+39:59 stable update. The problem is that in
+40:00 
+
+40:00 order to implement this scale term you
+40:02 
+
+40:02 have to do second order approximations
+40:05 
+
+40:05 and uh you uh your gradient you need
+40:08 
+
+40:08 second order derivatives of the policy.
+40:11 
+
+40:11 So this cannot be done implemented for
+40:13 
+
+40:13 large angle model. You can do it for
+40:14 
+
+40:14 simple linear models but you have a
+40:16 
+
+40:16 large language model second order
+40:18 
+
+40:18 updates are not possible.
+40:20 
+
+40:20 So this algorithm is called trust region
+40:22 
+
+40:22 policy optimization and because it
+40:24 
+
+40:24 cannot be used in the case of large
+40:26 
+
+40:26 language models uh people came up with
+40:30 
+
+40:30 PO the proximal policy optimization and
+40:33 
+
+40:33 the idea of proximal policy optimization
+40:34 
+
+40:34 is to clip the weights just like we uh
+40:36 
+
+40:36 saw previously right you have this
+40:38 
+
+40:38 distribution of weights can you clip it
+40:41 
+
+40:41 but now you clip it slightly more
+40:42 
+
+40:42 cleverly one was that you clip
+40:44 
+
+40:44 everything beyond on the right side of
+40:46 
+
+40:46 the graph clip everything on the left
+40:48 
+
+40:48 side of the graph and just keep the
+40:49 
+
+40:49 weights which are close to one, right?
+40:51 
+
+40:51 But the PPO does something more clever.
+40:55 
+
+40:55 It has this weird looking function that
+40:56 
+
+40:56 you see below. So this this is what
+40:60 
+
+40:60 uh generally you would do the RT theta
+41:03 
+
+41:03 the importance rate times advantage.
+41:07 
+
+41:07 Uh but PO has this complicated term and
+41:12 
+
+41:12 we will look at what this complicated
+41:14 
+
+41:14 term does.
+41:17 
+
+41:17 So
+41:20 
+
+41:20 okay
+41:22 
+
+41:22 so let's say your advantage is positive.
+41:24 
+
+41:24 Let's look at this term. Uh if the
+41:26 
+
+41:26 advantage is positive
+41:29 
+
+41:29 uh then this becomes
+41:36 
+
+41:36 yeah so if the advantage is positive
+41:39 
+
+41:39 then your importance rates are clipped
+41:42 
+
+41:42 from above. So what what does it mean
+41:44 
+
+41:44 import advantage positive? That means
+41:46 
+
+41:46 you are telling the model to increase
+41:47 
+
+41:47 the probability of that sample. Now what
+41:49 
+
+41:49 can happen as the model's probability
+41:50 
+
+41:50 for the sample increase? Pi theta will
+41:52 
+
+41:52 start deating from pi theta. Pi theta
+41:54 
+
+41:54 can get higher and higher and that ratio
+41:56 
+
+41:56 can blow up. Right? So now you want to
+41:58 
+
+41:58 clip from above.
+42:01 
+
+42:01 You don't want to clip from so uh uh if
+42:04 
+
+42:04 the advantage is positive that means
+42:06 
+
+42:06 it's a good sample. You want to clip
+42:08 
+
+42:08 from above. You don't want its
+42:10 
+
+42:10 probability to go crazy. you want it to
+42:12 
+
+42:12 increase but not at a very high uh
+42:15 
+
+42:15 level.
+42:17 
+
+42:17 So
+42:20 
+
+42:20 this mean that it's a positive sample.
+42:25 
+
+42:25 So so you want to increase the
+42:26 
+
+42:26 probability of the sample but
+42:34 
+
+42:34 but not beyond the limit.
+42:40 
+
+42:40 And in this case you don't worry about
+42:43 
+
+42:43 clipping from below because uh if the
+42:46 
+
+42:46 probability if you clip it from below
+42:47 
+
+42:47 also and if probability initially is low
+42:49 
+
+42:49 that it won't receive any gradient you
+42:51 
+
+42:51 won't be able to increase the
+42:52 
+
+42:52 probability anyway so you don't clip
+42:54 
+
+42:54 these weights from below in the if the
+42:55 
+
+42:55 advantage is positive
+42:58 
+
+42:58 and if the advantage is negative that
+42:60 
+
+42:60 means you want to reduce the probability
+43:01 
+
+43:01 of the sample in this case you clip it
+43:04 
+
+43:04 from below you say okay I want to reduce
+43:05 
+
+43:05 it but I don't want to just make the
+43:07 
+
+43:07 probability of the sample zero I still
+43:10 
+
+43:10 want uh uh I I mean I don't want to
+43:14 
+
+43:14 deviate too much. So as soon as I move
+43:16 
+
+43:16 slightly away from pi theta old I will
+43:18 
+
+43:18 stop. Okay.
+43:21 
+
+43:21 Does does that make sense? So this
+43:23 
+
+43:23 combination is what uh this weird
+43:26 
+
+43:26 looking expression says.
+43:32 
+
+43:32 So what is the the intuition is same
+43:34 
+
+43:34 that we discussed here. It's basically
+43:36 
+
+43:36 how far far I can push the probability
+43:38 
+
+43:38 of the token whether increase it or
+43:40 
+
+43:40 decrease it without overshooting in
+43:43 
+
+43:43 either direction. If it is a positive
+43:45 
+
+43:45 sample, I don't want to overshoot it by
+43:47 
+
+43:47 making it very positive. And if it is a
+43:48 
+
+43:48 negative sample, I don't want to
+43:49 
+
+43:49 overshoot by making it very negative.
+43:52 
+
+43:52 So it keeps uh the updates small
+43:57 
+
+43:57 and you can do multiple updates now. uh
+43:60 
+
+43:60 so you are you can do as many updates as
+44:02 
+
+44:02 you want without worrying that the uh
+44:04 
+
+44:04 importance weights will blow up.
+44:07 
+
+44:07 So this is sample efficient and also
+44:09 
+
+44:09 this is stable and does not have the
+44:11 
+
+44:11 issue that requiring of second order uh
+44:14 
+
+44:14 derivatives.
+44:17 
+
+44:17 Okay. So now we uh we have reached PO.
+44:20 
+
+44:20 So PP again we have uh large roll out of
+44:24 
+
+44:24 prompts outputs per prompt. We have
+44:26 
+
+44:26 computed the advantage per token for
+44:28 
+
+44:28 each output. We have computed the log py
+44:30 
+
+44:30 theta old per token for each of output.
+44:32 
+
+44:32 We shuffle all this data. Create mini
+44:34 
+
+44:34 batches.
+44:37 
+
+44:37 Compute the log probability under the
+44:38 
+
+44:38 current policy that we are training and
+44:41 
+
+44:41 use that to now before computing the
+44:43 
+
+44:43 objective we clip the weights. The the
+44:46 
+
+44:46 difference here is that earlier we will
+44:48 
+
+44:48 just multiply these importance weights
+44:49 
+
+44:49 with the uh with the advantage and get
+44:53 
+
+44:53 the objective. But now we will clip the
+44:55 
+
+44:55 weights before computing the objective.
+44:58 
+
+44:58 and then back propagate and update
+45:04 
+
+45:04 and this particular thing inside the
+45:06 
+
+45:06 oval shape is repeated for per mini
+45:09 
+
+45:09 batch for multiple number of epochs. We
+45:11 
+
+45:11 started with vanilla policy gradient we
+45:13 
+
+45:13 saw that it has high variance. Uh what I
+45:16 
+
+45:16 mean by high variance is that if you
+45:18 
+
+45:18 then if you change the samples that you
+45:19 
+
+45:19 have sampled the gradient is going to
+45:22 
+
+45:22 change drastically right. uh and that's
+45:26 
+
+45:26 a problem in training because uh if the
+45:28 
+
+45:28 gradient changes every time you select a
+45:30 
+
+45:30 sample a different sample that means the
+45:33 
+
+45:33 training is not going to proceed
+45:34 
+
+45:34 smoothly. Okay.
+45:37 
+
+45:37 Uh so we suggested some solutions to
+45:40 
+
+45:40 reduce variance. One was the baseline
+45:42 
+
+45:42 that we added. The other one was the
+45:44 
+
+45:44 actor critic and the actor critic
+45:46 
+
+45:46 approach is that you train a value
+45:48 
+
+45:48 function
+45:49 
+
+45:49 uh to that will tell you what is the
+45:52 
+
+45:52 reward for the future that given a time
+45:54 
+
+45:54 step what is the reward for the uh what
+45:57 
+
+45:57 is the future reward that you will get
+45:59 
+
+45:59 is determined by a function that you're
+46:01 
+
+46:01 training not by that particular sample.
+46:03 
+
+46:03 So you have removed the effect of the
+46:05 
+
+46:05 sample to some extent but the effect of
+46:06 
+
+46:06 the sample will still be there because
+46:07 
+
+46:07 your sampling that won't disappear but
+46:11 
+
+46:11 uh the effect of the future tokens is
+46:13 
+
+46:13 removed right
+46:17 
+
+46:17 then we said okay uh we cannot use a
+46:21 
+
+46:21 huge amount of data
+46:24 
+
+46:24 uh we have to roll out do a roll out
+46:26 
+
+46:26 every time every time we want to train
+46:28 
+
+46:28 and that was very expensive and it was
+46:30 
+
+46:30 also not uh something desirable because
+46:33 
+
+46:33 you don't want to keep generating and
+46:35 
+
+46:35 training simultaneously. So we said
+46:36 
+
+46:36 let's
+46:38 
+
+46:38 sample for a huge amount of data and
+46:40 
+
+46:40 then do lots of updates before sampling
+46:42 
+
+46:42 again. So we for that we proposed
+46:44 
+
+46:44 importance weights and then we said that
+46:47 
+
+46:47 importance weights can blow up.
+46:48 
+
+46:48 Importance weight can become very high
+46:49 
+
+46:49 or very low. So to correct that we said
+46:54 
+
+46:54 okay let's clip those importance weights
+46:58 
+
+46:58 and that gave us PO which is a simple
+46:59 
+
+46:59 stable efficient algorithm and that was
+47:02 
+
+47:02 the story till last class
+47:05 
+
+47:05 today what we'll do is we will today
+47:08 
+
+47:08 what we want to see is that do we really
+47:10 
+
+47:10 need the value function especially in
+47:12 
+
+47:12 the case of language models so for games
+47:15 
+
+47:15 we do need the value function because uh
+47:17 
+
+47:17 the variability is way too huge in games
+47:20 
+
+47:20 but if you are trying to generate a
+47:22 
+
+47:22 response to a question like if your
+47:25 
+
+47:25 question is something like sort these
+47:26 
+
+47:26 set of numbers the variability in
+47:28 
+
+47:28 possible response is not that huge and
+47:31 
+
+47:31 in the scenarios where the possible
+47:33 
+
+47:33 outcomes are not that variable do we
+47:36 
+
+47:36 really need uh something like a value
+47:39 
+
+47:39 function can we remove the value
+47:40 
+
+47:40 function
+47:44 
+
+47:44 so the problem with po is that value
+47:47 
+
+47:47 function is an additional network to
+47:49 
+
+47:49 drain that is one thing but the Bigger
+47:50 
+
+47:50 problem is that value function whatever
+47:52 
+
+47:52 you train on it's not going to be
+47:54 
+
+47:54 perfect firstly it has not seen all
+47:56 
+
+47:56 possible data sets and it cannot
+47:58 
+
+47:58 possibly learn all poss that so let's
+48:00 
+
+48:00 say you are working with maths right and
+48:03 
+
+48:03 uh you want to train it to let's say uh
+48:07 
+
+48:07 solve some optimization problems it can
+48:09 
+
+48:09 derive the steps or whatever right now
+48:12 
+
+48:12 the value function should be able to
+48:13 
+
+48:13 guess correctly that whatever step that
+48:16 
+
+48:16 has been written so far is correct is
+48:18 
+
+48:18 going to lead to the correct solution or
+48:20 
+
+48:20 not which is a difficult thing to guess
+48:22 
+
+48:22 for a value function.
+48:25 
+
+48:25 So
+48:27 
+
+48:27 there's generally some bias in this
+48:29 
+
+48:29 value function and then because they're
+48:31 
+
+48:31 not perfect and uh that's why you want
+48:33 
+
+48:33 to remove this bias from the picture. So
+48:35 
+
+48:35 uh the idea of GRPO is that if we uh if
+48:39 
+
+48:39 you want to improve the performance on
+48:40 
+
+48:40 problems like math and code, you need a
+48:44 
+
+48:44 very powerful reward function which will
+48:46 
+
+48:46 give you the uh correct reward
+48:49 
+
+48:49 irrespective of what you uh what you
+48:52 
+
+48:52 generate and that's where we reach uh
+48:55 
+
+48:55 talk that's where we reach verifiable
+48:57 
+
+48:57 reward. That's why GRPO was first
+48:58 
+
+48:58 introduced with verifiable reward and
+49:01 
+
+49:01 that's where it shines the best. So if
+49:03 
+
+49:03 you have verifiable rewards, you can get
+49:05 
+
+49:05 rid of the value network altogether.
+49:08 
+
+49:08 Okay.
+49:10 
+
+49:10 And the idea of GRPO is that you instead
+49:12 
+
+49:12 of training a value function to tell you
+49:15 
+
+49:15 uh how good your output is, uh you
+49:18 
+
+49:18 compute the advantage. So a value
+49:20 
+
+49:20 function's main goal purpose is to be
+49:22 
+
+49:22 able to compute the advantage of each
+49:24 
+
+49:24 output that how good a particular output
+49:26 
+
+49:26 is relative uh how uh for for training
+49:29 
+
+49:29 the policy. Uh
+49:32 
+
+49:32 so instead of having a value function to
+49:35 
+
+49:35 give that advantage you ask that uh uh
+49:38 
+
+49:38 given these set of outputs for this
+49:40 
+
+49:40 prompt what is the relative advantage of
+49:43 
+
+49:43 each output. So relatively is this
+49:45 
+
+49:45 output better than the other other
+49:46 
+
+49:46 outputs?
+49:50 
+
+49:50 So as I said instead of learning a value
+49:53 
+
+49:53 function you compare the outputs within
+49:56 
+
+49:56 uh for a given set of prompt compute the
+49:57 
+
+49:57 reward for each of the output
+49:60 
+
+50:00 and uh
+50:02 
+
+50:02 you normalize the reward to get the
+50:05 
+
+50:05 advantage. So this is a particular
+50:07 
+
+50:07 normalization that is used by GRPO where
+50:09 
+
+50:09 it subtracts a mean of the reward and
+50:11 
+
+50:11 divides by the standard deviation. Okay.
+50:14 
+
+50:14 But you can use other advantage
+50:16 
+
+50:16 functions also like you can say that
+50:17 
+
+50:17 instead of uh normalizing for each
+50:20 
+
+50:20 prompt I will normalize over the entire
+50:22 
+
+50:22 batch or you can say that I want to not
+50:25 
+
+50:25 divide by standard deviation then which
+50:28 
+
+50:28 gives something called Dr. GRP. So Dr.
+50:30 
+
+50:30 GPO is just uh it just remove the
+50:32 
+
+50:32 standard deviation division part because
+50:34 
+
+50:34 it says that standard if you divide by
+50:36 
+
+50:36 standard deviation you are not
+50:38 
+
+50:38 discriminating between highly
+50:40 
+
+50:40 differentiated responses and responses
+50:42 
+
+50:42 which are very similar to each other. So
+50:44 
+
+50:44 standard deviation adds another this
+50:46 
+
+50:46 standard deviation adds another bias
+50:50 
+
+50:50 which is removed by GRPO Dr. GIP.
+50:55 
+
+50:55 Okay.
+50:57 
+
+50:57 Uh
+50:59 
+
+50:59 removed
+51:01 
+
+51:01 by
+51:03 
+
+51:03 Dr. GRP.
+51:14 
+
+51:14 Okay. So GRPO is basically PO where the
+51:17 
+
+51:17 advantage function this is the advantage
+51:19 
+
+51:19 function
+51:20 
+
+51:20 does not come from a critic it's just
+51:23 
+
+51:23 the reward of the entire response
+51:26 
+
+51:26 minus the average reward for that prompt
+51:29 
+
+51:29 mux let's say
+51:32 
+
+51:32 upon the uh standard deviation
+51:35 
+
+51:35 uh for for that prompt standard
+51:38 
+
+51:38 deviation over the reward
+51:44 
+
+51:44 Okay.
+51:48 
+
+51:48 So there's no value function needed. The
+51:50 
+
+51:50 advantage is relative. And the idea is
+51:53 
+
+51:53 simple that if the if an output is
+51:55 
+
+51:55 better than the average output for the
+51:57 
+
+51:57 prompt, it will be encouraged. And if
+51:59 
+
+51:59 the output is worse than the average
+52:01 
+
+52:01 output for the prompt, that will be
+52:02 
+
+52:02 discouraged.
+52:05 
+
+52:05 And the other part of the objective is
+52:07 
+
+52:07 same as PO.
+52:08 
+
+52:08 This thing is same as PO
+52:11 
+
+52:11 only the advantages for the changes.
+52:14 
+
+52:14 [Music]
+52:19 
+
+52:19 So when should you use GRPO and when
+52:21 
+
+52:21 should you use PPO? So if GRPO should be
+52:24 
+
+52:24 used when uh uh when you want to when
+52:29 
+
+52:29 you have a very good reward model. If
+52:30 
+
+52:30 you have a something like a verifiable
+52:32 
+
+52:32 reward where correctness means
+52:34 
+
+52:34 correctness and if it is giving a
+52:36 
+
+52:36 negative that means it is wrong then you
+52:39 
+
+52:39 can use GRP to improve the performance
+52:41 
+
+52:41 as much as you want. I mean so if you
+52:43 
+
+52:43 have a such a good reward model where
+52:45 
+
+52:45 you're just matching with the ground
+52:46 
+
+52:46 truth there's no limit to the
+52:47 
+
+52:47 performance improvement that you can
+52:49 
+
+52:49 achieve the limits are imposed by
+52:51 
+
+52:51 because the reward model generally not
+52:53 
+
+52:53 very good uh or if you don't want to
+52:56 
+
+52:56 train for a very long time or you don't
+52:57 
+
+52:57 have complex enough data sets uh uh
+53:03 
+
+53:03 challenging enough data set to keep on
+53:04 
+
+53:04 improving the performance. But as long
+53:06 
+
+53:06 as you have challenging enough data sets
+53:07 
+
+53:07 and you have a verifiable reward where
+53:09 
+
+53:09 correctness uh where positive reward
+53:11 
+
+53:11 actually means correctness there's no uh
+53:14 
+
+53:14 uh and you have infinite amount of time
+53:16 
+
+53:16 in compute then you can keep on
+53:17 
+
+53:17 improving the performance as long as you
+53:19 
+
+53:19 want and that's what most of these
+53:22 
+
+53:22 companies uh are trying to do in the
+53:25 
+
+53:25 since the past uh since the deepse paper
+53:27 
+
+53:27 has come out.
+53:32 
+
+53:32 uh so yeah so if the and also gpo
+53:36 
+
+53:36 because you're not using a value
+53:37 
+
+53:37 function there should not be a huge
+53:39 
+
+53:39 diversity in the I mean uh there should
+53:42 
+
+53:42 I mean the possible correct responses
+53:44 
+
+53:44 should not be very huge uh because uh if
+53:49 
+
+53:49 there is a very huge diversity then you
+53:51 
+
+53:51 will have I mean checking the the model
+53:54 
+
+53:54 will find it difficult to dis do credit
+53:57 
+
+53:57 assignment which is where value function
+53:58 
+
+53:58 helps right so uh So you cannot use it
+54:02 
+
+54:02 with games and robotics. You can use it
+54:04 
+
+54:04 for with LMS for response generation for
+54:06 
+
+54:06 uh uh answer generation.
+54:11 
+
+54:11 Okay. So this is the entire journey uh
+54:15 
+
+54:15 till GRPO. We started with policy
+54:17 
+
+54:17 gradient. We said that uh it directly
+54:20 
+
+54:20 optimizes reward but has high variance.
+54:22 
+
+54:22 Then we added a trainable baseline which
+54:25 
+
+54:25 is the value function. Then we said we
+54:27 
+
+54:27 need to be able to use samples
+54:28 
+
+54:28 efficiently. So we added importance
+54:30 
+
+54:30 weights. Then we said that importance
+54:33 
+
+54:33 weights can blow up. So we added
+54:34 
+
+54:34 clipping and trust region. And finally
+54:37 
+
+54:37 we said we don't probably don't need the
+54:39 
+
+54:39 critic. So we came to GRPO. This ends
+54:42 
+
+54:42 still and this ends the journey to GRPO
+54:47 
+
+54:47 and these are some of the resources uh
+54:50 
+
+54:50 that are there in the slides. So um the
+54:53 
+
+54:53 openi spinning up tutorials are quick
+54:56 
+
+54:56 tutorials. They start with PO I mean
+54:58 
+
+54:58 they start with actctor critic uh and
+55:01 
+
+55:01 there's zoom actctor critic is already
+55:02 
+
+55:02 present but you can have a quick look
+55:05 
+
+55:05 because these are very easy to read
+55:06 
+
+55:06 tutorials and they have the algorithms
+55:10 
+
+55:10 clearly and also probably some
+55:11 
+
+55:11 implementations.
+55:14 
+
+55:14 Um also you can read about the GRPO is
+55:17 
+
+55:17 introduced in this. This is the paper
+55:19 
+
+55:19 that is uh that introduces GRPO
+55:22 
+
+55:22 and
+55:23 
+
+55:23 uh this is a PO paper.
+55:29 
+
+55:29 So uh these are three sources that uh
+55:32 
+
+55:32 you can use for reading about POG, GRPO
+55:34 
+
+55:34 and to get some idea how to implement
+55:36 
+
+55:36 them. uh but uh if you want to use it in
+55:40 
+
+55:40 your code uh familiarity with the if you
+55:44 
+
+55:44 want to use uh how do if want to train
+55:46 
+
+55:46 some models some some data sets using PP
+55:48 
+
+55:48 or GRPO then familiarity with the TRL
+55:52 
+
+55:52 framework will be good also it will it
+55:54 
+
+55:54 has a lot of details about those
+55:56 
+
+55:56 algorithms as well so that also you can
+55:58 
+
+55:58 go through go

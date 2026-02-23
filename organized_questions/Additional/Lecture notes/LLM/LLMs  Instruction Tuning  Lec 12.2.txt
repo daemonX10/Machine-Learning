@@ -1,0 +1,328 @@
+00:02 so in the last class we covered the first step that is required in creating something like CH GPT and now in this
+00:09 class we'll cover the Second Step so last class we looked at pre-training and one of the emergent property of
+00:15 pre-training which is in context learning and in context learning has its limits as we will discuss and
+00:24 uh uh people often resort to instruction tuning these models and so that's what
+00:30 we will study here so instruction tuning is the phase where you actually want to
+00:37 uh modify you transform your pre-rain model to make it follow natural language instructions and as we saw in the last
+00:43 class pre-rain models do not may not follow natural language instruction you might give them instruction they might give you new instruction instead of
+00:49 giving you a answer they might give they might do have any weird behavior that they saw during their training data so
+00:56 you want to add a phase where they actually start following instruction
+01:02 this is what we have covered in last class and this is approximately what we will cover today uh why we need
+01:09 instruction tuning what are the what is the loss function that we use in instruction tuning which is pretty standard and most importantly how do we
+01:17 get the data that we uh require to do instruction tuning that is the interesting part then
+01:24 we'll look at some instruction tune models and some of the properties of these instruction tune models
+01:31 okay so firstly uh why do we need instruction tuning uh as you mentioned
+01:37 pre-end models have some behavior that they have learned from the huge amount of Corpus that they were trained on and
+01:44 but they were the Corpus was never in the instruction output format right the Corpus was HTML web pages and so what
+01:51 does an HTML web page look like you will have some questions some answer uh some examples of the task and so it copies
+01:58 that behavior it does not copy the behavior of following the instruction uh so humans generally want
+02:04 that if I give an instruction to a model it should solve that task right and so there is this gap between pre-end models
+02:10 and what humans require and to bridge that Gap you we we use instruction tuning the second thing that people want
+02:18 is that you want the model uh to have some meta Behavior you want it to follow
+02:23 some meta instructions for example you want it to be helpful let's say or you sometimes you want it to behave in a
+02:28 different way than uh let's say you want to generate verbos outputs or small turs outputs so whatever these meta behaviors
+02:35 that you want from your model uh you can enforce it during the instruction tuning
+02:40 phase so uh and fin but uh there's a catch that instruction tuning data
+02:46 should be diverse otherwise what will happen if you let's say instruction ding data is all about summarization what
+02:52 will happen is it will the model might lose up a lot of behavior that it learned during the pre-tuning phase so
+02:57 if the destruction tuning data has to be diverse when I say diverse what I mean is that the tasks that are there should
+03:03 be very different like for each task maybe you don't need to have 10,000 examples for each task maybe 10 examples
+03:09 for each task is sufficient but you require thousands of tasks uh to ensure
+03:14 that it does not focus on a single behavior and it actually remembers whatever it was pretend on so it's a
+03:20 very critical phase instruction during and it has to be done carefully so that the model does not uh forget the
+03:26 behavior that learn in pretaining and one thing to keep in mind that pretaining is still the most important
+03:31 phase where all the reasoning in uh uh is in force inside the model instruction
+03:37 tuning will just make these models uh uh behave more like what humans want it to
+03:43 be and that's one of the hypothesis that we will see at the end of this
+03:50 lecture okay so a quick idea on what the training loss looks like for uh these
+03:56 models so uh instruction tuning is just log like conditional log likelihood maximization so you are given uh
+04:04 instruction you tokenize the instructions these are the tokenized instructions and these are
+04:10 the uh tokenized output tokens and you just maximize the log probability of the
+04:16 output tokens given the instruction tokens instruction may also contain uh input for example let's say uh and this
+04:25 is uh and if you have a decoder only model this is how you will concatenate
+04:30 the instruction tokens and the output tokens feed it to the uh decoder model
+04:36 and uh yeah so these are the this is teacher forcing where you actually feed
+04:44 the output tokens also and given the last input token you will generate the
+04:49 first output token given the first output token you will generate the second output token and so on and so forth and this is how you will compute
+04:56 the uh so here you're Computing the log probability of the first output
+05:02 token uh given everything else
+05:07 okay so you'll compute and then you will sum up the log probabilities this will give you the conditional log likelihood
+05:12 of the output tokens given the input tokens and you will also have an end of text token because you also want to know
+05:18 when to stop generating the sequence so is there any confusion about this loss
+05:23 function this is standard conditional log likelihood uh for a the way you will compute in a de only model
+05:35 and if you have an encoder decoder model this loss will still remain the same you still have a conditional log likelihood
+05:41 the way you will feed the tokens will be different the encod encoder you will feed the input tokens and to the decoder
+05:47 you will feed a beginning of sequence token uh and the teacher the teacher
+05:53 Force the tokens required for Teacher forcing so everybody know what teacher
+06:00 forcing is right uh whatever uh you are trying to increase the probability of
+06:07 you feed the tokens of those uh uh you feed those the previous tokens of that
+06:13 output sequence to generate the next token uh in the sequence so this was
+06:18 about the loss function uh the more interesting part is where does the data come from A Loss function is standard
+06:24 but uh the finding the data for instruction training is uh much more interesting uh so one thing is that can
+06:33 we already have uh well can we you uh collect the data from human beings and
+06:38 this is a very challenging thing because you as I said you have to ensure that your instruction set is very diverse now
+06:45 uh and you need high quality instructions also so if you go to let's say Amazon Mechanical TK and ask them to
+06:51 generate instructions and examples you won't get anything interesting from that data actually because mechanical turers
+06:57 uh don't have any reason to generate high quality data it's very difficult to get high data out of them so what should
+07:03 we do so this is one of the first uh uh things that people tried was that we
+07:08 already have a huge amount of NLP data that exists can we convert it into instruction format so let's say you have
+07:15 a uh uh the data for natural language inference whether something entails uh
+07:23 whether the hypothesis entails the premise or not so then you can create a bunch of temp templates for this
+07:29 particular task the entailment task one of the uh template May uh have the instruction that based on the paragraph
+07:35 above can you conclude this hypothesis the second one might look like okay read the following and determine if the
+07:41 hypothesis can be inferred from the premise so there are bun for the same task you can create a bunch of templates
+07:48 and uh natural language templates and uh you can uh this will uh create uh this
+07:53 will create instruction data for the instruction tuning phase and this is one task you might
+08:01 have uh there are bunch of natural language task and data sets available for them so you don't have to do much effort all you have to do is this the
+08:07 human part comes into this template creation and rest of the stuff can happen automatically right so this uh
+08:14 this is how the FL uh the original FL data was created the second thing that people
+08:19 tried again this is uh human created data is that uh we cannot collect the data from turkers but can we uh
+08:26 collected from natural language practitioners so uh natural instructions
+08:31 natural NLP practitioners were told to create GitHub issues about uh submitting
+08:37 a data uh for uh for uh for uh for the instruction tuning task and uh what what
+08:45 people mostly did was picked up uh people were encouraged to actually pick up existing NLP tasks uh and convert it
+08:52 into uh create a task out of it and this is how a task instruction look like given an atance and recent dialogue uh
+08:59 output yes if the contains Small Talk otherwise no so people created a bunch of these task people also created
+09:05 modification of those of the existing NLP task and there were also positive examples and negative examples given
+09:10 with the task so that to in order to encourage uh the model to do in so we
+09:16 also want to preserve that in context learning behavior that is there in the pre-rain model right so you would also
+09:21 they would also add along with the task definition and they will also add positive and negative examples so that
+09:26 you can when doing instruction tuning you also do in EXT training feed the examples and then ask it to solve the
+09:32 task maybe feed one example two example 10 example different combination or even zero examples so these are these two
+09:38 these two are human generated uh instruction tuning data sets then people also tried synthetic uh
+09:45 instruction tuning data and what I mean by synthetic instruction tuning data is that uh you use a pre-trained language
+09:53 model or maybe even some existing instruction tune model like instruct GPT and you use that model to generate task
+10:01 as uh as well as instruction as well as the output and uh the reason why people look
+10:08 at that is because the with Supernatural instructions and with the flan with flan
+10:13 there's a limited number of tasks that that actually NLP Tas that were available and uh uh people wanted uh if
+10:20 you want even more diverse set of tasks uh people thought that using synthetic
+10:26 synthetically generating those instructions may be uh the best Way Forward so this is cheap and easy to
+10:32 obtain because you don't require actually human labor you already require as a language model uh powerful language model and surprisingly turns out that
+10:40 what these language models generate is slightly better quality than is better
+10:45 has better quality than human data now this statement should be taken with a pinch of salt because it might turn out
+10:51 that what language mod generat is completely wrong also but uh on average it turns out to be better quality
+10:60 so we look at four popular approaches for generating synthetic data in this class uh the self- instruct approach
+11:06 which was the which was a very uh successful approach uh which actually showed that you can reach from a
+11:12 pre-trained gpt3 to an instruct GPT level model uh without having any human
+11:18 without requiring any human being to generate uh instruction so this was a very surprising thing when it came out
+11:25 the idea of self- instruct that just a pre-train model on its own can generate data to instruction tune itself so that
+11:31 it can reach human uh What uh human generated instruction data will achieve
+11:36 then there was this Evol instruct paper which uh will talk about how do you make the instructions more complex more broad
+11:44 uh so that the uh the model is able to perform complex reasoning tasks uh from
+11:50 the instruction T data then this Ora style Generations which have become very popular recently because these are very
+11:55 simple all you have to tell the model in Outcast St generation is uh be generate detail explanation
+12:01 give things step by step those kind of things you just want to make sure the language model generate detailed outputs
+12:06 and you want to train on top of those outputs and finally this instruction back translation which is more of a
+12:12 self-improvement technique that you want to ensure that whatever you are generating uh is correct by back
+12:19 translating it we'll talk about all these four approaches okay so let's look at the first approach which is self-
+12:25 instruct and uh the idea of self- instruct it it's very simple and also
+12:30 very interesting uh so you firstly you start with some existing seed tasks
+12:36 which may be human generated so here we they have the authors took 175 seat task
+12:41 one instruction and one example per task and your objective is to generate new
+12:46 instructions and generate new examples or new instances for each instruction
+12:58 Okay so uh so there are multiple steps that will happen in the self process one is the
+13:03 instruction generation and uh then there will be an instruction classification step and finally there will be an
+13:09 example generation step so uh so instruction generation means you uh already have some seed task or
+13:15 instructions and conditioned on those seask you want a pre-train LM so remember this language model that we
+13:22 going to use is a pre Trin one it does not it does not follow instructions all it can do is you give it examples it can generate new examples it can you give so
+13:28 you give examples of of in what an instruction looks like to this model and what it can generate is exam is new in
+13:35 uh instructions uh that uh so as long as your list that you are giving is a
+13:40 diverse list it's not going to copy from that list because it's it knows that okay the input is diverse so it will keep on generating a diverse list of
+13:47 examples if you give a list of instructions which are like very similar to each other it will keep on generating instruction that are very similar to
+13:53 each other so it's a pre-end language model it will copy whatever Behavior you give it in the input examples so this is
+13:58 the way so you have uh existing set of human generated instructions you may have an empty list of synthetically
+14:04 generated instructions you sample eight instructions that's what they did they sampled eight instructions uh from these
+14:11 two list and they give it to a pre language model it generated new instructions and then you want to check
+14:16 whether the generated instructions uh have similarity with the existing instruction list uh above a certain
+14:23 threshold if yes you discard it and if not uh uh then you add it so let me put
+14:29 if okay this is a very simple process uh of
+14:35 generating instructions the second step is that you
+14:41 want to identify whether the task is actually a classification task and why
+14:46 do you want care about whether it being classification so what they observed the authors of this paper observed that when
+14:53 it's a classification task what it happens is that the model prefers uh uh to generate examp examples of a certain
+15:00 label like if it is sentiment classification the model might prefer positive sentiment might keep on generating positive sentiment examples
+15:07 instead of generating a proper mix so for classification task you want to ensure that you have a good mix of
+15:12 positive or and negative or all all different types of labels that are there
+15:17 uh and so so they had this step called classification uh task identification
+15:23 whether the task is a classification or not and this is the prompt uh this is sort of the prompt that they gave to the
+15:30 pre-trained language model uh so again uh you have some
+15:36 examples of class these are examples of
+15:42 classification uh and uh uh you give a new instruction uh you give a new
+15:48 instruction and ask it whether is it a classification or not that's it it's uh you just uh uh use the in context
+15:57 learning to identify this property
+16:02 and final the third step uh is generating examples of the task now uh
+16:09 again this is done in a in context learning fashion so what you will do is to the pre-end language model you will
+16:15 give uh an existing instruction for which you already have an example so you will give it an
+16:20 instruction give it an example of that instruction the this is again an in context example
+16:29 and uh you will do it for many uh uh you'll give multiple in Contex example
+16:35 task one this example task two example two and for the new tasks that you want to generate an example you just give the
+16:40 task and ask it to generate an example does this make sense
+16:46 okay okay by the way this is the input first uh uh so what I mean by input
+16:51 first so for classification task you want to give output first you want to give the label first and then ask it to
+16:57 generate for example if a sentiment classification you want to say I want to generate an out uh an input that will
+17:02 have positive sentiment or I want to generate input that will have negative sentiment so that you ensure that there is an equal distribution of different
+17:08 class labels so those are referred to as output first examples and input first is
+17:14 the standard way where you will just where you will ask them all to generate an input and then generate an
+17:19 output or sometimes input is not even desired right like your task is just a question then like which exercise are
+17:27 best for reducing belly fat there's no input to that required uh examples where input required would be like sort task
+17:34 is sort the following numbers and then you'll have an input and you also generate an
+17:40 output so this is an example of output first where you give the class level uh class classify the sentiment class label
+17:47 is mixed and it is the sentence is of a mixed sentiment I guess I enjoy the flavor of the restaurant but the service
+17:53 is too slow uh so this is an output first uh generation instance
+18:02 generation okay so this is the complete pipeline uh this is the instruction
+18:08 gener generation part where you take one take some task from the pool yeah so
+18:14 this is the uh instruction generation part where you take some task from the pool and ask the pre-end LM to generate
+18:21 some instructions then this is the identification of the uh instruction that you have generated whether it's a
+18:27 classification or not then this is the instru instance generation part for two different scenarios input first and
+18:33 output first and once you have done all this you will add the instruction and the new example you'll do some filtering
+18:39 uh and then add it back to the task pool that you have and the interesting part of this
+18:45 self- instruct paper was that so there were before the self- instruct uh open
+18:50 had these powerful models uh GPD 3 and instruct GPT gp3 was a model which was a
+18:56 pre-train language model it will not follow any instruction it would just complete your input and there was the
+19:02 instruct GPD which was very powerful you give some instruction and it will U try to solve based on solve your instruction
+19:09 and uh as you can see the numbers also reflect that right uh gbd3 does not follow any instructions it has a score
+19:15 of rouel on some uh some unseen task from Supernatural instructions uh
+19:21 because it does not follow instructions and uh inst G has a score of 40.8 and uh
+19:26 when did when uh the author of self instruct uh just took this pre-trained
+19:31 language model and applied self- instruction they got a score which was very close to instruct
+19:36 GPT and this number was very interesting there's a human evaluation that is also very interesting I will see in the next
+19:43 slide then they also tried adding the supernatural instruction data set that we saw
+19:48 previously and that improves the numbers but these numbers that you see the 49.5 and 5.6 they do not translate onto human
+19:56 Benchmark so although your instru super instruction tuning training on super instruction tuning improves the
+20:02 performance of super Supernatural instruction tuning without actually improving human benchmarks that we will see next so these are the human
+20:09 evaluation results on 252 instructions that they curated uh and this is the gbd3 self instruct uh
+20:18 work uh that they did which they taking gbd3 and applying self instruct on top of it and uh and this is the instruct
+20:26 GPT model so the instruct GPT models are still better but this is quite close to the instru GPD
+20:32 models and Supernatural instruction as you can as I mentioned does not actually help uh the performance that much if you
+20:39 are using self- instruct so this was uh the first
+20:46 approach that became very popular for synthetically generating instruction and exam exam instruction data and
+20:52 examples then uh uh there was this paper Evol instruct and the idea was here was
+20:58 that the instructions that were coming up in self- instruct were not very complex they were often simple
+21:04 instructions that can be uh solved easily and as a result if you find tune using the self- instruct examples the
+21:10 model that you end up could not solve very complex reasoning tasks
+21:16 okay so so so the intution was can we use llms to actually make these
+21:21 instructions even more complex uh uh and so they created an instruction evolver
+21:27 and which is simply an l that you prompt to generate more complex instructions and then an instruction
+21:34 Eliminator which simply checks whether the evolution that you're doing so Evolution You by Evolution what I mean is that you have a base instruction and
+21:41 you will try to make the instruction more complex increase the depth increase the bread we'll talk about that in the
+21:47 next slide and the The Eliminator will simply check whether the evolution of the instruction that you have done
+21:52 ultimately resulted in an instruction that can be answered or not if the instruction turned out to be uh such
+21:59 that all the responses from the instructions are noninformative something like sorry I don't know or uh
+22:07 something which is noninformative uh then you would eliminate those kind of
+22:15 instructions so there were two parts to the instruction evolver the first one is called in-depth Evolution and the idea
+22:23 of in-depth evolution is that uh you have a base instruction simply the base instruction could simply be something
+22:29 like what is 1 + 1 equal to that is your base instruction it's a very simple instruction now if you want to do uh
+22:35 in-depth Evolution what you will do is you will take in this case they took a instruction toe model GPD 3.5 I think
+22:42 and uh they asked GPD 3.5 uh this is the a prompt I want you to
+22:49 act as a prompt rewriter your objective is that you are given a prompt and you have to create a more complex version of
+22:55 it uh that so that these GPD 4 chat GPD can cannot handle
+23:00 it and the ritten problem must be reasonable and must be understood these are standard things that you write it
+23:07 down now here the part that you see in red is the constraint they are telling to the evolver so here they're telling
+23:14 is that uh complicate by adding more constraints to the
+23:19 input and then you give the prompt and then uh then you have the ritten pr so you can in the red part you can replace
+23:25 by add adding more constants by let's say you can say that uh add Moree uh I'm
+23:32 guessing something like increase reasoning steps in the prompt or something like that you can change the prompt according to what you want the
+23:39 new instruction to look like and then there was an in breth evolution which is simply that you want
+23:45 to create a brand new prompt from that prompt and new prompt does not have to be uh uh similar to the previous prompt
+23:52 but has to be from the same domain like if you were working with the uh algebraic equations you probably want a
+23:58 prompt new prom which is also generating algebraic equation and the length and the
+24:04 difficulty level should be same so this is uh here you're not making the prompt more complex but you are just increasing the scope increasing the coverage of the
+24:12 prompts so uh the third uh approach which uh is used in a lot of Lang uh
+24:19 language models that are created uh is the ARA style generation and uh the here
+24:27 the intuition was that if you ask uh if you simply so before
+24:32 this or generation what people used to do is called distillation and what distillation means is that you will take
+24:38 these GPD 4 GPD 3.5 models you will feed the input or your instruction whatever it is there to the model and you will
+24:44 generate outputs and do train and train your language model on the same outputs
+24:50 right okay so basically you're just trying to copy what gbd4 generates that's it and uh what happened was that
+24:56 gp4 often generates would generate very small responses and uh which is not a
+25:02 problem in general but there is very little information in there when you want to do distillation you want to copy
+25:08 as much information from the teacher model to the student model and the teacher model is generating just one token there's not much information to
+25:14 copy so then the question was how can we copy more information from a powerful model like gbd4 how can we force these
+25:21 models to give more information so that my student model has more information to
+25:26 learn from okay so the idea was that let's add a system level
+25:32 instruction which would guide your gp4 or whatever your uh teacher model is there to generate more tokens more uh
+25:40 more reasoning perhaps it would give me more a better idea of the brain of gbd4
+25:47 so force it gbd4 to generate more tokens and train on those tokens so not arbitrary tokens you're not telling gb4
+25:53 okay just generate the word the 100 times because that would be not inative but you want to get a of how the gp4
+25:59 brains looks like so that and you can so that you can use that information uh while training your uh language model by
+26:07 instruction tuning your language models so you would add something like add that
+26:12 let's think step by step of the solution uh or you will add that explain the solution like uh uh I'm explain the
+26:19 solution like you explain to a fiveyear child or you can ask that okay be more informative in your response so in the
+26:25 system level instruction you can give all these possible instructions to force
+26:30 gp4 to generate a bigger output so here the task if you look at the top image and the bottom image the
+26:38 task is same uh the input is solve this question does uh okay what is this
+26:43 question Italian language and you have to pick a suitable option and in one case the gbd4 simply outputs the correct
+26:49 answer which is fine but it's not sufficient for instruction tuning my model so I will tell the model okay please provide a detailed answer why you
+26:55 think this is answer your answer is correct so then in that case case it will generate a huge reasoning that based on the given options and the
+27:02 context uh refrigerator door is closed something something yeah so then so then this information becomes much more
+27:08 usable uh to train uh your language student model does it make sense it's a
+27:14 very simple idea just force the model to generate more tokens so that you have much more information to train on so
+27:20 this is called Ora style Generations finally there's this approach called instruction back translation and in in instruction back
+27:28 translation uh the idea is that you invert the problem on its head so uh
+27:34 generally what in self- instruct what we saw we asked pre-trained language model to generate instructions and then
+27:39 examples given instructions right here they said okay we already have a huge amount of data on the web can we which
+27:46 is not in the instruction format but can I convert it into a format that looks like instruction and output and so so
+27:53 what they did was uh the first they collected uh human
+27:58 written instruction respon uh uh data and they trained uh uh a language
+28:07 model like Lama to convert the response into an instruction okay so here they
+28:14 are creating a back back translator model which takes the uh output first
+28:20 and generates the instruction later okay and then they took a huge amount of UNL text on the web you have unlimited
+28:28 amount of that and they gave it to the back translation model so the job of the back translation model is to infer what
+28:33 instruction is happening in these examples so this will give you so the
+28:38 this this back translator model will give you uh instruction for each uh or
+28:43 for a bunch of outputs that you give to it then they evaluated the quality uh of
+28:50 these uh instruction comma output pairs that have been generated by the back translator and uh finally once you have
+28:57 removed the low quality pairs you can do the forward uh mapping now so uh you
+29:03 used uh a back translator to generate instructions and now you uh uh train
+29:08 your language model to generate the examples given the instruction the the forward training so these are some
+29:16 examples of instruction tune models for which we know the data set there are a lot of instruction tune model for which
+29:22 I have no idea about the data set like CH GPT or uh even Lama 3.1
+29:29 uh uh but for some we do know like plan T5 is a just t511 billion this is t511
+29:35 billion is a pre-rain model this is a pre-trained model and this is this has
+29:42 been trained on the FL uh this has been instruction tuned on the FL data set similarly alpaka 7 billion is uh Lama 7
+29:50 billion which has been instruction tuned on the synthetic data set generated using self- instruct so self- instruct
+29:56 is one of the first approaches that we saw right similarly wizard LM 7 billion is Lama 7 billion that has been
+30:02 instruction tuned on another synthetic data set generated using Evol
+30:08 instruct and the third one is mral 7 billion open Orca which is Mr 7 billion
+30:14 that has been instruction tuned on Orca style Generations so so you can see there all
+30:21 these different instruction synthe generation approaches have been used in a bunch of instruction tune model these
+30:26 are only four that we have listed but there are a large number of instruction tune models that are out there so
+30:33 finally some of the properties of these instruction tune models now that you have got an instruction model what can
+30:38 we say about them so uh one observation was that once you
+30:43 have an instruction tune model that has been trained on a huge diverse set of instruction data uh they are quick
+30:50 Learners what does it mean that let's say you have few examples of a certain task that you want to uh do superise
+30:57 training on then if you feed those examples to an instruction tune model uh
+31:02 that model will quickly adapt to the task new task whatever task that you have so here they show that using only
+31:09 6% training examples uh you are able to achieve a pretty good rot score uh of
+31:17 70 and uh if you had taken a pre-rain model so T5 is a pre-trained model this
+31:23 is pre-trained and you had used 100% training samples to do find unink of
+31:29 these are of a specific task you would have gotten a root score of 70.99 but uh
+31:34 if you take uh a instruction tune model TK instruct is an instruction tuned model
+31:41 using some data set I forgot exactly which one I think it's FL but might be different I think it's supernatural
+31:47 instruction yeah so so if you take an instruction to model you using only 6%
+31:53 samples you can get an equivalent score so they are quick Learners you require a very few amount of samples for of the
+31:58 particular task to make them work for your task then there was this another
+32:04 hypothesis called The Superficial alignment hypothesis and the idea of this hypothesis is that uh that as as I
+32:11 mentioned earlier that pre-training is the phase where all the reasoning gets Incorporated in into your
+32:17 model and Alignment simply teaches it that which subdistribution of output
+32:22 formats should be used when interacting uh should be used that's it so it I mean
+32:28 these are hypothesis so they may not be perfect but this is what it says that whatever reasoning you want to incorporate into the model do it during
+32:35 pre-training uh instruction tuning is simply going to align uh simply going to adopt itself to the format that you
+32:42 require from it that's it and what they suggest that if suppose if if you all
+32:47 you are doing is that adopting it to a new format that that is required by humans then a small number of examples
+32:53 should should be sufficient right and that's what they did they took some 1,000 very high quality examples from
+32:60 Stock Exchange Viki high and Reddit again Reddit has a bad quality example
+33:06 also but they did a lot of filtering to get very high quality examples and uh natural instructions so they uh got
+33:14 1,000 examples of very high quality and they instruction tune on only on this small set of examples and uh what they
+33:22 observe so this approach is called Lima or less is more for alignment and uh what they observed is that
+33:28 just training on these instruction tune examples uh gives you pretty high score
+33:34 in terms of human preference you don't need if you only care about human
+33:39 preference uh using a very small number of examples turned out to be sufficient
+33:45 you can see gp4 is still way better but uh I think here the base model was
+33:51 alpaka Lama iaka 65 some base model I forgot actually I'm guessing it was a 65
+33:56 billion base model so these are main takeaways uh that from this lecture if
+34:02 you have a pre-rain model uh instruction tuning makes it more usable by humans so that humans can give an instruction it
+34:08 can follow it and it's simply achieved by maximizing the conditional Lo likelihood of the output given the
+34:14 instruction and the data set that you use for instruction tuning either can be generated synthetically or can be human
+34:21 generated and finally they can quickly the instruction tune models can quickly learn from a small amount of label data
+34:28 adop can be quickly adopted for a specific task using a small amount of data

@@ -1,0 +1,435 @@
+00:03 hello everyone today we will talk about uh the learning steps that I invol I guess previously you must have uh heard
+00:10 from uh Professor Tano and others about the architecture of
+00:16 uh of these models and today we will talk about how to train uh these
+00:21 architectures and specifically we are interested in constructing something like chat GPT uh and what are the
+00:28 different steps that go about in constru something like that GP okay
+00:33 uh so there are three uh main steps uh that are there one the first one is
+00:39 pre-training which is the most important step uh pre-training simply means that you collect as much data that you can
+00:47 get your hands on so here we are talking about large language model so language data probably as much language data that
+00:53 you can get your hands on probably scrap the web to get all the HTML web pages that are there
+00:59 uh you get billions of tokens of unstructured text and then finally you
+01:04 train the model uh train your uh whatever your llm architecture is here we are talking about Transformer uh llm
+01:11 architecture and just train uh uh on top of these uh web pages that you have downloaded from the web so this is the
+01:19 most important step and this is the step where most of the reasoning power will go into your model uh the latest steps
+01:25 will be about how to make these models more friendly to humans but those step steps uh do not get uh do not insert as
+01:33 much reasoning into the model as this pre- trining step so if your model is not uh pre-rain very well any step that
+01:39 you do in the late uh in the latest steps like instruction tuning or reinforcement learning none of this is going to actually uh none of this can
+01:46 make a badly pre-trained model work so pre-rain step is the most important step the second step and this is what we will
+01:52 talk about today uh the second step is the instruction tuning step and in
+01:57 instruction tuning uh basically now now we are going to making these models behave better for human because you have
+02:03 pre-trained the model it will have a certain Behavior but it won't make sense to human for it won't make sense very
+02:08 easily for human so how to make these models makes uh more sensible towards humans is you make them follow
+02:14 instructions so in instruction tuning you have instruction and you have a
+02:19 output like you you give the instruction sort these numbers and the output is a sorted list of numbers uh so you have a
+02:26 several thousand of these instructions and output trip uh uh task instruction and output tripletes and you uh train uh
+02:33 your pre-train model on top of these instructions this is what we'll talk about in uh the next class and finally
+02:38 the third step that goes into making something like chat GPD is the reinforcement learning from Human feedback and this is the part where
+02:46 humans directly interact with the model you uh you show the output of the
+02:51 language model uh to humans and ask them okay do you prefer this output or this output now why do we need this step
+02:58 because even if you have instruction tuned the model uh it me its output may not be desirable to humans for example
+03:03 it might still generate abusive content or it might generate content in the format which humans don't like it for
+03:09 example humans might prefer list or a certain structure of the output uh so to make the output desirable to human you
+03:17 actually show the output directly to human you say okay which what what is the preferred output collect feedback in
+03:22 the form of preferences and then you use these preferences to further improve the model and in this case the data is uh
+03:29 that you are require is your instruction and task and uh you need either a human
+03:35 being or a reward model or you construct a reward model from human being this is what we'll see in the later class we'll discuss about how uh uh these
+03:43 information uh from uh used to improve the model so in this in today's class we
+03:50 will focus only on the pre-training aspect as I mentioned this is freeing
+03:56 aspect is the most important part of uh create creating a good model
+04:01 so why do we need pretaining uh before bir before so I guess you must have
+04:06 talked Professor must have talked about bird earlier right so before the bird was there people didn't or before Elmo
+04:12 was there for example people didn't give any importance to preing uh uh so the uh
+04:20 the reason why we need pretaining is that if you look at human beings they are very good at generalization from very limited
+04:26 examples you show them four examples of a task and you ask them to do solve the the fifth example and they will be able
+04:32 to solve it like if I show you this example uh that this particular example
+04:37 C trans uh the input is C and the output T and if I ask you what would be the
+04:42 output if I give you dog as input so everybody can answer it right what would be it Zod right it's just the reversal
+04:50 of the characters now humans are automatically very good at you see the in one example and you can immediately
+04:57 judge what is happening in this example but uh uh before uh this pre training
+05:02 era and before in fact gpt2 uh this idea that you can learn
+05:08 from a very few examples uh like even one example in this case is uh the idea was not very popular so the reason why
+05:15 humans can do it is because we have accumulated a huge amount of knowledge over past several years and uh that and
+05:22 knowledge uh uh helps us to understand what the underlying task might be and
+05:28 that is what we want to feed inside the model we want to feed this accumulated knowledge of uh human beings inside the
+05:35 model so that when I give a new task it can understand from a very example what the underlying task
+05:41 is so the question is how do we do this how can we use this vast amount of data
+05:46 that is there on the web and improve uh the performance and get a model that can
+05:51 generalize better uh from very little data okay so before we get into pre-training uh let's talk about the
+05:57 generative model for sentences pre previously uh profess T must have talked about B uh which is also pre-trained
+06:05 right okay so you have a Transformer encoder and which takes some input tokens and generate uh input tokens
+06:13 basically input embeddings and generate some output embeddings uh and you train it in a masked uh fashion uh so by Mas masking I
+06:22 mean you mask some of the tokens at the input and uh you should be able to uh
+06:28 reconstruct those the tokens you mask in the output can the question is can we use is bir is a good choice for
+06:35 generative modeling of sentence what do you guys think it's uh I guess the
+06:41 answer is also here the thing is there it's not a Genera model uh what do I mean by that is that there is no
+06:48 straightforward way to generate a sentence from a b model there there are multiple ways you
+06:54 can define a generative model but uh it it does first of all it does not assign probability to a sentence uh you cannot
+07:01 assign property to a sentence using this model and there's no straightforward way to generate you can use it for learning
+07:08 sentence embeddings and search okay so what can we do so by generating model for sentence
+07:16 what I mean is a model from which we can sample the sentences uh and here we will be talking
+07:23 about probabilistic models so if I if I give you any
+07:29 sentence which is a sequence of tokens and uh uh the probability of any
+07:36 model uh can be uh any probabilistic model for over sentence can be written in this form this is this this
+07:42 decomposition has nothing to do with the uh with the model assumption this is true irrespective of what you mod to you
+07:48 can always decompose The Joint probability distribution in this form so
+07:54 Pro this uh probability of a sentence is probability of token one this is a token
+07:59 one times uh probability of second token
+08:05 given the first token and so on and so forth token two given
+08:11 token one times probability of token 3 given
+08:16 token one and token two so if you can uh you can multiply the
+08:21 probability to get the probability of an entire sentence and this decomposition holds true irrespective of the model
+08:27 that you assume our aim is actually to parameterize the distribution in this way what does that mean that although
+08:33 any prob dist can be decomposed in this format the this getting this uh form is
+08:38 not easy for most distribution but we can define a distribution which computes
+08:43 the probability in this way like it computes the probability of the tokens one by one so probability of token one
+08:49 it computes first and then probability of token uh two given token one it should be able to compute this way right
+08:55 and each of these pis that you see here these are distribution over the Vo vocabulary okay so these are the are not
+09:03 I mean vocabulary size generally around 50,000 100,000 or something like that so these distributions are can be thought
+09:10 of as vectors of Dimension 50,000 or 100,000 so the are they easy my point is
+09:17 they are easy to sample from okay and if if these distri if your model can be uh
+09:24 is uh if these P are provided to you the parametric form of this P are provided to you that okay this this is how these
+09:30 P look like then we call such a model as an auto regressive model this is an auto regressive model so again any
+09:37 distribution can be written in this form but uh generally these pis are not easily computable for most distributions
+09:43 but if you can uh decompose your distribution nicely with nice values of P pis then it's called an aut regressive
+09:50 okay basically you compute the uh your model is easily able to compute the distribution in this
+09:56 form so if you have so why do we why do we care about this a model why not just
+10:01 some arbitrary distribution why what is so special about Rive the first thing is you it's very
+10:07 easy to sample from such a distribution uh why uh your distribution is in the form of
+10:14 P1 uh so you can if you want to sample a sentence what you will do you'll pick the first uh uh first of those
+10:20 distributions P1 and Sample a token from P1 this is easy right multinomial sampling I'm guessing everybody was be
+10:25 familiar with it you just pick a token from the distribution P1 and now you uh
+10:31 feed the token into P2 and ask it to predict the uh uh the distribution over
+10:36 the next token and Sample the uh second token from that so and then you can sample subsequent tokens condition on
+10:42 all the previous tokens and this gives you a very nice way to sample the tokens in a text uh this is very difficult for
+10:51 to do for something like images because images can have millions of pixels but for text which has like 1,000 tokens or
+10:57 something uh this is a very easy thing to do and that's why the auto models are extremely popular for text compared to
+11:04 any uh other distribution all right so what what should this P look like okay
+11:10 let's let's make this picture more concrete till now we are talking about abstract distributions over vocabularies
+11:16 and uh uh now we want to make this more concrete so specifically think of an
+11:22 encoder not very disimilar from the B encoder right now if you want as a picture you can think of the bir encoder
+11:27 it takes these tokens beginning of sequence first word second word third
+11:32 word it takes the embeddings and computes some form from transformation it can be any transformation it can be an RNN it can be a Transformer or it can
+11:39 be any architecture and it finally it gives you some embedding this is the output embedding that we
+11:45 have and then it applies a projection layer this W can be thought of as a
+11:51 projection layer and what this position layer does is that it takes this embedding and
+11:57 gives you a probability distribution over the tokens so uh so now in order
+12:02 for this distribution to make sense we have seen that P1 can only depend on actually P1 cannot depend P1
+12:08 cannot condition on anything so beginning of sentence you can think of that this is a fixed this you can think of this as a parameter this is not a
+12:15 token as I mean intuitively you can think that this is just a parameter of the model right so P1 cannot depend on
+12:23 any of these tokens it has to actually depend only it it can only get information from this part of the
+12:31 network uh we want what we are trying to do is construct an auto regressive so it has to get information only from it
+12:37 cannot depend on any uh uh tokens of the sequence okay now P2 can depend on the
+12:44 first token which is uh this is I mean Let's ignore this let's call this as T not for now and this can be
+12:50 fixed P2 can depend on till all every everything that comes from here
+13:10 similarly P3 can uh uh P3 can uh depend
+13:15 on everything that comes from this part of the
+13:22 encoder and P4 can have the entire sequence everything here as input okay
+13:33 is there any question about why this uh because you are trying to construct a probability model and you
+13:41 have to uh you're forced to factorize the this is one of the possible factorization that you have to use here
+13:47 okay so uh given this
+13:54 factorization what are the possible uh encoders that I can use here now that I know that P1 has to come only depend on
+14:01 the uh the B as the beginning of sequence token and so on what are the possible encoders that I can use here so
+14:09 one possibility is used to uh to use something like RNN a recurrent neural network and uh a unidirectional RNN is
+14:18 can be used here without any issue why because unidirectional RNN already has the property that the
+14:25 embedding uh uh the uh uh the embedding at the T time step or the the
+14:32 the jth embedding only is a function of the previous embeddings okay so if you
+14:38 uh the information if you look at this H3 H3 does not get any information from
+14:44 H4 okay so S3 is or from the ver S3 does not get information so S3 only has
+14:50 information from the first three tokens and uh so it satisfies our criteria that the
+14:58 information that is reaching for P3 only has information from the first the beginning of sequence token the first
+15:03 token and the second token it does not have any information from the future token right so that's a good uh it's
+15:10 it's a good architecture that satisfies our criteria but there are problem with the RNA encoder the first problem is if
+15:15 you look at how HJ plus1 is computed it's a function of
+15:21 HJ and the token at the time step the J time step TJ so if you have to compute
+15:29 The Hidden state of all the nend tokens how much uh let's say there are M tokens and you have to compute the hidden state
+15:36 of all the M tokens how much time will it take yeah it's it will proportional to M
+15:42 right so time is the proportional to number of tokens and if you're dealing with very small sequence like 20 words
+15:49 100 tokens or something this is fine but generally you will be dealing with 248 tokens or even 496 nowadays people even
+15:56 talk about 100,000 million tokens and you cannot afford to have that many time
+16:02 steps of computation uh uh for getting the embeddings right so this is why RNs
+16:08 uh have already been discarded uh so we don't want this sequential computation
+16:13 of embeddings how do we uh uh get rid of the sequential competition that's what
+16:20 our task is so we want to be able to satisfy that criteria that PJ should only depend on the tokens before G time
+16:26 step but we also want to get rid of the sequential computation and that's where this architecture of uh
+16:34 Transformer uh is very interesting it's sort of it's a
+16:39 revolutionary architecture because it satisfies all of idea so first look at let's look at a bird type architecture
+16:45 where every token so this is a Transformer encoder I'm guessing everybody is familiar with the Transformer encoder right and this is a
+16:51 full Transformer encoder with full attention Mass what that means that every token attends can attend to every
+16:58 token and what it means in other way that information from every token can flow towards every eding so uh E2 gets
+17:06 information from all the tokens even get information so each of the distribution is able to see all the tokens so can we
+17:12 use this uh particular encoder for our task for learning autog model right it's
+17:18 it does not satisfy our criteria that P3 cannot get look at T4 and P2 cannot look at T3 and so it does not satisfy the
+17:25 right so uh what can be done so we want to
+17:30 make sure that uh P1 only uh does not look at any of these tokens so P1 can
+17:35 look at this that is fine but it cannot look at anything else similarly P2 can look at uh beginning of sequence as well
+17:42 as that but nothing else right and the the P3 distribution can
+17:48 look at the first two distribution so we need to uh somehow modify this Transformer so that
+17:57 they can only look at tokens the J distribution can only look at tokens till time till J time
+18:07 St and uh and such an so uh such an attention mask I construct that uh this
+18:15 the such such an encoder is also referred to as decoder so you can see that there's not much difference between
+18:20 encoder and decoder it's just the decoder uh uh uh has this causal
+18:26 attention MK that the J distribution only depends uh on the on the previous
+18:32 tokens whereas if you are talking about inod generally we talk talk about uh by
+18:37 by fully attention mask right so the this such a mask is called causal attention mask and uh I will
+18:45 draw a picture of it here so if you can
+18:50 write the tokens here this is how a causal attention mask will look like it will have uh basically
+18:57 uh uh it will make sure that no token can look at its future they can only
+19:03 look at themselves or look at their past I guess uh CA the attention masks also
+19:08 have been covered right okay
+19:15 so okay so this is the uh this is how the architecture should look like what should be the loss function so this is a
+19:22 quick recap of Maximum likelihood if you are given a parametric family of prob distributions and you are given some n
+19:29 uh observations from uh a particular distribution uh some identic these should be independent and identically
+19:35 distributed from some unknown distribution PD and if I ask you okay given these
+19:42 observations find the best parameter Theta star that can explain these
+19:48 observations that would uh so you then you want to find P Theta star that would
+19:53 maximize the probability of these n observations so then you want to find uh
+19:58 uh parameter Theta that would best explain these observations so what you will do you will Define The Joint distri
+20:04 probability of these n observations uh P Theta S1 to SN this is the joint probability
+20:18 distribution and uh and then uh what you'll say is that okay this the ARX of some function
+20:28 is the same as ARX of the log of that function so you can just add log here okay and because these observations are
+20:36 independent you will decompose it as a product The Joint distribution will decompos as a product and since it is
+20:41 inside the log the product will become a sum a sum of log probabilities so this
+20:47 is your maximum lik estimation given any observation any parametric model find the parameter that maximizes this uh
+20:55 this uh quantity that's your maximum likel estimate so if if you have so in our case the observations are sentences
+21:02 so uh the probability of a sentence can be decomposed into the probability over
+21:08 the tokens uh right this is the probability of the first token and this is the probability of the each
+21:14 subsequent token and each of these are parameterized by Theta let if you want I can put a Theta here this uh you can
+21:23 assume that this Theta is uh I removed the Theta for the sake of convenience for now let's say and so the log
+21:29 probability can be decomposed over uh uh the tokens also note that the tokens are
+21:36 not independent although the sequence the observations are the tokens here are not independent so uh don't so tokens
+21:42 are not observation the sequence the entire sequence is one observation okay and if now if you want to do
+21:49 maximum likelihood estimation uh you what you will do is you'll just try to find the parameter Theta such that it
+21:56 maximize the log probability over the summ S belonging to D log
+22:03 probability Theta of s put length of the also this is your
+22:11 maximum likelihood estimate uh
+22:16 okay is this
+22:22 clear so far I not talked about anything uh uh which I'm guessing is some you
+22:28 guys are not already familiar with this Maxim estimation okay so now let's move to the
+22:36 pre-training part this was more of a recap towards how you will construct a generating model for sentences now how
+22:41 do you do pre-training now that you know how to construct a generating model how do how would you do
+22:47 pre-training so you uh so for pre-training you need to make some considerations first of all you can only
+22:55 pre-train if you have a huge amount of Corpus uh here and huge amount of Corpus
+23:00 generally available on the web you can collect you can use common crawl or many of the other uh web crawls that are
+23:07 there and then you have to cure it and filter it which we will talk about in the next Slide the next thing that you
+23:12 need to consider is what tokenizer to use what is the vocabulary size that you want to use here uh people use
+23:19 vocabulary around 50,000 between 50,000 and 100,000 uh depending if you are using
+23:25 non- multilingual generally 50,000 vocabulary is good enough if you're using multilingual you might need more
+23:30 like 100,000 uh and the for tokenizer people use
+23:36 different sorts of to like bite pair encoding and all I'm guessing they also covered yes
+23:42 okay then you have to decide uh what is the model architecture you need
+23:48 obviously if you're doing pre- training that means you are going to use Transformer because it's not possible to do the large scale pretaining with any
+23:55 of the RNN or lstm based approaches they are uh the uh the competition will be
+23:60 just too too extreme so if you're using a Transformer you have to decide what
+24:05 are the number of layers that are there what is the dimension of the token that you want to use what is the hidden
+24:10 Dimension that you want to use in the Transformer people generally keep uh them similar like token Dimension as
+24:16 wellden Dimension are generally assumed to be same then you also want to uh uh
+24:23 decide the number of attention heads that are uh going to there in each layer and finally what is the maximum sequence
+24:29 length that you want the model to support or the uh so there are two parts here maximum sequence L that you want
+24:35 the model to support for inference or for pre-training they can be different also if you are using something like
+24:41 rotational embeddings or something they can be very so for example people can allow uh
+24:48 inference for any number of tokens but for pre-training for with let's say 496
+24:53 tokens uh that's also a possibility and lastly you want to
+24:59 consider whether you want to use which optimiz you want to use generally people don't use SGD people use any of these
+25:06 adom add a gr add a factor Optimizer uh for the uh for optimization and uh what are
+25:14 the hyper parameters of the optimizer like what the learning rate if you're using Adam or oror you will also have
+25:20 this beta parameter uh that you have to decide so all these considerations need to need to made and each of them will if
+25:27 you uh can I mean is a different topic Al together uh but this is just to just an
+25:34 overview of what all considerations go about for someone who wants to create in a
+25:42 model okay so for uh the uh one of the steps the first step is actually data
+25:47 curation and data filtering and generally what is done is that you scrape the web or you use already some
+25:52 somebody's data who was somebody who already scraped the web like common CW for HTML documents for text documents if
+25:58 an HTML web page you want to uh extract the content uh from the HTML web page so you will use some parsel to remove HTML
+26:05 tags and give you the content part of it uh then you also want to do d d duplication because you want to ensure
+26:11 that the same data does not occur multiple times you also want to remove non-informative documents what does
+26:16 means is that there will be S A lot of log Pages uh that are there on on the web people might have run some
+26:22 experiment generated some log post it on the web there might be lot of error messages that will be there on the web
+26:27 so uh those are not something that have any informative content uh it's it's and
+26:33 noninformative content is actually bad for the model if you tell the model to uh maximize the probability of something
+26:40 uh some error tokens or something and that error tokens very repetitive what will happen is that model might forget its original behavior of language
+26:46 modeling and might start uh generating pure uh might start generating pure uh
+26:54 noise actually you also want to remove outli documents uh so if a document has
+26:60 a broken distribution which does not which looks very different from anything that is there in the rest of the Corpus
+27:05 you also want to remove those and optionally you want to train a classifier to determine the quality of
+27:11 the document uh
+27:19 yeah okay so let's look at tokenization um so for pre-training uh so everybody
+27:27 familiar with Tok you take a document apply a tokenizer you will get a list of tokens and uh uh you append an end of
+27:35 text uh token at the end of it this is a list of
+27:45 tokens and then you have an end of text token after that so but when you do pre-training
+27:50 what you do is something very interesting you take all these document tokenized documents and you create a long stream out of this uh
+27:59 documents so why do we do that so during pre- training actually we don't we never use P
+28:05 padding uh let me write this down no
+28:11 padding so you create a huge chunk and now you have already decided your
+28:16 sequence length of training let's say 496 so what you will do you will R randomly pick the first token randomly
+28:23 pick let's say uh this is let's let's call this a token K and then token K plus 409
+28:31 6 and you will assume this to be one giant sequence of 4096 and feed it to
+28:36 your uh feed it to your model that's it so from here till here everything
+28:45 is f into the sequence so all the uh all the sequence that are being fed during pring have the same length
+28:55 uh all right okay and then you uh do maximum likelihood training that that we already seen okay all right let's see
+29:03 now what P models can do and what they cannot do okay so what are pre-end
+29:09 models good at so now we are going towards more now we that we have a pre-end model we are going towards the
+29:15 behavior of these prend models uh so they can mimic the behavior of the
+29:22 data that they have been trained on and uh many of the data that you feed to these models will have these all most
+29:29 supervised examples even though you have scrip from the web they will have these examples for example if you can see this
+29:35 is from the gp2 paper I'm not the cleverest man in the world but like they say in French something something which is the same sentence in French so the
+29:44 model already has some uh understanding it has learned those relationships okay that if this comes in the input this is
+29:51 uh these kind of sentence are likely in the output it has uh it has learned this
+29:57 Behavior so uh so if you ask it okay here is a poem that describes Sun blah
+30:02 blah blah blah as it gets zipped in chocolate and you give a first sentence of it it might be able to complete the poem okay uh so you need so actually to
+30:12 get some interesting Behavior out of these models you need to do some work because they're not trained for I
+30:17 they're not directly usable by random human you'll have to modify your promp
+30:22 so that it becomes usable by this uh model but if you let's say give it just
+30:28 say write a poem that describes Sun getting different chocolate it will not generate anything meanful it will it
+30:33 will just start keep on completing it it should be hu it should be about sun should be high blah blah blah blah blah
+30:38 but it's not going to generate a poem uh can anybody think why it's not generating a poem why it's not following
+30:45 the instruction even though I gave it
+30:54 yeah yes yeah so generally the data on the web right it's it's not in this
+30:59 clean format that you have an instruction and you have an output right it it's it's just a bunch of for example
+31:06 some of the data might be question papers from some exam right just questions now if you ask a question what
+31:13 what you expect it to gener it will generate the next question it won't generate the answer if you will keep on generating questions and questions and questions you can force it to generate
+31:19 answer by giving some part of the answer okay the answer is we can go and blah blah blah give some prompt and then you can expect this model to complete the
+31:25 rest of the answer right and so this is the problem that they most of the training data is not in the instruction
+31:31 format that you want it to be so how do we make them work there are two possible directions first is in
+31:38 context learning which is what we'll discuss in today's lecture and the second is instruction tuning uh that we
+31:44 will see in the next lecture okay and both of these are emergent properties uh so uh you guys were there in the last
+31:51 class uh so if you guys are there you might know about emergent properties which is uh properties that occur
+31:60 uh at a certain time they're almost non-existent below a certain uh number
+32:06 of training flops and they uh appear suddenly after training flop so instruction tuning uh for example here
+32:13 on the graph that you see instruction tuning Behavior was around performance was around uh I'm guessing this is some
+32:19 sort of 40 the score was 40 on some task uh or 45 and after as soon as you jump
+32:26 from 10^ 22 10 23 training flops suddenly the performance went to 70 so
+32:31 instruction tuning is an emergent property so if you take a smaller model and force it to follow instruction it will not follow instruction whatever you
+32:37 do okay it will not have this instruction following Behavior arbitrary instruction uh uh so a large model
+32:46 trained on large data for enough time steps can uh can exhibit instruction uh
+32:51 tuning Behavior where you tune it for in following instruction it will start following instruction similarly in
+32:56 context learning is an emergent property that if you have a small model trained on small data for a small number of training flops it cannot do in context
+33:04 learning but a large model for with the large am of data and large of training flops can uh can you can expect to see
+33:13 uh to to do in context learning okay so let's talk about in
+33:19 context learning so what is in context learning that uh uh the Inc learing
+33:26 basically you have a query that you want to solve it and you have some similar examples that uh uh whose input are also
+33:32 similar to what your query is you feed it uh with the query so let's say you are doing sorting of numbers you give
+33:38 some example of okay this is the unsorted list this is sorted list this is unsorted list this sort create some examples and then you give your unsorted
+33:44 list then the model will be able to understand what the task is that you expected to solve and it will exhibit
+33:50 the task so here if you look yeah so if your review is good meal if you just ask review is good meal and ask it toate
+33:57 sentiment it might not be able to do it but if you give these examples okay uh review delicious food sentiment positive
+34:02 review the food is awful sentiment negative and so on and and then you finally you give your query example review good meal what is the sentiment
+34:09 then this model is expected that it should be able to extract what the
+34:15 underlying task is from these examples and be able to solve this task okay so why do we uh so why do we
+34:23 need in context learning uh uh we need it because if you have a pre-end model it's not going to to follow your
+34:28 instructions so you can either tune it for instruction or give it examples of the task that you want to solve right
+34:33 and here we're talking about how to give the examples of the task so how can we improve so so this is simple right uh
+34:39 you have any task to solve you bring examples of the task and give it with your uh query example and hope it can
+34:45 solve it but is there some way to improve it can we do uh something uh
+34:51 either during pre-training or during uh inference so that I can improve the performance of this uh uh of in Contex
+34:59 learning okay so injecting World Knowledge that it did not that you do not give during pre training uh during
+35:04 fine tuning what if we okay that's fine but generally during preing you give all
+35:10 that's that's a good point actually if you there's a domain a medical domain or certain domain that was not given dur pretending you can give it during
+35:15 inference okay that's fine that's one way uh uh interestingly what uh has been
+35:24 observed so if you think what effectively happening during Inc Contex learning you giving example of the same task and then you're expecting it to
+35:30 follow uh that particular example right so during pre-training perhaps I can organize my data in that format that I
+35:36 will need during inference so during inference you're giving multiple examples simultaneous right maybe during pre trining I can organize my data in
+35:42 that same format that okay uh I have this task and I have similar example I grouped all the so for example in my pre
+35:49 data there is a document about sentiment analysis I can find all other documents about sentiment Anis and group them together and why is that helpful uh the
+35:58 reason is that because this is the same format that you're going to use during inference right uh that where you will
+36:04 you are expected to give similar examples and uh uh follow the task from those examples so this is one way okay
+36:12 so uh if you want to improve in context learning what you can do is you can organize your training Corpus it's very huge it's difficult to organize but
+36:18 let's say you could organize your training Corpus so that documents that deal with the same task come together
+36:24 and then you can take sequences across these uh documents okay so this is one
+36:31 way the other thing you can do is uh when so this was during pre training by
+36:36 the way so this but if you already have a gpt3 you can cannot do much right this is during pre training now what can you
+36:43 do during inference so uh there are many of these things that people have tried uh people have tried putting all sorts
+36:50 of Ed cases so that does not deviate from the it can learn the behavior without deating much uh this is one uh
+36:56 way which is uh you actually embed the example that you want to uh do inference on and uh so this is the embedding of
+37:04 the example this is the embedding of the example and then you look at embedding of other examples in the same space and
+37:10 find out these are these already have the these examples already have the labels and you uh for these uh examples
+37:18 you take the input output pair uh and feed your query example and ask it to generate the output okay and what the
+37:26 logic is that uh if some certain example has an input which is close to your embedding that means those examples uh
+37:34 might be might have might be more might guide the behavior of the LM uh uh in a
+37:41 better way for X so examples that are closer to my current uh query input are
+37:47 more suited for me so this is a heuristic uh it may not always work and
+37:52 sometime uh but this is what you expected uh to this is what people have tried
+37:58 does that make sense okay uh okay so now what what is the
+38:05 notion what similarity should I choose so one thing people have done is that embed the inputs using a sentence
+38:10 encoder such as robera and just uh measure the cosine
+38:16 similarity between uh your query embedding and the embedding of other
+38:24 examples it and you select the top key what whatever number of examples needed
+38:29 you select it and feed in in cont in context what what might happen is that
+38:35 if you select the examples based on similar cosine similarity what might happen is that all the examples that you select are very similar and that may
+38:42 also not be desirable so Food For Thought uh how can you make this set
+38:47 diverse so that uh not all the examples are same right uh you don't want the examp all the example that you Fe to be
+38:54 see so this is uh so far we have assumed that the the similarity metric was
+38:59 learned in an unsupervised way uh where you you're not training the
+39:04 similarity metric right you just taking something like a sentence such as Roba and just using it for your task finding
+39:09 similar examples but question is can you actually train the similarity metric in a way such that more Sim uh the examples
+39:17 that help your model better uh are picked anybody think that
+39:22 can we train the similarity metric so uh this is uh this is one this
+39:28 this is one approach of for contrastive learning of the similarity metric uh and the idea is that you first you use this
+39:36 unsup retriever it can be bm25 or it can be your sentence embeding based retriever you have this you use the UN
+39:43 retriever to get a bunch of examples okay one so here you have gotten some candidate
+39:48 examples and now given uh for each of this
+39:54 candidate example you compute a score what I mean by score is uh you feed this candidate example along with your query
+40:01 example and along with your query and uh so remember this is training so you also
+40:07 have the output for your query and so you can one thing you can do is uh you can let me write you can compute the log
+40:15 probability of the ground truth output given X and all the other examples X1 y1
+40:22 so this can be the score of example one let me write this as score of X1
+40:28 y1 similarly score of X2 Y2 will be log probability of Y given X
+40:37 comma X2 Y2 so this way you can basically what it capturing is that uh
+40:43 if I give uh the example one as input what is the score of my gold output if I
+40:48 give example two as input what is the score of the gold output and so now uh since you uh you have a ranking what you
+40:54 can do is contrast learning what contrast learning means is now you what you will say is the uh let's say the
+41:01 example one has the highest score okay let's say E1 = to X1 y1 had the highest
+41:08 score and e n is equal to xn YN had the lowest
+41:15 score so contrast to learning mean you will say that even should the embedding
+41:20 of X1 should be much closer to embedding of x
+41:28 and embedding of xn should be far from X
+41:35 right so you can use something like triplet laws to enforce
+41:42 this does that make sense uh how uh basically contrastive learning of the similarity metric forcing the examples
+41:49 that give higher score to be closer to your current example uh now we have seen uh how to make it work Contex learning
+41:56 sorry in context learning the next thing is why does it work uh and there there have been lots of papers to understand
+42:02 why this in context learning works so let's look at the examples uh
+42:08 so if you give as prompt apples are red bananas are yellow grapes are what then
+42:14 it might print purple but if you give lemons s s Cranberries or bitter and grapes or War it might give sweet so
+42:19 these in context examples are somehow guiding the model to generate either purple or sweet for the input grapar
+42:26 both are valid out puts but depending on what those examples are it's generating either purple or sweet
+42:32 right so they have there are two uh popular uh theories about why in context
+42:38 Learning Works the way it it does and what first is that it performs some sort
+42:44 of implicit basion inference and the second one is that it does uh gradient
+42:50 descent uh so second one is what we'll focus on the Transformers learn in context by gradient descent okay so a
+42:56 quick recap on gent descent if you have some inputs X1 x uh X1 y1 X2 Y2 xn YN
+43:03 and you want to learn a linear model uh between X and Y so what will be your
+43:10 lost functions uh can anybody tell me what the loss function will look like here if I uh want to learn a linear
+43:17 model uh between X and uh between X and Y uh and uh uh let's let's call this
+43:25 loss is R Theta then uh one can do gradient descent on this
+43:31 loss to uh uh to uh to basically reach uh in
+43:37 this case a global Optimum because this is a uh if you choose your Delta T's appropriately you will reach a global
+43:43 Optimum yeah okay also a brief digression on linear Transformers so
+43:48 what is a linear Transformer so in a regular Transformer uh what you have is
+43:54 uh that you're embedding after attention let's call um is competed like this q k transpose
+44:03 upon the dimension of uh the let's say the hidden size times some soft
+44:11 Max [Music] into B and there is some masking also
+44:17 here so uh in a regular Transformer uh the attention the output after attention
+44:23 looks like this and in a linear Transformer the soft Max is not there so just Q 2 K
+44:28 transpose over root D / V this is how a linear tension will compute uh the
+44:35 output of a layer okay so this soft this soft Max is what
+44:42 what is missing uh from linear transform and basically it can compute uh linear functions of the input that's the
+44:51 point uh so so the idea that Transformers learn in context by grad
+44:56 descent what it means means is that if you have a linear a Transformer with linear attention networks then if you
+45:04 and if you feed your input uh let's say you train your Transformer in this way you feed the uh you take a bunch of
+45:10 examples XI ya and ask it to predict X xn plus one so YN plus1 for xn plus one
+45:17 so uh if you're doing gradient descent what will you do you will Max minimize the LW find the optimal parameter and
+45:23 then use the optimal parameter to predict YN plus one right now the uh claim is the Transformers do it
+45:29 implicitly if you uh so let's say you take a Transformer give them sequence of
+45:34 demonstration X1 y1 X2 Y2 and till X and y1 and uh train it to predict uh the
+45:42 correct YN + one uh for uh so you train it with this training
+45:47 objective then implicitly each of these layers do a step of gradient
+45:53 descent this is the interesting part that uh although uh you're never training it to
+46:00 do gradient descent but gradient descent emerges naturally in the layers of the
+46:09 Transformers so this is the result that uh uh there exist stationary points of
+46:14 the training objective such that the prediction at cayer K is the same as K steps of gradient descent so the first
+46:20 layer does one step of R and the second layer does two step of with with some particular uh Delta appropriate Delta
+46:26 values uh yeah okay finally uh so what are the main takeaways here uh first we can
+46:34 create a generating model for sentence by using a cial attention mask in Transformer second thing in Contex learning is an emergent property which
+46:40 means that you need uh to uh large enough model large enough data trained
+46:46 for sufficient amount of time for this property to emerge and you can improve it either during pre-training by
+46:51 clustering similar data or during inference by selecting examples that are
+46:56 closer to your query and finally in Contex learning implicitly performs some form of
+47:02 gradient descent okay we can stop now

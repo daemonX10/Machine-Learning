@@ -1,0 +1,4966 @@
+00:00 continuing uh the third lecture in uh
+00:03 
+
+00:03 LLMs and tool calls and the second part
+00:06 
+
+00:06 for uh function calling. Just a recap of
+00:08 
+
+00:08 what we did in the last class. Uh in the
+00:11 
+
+00:11 last class uh we introduced the problem
+00:13 
+
+00:13 of uh how do we use external tools
+00:17 
+
+00:17 uh with LLMs
+00:19 
+
+00:19 and we focused on how how would somebody
+00:21 
+
+00:21 end up training uh an instruct tune
+00:24 
+
+00:24 model or an uh or an LLM uh to to be
+00:28 
+
+00:28 able to work with external APIs, right?
+00:30 
+
+00:30 And in that we sort of briefly covered a
+00:33 
+
+00:33 bunch of papers and most of the papers
+00:37 
+
+00:37 uh were not close to realistic data
+00:40 
+
+00:40 except for toolbench right toolbench had
+00:42 
+
+00:42 multi-turn dialogues that are grounded
+00:45 
+
+00:45 on multiple tools. Uh and we stopped
+00:47 
+
+00:47 there. Uh so that was one of the first
+00:49 
+
+00:49 papers on multi-turn dialogues grounded
+00:51 
+
+00:51 on multiple tools and uh going forward
+00:54 
+
+00:54 uh we'll see how the research how
+00:58 
+
+00:58 different research threads emerged after
+01:00 
+
+01:00 uh mid of uh 2024 and what people
+01:04 
+
+01:04 started working on and for each research
+01:06 
+
+01:06 direction uh I will be discussing one
+01:08 
+
+01:08 paper to sort of give you a flavor of
+01:10 
+
+01:10 where the current state of things are
+01:13 
+
+01:13 right so the three research directions
+01:14 
+
+01:14 are of course uh what we discussed This
+01:17 
+
+01:17 last time we just started with
+01:19 
+
+01:19 multi-turn
+01:20 
+
+01:20 uh data with multiple tool calls but
+01:24 
+
+01:24 that's not that's not even close to how
+01:26 
+
+01:26 a realistic data would look like right
+01:28 
+
+01:28 it had a lot of problems so people
+01:31 
+
+01:31 started working towards uh data
+01:33 
+
+01:33 synthesis which is more closer to
+01:35 
+
+01:35 reality right those are high fidelity
+01:37 
+
+01:37 and I'll be discussing a paper called
+01:38 
+
+01:38 tool flow and magnet uh for that and uh
+01:42 
+
+01:42 one other research direction was that uh
+01:45 
+
+01:45 so far everybody was doing supervised
+01:48 
+
+01:48 fine tuning on the dialogs that they
+01:50 
+
+01:50 generated right so then people slowly
+01:52 
+
+01:52 realized like
+01:54 
+
+01:54 we should probably do uh RL after the
+01:58 
+
+01:58 SFT to align the model better to what we
+02:01 
+
+02:01 want to achieve right but the issue is
+02:03 
+
+02:03 that so far almost uh there were a lot
+02:07 
+
+02:07 of work on RL for post training but most
+02:11 
+
+02:11 of them focused on just single
+02:15 
+
+02:15 assistant utterance prediction given the
+02:17 
+
+02:17 context right so there is no notion of a
+02:19 
+
+02:19 sequence of uh examples club together to
+02:24 
+
+02:24 or sequence of predictions or a
+02:26 
+
+02:26 trajectory club together to to sort of
+02:27 
+
+02:27 do RL right so for function calling uh
+02:31 
+
+02:31 it's very important that you consider
+02:33 
+
+02:33 the entire dialogue as a trajectory and
+02:35 
+
+02:35 and see how you can optimize them
+02:37 
+
+02:37 together uh rather than only doing one
+02:40 
+
+02:40 utterance at a time right so research
+02:41 
+
+02:41 started moving towards that as well so
+02:44 
+
+02:44 so magnet has both flavors of high
+02:46 
+
+02:46 fidelity data synthesis and RL uh
+02:50 
+
+02:50 finetuning. So I so I'll cover magnet to
+02:52 
+
+02:52 cover both and uh the other direction is
+02:56 
+
+02:56 that uh even though models were getting
+03:00 
+
+03:00 very high numbers on BFCL leaderboard
+03:03 
+
+03:03 which was sort of the the well accepted
+03:05 
+
+03:05 leaderboard for function calling when
+03:08 
+
+03:08 people started to build real world
+03:10 
+
+03:10 agents they realized even frontier
+03:12 
+
+03:12 models are not that good right in fact
+03:14 
+
+03:14 they're extremely
+03:17 
+
+03:17 they're at a point where it's not usable
+03:18 
+
+03:18 right you won't probably end up saving
+03:20 
+
+03:20 money by using by building agents using
+03:22 
+
+03:22 even the frontier models until unless
+03:24 
+
+03:24 you put in a lot of work and and and lot
+03:27 
+
+03:27 more logic and structure and rules to
+03:29 
+
+03:29 it. Right? So so people then started to
+03:32 
+
+03:32 realize like we need to have certain
+03:36 
+
+03:36 benchmarks or evaluation setup which
+03:38 
+
+03:38 will give us a flavor of what would
+03:41 
+
+03:41 happen in real world, right? So that
+03:43 
+
+03:43 when you have a model like GPT 40 or
+03:45 
+
+03:45 claude releases a a new model uh uh then
+03:50 
+
+03:50 they they want good benchmarks that will
+03:52 
+
+03:52 help them understand how realistic agent
+03:55 
+
+03:55 can you build with those uh LLMs right
+03:58 
+
+03:58 so these are the three dimensions and
+03:60 
+
+03:60 for that for the last one I'll be
+04:01 
+
+04:01 talking about a uh a benchmark called
+04:03 
+
+04:03 tow bench which was a good step in the
+04:05 
+
+04:05 direction and now people have started to
+04:07 
+
+04:07 explore a lot more uh in that direction
+04:11 
+
+04:11 okay so let's focus focus on let's first
+04:13 
+
+04:13 start with the high fidelity data
+04:15 
+
+04:15 synthesis which is more closer to
+04:17 
+
+04:17 reality than what the previous uh data
+04:19 
+
+04:19 was right so so this was tool llm or uh
+04:24 
+
+04:24 uh
+04:26 
+
+04:26 which we discussed in the last class
+04:28 
+
+04:28 where uh you are provided a user
+04:30 
+
+04:30 instruction like like in in the sense
+04:32 
+
+04:32 that based on the tools that you have
+04:34 
+
+04:34 you come up with a user instruction
+04:36 
+
+04:36 which sort of gives you a crux of what
+04:38 
+
+04:38 the user want to achieve uh using the
+04:40 
+
+04:40 tools at hand And uh
+04:44 
+
+04:44 after that everything is left to the
+04:46 
+
+04:46 model at hand right if let's say they're
+04:50 
+
+04:50 using GPT4 and GPT4 is not good at this
+04:54 
+
+04:54 task right so then it's going to go
+04:56 
+
+04:56 through lot of obstacles and weird
+04:60 
+
+04:60 errors and then maybe after you uh so so
+05:04 
+
+05:04 after you search along the tree do the
+05:07 
+
+05:07 uh the tree search and then finally you
+05:09 
+
+05:09 get one reasonably good uh success,
+05:13 
+
+05:13 right? But what what we when we went
+05:17 
+
+05:17 through the dialogues, what we saw is
+05:19 
+
+05:19 that these dialogues are extremely long,
+05:22 
+
+05:22 right? Even for a simple uh query like I
+05:25 
+
+05:25 want to give my friend a birthday
+05:26 
+
+05:26 surprise. I know her favorite actress is
+05:28 
+
+05:28 Haley Stinfield, help me please. Right?
+05:31 
+
+05:31 It may take uh like four or five API
+05:34 
+
+05:34 calls and it'll fail. It'll figure out
+05:37 
+
+05:37 why it failed. It will think through it,
+05:39 
+
+05:39 try again. So it goes through so many
+05:41 
+
+05:41 different uh ups and downs before it
+05:44 
+
+05:44 arrives at the final output. And
+05:46 
+
+05:46 secondly, even when the model says I
+05:49 
+
+05:49 finished with final answer, sometimes
+05:51 
+
+05:51 the answers are really bad, right? So
+05:53 
+
+05:53 you expect the model to figure out
+05:55 
+
+05:55 whether the final uh state is finished
+05:58 
+
+05:58 by giving up or finish with final
+05:59 
+
+05:59 answer. So even there the models don't
+06:02 
+
+06:02 do a good job, right? So even though
+06:03 
+
+06:03 this is technically a multi-turn
+06:06 
+
+06:06 dialogue with multiple tools, these
+06:08 
+
+06:08 dialogues are far from being realistic.
+06:10 
+
+06:10 Like if a human agent was there in the
+06:12 
+
+06:12 other side, they would have done
+06:14 
+
+06:14 something a lot more optimized and then
+06:16 
+
+06:16 very crisp and clean rather than what it
+06:18 
+
+06:18 is here. Right? So so basically the main
+06:21 
+
+06:21 issue here is how the agent is simulated
+06:25 
+
+06:25 is very far from reality. Right? And
+06:27 
+
+06:27 that's the biggest problem. And
+06:28 
+
+06:28 secondly,
+06:30 
+
+06:30 even though it's called a multi-turn
+06:33 
+
+06:33 dialogue, there is hardly any user
+06:35 
+
+06:35 interaction in between, right? It's
+06:36 
+
+06:36 mostly dominated by agents after agent,
+06:39 
+
+06:39 assistant after assistant after
+06:41 
+
+06:41 assistant. So that is also not close to
+06:42 
+
+06:42 reality, right? So typically when you
+06:44 
+
+06:44 talk with a uh customer service agent
+06:47 
+
+06:47 like most likely you will have equal
+06:49 
+
+06:49 contribution as the assistant, right?
+06:51 
+
+06:51 So, so that was something that's missing
+06:53 
+
+06:53 and so let's see how
+06:56 
+
+06:56 uh the one of the first papers in this
+06:58 
+
+06:58 field tackled this right. So this paper
+06:60 
+
+06:60 was published in Iclear 2025 and uh this
+07:03 
+
+07:03 is called tool flow. So basically they
+07:05 
+
+07:05 also built a framework to synthesize
+07:07 
+
+07:07 multi-turn uh function calling dialogues
+07:11 
+
+07:11 and uh the way they did that was uh
+07:13 
+
+07:13 rather than letting the LLM go wild in
+07:16 
+
+07:16 generating the entire uh dialogue they
+07:19 
+
+07:19 created a good plan saying like look the
+07:22 
+
+07:22 user has to say this and then the
+07:24 
+
+07:24 assistant has to say this and then the
+07:26 
+
+07:26 user has to say this and the assistant
+07:28 
+
+07:28 has to say this and so they created a
+07:29 
+
+07:29 very coherent dialogue plan first before
+07:33 
+
+07:33 actually jumping into synthesizing the
+07:35 
+
+07:35 utterances for the entire diagram.
+07:37 
+
+07:37 Right? So that was what they did and
+07:39 
+
+07:39 that gave them reasonably like way
+07:42 
+
+07:42 better than what tool LLM did but it's
+07:45 
+
+07:45 still far from reality as well. Right?
+07:49 
+
+07:49 So, so what they did was like uh they
+07:53 
+
+07:53 they took like existing APIs like say uh
+07:56 
+
+07:56 the rapid APIs that I was talking about
+07:58 
+
+07:58 in the previous class which is a a
+08:01 
+
+08:01 marketplace of lot of APIs from various
+08:03 
+
+08:03 websites like Dropbox, Booking.com and
+08:05 
+
+08:05 things like that. So they took all those
+08:07 
+
+08:07 APIs and then uh each each API or tool
+08:12 
+
+08:12 is considered like a node in the graph
+08:13 
+
+08:13 right and once so those are nodes in the
+08:16 
+
+08:16 graph of uh of this graph and the way
+08:20 
+
+08:20 they created the edges are they use two
+08:23 
+
+08:23 properties one is let's take two tools
+08:26 
+
+08:26 t1 and t2 let's look at their input
+08:28 
+
+08:28 parameters right uh if the input
+08:32 
+
+08:32 parameters are similar to each other it
+08:34 
+
+08:34 means that you can create a dialogue
+08:36 
+
+08:36 that can have both the tools in them.
+08:39 
+
+08:39 Like for example, if you have uh two
+08:43 
+
+08:43 tools such as get weather and book
+08:45 
+
+08:45 flight, get weather will have a location
+08:47 
+
+08:47 as an attribute and book flight will
+08:49 
+
+08:49 have source or destination as the
+08:50 
+
+08:50 attribute and the description of
+08:52 
+
+08:52 location and destination would be very
+08:54 
+
+08:54 close to each other. Right? So if the
+08:57 
+
+08:57 input parameters are similar then it's
+09:01 
+
+09:01 very high likelihood that you can use
+09:03 
+
+09:03 them together in a dialogue. For
+09:04 
+
+09:04 example, in this context, you can use
+09:06 
+
+09:06 them when you create travel related
+09:08 
+
+09:08 dialogue, right? So, I'm traveling from
+09:10 
+
+09:10 here to there. What is the weather like
+09:11 
+
+09:11 there? Right? Something like that. And
+09:14 
+
+09:14 uh the second type of rel uh edge that
+09:17 
+
+09:17 they built was based on the parameter of
+09:20 
+
+09:20 one and the return type of the other.
+09:22 
+
+09:22 For example, if if you have a tool t1
+09:27 
+
+09:27 whose output can be fed as input to tool
+09:30 
+
+09:30 t2, right? So the return value of T1 has
+09:33 
+
+09:33 similarities to the input of T1 uh T2
+09:36 
+
+09:36 then they could be used together. Like
+09:38 
+
+09:38 for example, if you have a check
+09:40 
+
+09:40 calendar tool and a navigate tool, maybe
+09:43 
+
+09:43 you can check the calendar to see uh
+09:47 
+
+09:47 what the location is and then you can
+09:48 
+
+09:48 tell your GPS to navigate to the
+09:50 
+
+09:50 location, right? For example, navigate
+09:52 
+
+09:52 to the location of uh this afternoon's
+09:54 
+
+09:54 meeting, right? So then uh this also is
+09:57 
+
+09:57 something that could help you create a
+09:59 
+
+09:59 cohesive uh multi-turn dialogue with
+10:02 
+
+10:02 multiple tools right so when any of
+10:04 
+
+10:04 these similarity is above a certain
+10:06 
+
+10:06 threshold they create an edge between uh
+10:09 
+
+10:09 let's say two so here there's an edge
+10:10 
+
+10:10 between track package and book ticket
+10:12 
+
+10:12 there's an edge between track package
+10:14 
+
+10:14 and weather and that's because of the
+10:15 
+
+10:15 location attribute and then uh similarly
+10:19 
+
+10:19 uh with output uh input output as well
+10:22 
+
+10:22 right so this was a graph construction
+10:24 
+
+10:24 phase
+10:25 
+
+10:25 So prior to this mostly people were
+10:27 
+
+10:27 randomly sampling uh uh tools and then
+10:31 
+
+10:31 creating dialogues. So when you randomly
+10:32 
+
+10:32 sample two different tools sometimes
+10:34 
+
+10:34 they will not be coherent to each other
+10:35 
+
+10:35 but still you can do it right there's no
+10:37 
+
+10:37 harm in like checking the calendar uh
+10:40 
+
+10:40 and then also checking the weather right
+10:44 
+
+10:44 there is no harm but they don't look
+10:45 
+
+10:45 like a natural dialogue right so since
+10:47 
+
+10:47 they're this this paper is moving
+10:49 
+
+10:49 towards more natural looking dialogue so
+10:51 
+
+10:51 they created this graph construction
+10:53 
+
+10:53 phase. So the second part is plan
+10:55 
+
+10:55 generation. So once you have the graph
+10:57 
+
+10:57 they do a random walk on the graph. So
+10:59 
+
+10:59 basically if they start from tracking
+11:01 
+
+11:01 package uh they will hop to get weather
+11:04 
+
+11:04 and then they'll hop to get currency uh
+11:07 
+
+11:07 rate something like that right and then
+11:09 
+
+11:09 they will give these three uh
+11:13 
+
+11:13 tools to an LLM and then they have a
+11:17 
+
+11:17 detailed prompt for an LLM which tells
+11:19 
+
+11:19 you create a dialogue plan using these
+11:22 
+
+11:22 tools. Not all maybe some of these
+11:24 
+
+11:24 tools. So then a dialog plan would look
+11:26 
+
+11:26 vague like this like book a ticket uh
+11:29 
+
+11:29 you can ask for travel advices in
+11:30 
+
+11:30 between the user and the agent can
+11:31 
+
+11:31 interact about travel advices and then
+11:34 
+
+11:34 you make a tool called request saying uh
+11:35 
+
+11:35 check Paris weather and then USD uh
+11:39 
+
+11:39 Europe exchange rate. So here this is
+11:43 
+
+11:43 the prompt or the agent that will be
+11:45 
+
+11:45 used to generate this address. So chit
+11:46 
+
+11:46 chat will be generated by the chitchat
+11:48 
+
+11:48 agent. uh tool call request to be
+11:50 
+
+11:50 generated by the tool call agent and uh
+11:52 
+
+11:52 to similarly and so on. Right? So so the
+11:55 
+
+11:55 thing is rather than just giving one
+11:57 
+
+11:57 atance and let the LLM figure out the
+12:00 
+
+12:00 path or the plan of the dialogue as and
+12:02 
+
+12:02 when it generates the next utterance
+12:04 
+
+12:04 this gave a little more structure
+12:06 
+
+12:06 because this is not prone to error. If
+12:08 
+
+12:08 you have to insert an error you will
+12:09 
+
+12:09 have to probably deterministically or
+12:12 
+
+12:12 like using the dialog plan insert
+12:14 
+
+12:14 errors. So it becomes a lot more natural
+12:15 
+
+12:15 than letting the model dictate how it
+12:18 
+
+12:18 has to go. Right? And finally there
+12:21 
+
+12:21 would be a multi- aent setup. This is
+12:22 
+
+12:22 similar to tool alpaga or the tool LLM
+12:25 
+
+12:25 work that we did where the user
+12:26 
+
+12:26 atterances will be in the dialog plan
+12:28 
+
+12:28 will be generated by the user. So uh and
+12:31 
+
+12:31 then the assistant uh will generate the
+12:33 
+
+12:33 assistant ates and the tool will
+12:35 
+
+12:35 generate the tool outputs. Right? Uh so
+12:38 
+
+12:38 this was what they did
+12:41 
+
+12:41 and on the tool alpaka uh data set which
+12:45 
+
+12:45 is a multi-turn
+12:47 
+
+12:47 again with multiple tools data set uh
+12:50 
+
+12:50 they sort of evaluated uh this
+12:52 
+
+12:52 particular setup uh by training llama
+12:55 
+
+12:55 3.18 billion on using the data that they
+12:58 
+
+12:58 generated with tool flow and they found
+13:00 
+
+13:00 that they were able to so if you
+13:02 
+
+13:02 remember there were two LLM as a judge
+13:05 
+
+13:05 one was based on the procedure if the
+13:07 
+
+13:07 API calls in the test data matches with
+13:10 
+
+13:10 the API calls that was predicted during
+13:11 
+
+13:11 runtime and response is it doesn't
+13:13 
+
+13:13 matter which path you take to arrive at
+13:15 
+
+13:15 the final response as long as the final
+13:16 
+
+13:16 response matches with the ground truth
+13:18 
+
+13:18 then it is correct right and overall is
+13:20 
+
+13:20 is an and of both it has to do both it
+13:23 
+
+13:23 has to be good on both procedure and
+13:24 
+
+13:24 response so they were able to uh improve
+13:28 
+
+13:28 llama 3.18 billion model uh from 74 to
+13:33 
+
+13:33 uh 85 on procedure and 74 to 84 overall
+13:38 
+
+13:38 right uh which was higher than GPD 3.5
+13:41 
+
+13:41 which was the uh frontier model at that
+13:44 
+
+13:44 point in time
+13:48 
+
+13:48 right uh so this was a this was a very
+13:50 
+
+13:50 simple idea but the goal was that uh
+13:53 
+
+13:53 like if you have to make a more natural
+13:55 
+
+13:55 dialogue then you'll have to split the
+13:57 
+
+13:57 dialog generation into multiple subp
+13:59 
+
+13:59 parts wherein you can control uh and
+14:02 
+
+14:02 then insert as much realism as possible
+14:05 
+
+14:05 into the data generation process, right?
+14:07 
+
+14:07 So there there there have been a lot of
+14:09 
+
+14:09 papers following that and most of these
+14:11 
+
+14:11 papers what they focus on is like how do
+14:14 
+
+14:14 you even further divide the generation
+14:16 
+
+14:16 process and make it fine grain so that
+14:19 
+
+14:19 you have lot more control uh and then
+14:22 
+
+14:22 this control will let you generate this
+14:24 
+
+14:24 data distribution that's similar to the
+14:26 
+
+14:26 real world distribution. For example,
+14:29 
+
+14:29 there are works uh that uh that that
+14:33 
+
+14:33 sort of knows what is the distribution
+14:35 
+
+14:35 of uh multi like tools that you will
+14:39 
+
+14:39 have to use per dialog. If if on an
+14:41 
+
+14:41 average on a real dialogue uh it sort of
+14:44 
+
+14:44 uh looks like 3.8 to four tools per
+14:46 
+
+14:46 dialogue then you can make sure that the
+14:48 
+
+14:48 control that you provide during the plan
+14:49 
+
+14:49 generation can let you achieve similar
+14:52 
+
+14:52 statistics. Right? So people figure out
+14:54 
+
+14:54 lot of different statistics by looking
+14:56 
+
+14:56 at the real world uh agentic use cases
+14:59 
+
+14:59 or tool calling use cases and they will
+15:01 
+
+15:01 also try to mimic that behavior uh into
+15:04 
+
+15:04 their synthesis pipeline. Right? And
+15:06 
+
+15:06 similarly people have also done uh like
+15:10 
+
+15:10 uh things where they look at the
+15:12 
+
+15:12 benchmarks and they figure out the
+15:14 
+
+15:14 statistics of the benchmarks and then
+15:16 
+
+15:16 overfitit
+15:18 
+
+15:18 the the the data generation process to a
+15:21 
+
+15:21 way that it will satisfy all the
+15:23 
+
+15:23 constraints that the simulated
+15:25 
+
+15:25 benchmarks have. Right? So so that is
+15:27 
+
+15:27 that also became a big problem for
+15:29 
+
+15:29 evaluation setup because now people have
+15:30 
+
+15:30 to come up with evaluation setups that
+15:32 
+
+15:32 are not easy to crack. Right? So BFCL
+15:36 
+
+15:36 unfortunately falls into the former
+15:37 
+
+15:37 category, right? They have the way that
+15:41 
+
+15:41 the the benchmark is designed
+15:45 
+
+15:45 some of the data generation techniques
+15:48 
+
+15:48 uh abuse that and then uh they do very
+15:52 
+
+15:52 good on BFCL and related other
+15:54 
+
+15:54 benchmarks as well. But uh uh BFCL also
+15:58 
+
+15:58 came up with a crowdsourced uh data
+16:01 
+
+16:01 which is not what they released as a
+16:03 
+
+16:03 part of the benchmark. And then they
+16:05 
+
+16:05 also ran experiments on the crowdsource
+16:08 
+
+16:08 data with all these trained models and
+16:10 
+
+16:10 then they showed which models sort of
+16:12 
+
+16:12 extremely overfit for the benchmarks and
+16:14 
+
+16:14 which models did not. Right? So
+16:18 
+
+16:18 yeah. So, so just because the model is
+16:20 
+
+16:20 good on BFCL, you should not assume that
+16:24 
+
+16:24 they will work well for your application
+16:25 
+
+16:25 as well, right? Because people have
+16:27 
+
+16:27 started to uh overfit on that.
+16:31 
+
+16:31 So let's uh so before going into magnet
+16:34 
+
+16:34 uh I I want to talk about
+16:37 
+
+16:37 a terminology that is used in function
+16:39 
+
+16:39 calling which is typically when we say
+16:41 
+
+16:41 multi-ton function calling what comes
+16:44 
+
+16:44 into people mind is that there'll be
+16:46 
+
+16:46 exchange there'll be more than one
+16:48 
+
+16:48 exchange between the user and the
+16:49 
+
+16:49 assistant right user says something and
+16:51 
+
+16:51 then assistant says something and then
+16:53 
+
+16:53 again the user will say something and
+16:54 
+
+16:54 again the assistant will say something
+16:56 
+
+16:56 right for example here the user says
+16:58 
+
+16:58 find flights from New York to Tokyo for
+17:00 
+
+17:00 tomorrow. Uh so these are the list of
+17:02 
+
+17:02 tools available to the model and then
+17:04 
+
+17:04 the model comes back and says fine
+17:06 
+
+17:06 flights and it fills all the arguments
+17:08 
+
+17:08 and then once the uh tool is executed
+17:10 
+
+17:10 you get the execution results and
+17:12 
+
+17:12 finally the tool will come back to the
+17:13 
+
+17:13 user and then say something right. So so
+17:15 
+
+17:15 this utterance and this utterance is
+17:19 
+
+17:19 what will be visible in the chat window
+17:21 
+
+17:21 but these these will be happening in the
+17:23 
+
+17:23 back end right which will not be visible
+17:25 
+
+17:25 to the user. uh and and and similarly
+17:28 
+
+17:28 after that the user might say uh like
+17:31 
+
+17:31 here there are two flights the user
+17:33 
+
+17:33 wanted to find a flight now the model
+17:35 
+
+17:35 gave back two options one at 10:00 a.m.
+17:37 
+
+17:37 one at 2 p.m. and uh the user now says
+17:40 
+
+17:40 that uh they want to book the 10 a.m.
+17:42 
+
+17:42 Right? And then again a bunch of things
+17:45 
+
+17:45 happen in the back end and and finally
+17:47 
+
+17:47 there is another uh response that is
+17:48 
+
+17:48 shown back to the user. Right? So this
+17:50 
+
+17:50 is a two-turn function calling dialogue.
+17:54 
+
+17:54 Right? So now in most realistic
+17:57 
+
+17:57 scenarios this is not how it happens.
+17:60 
+
+17:60 Right? What happens is that uh typically
+18:03 
+
+18:03 things become implicit. Right? So
+18:06 
+
+18:06 supposed to be booked flights from New
+18:07 
+
+18:07 York to Tokyo for tomorrow. So if it is
+18:09 
+
+18:09 booked flights then even though you've
+18:11 
+
+18:11 not explicitly said find flights the
+18:14 
+
+18:14 model has to find the flights first uh
+18:17 
+
+18:17 and and if let's say that in this
+18:19 
+
+18:19 scenario let's assume only one flight is
+18:20 
+
+18:20 there and a user has said book a flight
+18:22 
+
+18:22 for tomorrow then if it finds only one
+18:23 
+
+18:23 flight then implicitly it knows that
+18:25 
+
+18:25 that's the flight that it has to book
+18:26 
+
+18:26 and so it can go ahead and book right so
+18:28 
+
+18:28 most real world dialogues is going to be
+18:31 
+
+18:31 like this and this setup is called
+18:33 
+
+18:33 multi-step function calling right the
+18:35 
+
+18:35 reason why it's called multi-step is
+18:37 
+
+18:37 because the assistant has to respond
+18:40 
+
+18:40 multiple times before the final output
+18:42 
+
+18:42 is shown to the user. Right? So, so most
+18:45 
+
+18:45 real world dialogues are multi-turn
+18:48 
+
+18:48 multi-step function calling data. So
+18:50 
+
+18:50 far, most existing synthetic data
+18:53 
+
+18:53 generation pipelines only did multi-turn
+18:56 
+
+18:56 tool calling. Right? So, BFCL V3 when
+18:60 
+
+18:60 BFCL version 3 came, they had a lot of
+19:02 
+
+19:02 these multi-step function calling data
+19:04 
+
+19:04 points in their benchmark. And so post
+19:06 
+
+19:06 that people started to focus on uh uh
+19:09 
+
+19:09 generating multi-turn multi-step
+19:11 
+
+19:11 function calling data as well. Right?
+19:16 
+
+19:16 So, so, so, so again during March 2025,
+19:20 
+
+19:20 uh, folks from Google came with this uh
+19:22 
+
+19:22 technique called magnet uh, which is
+19:24 
+
+19:24 again a framework for synthesizing
+19:26 
+
+19:26 multi-turn uh, function calling, but it
+19:28 
+
+19:28 has a lot more focus on multi-step right
+19:32 
+
+19:32 and uh, uh, in this paper in addition to
+19:35 
+
+19:35 doing SFT they also discuss how uh, DPO
+19:40 
+
+19:40 can be used uh, to make it even better
+19:44 
+
+19:44 than with the same with. So when you do
+19:47 
+
+19:47 a DPO then you need to create uh
+19:50 
+
+19:50 positive negative samples right. So
+19:52 
+
+19:52 typically when you do SFT you only have
+19:54 
+
+19:54 need to have positive samples. When you
+19:56 
+
+19:56 create negative when you when you use
+19:57 
+
+19:57 DPO you have to end up creating negative
+19:59 
+
+19:59 samples as well. So they talk about how
+20:01 
+
+20:01 do you generate good negative samples
+20:04 
+
+20:04 and what is a good way to use DPO uh in
+20:07 
+
+20:07 your training process. Right.
+20:11 
+
+20:11 Right. So, so before going into the uh
+20:14 
+
+20:14 the details, uh let's just define some
+20:16 
+
+20:16 terminologies
+20:18 
+
+20:18 uh so let's say that you you are you you
+20:20 
+
+20:20 want to create a dialogue that has
+20:21 
+
+20:21 capital H turns in them, right? And uh
+20:25 
+
+20:25 the user user input uh to the user or
+20:29 
+
+20:29 the user attances in the dialog are
+20:30 
+
+20:30 represented by u u h uh where h can be
+20:34 
+
+20:34 from 1 to capital h and uh the model
+20:38 
+
+20:38 response or the model action at any turn
+20:40 
+
+20:40 h is a h and the tool response at any
+20:44 
+
+20:44 turn is t h and so trajectory of h turns
+20:50 
+
+20:50 would would look something like this
+20:52 
+
+20:52 right. So of course u let's go into
+20:56 
+
+20:56 slide. So this is a very gener generic
+20:58 
+
+20:58 notation and uh sometimes some of the
+21:02 
+
+21:02 user inputs may not be there uh when
+21:05 
+
+21:05 you're doing
+21:07 
+
+21:07 multi-step tool calling right because
+21:09 
+
+21:09 the model would predict something and
+21:12 
+
+21:12 then a tool response would come back
+21:14 
+
+21:14 again it would predict something else
+21:15 
+
+21:15 again a tool respond would come back
+21:17 
+
+21:17 again it could predict something else.
+21:18 
+
+21:18 So, so some user reference UI could be
+21:20 
+
+21:20 null, uh H could be null here in this
+21:23 
+
+21:23 trajectory. Similarly, uh actions uh or
+21:28 
+
+21:28 the model actions can either mean a
+21:30 
+
+21:30 natural language response that looks
+21:31 
+
+21:31 like this. Booked flight a a 1 2 3 at
+21:34 
+
+21:34 10:00 a.m. tomorrow or it could also be
+21:37 
+
+21:37 a tool call which says book flight with
+21:39 
+
+21:39 arguments flight and the flight ID.
+21:41 
+
+21:41 Right? It could be either the natural
+21:42 
+
+21:42 language response or the tool call. And
+21:45 
+
+21:45 uh of course the tool response uh
+21:49 
+
+21:49 following an natural language action
+21:51 
+
+21:51 will always be null right because for a
+21:53 
+
+21:53 natural language there is no tool
+21:54 
+
+21:54 response. So, so these are some of the
+21:59 
+
+21:59 so but we'll use a trajectory in general
+22:00 
+
+22:00 because it's easy to define the laws and
+22:03 
+
+22:03 understand what they do for the training
+22:05 
+
+22:05 right so a positive trajectory is where
+22:08 
+
+22:08 uh all the
+22:11 
+
+22:11 agents actions are the right actions you
+22:14 
+
+22:14 want to take at that point in time right
+22:17 
+
+22:17 so so so basically in a in a
+22:22 
+
+22:22 in a multi-turn conversation if the
+22:24 
+
+22:24 agent did its job right at that
+22:27 
+
+22:27 particular turn. then uh all the if all
+22:32 
+
+22:32 the agent actions are right then it is a
+22:35 
+
+22:35 positive trajectory right but even if
+22:38 
+
+22:38 one goes wrong in between then it
+22:40 
+
+22:40 becomes negative right uh wrong in the
+22:43 
+
+22:43 sense that uh if you have let's say that
+22:47 
+
+22:47 there are multiple ways of defining the
+22:49 
+
+22:49 trajectory right some people define the
+22:51 
+
+22:51 entire trajectory from start to end so
+22:52 
+
+22:52 if it fails in between they cannot
+22:54 
+
+22:54 recover sometimes they can recover and
+22:56 
+
+22:56 then go back to success So a failure so
+22:59 
+
+22:59 it is very important how you synthesize
+23:00 
+
+23:00 the failure. If you synthesize a failure
+23:03 
+
+23:03 and you're able to recover then it's not
+23:04 
+
+23:04 a failure anymore right but if you make
+23:06 
+
+23:06 an error uh and then you assume the next
+23:09 
+
+23:09 utter addressance is right then you may
+23:10 
+
+23:10 be introducing confusion into the model
+23:12 
+
+23:12 right so it is very important on how you
+23:15 
+
+23:15 define negative and how you end up using
+23:17 
+
+23:17 them in in dpo multi-tonon dpo right so
+23:21 
+
+23:21 we'll talk about that uh when we talk
+23:24 
+
+23:24 about how they actually generate the
+23:25 
+
+23:25 trajectories
+23:27 
+
+23:27 so so this is their so given that you
+23:29 
+
+23:29 know that you have a positive trajectory
+23:31 
+
+23:31 which which has the subscript and
+23:33 
+
+23:33 supererscript of W and you have a
+23:35 
+
+23:35 negative trajectory which has a pos
+23:37 
+
+23:37 subscript or superscript of L. uh then
+23:40 
+
+23:40 typically when you do SFT you will only
+23:42 
+
+23:42 use the positive trajectories right
+23:44 
+
+23:44 because there is no work for a negative
+23:45 
+
+23:45 trajectory there and uh so far uh people
+23:49 
+
+23:49 have only been using this as their loss
+23:51 
+
+23:51 function right which is you uh for every
+23:55 
+
+23:55 assistant uh or model action you would
+23:58 
+
+23:58 give whatever was done in until then and
+24:00 
+
+24:00 then you will expect the model action to
+24:01 
+
+24:01 be predicted by the LLM right so this is
+24:04 
+
+24:04 an input and this will be an output and
+24:06 
+
+24:06 then this will be an input and then this
+24:08 
+
+24:08 will be an output and and everything
+24:09 
+
+24:09 else in between. Right? So that's how
+24:11 
+
+24:11 you'll construct SFT data using the
+24:13 
+
+24:13 positive trajectory. And what this paper
+24:16 
+
+24:16 said is if you have negative
+24:18 
+
+24:18 trajectories, right? For the same task
+24:22 
+
+24:22 like in the sense that uh let's say uh
+24:26 
+
+24:26 for the same t for the same uh task at
+24:29 
+
+24:29 hand if you have two different
+24:31 
+
+24:31 trajectories then uh you can use this
+24:34 
+
+24:34 multi-turn DPO loss along with the SFD
+24:37 
+
+24:37 loss. Okay. So, so you so there are some
+24:42 
+
+24:42 differences for MDPO compared to the
+24:45 
+
+24:45 usual DPO. Okay. Difference number one
+24:47 
+
+24:47 is that typically
+24:51 
+
+24:51 this part in both the winner and loser
+24:54 
+
+24:54 would have been X, right?
+24:59 
+
+24:59 So, it's on the same ground, right?
+25:02 
+
+25:02 Secondly, it it is typically only on
+25:06 
+
+25:06 uh one action and not a sequence there.
+25:11 
+
+25:11 So you will until a certain point in
+25:12 
+
+25:12 time you will predict something and only
+25:14 
+
+25:14 for the next word you'll predict whether
+25:15 
+
+25:15 it's a winner or a loser or that
+25:16 
+
+25:16 particular or one utterance you predict
+25:18 
+
+25:18 it's a winner or a loser right? You will
+25:20 
+
+25:20 not predict it for multiple utterances
+25:22 
+
+25:22 in the dialogue. Right? So here what so
+25:25 
+
+25:25 SL here corresponds to like if you're
+25:27 
+
+25:27 doing this part then everything till
+25:29 
+
+25:29 here is considered S w and this will be
+25:32 
+
+25:32 AW similarly on the other side right and
+25:35 
+
+25:35 secondly the number of utterances in the
+25:38 
+
+25:38 positive trajectory and the negative
+25:40 
+
+25:40 trajectory need not necessarily be the
+25:41 
+
+25:41 same right maybe in one in the negative
+25:44 
+
+25:44 you had to go through 30 different uh uh
+25:48 
+
+25:48 turns before you decide like it's not
+25:50 
+
+25:50 working for the positive one maybe you
+25:52 
+
+25:52 just went through three turns and you
+25:53 
+
+25:53 were able to get to work. Right? So here
+25:55 
+
+25:55 you sort of club all the positives
+25:58 
+
+25:58 together in this term and the negatives
+25:60 
+
+25:60 together in sorry positives in this term
+26:02 
+
+26:02 and the negatives in this term. Right?
+26:04 
+
+26:04 So these are the two main differences
+26:05 
+
+26:05 between MDPO and DPO and uh there is
+26:09 
+
+26:09 some uh there's a different paper that
+26:11 
+
+26:11 suggested MDO. So if you want to
+26:13 
+
+26:13 understand why this is technically
+26:15 
+
+26:15 correct uh you can refer to the proof in
+26:17 
+
+26:17 that particular paper. Uh so so so here
+26:21 
+
+26:21 uh what they say is that in addition to
+26:23 
+
+26:23 SFT loss if you use uh lambda* mdpo loss
+26:27 
+
+26:27 you would end up getting slightly better
+26:28 
+
+26:28 results than what you would do with SFT.
+26:30 
+
+26:30 Okay.
+26:33 
+
+26:33 So let's see how they generate the
+26:35 
+
+26:35 positive and the negative trajectories
+26:36 
+
+26:36 in this work. Right. So uh in most
+26:40 
+
+26:40 existing work the way people went is you
+26:42 
+
+26:42 create a highle plan uh and then you
+26:45 
+
+26:45 will end up generating the utterances.
+26:47 
+
+26:47 Right? Uh and the and some set of tools
+26:50 
+
+26:50 are provided to them and when you create
+26:51 
+
+26:51 the plan it's up to the plan generation
+26:53 
+
+26:53 module to use whatever tools is
+26:55 
+
+26:55 available right. So the uh so this
+26:57 
+
+26:57 particular approach uh is is slightly
+26:60 
+
+26:60 different from those approaches and
+27:01 
+
+27:01 we'll see how so they have a set of
+27:04 
+
+27:04 functions like usual that's the same as
+27:06 
+
+27:06 the previous setup here they use uh
+27:08 
+
+27:08 stable toolbench which is again the same
+27:10 
+
+27:10 as what toolbench paper used rapid APIs
+27:13 
+
+27:13 but stable toolbench is uh does not
+27:15 
+
+27:15 change over time because tool uh the the
+27:19 
+
+27:19 toolbench had rapid APIs which were
+27:20 
+
+27:20 grounded on real APIs uh so they keep
+27:23 
+
+27:23 changing over time right booking.com if
+27:25 
+
+27:25 you search tomorrow the vacancies will
+27:26 
+
+27:26 be different than what you will search
+27:27 
+
+27:27 now. Right? So they that was creating
+27:29 
+
+27:29 some issues with evaluation and
+27:31 
+
+27:31 training. So the stable toolbench paper
+27:34 
+
+27:34 gave a more uh reproducible version of
+27:38 
+
+27:38 uh toolbench and that was called stable
+27:40 
+
+27:40 toolbench which is basically rapid APIs
+27:42 
+
+27:42 with some cache and they also used uh
+27:46 
+
+27:46 the function implementations present in
+27:48 
+
+27:48 BFCL V3. Right? So now in some sense
+27:51 
+
+27:51 they're overfitting for the BFCL
+27:53 
+
+27:53 benchmark because they're using the
+27:55 
+
+27:55 tools to generate uh data right
+28:00 
+
+28:00 and again like what I said earlier uh
+28:03 
+
+28:03 they would construct the
+28:06 
+
+28:06 the the tool graph from the set of tools
+28:09 
+
+28:09 they have but these guys followed a
+28:11 
+
+28:11 slightly different process which is uh
+28:14 
+
+28:14 they used LLM to assign labels to each
+28:18 
+
+28:18 API.
+28:19 
+
+28:19 and they randomly sampled 30
+28:24 
+
+28:24 neighbors for each node which has the
+28:25 
+
+28:25 same label and they would ask an LLM to
+28:28 
+
+28:28 see whether they are related to each
+28:29 
+
+28:29 other or not. Right? So it is a sparsely
+28:32 
+
+28:32 connected graph. It is not densely
+28:34 
+
+28:34 connected as the the tool flow paper.
+28:37 
+
+28:37 It's sparsely connected.
+28:39 
+
+28:39 And once they have the tool graph then
+28:42 
+
+28:42 they would first choose something called
+28:44 
+
+28:44 a signature path which is again the same
+28:47 
+
+28:47 random sampling right. But in the
+28:48 
+
+28:48 previous approach after they do random
+28:51 
+
+28:51 sampling they will just take the set of
+28:53 
+
+28:53 uh tools in that path and then ask the
+28:55 
+
+28:55 plan generator to generate a tool. But
+28:57 
+
+28:57 here they maintained uh the relationship
+29:00 
+
+29:00 between them as well. So they end up
+29:02 
+
+29:02 sampling a path uh from the
+29:07 
+
+29:07 graph and let's say the function path
+29:09 
+
+29:09 looks like this right uh you so function
+29:12 
+
+29:12 function signature is nothing but uh
+29:14 
+
+29:14 just the definition of the function the
+29:16 
+
+29:16 function what it does what are the input
+29:18 
+
+29:18 parameters what are the output
+29:19 
+
+29:19 parameters it is not instantiated right
+29:21 
+
+29:21 something like sum of int comma int
+29:25 
+
+29:25 but actual function implementation would
+29:27 
+
+29:27 be sum of 3a 4 right so so this is just
+29:30 
+
+29:30 a function signature And first they get
+29:32 
+
+29:32 uh the the sequence of function
+29:34 
+
+29:34 signatures. If they want to generate a
+29:36 
+
+29:36 dialogue of length h then they will end
+29:39 
+
+29:39 up sampling uh h uh APIs from the by
+29:45 
+
+29:45 doing a random walk.
+29:48 
+
+29:48 Then they have this technique uh called
+29:51 
+
+29:51 uh enhancing the signature path. So this
+29:53 
+
+29:53 is where uh it is sort of
+29:57 
+
+29:57 uh
+29:59 
+
+29:59 reflects more realistic setup right like
+30:03 
+
+30:03 for example uh how do they enhance it?
+30:07 
+
+30:07 First thing is that sometimes you only
+30:09 
+
+30:09 have like you have one tool here but
+30:12 
+
+30:12 then to execute this tool you may need
+30:14 
+
+30:14 input from some other tool like for
+30:16 
+
+30:16 example uh if you're logged in into your
+30:19 
+
+30:19 IIT Delhi portal when you add or drop a
+30:22 
+
+30:22 course
+30:24 
+
+30:24 the API automatically knows that who you
+30:26 
+
+30:26 are right it doesn't have to ask you to
+30:30 
+
+30:30 know who you are and then add or drop a
+30:33 
+
+30:33 course for you right so similarly in
+30:35 
+
+30:35 real settings. Many of these arguments
+30:38 
+
+30:38 will be available somewhere or the
+30:39 
+
+30:39 other, right? Or it can be inferred from
+30:41 
+
+30:41 a different API. So to mimic that setup,
+30:44 
+
+30:44 they created this notion called insert
+30:47 
+
+30:47 a function signature within a particular
+30:50 
+
+30:50 term, right? So one example would be
+30:52 
+
+30:52 that let's say that you sampled get
+30:55 
+
+30:55 flight by airport and and uh and the
+30:57 
+
+30:57 input is an airport symbol, right? So
+30:60 
+
+30:60 then you could insert something like
+31:02 
+
+31:02 this because naturally nobody is going
+31:04 
+
+31:04 to use airport symbol to ask how many
+31:08 
+
+31:08 flights are going from DEL right uh so
+31:11 
+
+31:11 they would rather say the name of the
+31:13 
+
+31:13 city right so if there exists API that
+31:17 
+
+31:17 says get airport symbol by city and you
+31:20 
+
+31:20 give the city name and the range with
+31:22 
+
+31:22 which you have to search in kilometers
+31:24 
+
+31:24 then it'll get you all the airport
+31:25 
+
+31:25 symbols and those airport symbols can
+31:27 
+
+31:27 directly go into get flight by airport,
+31:29 
+
+31:29 right? So the the usual path of the
+31:32 
+
+31:32 function signatures will still remain
+31:34 
+
+31:34 the same. It's just that for this one
+31:36 
+
+31:36 particular uh function, it would use an
+31:39 
+
+31:39 additional function implicitly to get
+31:41 
+
+31:41 some more information. Right?
+31:45 
+
+31:45 So the second type is merging where
+31:48 
+
+31:48 sometimes people uh say two three things
+31:51 
+
+31:51 together in the same atoms to get it
+31:53 
+
+31:53 done. Right? So this is to cover that
+31:55 
+
+31:55 particular setup and also like the setup
+31:56 
+
+31:56 that I talked about earlier multi-step
+31:58 
+
+31:58 tool calling right where sometimes you
+32:00 
+
+32:00 don't have to explicitly say you want to
+32:02 
+
+32:02 find flights but if you just say book
+32:04 
+
+32:04 flights it is obvious that you have to
+32:05 
+
+32:05 first search for the flights and then
+32:07 
+
+32:07 book the flight right so this merge will
+32:10 
+
+32:10 help you uh achieve things like that
+32:12 
+
+32:12 right
+32:15 
+
+32:15 so here for example it could also be
+32:17 
+
+32:17 that you get the distance from two
+32:19 
+
+32:19 locations and then based on the distance
+32:22 
+
+32:22 you set some navigation
+32:24 
+
+32:24 uh so then you could combine both of
+32:25 
+
+32:25 them and uh and say that as well in a
+32:27 
+
+32:27 natural language right and then again
+32:30 
+
+32:30 you can explicitly say it as well or
+32:31 
+
+32:31 implicitly say it as well so you can say
+32:33 
+
+32:33 I'm traveling from uh Delhi to Bangalore
+32:37 
+
+32:37 set navigation for it right so it should
+32:39 
+
+32:39 implicitly figure out it has to first
+32:41 
+
+32:41 get distance otherwise it cannot call
+32:42 
+
+32:42 the navigate or you can explicitly say
+32:44 
+
+32:44 what is the distance from uh Delhi to
+32:47 
+
+32:47 Bangalore also once you find the
+32:49 
+
+32:49 distance set the navigation right so you
+32:52 
+
+32:52 can implicitly say that also or you can
+32:54 
+
+32:54 explicitly say that also but this uh
+32:56 
+
+32:56 merge will help you achieve the implicit
+32:59 
+
+32:59 uh otherwise it'll be hard for you to
+33:01 
+
+33:01 get that working if you have them
+33:02 
+
+33:02 separately and the third one is
+33:04 
+
+33:04 splitting one in across multiple turns
+33:07 
+
+33:07 one one it's just one function call but
+33:09 
+
+33:09 you split them across multiple turns uh
+33:12 
+
+33:12 one simple example is that when you say
+33:15 
+
+33:15 get distance you don't provide all the
+33:17 
+
+33:17 parameters you say that I will only
+33:18 
+
+33:18 provide uh some information that tells
+33:21 
+
+33:21 me that I want to get instance and
+33:22 
+
+33:22 something about the two location and I
+33:24 
+
+33:24 won't explicitly say what the from
+33:26 
+
+33:26 location is and then again I'll go back
+33:29 
+
+33:29 to the user the user will tell me what
+33:31 
+
+33:31 the from location is and then I will
+33:33 
+
+33:33 execute the API right so this this this
+33:36 
+
+33:36 empty one will partially tell you what
+33:38 
+
+33:38 they want uh again you can split that
+33:40 
+
+33:40 into three also you can split that into
+33:42 
+
+33:42 four also right and sometimes it may
+33:45 
+
+33:45 even be confused between two different
+33:48 
+
+33:48 tools right for example you can say I
+33:51 
+
+33:51 want
+33:52 
+
+33:52 go to Chennai now can you please book a
+33:55 
+
+33:55 ticket now it may not say whether it's a
+33:56 
+
+33:56 train ticket or a flight ticket right so
+33:59 
+
+33:59 so there the confusion could either be
+34:01 
+
+34:01 from the tools to choose from or it
+34:03 
+
+34:03 could be missing parameters or obvious
+34:05 
+
+34:05 assumptions right
+34:09 
+
+34:09 so so at this point in time you will end
+34:10 
+
+34:10 up having a certain function signature
+34:13 
+
+34:13 path you would have enhanced that path
+34:14 
+
+34:14 to support multiple styles as well and
+34:17 
+
+34:17 uh so now you only have a sequence of
+34:20 
+
+34:20 function paths right Now you'll have to
+34:21 
+
+34:21 end up synthesizing the trajectory that
+34:23 
+
+34:23 we had in mind like which is u uh a and
+34:27 
+
+34:27 uh t and and so on right so so they use
+34:30 
+
+34:30 this back and forth translation
+34:32 
+
+34:32 technique to first using the function
+34:35 
+
+34:35 signature they will generate the user
+34:39 
+
+34:39 okay that is the back translation so
+34:42 
+
+34:42 typically people first say the user and
+34:44 
+
+34:44 then figure out what the tool call is
+34:46 
+
+34:46 but here they have fixed the function
+34:48 
+
+34:48 signature path so for each function
+34:50 
+
+34:50 they'll have to figure out what should
+34:52 
+
+34:52 be the corresponding user atance. Right?
+34:54 
+
+34:54 So the back translation is uh given the
+34:57 
+
+34:57 function signature at any step h it has
+34:59 
+
+34:59 to come up with the user atance for the
+35:02 
+
+35:02 step h. So one example could be that if
+35:05 
+
+35:05 the function signature sorry
+35:09 
+
+35:09 yeah so so now in the trajectory you're
+35:12 
+
+35:12 going to end up doing positive
+35:13 
+
+35:13 trajectories for user users right and
+35:17 
+
+35:17 and how sorry and how we are going to do
+35:20 
+
+35:20 that is for example if the first uh
+35:24 
+
+35:24 signature is get flights by airport
+35:26 
+
+35:26 right uh then the back translation for
+35:29 
+
+35:29 fs1 would be uh what all flights are
+35:32 
+
+35:32 landing in New Delhi right and I I've
+35:35 
+
+35:35 given the explicit symbol here because
+35:37 
+
+35:37 the the function has to accept the
+35:39 
+
+35:39 explicit symbol right but if you would
+35:40 
+
+35:40 have enhanced this with the other API
+35:44 
+
+35:44 right so then you would have generated
+35:46 
+
+35:46 something like what all flights are
+35:47 
+
+35:47 landing in New Delhi because you know
+35:49 
+
+35:49 that there are two functions inside this
+35:51 
+
+35:51 and if I just give the city it'll be
+35:53 
+
+35:53 able to figure out the airport code and
+35:56 
+
+35:56 then with that it'll be able to figure
+35:57 
+
+35:57 out all the flights and answer me right
+35:59 
+
+35:59 so with this back translation you'll be
+36:01 
+
+36:01 able to get all the user addresses.
+36:05 
+
+36:05 So then they have something called
+36:08 
+
+36:08 fourth transaction. Sorry, this should
+36:09 
+
+36:09 be f.
+36:11 
+
+36:11 So here what you do is uh let's say
+36:14 
+
+36:14 you're generating this user attentance.
+36:16 
+
+36:16 So then you will have the H minus one
+36:19 
+
+36:19 tool response right and sorry uh sorry
+36:23 
+
+36:23 if you're if you're going to so you're
+36:25 
+
+36:25 going to generate the function that is
+36:27 
+
+36:27 going to be called here right not the ah
+36:31 
+
+36:31 you're going to
+36:34 
+
+36:34 predict the function that's going to be
+36:35 
+
+36:35 called here which means you're going to
+36:37 
+
+36:37 instantiate the function signature with
+36:39 
+
+36:39 right values right if you have to do
+36:41 
+
+36:41 that sometimes the user will say that
+36:43 
+
+36:43 but sometimes you have to use it from
+36:45 
+
+36:45 the the output of the previous tools as
+36:48 
+
+36:48 well, right? Because in the from uh the
+36:51 
+
+36:51 airport code for New Delhi's de would
+36:53 
+
+36:53 come from the tool response, right? So
+36:55 
+
+36:55 when you fill the actual tool call, you
+36:57 
+
+36:57 may end up sometimes using information
+36:59 
+
+36:59 from the user at the previous uh tool
+37:02 
+
+37:02 call results as well.
+37:05 
+
+37:05 So for example, here uh the the function
+37:10 
+
+37:10 signature was get flight by airport and
+37:11 
+
+37:11 the airport symbol. You have decided the
+37:13 
+
+37:13 U1 what all flights are landing in New
+37:15 
+
+37:15 Delhi. Uh T0 is empty because there is
+37:17 
+
+37:17 no tool call in step zero. So there is
+37:19 
+
+37:19 no tool results in step zero. So with
+37:22 
+
+37:22 just that U1 and FS1 it should be able
+37:24 
+
+37:24 to instantiate what the tool should be
+37:26 
+
+37:26 called at this point in time which is
+37:28 
+
+37:28 get flights by airport and the airport
+37:29 
+
+37:29 symbol is de right.
+37:33 
+
+37:33 And now uh if you have the function
+37:38 
+
+37:38 actual function here then you'll be able
+37:40 
+
+37:40 to get the tool results right? If there
+37:42 
+
+37:42 is no so there may be cases where uh
+37:46 
+
+37:46 it is not a function then we'll see how
+37:48 
+
+37:48 that gets handled here right so now all
+37:51 
+
+37:51 you have is for cases where you have
+37:53 
+
+37:53 functions you will be able to get the
+37:56 
+
+37:56 executed tool results for cases where
+37:58 
+
+37:58 there are no functions then that becomes
+37:59 
+
+37:59 null so you don't have to worry about it
+38:01 
+
+38:01 right so you have filled in all the 's
+38:03 
+
+38:03 and t's the only thing that's left is
+38:04 
+
+38:04 filling a a right and of course if if it
+38:08 
+
+38:08 is a tool if it's an exact tool call
+38:11 
+
+38:11 then you can make AI as the tool call
+38:14 
+
+38:14 itself but when the tool call is not
+38:15 
+
+38:15 there then you have to fill in some
+38:17 
+
+38:17 natural language there right so let's
+38:19 
+
+38:19 see how they end up doing that
+38:22 
+
+38:22 so yeah so like I said if the fourth
+38:25 
+
+38:25 translation is an exact API with all the
+38:27 
+
+38:27 required parameters filled then the uh
+38:31 
+
+38:31 model action is exactly same as that
+38:34 
+
+38:34 there is no issues right so you'll be
+38:35 
+
+38:35 able to fill all the a where uh the f1
+38:40 
+
+38:40 is an instantiate ated tool. But in
+38:43 
+
+38:43 cases like this where where you split
+38:45 
+
+38:45 them into two uh you would say get
+38:48 
+
+38:48 distance from location is not given uh
+38:50 
+
+38:50 but the two location is given as Agra.
+38:52 
+
+38:52 For example, here it says how far is
+38:54 
+
+38:54 Agra? That was a user at so this was
+38:56 
+
+38:56 your fourth translation. Here you need
+38:59 
+
+38:59 to generate a natural language at saying
+39:01 
+
+39:01 could you tell me where you are starting
+39:02 
+
+39:02 from?
+39:06 
+
+39:06 Does this make sense? Right. So because
+39:09 
+
+39:09 the agent output can either be a tool
+39:11 
+
+39:11 call or a natural language because you
+39:13 
+
+39:13 have the uh the function plan the the
+39:16 
+
+39:16 function signature path and you also got
+39:18 
+
+39:18 the function instantiation you'll be
+39:19 
+
+39:19 able to figure out whether the function
+39:21 
+
+39:21 is complete or not. If the function is
+39:22 
+
+39:22 incomplete you'll have to give natural
+39:23 
+
+39:23 language response. The function is
+39:25 
+
+39:25 complete you can use the same function.
+39:27 
+
+39:27 There will be also a case where the
+39:28 
+
+39:28 model has to break the final answer
+39:30 
+
+39:30 right so there there will not be a
+39:31 
+
+39:31 function. So in that case it will
+39:34 
+
+39:34 generate a response A1 based on the tool
+39:37 
+
+39:37 call results that it had before and and
+39:39 
+
+39:39 maybe look at the first user atance to
+39:41 
+
+39:41 see what the user really asked for uh
+39:44 
+
+39:44 and then provide the actual natural
+39:45 
+
+39:45 language response. Right? So now we have
+39:47 
+
+39:47 filled up all the trajectories. Right?
+39:49 
+
+39:49 But these are positive trajectories.
+39:50 
+
+39:50 There is no issues here. Right? So you
+39:52 
+
+39:52 can use them for SFT. Uh now we now we
+39:55 
+
+39:55 have to figure so this is this part like
+39:57 
+
+39:57 if you have a good teacher then you will
+39:60 
+
+39:60 be able to get the positive trajectory.
+40:01 
+
+40:01 Now how do we end up negative how do we
+40:04 
+
+40:04 end up getting negative trajectories
+40:05 
+
+40:05 right?
+40:07 
+
+40:07 So let's say
+40:09 
+
+40:09 that in the same setup as previously you
+40:12 
+
+40:12 know that get distance is what the
+40:13 
+
+40:13 function signature is and you've not
+40:15 
+
+40:15 given the from location you've given
+40:16 
+
+40:16 only the two location and the user is
+40:19 
+
+40:19 how far is Agra right now what they did
+40:22 
+
+40:22 was they fed
+40:26 
+
+40:26 until the user to a student LLM because
+40:30 
+
+40:30 the teacher LLM is is a bigger model
+40:32 
+
+40:32 which can generate the synthetic data
+40:34 
+
+40:34 typically after you generate the
+40:35 
+
+40:35 synthetic data you will be using it to
+40:37 
+
+40:37 teach a smaller language model, right?
+40:39 
+
+40:39 And so they fed that partial input to
+40:41 
+
+40:41 the smaller language model and saw what
+40:44 
+
+40:44 type of error it makes. So they they
+40:47 
+
+40:47 have some statistics of okay, many a
+40:49 
+
+40:49 times it it predicted the wrong tool,
+40:51 
+
+40:51 right? Many a time it hallucinated the
+40:53 
+
+40:53 answer, many a time it didn't fill the
+40:55 
+
+40:55 arguments, right? So they got those
+40:56 
+
+40:56 statistics and then they systematically
+40:59 
+
+40:59 injected those errors to create negative
+41:03 
+
+41:03 trajectories. So here they knew that
+41:06 
+
+41:06 rather than having get distance they
+41:08 
+
+41:08 would deliberately infuse or inject a
+41:11 
+
+41:11 issue here with a wrong
+41:13 
+
+41:13 uh API. So rather than getting get
+41:16 
+
+41:16 distance, they put get weather because
+41:17 
+
+41:17 sometimes if only one location is given
+41:20 
+
+41:20 the smaller model assumes that it should
+41:22 
+
+41:22 only look for APIs that has one
+41:24 
+
+41:24 argument, right? And so rather than so
+41:27 
+
+41:27 when it's confused between get distance
+41:29 
+
+41:29 and get weather, it somehow lean towards
+41:31 
+
+41:31 get weather, right? And so with this uh
+41:35 
+
+41:35 you will end up generating a negative
+41:38 
+
+41:38 sample here where the model makes a
+41:40 
+
+41:40 mistake, right? So this is a mistake
+41:41 
+
+41:41 that the SFT model the the the smaller
+41:43 
+
+41:43 model is making. So that you want the
+41:45 
+
+41:45 model to not do that but rather do the
+41:47 
+
+41:47 right thing. So this is a very good
+41:48 
+
+41:48 negative example to have uh in your uh
+41:51 
+
+41:51 DPO training. Right.
+41:54 
+
+41:54 Yeah. So so now that you have positive
+41:56 
+
+41:56 trajectories and negative trajectories
+41:58 
+
+41:58 then using the loss function that they
+41:60 
+
+41:60 had proposed before uh you could do SFT.
+42:03 
+
+42:03 So typically they do some SFT and then
+42:05 
+
+42:05 followed by SFT plus uh MDPO together
+42:09 
+
+42:09 right
+42:13 
+
+42:13 so so the summary is that uh this is the
+42:17 
+
+42:17 teacher model this is it's this model
+42:19 
+
+42:19 with which they generated all the
+42:21 
+
+42:21 positive trajectories right and on BFCL
+42:24 
+
+42:24 uh this is the V3 version which has both
+42:26 
+
+42:26 the single turn single turn is V_sub_1
+42:28 
+
+42:28 and version V_sub_2 and multi-turn is
+42:31 
+
+42:31 V_sub3 So this data set is more focused
+42:34 
+
+42:34 towards multi-turn right uh so the the
+42:38 
+
+42:38 performance the multi-turn performance
+42:39 
+
+42:39 of the teacher model is 20.75
+42:43 
+
+42:43 right but they used that model to
+42:45 
+
+42:45 synthesize
+42:46 
+
+42:46 positive examples and the way they
+42:49 
+
+42:49 systematically created the function
+42:51 
+
+42:51 signatures and the way they
+42:53 
+
+42:53 systematically uh expanded the function
+42:55 
+
+42:55 signatures and all the other algorithms
+42:57 
+
+42:57 that all the other parts of the
+42:58 
+
+42:58 algorithm they used they were able to
+42:60 
+
+42:60 generate really good trajectories
+43:02 
+
+43:02 uh and and if you see the student model
+43:04 
+
+43:04 which is much much smaller than the
+43:05 
+
+43:05 teacher model is able to get better
+43:08 
+
+43:08 performance on multi-turn than the
+43:10 
+
+43:10 teacher itself right of course both the
+43:12 
+
+43:12 SFT and the MDPO are doing better and
+43:16 
+
+43:16 the MDPO version is doing slightly
+43:17 
+
+43:17 better than SFT so so this was a summary
+43:21 
+
+43:21 of the paper that even with the teacher
+43:24 
+
+43:24 model that is not good at your task if
+43:27 
+
+43:27 you have a good systematic way of
+43:28 
+
+43:28 generating
+43:30 
+
+43:30 the synthetic data generation then you
+43:33 
+
+43:33 can even beat the teacher and RL helps
+43:36 
+
+43:36 right so these are two takeaways from
+43:37 
+
+43:37 the paper and they've not just seen it
+43:39 
+
+43:39 with the 7 billion model so this was
+43:42 
+
+43:42 trained on top of quen 2.5 7 billion
+43:43 
+
+43:43 instruct uh they also trained magnet on
+43:46 
+
+43:46 top of uh quen 2.5 14 billion as well
+43:49 
+
+43:49 and they saw similar gains where the
+43:51 
+
+43:51 number jumped from 5 to 37 right
+43:55 
+
+43:55 so this is even better than the the
+43:58 
+
+43:58 teacher model right much for
+44:02 
+
+44:02 so yeah so now we covered high fidelity
+44:05 
+
+44:05 so magnet was much better than tool flow
+44:07 
+
+44:07 and uh but the but some issues I have
+44:11 
+
+44:11 with magnet is that it is extremely
+44:13 
+
+44:13 overfit for BFCL right the reason why
+44:16 
+
+44:16 it's extremely overfitit for BSCL is
+44:17 
+
+44:17 firstly they use the same APIs that BFCL
+44:19 
+
+44:19 is using to generate data right secondly
+44:23 
+
+44:23 all their function uh signature
+44:27 
+
+44:27 expansion technique that they used or
+44:29 
+
+44:29 all the patterns that are present in BFC
+44:32 
+
+44:32 right because most models fail to do
+44:34 
+
+44:34 implicit function calling like when you
+44:35 
+
+44:35 book a flight they don't search they
+44:37 
+
+44:37 directly start to book and hallucinate
+44:38 
+
+44:38 the flight ids right so they knew what
+44:41 
+
+44:41 all errors these models make right and
+44:43 
+
+44:43 then they use those patterns to cover up
+44:45 
+
+44:45 for the model and they and and if you
+44:48 
+
+44:48 generate if you take random APIs you may
+44:50 
+
+44:50 not be able to find those patterns right
+44:52 
+
+44:52 because it may so happen you will never
+44:53 
+
+44:53 find such a pattern where you can make
+44:55 
+
+44:55 an implicit function call so when you
+44:56 
+
+44:56 use the BCL APIs which inherently has
+44:59 
+
+44:59 the ability ility to do implicit
+44:60 
+
+44:60 function calling in them. Right? So, so
+45:02 
+
+45:02 I sort of while the technique is good,
+45:04 
+
+45:04 while the idea is good, you'll have to
+45:07 
+
+45:07 take it with a pinch of salt on why they
+45:08 
+
+45:08 are doing so much better than Gemini or
+45:10 
+
+45:10 the other models on DFCL. Right?
+45:14 
+
+45:14 So, now let's look at a more realistic
+45:17 
+
+45:17 evaluation paper. So, this paper uh was
+45:20 
+
+45:20 the first of its kind to propose a a
+45:23 
+
+45:23 very close to realistic uh benchmarking
+45:26 
+
+45:26 of LLMs. And they also showcased a
+45:29 
+
+45:29 problem of consistency in the sense that
+45:32 
+
+45:32 let's say you claim that your bot is uh
+45:36 
+
+45:36 95% accurate, right? Is that good or
+45:39 
+
+45:39 bad?
+45:41 
+
+45:41 What do you what would you generally
+45:42 
+
+45:42 think if somebody claims that I have an
+45:44 
+
+45:44 agentic solution that works 95% of the
+45:46 
+
+45:46 time? It feels good, right? Let's say
+45:50 
+
+45:50 you you deploy this for flight booking
+45:52 
+
+45:52 and flight cancelling, right?
+45:55 
+
+45:55 So when 100 people try to uh cancel a
+45:59 
+
+45:59 flight that that is not allowed to be
+46:02 
+
+46:02 cancelled by them, right? And five
+46:05 
+
+46:05 people out of 100 were able to actually
+46:07 
+
+46:07 cancel and get the refund back, right?
+46:09 
+
+46:09 So that's a bad thing, right? Because if
+46:11 
+
+46:11 you know that you can hack it, then you
+46:13 
+
+46:13 yourself will try 100 times with the
+46:16 
+
+46:16 hope that at least once you will be able
+46:17 
+
+46:17 to get. So the point of failure accuracy
+46:21 
+
+46:21 is not a good measure to understand how
+46:23 
+
+46:23 reliable the bot is. Right? So if even
+46:26 
+
+46:26 if your bot is 80% accurate, you're at
+46:28 
+
+46:28 huge risk because you just have to try
+46:30 
+
+46:30 five times to hack your system, right?
+46:32 
+
+46:32 Five different ways to hack your system.
+46:34 
+
+46:34 So now they started to bring that into
+46:37 
+
+46:37 the line, right? So reliability of
+46:40 
+
+46:40 agents is very important otherwise you
+46:42 
+
+46:42 can't use them for write operations. You
+46:44 
+
+46:44 can use them for read operations like if
+46:46 
+
+46:46 you're searching the web, it's okay.
+46:48 
+
+46:48 once in five times it goes wrong it's
+46:50 
+
+46:50 fine but you're doing right operations
+46:51 
+
+46:51 in your database and they are cost
+46:53 
+
+46:53 effect they're associated with cost then
+46:55 
+
+46:55 you are bound to lose money right
+47:01 
+
+47:01 so so typically what happened was that
+47:04 
+
+47:04 people used a bunch of tools and then a
+47:07 
+
+47:07 user would be given a persona and a set
+47:09 
+
+47:09 of instructions on what they want to
+47:10 
+
+47:10 accomplish and then it will be a chat
+47:12 
+
+47:12 between the user and the agent right so
+47:14 
+
+47:14 here uh they they had several
+47:18 
+
+47:18 differences. One is all their tools were
+47:20 
+
+47:20 executable on top of a domain database,
+47:23 
+
+47:23 right? So for example, if it's an IT
+47:26 
+
+47:26 Delhi system, they would mimic a student
+47:28 
+
+47:28 record with all the courses registered,
+47:31 
+
+47:31 all the student details and things like
+47:32 
+
+47:32 that. So when you actually register for
+47:34 
+
+47:34 a courses, it will do a database, right?
+47:36 
+
+47:36 And it will change the state of the
+47:37 
+
+47:37 database, right? And uh so basically any
+47:41 
+
+47:41 read tools that you use that will not
+47:43 
+
+47:43 change the state of the database. But if
+47:44 
+
+47:44 you do a write operation, then it will
+47:46 
+
+47:46 change the state, right? So searching
+47:47 
+
+47:47 for a course will not change the state.
+47:49 
+
+47:49 Uh dropping a course or adding a course
+47:51 
+
+47:51 will change the state and and you should
+47:52 
+
+47:52 and and in this setup you you can look
+47:54 
+
+47:54 into the state and then see whether it
+47:56 
+
+47:56 actually changed or not. Right? Second
+47:58 
+
+47:58 thing is uh an agent
+48:01 
+
+48:01 has domain rules like sometimes let's
+48:05 
+
+48:05 say in this particular uh domain this is
+48:07 
+
+48:07 airline domain where you have user
+48:08 
+
+48:08 details book reservation cancel
+48:10 
+
+48:10 reservation update reservation flights.
+48:12 
+
+48:12 They also give lot of rules saying that
+48:15 
+
+48:15 look nobody can modify the booking of
+48:17 
+
+48:17 basic economy right unless you're in a
+48:20 
+
+48:20 different package they cannot modify the
+48:23 
+
+48:23 booking and similarly if it's the last
+48:25 
+
+48:25 24 hours of the flight departure then
+48:28 
+
+48:28 you cannot cancel any existing booking
+48:30 
+
+48:30 right so they have lot of rules in
+48:31 
+
+48:31 natural language because that's how
+48:33 
+
+48:33 typically domains are defined so these
+48:35 
+
+48:35 rules are in some sense on top of the
+48:37 
+
+48:37 tools you have so if you do good tool
+48:39 
+
+48:39 calling it's not enough you need to have
+48:41 
+
+48:41 some guardrails on when you have to make
+48:43 
+
+48:43 the call because these policies will
+48:44 
+
+48:44 govern you to say okay even though I
+48:46 
+
+48:46 have I have to do cancel and I know all
+48:49 
+
+48:49 the details I should not be actually
+48:50 
+
+48:50 calling the API because the rules
+48:52 
+
+48:52 doesn't allow me to do that so I have to
+48:55 
+
+48:55 say that I cannot cancel your flight
+48:57 
+
+48:57 ticket because it's within the 24-hour
+48:59 
+
+48:59 limit right so that's what the
+49:00 
+
+49:00 expectation from the bot is
+49:03 
+
+49:03 uh and the second thing is in most
+49:05 
+
+49:05 existing setup when they evaluate they
+49:08 
+
+49:08 split the dialogue into
+49:10 
+
+49:10 uh pairs of input and uh and completion,
+49:14 
+
+49:14 right? So if you have five assistant
+49:16 
+
+49:16 responses, then you will split them into
+49:17 
+
+49:17 five different data points and you
+49:19 
+
+49:19 compute the accuracy of all the five
+49:20 
+
+49:20 together and if all works, you will say
+49:23 
+
+49:23 it is good, right? But typically in real
+49:24 
+
+49:24 life, what happens? If the first one
+49:26 
+
+49:26 fails, then you're bound to fail, right?
+49:28 
+
+49:28 So, so they change the way in which user
+49:31 
+
+49:31 interacts in the sense that uh they made
+49:35 
+
+49:35 it more dynamic. You can you have a user
+49:38 
+
+49:38 simulator. So if the assistant makes
+49:40 
+
+49:40 issues in the first turn the the user
+49:42 
+
+49:42 simulator can reply back to that mistake
+49:45 
+
+49:45 like for example it says uh the user
+49:47 
+
+49:47 said like I want to cancel my flight uh
+49:49 
+
+49:49 then the assistant oh I understand you
+49:51 
+
+49:51 want to modify your flight booking what
+49:53 
+
+49:53 flight you want to book then the user if
+49:54 
+
+49:54 you have a simulator there rather than a
+49:56 
+
+49:56 predefined user utterance there then you
+49:58 
+
+49:58 can say oh I didn't mean modify right I
+50:00 
+
+50:00 wanted to cancel it so so if you have a
+50:03 
+
+50:03 user simulator uh then you can better
+50:07 
+
+50:07 evaluate whether the task at hand has
+50:11 
+
+50:11 been successfully solved or not. Right?
+50:13 
+
+50:13 But if you have a static user utterance
+50:16 
+
+50:16 that typically what other data
+50:17 
+
+50:17 generation techniques would give you. If
+50:19 
+
+50:19 the first utterance is wrong then there
+50:21 
+
+50:21 is no way for you to understand whether
+50:23 
+
+50:23 the system is going to work or not.
+50:24 
+
+50:24 Right? Because if you evaluate the
+50:26 
+
+50:26 entire dialogue and if one of the
+50:28 
+
+50:28 utterances is wrong you will assume the
+50:29 
+
+50:29 system doesn't work. Right? Maybe the
+50:30 
+
+50:30 system learned a different policy and
+50:33 
+
+50:33 even if it makes wrong then it could be
+50:34 
+
+50:34 able to recover. So those things uh this
+50:38 
+
+50:38 particular uh benchmark uh setup will be
+50:41 
+
+50:41 able to recover because they used uh a
+50:44 
+
+50:44 whole description of what the user is in
+50:46 
+
+50:46 in a in a in a user instruction setup.
+50:49 
+
+50:49 For example, here the user is NIA LA
+50:51 
+
+50:51 2017 and the user wants to change their
+50:54 
+
+50:54 flight most recent reservation to fly to
+50:57 
+
+50:57 San Francisco instead of LA on the same
+50:59 
+
+50:59 day. If change is not possible, you want
+51:01 
+
+51:01 to agent to cancel and rebook and you
+51:03 
+
+51:03 are you're a concise user,
+51:06 
+
+51:06 right? So they give a personality for
+51:07 
+
+51:07 it. So at this point in time when the
+51:09 
+
+51:09 user starts with the first atrance, he
+51:11 
+
+51:11 can use partial information here and
+51:13 
+
+51:13 then say that and then the agent will
+51:16 
+
+51:16 respond back and then based on the
+51:17 
+
+51:17 agent's response, the user can user
+51:19 
+
+51:19 simulator can use the information here
+51:21 
+
+51:21 and then respond back to the user.
+51:22 
+
+51:22 Right? So, so this instruction will be
+51:24 
+
+51:24 given to GPT4 along with a certain
+51:26 
+
+51:26 prompt saying how they should act as a
+51:28 
+
+51:28 user and then based on the agent
+51:30 
+
+51:30 response it will keep simulating the
+51:31 
+
+51:31 setup
+51:34 
+
+51:34 right so they have uh the data set this
+51:37 
+
+51:37 is just a evaluation benchmark right so
+51:39 
+
+51:39 it's not a very exhaustive large scale
+51:40 
+
+51:40 benchmark they have 115 tasks in one
+51:44 
+
+51:44 domain called retail and 50 uh in a
+51:47 
+
+51:47 domain called airline and uh so these
+51:49 
+
+51:49 are some of the statistics of how big
+51:51 
+
+51:51 the database is how how many tools they
+51:53 
+
+51:53 have, what tools are read and write
+51:54 
+
+51:54 operations and so on. So in the retail
+51:57 
+
+51:57 domain, uh it will have examples like
+51:59 
+
+51:59 the user wants to cancel or modify
+52:01 
+
+52:01 pending orders, exchange, return uh
+52:03 
+
+52:03 items and things like that. It's more
+52:04 
+
+52:04 like e-commerce, right? Uh and some of
+52:07 
+
+52:07 the domain rules are like uh you can
+52:10 
+
+52:10 only cancel order once or modify the
+52:12 
+
+52:12 order once or things like uh only after
+52:15 
+
+52:15 the item is delivered you can you are
+52:17 
+
+52:17 eligible to return. If it's on transit,
+52:18 
+
+52:18 you cannot return things like that. And
+52:21 
+
+52:21 for airline they can of course do
+52:23 
+
+52:23 regular things like booking, modifying,
+52:24 
+
+52:24 cancelling uh and then reservations and
+52:28 
+
+52:28 so on. And and they have lot of variable
+52:30 
+
+52:30 constraints in the sense that uh you can
+52:33 
+
+52:33 cancel if you are a member. You can
+52:35 
+
+52:35 cancel if you booked under a certain uh
+52:37 
+
+52:37 higher flexi pay or something like that.
+52:39 
+
+52:39 Uh or uh if you have a membership uh
+52:42 
+
+52:42 with membership can also have different
+52:44 
+
+52:44 classes gold class, silver class and
+52:45 
+
+52:45 things like that. So they have a lot of
+52:46 
+
+52:46 very complicated rules for airlines and
+52:49 
+
+52:49 and because of the complicated rules
+52:51 
+
+52:51 airline uh domain is slightly difficult
+52:54 
+
+52:54 compared to the retail domain right
+52:57 
+
+52:57 and and and the database is not small
+52:59 
+
+52:59 right they have a very even though there
+53:00 
+
+53:00 are only 50 tasks they still have 500
+53:03 
+
+53:03 users and so the database is pretty big
+53:06 
+
+53:06 they have 300 flights 2,000 reservations
+53:08 
+
+53:08 already there and things like that right
+53:11 
+
+53:11 so so let me show you an example of how
+53:15 
+
+53:15 it looks like right. So, so this uh this
+53:20 
+
+53:20 is a
+53:24 
+
+53:24 this is a profile of a user in the user
+53:26 
+
+53:26 database, right? So, there is uh Mia Lee
+53:30 
+
+53:30 uh sorry, there's a Mia Lee and their
+53:34 
+
+53:34 address and they also have all their
+53:36 
+
+53:36 email, all the credit cards that they
+53:38 
+
+53:38 can use for purchase and things like
+53:39 
+
+53:39 that and uh some of the reservations
+53:42 
+
+53:42 that they have already and what
+53:43 
+
+53:43 membership they have.
+53:45 
+
+53:45 And similarly so this is available to
+53:47 
+
+53:47 the agent right and similarly there are
+53:50 
+
+53:50 also reservations here uh for this
+53:52 
+
+53:52 particular flight uh this particular
+53:54 
+
+53:54 flight number source and departure is
+53:56 
+
+53:56 this sorry source and destination is
+53:58 
+
+53:58 here departure time arrival time and uh
+54:00 
+
+54:00 different days what was the status and
+54:02 
+
+54:02 for future dates uh how much seats are
+54:06 
+
+54:06 available and so on. So if you book a
+54:07 
+
+54:07 ticket in this flight uh that means that
+54:10 
+
+54:10 this count has to reduce right. So so so
+54:14 
+
+54:14 this is an executable API with which
+54:16 
+
+54:16 which will change the state of the
+54:18 
+
+54:18 system
+54:22 
+
+54:22 and uh and here like this will be the
+54:25 
+
+54:25 instruction given to the user like you
+54:26 
+
+54:26 are similar to what I showed in the
+54:28 
+
+54:28 example and uh uh with this instruction
+54:31 
+
+54:31 they would say that if this is a success
+54:35 
+
+54:35 then book reservation should have been
+54:36 
+
+54:36 called with these attributes and uh uh
+54:40 
+
+54:40 and they they also have other details
+54:42 
+
+54:42 like if the user is requesting for some
+54:44 
+
+54:44 information what all information has to
+54:46 
+
+54:46 be uh given back by the agent. So for
+54:50 
+
+54:50 read they should tell you what all
+54:51 
+
+54:51 information has to be given back for
+54:53 
+
+54:53 write they will tell you how the state
+54:55 
+
+54:55 of your database will change right
+54:57 
+
+54:57 that's what is going to use for
+54:58 
+
+54:58 evaluation and typically when you uh
+55:02 
+
+55:02 when you when you interact in this setup
+55:04 
+
+55:04 using GPT 40 it gives extremely
+55:08 
+
+55:08 uh realistic dialogues right for example
+55:13 
+
+55:13 this is a user simulator this is a
+55:14 
+
+55:14 discussion between a user simulator and
+55:16 
+
+55:16 an assistant simulator right you've
+55:18 
+
+55:18 given the user profile to the user agent
+55:19 
+
+55:19 simulator you've given the agent profile
+55:21 
+
+55:21 to the agent simulator and the the agent
+55:24 
+
+55:24 profile is what actually is used to
+55:27 
+
+55:27 build the agent. So you've built the
+55:29 
+
+55:29 agent using the database tools and all
+55:31 
+
+55:31 those things. The user will now mimic a
+55:33 
+
+55:33 real world user and then interact with
+55:35 
+
+55:35 the model. Right? So if you want to
+55:37 
+
+55:37 evaluate different models then uh you
+55:40 
+
+55:40 build agents with those tools and
+55:43 
+
+55:43 different models and you let the user
+55:44 
+
+55:44 interact and you can figure out which
+55:46 
+
+55:46 model is better than the other, right?
+55:50 
+
+55:50 So this is this is an extremely long
+55:51 
+
+55:51 dialogue. This is a tool response again.
+55:53 
+
+55:53 There's a tool call made. There's a tool
+55:54 
+
+55:54 response and finally assistant comes
+55:56 
+
+55:56 back and then gives stuff like right. So
+55:57 
+
+55:57 this is how the realistic things would
+55:60 
+
+55:60 look like. So when when do they consider
+56:02 
+
+56:02 a task is successful right? So like I
+56:05 
+
+56:05 said if it is a right operation uh then
+56:08 
+
+56:08 they know what should be the state of
+56:11 
+
+56:11 certain rows in the database. Right? So
+56:13 
+
+56:13 they have that state already provided as
+56:15 
+
+56:15 a part of ground truth annotation and
+56:17 
+
+56:17 you go and check in the database whether
+56:19 
+
+56:19 those are reflective of the state that
+56:22 
+
+56:22 is expected. If those are not reflective
+56:24 
+
+56:24 then the right operation was not
+56:26 
+
+56:26 successful. Right? Uh and if the if it's
+56:29 
+
+56:29 a read operation then they will give
+56:31 
+
+56:31 some keywords. So here the keywords are
+56:33 
+
+56:33 54.04 and 41.64. This is the amount of
+56:36 
+
+56:36 money they will be charged or something
+56:37 
+
+56:37 like that when you do the return and
+56:39 
+
+56:39 things like that. Right? So uh so in
+56:42 
+
+56:42 this case if it's a read operation these
+56:44 
+
+56:44 strings should be present in the output
+56:47 
+
+56:47 of any of the agent responses in the
+56:49 
+
+56:49 dialogue right so these two will clearly
+56:51 
+
+56:51 so it doesn't matter what tool you
+56:53 
+
+56:53 called when whether you called an
+56:55 
+
+56:55 incorrect tool and then finally
+56:56 
+
+56:56 recovered and called the correct tool so
+56:58 
+
+56:58 none of them matter all they see is at
+57:01 
+
+57:01 the end of the dialogue uh whether the
+57:03 
+
+57:03 right operation happened as expected and
+57:05 
+
+57:05 the read operations gave you the right
+57:07 
+
+57:07 information that you want right so this
+57:10 
+
+57:10 is termed as success.
+57:13 
+
+57:13 So uh so to so like I said about
+57:15 
+
+57:15 relability in the beginning of the uh
+57:18 
+
+57:18 discussion right which is how do you
+57:20 
+
+57:20 know whether this is really good to be
+57:21 
+
+57:21 deployed in real world or not right if
+57:23 
+
+57:23 you call it five times how many times
+57:25 
+
+57:25 would it fail right so uh typically in
+57:28 
+
+57:28 code code generation task uh people use
+57:32 
+
+57:32 something called uh pass at k to
+57:36 
+
+57:36 understand whether this problem is this
+57:40 
+
+57:40 problem solution is feasible or Right?
+57:42 
+
+57:42 For example, if you ask you to write a
+57:43 
+
+57:43 code uh and you say that look, my goal
+57:47 
+
+57:47 is for you to write a code. Okay? It's
+57:49 
+
+57:49 okay if you take five or six tries, but
+57:51 
+
+57:51 in five or six tries, are you able to
+57:53 
+
+57:53 get at least one code that is correct
+57:55 
+
+57:55 for them, right? So, so typically, let's
+57:58 
+
+57:58 say that you you have a bot that
+58:01 
+
+58:01 automatically would create a PR based on
+58:02 
+
+58:02 the issue at hand, right? You don't care
+58:04 
+
+58:04 how many times it works, right? How long
+58:06 
+
+58:06 it takes because as a human, you would
+58:07 
+
+58:07 take a day or two to create the PR. So
+58:10 
+
+58:10 even if if the LLM runs multiple times
+58:12 
+
+58:12 and at least once it's able to figure
+58:13 
+
+58:13 out the right solution and then you run
+58:15 
+
+58:15 the unit test case and it works then
+58:16 
+
+58:16 you're good right. So pass at K is is is
+58:19 
+
+58:19 one metric that people typically use. So
+58:22 
+
+58:22 so this n is the number of total number
+58:25 
+
+58:25 of trials that you tried right and c is
+58:28 
+
+58:28 the number of times you got success
+58:31 
+
+58:31 right uh then pass at k is typically a
+58:35 
+
+58:35 number less than n. So it says that if I
+58:38 
+
+58:38 take n k solutions in random from the
+58:41 
+
+58:41 total n trials and what is the
+58:43 
+
+58:43 likelihood that I get at least one run
+58:45 
+
+58:45 correct right pass at one is if I sample
+58:48 
+
+58:48 only one at a time then what is the
+58:50 
+
+58:50 likelihood that it is correct right pass
+58:52 
+
+58:52 at k is pass at two is if I choose two
+58:54 
+
+58:54 samples at a time from n uh randomly
+58:56 
+
+58:56 then what is the likelihood that one of
+58:59 
+
+58:59 them in the two is correct right so that
+59:01 
+
+59:01 is pass at k and this has been used for
+59:02 
+
+59:02 coding task these guys proposed
+59:04 
+
+59:04 something called pass hat K H A T right
+59:08 
+
+59:08 so here what they say is what is the
+59:10 
+
+59:10 probability that all of my K runs are
+59:13 
+
+59:13 correct
+59:15 
+
+59:15 right because if the model has to be
+59:17 
+
+59:17 reliable then irrespective of how the
+59:19 
+
+59:19 because the user simulator will induce
+59:21 
+
+59:21 stoasticity the user simulator is not
+59:24 
+
+59:24 going to say the same thing based on the
+59:25 
+
+59:25 instruction every time and and there's
+59:27 
+
+59:27 also stoasticity in how the agent
+59:29 
+
+59:29 responds right so so
+59:32 
+
+59:32 if you try different ways of saying the
+59:35 
+
+59:35 same
+59:36 
+
+59:36 How how reliable is it for you to solve
+59:39 
+
+59:39 the same thing, right? Maybe if you try
+59:40 
+
+59:40 once you're able to solve but if you try
+59:42 
+
+59:42 twice and once you fail then your
+59:44 
+
+59:44 reliability has to drop considerably.
+59:46 
+
+59:46 Right? So this is a metric that they
+59:48 
+
+59:48 proposed called reliability test for uh
+59:51 
+
+59:51 agent benchmarks right so if you so
+59:53 
+
+59:53 since they have a notion of success in
+59:55 
+
+59:55 them which is for the right operations
+59:56 
+
+59:56 database should match read operations
+59:58 
+
+59:58 that strings should be present uh c can
+60:01 
+
+60:01 be computed given n right uh so so
+60:04 
+
+60:04 that's so with that they're able to
+60:06 
+
+60:06 compute the reliability right so let's
+60:08 
+
+60:08 see how
+60:10 
+
+60:10 these uh
+60:12 
+
+60:12 like state-of-the-art LLMs back then
+60:15 
+
+60:15 were doing in in pass at K and pass hat
+60:19 
+
+60:19 K. So the dotted lines are pass at K. At
+60:22 
+
+60:22 least one solution is right. Right. So
+60:24 
+
+60:24 when you only sample one solution like
+60:26 
+
+60:26 just one solution you sample uh it felt
+60:30 
+
+60:30 like GPT40 was doing 60% accurate on
+60:34 
+
+60:34 tobench
+60:36 
+
+60:36 right only one solution you pick one
+60:37 
+
+60:37 solution and say whether it's right or
+60:38 
+
+60:38 wrong right similarly uh the both GPT4
+60:44 
+
+60:44 turbo and GPT4 32K were also doing
+60:48 
+
+60:48 pretty good around 56 57 and Claude was
+60:52 
+
+60:52 doing around
+60:53 
+
+60:53 Right? uh now if you take more and more
+60:57 
+
+60:57 samples one of them turning out to be
+60:59 
+
+60:59 right sort of started to go high right
+61:01 
+
+61:01 so so in if you try let's say eight
+61:04 
+
+61:04 different trials then GBD was able to
+61:06 
+
+61:06 get at least one of them right in almost
+61:09 
+
+61:09 uh all cases right but now if you if you
+61:12 
+
+61:12 compute pass hat k right then you see
+61:15 
+
+61:15 that the relity dropped so what appeared
+61:18 
+
+61:18 to be 60%
+61:20 
+
+61:20 accurate now dropped to 40% right uh Uh
+61:24 
+
+61:24 so so this is what they say that uh the
+61:28 
+
+61:28 more like if you try four times then you
+61:31 
+
+61:31 you will be able to crack the system
+61:34 
+
+61:34 right because this dip should never
+61:36 
+
+61:36 happen right on whatever you are right
+61:38 
+
+61:38 you should continue remaining right and
+61:39 
+
+61:39 whatever you are wrong it's okay then
+61:41 
+
+61:41 that measures is good but in whatever
+61:43 
+
+61:43 you're right in one in one instance if
+61:47 
+
+61:47 you change the way you interact with the
+61:49 
+
+61:49 bot then it may go bad so that is a bad
+61:51 
+
+61:51 indicator right so this was something
+61:53 
+
+61:53 that people did not take it so seriously
+61:56 
+
+61:56 before this but after the pass hat K was
+61:59 
+
+61:59 introduced then people realized why
+62:01 
+
+62:01 agentic solutions are uh not so reliable
+62:07 
+
+62:07 right so so that was tow bench and very
+62:10 
+
+62:10 recently tobench also came with a with a
+62:13 
+
+62:13 slightly different setup called to
+62:14 
+
+62:14 square bench where typically uh agent
+62:18 
+
+62:18 has access to tools and the tools will
+62:21 
+
+62:21 access a real uh database that's
+62:23 
+
+62:23 associated with it. But they also
+62:25 
+
+62:25 introduced a system where user also has
+62:27 
+
+62:27 access to tools and they can also
+62:29 
+
+62:29 interact with the environment which will
+62:30 
+
+62:30 affect how the agent will perceive the
+62:32 
+
+62:32 world. Like for example uh if the
+62:34 
+
+62:34 example that they give here is uh your
+62:37 
+
+62:37 mobile data is not working then the
+62:42 
+
+62:42 customer agent on the other side will
+62:44 
+
+62:44 tell you some steps right on how to fix.
+62:47 
+
+62:47 So you will also be able to interact
+62:48 
+
+62:48 with the world. They'll say like turn
+62:49 
+
+62:49 off your phone, turn on your phone or
+62:52 
+
+62:52 did you turn on roaming in your phone or
+62:55 
+
+62:55 did you is the data off or on? So there
+62:58 
+
+62:58 are in real world scenarios almost in
+62:60 
+
+62:60 all cases it's not just agents who have
+63:02 
+
+63:02 access to the tools user will also have
+63:04 
+
+63:04 access like let's say you you have net
+63:06 
+
+63:06 banking with you and you want to apply
+63:07 
+
+63:07 for checkbook you don't know how to do
+63:09 
+
+63:09 that right so maybe you can call the
+63:11 
+
+63:11 customer service agent maybe they can
+63:12 
+
+63:12 fix something and you will also have to
+63:14 
+
+63:14 fix something by yourself and then the
+63:15 
+
+63:15 solution will work right so these guys
+63:18 
+
+63:18 realized like uh there are also a lot of
+63:21 
+
+63:21 real world problems that belong to this
+63:23 
+
+63:23 type and and they created a benchmark
+63:25 
+
+63:25 similar to bbench for this setup as well
+63:28 
+
+63:28 and for this they use a telecom thingy.
+63:31 
+
+63:31 All right to summarize we talked about
+63:33 
+
+63:33 three different directions that research
+63:35 
+
+63:35 is being done in tool calling at the
+63:37 
+
+63:37 moment. uh one is for better synthetic
+63:40 
+
+63:40 data generation and of course even now
+63:42 
+
+63:42 if you actually like you see all these
+63:45 
+
+63:45 uh good techniques you think that they
+63:47 
+
+63:47 will be able to generate good data but
+63:49 
+
+63:49 if you actually look at the data they
+63:50 
+
+63:50 are not even close to reality right so
+63:52 
+
+63:52 this problem is not a solved problem
+63:54 
+
+63:54 there is still a long way to go and and
+63:57 
+
+63:57 if people change the benchmark then
+63:59 
+
+63:59 these techniques will not work right so
+64:01 
+
+64:01 there's a long way to go and secondly uh
+64:04 
+
+64:04 people have not figured out how to use
+64:05 
+
+64:05 RL well like they got they somehow got
+64:08 
+
+64:08 1% improvement in VFC and V3. Uh but uh
+64:13 
+
+64:13 uh the way you define the reward, the
+64:15 
+
+64:15 way you sample, how you synthesize
+64:17 
+
+64:17 negative uh trajectories, these are not
+64:20 
+
+64:20 wellstied problems. So there is a lot of
+64:21 
+
+64:21 scope there to work as well. So it's not
+64:24 
+
+64:24 just training algorithm even how to
+64:26 
+
+64:26 synthesize negative trajectories is
+64:28 
+
+64:28 still a difficult problem. So there is
+64:30 
+
+64:30 good amount of work to be done there.
+64:31 
+
+64:31 And of course evaluation slowly people
+64:33 
+
+64:33 are uh trying trying to understand the
+64:37 
+
+64:37 gap between uh why lms are not doing
+64:41 
+
+64:41 good on agentic solutions and how do we
+64:43 
+
+64:43 measure them in a reliable way right so
+64:45 
+
+64:45 how do we know like if I push this uh
+64:49 
+
+64:49 solution into real world would it
+64:51 
+
+64:51 actually save me money or will it put me
+64:53 
+
+64:53 in deep trouble right so even people are
+64:56 
+
+64:56 trying to figure out how to do that uh
+64:58 
+
+64:58 like uh specifically when you have these
+65:01 
+
+65:01 are all good in the sense that tobench
+65:03 
+
+65:03 will tell you in general how chargot
+65:07 
+
+65:07 or other models would do for this
+65:09 
+
+65:09 benchmark but if you are creating your
+65:11 
+
+65:11 own agentic solution you can't use these
+65:13 
+
+65:13 benchmarks
+65:15 
+
+65:15 right you'll have to come up with your
+65:16 
+
+65:16 own benchmark it's not easy to come up
+65:18 
+
+65:18 with a benchmark that covers the whole
+65:20 
+
+65:20 that covers the entire space of what
+65:22 
+
+65:22 people would ask so that is also an open
+65:24 
+
+65:24 problem right how do you reliably
+65:26 
+
+65:26 evaluate your own solution right do you
+65:29 
+
+65:29 have to come up with a complex setup Or
+65:31 
+
+65:31 is there some way wherein uh you can
+65:33 
+
+65:33 bootstrap from existing synthetic data
+65:36 
+
+65:36 generation pipelines because all these
+65:37 
+
+65:37 synthetic data generation pipelines
+65:39 
+
+65:39 start with a set of tools that you have
+65:41 
+
+65:41 right you also have a set of tools when
+65:42 
+
+65:42 you build your uh agentic solution right
+65:45 
+
+65:45 so maybe you can use some of those
+65:47 
+
+65:47 techniques to synthesize data by
+65:49 
+
+65:49 yourself and then you have to do some
+65:50 
+
+65:50 quality control how do we do quality
+65:52 
+
+65:52 control how do we make it more realistic
+65:54 
+
+65:54 right so a lot of these problems are
+65:55 
+
+65:55 tied together at the moment it sort of
+65:58 
+
+65:58 feels like there are different streams
+65:60 
+
+65:60 doing different But at some point all of
+66:02 
+
+66:02 these three will converge to the same
+66:04 
+
+66:04 point which will help you create a
+66:06 
+
+66:06 domain specific evaluation setup with
+66:08 
+
+66:08 which you can know for sure whether what
+66:10 
+
+66:10 you have designed is good or not. Right?
+66:14 
+
+66:14 All right. So I'll stop here. And you.

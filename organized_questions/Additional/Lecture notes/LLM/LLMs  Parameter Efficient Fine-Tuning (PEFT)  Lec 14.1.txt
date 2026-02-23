@@ -1,0 +1,599 @@
+00:01 I'm DH Ragu uh I'm a senior researcher at IBM research uh I lead the conversational AI team there and our
+00:08 team mainly works in the intersection of uh large language models and conversational AI uh I've been with IBM
+00:15 for about uh uh 12 years now and uh uh I did my masters here uh at ID Delhi in
+00:22 the electrical engineering department and I did my PhD also here in the computer science department uh with Professor
+00:27 mosam uh so uh so today I'll be talking about uh how uh can we uh fine tune
+00:34 large language models in a in an efficient manner uh specifically uh I'll be discussing the parametric efficient
+00:40 fine tuning and large language models right so before we jump into uh
+00:46 the PF techniques uh let's first like uh just look back to see how uh things were
+00:53 before the large language models came into picture right so uh so typically
+00:58 this was a transfer learning era uh where uh uh when you have a large unlabeled corpora at your disposal uh
+01:06 you use them uh to sort of get a sense of the World Knowledge uh by either
+01:12 learning uh word representations or uh contextual word representations or
+01:17 sentence representations and then use them and transfer this knowledge to a task specific case now so hence it had
+01:25 two phases uh there was a pre-training phase where you just use the unlabeled data and you develop some World
+01:31 Knowledge and then you have the fine-tuning stage where you use you transfer the World Knowledge that you
+01:38 had using pre-training but then use uh your task specific data and uh fully
+01:44 find you in the model right and there were different ways of fine tuning them fully fine tuning was one such technique
+01:49 or you can add uh additional augment the uh the pre-train model with additional
+01:55 layers and then F tune them as well so there were multiple ways in which people fine tune
+02:00 now uh what changed uh during the llm era is that uh the models became more
+02:07 aware and uh were better capable of how they model the World Knowledge right so
+02:14 so initially there was just pre-training phase uh but now uh we have instruction
+02:19 fing an alignment phase which I hope uh it has already been covered in this uh class right so so there is slight change
+02:26 in how we Leverage The unlabeled data but the instruction tuning and alignment does come with some label data but it's
+02:32 general purpose right again it teaches the model World Knowledge it is not teaching it any specific
+02:38 task now once we have a model this way then uh the first uh way in which people
+02:45 started leveraging such a large language model was to Simply do in context learning right so by in context learning
+02:52 what we mean is that uh whatever knowledge that you want to feed the model about the task you want to solve
+02:60 uh it sort of fed into the input prompt right so sometimes people specify
+03:06 detailed set of instructions of how to solve the task sometimes people feed instructions along with some examples of
+03:13 uh how the input output pairs so that the model learns them better right so this was the uh this was the beginning
+03:19 of a new era where uh we were able to solve like good number of NLP tasks uh
+03:25 by simply using in context learning right now uh the reason why this is this
+03:31 is really useful is because hosting or serving llm is very expensive and it requires a lot of hardware and computer
+03:38 right so uh not everybody would be able to uh who wants to leverage llms would be able to host it so uh if if it has
+03:46 been hosted in a certain by by a certain provider then it's easy for people to make it uh useful for their task by
+03:53 simply doing in context learning by calling them through apx right so this was the main advantage of uh how
+03:58 transfer learning worked in llm now so let's see like why don't why
+04:03 aren't people happy with just in context learning right so given that llm knows a lot more about the world why why are we
+04:09 not happy with just in context learning so firstly uh relative to what
+04:16 people did earlier which was full fine tuning uh prompting was not that great
+04:21 so if if if it's a if the task is very critical and you need really good accuracies then uh prompting typically
+04:29 does not get you there you will have to do full fine tuning of the models that you have uh to to get to the best
+04:36 performance but but why is uh why does prom prompting have poor performance
+04:42 right so there are two main reasons one is that there are certain things in the
+04:48 prompt Engineers control and two is there are some things that the llms assume for themselves right so uh one re
+04:58 so if the prompt engineer uh does not do a very diligent job of defining the task
+05:04 uh then it it is one reason why it would lead to poor performance but then there are certain academic benchmarks where a
+05:11 lot of researchers try and and they still are not able to get good numbers
+05:16 as good as a fully fine tuned model which is much smaller than a big model right so the reason for that is that
+05:22 when the large language model learns uh there are certain assumptions it makes and there are only certain things that
+05:28 it can comprehend right uh while we while we know it is good but it's hard
+05:33 to know what really goes on in the back right so when certain things don't work it could be because the model has not
+05:40 learned some aspect of certain domains or it could be that uh there are certain assumptions that the model is making
+05:46 that you're not able to figure out what those assumptions are right so there are a lot of reasons why prompting can lead
+05:51 you can take you only to a certain extent now the second problem with uh
+05:57 prompt engineering or or simply in context Lear learning is that these prompts are extremely sensitive right
+06:03 even if you earlier uh in when the llm started even a simple missing a simple
+06:09 preposition would would create a very different would result in very different performance uh but even when you have a
+06:15 really good models uh and and typically when your input output pairs are when
+06:21 your input is pretty long or your output is pretty long right uh the order in which you put them in the in context
+06:27 learning also affects the accuracy that you get right so again why is this a big problem
+06:32 because uh maybe there is an if you're really concerned about the task or if
+06:37 you're really particular about it then you can always dedicate uh people to sort of come up with the right way to uh
+06:44 make everything work the problem is once let's say like like like few uh months
+06:50 back Lama 3.1 came which was much more capable of than Lama 3 right now you'll have to do everything from scratch
+06:56 because the assumptions that are made by Lama 3 and Lama 3.1 may not be the same the knowledge that went into training
+07:01 may not be the same so every time a new model comes then you'll have to do everything from scratch and whatever you
+07:07 did earlier may or may not hold like most likely it doesn't
+07:13 hold and thirdly uh so there is always an issue
+07:18 about like what the model really infers from the prompt you give it right so
+07:23 when so this also happens with uh sort of uh any machine learning algorithm
+07:29 right when when when you have really deep networks you really don't know what the model learns from the data you provide But Here There is a two- Hawk
+07:36 thing right you are providing certain instructions and very small subset of examples and uh the model also has a lot
+07:42 of knowledge inherently built in with it so there may be a big gap between what you say and what the model can
+07:48 understand and then there can also be a gap between like what it learned from the data that you provide right so there
+07:54 are a lot of variability and people have also found that uh like even providing weird in context examples uh works for
+08:02 certain tasks right which makes no sense because ideally when you provide prompts in a very unrealistic manner the model
+08:07 should not work but still the model learns to pick up ignore those so we don't know whether it's ignoring those
+08:13 signals we don't know whether it's learning something spous from that signal we don't know when the model will fail and so on right so this is this
+08:18 lack of clarity makes it difficult for people to trust models and then use them right away right uh so so far the first
+08:26 three items that I talked about are more from uh like the linguistic standpoint
+08:31 or what the model can comprehend and what it cannot right but the last part is more system right it's just that if
+08:37 you use up a lot of your prompt space for just giving instructions and in context examples then it simply
+08:44 increases the uh uh like it increases amount the latency that you get with
+08:50 your model and also resources and throughput and energy and so on right so and and specifically most of the real
+08:56 world use cases are not going to be like input output pairs of length like say 20 tokens or 25 tokens like for example if
+09:03 you want to do reading comprehension or summarization it's going to span too many tokens right so and and and if you
+09:09 have a very specific way of summarization right so let's say news article summarization maybe you want to summarize scientific news in a certain
+09:16 way maybe you want to summarize uh opinion PS in a certain way maybe you want to summarize sports related events in certain way now you'll have to
+09:23 provide all these instructions in a detailed manner you have to provide in context examples of all these things so this would take a considerable amount of
+09:29 space and that would result in like inefficiency in how you use the hardware
+09:35 and stuff right so these are the downside of in context learning so now
+09:40 let's see like okay if in context learning has these many problems then let's do let's start doing full find
+09:45 uning right because this has been what people have been doing for really long time now so why can't we do uh fully
+09:51 fine tuning right so so let's say that you want to fine tune uh Lama 8 billion model
+10:00 right now uh it might end up taking 16 gigs of memory if it's in fp16 if all
+10:07 the weights are in fp16 but when you find tune a model it's not just the amount of parameters that
+10:15 the model has estim determines how much memory it needs but rather uh it also needs uh
+10:23 space for Optimizer State storing gradient storing forward activations during your forward step and also a lot
+10:29 of temporary me here and there and this sort of uh so there are different ways in which you train the model there are
+10:35 like full Precision training mixed Precision training low Precision training so like if you consider
+10:41 multiple all these different types of training then you end up needing around
+10:46 12 to 20 percentage of trainable parameters that that's the amount of
+10:52 memory you need right so let's say you want to fine tune a 175 billion gbd3
+10:57 model right it's it's going to take like amount of memory and and not everybody
+11:03 who wants to use llms or has a capability to host an llm would have enough infrastructure to fine tune an
+11:10 llm fully fine tune an llm right so then it'll become difficult for research to progress ahead uh and also like in
+11:16 general uh accessibility also reduces a lot right so this is one of the main reasons why uh people don't want to do
+11:23 full fine tuning of large language models and uh the other main reason is
+11:29 storage right so so let's say like your checkpoint is 350 GB right every time
+11:35 you have a small task to learn then it becomes really tedious to save a
+11:42 checkpoint for each task you have and it becomes even more tedious to serve them right so now if you had if you had to
+11:49 serve only one llm in an in context learning setup that serves all tasks then you just need one copy of it right
+11:55 you may need let's say uh you need eight gpus uh in a node and then then you can serve them but now if you have let's say
+12:02 five or six St s right and and specifically if you are working in a uh in a company that requires that infuses
+12:08 llm in a lot of applications uh they have then we can't host like 10 15 llms
+12:14 and without leveraging the entire througho right because if it's not efficient then again it's a waste of energy and again it's expensive so so
+12:21 these two are the main reasons why people don't want to do full fine tuning but there are other reasons as well
+12:27 right so one one other reason reason which have not listed here which is also one of the common reasons like even if
+12:33 you have enough Hardware let's say right you have in you have insane amount of Hardware uh within your organization uh
+12:40 and and you don't you don't have to worry about uh storage then of course if you have lot of Hardware then you can
+12:45 host how many llms you want right but the problem is how much training data do
+12:51 you need so that the model doesn't overfit right if you have 175 billion
+12:56 parameter model right and you just have let's say 1,000 or 2,000 examples the
+13:01 model is going to completely memorize all the 2,000 examples right and once it memorizes 2,000 examples your training
+13:07 accuracy will be really high and your validation may not be that great and you will encounter this problem like the
+13:14 whole notion of transfer learning gets lost right that was the motive behind fully fine tuning but then if so then
+13:19 imagine the amount of data you might need right to actually get a model that doesn't overit that's going to be insane
+13:25 and it's going to be really hard to collect that much data right so that is also one other reason
+13:30 that people would want to reframe from doing fully F tun right and now comes uh the parameter
+13:38 efficient fine tuning so now on one end you have in context learning on the other end you have fully fine tuning now
+13:45 people are trying to figure out uh what if I uh freeze most of the parameters in
+13:50 my network and only train a very small subset uh so that I don't face all the
+13:58 issues that I face with fully fine tuning and at the same time I can mitigate some of these issues that I face with in context learning right so
+14:05 that is the whole uh Crux of parameter efficient fine tuning so here uh as you
+14:10 see like if you have to train a QA model on top of llm using p then you would get
+14:17 uh a very incremental number of parameters compared to what the LM already has and that would represent
+14:24 everything that's needed to learn the task and same thing goes for summarization and same thing goes for classification
+14:30 and uh so so this is the Crux of PFT and uh
+14:36 so now the advantages are going to be like we going to borrow some disadvantages from in context learning and fully funing and sort of uh put it
+14:43 here so of course like uh like I mentioned the first issue with fully funing was the hardware requirements
+14:48 right so you require 12 to 20 times the number of trainable parameters uh the
+14:55 memory of that amount to sort of support training right so now if you if you reduce the number of trainable
+15:00 parameters of course your optimiz Optimizer states are going to come down your gradients are going to come down activations May remain there but a lot
+15:07 of the temp usage may come down and this reduces the amount of memory that you need drastically right so now uh so
+15:15 which means like you can use fewer gpus to train your model right and and one
+15:21 other thing is that since you're working at a lower parameter phace and most of your world model is Frozen the model
+15:27 learns to sort of map World Knowledge to your task and then converge faster right
+15:33 so so this actually helps the model this also saves in GPU time like you learn models faster than what you would learn
+15:39 uh by fully fine tuning of course the obvious next thing is that uh uh Hardware requirements is uh is lower so
+15:47 which means not only less memory but also like many institutions and organizations who started using gpus
+15:53 during the Deep learning era and now are slowly moving towards the llm era like they can still work with uh b00 uh Tesla
+16:01 models or they don't necessarily have to have the aunds with 80 gigs or the hunds to sort of fine tune they can work with
+16:08 older versions of gpus with less memory and they can still get a lot of work done right so that is a very big
+16:14 Advantage because a lot of these uh older machines uh which consume less
+16:19 power are are idle right and this is one way of effectively using them and of
+16:25 course like I said earlier one of the issues with fully fine tuning is that uh you have such large parametric space to
+16:32 leverage during your learning process you end up overfitting and memorizing all the training examples so now if you
+16:37 don't have so much uh capacity to begin with then the likelihood of overfitting
+16:44 reduces a lot right again I'm not saying that overfitting goes away completely it depends on how many parameters you let
+16:50 the model uh sort of use during training but again the the likelihood of overfitting reduces considerably now in
+16:57 addition to that there is this phenomenon called catastrophic forgetting right so catastrophic forgetting is a is a process in general
+17:04 to any machine learning model uh let's say that you initially started to uh
+17:09 teach the model uh task a right so now now the
+17:14 model has learned task a very well and now you want to teach the model task B right so now how good would the model be
+17:23 in task B let's say you're working uh in a uh pre- LM era let's say you're fine
+17:29 tuning but you you initially find you it for classifying uh let's say Finance
+17:34 versus uh Tech uh classification and now you want to teach it spam detection or
+17:39 something right so how many people believe that spam detection uh uh if
+17:44 spam detection was the task B how many people believe that task a would still be doing good after you teach the models
+17:50 task B right so it's not going to learn right so now imagine this with large language
+17:55 models it knows the World Knowledge right you have taught it so much during during the the pre-training fine tuning
+18:01 uh pre-training uh instruction tuning and Alignment stage right now you teach it a very simple task and it's going to
+18:07 forget everything that it it gathered so far right you don't want that to happen so so this uh most of the PF techniques
+18:15 uh are good in this uh type of transfer learning right they don't typically
+18:20 forget the World Knowledge which means that if you teach it your teach a task with a certain domain it is very likely
+18:26 to generalize to a new domain right if you teach it uh spam detection in say I delhi now if you move to us where maybe
+18:34 the spammers are different or uh the type of uh language people use is different it is very likely going to
+18:40 work right it's not going to fail and finally of course the obvious
+18:45 thing is that it requires Less storage because the number of parameters that you store are less so obviously you only
+18:51 have to save the incremental uh weights that you've learned and you don't have to store the entire copy of llm again
+18:56 right so it's going to be there it needs just very little storage now with these advantages and
+19:03 the context of uh why we need PFT and why it is useful let's uh dive deep into
+19:09 a few uh popular techniques uh that people use for parameter efficient fine tuning right so first let's talk about
+19:16 uh the promp tuning or soft prompting right so so this was uh this
+19:24 was not one of the first PF techniques but I'm but I'm starting with this because this is one of the easiest
+19:29 things uh and it's and it and it gives you and we can build upon that uh in the in in the in the remaining of the
+19:35 lecture right so so here so typically when you do in context learning uh we
+19:41 refer to it as hard prompting because uh you write the prompt uh in the in
+19:47 context setup and and if you don't like the prompt then you change certain words or you rephrase certain things or you
+19:53 add examples so so this way of modifying the the the prompt or the in context
+20:01 setup is hard prompting because humans are involved in doing this right so what leer at all thought was that uh why
+20:08 should we if we have a large amount of input and output available with us and it's easy for us to measure how good or
+20:14 bad the output is then wouldn't it be easier for the model to learn this prompt by itself right so all they say
+20:21 is that you reserve uh certain tokens in your input uh for certain special tokens
+20:26 called the soft prompt right and the only trainable parameters in your model
+20:32 is this task specific prom right everything else in the uh in the
+20:37 architecture Remains the Same you don't change any other weights everything is frozen you only change these new uh
+20:43 tokens that you want to call it as soft prompts right and and this is what their
+20:49 idea was and the good part about this idea is that uh for a specific task
+20:55 after you complete the uh the learning process all you need to do is save that soft prompt right which is going to be
+21:01 like orders of magnitude lower than what the llms would do right so let's say if
+21:06 you're uh let's say if your tokenizer uh so your embedding size is let's say uh
+21:13 4K or something right if you use five tokens is very marginal compared to the size of llms that we have now right so
+21:20 so that is now like like we know that given the number of trainable parameters is so low
+21:26 it's one of the most efficient way of fine tuning like compared to full fine tuning now uh there is also another like
+21:34 really good advantage of soft prompting right which is uh the multitask serving like let's say
+21:43 you're hosting an llm uh and and you let people fine tune uh for various tasks
+21:49 right and and let's say that you have 120 tasks in your organization or for your project now during training uh you
+21:57 would have data sets for each of your tasks that you want to learn and so you will assign certain special tokens for
+22:03 each of your tasks and then you will start your training process right so for example for task a you end up training
+22:09 the yellow uh tokens and for task B you end up training the green tokens and
+22:15 your llm weights remain Frozen right and now the good part is during inference
+22:21 it's so easy right you just need to host the the base llm and and when you
+22:29 create batches to feed uh to your uh llm to predict the output you can just batch
+22:36 in whatever task you want based on what traffic comes in right so this is extremely efficient for serving because
+22:43 it may not so happen that the traffic for your llms are going to be that high right if you have 120 tasks right if
+22:49 it's high then of course you have to have separate uh you can have a lot of instances of llm running but it's easy
+22:54 to scale up scale down because you just need the same llm again so if the traffic goes down you can scale down
+22:60 certain hosting and then you can keep uh running them for multiple tasks at the same time so this is an this is one of
+23:06 the biggest advantages of uh prom tuning and uh this is why most uh llm hosting
+23:13 companies uh they provide you an API to prompt you right because hosting is so
+23:19 cheap for them like even if you because they charge you per request right they don't charge you per time so their gpus
+23:26 are anyway running so it's going to be more efficient for them uh uh if if they
+23:31 support this type of prompt unit now so let's look at how does it
+23:37 compare with uh full fine uning right so the uh the graph in red or orange is
+23:43 full fine uning and and here uh the graph in green is prom tuning and uh the
+23:51 graph in blue is uh simple prompt engineering hard prompting right and uh
+23:57 the x-axis here here uh is a number of parameters in the model that you're trying to find you right so uh so so
+24:06 right from 10 Power 8 to 10 power 10 are the family of T5 models so they have
+24:12 different sizes of T5 models that Microsoft had trained and the highest one is uh like 11 billion model uh and
+24:21 the lowest one is around 700 million model or something right 770 or something and the and if you see there
+24:26 is an additional point on the right for uh blue which is prompt engineering and that point the last point which is about
+24:34 10 power little more than 10 power 11 is gpt3 right yes uh so that's uh gpt3 when
+24:41 this paper came out that was the best model possible for prompt uh engineering right at that point in time so what they
+24:47 see here is that uh when you have smaller models then it's better to do
+24:53 full fine tuning uh because it doesn't prompt tuning or prompt engineering does not give you as much
+24:59 uh accuracy as what the full F uning gives but as and when you keep increasing the model size then prompt
+25:06 prompt tuning sort of catches up with full fine tuning right so this is so again if you see respect of how much you
+25:13 do hard prompting there is a huge gap even for the 11 billion model so hard
+25:18 prompting is nothing but uh let's say that you want to do classification of
+25:24 spam or not spam right so now if I give you uh uh access to uh gpt3 GPT 40 in
+25:32 the web UI what would you do so you would give some instructions and then you would give some examples of uh what
+25:38 is spam and what is not spam right some input and output right so this is called
+25:45 hard promp thing like let's say if this didn't work this didn't give you 95% accuracy then what would you do yes you
+25:52 would change the prompt right so that's a tedious process right so so that this style of uh
+25:59 creating a solution is what is called hard prompting So Soft prompting is promp tuning which is like the model
+26:05 learns it by itself given a small amount of data
+26:12 right okay so now uh one of the other findings in this paper is that which is
+26:17 also slightly obvious is that uh if you increase the prompt length uh then it improves the uh the performance on the
+26:24 task right so this is uh as same as saying like if you if you give a very elaborate instruction
+26:32 right or if you increase the number of tokens you use for in context learning it is very likely the model would pick up lot more than what it would if you
+26:38 give it only one or two words to describe the task right so the essence is that way but the interesting thing
+26:44 they found is that if the number of prompt uh tokens uh cross 20 for T5 then
+26:51 they don't see any more improvements so it sort of Peaks at around 20 right
+26:59 so now uh one other uh thing is that uh so initializing what should be the
+27:05 weights of these soft promps to begin with is actually very important right if you give it very random initialization
+27:13 it may not converge to a good point or it may even take a very long time to convert right but if you sort of say uh
+27:21 create a prompt using words that are very similar to the very close to the task description and then take each
+27:27 embeddings and then them there or you take certain words that are very related to the task and then post them there
+27:33 then that is better like I think that's also an Insight that this paper gives now like uh one thing that I
+27:40 mentioned in the uh advantages of PFT is that uh it it sort of generalizes well
+27:46 to out domain uh data right so here uh
+27:51 they test on the task of reading comprehension specifically they take the squad data set uh where there is a where
+27:59 there's a natural language text which describes something and then there is a question answer following that right and this is based on Wikipedia and here
+28:07 model is a full fine tuning prompt is a promp tuning so there is hardly any difference between uh full fine tuning and prompt tuning on the same data set
+28:13 that you trained the model on but if you see the models performance on the books data set which is like very different
+28:21 domain uh than the the Wikipedia uh you see that the model sort of generalizes
+28:27 much better the prom tuning model whereas a full fine tuning model does not generalize that well so they show a bunch of different domains some are
+28:34 close to Wikipedia some are slightly far away and and one of the biggest takeaways here is that the 12.5
+28:40 Improvement uh on books was actually a very good Insight
+28:46 right okay so now that brings us uh to the next topic which is prefix tuning
+28:52 right so now uh now so then so the number of parameters you use for
+28:59 uh the PF technique has tradeoff right if you use a lot of
+29:07 parameters uh then you're very likely to learn very complex tasks right because your capacity is very high but your
+29:14 chances of overfitting also becomes high right uh and uh but when you if you have
+29:19 reduced number of parameters then your chances of overfitting is less but your performance can get affected right so
+29:25 you need some family of algorithms and then there's only so much you can do with giving tokens right because if you
+29:32 give 20 tokens and it still doesn't learn there is going to be like very less likelihood that it's going to get better right so we can't just stop with
+29:39 uh prom tuning so then people came up with uh prefix tuning so prefix tuning is actually a contemporary work to
+29:45 prompt un right both of them got published around the same time now the main difference between uh
+29:53 prefix tuning and prompt tuning is that prompt tuning gives you those uh uh
+29:59 trainable tokens only in the input layer right basically wherever the whatever
+30:05 the embeding layer gives out is where you feed in the the special prompts
+30:10 right the embeddings of the special prompts that's the only trainable parameter uh whereas in prefix uh tuning
+30:16 you have a small set of trainable parameters in every layer of your
+30:21 Transformer right so so now uh if you look uh on the right
+30:29 so here this is the regular Transformer block where you have the multi-ad self attention fully connected layer and then
+30:35 there is residual connection layer norm and then there's again a fully connected network with a residual connection finally followed by a layer NM so this
+30:42 is what your regular Transformer block looks like uh but with prefix uh tuning
+30:48 uh so for now assume this whole thing is a single prefix right I'll tell you why we have this particular architecture
+30:54 here but assume this two have a single prefix now if you look at a deod only model so basically prefix comes in the
+31:00 beginning so prefix don't influence each other but every word that you feed in the input get influenced by your prefix
+31:06 in every layer right so that's the sort of Crux of this uh approach
+31:12 now um so let's see why they have this soft prompt and a fully connected layer
+31:17 here like why do we need that like we could have just used uh some something similar to soft promps that we used
+31:23 right so why do we need this layer so so so let's say that that uh we have
+31:29 a prompt sequence of let's say five tokens or something so let's call it P which is all the five tokens in sequence
+31:34 right P1 P2 P3 P4 P5 right and let uh uh mod P denote the number of tokens in
+31:42 that uh prefix
+31:47 right so so ideally what what do we want we want a function that converts that
+31:54 special token into certain ambing which can then directly feed into Network right and these are the trainable the F
+32:00 Theta is a trainable parameter right U so now F theta's Dimensions have to be
+32:06 that it's sort of like an embedding lookup for each uh prefix token you have you need an embedding associated with it
+32:12 right and uh this embedding since you're feeding it into the hidden layer the the emitting should be of the size of what
+32:19 the hidden layers that you have is right so what the authors found is that if you
+32:24 use this particular uh F Theta to parameterize your uh prefixes then it is
+32:31 giving it's resulting in unstable training so what we mean by unstable training is that let's say the weights
+32:37 may get changed so high that it sort of breaks the whole training process right
+32:43 your gradients hit the max or it hits zero it goes too low right so so this results in unstable training so uh so
+32:50 this happens because sometimes uh that you are trying to learn something with
+32:55 very small number of parameters and you did not put it in the right place where the maybe certain there are
+33:02 certain reasons why we have layer nor right so so you have to keep these in the right place so that uh you don't
+33:07 explore things or you don't underflow things right so if you don't keep if you don't architect Your solution in the
+33:13 right manner you will end up facing these training issues right so you'll have to change code have some hacks or
+33:20 or or change your architecture in such a way so that you don't undergo this unstable training process because this
+33:25 is a very uh risky thing to have in your Network because let's say after you train for 7 Days using like a GPU form
+33:32 of 100 different nodes and then you suddenly you encounter nonstable training then whatever you did for so long is a waste right so this is a this
+33:38 a very uh this is something that we should always avoid when you design and what these guys figured out is that uh
+33:45 the number of parameters that they have and the way they have designed it is what is resulting in unstable training
+33:50 so what they did is that they represented F Theta with two functions basically F Theta Prime which is which
+33:57 is much smaller Dimension than the hidden Dimension right so basically your embedding size is slightly lesser than
+34:03 what you had but your MLP is very large right let's say that the the F Theta is
+34:09 of dimension mod P cross let's say 200 or something right and then you will
+34:14 have 200 cross 1024 which is dimension so 200 cross 1024 is a very high uh
+34:19 large larger parameter space than what you would have used for f Theta but then F Theta Prime is much smaller so they
+34:25 found this to help in a much more stable training right so again what the
+34:31 advantage here is that during training we might need a large MLP and F Theta Prime but once you finish training you
+34:37 can Club both of them together and get back to the same size as what you have for f Theta right so this is just a hack
+34:42 for unstable training and I covered this part just to illustrate uh why design choice is very important right because
+34:48 you will end up having unstable training which is not something that you want to have in any llm training or
+34:56 F right so uh so for uh prefix tuning uh they
+35:02 they evaluated their technique on uh two different setups one is they used it for
+35:08 a task of text to text table to text generation uh where you have a let's say
+35:13 uh in Wikipedia you have a table in the side about the bio and things like that right and on the right you have the introduction page introduction paragraph
+35:19 which mostly contains everything about what is there in the table so that's that's sort of an example of table uh to
+35:25 text but there are other variants of it so so they trained decoder only model at
+35:31 that point in time it was gpt2 for table to text and then they trained B for summarization right and what they found
+35:37 is that by using only 0.1 percentage of parameters in these models they were
+35:42 able to get comparable results of full fine tuning right for each of the two models separately again the other uh the
+35:50 same thing that we saw for uh soft prompting is that prefix tuning also uh
+35:55 works well on unseen domain as well right so so let's move on to adapters
+36:04 now adapters was actually the first pep technique that got popular like this was in 2019 and after this came soft prompting
+36:12 and prefix tuning uh but I just covered them because it's much more easier to uh discuss right so in adapters uh what
+36:20 they do is that they add uh new layers inside each
+36:26 Transformer block right so and and these are called the adapter layers and uh each adapter layer uh has
+36:35 a fully connected uh layer uh which sort of projects uh the hidden Dimension down
+36:41 to a smaller Dimension and then there is some non larity and then uh there is uh
+36:46 a fully connected layer that projects back up into the higher dimensional space so this is the the the overall
+36:52 architecture of adapters so so please uh notice here that uh
+36:58 there is a residual connection here which is the usual one as what we have in the Transformers but there is also a
+37:04 residual connection here within the adapter right so this is to ensure that
+37:10 if you randomly introduce new layers in your Transformers it's very likely you will break
+37:15 everything right because now you have random weights in between whatever you learned might go like might might go for
+37:22 a toss right so this residual connection is very important because this will ensure that if
+37:28 this layer is around uh like is let's say a gan initialize if the Gan
+37:34 distribution of a very small Varian and zero mean uh then it's very likely that
+37:39 in the big in the first Epoch you would actually get the same output as what an llm would give without the adapter
+37:45 layers right so this way again your training will be
+37:54 stable so yeah so like I mentioned uh there are two uh feed forward networks inside the
+38:00 adapter layer one uh uh sort of sorry here so this is the first part which is
+38:06 a down projection feed forward Network and then uh you have a lesser dimensional space here and then again
+38:12 you project it back to a uh higher Dimension this is typically referred to as a bottleneck structure uh this is
+38:19 what Auto encoders also do right wherein you want to represent your input in a much richer dense dense representation
+38:27 uh and then uh you use that to actually represent the the the the input so this
+38:32 is sort of uh the same structure here uh so why do we need this bottleneck
+38:38 structure right why can't we just keep a single uh feed forward Network or some
+38:43 feed network with non neity right so the main advantage here is that this reduces the number of parameters significantly
+38:50 right so let's say that uh like your uh dimen hidden Dimensions be 1024 right
+38:56 and and and now you're say down projecting it to a value M which is 24 so then in in in the beginning you might
+39:03 have like if you did not have this bottlle next structure you would have had 1024 cross 1024 parameters right but
+39:10 now you would have 2 * 1024 cross 24 right this is like orders again orders of magnitude lower uh than what you
+39:17 would achieve otherwise right and here again uh like I mentioned earlier before
+39:24 like with respect even with respect to different types of P techniques uh you will have a trade-off between
+39:30 performance and overfitting right so similarly here as well uh within adapters this value M gives you that
+39:37 trade-off right so you can use this as a hyper parameter train different variants of the model and see what works and what
+39:42 doesn't work right so so one of the uh biggest issue why adapter did not
+39:50 succeed that well is because like firstly it's performance like people
+39:56 found out better techniques that were much more efficient than them and gave better numbers as well but the other
+40:01 thing is that there is an inference overhead right so you're changing the architecture of the model in such a way
+40:08 right that it makes it difficult to remove things and add things let's say like uh if you want adapter a instead of
+40:15 adapter B that is already being hosted it becomes difficult and secondly since they are in between layers of existing
+40:22 Transformers it increases latency as well because you need more time to do you need more computation right
+40:28 uh so this uh is a is an issue with adapters but most of the other P
+40:33 techniques don't have issue with latency overhead right because they they sort of expanded along the sequence length
+40:40 rather than the the Transformers length right so that is an disadvantage of
+40:47 adapters so let's see so again this is a model that was proposed this was the first Model that was proposed uh for uh
+40:55 uh PFT so here uh let's look at the graph here so the blue line here
+41:01 indicates the uh fine-tuning top layers of uh Bird
+41:09 right so so here 10^ 6 would let's say indicate uh first K layers of bir and
+41:16 and 3 into 10^ 8 would indicate almost all the layers in bir right so so this
+41:22 point would be similar to fully fine tuning and and and this would be like as
+41:27 and when you leave out some layers in the bottom bottom bottom and finally you come to this point right so the reason
+41:33 why this was used as a baseline was because people were doing it with but doing this type of fine tuning with but
+41:38 even before adaps right you freeze like how you freeze word vectors or word to or glove embeddings in the bottom and
+41:44 you only train the network in the top people start doing this with b as well when B came out like let's not train the whole B from top to bottom because most
+41:52 of the lower uh layers are going to capture more word level features and and and and and more uh English uh language
+41:59 based features only the top layers are going to capture the task specific featur so people decided like I'll freeze most of the things on the bottom
+42:05 and only trained layers in the top so this was the Baseline then and uh this is the adapter performance and here uh
+42:13 uh again the x-axis indicates a number of trainable parameters and the good part here is that with only 3.6
+42:19 percentage of parameters it is able to achieve as good performance as full fine tuning right because full fine tuning is
+42:24 here it sort of achieves that performance very early on in that right uh again like comparing this uh with uh
+42:33 uh let's say prefix tuning uh prefix tuning came much later but what adapters
+42:39 can achieve with just 3% prefix tuning was able to achieve it with just 0.1 percentage of the parameters right so so
+42:45 if you have a choice between adapters and prefix tuning you should always prefer prefix tuning most
+42:53 likely right okay so okay so this is the last part of the
+42:59 talk uh this is uh it's called low rank adaptation or Laura this is the most uh
+43:05 for me this was one of the most interesting papers that I came across uh and uh and even the theory behind it is
+43:11 more grounded and it comes from a long literature of how people had worked from Deep learning era till now so this a and
+43:19 uh this is one of the most popular uh PF techniques are out there and and you have ready implementations available in
+43:25 hugging phase which you can easily use for any LM M that you have right so so
+43:30 before going into Laura let's look at uh what people did what people how people
+43:37 ended up like like figuring out Laura right so there was this paper in 2018
+43:43 that talked about uh something called uh rang composition in uh machine learning
+43:49 models right so here what they say is that so let's take uh this equation here
+43:56 right so here what we say is that let's say that your entire features is D dimensional all the trainable uh
+44:03 parameters in your model uh everything like don't think of them at separate uh
+44:09 attention layer or separate feed forward Network and things like that right just Club everything together and then create
+44:14 one big Vector like like insanely long Vector right so so ideally when you do
+44:19 fine tuning what are you doing you're going to take that Vector at state zero and they're going to use your examples
+44:26 compute laws figure out something and then finally you will come up with an increment on those weights right and
+44:31 then once you add these things up you end up getting a fine model right this is what you do now what this paper said
+44:38 is that uh you don't for every task you don't need that many
+44:44 dimensions right maybe for some tasks you just need very few dimensions and
+44:50 the model would learn it right so what they said is that if you have a random projection Matrix okay this is randomly
+44:56 initialized and fixed okay we are not going to train it right now there is a
+45:03 certain D dimensional Vector uh the the dimension of p is capital D cross small
+45:09 d uh and for a certain D which is much much much lesser than uh small D much
+45:16 lesser than capital D there exist a Theta D which will achieve same performance as Theta to of d right and
+45:24 this value D depends on what is your base model how capable it is and what is
+45:30 your task at hand right if you have a very naive base model even for small tasks you might need a big D but if you
+45:37 have a very capable model and your task is simple you might need a very small d right so it depends on the combination
+45:42 of both so now uh they refer they they
+45:47 defined something called intrin intrinsic dimensionality uh what it says is the the value of small D that gets
+45:55 you 90% accuracy your performance as your entire full fine uning is called
+46:01 the intrinsic dimensionality of that particular task right so that's what they Define as intrinsic dimensionality
+46:07 now now this was in general made for deep networks right but then in 2021 uh
+46:14 people investigated this in the light of uh large language models and specifically for NLP
+46:21 tasks right so so while I I mentioned that LE at all what they did was they
+46:26 considered the the training trainable parameters is one long Vector right that did not take into account the structure
+46:33 of Transformers right because there is a repeated structure and there is a layerwise structure so maybe the structure will help you do things with
+46:40 much the the expressivity of such a uh repetitive Network may not is not
+46:46 leveraged in Computing the interesting dimensionality right so these guys uh came up with a with a way of measuring
+46:52 intrinsic dimensionality which takes into account this structure again this is not the most it's not the best way of
+46:58 doing it but still they figured out that something is missing and we need to take it a little forward right now if you so
+47:05 the the reason why they did that or they thought about in that direction is because it was almost impossible to
+47:12 measure intrinsic dimensionality for llms right why because let's say you want to do it for bird you need one
+47:17 terabyte of memory right because the projection Matrix because of the computational how
+47:23 you uh sort of uh do the computation and how you factorize the the capital P
+47:28 Matrix so even if you use the best implementation possible you still end up requiring a lot of memory right so they
+47:33 were not even able to figure out how to use it so that's when they came up with this structure aware technique uh what
+47:39 they said is that I will do it layer-wise right uh I will represent uh the Theta
+47:47 layer-wise rather than having the entire network if you have 24 layers then you divide them into 24 different vectors
+47:53 and uh and and and and and P the dimensionality of P comes down drastically now right uh and then uh
+48:01 there is also a scaling factor that they add for each update and and these scaling factors are different for different layers right and so if you add
+48:07 everything up the Lambda I and the thetas together they will uh you will get a d dimensional Vector right so the
+48:14 m is removed there because m is the number of layers we have and there is going to be a Lambda I for every M so
+48:19 the total number of parameters that you will end up uh training uh would be exactly M right um
+48:28 but again even this uh sort of is little difficult because the models grew
+48:34 insanely higher after birth right so now even if you use the same technique again
+48:40 you will end up running out of memory for the other case as well right okay so
+48:46 so here so so in the previous equation what we had is Theta D is the
+48:51 initialized value of the first the at the zero the what was Theta D plus uh a
+48:56 projection Matrix time Theta small d right so now what we are seeing is that
+49:01 we are going to split it for every layer in the Transformer right so so so that
+49:08 would give you so let forget about Lambda I for now uh if that is the case
+49:14 again the equation Still Remains the Same it's just that you will add a suffix to all the thetas and the capital D would be
+49:20 reduced by a big margin right because otherwise you let's say if you have 24 layers your vector will be uh like 24
+49:27 times of what a single layer would be right and that's a and the projection Matrix spe would be instantly High because of that right what they found is
+49:34 that adding a scaling parameter there actually helps them like do some things easier right so
+49:41 they wanted to add a scaling parameter now if you add a scaling parameter you're again increasing your uh space of
+49:47 the vector small d right Theta D should be D dimensional right now if you have D dimensional there and you have M
+49:53 additional Lambda I you get D plus M right so you don't want to do that you want to D to be the same right so they
+49:60 removed M from the that right okay okay so let's look at so this notion uh so
+50:07 initially it was called intrinsic Dimension now it's called structure aware intrinsic Dimension right so here
+50:13 what they say is that uh so they did uh this particular way of fine tuning the
+50:19 model and figuring out what is that D that gives you 90% of the accuracy that
+50:24 you would get with full fine tuning and and the and
+50:29 uh the number of parameters in the model is listed in the x-axis right and the y-
+50:36 axis indicates the intrinsic dimensionality right so what we see is that when the number of parameters are
+50:41 small in the model the intrinsic dimensionality is quite high right as you increase the number of parameters
+50:48 there is a steady decrease in the value of D that is necessary to learn that
+50:54 task right so this sort of indicates that the more the better the more
+50:60 parameters you have in the model you have more uh domain or World Knowledge
+51:06 and the more World Knowledge you have you can learn a task much easier in a
+51:11 lower parameter space than what is needed right so this was a very interesting result uh from this uh 2021
+51:19 paper now so let's see here right so here what they said was I have intrinsic
+51:25 dimensionality which is comp Al very difficult to do and then I have structure aare intrinsic dimensionality
+51:31 so there are two takeaways here right one takeaway is
+51:36 that having structure aware reduces the memory requirements and the train time
+51:42 by quite a bit right so you will able you'll be able to find tune much better if you take into account the structural
+51:49 aspects of your network when deciding what you should train and what you should freeze right the second point is
+51:55 if you take into account the structure of the network well right then the dimensionality comes down right so here
+52:03 for the Microsoft paraphrasing Corpus for this uh task uh that the
+52:08 dimensionality uh when you consider one whole Vector without considering the layer wise structure is 1,800 whereas
+52:15 for stru a it reduces to 1,600 right that the dimension itself comes down you need much lesser parameters to learn
+52:22 just if you uh if you carefully place what you should train and what you
+52:28 should not train right so so this was a brilliant takeaway from this paper right
+52:33 so now while this is a good this was a parallel effort people did not put in
+52:38 that much thought process into doing this for p like they were doing prom tuning they were doing prefix tuning
+52:44 because they felt like instead of doing it in the bottom layer you could do it everywhere people did adapters but they were not like giving it much thought
+52:51 about okay maybe we should try to reduce the intrinsic dimensionality maybe we should uh worry about what is uh what it
+52:57 needs how how do you control this and so on right so so that was the base for
+53:03 this Lura paper right so so so far we know taking into account the structure
+53:08 and then making use of the structure helps but how exactly to make use of the structure and how do you reduce the
+53:14 parameter space is what Laura brought in right so so let's look at regular fine tuning from the view of just weight
+53:20 updates in regular fine tuning you would have uh uh let's say pre-train weights right and then uh after uh training the
+53:29 model and backrop you will end up getting a weight update DW and then if
+53:35 you add W and DW uh you will end up getting the new weight uh which is going to be the uh fine tune weights right so
+53:43 now uh this can be thought of as you're just having two
+53:49 parallel uh networks one that goes to the pre-train weights and one that goes
+53:57 through the the recently updated weights right and then you can add them you will end up getting the same thing right
+54:03 so so what uh Laura said was they made two important contributions one is they
+54:11 told us what weights you should modify which will reduce intrinsic
+54:16 dimensionality by a lot right so having make use of the structure and they figured out this is the way in which
+54:23 this is the set of Weights in the Transformer block that you have to modify that was one contribution second
+54:28 contribution was how do we represent the uh the DW Matrix right so here so this
+54:36 is sort of inspired in the sense that adapters anyway did this right uh they they they reduced the the dimension of
+54:43 the weight matrix by uh using the bottleneck structure so they using that bottleneck structure and uh so the so so basically
+54:52 the d w here is now factorized into uh ba one uh down projection Matrix here
+54:58 and there is an up projection Matrix here right and there's no nonlinearity right just two
+55:04 projections so now uh by doing this uh so so here ft indicates full fine tuning
+55:11 uh bitfit is a technique that was proposed where you only change the biases in the network and not change the
+55:17 weights right that's a tainable parameter uh PRM is the soft prompting
+55:23 pre-layer is prefix tuning adapters are uh the same the the Halls spe adapters
+55:29 that I talked about now with different trainable parameters uh so what we see here is that uh Laura on slightly more
+55:37 complex task Viki SQL is natural language to SQL uh this is a natural
+55:43 language inference task which talks about entailment uh this is summarization data set so in all these
+55:49 slightly more complex data sets uh we see that for a very small fraction of the trainable parameters uh you end up
+55:56 getting even slightly better accuracies than full F right so uh so this was so this is the
+56:04 contribution of Laura now like I said they also told us uh what are the
+56:10 parameters in your model that you should update right and what they said is that only worry about query key value and the
+56:17 output projection Matrix right so so these are the only four weight matrices
+56:22 that you should worri about when you do Laura and and they also did a lot of ablations to show that if you keep the
+56:28 number of trainable parameters fixed right the rank so so in if you and if
+56:33 you only train the the query uh Vector the query Matrix uh then this is the
+56:40 accuracy that you get for uh SQL vsql and uh the N task andly if you only
+56:46 train uh the the key Matrix and and a combinations of query and key here you
+56:52 reduce the rank because you want to maintain the number of parameters the same right and you do all combinations and they found that in most cases this
+57:00 is a good thing to do right so when you define your Laura config uh and when you
+57:07 try to find tune a model you will have these flexibility with you right you will be able to tell the tell the uh uh
+57:13 training code fine tuning code what uh matrices that you want to fine tune as a
+57:18 part of this Laura PFT and you can also tell it what rank you want right and you
+57:23 would be able to train accordingly uh now they also show show like the
+57:30 effect of rank so basically you can see that the model for for various different things the trend is similar that you
+57:36 sort of slowly raise up and then you saturate and then you come down slightly that's the typical Trend right it's uh
+57:44 and so here if it has not come down then it it's sort of oh it has come down already it has speaked
+57:49 that uh r equal to 4 and it do come down so here in some sense the rank here is
+57:54 sort of the intrinsic dimensionality right it's not exactly the it's not by the definition of what inic
+57:60 dimensionality is but the rank sort of gives you a control of how much parameters are needed to learn your task
+58:07 right and uh and this is one of the most popular P techniques that everybody uses
+58:13 there is a slight variant of it called Kora uh which uh basically the only goal
+58:19 of Kora is to reduce the amount of memory needed to do Laura right and they
+58:24 uh and and this is one of the most popular techniques are out there right so so before wrapping it up I just want
+58:30 to talk about uh some more training aspects uh which is uh the a matrix and
+58:37 the B Matrix are initialized in a certain way which will ensure stable training right and what they do here is
+58:43 that uh B is set to re zero for for very obvious reason which is if B is zero
+58:49 then AB will be zero if AB is zero then at the beginning of your Epoch you only have to go through W right so your model
+58:55 doesn't uh change its uh the way it works right you're not adding layers in
+59:01 between so it's parallel so so this helps in in keeping the uh in preserving
+59:06 the original behavior of the model now now a is sort of assigned uh using a gan
+59:13 distribution with zero mean and a very small variance and and and and and this will
+59:19 also ensure that the way B changes does not throw the model off right because B
+59:28 is going to change drastically now and if a is randomly initialized it may throw off and you would end up having
+59:34 the same issue as what people uh faced in prefix tuning so a is initialized in
+59:39 this way so that it doesn't throw off uh during uh fine right so finally there
+59:46 are like insane number of extensions to Laura because it has been so popular people have explode all varieties of
+59:51 Laura QA is one of the most popular technique there is also long Laura in in
+59:56 in case where you have really really long context length in your input uh there is Lura plus uh which sort of says
+60:04 that don't use the same learning rate for both A and B matrices in the reparameterization uh use different
+60:10 learning rates and how it will improve the speed with which you can converse right and there is also uh Dora which
+60:18 which says that with like since R is a hyper parameter uh you will have to uh
+60:24 run your experiments in parallel with different values of R and figure out what works best but Dora sort of tells
+60:30 you uh how to sort of get the right R without running it multiple times so so
+60:36 so the the intuition here is that they want a
+60:43 DW which can be added to the weight w right so there is no so if you only look
+60:49 at it as a projection right so then there is no need for a nonlinearity there to mimic that update of that
+60:55 projection right for adapters is a different story Al together you're not trying to add a
+61:02 projection to another projection right so here since you want uh the Lowa
+61:08 weights to be factorized and added with W you don't want a nonlinearity here so
+61:13 the advantage of doing this is that once you train a and b you can just fuse it
+61:20 to W right if you want a single model right
+61:26 again it will affect all the W's in your network and you you won't be able to uh do what you did with uh say prom tuning
+61:33 right because you cannot easily swap out and swap in right so there is also there are also works that are going on for
+61:38 making Laura as easily swappable as uh prom tuning but you but you have to do
+61:45 it at a batch level right because you can't you can't have multiple different luras in the same batch so there is a
+61:50 work around hot swapping in which the amount of time that's required to swap is so less that you won't feel that uh
+61:56 there is latency there for swapping but that's the intuition behind uh no nonlinearity in this particular
+62:07 reparameterization A and B are both trainable
+62:14 yes so so I'm not saying it's similar to all I'm saying is if your task is
+62:21 complex it is synonymous it's not you can't equate it inic dimension is not equal to rank but
+62:27 it's synonymous to to Intrinsic dimensionality if your task is difficult and your base language model is also not
+62:35 that good then you need a bigger R right if your base model is good your task is
+62:41 difficult you might need slightly middle ground but if your base model is good your task is easy you can even get away
+62:46 with rank one right I think we are at the end of the lecture so basically just to summarize we covered uh in addition
+62:53 to introducing what p is and why we need P we covered four different techniques that are very
+62:59 popular and changed and like sort of defining moments in uh this literature
+63:05 thank you

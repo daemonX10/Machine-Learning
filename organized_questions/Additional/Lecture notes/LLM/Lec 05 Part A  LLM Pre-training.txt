@@ -1,0 +1,3157 @@
+00:00 Hi everyone, welcome back. So uh in the
+00:05 
+
+00:05 last lecture we discussed uh transformer
+00:08 
+
+00:08 different blocks of a transformer model.
+00:10 
+
+00:10 Today we will discuss different types of
+00:11 
+
+00:11 pre-training strategies.
+00:14 
+
+00:14 Okay. So uh the prerequisite for this
+00:16 
+
+00:16 lecture is that so I'm assuming that you
+00:18 
+
+00:18 guys are aware of static embeddings
+00:21 
+
+00:21 coming from what to make love kind of
+00:23 
+
+00:23 methods right and you you're aware of
+00:25 
+
+00:25 the transformer method and of course RN
+00:27 
+
+00:27 CNN. So we will see that from the static
+00:32 
+
+00:32 embedding or pre-trained embedding we
+00:35 
+
+00:35 are now moving towards pre-trained
+00:37 
+
+00:37 model.
+00:39 
+
+00:39 So initially in what to make glove kind
+00:42 
+
+00:42 of methods we pre-trained the embeddings
+00:44 
+
+00:44 of words or tokens. Now we talk about
+00:47 
+
+00:47 pre-training an entire model. Okay. And
+00:50 
+
+00:50 what is the meaning of pre-training?
+00:51 
+
+00:51 Basically uh uh you know assigning
+00:54 
+
+00:54 weights to the parameters.
+00:57 
+
+00:57 Okay. But before that breaking news is
+00:59 
+
+00:59 as follows. All of you know I guess
+01:03 
+
+01:03 after almost four years or five years
+01:07 
+
+01:07 OpenAI released a new open source model.
+01:10 
+
+01:10 Okay. And this is called GPTOS
+01:14 
+
+01:14 right
+01:16 
+
+01:16 uh it came with two versions. One is a
+01:20 
+
+01:20 120B uh parameter model
+01:24 
+
+01:24 which is on par with uh 04 mini right uh
+01:29 
+
+01:29 which you can basically run on a 80 GB
+01:31 
+
+01:31 GPU right a kind of 1800 GPU right and
+01:35 
+
+01:35 they also released a small version a
+01:37 
+
+01:37 small model right uh it's it's a it's a
+01:41 
+
+01:41 20 billion model and this is on par with
+01:45 
+
+01:45 03 mini and you can run it on a 16 GB
+01:48 
+
+01:48 16 GB memory is nothing. Okay, you can
+01:52 
+
+01:52 run it on your on your on on your mobile
+01:55 
+
+01:55 also, right? Mobile or uh I mean you
+01:58 
+
+01:58 should have a you should be rich if you
+02:00 
+
+02:00 if you have a 16 GB mobile, but you can
+02:03 
+
+02:03 you can at least run it on your laptop.
+02:06 
+
+02:06 Okay, it's a it's a good news. And if
+02:09 
+
+02:09 you look at the blogs uh this this blog
+02:11 
+
+02:11 you see that uh
+02:15 
+
+02:15 the performance is really great right
+02:18 
+
+02:18 across reasoning models and um and the
+02:21 
+
+02:21 good part is that uh now you can use
+02:23 
+
+02:23 these models for your research if you
+02:25 
+
+02:25 don't have large GPU access.
+02:29 
+
+02:29 All right. Uh let's move on to the main
+02:32 
+
+02:32 part.
+02:35 
+
+02:35 So,
+02:37 
+
+02:37 so you we we all know about what to vec
+02:39 
+
+02:39 right what vectors where
+02:43 
+
+02:43 right we essentially look at and this
+02:45 
+
+02:45 what vectors are um are um uh context
+02:49 
+
+02:49 independent vectors remember this this
+02:51 
+
+02:51 is context
+02:54 
+
+02:54 independent vectors.
+02:58 
+
+02:58 Therefore they are called static
+03:00 
+
+03:00 embedding. Why static embedding?
+03:03 
+
+03:03 because the embedding of a word is
+03:05 
+
+03:05 independent of the context where it
+03:07 
+
+03:07 appears.
+03:10 
+
+03:10 Okay, you can just think of it as a
+03:12 
+
+03:12 dictionary lookup.
+03:14 
+
+03:14 Okay. Um
+03:21 
+
+03:21 but all of us know that let's say the
+03:25 
+
+03:25 word like mouse right uh bank okay they
+03:30 
+
+03:30 have uh different senses uh in different
+03:33 
+
+03:33 contexts right so the representation of
+03:37 
+
+03:37 a word should be context dependent
+03:40 
+
+03:40 okay so
+03:44 
+
+03:44 uh you know in In 2018
+03:48 
+
+03:48 there was this paper called uh Elmo
+03:54 
+
+03:54 right and they came up with in 2018. So
+03:57 
+
+03:57 you you you you you may imagine that
+04:00 
+
+04:00 transformer came came in 2017 you know
+04:03 
+
+04:03 in initial days 2017 2018 nobody knew
+04:06 
+
+04:06 about transformer in that that way and
+04:09 
+
+04:09 you know the hunch of making bigger
+04:12 
+
+04:12 models with normal RNN right were still
+04:15 
+
+04:15 uh you know ongoing at that time and the
+04:17 
+
+04:17 Elmo method was the first method where
+04:20 
+
+04:20 they introduced a big model right with
+04:23 
+
+04:23 lots of trans RNN layers right and they
+04:27 
+
+04:27 came up with
+04:29 
+
+04:29 a concept called context dependent
+04:31 
+
+04:31 embedding.
+04:33 
+
+04:33 Okay, if you want to know more about
+04:34 
+
+04:34 Elmo, please again look at my previous
+04:36 
+
+04:36 year's lecture.
+04:39 
+
+04:39 So and and then they also came up with
+04:43 
+
+04:43 this idea called pre-training pre-trend
+04:46 
+
+04:46 models,
+04:48 
+
+04:48 right? So they they they they basically
+04:51 
+
+04:51 pretend their entire entire models,
+04:54 
+
+04:54 right? So that you just need to download
+04:56 
+
+04:56 their weights and then you can
+04:58 
+
+04:58 essentially run your applications on top
+04:60 
+
+04:60 of that. Okay.
+05:02 
+
+05:02 But during that time so transformer came
+05:04 
+
+05:04 before that around the same time and and
+05:08 
+
+05:08 we have seen two blocks encoder blocks
+05:11 
+
+05:11 and decoder blocks right then people saw
+05:14 
+
+05:14 that in some applications you may need
+05:16 
+
+05:16 only the encoder block some applications
+05:18 
+
+05:18 you may need only the decoder block and
+05:20 
+
+05:20 some cases you need both encoder and the
+05:23 
+
+05:23 decoder blocks.
+05:25 
+
+05:25 So encoder block is needed where
+05:29 
+
+05:29 encoder block is needed where
+05:33 
+
+05:33 where you basically have access to all
+05:36 
+
+05:36 the tokens at the same time.
+05:39 
+
+05:39 Right? For example, because encoder
+05:41 
+
+05:41 encoder block uses non-mask self
+05:44 
+
+05:44 attention. Remember this. Okay. For
+05:47 
+
+05:47 example, sentiment analysis, right? You
+05:49 
+
+05:49 have access movie review analysis. You
+05:51 
+
+05:51 have the entire movie review and then
+05:52 
+
+05:52 you analyze the reviews and so on and so
+05:55 
+
+05:55 forth. Decoder only model
+05:59 
+
+05:59 is used when your objective is next
+06:02 
+
+06:02 prediction. For example, machine
+06:03 
+
+06:03 translation. Machine translation is not
+06:05 
+
+06:05 decoder only. Let's say uh you know u
+06:09 
+
+06:09 let's say you know you
+06:12 
+
+06:12 say dialog setup right where you want
+06:14 
+
+06:14 the your dialog agent to generate things
+06:16 
+
+06:16 one by one right you can use decoder.
+06:18 
+
+06:18 You can also use machine translation by
+06:19 
+
+06:19 the way. You can use the decoder only
+06:22 
+
+06:22 model for missing translation. Okay. In
+06:25 
+
+06:25 a different way a bit tricky.
+06:28 
+
+06:28 Whereas encoder decoder model
+06:31 
+
+06:31 can be used in any many to many sequence
+06:34 
+
+06:34 to sequence models right sequence to
+06:36 
+
+06:36 sequence tasks empty uh summarization
+06:40 
+
+06:40 and so on and so forth. We will see
+06:42 
+
+06:42 later
+06:44 
+
+06:44 that people realized over the times that
+06:47 
+
+06:47 encoder model is not a good idea.
+06:50 
+
+06:50 Encoder decoder is also not a good idea.
+06:52 
+
+06:52 So people actually started building only
+06:54 
+
+06:54 decoder only models
+06:57 
+
+06:57 because because of many reasons. We'll
+06:59 
+
+06:59 discuss all these things later. But let
+07:01 
+
+07:01 us look at now uh for the time being
+07:03 
+
+07:03 let's look at the encoder only models
+07:05 
+
+07:05 and how to pre-train an encoder only
+07:08 
+
+07:08 model. Right? And the first paper which
+07:10 
+
+07:10 came out from Google in 2018 is called
+07:13 
+
+07:13 the the famous paper called B E R T
+07:17 
+
+07:17 pre-training of deep birectional
+07:20 
+
+07:20 transformers for language understanding.
+07:22 
+
+07:22 It's an encoder only model pre-training.
+07:25 
+
+07:25 Okay.
+07:27 
+
+07:27 So how do we pretend?
+07:30 
+
+07:30 So for pre-training the inter
+07:33 
+
+07:33 pre-training will happen using something
+07:35 
+
+07:35 called uh self-supervised learning.
+07:38 
+
+07:38 Okay, self
+07:43 
+
+07:43 supervised
+07:45 
+
+07:45 learning.
+07:47 
+
+07:47 What is that? You do not need any label
+07:50 
+
+07:50 data. You do not need any label data as
+07:53 
+
+07:53 such.
+07:55 
+
+07:55 So in B what they said is that
+08:03 
+
+08:03 how do we pretend B? So B is only an
+08:05 
+
+08:05 encoder only model. Remember encoder
+08:07 
+
+08:07 only model there are multiple layers and
+08:09 
+
+08:09 self attention feed forward. Self
+08:10 
+
+08:10 attention feed forward.
+08:12 
+
+08:12 So what they said is that let's do
+08:15 
+
+08:15 something called mask language modeling.
+08:18 
+
+08:18 Mask language modeling. What is mask
+08:20 
+
+08:20 language modeling?
+08:22 
+
+08:22 You were given free form texts,
+08:26 
+
+08:26 right? And what you do, you mask some of
+08:30 
+
+08:30 the tokens, right? From the text and you
+08:34 
+
+08:34 let the model predict those mask tokens.
+08:37 
+
+08:37 So you do not need a label data.
+08:40 
+
+08:40 Do we need? No. Right? You just need the
+08:44 
+
+08:44 free form data, free form text, and you
+08:46 
+
+08:46 mask some of the tokens, right? And you
+08:49 
+
+08:49 let the model predict those tokens. What
+08:51 
+
+08:51 does it mean by letting the model
+08:52 
+
+08:52 predict those tokens? What is this mask?
+08:55 
+
+08:55 So what they said is that
+08:60 
+
+09:00 uh
+09:02 
+
+09:02 you mask only 15% of the tokens. 15% is
+09:05 
+
+09:05 less very very very small.
+09:10 
+
+09:10 You can also increase it but they showed
+09:12 
+
+09:12 that 15% is empirically a good number.
+09:16 
+
+09:16 So your task is to identify 15% of the
+09:20 
+
+09:20 tokens for masking. Right? Now among
+09:23 
+
+09:23 this 15%
+09:26 
+
+09:26 you take 80% of this 15%. And you mask
+09:30 
+
+09:30 it. What does it mean? You introduce a
+09:32 
+
+09:32 new token called mask
+09:35 
+
+09:35 in your vocabulary. You add a you
+09:38 
+
+09:38 basically add a new token called the
+09:39 
+
+09:39 mask token. And you also have it
+09:42 
+
+09:42 corresponding embedding coming from what
+09:44 
+
+09:44 to for example
+09:47 
+
+09:47 or some some random initialization
+09:51 
+
+09:51 you replace those original tokens by
+09:54 
+
+09:54 this mask token right 80 80 80% of time
+09:60 
+
+09:60 10% of time
+10:02 
+
+10:02 you replace a word
+10:06 
+
+10:06 by another word not by mask.
+10:09 
+
+10:09 So you see here example like going to
+10:13 
+
+10:13 the park you replace park by the token
+10:16 
+
+10:16 mask
+10:17 
+
+10:17 like going to the park you replace park
+10:19 
+
+10:19 by store random mode right and remaining
+10:23 
+
+10:23 10% time you keep the same token so if I
+10:28 
+
+10:28 keep the same token then why this thing
+10:31 
+
+10:31 comes under 15% of uh random masking
+10:39 
+
+10:39 >> no So, so it then it should not come
+10:41 
+
+10:41 right because it it is basically same as
+10:44 
+
+10:44 the remaining 85% of sentences.
+10:47 
+
+10:47 So, why why then we added this here?
+10:52 
+
+10:52 Because when we do the prediction for
+10:54 
+
+10:54 85% sentences which are not part of our
+10:57 
+
+10:57 investigation, we will not calculate any
+10:60 
+
+10:60 error.
+11:01 
+
+11:01 We will not me measure any error. But
+11:04 
+
+11:04 for this 10% cases, I'll also measure
+11:06 
+
+11:06 the error.
+11:09 
+
+11:09 You see the difference between the two.
+11:13 
+
+11:13 Okay.
+11:16 
+
+11:16 So you identify 10% cases, 15% cases,
+11:19 
+
+11:19 80% of them will be replaced by mask,
+11:22 
+
+11:22 10% of them will be replaced by other
+11:24 
+
+11:24 tokens and 10% of of the cases you keep
+11:27 
+
+11:27 the same token
+11:30 
+
+11:30 mask language modeling, right? And you
+11:32 
+
+11:32 let the model predict. So how how does
+11:36 
+
+11:36 it work? So
+11:40 
+
+11:40 this is my input.
+11:43 
+
+11:43 Okay. So uh like
+11:47 
+
+11:47 going to the park to the mask is my
+11:52 
+
+11:52 input and I expect my model to predict
+11:56 
+
+11:56 like going to the to the to the park,
+12:00 
+
+12:00 right? And I calculate the error only
+12:03 
+
+12:03 here
+12:05 
+
+12:05 not here not here not here
+12:10 
+
+12:10 right at the position of masking I will
+12:12 
+
+12:12 calculate the error and what's the error
+12:13 
+
+12:13 here cross entropy between
+12:17 
+
+12:17 >> cross entropy between
+12:22 
+
+12:22 cross entropy between the actual token
+12:24 
+
+12:24 which is park and the predicted token
+12:26 
+
+12:26 which may be loan or filled or stored.
+12:33 
+
+12:33 Okay.
+12:35 
+
+12:35 And if you if you pass store here, your
+12:40 
+
+12:40 expectation is that the model will
+12:41 
+
+12:41 produce spark here.
+12:44 
+
+12:44 It's a big expectation though, right?
+12:47 
+
+12:47 And then if you if you pass and and it
+12:50 
+
+12:50 may happen that during the process the
+12:53 
+
+12:53 model may forget to remember the actual
+12:56 
+
+12:56 token.
+12:58 
+
+12:58 So therefore through these examples you
+13:02 
+
+13:02 force the model remember the actual
+13:04 
+
+13:04 tokens right. If the model only learns
+13:08 
+
+13:08 how to predict mask tokens. If the model
+13:11 
+
+13:11 only learns how to predict the suffered
+13:13 
+
+13:13 or replaced tokens, right? Model may
+13:16 
+
+13:16 forget, you know, the way it should
+13:19 
+
+13:19 remember the actual tokens, right?
+13:22 
+
+13:22 Therefore, you are forcing, you are
+13:23 
+
+13:23 saying that look, it is good that you
+13:26 
+
+13:26 are learning new things, but you should
+13:28 
+
+13:28 not forget the original one.
+13:30 
+
+13:30 Okay.
+13:33 
+
+13:33 All right. So this is the first task for
+13:36 
+
+13:36 PDIS. Okay. So this is easy,
+13:40 
+
+13:40 this is difficult, right? And this may
+13:42 
+
+13:42 be even difficult
+13:45 
+
+13:45 because over the times the model will
+13:48 
+
+13:48 try to uh will the model will learn how
+13:51 
+
+13:51 to predict mass tokens but may forget
+13:53 
+
+13:53 the original tokens.
+13:56 
+
+13:56 Okay. So this is the first objective of
+13:59 
+
+13:59 the pre-training method. There is a
+14:02 
+
+14:02 there there is another objective.
+14:04 
+
+14:04 The other objective is next sentence
+14:06 
+
+14:06 prediction.
+14:08 
+
+14:08 What is it? So in our free form corpus I
+14:14 
+
+14:14 know that sentence one, sentence two,
+14:17 
+
+14:17 sentence three, sentence four, these are
+14:18 
+
+14:18 the sentences, right? Sentence two
+14:21 
+
+14:21 follows sentence one, sentence three
+14:23 
+
+14:23 follows sentence two and so on and so
+14:25 
+
+14:25 forth.
+14:27 
+
+14:27 So what what I will do? I will I will
+14:31 
+
+14:31 identify a pair of sentences
+14:34 
+
+14:34 right let's say S I S I + 1
+14:42 
+
+14:42 okay where SI + 1 follows SI in the
+14:46 
+
+14:46 document actually follows SI
+14:50 
+
+14:50 also identify pairs of sentences where
+14:54 
+
+14:54 it it is SIJ
+14:57 
+
+14:57 where J is is not I + 1.
+15:03 
+
+15:03 So SJ doesn't follow SI.
+15:06 
+
+15:06 So we have 50% of pairs which are two
+15:12 
+
+15:12 true two cases in our case. Right? And
+15:14 
+
+15:14 remaining 50% of pairs which are
+15:17 
+
+15:17 negative samples.
+15:20 
+
+15:20 Right? So what I'll do I'll pass in the
+15:24 
+
+15:24 in the encoder I'll pass SIJ
+15:28 
+
+15:28 and so I'll pass like this SI then a new
+15:32 
+
+15:32 token called separator ACP okay and then
+15:35 
+
+15:35 SJ
+15:37 
+
+15:37 to the encoder model and I will ask the
+15:40 
+
+15:40 model to predict whether SI follows SG
+15:43 
+
+15:43 or not it's a binary classification yes
+15:45 
+
+15:45 or no
+15:49 
+
+15:49 okay
+15:50 
+
+15:50 Now why this is this task is important?
+15:54 
+
+15:54 This task is important because the first
+15:56 
+
+15:56 task that I mentioned mass language
+15:58 
+
+15:58 modeling there you are basically asking
+16:01 
+
+16:01 the model to understand tokens
+16:04 
+
+16:04 understand the orientation of tokens
+16:05 
+
+16:05 within a single sentence. Here you are
+16:08 
+
+16:08 asking the model to understand you know
+16:11 
+
+16:11 uh to the the orientation between two
+16:14 
+
+16:14 sentences two sequences.
+16:17 
+
+16:17 So intra sentence inter sententence
+16:22 
+
+16:22 right now the good the the the
+16:23 
+
+16:23 interesting part is I will do both
+16:26 
+
+16:26 objective one and objective two together
+16:28 
+
+16:28 during the training time. It is not the
+16:30 
+
+16:30 case that I'll first do objective one
+16:32 
+
+16:32 mass language prediction and then I will
+16:35 
+
+16:35 do objective two which is next next
+16:36 
+
+16:36 sentence prediction. How do we do that?
+16:39 
+
+16:39 I have only this encoder block
+16:43 
+
+16:43 right? How do we do that? So we'll do in
+16:45 
+
+16:45 this way.
+16:47 
+
+16:47 So,
+16:50 
+
+16:50 so let's say let's say I again my
+16:55 
+
+16:55 favorite example I am
+16:58 
+
+16:58 going
+16:59 
+
+16:59 right
+17:02 
+
+17:02 to
+17:04 
+
+17:04 mask.
+17:06 
+
+17:06 Okay, this is my input separator.
+17:16 
+
+17:16 Um
+17:18 
+
+17:18 mask
+17:21 
+
+17:21 is
+17:23 
+
+17:23 far away.
+17:26 
+
+17:26 Okay. So sequence one, sequence two.
+17:31 
+
+17:31 Okay. I get the embedding of I am going.
+17:34 
+
+17:34 So these are all pre-trained embeddings.
+17:37 
+
+17:37 Okay. And then in the encoder block. So
+17:41 
+
+17:41 this is my first encoder block.
+17:44 
+
+17:44 All these self attention, feed forward
+17:45 
+
+17:45 network, all these things will happen,
+17:47 
+
+17:47 right?
+17:49 
+
+17:49 And then what I do, I will add another
+17:52 
+
+17:52 token here which is called CLS token.
+17:56 
+
+17:56 CLS stands for classification.
+17:59 
+
+17:59 CLS is another new token like mask.
+18:03 
+
+18:03 Okay. So, so I'll get what the
+18:07 
+
+18:07 the vector attention whatever attention
+18:10 
+
+18:10 vector or some vector for CLS here. Here
+18:13 
+
+18:13 I'll get a vector for I. Here I'll get a
+18:15 
+
+18:15 vector for M going right mask separator
+18:20 
+
+18:20 and so on and so forth.
+18:23 
+
+18:23 Right?
+18:25 
+
+18:25 So corresponding to the mask token I
+18:28 
+
+18:28 will measure the error. So here and here
+18:32 
+
+18:32 I will measure the error using cross
+18:33 
+
+18:33 entropy.
+18:36 
+
+18:36 Right? And corresponding to the CLS
+18:38 
+
+18:38 token here what I will do I will add a
+18:41 
+
+18:41 task specific layer which is just a just
+18:45 
+
+18:45 a feed forward network right which will
+18:48 
+
+18:48 essentially project it to a 2D space
+18:51 
+
+18:51 a distribution over 2D which is yes or
+18:54 
+
+18:54 no.
+18:57 
+
+18:57 This is a task specific head.
+19:02 
+
+19:02 Okay.
+19:05 
+
+19:05 So here the model will predict something
+19:08 
+
+19:08 yes or no right if it is yes and if it
+19:12 
+
+19:12 is actually yes then there is no loss
+19:14 
+
+19:14 right. So here the loss is with with
+19:16 
+
+19:16 respect to next sentence prediction task
+19:18 
+
+19:18 and here the losses are with respect to
+19:21 
+
+19:21 the mask language modeling objective and
+19:26 
+
+19:26 both of them both these losses will be
+19:27 
+
+19:27 back propagated end to end.
+19:32 
+
+19:32 Now my question is
+19:35 
+
+19:35 why do I need a CLS token?
+19:39 
+
+19:39 Can't I just you know concatenate all
+19:42 
+
+19:42 these vectors
+19:44 
+
+19:44 all these vectors right which would give
+19:46 
+
+19:46 me a
+19:48 
+
+19:48 a resultant concatenated vector and then
+19:51 
+
+19:51 I could have a a task specific head on
+19:54 
+
+19:54 top of this and that that could have
+19:56 
+
+19:56 predicted the yes or no class. Right?
+20:01 
+
+20:01 The problem here is twofold. The first
+20:03 
+
+20:03 problem is that
+20:06 
+
+20:06 you have you already have some dummy
+20:09 
+
+20:09 tokens like mask ACP etc. Right? That
+20:12 
+
+20:12 would that may impact uh the sentence
+20:15 
+
+20:15 representation. The second point is that
+20:18 
+
+20:18 uh if you concatenate them it would be a
+20:21 
+
+20:21 big a large vector right let's say if
+20:24 
+
+20:24 there are 10 tokens and every token is
+20:26 
+
+20:26 of size 512 then 512 * 10 vector right
+20:30 
+
+20:30 and then you think of the feed forward
+20:32 
+
+20:32 network size 512 * 2
+20:35 
+
+20:35 right
+20:37 
+
+20:37 instead of that here what's the size of
+20:39 
+
+20:39 this task specific head
+20:44 
+
+20:44 512 * 2 and the the sorry the earlier
+20:48 
+
+20:48 case was 512 * 10 * 2 now this is 512 *
+20:53 
+
+20:53 2
+20:54 
+
+20:54 right the other part is that if you look
+20:56 
+
+20:56 at cls token carefully
+20:59 
+
+20:59 cls token is not a part of my input at
+21:01 
+
+21:01 all right it has nothing to do with the
+21:04 
+
+21:04 semantics of the input but cls token due
+21:07 
+
+21:07 to the self attention mechanism has
+21:10 
+
+21:10 already attended to all the tokens
+21:13 
+
+21:13 cls tokens query has attended ed to all
+21:16 
+
+21:16 the keys. So CLS token also knows about
+21:18 
+
+21:18 the enter tokens of the the remaining
+21:21 
+
+21:21 tokens some ways.
+21:24 
+
+21:24 Then you may say that okay why do I need
+21:27 
+
+21:27 the CLS tokens the other tokens have
+21:28 
+
+21:28 also access to all the other tokens
+21:30 
+
+21:30 right so I could have let's say I could
+21:32 
+
+21:32 have added a task task task specific
+21:35 
+
+21:35 layer here on top of I or on top of M.
+21:40 
+
+21:40 Why do I need the CLS?
+21:42 
+
+21:42 Any idea?
+21:46 
+
+21:46 I hope you are my arguments are making
+21:48 
+
+21:48 sense right.
+21:53 
+
+21:53 Now if you look at this uh I mean if you
+21:55 
+
+21:55 take an existing word from the input
+21:58 
+
+21:58 right it has a bias towards itself.
+22:02 
+
+22:02 So the query
+22:04 
+
+22:04 coming from I when it attends to the key
+22:07 
+
+22:07 of I versus attending to the key of M
+22:12 
+
+22:12 which one will be higher in terms of
+22:14 
+
+22:14 similarity I with I
+22:17 
+
+22:17 right. So the output that you obtain for
+22:20 
+
+22:20 corresponding to I the final vector that
+22:23 
+
+22:23 vector has mostly the information about
+22:25 
+
+22:25 the word I
+22:28 
+
+22:28 right whereas CLS token
+22:30 
+
+22:30 has nothing to do with the semantics of
+22:32 
+
+22:32 the uh the remaining token. So it it
+22:36 
+
+22:36 kind of acts as a neutral token.
+22:40 
+
+22:40 So you see my point
+22:44 
+
+22:44 by the way these are arguments which I
+22:46 
+
+22:46 made in the paper and nothing was
+22:47 
+
+22:47 written.
+22:49 
+
+22:49 Yes,
+22:56 
+
+22:56 >> you can also do max pool. That's true.
+22:59 
+
+22:59 You can also do the max pool. If you do
+23:00 
+
+23:00 max pool then uh then what will happen?
+23:04 
+
+23:04 You essentially uh you end up
+23:06 
+
+23:06 identifying one specific vector, isn't
+23:09 
+
+23:09 it?
+23:10 
+
+23:10 which may not be right because
+23:13 
+
+23:13 ultimately it's a sentence level
+23:14 
+
+23:14 prediction. You need information of the
+23:16 
+
+23:16 entire if you need information of of
+23:19 
+
+23:19 both the sequences.
+23:23 
+
+23:23 >> Yeah.
+23:31 
+
+23:31 >> Yeah. Yeah. Yeah.
+23:34 
+
+23:34 >> So position inputting is already here.
+23:37 
+
+23:37 >> Huh. Okay, we add
+23:42 
+
+23:42 >> no I I am so in in so a batch within a
+23:46 
+
+23:46 batch there's an instance instance has
+23:48 
+
+23:48 only two sentences
+23:50 
+
+23:50 one is two sentences and the separator
+23:55 
+
+23:55 >> no no no no no because it's a next
+23:58 
+
+23:58 sentence prediction task you should have
+23:59 
+
+23:59 only two sentences
+24:02 
+
+24:02 si sj
+24:07 
+
+24:07 >> which part there's Nothing manually
+24:08 
+
+24:08 labelled here. You just sample things
+24:11 
+
+24:11 from uh documents.
+24:18 
+
+24:18 >> No, you already have the document,
+24:19 
+
+24:19 right? You already know that this is
+24:21 
+
+24:21 sentence one, sentence two, sentence
+24:23 
+
+24:23 three, sentence four, sentence five. You
+24:25 
+
+24:25 just need to write a simple code, right?
+24:27 
+
+24:27 And you randomly sample a pair of
+24:29 
+
+24:29 sentences which appear side by side. And
+24:31 
+
+24:31 then you uh then you basically sample
+24:34 
+
+24:34 negative instances. You basically take a
+24:36 
+
+24:36 sentence and randomly choose another
+24:37 
+
+24:37 sentence which is which not follows. You
+24:40 
+
+24:40 do not need any label dat.
+24:58 
+
+24:58 Yeah.
+25:01 
+
+25:01 >> Yeah.
+25:11 
+
+25:11 Yes. Yes. Of course. Of course. Of
+25:13 
+
+25:13 course. It it can be park is for mask.
+25:21 
+
+25:21 No. You know that's that. So, so this is
+25:24 
+
+25:24 wrong. So please do not assume that if I
+25:28 
+
+25:28 if I choose a word park for masking all
+25:32 
+
+25:32 the instances of park will be masked. No
+25:37 
+
+25:37 you what you are choosing you are not
+25:39 
+
+25:39 choosing a word you are choosing a
+25:40 
+
+25:40 position.
+25:42 
+
+25:42 You are choosing 15% of pos 15% of
+25:46 
+
+25:46 positions. Think think of it in this way
+25:49 
+
+25:49 right 15% of positions. Now among this
+25:52 
+
+25:52 15% of positions 80% positions you
+25:55 
+
+25:55 replace by mask 10% you replace by a
+25:58 
+
+25:58 random token and 10% remains the same
+26:02 
+
+26:02 but I understand your query what you are
+26:04 
+
+26:04 saying is that if I still give uh I mean
+26:07 
+
+26:07 if I if there's this word park right
+26:10 
+
+26:10 that may leak the information it's not
+26:12 
+
+26:12 like that.
+26:14 
+
+26:14 So I mean look our task is not to
+26:18 
+
+26:18 predict uh or to guess uh a specific
+26:22 
+
+26:22 word. Our task is to basically guess
+26:25 
+
+26:25 upward at a particular position.
+26:28 
+
+26:28 It is still difficult for the model to
+26:30 
+
+26:30 predict park.
+26:34 
+
+26:34 Okay? Because think of this model before
+26:36 
+
+26:36 pretending a model is a baby and baby
+26:39 
+
+26:39 doesn't know anything about the world.
+26:42 
+
+26:42 nothing, no information.
+26:46 
+
+26:46 Okay,
+26:50 
+
+26:50 of course you can think of complex
+26:53 
+
+26:53 input corruption techniques, right? For
+26:55 
+
+26:55 example, here you just chose some u you
+26:59 
+
+26:59 know chose some positions and replace it
+27:02 
+
+27:02 by replace them by mask. You can also
+27:04 
+
+27:04 think of uh rotating the tokens. I'll
+27:08 
+
+27:08 talk about it in B and T5, right? You
+27:10 
+
+27:10 can you can also rotate. So your input
+27:11 
+
+27:11 is I am going to school sorry your input
+27:14 
+
+27:14 is uh school uh school I am going to and
+27:18 
+
+27:18 your output should be I am going to
+27:19 
+
+27:19 school right you can also randomly
+27:22 
+
+27:22 shuffle tokens you make it more
+27:23 
+
+27:23 complicated
+27:25 
+
+27:25 okay any other question yes%
+27:32 
+
+27:32 >> yes Yes. Yes.
+27:38 
+
+27:38 >> Yeah.
+27:41 
+
+27:41 >> So again, please try to understand mask
+27:44 
+
+27:44 language modeling.
+27:46 
+
+27:46 Uh I mean the objective of mass language
+27:49 
+
+27:49 modeling modeling is to just understand
+27:52 
+
+27:52 the semantics within a sentence.
+27:56 
+
+27:56 Whereas next sentence prediction
+27:59 
+
+27:59 objective is to basically understand the
+28:02 
+
+28:02 semantics across sentences. Right? So if
+28:05 
+
+28:05 you give if you give a negative instance
+28:09 
+
+28:09 right and you mask some of the tokens it
+28:11 
+
+28:11 would not affect the mask language
+28:14 
+
+28:14 predition objective right it will only
+28:16 
+
+28:16 affect the next prediction objective.
+28:20 
+
+28:20 Okay these two things are different.
+28:24 
+
+28:24 All right. Whatever I said is written
+28:26 
+
+28:26 here slide. So I'm just skipping. Okay.
+28:28 
+
+28:28 So but yeah one important thing is to
+28:31 
+
+28:31 note here is so so
+28:35 
+
+28:35 so these are my token embeddings which
+28:37 
+
+28:37 are coming from what to for example or
+28:40 
+
+28:40 random initialization. These are my
+28:42 
+
+28:42 positional uh embeddings coming from uh
+28:46 
+
+28:46 s cosine or rope. Right. Along with this
+28:49 
+
+28:49 we also need
+28:52 
+
+28:52 another embedding called the segment
+28:53 
+
+28:53 embedding and segment corresponds to a
+28:56 
+
+28:56 sentence.
+28:58 
+
+28:58 Look at here. This is segment embedding
+29:00 
+
+29:00 for the first sentence. This is segment
+29:02 
+
+29:02 embedding for the second sentence.
+29:05 
+
+29:05 Positional embedding will give you the
+29:06 
+
+29:06 position information of tokens for the
+29:09 
+
+29:09 entire sequence of sentences. There are
+29:11 
+
+29:11 two sentences. Remember this right? You
+29:15 
+
+29:15 need a segment embedding otherwise how
+29:16 
+
+29:16 do we know that this is a first sentence
+29:18 
+
+29:18 is second sentence. So this is segment
+29:20 
+
+29:20 embedding and then embedding. Okay. Then
+29:23 
+
+29:23 you basically add all of them.
+29:27 
+
+29:27 Okay. Some of the details of bird
+29:31 
+
+29:31 data set was one 1.25 billion uh words
+29:35 
+
+29:35 token Wikipedia book corpus batch size
+29:38 
+
+29:38 training time Adam optimizer
+29:42 
+
+29:42 B was released with two versions. The
+29:44 
+
+29:44 first version was 12 layer right with
+29:47 
+
+29:47 768 hidden dimension. This is dimension
+29:49 
+
+29:49 of the hidden states
+29:52 
+
+29:52 right and 12 head and bought large 24
+29:56 
+
+29:56 layers 1024 a hidden state and 16 heads.
+30:02 
+
+30:02 Okay.
+30:05 
+
+30:05 So once the pre-training is done then
+30:08 
+
+30:08 what you do you basically teach the
+30:11 
+
+30:11 model different tasks right. So after
+30:13 
+
+30:13 pre-training you do fine-tuning right
+30:16 
+
+30:16 and for fine-tuning you can take label
+30:18 
+
+30:18 data for example question answering
+30:21 
+
+30:21 right uh NLI and so on and so forth
+30:24 
+
+30:24 squad data named entity recognition and
+30:27 
+
+30:27 so on and so forth and the the the
+30:29 
+
+30:29 architecture will be a bit different by
+30:30 
+
+30:30 the way a bit different here and there
+30:32 
+
+30:32 but the strategies will remain the same
+30:35 
+
+30:35 so pre-training and finetuning are two
+30:37 
+
+30:37 different stages
+30:42 
+
+30:42 Okay. So in board we we saw different
+30:46 
+
+30:46 training configurations right number of
+30:48 
+
+30:48 parameters number of layers and so on
+30:50 
+
+30:50 and so forth. We also saw mask language
+30:54 
+
+30:54 modeling objective right and once the
+30:57 
+
+30:57 pre-training is done then we'll do we'll
+30:60 
+
+30:60 basically um further fine-tune the model
+31:03 
+
+31:03 on different tasks right and the task
+31:05 
+
+31:05 can be uh right question answering task
+31:08 
+
+31:08 for example square squad data I mean if
+31:11 
+
+31:11 you use you you use square squad data
+31:14 
+
+31:14 where uh you know there paragraph
+31:16 
+
+31:16 paragraph in in the paragraph the
+31:18 
+
+31:18 answers will be given so you ask a
+31:20 
+
+31:20 and the corresponding answers will be
+31:22 
+
+31:22 available in the paragraph. So your task
+31:24 
+
+31:24 will be to extract uh a portion from the
+31:27 
+
+31:27 paragraph which corresponds to the uh
+31:31 
+
+31:31 question or answer. So extractive
+31:33 
+
+31:33 question answering and then named entity
+31:35 
+
+31:35 NLI and so on and so forth. So you
+31:37 
+
+31:37 basically adjust now you you may not you
+31:41 
+
+31:41 may not be able to uh you know use the
+31:43 
+
+31:43 pre-trained architecture directly for
+31:46 
+
+31:46 question answering and for any right you
+31:48 
+
+31:48 need to adjust uh your architecture
+31:51 
+
+31:51 suitably for different applications but
+31:53 
+
+31:53 the uh but the objective will remain the
+31:56 
+
+31:56 same mask language modeling
+31:59 
+
+31:59 okay so this is uh more or less about
+32:02 
+
+32:02 encoder model um
+32:05 
+
+32:05 now in the encoder decoder model for
+32:07 
+
+32:07 example uh T5 we'll discuss this briefly
+32:10 
+
+32:10 today uh we will see that uh we will
+32:14 
+
+32:14 have a encoder uh layer decoder layer
+32:17 
+
+32:17 the input will be so let's say if it's
+32:20 
+
+32:20 it's a machine translation so during the
+32:23 
+
+32:23 training time your input will be the
+32:25 
+
+32:25 source language and uh and the input to
+32:27 
+
+32:27 the decoder will be your destination
+32:29 
+
+32:29 language or target language and at every
+32:31 
+
+32:31 at every position you try to predict the
+32:34 
+
+32:34 next word in your target language okay
+32:36 
+
+32:36 and Here essentially what you want to do
+32:38 
+
+32:38 you want to maximize the likelihood of
+32:41 
+
+32:41 so basically log likelihood of of um you
+32:45 
+
+32:45 know y2 for example given y1 and x so
+32:48 
+
+32:48 this is conditional conditional log
+32:50 
+
+32:50 likelihood and you want to maximize this
+32:53 
+
+32:53 we'll discuss this briefly so uh let's
+32:57 
+
+32:57 look at uh the emperor decoder model
+33:01 
+
+33:01 right and uh during the during the same
+33:04 
+
+33:04 time two architectures were proposed.
+33:07 
+
+33:07 One is called BART B A R T right it is
+33:09 
+
+33:09 not B E R T it's bart B A R T
+33:13 
+
+33:13 birectional and auto reggressive
+33:14 
+
+33:14 transformer it's a it's an encoder
+33:16 
+
+33:16 decoder model
+33:20 
+
+33:20 okay and at the same time another
+33:22 
+
+33:22 another work was proposed called T5 okay
+33:25 
+
+33:25 by by Google okay that is also an
+33:27 
+
+33:27 encoder decoder model now in the in the
+33:30 
+
+33:30 encoder decoder model
+33:33 
+
+33:33 how do you pre-train the language
+33:36 
+
+33:36 How do you pre-train the language model?
+33:38 
+
+33:38 For example, in in case of encoder
+33:40 
+
+33:40 model, you mask some of the tokens and
+33:42 
+
+33:42 you let the model predict those tokens.
+33:44 
+
+33:44 Right? Here, how do you pretend the
+33:45 
+
+33:45 model? So, here
+33:48 
+
+33:48 in the B paper um they came up with this
+33:51 
+
+33:51 objective called uh you know input
+33:54 
+
+33:54 corruption, right? What is input
+33:57 
+
+33:57 corruption? So essentially you uh you
+34:00 
+
+34:00 part up your input and you let the model
+34:03 
+
+34:03 predict the actual input.
+34:05 
+
+34:05 Remember this is task agnostic
+34:08 
+
+34:08 pre-training. So in pre-training you do
+34:10 
+
+34:10 not have any parallel data as such. For
+34:11 
+
+34:11 example machine translation you need a
+34:13 
+
+34:13 parallel data and that's task specific
+34:15 
+
+34:15 fine-tuning. But for pre-training you
+34:18 
+
+34:18 just have a plain text. you have raw uh
+34:20 
+
+34:20 text, free flow text and your target is
+34:24 
+
+34:24 to use that free flow text for um for
+34:27 
+
+34:27 pre-training right.
+34:29 
+
+34:29 So what they suggested is that that let
+34:33 
+
+34:33 so encoder decoder model you have this
+34:34 
+
+34:34 encoder layer and a decoder layer right.
+34:37 
+
+34:37 So in the encoder the input to the
+34:39 
+
+34:39 encoder will be uh will be will be uh
+34:44 
+
+34:44 the free form text right but uh with
+34:47 
+
+34:47 some corruption. Now what's the
+34:49 
+
+34:49 corruption? So corruption is can be of
+34:51 
+
+34:51 different types. Corruption is nothing
+34:52 
+
+34:52 but noise right. It can be of different
+34:54 
+
+34:54 types. For example, you know, similar to
+34:57 
+
+34:57 mask language modeling, you can mask
+34:59 
+
+34:59 some of the tokens, right? So your input
+35:02 
+
+35:02 will be let's say I mask, right? Going
+35:07 
+
+35:07 mask school. So this will be your input
+35:10 
+
+35:10 and from the decoder you expect the
+35:12 
+
+35:12 model to predict I am going to school
+35:15 
+
+35:15 and accordingly loss will be calculated
+35:17 
+
+35:17 and so on and so forth. Right? This is
+35:20 
+
+35:20 very similar to mass language modeling.
+35:22 
+
+35:22 Right?
+35:23 
+
+35:23 The other kind of corruption can be
+35:26 
+
+35:26 let's say sentence perturbation right
+35:29 
+
+35:29 permutation. In sentence permut
+35:31 
+
+35:31 permutation what you do you uh
+35:34 
+
+35:34 essentially permute um uh the tokens
+35:37 
+
+35:37 present in a sentence. I am going to
+35:38 
+
+35:38 school. The input will be going I am
+35:41 
+
+35:41 going I school am and so on right that
+35:44 
+
+35:44 that's going to be your input and your
+35:46 
+
+35:46 output will be I'm going to school and
+35:48 
+
+35:48 accordingly you calculate the loss. So
+35:50 
+
+35:50 this the so these are hard tasks
+35:53 
+
+35:53 compared to mass language modeling.
+35:55 
+
+35:55 These are hard uh this specific this
+35:57 
+
+35:57 specific corruption is hard.
+36:00 
+
+36:00 Okay. Uh it can also be rotation. For
+36:03 
+
+36:03 example u you know instead of arbitrary
+36:07 
+
+36:07 permutation you can just think of
+36:09 
+
+36:09 rotation. For example I am going to
+36:11 
+
+36:11 school. Instead of feeding this as an
+36:12 
+
+36:12 input, you feed you know school I am
+36:15 
+
+36:15 going to right or you if if you further
+36:18 
+
+36:18 rotate then uh to school I am going and
+36:22 
+
+36:22 so on and you rotate and you feed the
+36:25 
+
+36:25 rotated text into encoder and you ask
+36:28 
+
+36:28 the model to predict
+36:30 
+
+36:30 sometimes you delete certain tokens.
+36:32 
+
+36:32 Remember deleting a token and masking a
+36:34 
+
+36:34 token are different. Okay. So when you
+36:37 
+
+36:37 delete a token uh let's say you delete M
+36:39 
+
+36:39 and two so your input will be I going
+36:43 
+
+36:43 school right this is your input and your
+36:46 
+
+36:46 output would be I am going to school
+36:47 
+
+36:47 this is this is harder this is harder
+36:49 
+
+36:49 than uh masking right why this is harder
+36:51 
+
+36:51 than masking
+36:54 
+
+36:54 why this is harder than masking because
+36:56 
+
+36:56 at least in masking you know that where
+36:59 
+
+36:59 I mean you at least know the length of
+37:01 
+
+37:01 the sentence right but you here you
+37:03 
+
+37:03 don't don't know the the length of the
+37:05 
+
+37:05 sentence Okay.
+37:09 
+
+37:09 And then you can also think of um you
+37:11 
+
+37:11 know uh text infilling. So in text
+37:14 
+
+37:14 filling a text infilling what you do is
+37:16 
+
+37:16 you um uh you mask a span not an
+37:20 
+
+37:20 individual token.
+37:23 
+
+37:23 Right? So in token masking you just mask
+37:25 
+
+37:25 a token but in infilling you mask a
+37:29 
+
+37:29 span. Let's say again I'm going to
+37:31 
+
+37:31 school. You mask am going for example.
+37:34 
+
+37:34 So your input is I mask to school.
+37:40 
+
+37:40 Okay. I mean you can think of it as uh
+37:43 
+
+37:43 back to back to masking uh token masking
+37:45 
+
+37:45 but the the difference is that here you
+37:49 
+
+37:49 select the span right now span length.
+37:52 
+
+37:52 How do you choose the span length? Again
+37:54 
+
+37:54 you can think of a distribution from the
+37:56 
+
+37:56 distribution you choose a choose a spam
+37:58 
+
+37:58 sample a span length and accordingly you
+38:01 
+
+38:01 corrupt your input.
+38:03 
+
+38:03 So they tried out different input
+38:05 
+
+38:05 corruption techniques and uh so and they
+38:09 
+
+38:09 feed this corrupted input and they ask
+38:11 
+
+38:11 the model to predict the uh actual input
+38:15 
+
+38:15 uh and that's that's the pre-training
+38:16 
+
+38:16 objective. So this is B.
+38:19 
+
+38:19 So hope you understood the difference
+38:21 
+
+38:21 between B and B right encoder only mass
+38:24 
+
+38:24 language modeling and here there are
+38:25 
+
+38:25 different ways to corrupt the input.
+38:29 
+
+38:29 The first one is so B is a birectional
+38:32 
+
+38:32 encoder right and this is an auto
+38:34 
+
+38:34 reggressive model
+38:37 
+
+38:37 okay and once you do this fine uh
+38:40 
+
+38:40 pre-training uh on B uh then you further
+38:43 
+
+38:43 fine-tune it all tasks right for example
+38:45 
+
+38:45 summarization can be a task where you
+38:48 
+
+38:48 know this is straightforward your input
+38:49 
+
+38:49 to the encoder will be the full text the
+38:51 
+
+38:51 output from the decoder will be the
+38:53 
+
+38:53 summary of the text right and then you
+38:55 
+
+38:55 uh then you basically maximize the
+38:57 
+
+38:57 conditional likelihood log likelihood
+39:01 
+
+39:01 around the same time. Believe me, within
+39:03 
+
+39:03 a week of difference, both the papers
+39:05 
+
+39:05 came, right? And the T5 paper follows
+39:08 
+
+39:08 almost the same strategy that B uh
+39:11 
+
+39:11 followed, right? With a small difference
+39:12 
+
+39:12 here and there. So T5 as the name
+39:15 
+
+39:15 suggests this is textto text transfer
+39:17 
+
+39:17 transformer
+39:19 
+
+39:19 and the idea is that what they said is
+39:22 
+
+39:22 that all textto text or or all um all
+39:26 
+
+39:26 types of tasks that you can think of any
+39:29 
+
+39:29 t any task that you can think of can be
+39:32 
+
+39:32 mapped as a texttoext problem
+39:35 
+
+39:35 right this is difficult to digest
+39:37 
+
+39:37 because let's say your task is a uh
+39:41 
+
+39:41 regression problem let's say task is a
+39:42 
+
+39:42 sentence similarity measurement Right?
+39:44 
+
+39:44 Let's say you are given two sentences,
+39:46 
+
+39:46 right? This sentence and this sentence
+39:48 
+
+39:48 and you ask the model to measure the
+39:50 
+
+39:50 similarity between this sentence within
+39:52 
+
+39:52 a between these two sentences within a
+39:55 
+
+39:55 scale of 0 to 5 for example. So it will
+39:57 
+
+39:57 generate a number right but what they
+39:59 
+
+39:59 said that this number can also be
+40:02 
+
+40:02 treated as text right. So
+40:06 
+
+40:06 3.08
+40:08 
+
+40:08 is nothing but three period 8 and all of
+40:11 
+
+40:11 them are characters. So any task that
+40:14 
+
+40:14 you can think of can be modeled as a
+40:16 
+
+40:16 textto text transfer model textto text
+40:18 
+
+40:18 transfer
+40:21 
+
+40:21 okay be it a regression problem uh
+40:23 
+
+40:23 classification problem a generation
+40:25 
+
+40:25 problem everything can be treated as a
+40:27 
+
+40:27 textto text model textto text uh textto
+40:30 
+
+40:30 text transfer problem
+40:32 
+
+40:32 and uh
+40:35 
+
+40:35 so you see here for example translate
+40:37 
+
+40:37 English to German and this is the in so
+40:40 
+
+40:40 so this is the input to the encoder T5 5
+40:43 
+
+40:43 is an encoder decoder model and your
+40:44 
+
+40:44 output will be this. Okay. Um now this
+40:48 
+
+40:48 is another task called cola ca corpus of
+40:51 
+
+40:51 linguistic ac acceptability corpus of
+40:55 
+
+40:55 linguistic acceptability cola task. It's
+40:58 
+
+40:58 a part of glue benchmark and the task is
+41:01 
+
+41:01 to basically check whether the sentence
+41:03 
+
+41:03 is acceptable or not. Right? For
+41:05 
+
+41:05 example, the course is jumping well. Is
+41:08 
+
+41:08 it acceptable or not? So this is not
+41:09 
+
+41:09 acceptable.
+41:11 
+
+41:11 So the output will be non acceptable not
+41:13 
+
+41:13 acceptable it's a classification problem
+41:15 
+
+41:15 okay and then this sentence uh so HTSB
+41:20 
+
+41:20 task which is sentence similarity uh
+41:22 
+
+41:22 measurement and then summary so all
+41:24 
+
+41:24 sorts of task can be think of as text to
+41:26 
+
+41:26 text and you pass it through T5 and T5
+41:29 
+
+41:29 will generate the answer
+41:32 
+
+41:32 and
+41:34 
+
+41:34 so and and for uh for pre-training you
+41:37 
+
+41:37 also need to pre-tend the model right
+41:39 
+
+41:39 and so these are our task Now you when
+41:42 
+
+41:42 you do task specific fine-tuning then
+41:44 
+
+41:44 you can take data from this task and
+41:45 
+
+41:45 then you fine-tune but you you need to
+41:47 
+
+41:47 do pre-training. Now for pre
+41:49 
+
+41:49 pre-training they also adopted the same
+41:51 
+
+41:51 uh technique. They said that they uh
+41:55 
+
+41:55 that that uh the span corruption
+41:59 
+
+41:59 technique that the B paper used right
+42:02 
+
+42:02 the span corruption is the best uh
+42:04 
+
+42:04 technique for pre-training T5 right. So
+42:07 
+
+42:07 for example your input is thank you for
+42:09 
+
+42:09 inviting me to your party last week. So
+42:12 
+
+42:12 you identify span a span of size two
+42:16 
+
+42:16 right here span of size one here and you
+42:20 
+
+42:20 mask it. Um
+42:22 
+
+42:22 and the difference here is that for
+42:25 
+
+42:25 every span corruption you have a
+42:27 
+
+42:27 different mask token
+42:30 
+
+42:30 in case of but in case of birth bases
+42:35 
+
+42:35 uh there was only a single token called
+42:37 
+
+42:37 mask and whenever you corrupt a specific
+42:39 
+
+42:39 token or a span you replace that uh
+42:42 
+
+42:42 token by mask but here what they are
+42:44 
+
+42:44 saying is that at every
+42:46 
+
+42:46 span corruption you replace that span by
+42:50 
+
+42:50 a different mask token called sentinels.
+42:54 
+
+42:54 Now this mask tokens are called
+42:56 
+
+42:56 sentinels.
+42:59 
+
+42:59 Okay. So number of times you mask spans
+43:02 
+
+43:02 number of times. So that would be the
+43:04 
+
+43:04 number of sentinels that you have to
+43:06 
+
+43:06 include to your vocabulary. Your
+43:08 
+
+43:08 vocabulary size will also increase.
+43:09 
+
+43:09 Right? Because these are tokens normal
+43:12 
+
+43:12 tokens. You also need embeddings of
+43:14 
+
+43:14 these tokens. Isn't it? For example,
+43:16 
+
+43:16 mask you had an embedding. Here also we
+43:18 
+
+43:18 need an embedding.
+43:21 
+
+43:21 So what are the hyperparameters here?
+43:22 
+
+43:22 Hyperparameters are the size of the
+43:25 
+
+43:25 span, right? Where to u uh identify the
+43:29 
+
+43:29 location of a span and so on and so
+43:30 
+
+43:30 forth, right? And this you basically you
+43:33 
+
+43:33 know if you follow a distribution
+43:35 
+
+43:35 from the distribution you sample some
+43:37 
+
+43:37 number and that number will give you the
+43:39 
+
+43:39 span size.
+43:42 
+
+43:42 So here but the the I mean there are
+43:44 
+
+43:44 some other differences in case of bot.
+43:48 
+
+43:48 In case of B
+43:50 
+
+43:50 your input was the uh corrupted input
+43:53 
+
+43:53 right and the output was the actual
+43:55 
+
+43:55 input I mean the complete sentence right
+43:58 
+
+43:58 but here your input is this one thank
+44:01 
+
+44:01 you mask me to your party last m week
+44:06 
+
+44:06 and your output is different your output
+44:08 
+
+44:08 is this
+44:11 
+
+44:11 sentinel token and the corresponding uh
+44:14 
+
+44:14 uh span that you want to predict again
+44:16 
+
+44:16 sentel token the corresponding span that
+44:18 
+
+44:18 you want to predict and so on and so
+44:20 
+
+44:20 forth
+44:22 
+
+44:22 output is different now why this output
+44:25 
+
+44:25 nobody knows right so if you look at the
+44:28 
+
+44:28 paper it's a huge paper I think 60 pages
+44:31 
+
+44:31 paper okay a lot of lot of lot of
+44:33 
+
+44:33 experiments huge experimental setup and
+44:35 
+
+44:35 Google had a GPUs and TPUs or whatever
+44:38 
+
+44:38 right so they uh it's a massive
+44:41 
+
+44:41 experimental setup
+44:43 
+
+44:43 but you know frankly speaking There is
+44:46 
+
+44:46 no science here. I mean this is all
+44:48 
+
+44:48 about empirical stuff right and they
+44:49 
+
+44:49 showed that it actually works right
+44:52 
+
+44:52 across multiple benchmark multiple um uh
+44:57 
+
+44:57 you know uh baselines it actually works.
+45:00 
+
+45:00 So what's their model? So this is their
+45:03 
+
+45:03 model.
+45:04 
+
+45:04 Um bird base size encoder decoder right
+45:09 
+
+45:09 12 layers and then a den noising
+45:12 
+
+45:12 objective which I said uh the span
+45:14 
+
+45:14 corruption and the C4 data. So they
+45:16 
+
+45:16 collected a new data called common crawl
+45:18 
+
+45:18 data set C4 data right um and this data
+45:22 
+
+45:22 set you know comprises which media text
+45:25 
+
+45:25 stories story books and a whole lot of
+45:28 
+
+45:28 uh uh you know web pages script script
+45:31 
+
+45:31 from the internet HTML text and so on
+45:35 
+
+45:35 and they cleaned this the C4 data the C4
+45:38 
+
+45:38 data is publicly available if you want
+45:39 
+
+45:39 you can use this and then they so after
+45:42 
+
+45:42 pre-training using dising objective then
+45:44 
+
+45:44 they fine-tune their model on different
+45:47 
+
+45:47 benchmarks right on on different tasks.
+45:49 
+
+45:49 So one task is this glue task, glue
+45:52 
+
+45:52 benchmark. In the glue benchmark as you
+45:54 
+
+45:54 see some of you know there are different
+45:57 
+
+45:57 tasks for example cola corpus of
+45:60 
+
+45:60 linguistic acceptability right SST SST
+46:03 
+
+46:03 is basically a sentiment analysis task
+46:06 
+
+46:06 and then paraphrase then STS STSB is a
+46:09 
+
+46:09 sentence similarity task QQP is a
+46:12 
+
+46:12 question answering task write QNLI and
+46:15 
+
+46:15 so on and so forth. So these are
+46:16 
+
+46:16 standard benchmark data sets publicly
+46:18 
+
+46:18 available and they fine-tuned their
+46:20 
+
+46:20 model on this task one by one right they
+46:24 
+
+46:24 also fine-tuned their models on CNN
+46:26 
+
+46:26 daily mail data set this is a summary
+46:28 
+
+46:28 summarization data set they also use
+46:31 
+
+46:31 squad data which is a question answering
+46:32 
+
+46:32 data they also use superlue benchmark
+46:35 
+
+46:35 which is another hard benchmark harder
+46:38 
+
+46:38 than glue and there are different tasks
+46:40 
+
+46:40 again available and the corresponding
+46:42 
+
+46:42 data sets are there so and then they
+46:44 
+
+46:44 further fine-tune tune the model on
+46:46 
+
+46:46 three machine translation data set
+46:49 
+
+46:49 English to Dutch, English to French,
+46:51 
+
+46:51 English to uh Romanian.
+46:53 
+
+46:53 Okay. And what they what they did they
+46:57 
+
+46:57 reported uh their performance of the
+46:59 
+
+46:59 models at every uh time stamp, right? So
+47:03 
+
+47:03 every checkpoint at every checkpoint
+47:05 
+
+47:05 they reported their models models
+47:07 
+
+47:07 performance, right? So that you can
+47:08 
+
+47:08 compare um you know what happens across
+47:11 
+
+47:11 the checkpoints and so on. Okay. So as I
+47:14 
+
+47:14 said this is a massive uh experimental
+47:16 
+
+47:16 setup. Uh after the C4 data they also u
+47:20 
+
+47:20 uh uh curated another data set called
+47:23 
+
+47:23 MC4 data which is a multi multilingual
+47:26 
+
+47:26 C4 data.
+47:28 
+
+47:28 Okay. And so on and so forth. So this
+47:32 
+
+47:32 was published in 2020 by Colleen Rafael
+47:34 
+
+47:34 and their colleague uh from Google.
+47:38 
+
+47:38 All right. That's it about uh encoder
+47:40 
+
+47:40 model. encoder decoder model and decoder
+47:42 
+
+47:42 model is pretty straightforward. In the
+47:44 
+
+47:44 decoder only model you just you only
+47:46 
+
+47:46 have the uh decoders uh you know decoder
+47:50 
+
+47:50 layer right your input can be uh so and
+47:53 
+
+47:53 and and your target is the next word
+47:55 
+
+47:55 prediction right so it's a simple auto
+47:58 
+
+47:58 reggressive setup you do not need to
+47:60 
+
+47:60 corrupt anything you just feed your
+48:02 
+
+48:02 input to the decoder model and you
+48:04 
+
+48:04 predict you ask the model to predict
+48:06 
+
+48:06 tokens one by one and for every token
+48:08 
+
+48:08 you have a cross you have a uh
+48:10 
+
+48:10 conditional log likelihood uh value and
+48:14 
+
+48:14 then then you sum up the conditional lo
+48:16 
+
+48:16 likelihood across all the tokens in the
+48:19 
+
+48:19 output layer and you just try to
+48:21 
+
+48:21 maximize this.
+48:24 
+
+48:24 Okay, that's it about pre-turning. Uh if
+48:26 
+
+48:26 you want to know more about T5, you may
+48:29 
+
+48:29 again refer to so I mean want to know
+48:32 
+
+48:32 more means the experimental setups I
+48:34 
+
+48:34 haven't discussed in today's lecture.
+48:35 
+
+48:35 Experimental setup is huge and I
+48:37 
+
+48:37 generally discuss a summary of the
+48:39 
+
+48:39 experimental setup but you can refer to
+48:41 
+
+48:41 my previous year's lectures for that.
+48:43 
+
+48:43 Okay. And they showed that um T5 is
+48:47 
+
+48:47 better than B, right? Uh other encoder
+48:49 
+
+48:49 models, other decoder models, they had
+48:51 
+
+48:51 they had multiple experimental setups
+48:53 
+
+48:53 where
+48:55 
+
+48:55 uh they uh change the number of players,
+48:58 
+
+48:58 number of batch sizes and the you know
+49:01 
+
+49:01 some of the findings are non-intuitive.
+49:03 
+
+49:03 So those findings are used quite useful
+49:07 
+
+49:07 if you you know if you want to design
+49:09 
+
+49:09 your own models.
+49:10 
+
+49:10 Okay, that's it about pre-training. In
+49:13 
+
+49:13 the next class, we will discuss um the
+49:18 
+
+49:18 instruction finetuning um task. Okay,
+49:21 
+
+49:21 thank you.

@@ -1,0 +1,4660 @@
+00:00 Uh welcome to the last class in the uh
+00:02 
+
+00:02 agentic workflow uh part. So today it's
+00:06 
+
+00:06 going to be slightly dry compared to
+00:09 
+
+00:09 what we saw in the previous classes. Uh
+00:12 
+
+00:12 no math, no interesting things. It's
+00:14 
+
+00:14 just going to be uh dry protocols. So
+00:18 
+
+00:18 try to bear with me for some time. And
+00:20 
+
+00:20 uh also like uh protocols are like
+00:25 
+
+00:25 highly interconnected. So I'll try to
+00:28 
+
+00:28 teach it in a certain flow. Of course,
+00:30 
+
+00:30 you will have lot of questions. So, uh
+00:32 
+
+00:32 as and when you feel like something is
+00:34 
+
+00:34 really confusing, please let me know. Uh
+00:37 
+
+00:37 then I will either say that I will cover
+00:38 
+
+00:38 some parts of it later or I'll go
+00:40 
+
+00:40 through it. Uh if I'm not going to cover
+00:42 
+
+00:42 that later, then I'll try to solve the
+00:45 
+
+00:45 issues right there. Okay.
+00:49 
+
+00:49 All right. So, so far uh we've been
+00:51 
+
+00:51 looking at uh how do we build uh
+00:56 
+
+00:56 AI agents and what all components it
+00:58 
+
+00:58 should have but we have very
+01:00 
+
+01:00 conveniently stayed away from uh what
+01:04 
+
+01:04 libraries would you use or what
+01:06 
+
+01:06 framework would you use and things like
+01:08 
+
+01:08 that right so the way we describe react
+01:11 
+
+01:11 or self-refin or reflection or megpt
+01:16 
+
+01:16 so far the if you have not worked with a
+01:18 
+
+01:18 agent So far your opinion would have
+01:20 
+
+01:20 been that maybe I'll have to write the
+01:22 
+
+01:22 entire code from scratch uh and make it
+01:25 
+
+01:25 work for my uh use case right but uh
+01:29 
+
+01:29 there are a lot of these agentic
+01:30 
+
+01:30 platforms or frameworks that that exist
+01:33 
+
+01:33 out there that lets you build agents as
+01:36 
+
+01:36 quickly as possible right uh some agents
+01:39 
+
+01:39 are very tied to certain proprietary LLM
+01:43 
+
+01:43 some frameworks are very tied to certain
+01:44 
+
+01:44 proprietary LLMs they are hardcoded uh
+01:46 
+
+01:46 some are slightly more flexible But the
+01:49 
+
+01:49 learning curve might be slightly higher.
+01:50 
+
+01:50 Some are meant for developers who are
+01:53 
+
+01:53 well versed in Python. Some are meant
+01:55 
+
+01:55 for people who have no computer science
+01:57 
+
+01:57 background but rather they just want to
+01:59 
+
+01:59 drag and drop components and plug things
+02:01 
+
+02:01 together. Right? So there are like all
+02:05 
+
+02:05 flavors of uh frameworks that exist out
+02:08 
+
+02:08 there. And of course if you have to
+02:10 
+
+02:10 create an agent on any of these
+02:13 
+
+02:13 frameworks you have to understand what
+02:15 
+
+02:15 the framework does and they have their
+02:16 
+
+02:16 own way of defining things or and and
+02:19 
+
+02:19 collaborating right. So, so now let's
+02:23 
+
+02:23 see in this setup in this is the
+02:25 
+
+02:25 situation now right you have so many
+02:27 
+
+02:27 different frameworks and when people
+02:29 
+
+02:29 work with so many different frameworks
+02:30 
+
+02:30 what happens right uh so this is the
+02:34 
+
+02:34 same situation where uh sort of the the
+02:38 
+
+02:38 worldwide web was in the initial phase
+02:41 
+
+02:41 it was not worldwide even though they
+02:43 
+
+02:43 were connected uh you probably would
+02:46 
+
+02:46 have to know the exact URL to the finest
+02:49 
+
+02:49 to to to to like every character in the
+02:52 
+
+02:52 URL, type it in your uh uh browser and
+02:56 
+
+02:56 then uh try to access it, right? And it
+02:59 
+
+02:59 was not easy back then like one website
+03:01 
+
+03:01 would not connect to another website and
+03:03 
+
+03:03 get you some other information and stuff
+03:05 
+
+03:05 like that. that website existed in a
+03:08 
+
+03:08 silo like it it it doesn't know about
+03:10 
+
+03:10 anything else that exists and you would
+03:12 
+
+03:12 go there right and slowly slowly people
+03:14 
+
+03:14 started developing protocols like HTTPS
+03:17 
+
+03:17 uh HTTP DNS search engines came into
+03:20 
+
+03:20 picture and catalog of websites came
+03:22 
+
+03:22 into picture where you can discover
+03:24 
+
+03:24 websites by searching through the
+03:26 
+
+03:26 catalog and then search engines came and
+03:28 
+
+03:28 things got a lot more easier then these
+03:30 
+
+03:30 protocols became a lot more uh capable
+03:33 
+
+03:33 and then uh things became even more
+03:36 
+
+03:36 convenient where people started to
+03:37 
+
+03:37 expose some services within their
+03:40 
+
+03:40 website and other websites can access
+03:42 
+
+03:42 and now you see that the the power of
+03:45 
+
+03:45 the internet right it is such complex
+03:47 
+
+03:47 beast where uh they interact with
+03:49 
+
+03:49 themselves in a very uh which which we
+03:53 
+
+03:53 cannot comprehend at the moment right so
+03:55 
+
+03:55 people predict similar things to happen
+03:58 
+
+03:58 with the agentic space as well like
+04:01 
+
+04:01 currently people are working in silos
+04:03 
+
+04:03 like you have your own uh framework such
+04:05 
+
+04:05 just land graph or land flow or crew AI
+04:09 
+
+04:09 or autogen uh or you can develop your
+04:12 
+
+04:12 agents using open AAI's agent kit right
+04:15 
+
+04:15 so there are so many different
+04:16 
+
+04:16 frameworks people are developing their
+04:17 
+
+04:17 own agent they're hosting it in their
+04:19 
+
+04:19 own server uh and unless you know how
+04:22 
+
+04:22 exactly to access that agent you won't
+04:24 
+
+04:24 be able to access the agent right so uh
+04:27 
+
+04:27 you probably have to install an app to
+04:30 
+
+04:30 access that agent or you might need to
+04:32 
+
+04:32 know the exact URL to access the agent
+04:33 
+
+04:33 and things like that so this This is the
+04:35 
+
+04:35 current situation in agents as well. So
+04:38 
+
+04:38 this is a time where
+04:40 
+
+04:40 uh you might need protocols, right? Uh
+04:45 
+
+04:45 and for agents to work, it's not just
+04:47 
+
+04:47 between two agents. Even agents access
+04:50 
+
+04:50 tools, agents access a lot of artifacts.
+04:53 
+
+04:53 Like if you're working on a rag system,
+04:55 
+
+04:55 you need access to the corpora, right?
+04:57 
+
+04:57 Uh and the other big issue is that uh
+04:60 
+
+04:60 let's say that you figured out how to
+05:02 
+
+05:02 use uh uh chat GPT well for let's say uh
+05:07 
+
+05:07 summarizing uh like policies related to
+05:12 
+
+05:12 uh maybe some some company or something
+05:16 
+
+05:16 right uh so then you would have find you
+05:19 
+
+05:19 you you if you have to create a QA
+05:21 
+
+05:21 system on top of that you might have
+05:24 
+
+05:24 prompt engineered like so well that it
+05:28 
+
+05:28 works well for this type of documents
+05:30 
+
+05:30 right now if you have solved this
+05:32 
+
+05:32 problem most likely a lot of people
+05:34 
+
+05:34 would also be having this problem right
+05:36 
+
+05:36 uh then how can you expose those that's
+05:40 
+
+05:40 a very useful artifact that can be
+05:42 
+
+05:42 reused right but it's not exposed
+05:43 
+
+05:43 anywhere and it's there's no it's up to
+05:45 
+
+05:45 you whether you keep it in GitHub repo
+05:47 
+
+05:47 within your agentic codebase or you make
+05:49 
+
+05:49 it in public there is no standard
+05:51 
+
+05:51 protocol again for things like that
+05:53 
+
+05:53 right so so this issue of uh how do we
+05:58 
+
+05:58 uh define artifacts uh how do we define
+06:01 
+
+06:01 communication between agents and
+06:03 
+
+06:03 artifacts agents and tools agents and
+06:05 
+
+06:05 resources like these are not well
+06:07 
+
+06:07 defined right and and it's all ad hoc so
+06:10 
+
+06:10 now
+06:13 
+
+06:13 at like late I I mean the mid of 2024
+06:16 
+
+06:16 people started to think along these
+06:17 
+
+06:17 lines and then uh some of these
+06:20 
+
+06:20 protocols started to come up right so so
+06:23 
+
+06:23 how many of you here are familiar with
+06:24 
+
+06:24 MCP or have you heard of MCP? Maybe I
+06:27 
+
+06:27 should start with that like almost
+06:29 
+
+06:29 everybody would have heard MCP, right?
+06:31 
+
+06:31 uh how many of you know what exactly MCP
+06:33 
+
+06:33 is without any confusion
+06:37 
+
+06:37 right so in today's class we will cover
+06:40 
+
+06:40 MCP a lot okay and briefly touch upon
+06:43 
+
+06:43 some other protocols as well and see
+06:46 
+
+06:46 what they are okay
+06:49 
+
+06:49 so uh like I said starting from 2024 uh
+06:53 
+
+06:53 people have come up with lot of
+06:55 
+
+06:55 protocols right uh so some so there are
+06:60 
+
+06:60 two main classes. One is the uh inter
+07:03 
+
+07:03 agent communication, right? Which is
+07:05 
+
+07:05 like if there are if you build an agent
+07:08 
+
+07:08 uh how would you expose this agent so
+07:10 
+
+07:10 that everybody else can also leverage
+07:12 
+
+07:12 the agent, right? And how would what
+07:14 
+
+07:14 type of communication should happen
+07:16 
+
+07:16 between two agents so that they can form
+07:18 
+
+07:18 a handshake and then leverage each
+07:20 
+
+07:20 other's advantages, right? So those are
+07:22 
+
+07:22 all inter agent u protocols and as you
+07:27 
+
+07:27 see here almost all of them are 2025 and
+07:30 
+
+07:30 going forward right so they are at a
+07:34 
+
+07:34 very early stage right uh so if you see
+07:37 
+
+07:37 there are four different development
+07:39 
+
+07:39 stages uh fact uh concept is people just
+07:44 
+
+07:44 thought about it maybe we need a
+07:45 
+
+07:45 protocol for this and I think like these
+07:47 
+
+07:47 are the components in the protocol and
+07:49 
+
+07:49 so it's more in the paper nobody Nobody
+07:52 
+
+07:52 has actually implemented it. It's just a
+07:55 
+
+07:55 proposal. Right. And the second uh type
+07:57 
+
+07:57 of u
+08:00 
+
+08:00 stage is drafting where now people are
+08:03 
+
+08:03 convinced that this uh protocol is worth
+08:06 
+
+08:06 exploring and uh now they've started to
+08:09 
+
+08:09 develop it. Uh they they've started to
+08:11 
+
+08:11 code up the protocol and make sure that
+08:13 
+
+08:13 it's made available to everybody uh so
+08:15 
+
+08:15 that they can adopt the common protocol.
+08:18 
+
+08:18 And landing is where uh you've developed
+08:22 
+
+08:22 one version end to end. Uh you you
+08:24 
+
+08:24 figured out all the concepts, all the
+08:26 
+
+08:26 workflows, all the uh sequence uh of
+08:29 
+
+08:29 operations that has to happen. You've
+08:31 
+
+08:31 clearly defined the protocol. Now
+08:33 
+
+08:33 somebody has started to use it. Now you
+08:35 
+
+08:35 may face issues uh and and it is not
+08:38 
+
+08:38 very well adopted. Like some set of
+08:40 
+
+08:40 people like for example A2A is an agent
+08:43 
+
+08:43 to agent protocol developed by Google.
+08:45 
+
+08:45 Now apart from Google, nobody else is
+08:47 
+
+08:47 using it. Google has uh like made sure
+08:50 
+
+08:50 some of uh its collaborators are also on
+08:53 
+
+08:53 board and and it is trying to figure out
+08:56 
+
+08:56 how they can use agent to agent protocol
+08:58 
+
+08:58 within their community. Now after land
+09:01 
+
+09:01 uh when they're in the landing stage
+09:02 
+
+09:02 they'll probably collect information
+09:04 
+
+09:04 about what works what doesn't work and
+09:06 
+
+09:06 they'll try to make it better. Uh so
+09:08 
+
+09:08 there may be some changes to the
+09:10 
+
+09:10 protocol going forward and factual
+09:12 
+
+09:12 standard is like a lot of people have
+09:15 
+
+09:15 tried uh and then it has sort of
+09:17 
+
+09:17 stabilized there's hardly going to be
+09:18 
+
+09:18 any changes maybe there may be some
+09:20 
+
+09:20 add-ons to improve further but the
+09:22 
+
+09:22 protocol is well fixed and the adoption
+09:24 
+
+09:24 is good right uh now people outside the
+09:29 
+
+09:29 community that believed that this
+09:30 
+
+09:30 protocol is good also started to see
+09:32 
+
+09:32 there are benefits from this proto
+09:34 
+
+09:34 protocol right so if you see here only
+09:37 
+
+09:37 MC MCP is at that stage right so so
+09:41 
+
+09:41 people have found that M MCP is actually
+09:43 
+
+09:43 helpful and it has made their job of
+09:45 
+
+09:45 building AI agents easier but in all the
+09:48 
+
+09:48 other cases it's still at a very early
+09:50 
+
+09:50 stage
+09:52 
+
+09:52 so uh so this is uh like the
+09:55 
+
+09:55 developmental stages of uh the protocol
+09:58 
+
+09:58 and like I said I I said there are two
+10:01 
+
+10:01 main categories one is inter aent
+10:02 
+
+10:02 protocol which we see a lot of protocols
+10:05 
+
+10:05 coming up again uh some of these These
+10:07 
+
+10:07 are like a robot agent interaction.
+10:09 
+
+10:09 There are some different application
+10:11 
+
+10:11 scenarios as well. Some are meant for
+10:13 
+
+10:13 internet of things and and other uh
+10:16 
+
+10:16 agents. So there are bunch of these
+10:19 
+
+10:19 inter aent protocol and there are also
+10:21 
+
+10:21 context oriented protocol. What are
+10:23 
+
+10:23 context oriented protocol?
+10:26 
+
+10:26 When we make an call to an LLM, whatever
+10:29 
+
+10:29 we append in the context are some of the
+10:31 
+
+10:31 resources, right? like tools are some
+10:33 
+
+10:33 things maybe uh in rag you may search
+10:36 
+
+10:36 the artifacts and put them in the
+10:38 
+
+10:38 context right so these are all uh the
+10:41 
+
+10:41 protocols that let you interact with uh
+10:43 
+
+10:43 external systems that are not agents but
+10:46 
+
+10:46 are useful to form the context or called
+10:48 
+
+10:48 context oriented protocol
+10:51 
+
+10:51 right u and the the second sub the other
+10:56 
+
+10:56 dimension where people divide protocols
+10:58 
+
+10:58 are uh general purpose protocol and
+11:01 
+
+11:01 domain specific specific protocol.
+11:02 
+
+11:02 General purpose protocol is something
+11:04 
+
+11:04 where in general if you're developing an
+11:06 
+
+11:06 agent, you can you can follow that
+11:08 
+
+11:08 standard, right? Uh and and and the
+11:11 
+
+11:11 protocol is the same uh and mostly for
+11:15 
+
+11:15 communication purposes and uh the domain
+11:18 
+
+11:18 specific protocol is where uh you you
+11:21 
+
+11:21 sort of create an artifact for your
+11:23 
+
+11:23 domain like let's say that you are
+11:25 
+
+11:25 github.com right like you might have
+11:28 
+
+11:28 heard this robots.ext text, right?
+11:30 
+
+11:30 github.com would have a robots.ext that
+11:32 
+
+11:32 will tell you uh I will uh like this is
+11:37 
+
+11:37 a machine readable uh part of my website
+11:41 
+
+11:41 where you can figure out what parts of
+11:42 
+
+11:42 my web page you can crawl without that
+11:46 
+
+11:46 you can crawl right similar. So
+11:48 
+
+11:48 basically they're making things machine
+11:49 
+
+11:49 readable right whatever is meant for
+11:51 
+
+11:51 humans are being made machine readable.
+11:52 
+
+11:52 Similarly, these domain specific ones
+11:54 
+
+11:54 are machine readable versions of some
+11:57 
+
+11:57 websites, right? If if a website is
+11:60 
+
+11:60 exposing artifacts, then they can create
+12:02 
+
+12:02 let's say agent.json and then put it in
+12:05 
+
+12:05 their website in a certain place in a
+12:07 
+
+12:07 very commonly accepted space called
+12:09 
+
+12:09 well-known/ aents.json or something. So,
+12:13 
+
+12:13 so these these all becomes machine
+12:14 
+
+12:14 readable and they're very specific to
+12:16 
+
+12:16 the the domain or the URL that you are
+12:18 
+
+12:18 exposed to, right? So uh so in today's
+12:23 
+
+12:23 class uh we will cover three protocols
+12:26 
+
+12:26 MCP agent.json JSON and A2A mainly
+12:30 
+
+12:30 because uh it will give you a flavor of
+12:33 
+
+12:33 different types of entity scenarios and
+12:35 
+
+12:35 developmental stages right so
+12:39 
+
+12:39 so MCP is uh is is well accepted
+12:42 
+
+12:42 standard so I'll go into a lot more
+12:43 
+
+12:43 detail for MCP agent to agent protocol
+12:47 
+
+12:47 is is still being tried out it's good to
+12:49 
+
+12:49 talk about it so I'll briefly cover it
+12:51 
+
+12:51 and agent start JSON is still in
+12:54 
+
+12:54 drafting mode so I will talk about uh
+12:57 
+
+12:57 very briefly and also tell you uh like
+13:01 
+
+13:01 how how how does the community perceive
+13:02 
+
+13:02 it going forward right what sentiment do
+13:05 
+
+13:05 they have so okay so let's first talk
+13:09 
+
+13:09 about the model context protocol so this
+13:11 
+
+13:11 was introduced by uh anthropic in
+13:14 
+
+13:14 October November 2024 and and by the
+13:17 
+
+13:17 time it was Jan almost the entire world
+13:19 
+
+13:19 was behind uh MCP right it just took
+13:22 
+
+13:22 like two or three months for people to
+13:23 
+
+13:23 figure out how useful uh this particular
+13:26 
+
+13:26 protocol was right And uh uh it it also
+13:30 
+
+13:30 got a community adoption in the sense
+13:32 
+
+13:32 that uh people started to uh like create
+13:36 
+
+13:36 uh search like like I mentioned for uh
+13:39 
+
+13:39 internet people had the search catalog
+13:41 
+
+13:41 for all the web pages that are out there
+13:43 
+
+13:43 right so similarly people found it so
+13:44 
+
+13:44 useful that they started to build search
+13:46 
+
+13:46 catalog for MCP uh servers and clients
+13:49 
+
+13:49 as well so that people can use them so
+13:52 
+
+13:52 MCP is like I mentioned earlier it's a
+13:54 
+
+13:54 context oriented protocol where
+13:58 
+
+13:58 It is a protocol that helps you helps AI
+14:00 
+
+14:00 agents connect with uh tools or uh
+14:05 
+
+14:05 resources like documents uh and and
+14:08 
+
+14:08 other uh prompt based things right and
+14:11 
+
+14:11 uh so applications could be like chat
+14:14 
+
+14:14 GPT or any other custom application that
+14:16 
+
+14:16 you are building and and in in almost
+14:19 
+
+14:19 all tutorials or blogs you will see that
+14:21 
+
+14:21 people compare uh MCP to the USB port
+14:27 
+
+14:27 where uh like for examp like if you have
+14:29 
+
+14:29 a USB C port then it doesn't matter what
+14:32 
+
+14:32 electronic device you have you can
+14:34 
+
+14:34 easily get connected to it right so you
+14:36 
+
+14:36 don't have to really understand what
+14:37 
+
+14:37 device this is and things like that as
+14:39 
+
+14:39 long as they follow the same
+14:40 
+
+14:40 communication protocol the application
+14:42 
+
+14:42 on both sides uh uh as long like people
+14:45 
+
+14:45 who develop like all these other uh like
+14:48 
+
+14:48 electronic devices like mouse or
+14:50 
+
+14:50 keyboard should figure out how to attach
+14:52 
+
+14:52 them to the USB standard but once
+14:54 
+
+14:54 they're done with that then the
+14:55 
+
+14:55 communication becomes the same for
+14:57 
+
+14:57 everybody, right? So, MCP is also
+14:58 
+
+14:58 similar thing. Uh they they want to
+15:00 
+
+15:00 achieve uh sort of a standardized way of
+15:03 
+
+15:03 communication between AI applications
+15:05 
+
+15:05 and external systems. So, why do we need
+15:07 
+
+15:07 standardized way like uh because
+15:12 
+
+15:12 lang chain defines tools in a very
+15:14 
+
+15:14 different way. You have to use their
+15:15 
+
+15:15 annotations. You have to because when
+15:18 
+
+15:18 you have an AI application there should
+15:20 
+
+15:20 be somewhere where after the LLM says
+15:23 
+
+15:23 make this tool call somebody has to
+15:25 
+
+15:25 execute it handle the exceptions get the
+15:28 
+
+15:28 results populate them somewhere and then
+15:29 
+
+15:29 give the control back to the LLM right
+15:31 
+
+15:31 so that wrapper
+15:33 
+
+15:33 it depends on what framework you develop
+15:36 
+
+15:36 the agentic application in right so
+15:39 
+
+15:39 whatever cloud desktop would probably
+15:41 
+
+15:41 give you is not something that uh LAN
+15:45 
+
+15:45 graph or LAN flow will give Right?
+15:47 
+
+15:47 Almost no two uh agentic
+15:51 
+
+15:51 frameworks are the same. Everything is
+15:53 
+
+15:53 different. So if you have to let's say
+15:55 
+
+15:55 like suddenly your company decides like
+15:57 
+
+15:57 okay let's not use uh crew AI it's
+16:01 
+
+16:01 costing me so much money let's move to
+16:02 
+
+16:02 langraph right it's not going to be an
+16:04 
+
+16:04 easy job right you'll have to port
+16:06 
+
+16:06 everything you have done in crew AI into
+16:09 
+
+16:09 langraph and you'll have to modify every
+16:11 
+
+16:11 bit of the code. So but if you had a
+16:13 
+
+16:13 standard way of communication then you
+16:15 
+
+16:15 might probably want to change only some
+16:17 
+
+16:17 bits of land graph because whatever
+16:18 
+
+16:18 interaction that you had with the tools
+16:20 
+
+16:20 and artifacts could still remain the
+16:21 
+
+16:21 same right so so this interoperability
+16:25 
+
+16:25 becomes a very big problem and secondly
+16:27 
+
+16:27 it takes a lot of time to code right so
+16:30 
+
+16:30 between every framework and every tool
+16:32 
+
+16:32 you have to create something from
+16:34 
+
+16:34 scratch right it's not easy to kickstart
+16:37 
+
+16:37 let's say I give you three tools it's
+16:38 
+
+16:38 not going to be easy to take all the
+16:40 
+
+16:40 three tools and then put it in your uh
+16:42 
+
+16:42 codebase, right? Although it feels like
+16:44 
+
+16:44 it should be quite simple, right? So,
+16:47 
+
+16:47 MCP solves that particular problem.
+16:49 
+
+16:49 Typically, you would create if there are
+16:51 
+
+16:51 M applications and N tools, you would
+16:53 
+
+16:53 create uh M crossN uh integrations. What
+16:56 
+
+16:56 what what MCP lets you is that uh for
+16:59 
+
+16:59 each tool you create one uh MCP server
+17:03 
+
+17:03 that will act between the tool and and
+17:05 
+
+17:05 AI applications, right? and and for each
+17:08 
+
+17:08 application you create an MCP client uh
+17:11 
+
+17:11 uh that that that can talk to a tool
+17:14 
+
+17:14 right so that MCB client it doesn't
+17:16 
+
+17:16 matter like maybe you have to rewrite
+17:17 
+
+17:17 the client for a different app or
+17:19 
+
+17:19 framework but once you've written it
+17:21 
+
+17:21 once then you're good right you don't
+17:22 
+
+17:22 have to write it uh for for all the
+17:25 
+
+17:25 combinations
+17:30 
+
+17:30 so this is the uh sort of the client
+17:32 
+
+17:32 server architecture of MCP host uh here
+17:35 
+
+17:35 host is the the AI application that
+17:37 
+
+17:37 you're working with. It could be chat
+17:38 
+
+17:38 GPT cloud desktop or cursor, Visual
+17:42 
+
+17:42 Studio Code, any IDE like that you have.
+17:45 
+
+17:45 And uh the
+17:47 
+
+17:47 MCP server is is the program
+17:52 
+
+17:52 that that that sort of is connected to
+17:56 
+
+17:56 the resource that you want to leverage.
+17:58 
+
+17:58 It could be a tool, it could be a corpus
+18:01 
+
+18:01 of documents, it could be a database and
+18:02 
+
+18:02 and things like that. And uh
+18:06 
+
+18:06 a client is uh within the host. MCP
+18:10 
+
+18:10 client will be within the host. And
+18:12 
+
+18:12 there will be one client per every
+18:15 
+
+18:15 artifact or per every MCP server that
+18:18 
+
+18:18 you want to communicate.
+18:20 
+
+18:20 Right? Uh why do we want this? We want
+18:23 
+
+18:23 this because session management becomes
+18:24 
+
+18:24 easy. Right? I'll talk in more details
+18:27 
+
+18:27 about how this architecture helps in in
+18:30 
+
+18:30 in overcoming security and privacy and
+18:33 
+
+18:33 things like that. But this is how the
+18:35 
+
+18:35 the the setup looks like.
+18:37 
+
+18:37 So if a host so in in the usual let's
+18:41 
+
+18:41 say if you're developing this through
+18:42 
+
+18:42 land graph right then what you would do
+18:44 
+
+18:44 is you will see you will you will have
+18:46 
+
+18:46 to by yourself understand uh let's say
+18:50 
+
+18:50 if if if uh this is a API in the
+18:54 
+
+18:54 internet uh let's say this is GitHub
+18:56 
+
+18:56 GitHub's uh all the APIs that it exposes
+18:59 
+
+18:59 right so you have to manually go by
+19:01 
+
+19:01 yourself uh look into the GitHub's open
+19:04 
+
+19:04 API specs download that specs
+19:07 
+
+19:07 Right? And then use that in build in in
+19:10 
+
+19:10 when you build the host. That was a
+19:12 
+
+19:12 direct path. Right? But now you don't
+19:14 
+
+19:14 have to do that. Everything that GitHub
+19:17 
+
+19:17 has will be exposed
+19:20 
+
+19:20 by a server. You just have to talk to
+19:22 
+
+19:22 the server. It will give you everything
+19:24 
+
+19:24 that you need.
+19:26 
+
+19:26 Right? So it is not passive anymore. You
+19:28 
+
+19:28 don't have to pull the documentation and
+19:30 
+
+19:30 write the code by yourself by
+19:31 
+
+19:31 understanding everything. Uh that's not
+19:34 
+
+19:34 that. So that's going to be made easy by
+19:37 
+
+19:37 the server which is going to tell you
+19:38 
+
+19:38 what all it has uh and uh and and that
+19:42 
+
+19:42 way uh it doesn't matter which host you
+19:44 
+
+19:44 are whether you are cursor or or visual
+19:46 
+
+19:46 studio code or cloud desktop or chat gpt
+19:50 
+
+19:50 uh for everybody the same server will
+19:51 
+
+19:51 work right
+19:56 
+
+19:56 now uh so this is if you see here we
+20:00 
+
+20:00 have divided the servers into two blocks
+20:04 
+
+20:04 one is a local machine block and one is
+20:06 
+
+20:06 an internet block. So many of times uh
+20:09 
+
+20:09 let's say if you have uh if you're
+20:11 
+
+20:11 building a rag solution, right? So
+20:13 
+
+20:13 you'll have the entire corpus somewhere
+20:15 
+
+20:15 in your local machine in the server,
+20:17 
+
+20:17 right? You don't want to keep it in a
+20:18 
+
+20:18 remote machine, maybe you want to, but
+20:20 
+
+20:20 let's say most cases you would create a
+20:22 
+
+20:22 database or an elastic search or things
+20:24 
+
+20:24 like that and keep it accessible very
+20:25 
+
+20:25 close to the uh the the host. So in
+20:28 
+
+20:28 those cases it's still recommended to
+20:30 
+
+20:30 have uh an MCP server uh which will talk
+20:34 
+
+20:34 to the resource and then uh you can
+20:37 
+
+20:37 instantiate a client which will talk to
+20:38 
+
+20:38 the server right from within the
+20:40 
+
+20:40 document and of course uh if if if if
+20:43 
+
+20:43 you have some services let's say uh
+20:46 
+
+20:46 Google sheets or something right and and
+20:49 
+
+20:49 you want your LLM your your AI
+20:52 
+
+20:52 application to talk to it so maybe
+20:54 
+
+20:54 Google by themselves can host uh
+20:59 
+
+20:59 uh server MCP server and then they'll
+21:01 
+
+21:01 tell you if you want to use uh Google
+21:04 
+
+21:04 Sheets ATA just talk to this server
+21:06 
+
+21:06 right so so now if you see the onus of
+21:09 
+
+21:09 making it available is on the uh service
+21:12 
+
+21:12 provider right so when anthropic
+21:15 
+
+21:15 initially brought up this protocol they
+21:18 
+
+21:18 made sure all their APIs were exposed
+21:21 
+
+21:21 through MCPS but but uh Google or OpenAI
+21:26 
+
+21:26 did not jump into the train very
+21:28 
+
+21:28 quickly, right? But by looking at how
+21:30 
+
+21:30 easy this is to develop AI applications,
+21:33 
+
+21:33 third party uh startups started to build
+21:36 
+
+21:36 MCP servers for Google applications,
+21:39 
+
+21:39 right? Because people are willing to pay
+21:40 
+
+21:40 money to use that uh MCP server, right?
+21:44 
+
+21:44 So, so that's how it started to gain
+21:46 
+
+21:46 more traction within the community
+21:47 
+
+21:47 because it actually reduced the amount
+21:49 
+
+21:49 of time it will take for you to develop
+21:50 
+
+21:50 your applications. And we'll see why as
+21:52 
+
+21:52 we go forward. So, so based on this your
+21:55 
+
+21:55 transport layer could either be stddio
+21:58 
+
+21:58 right where you directly talk to the uh
+22:00 
+
+22:00 the standard input output within your
+22:02 
+
+22:02 machine or it could be over HTTP and
+22:05 
+
+22:05 there is something called server sent
+22:07 
+
+22:07 events uh which follows the JSON RPC 2.0
+22:10 
+
+22:10 standard at the data layer. Uh so these
+22:13 
+
+22:13 so there is already an established
+22:14 
+
+22:14 protocol which will be used for
+22:16 
+
+22:16 transport layer. They're not building a
+22:17 
+
+22:17 new protocol for transport layer.
+22:19 
+
+22:19 They're only building what is needed on
+22:21 
+
+22:21 top of that. Okay.
+22:25 
+
+22:25 So, so typically this is what will
+22:26 
+
+22:26 happen in a life cycle, right? Uh, you
+22:30 
+
+22:30 would you would instantiate your AI
+22:32 
+
+22:32 application with a simple URL saying
+22:34 
+
+22:34 this is my URL for MCP server for which
+22:38 
+
+22:38 I want you to act as a client, right?
+22:41 
+
+22:41 And then it would say use stdio or HTTP
+22:45 
+
+22:45 plus SSC, right? Uh, that's all the
+22:48 
+
+22:48 information you have to give to your MCP
+22:50 
+
+22:50 client, nothing else. Once your AI
+22:52 
+
+22:52 application starts, the protocol
+22:54 
+
+22:54 dictates that first the client has to
+22:56 
+
+22:56 contact the server that is mentioned in
+22:58 
+
+22:58 its description. It's a very small
+22:60 
+
+22:60 description and it and there is a
+23:02 
+
+23:02 standard protocol of what JSON object it
+23:04 
+
+23:04 should send to initialize and then if
+23:06 
+
+23:06 the server is responding it'll respond
+23:08 
+
+23:08 back uh and then uh it it creates the
+23:12 
+
+23:12 the the initialization step is over. Now
+23:14 
+
+23:14 it knows the server is actually
+23:15 
+
+23:15 available. Right now what happen? What
+23:18 
+
+23:18 it does is that it can request for the
+23:20 
+
+23:20 list of tools this server has.
+23:24 
+
+23:24 So here for Slack it will have all the
+23:26 
+
+23:26 Slack APIs. For GitHub it will have all
+23:27 
+
+23:27 the GitHub APIs. For Google sheets it
+23:29 
+
+23:29 will have all the 20 or 30 APIs that the
+23:32 
+
+23:32 Google Sheets has and then it'll give
+23:33 
+
+23:33 you the list of tools. Uh and uh and now
+23:37 
+
+23:37 the tools is available with you. You can
+23:39 
+
+23:39 bind it to the LLM with which you're
+23:41 
+
+23:41 running. Right? Uh in your agentic
+23:43 
+
+23:43 application, you can probably bind one
+23:45 
+
+23:45 LLM instance with Google Sheets, one LLM
+23:47 
+
+23:47 instance with Slack things or you can
+23:49 
+
+23:49 probably bind everything that you need
+23:51 
+
+23:51 into the same thing or you can create a
+23:53 
+
+23:53 search index within your memory and when
+23:55 
+
+23:55 a user query comes pick the top four
+23:58 
+
+23:58 things that match and then bind it
+23:59 
+
+23:59 dynamically. So you can do whatever you
+24:01 
+
+24:01 want in the uh AI application layer,
+24:04 
+
+24:04 right? In the in the LAN graph or other
+24:06 
+
+24:06 application layers. So when a user input
+24:09 
+
+24:09 comes uh then given that it has a list
+24:11 
+
+24:11 of tools it'll call the tool uh so so
+24:14 
+
+24:14 most of the time so so in most uh
+24:17 
+
+24:17 frameworks this was happening in the
+24:19 
+
+24:19 server side right uh you will have to
+24:22 
+
+24:22 once lm gives you what tool call to make
+24:24 
+
+24:24 you will have to make the http request
+24:26 
+
+24:26 and then it's your responsibility to get
+24:29 
+
+24:29 it back handle all the errors exceptions
+24:31 
+
+24:31 and things like that now it's not your
+24:33 
+
+24:33 duty anymore okay the client just has to
+24:36 
+
+24:36 send the request the server will take
+24:37 
+
+24:37 care of most of these error handling and
+24:39 
+
+24:39 all these things and the onus is on the
+24:41 
+
+24:41 person who is hosting the MCP server and
+24:43 
+
+24:43 then they'll just give you the response
+24:45 
+
+24:45 back right u and uh and there are also
+24:49 
+
+24:49 few other uh messages in the protocol
+24:52 
+
+24:52 but for now this is a simplistic
+24:54 
+
+24:54 scenario for tool calling and I'll go
+24:55 
+
+24:55 through what else you can do slightly
+24:57 
+
+24:57 later right so any questions
+25:01 
+
+25:01 no okay so so now uh
+25:06 
+
+25:06 this fragmentation has made things a lot
+25:08 
+
+25:08 easier, right? Because now the owners of
+25:11 
+
+25:11 how a server is to be run is on the
+25:14 
+
+25:14 person who is exposing the MCP server.
+25:16 
+
+25:16 So let's say they figured out there is
+25:17 
+
+25:17 some way people are not using the MCP
+25:20 
+
+25:20 the API is right. So then the MCP server
+25:22 
+
+25:22 can fix it themselves, right? And and
+25:25 
+
+25:25 that will not affect the client at all,
+25:27 
+
+25:27 right? Because a client just has a list
+25:28 
+
+25:28 of tools. it'll call the tool again and
+25:30 
+
+25:30 get back what it wants and they don't
+25:31 
+
+25:31 have to be bothered with how it gets
+25:32 
+
+25:32 mapped internally to what API and things
+25:34 
+
+25:34 like how it gets executed things like
+25:36 
+
+25:36 that
+25:39 
+
+25:39 and reuse also becomes extremely easy
+25:41 
+
+25:41 because you just need the MCP servers
+25:43 
+
+25:43 address and uh what protocol it should
+25:46 
+
+25:46 use to call what transport layer it
+25:47 
+
+25:47 should use call and a few others very
+25:49 
+
+25:49 very small snippet the moment you paste
+25:51 
+
+25:51 it then the client gets instantiated and
+25:53 
+
+25:53 and everything happens automatically
+25:55 
+
+25:55 right so uh MTP uh sorry MCP P servers
+25:59 
+
+25:59 expose three main uh primitives. Tools
+26:03 
+
+26:03 is very obvious, right? Because almost
+26:05 
+
+26:05 all MCP servers expose tools, right? But
+26:08 
+
+26:08 but in addition to tools uh they also
+26:11 
+
+26:11 anthropic also envisioned that uh they
+26:14 
+
+26:14 may people in the future may end up
+26:16 
+
+26:16 using resources and prompts like for
+26:18 
+
+26:18 example uh GitHub may expose a lot of
+26:22 
+
+26:22 their documentations right uh if you're
+26:24 
+
+26:24 accessing let's say u
+26:30 
+
+26:30 let's say for IIT Delhi it may expose a
+26:32 
+
+26:32 lot of these policy documents that they
+26:34 
+
+26:34 have whatever senate meeting minutes
+26:36 
+
+26:36 like many other things that they they
+26:39 
+
+26:39 they may have and uh there are also
+26:42 
+
+26:42 prompts. So, so, so this prompts
+26:45 
+
+26:45 is a very interesting concept because
+26:48 
+
+26:48 let's say that the resource that are
+26:49 
+
+26:49 exposed to you are minutes of meeting in
+26:52 
+
+26:52 an audio recording or something, right?
+26:54 
+
+26:54 Or it could be minutes of meeting in a
+26:56 
+
+26:56 very certain specific format that IIT
+26:59 
+
+26:59 follows, right? So now [clears throat]
+27:01 
+
+27:01 if you tell the model, I want to know
+27:03 
+
+27:03 what the give me the summary of the
+27:05 
+
+27:05 minutes that affects me as a master
+27:07 
+
+27:07 student or give me the minutes that
+27:08 
+
+27:08 affects us affects me as a PhD student.
+27:10 
+
+27:10 Right?
+27:12 
+
+27:12 uh then you'll have to end up creating
+27:14 
+
+27:14 your own prompt. The person who's
+27:16 
+
+27:16 building the AI application has to build
+27:18 
+
+27:18 their own prompt.
+27:21 
+
+27:21 But what this context what this protocol
+27:23 
+
+27:23 says is that if you know there are
+27:24 
+
+27:24 certain artifacts and people do an
+27:27 
+
+27:27 action on those artifacts very
+27:28 
+
+27:28 frequently then I will create a prompt
+27:30 
+
+27:30 template for you and make it available
+27:32 
+
+27:32 to you. So if you have a task at hand uh
+27:35 
+
+27:35 if if the user ask if the user asks the
+27:38 
+
+27:38 LLM saying can you uh I I know that
+27:41 
+
+27:41 these resources exist in uh IoT Delhi
+27:44 
+
+27:44 MCP server and I want you to summarize
+27:47 
+
+27:47 the minutes for these these meetings. So
+27:49 
+
+27:49 now the LLM doesn't have to create the
+27:51 
+
+27:51 prompt necessary from the artifact
+27:54 
+
+27:54 because the prompt template is it will
+27:55 
+
+27:55 see what all prompts is available that
+27:57 
+
+27:57 MCP server exposes based on the prompt.
+27:59 
+
+27:59 it'll just reuse it as is right and and
+28:02 
+
+28:02 it's not just prompts there's a lot more
+28:04 
+
+28:04 things you can do as well which I'll
+28:06 
+
+28:06 talk about later right so let's look at
+28:09 
+
+28:09 tools so so all the LLM so typically in
+28:12 
+
+28:12 the past what you would have to do is
+28:14 
+
+28:14 like let's say that you have an API list
+28:18 
+
+28:18 of tools for flight related tasks right
+28:20 
+
+28:20 book flight booking related tasks then
+28:22 
+
+28:22 you will probably have to take that open
+28:23 
+
+28:23 AI specifications and then convert it
+28:25 
+
+28:25 into a format uh that is consumable by a
+28:28 
+
+28:28 bot and that JSON would be present
+28:31 
+
+28:31 hardcoded or as a file in your codebase
+28:34 
+
+28:34 right and you will end up using it. What
+28:36 
+
+28:36 this procedure what this protocol says
+28:38 
+
+28:38 is that uh you don't necessarily have to
+28:41 
+
+28:41 do that. I will give you two methods,
+28:44 
+
+28:44 right? If you are connected to my MCP
+28:46 
+
+28:46 server, if you say uh if you call
+28:48 
+
+28:48 tool/list, then I will send you all the
+28:50 
+
+28:50 tools that I have currently and and if
+28:53 
+
+28:53 you if you pick one of the tool and then
+28:54 
+
+28:54 say tool/call and then you give it the
+28:56 
+
+28:56 actual tool name and the arguments, then
+28:58 
+
+28:58 I will execute it and give it back to
+28:60 
+
+28:60 you. Right? Uh so that's what these two
+29:02 
+
+29:02 methods say. So so the the the actual
+29:05 
+
+29:05 entity within your AI application that
+29:06 
+
+29:06 will use these two are typically the
+29:09 
+
+29:09 LLMs, right? because uh you will fit the
+29:12 
+
+29:12 tools in the context and LLM will tell
+29:14 
+
+29:14 you when to make the tool call and when
+29:16 
+
+29:16 so LLM is the main consumer for this
+29:18 
+
+29:18 tools uh within the protocol and uh
+29:24 
+
+29:24 so this
+29:26 
+
+29:26 could have safety issues because let's
+29:30 
+
+29:30 say you're writing back to GitHub right
+29:32 
+
+29:32 uh if if there is an incorrect write
+29:34 
+
+29:34 that happens then it may screw up things
+29:36 
+
+29:36 right so so the protocol allows you to
+29:40 
+
+29:40 have approval from the human. So you can
+29:43 
+
+29:43 specify these things when you call these
+29:45 
+
+29:45 these tools. Then make sure that you get
+29:48 
+
+29:48 approval from the end user before you
+29:50 
+
+29:50 execute things, right? And there are a
+29:51 
+
+29:51 few other things that the protocol gives
+29:53 
+
+29:53 you out of the box so that you don't
+29:55 
+
+29:55 have to go through the effort of coding
+29:56 
+
+29:56 it within your logic. Right? So this
+29:60 
+
+29:60 makes development of AI agents much more
+30:02 
+
+30:02 easier. Right? So you just have to
+30:04 
+
+30:04 specify one parameter here and there and
+30:06 
+
+30:06 then things will get materialized very
+30:08 
+
+30:08 quickly. Right?
+30:12 
+
+30:12 Now uh so resources are mostly uh like
+30:16 
+
+30:16 documents let's say your uh if you have
+30:19 
+
+30:19 a calendar uh app MCP server maybe all
+30:22 
+
+30:22 your calendar entries the database of
+30:24 
+
+30:24 your calendarries could be available as
+30:26 
+
+30:26 a readonly resource right uh it may also
+30:29 
+
+30:29 have uh all the meetings that you've had
+30:31 
+
+30:31 in the past like so that like if there's
+30:34 
+
+30:34 any information that I have to derive
+30:36 
+
+30:36 out of that resources I can call the
+30:38 
+
+30:38 resource
+30:39 
+
+30:39 search through it and then derive some
+30:40 
+
+30:40 insights and then use it in as input to
+30:42 
+
+30:42 my problem. Something like a working
+30:43 
+
+30:43 memory, right? So, so MCP allows you to
+30:47 
+
+30:47 allows you allows an MCP MCP server to
+30:50 
+
+30:50 have lot of artifacts and then they can
+30:52 
+
+30:52 explain what those resources are in the
+30:54 
+
+30:54 description and and LLM can use it to
+30:56 
+
+30:56 augment the context when needed. Right?
+30:59 
+
+30:59 So, so most of these are going to be
+31:01 
+
+31:01 only readonly operations, right? uh
+31:03 
+
+31:03 nothing more and all of them are only
+31:05 
+
+31:05 read only application uh operations and
+31:08 
+
+31:08 because of it because since they are
+31:10 
+
+31:10 only read only then the security is not
+31:12 
+
+31:12 that big a concern although you might
+31:14 
+
+31:14 need access control right because let's
+31:17 
+
+31:17 say that these are mark sheets uh in the
+31:20 
+
+31:20 resources are mark sheets right uh then
+31:23 
+
+31:23 it's probably not a good idea to give
+31:25 
+
+31:25 all students access to everybody's mark
+31:26 
+
+31:26 sheets right so you might have to do
+31:28 
+
+31:28 still some uh uh control there there may
+31:31 
+
+31:31 be some security risks
+31:33 
+
+31:33 Same thing with banking. You don't want
+31:34 
+
+31:34 everybody to see everybody else's bank
+31:36 
+
+31:36 accounts, right? So things like that,
+31:38 
+
+31:38 but still it's slightly less of an issue
+31:40 
+
+31:40 than tools. And uh typically it's only
+31:45 
+
+31:45 the AI application that will have
+31:47 
+
+31:47 control to the resources, not the model,
+31:49 
+
+31:49 right? The model will get it through if
+31:51 
+
+31:51 the AI application decides to put it in
+31:54 
+
+31:54 the prompt, but otherwise it won't have
+31:56 
+
+31:56 access to the uh resources.
+32:01 
+
+32:01 So some of the uh methods that are
+32:04 
+
+32:04 available are you can just ask it to
+32:06 
+
+32:06 list all the resources. So it would say
+32:08 
+
+32:08 something like uh I am a calendar MCP
+32:11 
+
+32:11 server and and there's a folder called
+32:13 
+
+32:13 events and and there's a resource for uh
+32:15 
+
+32:15 2024. So this will return this resource
+32:17 
+
+32:17 if you call this resource it will return
+32:19 
+
+32:19 you all the uh uh calendar entries in
+32:22 
+
+32:22 2024. uh so these are the resource list
+32:25 
+
+32:25 and then if you if [clears throat] you
+32:27 
+
+32:27 if you if you use this particular key
+32:29 
+
+32:29 and then you say I want to read this
+32:30 
+
+32:30 particular resource then it'll give you
+32:32 
+
+32:32 back the contents right now they also
+32:34 
+
+32:34 introduce something called templated
+32:36 
+
+32:36 list uh because many of times you you
+32:39 
+
+32:39 have a huge chunk of resources uh and
+32:42 
+
+32:42 and it's it's practically not it's not
+32:44 
+
+32:44 it's not a good idea to expose all the
+32:46 
+
+32:46 things that you have right uh so for
+32:48 
+
+32:48 example your mail right uh even though
+32:52 
+
+32:52 You can give them access to all mails
+32:54 
+
+32:54 but what is the point? You might you you
+32:56 
+
+32:56 need a better way of navigating that
+32:58 
+
+32:58 particular resource. Right? So they have
+32:60 
+
+33:00 these templates where uh for example
+33:02 
+
+33:02 they say that if you want a list of
+33:04 
+
+33:04 activities that are available in a
+33:07 
+
+33:07 certain city about a certain type then
+33:10 
+
+33:10 this is that general template that we
+33:12 
+
+33:12 follow. If you provide the name of the
+33:14 
+
+33:14 city let's say Barcelona and category as
+33:17 
+
+33:17 museums then it will give you a list of
+33:18 
+
+33:18 museums right and the protocol allows
+33:21 
+
+33:21 autocomplete for these. So as a uh AI
+33:25 
+
+33:25 application starts to write something or
+33:27 
+
+33:27 partially completes and sends it to the
+33:29 
+
+33:29 MCP server. Let's say it puts uh JFK
+33:33 
+
+33:33 maybe it's searching for some airport
+33:34 
+
+33:34 JFK then it will hit the MCP server get
+33:38 
+
+33:38 completions that will fit this
+33:40 
+
+33:40 particular partial completion right and
+33:42 
+
+33:42 it's up to the AI application uh to sort
+33:45 
+
+33:45 of use it in a way that can be rendered
+33:47 
+
+33:47 to the user as well right you can
+33:49 
+
+33:49 because it allows streaming uh you can
+33:52 
+
+33:52 easily make sure that things like these
+33:54 
+
+33:54 can be made available to the user as the
+33:55 
+
+33:55 user is typing some fields you can make
+33:58 
+
+33:58 sure that you create a drop down so that
+33:59 
+
+33:59 they can select from there right so it's
+34:00 
+
+34:00 up to you how you design it
+34:03 
+
+34:03 so the protocol clearly defines what API
+34:06 
+
+34:06 you should call when you need those
+34:08 
+
+34:08 completions and things like that right
+34:12 
+
+34:12 and finally prompts like I said uh they
+34:16 
+
+34:16 they are basically more like so so how
+34:19 
+
+34:19 many of you have used Slack here
+34:22 
+
+34:22 or how many of uh okay how many of you
+34:25 
+
+34:25 have used Visual Studio Code awesome so
+34:28 
+
+34:28 in Visual Studio Code
+34:30 
+
+34:30 uh you can there is a there's a there's
+34:33 
+
+34:33 a terminal like thing where you can
+34:35 
+
+34:35 start with a slash and it starts giving
+34:37 
+
+34:37 you all the shortcuts to the commands
+34:39 
+
+34:39 that you have right so so they thought
+34:42 
+
+34:42 of a similar technique for prompts as
+34:45 
+
+34:45 well as a user let's say that you you
+34:48 
+
+34:48 have a
+34:50 
+
+34:50 you have a task at hand right so one
+34:53 
+
+34:53 thing you can do is just write the task
+34:55 
+
+34:55 completely and then let the model figure
+34:56 
+
+34:56 out how it should solve it the other way
+34:58 
+
+34:58 they say is if you enter a slash in your
+35:01 
+
+35:01 console then it will give access to all
+35:05 
+
+35:05 the prompts
+35:07 
+
+35:07 that are exposed through MCP servers
+35:10 
+
+35:10 right so you will know what are the very
+35:11 
+
+35:11 commonly used tasks right uh so then
+35:15 
+
+35:15 what they say is that let's say you want
+35:16 
+
+35:16 to do code review right so the moment
+35:18 
+
+35:18 you say / code this code review will
+35:20 
+
+35:20 come and and it'll say give me the code
+35:22 
+
+35:22 and give me the language that you're
+35:24 
+
+35:24 using so you can directly fill that and
+35:27 
+
+35:27 this will internally make sure that it
+35:29 
+
+35:29 will create the prompt of what is
+35:30 
+
+35:30 needed. It'll figure out how to create
+35:33 
+
+35:33 the LLM prompt and then send it to the
+35:35 
+
+35:35 user. Right? So this is more like a uh a
+35:39 
+
+35:39 feedback that people typically give when
+35:42 
+
+35:42 they build agentic solutions that it
+35:43 
+
+35:43 doesn't work for very common use cases
+35:45 
+
+35:45 like for naive and novice users. They
+35:48 
+
+35:48 would want to enter the whole thing,
+35:49 
+
+35:49 right? But let's say that you've started
+35:51 
+
+35:51 to interact with the agent and then you
+35:53 
+
+35:53 become very familiar. you know exactly
+35:54 
+
+35:54 what you want to do but still writing
+35:57 
+
+35:57 the entire thing is painful right you
+35:59 
+
+35:59 don't want to do that right so so this
+36:00 
+
+36:00 is one way that MCP provides you so that
+36:04 
+
+36:04 when you build build your uh application
+36:06 
+
+36:06 you don't necessarily have to make the
+36:08 
+
+36:08 user write everything from scratch right
+36:10 
+
+36:10 let's say you want to do a travel
+36:11 
+
+36:11 planning app right the moment you put
+36:14 
+
+36:14 slash plan then it'll tell you just fill
+36:16 
+
+36:16 start end date uh where you want to go
+36:19 
+
+36:19 and and some other fields right and then
+36:21 
+
+36:21 it'll figure out how it has to create
+36:22 
+
+36:22 the prompt and and do all the work for
+36:24 
+
+36:24 you, right? So that this will make it a
+36:26 
+
+36:26 lot easier because you will not miss out
+36:28 
+
+36:28 the necessary fields. You'll give
+36:30 
+
+36:30 everything and you don't have to worry
+36:31 
+
+36:31 about how to express it. So it solves a
+36:33 
+
+36:33 lot of these problems
+36:35 
+
+36:35 and as you see here, this is how it will
+36:37 
+
+36:37 internally be implemented like the if
+36:39 
+
+36:39 you write /code review then it'll just
+36:41 
+
+36:41 say give me code and language and and
+36:43 
+
+36:43 everything else is masked from you.
+36:45 
+
+36:45 Right? Uh now let's say that the MCP
+36:48 
+
+36:48 server who is exposing the travel agent
+36:51 
+
+36:51 uh thingy right figured out there's a
+36:53 
+
+36:53 better prompt to do it then the people
+36:54 
+
+36:54 who are actually building it know what's
+36:56 
+
+36:56 the right prompt right so they they can
+36:58 
+
+36:58 easily update this without the client
+36:60 
+
+36:60 having to know what really happened
+37:02 
+
+37:02 right otherwise that prompt is a very
+37:04 
+
+37:04 valuable resource that may not get
+37:06 
+
+37:06 transferred in the right way right but
+37:08 
+
+37:08 now because of MCP it becomes a lot
+37:10 
+
+37:10 easier for people to uh reuse things
+37:12 
+
+37:12 that are well explored and and and and
+37:15 
+
+37:15 and and have been well studied.
+37:19 
+
+37:19 Now, uh so let's see uh like some
+37:22 
+
+37:22 advantages of MCP. So I talked about
+37:25 
+
+37:25 that uh MCP also helps in privacy and
+37:28 
+
+37:28 security, right? Uh so the way it does
+37:32 
+
+37:32 is that so let's take this particular
+37:33 
+
+37:33 config, right? So, so this particular
+37:35 
+
+37:35 config is where uh you want to expose
+37:40 
+
+37:40 GitHub
+37:42 
+
+37:42 tools to your uh AI application, right?
+37:45 
+
+37:45 So, what you're going to say is that uh
+37:47 
+
+37:47 there is this particular so this is
+37:49 
+
+37:49 going to be this MCP server is going to
+37:51 
+
+37:51 run in my local machine. So it uses the
+37:53 
+
+37:53 std IO transport uh and and and in the
+37:57 
+
+37:57 local machine if they run npx minus y
+37:60 
+
+37:60 and this command then uh I should be
+38:03 
+
+38:03 able to access the uh server right and
+38:06 
+
+38:06 if the server is not running this
+38:07 
+
+38:07 command will make sure the server runs
+38:09 
+
+38:09 right and this part is separated from
+38:13 
+
+38:13 this part which is the GitHub tokens or
+38:18 
+
+38:18 any secrets or credentials that you are
+38:20 
+
+38:20 sending uh you are not sending it
+38:22 
+
+38:22 through the LLM, right? Typically, what
+38:24 
+
+38:24 would you do? If a GitHub API tool is
+38:28 
+
+38:28 there, it will take the access token as
+38:31 
+
+38:31 one of the inputs and then you will give
+38:32 
+
+38:32 the other inputs. Right? Now, if you let
+38:35 
+
+38:35 the LLM by itself make this predict this
+38:37 
+
+38:37 tool call, then at some point in time,
+38:39 
+
+38:39 LM is going to ask for your access token
+38:42 
+
+38:42 or credentials or you will have to
+38:45 
+
+38:45 provide this as a part of the input to
+38:46 
+
+38:46 the LLM. Now, if you provide that uh
+38:49 
+
+38:49 then it's going to go to the cloud.
+38:51 
+
+38:51 you're going to lose your it's not safe
+38:53 
+
+38:53 anymore. Right? So that is the issue
+38:56 
+
+38:56 with many real world applications that
+38:59 
+
+38:59 use LLMs that are hosted in the cloud.
+39:02 
+
+39:02 Right? So so the this is the good part
+39:05 
+
+39:05 about uh MCP. the MCP client
+39:10 
+
+39:10 will access your local environment and
+39:12 
+
+39:12 then take the authentication and when it
+39:14 
+
+39:14 when it initializes the uh the the first
+39:17 
+
+39:17 handshake between the server it will use
+39:19 
+
+39:19 this token and it will keep the secret
+39:21 
+
+39:21 with itself it's never going to give the
+39:24 
+
+39:24 secret to the LLM right so so this
+39:27 
+
+39:27 decoupling of tool invocation uh from
+39:30 
+
+39:30 LLM response so ideally whatever LLM
+39:33 
+
+39:33 response comes you directly execute it
+39:36 
+
+39:36 somewhere Right? But now you've
+39:38 
+
+39:38 decoupled it. LLM gives a subset of the
+39:41 
+
+39:41 parameters that are necessary and the
+39:42 
+
+39:42 MCP client keeps some sub subset of the
+39:45 
+
+39:45 parameters that is secure that that has
+39:47 
+
+39:47 personal information that you don't want
+39:49 
+
+39:49 to. So you can do a lot more things with
+39:51 
+
+39:51 MCP because of this decoupling and and
+39:53 
+
+39:53 that helps in a lot of these uh privacy
+39:56 
+
+39:56 related issues and security related
+39:57 
+
+39:57 issues.
+40:01 
+
+40:01 Right? And the second uh biggest
+40:03 
+
+40:03 advantage is that uh any server side
+40:08 
+
+40:08 modifications is never going to affect
+40:10 
+
+40:10 your application.
+40:12 
+
+40:12 So let let me rephrase it this way.
+40:14 
+
+40:14 Let's say uh GitHub updated their APIs.
+40:18 
+
+40:18 That's very unlikely to happen because
+40:20 
+
+40:20 GitHub is so matured. But let's say you
+40:22 
+
+40:22 are working with book you you're the
+40:24 
+
+40:24 book my booking.com agent, right? So
+40:27 
+
+40:27 then you will have access to all the
+40:29 
+
+40:29 flight u airline providers right and if
+40:33 
+
+40:33 you have let's say thousand airline
+40:34 
+
+40:34 providers somebody is going to change
+40:36 
+
+40:36 their APIs now and then right now when
+40:38 
+
+40:38 somebody changes their API how will you
+40:40 
+
+40:40 get to know because the way you've
+40:42 
+
+40:42 developed your application is you went
+40:44 
+
+40:44 to their website downloaded their open
+40:46 
+
+40:46 API specs put it on your machine and
+40:49 
+
+40:49 when your AI application starts it's
+40:52 
+
+40:52 going to read that and then it's going
+40:53 
+
+40:53 to keep that as a set of tools now when
+40:56 
+
+40:56 will you get to know that uh you are
+40:58 
+
+40:58 actually doing the wrong tool call.
+41:01 
+
+41:01 Maybe if it is backward compatible, you
+41:04 
+
+41:04 are good. If it is not, if it throws an
+41:07 
+
+41:07 error, you are saved because
+41:09 
+
+41:09 continuously the model is throwing an
+41:10 
+
+41:10 error when I call this particular API.
+41:12 
+
+41:12 That'll let you know. But what if it
+41:13 
+
+41:13 succeeds and it's incorrect,
+41:18 
+
+41:18 right? Uh maybe they had an optional
+41:20 
+
+41:20 field before, maybe they had a mandatory
+41:22 
+
+41:22 field before and then they made it
+41:23 
+
+41:23 optional and things started to change
+41:24 
+
+41:24 because of that, right? Uh so all these
+41:27 
+
+41:27 issues might happen and and if it's a
+41:29 
+
+41:29 breaking change then uh sometimes maybe
+41:32 
+
+41:32 you are not uh handled the exceptions
+41:34 
+
+41:34 properly or probably if the uh model
+41:37 
+
+41:37 doesn't give back your entire workflow
+41:39 
+
+41:39 breaks then of course you will have
+41:41 
+
+41:41 downtime right you'll have to because
+41:42 
+
+41:42 you'll have to restart you have to
+41:44 
+
+41:44 download figure out which went wrong go
+41:46 
+
+41:46 to their website download the new API
+41:48 
+
+41:48 specs put it in your codebase restart
+41:50 
+
+41:50 your thing and maybe if it accepts it's
+41:53 
+
+41:53 okay otherwise you have to change your
+41:54 
+
+41:54 code sometimes as well so this This is
+41:56 
+
+41:56 going to be extremely painful, right?
+41:57 
+
+41:57 But MCP approach solves this problem,
+41:60 
+
+41:60 right? Because the protocol says that if
+42:02 
+
+42:02 you register for notification of
+42:05 
+
+42:05 changes, uh then the MCP server when it
+42:08 
+
+42:08 does the initial handshake, the MCP
+42:10 
+
+42:10 client can tell if there is some change
+42:12 
+
+42:12 in your artifact in your resources, if
+42:14 
+
+42:14 there is some change in your prompt or
+42:16 
+
+42:16 if there is some change in your tools,
+42:17 
+
+42:17 let me know. Right? It has to say that.
+42:19 
+
+42:19 Now, if there's any change uh then the
+42:22 
+
+42:22 MCP server will know that something
+42:24 
+
+42:24 changed, right? So then it'll tell the
+42:26 
+
+42:26 client then the client will terminate
+42:27 
+
+42:27 the connection, restart the connection
+42:28 
+
+42:28 and get everything that's needed again.
+42:30 
+
+42:30 So this way there is no downtime at all.
+42:32 
+
+42:32 So again this also saves a lot of effort
+42:35 
+
+42:35 uh and developer time. Right? So, so
+42:38 
+
+42:38 this so all these things put together of
+42:41 
+
+42:41 how they uh divide and conquer the
+42:44 
+
+42:44 problem uh like server will be done by
+42:47 
+
+42:47 somebody else and and you can and and
+42:49 
+
+42:49 some some startups started to create uh
+42:52 
+
+42:52 MCP servers for lot of these common
+42:54 
+
+42:54 applications without for which they
+42:56 
+
+42:56 don't necessarily have to get licensed
+42:57 
+
+42:57 to host them and then they started to
+42:59 
+
+42:59 sell that MCP servers for other people
+43:00 
+
+43:00 to use people found it lot more
+43:02 
+
+43:02 convenient to buy MCP servers rather
+43:04 
+
+43:04 than coding it themselves for every
+43:05 
+
+43:05 application that they have right so this
+43:07 
+
+43:07 ecosystem started to develop uh very
+43:10 
+
+43:10 quickly and that is one uh
+43:14 
+
+43:14 one good reason why this is the most
+43:16 
+
+43:16 accepted uh protocol yet and also
+43:19 
+
+43:19 Anthropy put in a lot of effort to make
+43:21 
+
+43:21 sure that they covered a lot of these uh
+43:23 
+
+43:23 very popular very common issues that
+43:26 
+
+43:26 people face and then they made sure that
+43:27 
+
+43:27 they took into account everything okay
+43:29 
+
+43:29 so so whatever I talked about MCP is is
+43:32 
+
+43:32 is at a very high level but it's a lot
+43:35 
+
+43:35 more complicated and there's lot more
+43:36 
+
+43:36 room for develop velment within that
+43:38 
+
+43:38 right so the more deeper you go uh the I
+43:41 
+
+43:41 think once you start implementing agents
+43:44 
+
+43:44 uh once you uh like because typically
+43:47 
+
+43:47 when you implement agents you'll start
+43:48 
+
+43:48 with lang graph most likely right and
+43:50 
+
+43:50 then you develop something that's usable
+43:53 
+
+43:53 uh and then uh when you start to build
+43:56 
+
+43:56 more and more agents you will realize
+43:58 
+
+43:58 what is the downfall of langraph maybe
+43:60 
+
+43:60 you want to use a different framework
+44:01 
+
+44:01 for it uh then after you develop
+44:03 
+
+44:03 multiple agents and you realize oh I
+44:05 
+
+44:05 want both these agents to work together
+44:06 
+
+44:06 Now I have to create a third agent uh
+44:08 
+
+44:08 which you will which you will have to
+44:10 
+
+44:10 make sure that this agent and this agent
+44:12 
+
+44:12 will be able to talk that agent and
+44:13 
+
+44:13 create a unified interface things become
+44:14 
+
+44:14 very complex very easily right and so
+44:18 
+
+44:18 protocol like MCP will help you overcome
+44:21 
+
+44:21 most of these issues if not all right so
+44:24 
+
+44:24 next uh we'll talk about uh agent to
+44:26 
+
+44:26 agent protocol again this is a protocol
+44:29 
+
+44:29 that was developed by Google very
+44:31 
+
+44:31 recently and uh some uh partners of
+44:35 
+
+44:35 Google have adopted this but it's not
+44:37 
+
+44:37 sort of like picked up at a pace where
+44:39 
+
+44:39 everybody started to adopt this right
+44:43 
+
+44:43 so so there are three in in MCP there
+44:46 
+
+44:46 were four actors there was a user there
+44:49 
+
+44:49 was a host there was a MCP client and an
+44:52 
+
+44:52 MCP server right here there are just
+44:54 
+
+44:54 going to be three actors uh there's
+44:56 
+
+44:56 going to be a user of course the person
+44:57 
+
+44:57 who's going to use the uh agent at hand
+45:00 
+
+45:00 and uh there's going to be a a uh agent
+45:03 
+
+45:03 to agent client or the client agent uh
+45:05 
+
+45:05 which is the agent to which the user is
+45:08 
+
+45:08 going to interact, right? Because if it
+45:09 
+
+45:09 is a multi- aent system, it's not the
+45:11 
+
+45:11 user is going to interact with every
+45:12 
+
+45:12 agent, right? The user is going to face
+45:14 
+
+45:14 only one agent and and the and the A2A
+45:16 
+
+45:16 protocol will let that agent communicate
+45:18 
+
+45:18 with other agents that it knows, right?
+45:21 
+
+45:21 And of course, the remote agent or the
+45:23 
+
+45:23 A2A server is all the other agents that
+45:25 
+
+45:25 are out there which the client agent
+45:27 
+
+45:27 knows about, right? Uh for example uh
+45:30 
+
+45:30 there could be a travel planner agent
+45:32 
+
+45:32 which is a client agent with the user is
+45:33 
+
+45:33 talking to and this travel uh planner
+45:36 
+
+45:36 agent uh knows that there is a flight
+45:38 
+
+45:38 booking agent. It knows that there is a
+45:40 
+
+45:40 hotel reservation agent that it can
+45:41 
+
+45:41 access. It knows a currency conversion
+45:44 
+
+45:44 agent and also local tours agent. Right
+45:48 
+
+45:48 now it need not necessarily be like this
+45:51 
+
+45:51 uh where one agent is like the client is
+45:54 
+
+45:54 in a star network where it's in the
+45:55 
+
+45:55 middle and it has access to every other
+45:57 
+
+45:57 agent. Uh it could also be more like a
+45:59 
+
+45:59 mesh or a different uh topology as well
+46:02 
+
+46:02 where uh the client agent may call uh
+46:05 
+
+46:05 agent A, agent A in turn can call agent
+46:08 
+
+46:08 B, agent B can in turn call agent C and
+46:11 
+
+46:11 and they can go back and come. So it can
+46:13 
+
+46:13 be in like the protocol allows you to
+46:15 
+
+46:15 have any type of these architectures.
+46:17 
+
+46:17 The only requirement is that you should
+46:20 
+
+46:20 be uh aware of what exists out there or
+46:22 
+
+46:22 the other agent should make themselves
+46:24 
+
+46:24 discover discoverable to you. Right? So,
+46:27 
+
+46:27 so let's see how this happens.
+46:31 
+
+46:31 So, so to make this happen, uh, every
+46:34 
+
+46:34 agent is given an ID or like just like
+46:37 
+
+46:37 in hugging face how every model has a
+46:39 
+
+46:39 model card and by reading the model
+46:41 
+
+46:41 card, you know, uh, what is the name of
+46:43 
+
+46:43 the model? uh what can it help you with,
+46:47 
+
+46:47 what type of prompts you should use when
+46:49 
+
+46:49 you use the model, how big is the model
+46:52 
+
+46:52 uh and and what are its performance in
+46:54 
+
+46:54 in various data sets and things like
+46:56 
+
+46:56 that. Right? So similar to a model card
+46:59 
+
+46:59 in hugging phase, you will also have an
+47:01 
+
+47:01 agent card for each of the agent in this
+47:03 
+
+47:03 protocol, right? And they have uh
+47:06 
+
+47:06 certain attributes and metadata that
+47:08 
+
+47:08 they associate with that you that the
+47:09 
+
+47:09 agent has to fill up, right? And the
+47:12 
+
+47:12 main reason for this agent card is
+47:14 
+
+47:14 discovery, right? And discovery and
+47:18 
+
+47:18 after it discovers the agent, it should
+47:20 
+
+47:20 also be in a position to figure out
+47:22 
+
+47:22 whether it's going to be useful for this
+47:24 
+
+47:24 particular subtask or not. Right? So
+47:26 
+
+47:26 this is the main uh use of the agent
+47:29 
+
+47:29 card
+47:31 
+
+47:31 and agent card also gives you some
+47:33 
+
+47:33 information about how to communicate
+47:36 
+
+47:36 what type of exchanges that you have to
+47:38 
+
+47:38 do to establish a bond and then it will
+47:40 
+
+47:40 accept to do your task. So all these
+47:42 
+
+47:42 information will be present in the agent
+47:43 
+
+47:43 card and uh one terminology that they
+47:46 
+
+47:46 use is task where uh it is
+47:50 
+
+47:50 it it is it is a subtask that you want
+47:52 
+
+47:52 to accomplish. the user gave you a
+47:54 
+
+47:54 bigger task and there's a subtask that
+47:56 
+
+47:56 you want to accomplish by using a
+47:57 
+
+47:57 different agent. So that would be a
+47:58 
+
+47:58 subtask and to accomplish that subtask
+48:00 
+
+48:00 you'll have to send a lot of messages uh
+48:02 
+
+48:02 between the two agents right for example
+48:04 
+
+48:04 if you are an a travel planner uh and
+48:07 
+
+48:07 then they it says that uh could you plan
+48:09 
+
+48:09 my travel to uh let's say Barcelona for
+48:13 
+
+48:13 summer right or for uh February so then
+48:17 
+
+48:17 you probably first need to know what is
+48:20 
+
+48:20 the weather in February so that you can
+48:22 
+
+48:22 design activities accordingly or book
+48:25 
+
+48:25 places accordingly or book flights
+48:26 
+
+48:26 accordingly Okay. So then uh you might
+48:30 
+
+48:30 say that what is the weather in
+48:31 
+
+48:31 Barcelona in Feb, right? And then
+48:34 
+
+48:34 probably the weather agent can come back
+48:36 
+
+48:36 and say give me some date range uh so
+48:38 
+
+48:38 that I can tell you maybe you just want
+48:40 
+
+48:40 the entire Feb or you want some other
+48:42 
+
+48:42 date. So things like that. So they can
+48:43 
+
+48:43 or it can assume that entire Feb and
+48:45 
+
+48:45 give back all the details uh and and it
+48:47 
+
+48:47 probably missed rain prediction. So then
+48:49 
+
+48:49 it can know give me rain prediction as
+48:50 
+
+48:50 well along with the temperature. So then
+48:52 
+
+48:52 things like that would be happening with
+48:54 
+
+48:54 messages
+48:56 
+
+48:56 and along with messages sometimes uh you
+48:59 
+
+48:59 you might want to the the other uh agent
+49:02 
+
+49:02 would or or either the client or the
+49:04 
+
+49:04 server uh might want to send some
+49:06 
+
+49:06 artifacts like images or files. Uh let's
+49:09 
+
+49:09 say like one one agent is willing to
+49:11 
+
+49:11 summarize documents other agent has a
+49:13 
+
+49:13 document. It has to give the document
+49:14 
+
+49:14 and after summary the summary will be
+49:16 
+
+49:16 passed in as a file and things like
+49:18 
+
+49:18 that. And artifact is like uh for an
+49:21 
+
+49:21 entire task what is that final thing
+49:24 
+
+49:24 that you got out that is meaningful
+49:26 
+
+49:26 right these are the terms that they use
+49:28 
+
+49:28 uh in the agent to agent protocol I'm
+49:29 
+
+49:29 not going to I'm not going to much
+49:31 
+
+49:31 detail of agent to agent protocol
+49:33 
+
+49:33 because firstly
+49:35 
+
+49:35 it there is it whatever I said now is
+49:38 
+
+49:38 mostly how it is implemented right and
+49:40 
+
+49:40 the details are not as interesting as it
+49:43 
+
+49:43 as it it was for MCP because MCP was
+49:45 
+
+49:45 slightly more complicated so going into
+49:47 
+
+49:47 details made sense But agent to agent
+49:49 
+
+49:49 like sort of at an abstract level is
+49:51 
+
+49:51 what what is right. So let's uh given
+49:56 
+
+49:56 that we've seen one uh inter agent
+49:59 
+
+49:59 protocol and one context protocol. Uh so
+50:03 
+
+50:03 both are meant for two different tasks.
+50:04 
+
+50:04 So you can of course combine both in in
+50:07 
+
+50:07 you can use both proto use both proto
+50:10 
+
+50:10 protocols in your AI application. Right?
+50:12 
+
+50:12 So let's say that you've decided that uh
+50:16 
+
+50:16 I'm not going to use A2A. I'm just going
+50:18 
+
+50:18 to use MCP in your application. Right?
+50:21 
+
+50:21 So then let's say that there is a flight
+50:22 
+
+50:22 server which has a flight server uh MCP
+50:25 
+
+50:25 flight server. There's an MCP hotel
+50:26 
+
+50:26 server and MCP weather server. Right? So
+50:29 
+
+50:29 then all the logic so it exposes all the
+50:33 
+
+50:33 functions that it has MCP server. So
+50:35 
+
+50:35 when once you do the uh tools/list all
+50:38 
+
+50:38 these MCP servers will give you all the
+50:39 
+
+50:39 tools. Now when the user says uh I want
+50:42 
+
+50:42 to plan a 5-day trip from Beijing to New
+50:44 
+
+50:44 York then all the intelligence has to
+50:46 
+
+50:46 lie within one travel agent that will
+50:48 
+
+50:48 figure out how to use flight server, how
+50:50 
+
+50:50 to use hotel server, how to mix and
+50:52 
+
+50:52 match, how to use whether to narrow down
+50:54 
+
+50:54 which one should I call first, which one
+50:55 
+
+50:55 should I call second. So it has to make
+50:58 
+
+50:58 a very very fine grain decision in how
+51:01 
+
+51:01 to get things done right on the other
+51:04 
+
+51:04 hand uh let's say if if flight server
+51:08 
+
+51:08 was not an MCP but it was an agent by
+51:10 
+
+51:10 itself
+51:12 
+
+51:12 right which is a flight agent and the
+51:15 
+
+51:15 hotel server was an agent by itself
+51:17 
+
+51:17 which has access to the hotel server MCP
+51:20 
+
+51:20 by itself but if you give it a date and
+51:22 
+
+51:22 something some conditions it will book
+51:24 
+
+51:24 all those things take care of payment
+51:25 
+
+51:25 and all those things it will do it by
+51:27 
+
+51:27 itself and you don't have to worry about
+51:28 
+
+51:28 it and uh let's say that there is also
+51:31 
+
+51:31 an activity agent uh which you don't
+51:33 
+
+51:33 have to talk think about the weather the
+51:35 
+
+51:35 activity agent by itself will call the
+51:37 
+
+51:37 weather agent and get the necessary
+51:39 
+
+51:39 information it needs and just gives you
+51:40 
+
+51:40 activities right so so typically
+51:44 
+
+51:44 your design when you design
+51:47 
+
+51:47 in a long run when things become a lot
+51:49 
+
+51:49 more collaborative A to A is very useful
+51:53 
+
+51:53 right because as
+51:56 
+
+51:56 The travel agent does not have to make
+51:58 
+
+51:58 fine grain decisions and figure out how
+52:01 
+
+52:01 to stitch all of them together. You can
+52:03 
+
+52:03 just at a very broad level think okay I
+52:05 
+
+52:05 know I have these three agents I'll just
+52:07 
+
+52:07 distribute this work first and once the
+52:08 
+
+52:08 agent comes back saying I've booked your
+52:10 
+
+52:10 flight ticket then I'll send it to the
+52:11 
+
+52:11 hotel because I know the flight timings
+52:13 
+
+52:13 now I'll send it to the hotel and then
+52:15 
+
+52:15 once the hotel comes back uh then I will
+52:17 
+
+52:17 send it to the uh activity agent and
+52:19 
+
+52:19 then it'll get back it doesn't have to
+52:20 
+
+52:20 worry about better at all. Right? So
+52:22 
+
+52:22 similarly and and now the flight agent
+52:25 
+
+52:25 can be reused in a different setup as
+52:26 
+
+52:26 well. Right? So so whatever advantages
+52:29 
+
+52:29 you had from MCP are also the advantages
+52:32 
+
+52:32 you will get in A2A protocol. Right? And
+52:35 
+
+52:35 now the issue is how do you discover
+52:38 
+
+52:38 right for MCP
+52:41 
+
+52:41 there are websites where you can go
+52:44 
+
+52:44 search for something and it'll give you
+52:45 
+
+52:45 all the MCP servers that are available.
+52:47 
+
+52:47 A2A is not at that stage yet. Right? So
+52:50 
+
+52:50 people have not ad adopted it in such a
+52:51 
+
+52:51 way where there's a marketplace where
+52:53 
+
+52:53 you will go and search the catalog and
+52:55 
+
+52:55 figure out what all agents are available
+52:56 
+
+52:56 and and figure out whether am I do I
+52:59 
+
+52:59 have the credentials to use it whether I
+53:01 
+
+53:01 have enough trust in using the server
+53:03 
+
+53:03 and things like that right and uh so so
+53:05 
+
+53:05 far what they have done is that you need
+53:08 
+
+53:08 to exactly know the agent and then
+53:10 
+
+53:10 hardcode it in your
+53:13 
+
+53:13 uh right so it sort of is reflecting
+53:17 
+
+53:17 what issues for which MC CP was
+53:20 
+
+53:20 developed similar issues A2A is going to
+53:21 
+
+53:21 face is facing right okay so uh let's
+53:24 
+
+53:24 move on to uh agents.json JSON. So this
+53:27 
+
+53:27 is a this work was started around in the
+53:30 
+
+53:30 beginning of the year and they left it
+53:32 
+
+53:32 hanging around April and then they went
+53:34 
+
+53:34 on to do something else because it was
+53:36 
+
+53:36 not getting picked up and and and MCP
+53:38 
+
+53:38 became too popular. Uh and uh so I'll
+53:41 
+
+53:41 tell you what this uh this this protocol
+53:44 
+
+53:44 is meant for. So uh so typically let's
+53:49 
+
+53:49 say you you have an MCP server for Gmail
+53:52 
+
+53:52 or you have an MCP server for GitHub.
+53:54 
+
+53:54 There are going to be like insane number
+53:56 
+
+53:56 of functions, right? Like sometimes you
+53:58 
+
+53:58 might have 50 to 200 functions, right?
+54:01 
+
+54:01 And all these functions were primarily
+54:04 
+
+54:04 designed for developers,
+54:06 
+
+54:06 right? Uh in the sense that they want to
+54:09 
+
+54:09 expose uh software as a service for
+54:12 
+
+54:12 GitHub and then all the data lies in a
+54:15 
+
+54:15 back end somewhere and so they would
+54:17 
+
+54:17 have created APIs for the back end so
+54:19 
+
+54:19 that your UI would be able to work the
+54:21 
+
+54:21 way it works now, right? They were not
+54:24 
+
+54:24 meant for uh people outside GitHub to
+54:29 
+
+54:29 leverage it. But as people started to
+54:32 
+
+54:32 develop plug-in for VS Code or plug-in
+54:35 
+
+54:35 for Eclipse, then they slowly started to
+54:38 
+
+54:38 make it make the documentation good so
+54:40 
+
+54:40 that people who develop these plug-in
+54:42 
+
+54:42 can understand what these APIs do and do
+54:44 
+
+54:44 it right. So, so when you're developing
+54:47 
+
+54:47 an API for internal use, then you will
+54:49 
+
+54:49 have a certain level of details in it.
+54:51 
+
+54:51 when you're exposing it and you know
+54:53 
+
+54:53 there's a community that's going to
+54:54 
+
+54:54 consume your APIs then there is going to
+54:56 
+
+54:56 be a different level of additional
+54:58 
+
+54:58 information you'll provide but most of
+55:00 
+
+55:00 the existing tools and tool definitions
+55:04 
+
+55:04 don't assume that uh they are going to
+55:07 
+
+55:07 be used by LMS right uh and and why does
+55:11 
+
+55:11 this create a problem because typically
+55:14 
+
+55:14 users say what they want they don't know
+55:16 
+
+55:16 what APIs exist so then it becomes the
+55:19 
+
+55:19 headache of the LLM to figure out how I
+55:22 
+
+55:22 should use the existing API stitch them
+55:24 
+
+55:24 together what variable should go in
+55:25 
+
+55:25 which other variable what output should
+55:27 
+
+55:27 go to which input what I should ask from
+55:29 
+
+55:29 the user and then figure out how to
+55:31 
+
+55:31 accomplish the task sometimes it's not
+55:32 
+
+55:32 straightforward to understand that for
+55:35 
+
+55:35 achieving this task I have to call these
+55:37 
+
+55:37 sequence of APIs
+55:39 
+
+55:39 and one example they gave is that let's
+55:41 
+
+55:41 say that the user says uh I want to
+55:43 
+
+55:43 reply to uh latest email from Bob and
+55:46 
+
+55:46 says what
+55:48 
+
+55:48 uh they want to reply right so Now it's
+55:51 
+
+55:51 not a single uh API call. First you need
+55:54 
+
+55:54 to figure out the latest message
+55:58 
+
+55:58 messages from Bob and then you'll have
+55:60 
+
+55:60 to figure out what is the latest message
+56:01 
+
+56:01 in that chain from Bob and then you have
+56:03 
+
+56:03 to reply to that message and and the
+56:06 
+
+56:06 reply to API takes the uh base 64 RFC22
+56:13 
+
+56:13 content as input to to reply back.
+56:17 
+
+56:17 Right? So now you have to figure out
+56:18 
+
+56:18 that key. where did you get the key
+56:20 
+
+56:20 from? And and that detail is not very
+56:22 
+
+56:22 clear in the documentation. You know,
+56:24 
+
+56:24 some key has to go there. Right? Now you
+56:27 
+
+56:27 have to search for the message Bob did
+56:29 
+
+56:29 and figure out how to get the key for it
+56:31 
+
+56:31 and then use a key and then uh reply.
+56:35 
+
+56:35 Right? So now if you have such a
+56:38 
+
+56:38 situation, what people do is when they
+56:40 
+
+56:40 write system instructions for the agent,
+56:42 
+
+56:42 they'll provide all these details. when
+56:44 
+
+56:44 the user asks uh that they want to reply
+56:47 
+
+56:47 to somebody then make sure first you get
+56:49 
+
+56:49 the list of messages from the sender and
+56:51 
+
+56:51 then figure out the thread ID from there
+56:53 
+
+56:53 and then get the latest post in the
+56:55 
+
+56:55 thread get that base 64 ID and then use
+56:59 
+
+56:59 that ID as as this with this function to
+57:02 
+
+57:02 reply back right and and this doesn't
+57:05 
+
+57:05 happen even if you say the LLM to make
+57:06 
+
+57:06 all these things it will not do it
+57:08 
+
+57:08 because it won't know which is that if
+57:10 
+
+57:10 there are seven different keys in the
+57:13 
+
+57:13 response on object it won't know which
+57:14 
+
+57:14 key to pick. So then again after that
+57:17 
+
+57:17 once you see it's not working again you
+57:18 
+
+57:18 go back see why it's not working see the
+57:20 
+
+57:20 output and figure out and then write it
+57:21 
+
+57:21 down in the instruction right sometimes
+57:23 
+
+57:23 it may work and sometimes you change the
+57:25 
+
+57:25 input slightly saying
+57:28 
+
+57:28 uh uh I want to reply for the latest
+57:30 
+
+57:30 message from my boss or something then
+57:32 
+
+57:32 everything will break loose because now
+57:34 
+
+57:34 it's not able to figure out the contact
+57:35 
+
+57:35 and things like that right so this has
+57:37 
+
+57:37 always been a big issue and currently
+57:39 
+
+57:39 people struggle to write system
+57:41 
+
+57:41 instructions sometimes people rewrite
+57:43 
+
+57:43 the API description because people
+57:45 
+
+57:45 download the open API specs and then put
+57:47 
+
+57:47 it in the local machine. Right? So if
+57:49 
+
+57:49 that uh API is not well described, LLM
+57:52 
+
+57:52 will not be able to pick it. So they
+57:54 
+
+57:54 will modify the description so that LLM
+57:57 
+
+57:57 will be able to pick it. Right? And
+57:59 
+
+57:59 sometimes what happens parameters are
+58:01 
+
+58:01 not well described. Maybe they just
+58:02 
+
+58:02 written the name of the parameter and
+58:04 
+
+58:04 description is left empty. So model is
+58:05 
+
+58:05 not able to figure out, right? And
+58:07 
+
+58:07 people sometimes name variables also
+58:08 
+
+58:08 weirdly. It is not expressive. So this
+58:11 
+
+58:11 always becomes a big problem. So what
+58:13 
+
+58:13 this particular uh protocol tries to
+58:16 
+
+58:16 achieve is that
+58:18 
+
+58:18 uh I will have something called flows
+58:20 
+
+58:20 and links. flows is that if somebody
+58:23 
+
+58:23 asks me questions like these then I'll
+58:25 
+
+58:25 have to follow up this flow like reply
+58:27 
+
+58:27 to a contact will be the name of the new
+58:31 
+
+58:31 flow that you're building and then in
+58:33 
+
+58:33 that you will say first you call search
+58:35 
+
+58:35 threads with these arguments uh and then
+58:38 
+
+58:38 a list email threads with this argument
+58:40 
+
+58:40 the output of the response object from
+58:42 
+
+58:42 here and this particular element in the
+58:44 
+
+58:44 response object will go as input to the
+58:45 
+
+58:45 second input. So those are the links. So
+58:47 
+
+58:47 you define the entire flow, you define
+58:49 
+
+58:49 the link and you create an a uh a new
+58:52 
+
+58:52 higher abstraction of an API which is
+58:55 
+
+58:55 now readable by the LM right because now
+58:57 
+
+58:57 if it says reply to my reply to a
+58:60 
+
+58:60 contact uh latest email from contact
+59:02 
+
+59:02 then it will be able to use this in that
+59:03 
+
+59:03 particular order and then use it right.
+59:06 
+
+59:06 So this is what uh they came up with
+59:09 
+
+59:09 and uh this was actually a real problem
+59:11 
+
+59:11 a lot of people faced. Uh but people
+59:14 
+
+59:14 started to come up with their own
+59:15 
+
+59:15 solutions to fix this because if you
+59:18 
+
+59:18 anyway have to create an agent JSON
+59:20 
+
+59:20 wherein you create an abstraction by
+59:21 
+
+59:21 yourself and writing it down then I
+59:23 
+
+59:23 would rather change the API description
+59:24 
+
+59:24 or I will create something in Python and
+59:26 
+
+59:26 put it in lambda. Right? So people came
+59:29 
+
+59:29 up with a lot of different solutions and
+59:30 
+
+59:30 this didn't get picked up as much as it
+59:33 
+
+59:33 should uh because other frameworks
+59:35 
+
+59:35 started to circumvent that problem in a
+59:38 
+
+59:38 different way and they made it easier
+59:40 
+
+59:40 for people right uh so so some of these
+59:42 
+
+59:42 protocols that are coming up now will
+59:44 
+
+59:44 eventually face this right because the
+59:47 
+
+59:47 problem exists but the solution protocol
+59:50 
+
+59:50 may not be the right solution for it
+59:52 
+
+59:52 right and this is a place where uh even
+59:56 
+
+59:56 the prompts in MCP can help because you
+59:59 
+
+59:59 can define a workflow there. Currently,
+60:01 
+
+60:01 you have to define it in a custom manner
+60:02 
+
+60:02 by using the metadata field which allows
+60:05 
+
+60:05 custom fields. But I'm hoping that at
+60:08 
+
+60:08 some point in time in the future even
+60:09 
+
+60:09 MCP could directly support start support
+60:12 
+
+60:12 things like this, right? Because uh now
+60:14 
+
+60:14 if G if Google creates these
+60:16 
+
+60:16 abstractions then it can be used by
+60:18 
+
+60:18 everybody else right because if you
+60:19 
+
+60:19 create agents.json it is more domain
+60:21 
+
+60:21 specific like you provide it within for
+60:24 
+
+60:24 your particular application. it's not
+60:25 
+
+60:25 going to be like general purpose, right?
+60:28 
+
+60:28 So, this is one reason why agents.json
+60:30 
+
+60:30 didn't pick up uh because they didn't
+60:32 
+
+60:32 their uh vision was not as clear at as
+60:35 
+
+60:35 it should have been. Right? Okay. So to
+60:38 
+
+60:38 summarize uh we saw three protocols uh
+60:42 
+
+60:42 one was MCP uh which was context
+60:44 
+
+60:44 oriented general purpose and it is well
+60:46 
+
+60:46 accepted accepted standard everybody
+60:48 
+
+60:48 uses and then we saw uh A2A uh which is
+60:52 
+
+60:52 currently uh first draft is done and
+60:55 
+
+60:55 people are testing it. Uh it looks
+60:57 
+
+60:57 reasonable. Looks like there there are
+60:58 
+
+60:58 there are a lot of uh agent to agent
+61:01 
+
+61:01 general purpose protocols like see there
+61:03 
+
+61:03 are already three here right uh so it's
+61:06 
+
+61:06 very likely that uh the A2A protocol
+61:09 
+
+61:09 will win the race and the others will
+61:10 
+
+61:10 die down soon right uh uh and uh but
+61:15 
+
+61:15 still there may be a lot more changes to
+61:16 
+
+61:16 A2A as and when uh we saw one problem
+61:20 
+
+61:20 which is discovery discovery is is
+61:21 
+
+61:21 slightly an issue now so let's see how
+61:24 
+
+61:24 the community will work on that And
+61:27 
+
+61:27 lastly we saw uh a protocol uh that was
+61:31 
+
+61:31 still in drafting change but it was
+61:32 
+
+61:32 ditched uh because the issue that it
+61:34 
+
+61:34 faced was sort of solved by somebody
+61:36 
+
+61:36 else. Right? So if you see here there
+61:37 
+
+61:37 are a lot of drafting uh right there are
+61:41 
+
+61:41 some landing where it is in the same
+61:43 
+
+61:43 domain as something that's getting more
+61:45 
+
+61:45 popularity. So most of these will die
+61:47 
+
+61:47 out and only a couple of them would
+61:49 
+
+61:49 survive. uh but still everything is work
+61:51 
+
+61:51 in progress and and and similarly uh
+61:55 
+
+61:55 things may get reused within the
+61:56 
+
+61:56 protocol as well maybe A2A and MCP will
+61:58 
+
+61:58 join hands and create a master protocol
+62:00 
+
+62:00 that solves everything right so uh so
+62:04 
+
+62:04 still it's a very evolving field MCP
+62:06 
+
+62:06 seems like a clear success at the moment
+62:08 
+
+62:08 but others are still sort of work in
+62:11 
+
+62:11 progress all right
+62:15 
+
+62:15 that's all we had for protocols thank

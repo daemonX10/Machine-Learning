@@ -1,0 +1,599 @@
+00:02 welcome to this session on multimodels part two again my name is Manish Gupta and I work as a principal applied
+00:08 scientist at Microsoft uh in part one I talked about multimodel encoders right
+00:14 so models which can basically process information expressed in multimodel ways
+00:20 for example image information text information video information and so on right in this session I'm going to talk
+00:27 about text generation with multimodel inputs so notice that of course
+00:32 multimodel models are also used these days for image Generation video generation and even multimodel output
+00:40 generation but in this particular session I'm going to only focus where the inputs focus on problems where the
+00:47 inputs are multimodal in nature but outputs are text only okay so let me get
+00:54 started by actually talking about a large number of use cases where
+00:59 multimodel input lead to text output generation right and then we will
+01:04 actually spend the remaining half of the session in terms of various popular models to be able to achieve such
+01:11 tasks um of course one of the most popular tasks is image captioning given an image basically you know come up with
+01:18 a good text caption for it and an extension to videos as well given a video come up with a good caption for it
+01:25 however there are other interesting multimodel tasks for example visual conversation
+01:31 so uh uh all of these snapshots by the way and task descriptions are taken from some papers which are referenced right
+01:37 at the bottom right so for example in the visual conversation task uh the idea
+01:43 is that you essentially uh you know uh provide the model the model with a
+01:48 particular image like you see here explain the and and also provide some text associated with it explain the
+01:54 advantages of the product right and the model can actually come up with really good advantages of this car right so uh
+02:01 but this is just factual kind of a uh conversation now you could also have some interesting U you know Common Sense
+02:08 kind of conversation for example what are shown in the photo now in the photo of course you see a very funny picture
+02:14 where a man is being chased by a chicken now that's interesting but the model anyway comes up with a man and a chicken
+02:20 now you can basically say what does the man feel and why the user can say so and then the model can actually infer he's
+02:26 scared of the chicken because it is flying at him right um so there are very interesting such
+02:33 use cases where you can have visual conversation across various domains for example humor as well so is this photo
+02:39 unusual and this is clearly an unusual house so it basically says yes it's a house that looks like it's upside down
+02:46 how could someone get out of the house and then it can basically say it has a slide on the side of the house using
+02:52 which the somebody could potentially get out of the house so it's not like it's just encoded World Knowledge but it also
+02:57 knows how to reason given new situations in those sense now these multimodal chat Bots may not
+03:04 really uh be chatting in short utterances so uh you know as you see
+03:09 here this particular uh model could actually lead to much longer utterances
+03:15 as well so given this image a user could ask what are things I should be cautious about when I visit here and this
+03:20 multimodel chatbot can actually give very very detailed uh you know different perspectives of what one should be
+03:26 cautious about and it can also help uh write long travel blog post about trip
+03:32 to this place and so on so so you know these chat Parts visual conversations may be really long conversations as well
+03:38 um not just in terms of the length and the number of utterances but the size of each utterance as well um these chart Parts could also be
+03:47 used these multimodal uh you know kind of models could also be used for doing scene understanding so given this scene
+03:53 somebody could ask hey what could have happened based on the current scene and clearly uh the information about what
+03:59 could have happened is not directly into the scene but it is obvious that you know even a human could actually look at
+04:05 the scene and then say that some natural tragedy has happened here for example a hurricane or a severe weather event
+04:11 right and the model can actually rightly predict that um so um it could also
+04:16 basically do knowledge grounded image description so for example if you ask introduce me this painting in detail
+04:22 it's not just going to say that hey it's a girl painting or something like that it's basically going to really nicely
+04:28 say that it's a young girl with a earring and this painting is actually very popular known as the girl with the
+04:33 Pearl Earring and it was basically painted by some Dutch painter in some time and in some year and so on okay so
+04:40 it basically has very interesting information uh about historical facts um
+04:45 and and and can correlate them nicely to be able to answer these questions well yet another very
+04:52 interesting task in multimodal domain is visual question answering where the idea is that you basically get an image as
+04:57 input and also a question associated with the image and the model is supposed to come up with a very good answer uh
+05:04 here are some answers you know generated by popular multimodel models like lava gp4 blip 2 open Flamingo and so on now
+05:11 of course we'll talk about some of these models in detail but the idea is that as you can see uh even images which are
+05:18 sort of odd in nature not really usual right so for example usually you don't see somebody uh sitting at the back of a
+05:26 van or a minivan and ironing clothes right so basically even unusual pictures can be described really nicely by these
+05:31 kinds of models or look at this another example where there is a you know where
+05:37 there is a interesting meme so the the text and the image is part of the single input right and um the model is asked
+05:43 can you explain this meme in detail uh and various models uh based on their capabilities can nicely explain what's
+05:50 going on in this meme so uh it's basically chicken nuggets kept in the form of a of a of a world map and
+05:56 therefore it's funny and so on okay it can explain jokes right now you see so far we basically looked
+06:03 at image inputs uh these models can actually also deal with audio visual inputs so although you may not be able
+06:10 to hear the sound here but the idea is that you can imagine what kind of a sound this guy must be making uh and
+06:15 what kind of a sound could be heard thanks to the dog outside right so essentially but the model is asked hey
+06:21 describe what you can what you hear and the model nicely says I hear sounds of footsteps on the floor in the background
+06:27 and there's also dog dog barking in the house okay it can figure out the audio and then relate that audio with with a
+06:34 description in the text does the man wear glasses and actually if you notice basically yes he views a pair of classes
+06:40 in the video so you know different lighting conditions along with what go what's going on in the video it can
+06:46 nicely infer those things okay um another one is basically on the right side where this guy basically just gave
+06:52 a performance so how was the audience's response you can ask and the model basically nicely says the audience was
+06:58 really enthusiastic and clapped loudly of course you can't hear the claps in the audio but you know the you know when
+07:03 you have the slides you can actually play this and hear the claps as well okay what is this man doing well the man
+07:09 is playing a saxophone on stage at the concert so basically U the instrument is basically visible here and essentially
+07:16 uh that's what the man was was doing right so essentially um you know these models are pretty pretty awesome because
+07:23 they can actually describe videos also now um besides just holding
+07:28 dialogues with the users they can also hold dialogues in a very interesting manner in a knowledge grounded manner so
+07:35 as to seem like a very knowledgeable friend okay so for example given this image you could as a user you could ask
+07:42 do you know who the man on the right is now this happens so many times with us right somebody talks about a movie and
+07:48 we have lost complete context because we have not seen the movie or we have forgotten the movie right uh but the interesting part is the model uh the
+07:54 models basically have a lot of World Knowledge based on which they can actually answer these questions really well a man on the man on the right is
+08:01 Jon Snow played by kit Harrington in the television series Game of Thrones who is the lady on the left and can nicely
+08:06 describe the lady as well what is the relationship between them it can nicely basically describe the relationship and
+08:12 you know also relate it with when did they meet in the E season and seven season and you know all those all those
+08:18 interesting details okay um it of course also knows about landmarks so for example you can talk about what is this
+08:24 building it can nicely tell that it is the US capital uh in Washington DC okay
+08:30 lastly it can also you know these models are also very nice in terms of capturing Dynamics so for example you could say
+08:36 describe this video and look at the detail in which the video is being described by the model it basically does
+08:41 not just say hey it's a young red-haired woman big deal but it also nicely tells many other details like striped shirt
+08:47 posing for the camera gray background holding her fingers up to her mouth as if trying to you know trying to be quiet
+08:53 and you know describing the lips and the hair and the skin and everything um trying to Signal something and so on so
+08:59 extremely deep details as you can as you can as one can observe right as a human one can observe on the right side of
+09:07 course you see this video and of course you can ask summarize the video sort of generating a video caption but you can
+09:13 also ask factual questions like what direction the ship is going and as you notice you know the model rightly
+09:19 describes that the ship is actually moving towards the right side of the video okay um well there are many other
+09:25 use cases for example given a picture can you write a story around this image for my child so can be very much used
+09:32 for generating story books right so and essentially here's an extremely interesting story you can pause the
+09:38 video and read it or you can actually look at the paper and read the full story if you really want to right you
+09:43 know look at this image and can you write me a master rap song around it so well it can actually generate nice rap
+09:49 rap songs also you know given these visuals from a comic can you basically tell me who the people in the comic are
+09:56 it can really nicely tell you who are these Comic characters and this is not a popular comic it's basically some uh not
+10:01 so uh you know some sort of offbeat comic in that sensus but still it can really nicely describe that comic okay
+10:08 so all in all what I showed you through these various examples are multiple
+10:16 multimodel use cases that is use cases where input is a combination of text
+10:22 image video audio uh and output is basically text several times just
+10:28 describing what was was going on in the multimodel input multiple times you know answering questions several times
+10:35 holding interesting conversations with users and so on now uh and of course you know given
+10:41 that the models can do these tasks so well newer and newer use cases are coming up okay so I leave it to you to
+10:47 actually find many more use cases and read many more papers which can talk about several of these use cases okay
+10:55 now what I will do in the remaining part of this session is to basically talk about different models starting from a
+11:01 really really basic one which came up around 2020 2021 about 2021 right about
+11:06 3 years back in time all the way to some of the latest models okay we'll try to
+11:11 understand how these models are able to basically generate text given multimodel
+11:17 inputs okay the first model I'm going to talk about is called Frozen Okay so uh
+11:22 this model is nicely called Frozen for a very interesting thing which you will understand very soon okay now remember
+11:28 if there is a if they are multimodal inputs just like in the previous session where I talked about multimodal encoders
+11:34 you must have multimodal encoders in this case as well okay however in the previous session I just talked about
+11:40 classification tasks and they just required encoding here you have to basically generate text as well and
+11:46 therefore you would also need to um you know augment these multimodal encoders with a text decoder with a text decoder
+11:53 okay so uh on this slide what you see is the frozen's architecture okay so let me actually partition this slide right the
+11:60 left part of the slide is basically about the training part of Frozen the right part of the slide is about test part okay so what you see on the left
+12:07 side so how is Frozen trained right so the way the Frozen is train the Frozen model is trained you know let's just
+12:13 look at the architecture very quickly so the architecture you know of course input is multimodel in nature here it is
+12:18 more like you're trying to do captioning most of these models clearly just like multimodel encoders are also trained
+12:24 using caption data image caption data okay so basically you have an image of a board and then you have basically this
+12:29 interesting uh caption a small RedBoard on the water and what you want to do is U um you see uh the user just inputs a
+12:37 small red red boat and you basically want to generate all the water or you know basically you just want to generate the entire capsule now clearly at train
+12:44 time you have both the text and the both the caption and the image and you want to basically uh use the language model
+12:51 the large language model to generate the tokens in the caption in an autor regressive manner okay so now to process
+12:58 the image there is Aion encoder to process the uh text there is a language model uh basically which is a text
+13:03 encoder and then there are these self attention layers which process the multimodel input tokens coming from the
+13:10 image and tokens coming from the text okay so so from an architecture perspective this architecture is pretty
+13:16 usual in that senses U given that you've already U you know seen how multimodal encoders encode text this is sort of
+13:22 very similar architecture okay uh for the vision encoder you could basically use any of your vit based models so
+13:29 vision transform based models or you could potentially also use reset kind of models okay convolution neural networks
+13:35 that is right for language encoder of course you could use the bird kind of models and then when it comes to the
+13:41 final decoder guy of course you need to use some sort of a language decoder and something that generates stuff in an
+13:47 auto regressive manner now the reason why this model is called Frozen is that the large language model both the text
+13:53 encoder as well as the decoder are kept Frozen nature while training this model uh on on image caption data okay so when
+14:01 you do fine tuning with image caption data you only fine tune the vision encoder and that is why this guy is
+14:07 called Frozen you keep the text part the text encoded and the text generator Frozen in nature okay so the gradients
+14:13 flow the gradients through a Frozen large language models self attention layers are used to train the vision and
+14:18 coder the gradients of course flow through this uh as you can see using those red symbols right red red arrows
+14:24 uh but then um uh the weights are only updated for the vision encoder okay now
+14:29 training is done using only image caption data in the sense a pair of image and text associated with it but at
+14:35 test time interestingly you could basically use frozen in an in context learning kind of a setup uh such that
+14:41 you could do zero short learning one shot or few shot okay now although the model is trained only for um image
+14:48 captioning uh you know the authors actually also showed that you could use it for question answering as well visual
+14:53 question answering that is okay so for example you could basically give this imagees input and ask a question what
+14:59 color is the car and then it can generate an answer like blue right um but you could also improve the accuracy
+15:06 by doing one shot visual question answering so you could basically give this image and then you know ask a
+15:11 question and provide the answer as well there right who invented this and you can say the right Brothers okay the
+15:16 answer also is supplied it is an example for the model to learn that given the image and this question this is the
+15:22 answer that the model must generate okay and then of course you can basically give your test example image along with
+15:28 the question and with a prompt a colon such that the model basically generates the answer Steve Jobs rightly okay of
+15:35 course in in context learning people have seen that greater the number of examples that you supply at test time the better the accuracy this is what
+15:41 they observed as well and therefore they also experimented uh with with like multiple short examples also called as
+15:48 few short learning okay um now one important thing to notice is that this
+15:54 model can be used in an interleaved image text manner the idea being that your input could have multiple images
+15:60 and it could have multiple text pieces as well and then you could generate uh outputs okay and generate text output
+16:07 imagine doing a conversation on WhatsApp with your friend where your friend basically posts some image asks you know
+16:12 and you guys discuss something and then you post some another image and you basically want to type the next utterance okay now in that case your
+16:19 conversation may have multiple images and text pieces text utterances interl with each other and the Frozen model is
+16:26 a very very suitable model for doing these interl uh interl text image kind
+16:31 of a processing okay so that's frozen now let me actually start talking about
+16:38 another model and this time let me talk about this model called Flamingo Flamingo is not very old it was presented at newps in 2022 okay um and
+16:47 what you see on the left side is the flamingos architecture okay um you know as usual you would
+16:55 always expect uh some image encoder some text encoder and then a text generator right a text decoder okay that is what
+17:03 You observe here as well but the architecture is a little more complex okay so uh there is you know there could
+17:09 be multiple images in Flamingo as well so you basically and and it can also take interl visual text Data okay so so
+17:17 for example if there are two images well the two images are passed through the same vision encoder uh which is
+17:22 basically pre-trend and Frozen so remember unlike Frozen where the large
+17:27 language model is Frozen in Flamingo the vision encoder is Frozen in fact not
+17:33 just the vision encoder well I'll talk about other things that are also Frozen so you know on the on the text decoder
+17:38 side but let's do it step by step okay so Vision encoder is frozen and they basically use pre-trained dress net as
+17:44 the vision encoder so basically they believe in convolution neural networks and therefore they use pre- rest net as
+17:50 the vision encoder okay um in fact you know uh depending on the size of these vision encoders and the text encoder and
+17:57 the text decoders that you have basically you would observe that Flamingo is available in three different sizes 3 billion 9 billion 80 billion
+18:03 well there is open Flamingo as well right open Flamingo models also available on hugging face
+18:09 okay um so the overall architecture uh you know um um the idea is that um if if
+18:17 the input basically has input looks like this there is an image and then there is uh this text this this is a very cute
+18:23 dog and then you have a cat picture and then you want to generate this is you know you want to generate the completion
+18:29 of course the golden completion a very serious cat Okay uh so you have two images the images basically go via the
+18:35 vision encoder Frozen Vision Frozen pre-trend resuts right and then basically they're processed using
+18:40 something called the perceiver resampler now I'll talk about the perceiver resampler on the next slide so hold on
+18:45 think about it like as a module which basically gives you some further encodings fixed size encodings from your
+18:52 images okay um on the right side what do you see so on the right side basically
+18:57 these are all you know images and cod it now on the right side you basically see that there is only a Transformer decoder
+19:03 so there's no text encoder separately as such in this model okay so what do you have you have a Transformer decoder
+19:10 where basically you have the processed text now what is processed about this processed text you took the input text
+19:16 you basically deleted the image from there and replaced it with the image token a special image token you kept the
+19:21 text as it is okay you again replace the second image with the image token and you kept the text as it is okay now uh
+19:28 when you basically you know uh process this uh uh this text uh uh I mean this this process text basically uh you give
+19:35 it as input to multiple layers of a transformer decoder okay multiple layers
+19:40 of a transformer decoder okay this Transformer decoder basically has of course multiple language modeling blocks
+19:47 so and the detail is basically what you see on the right side detail you see on the right side so you can observe uh
+19:54 that uh it is basically using the inputs coming from the image side visual inputs
+19:59 uh for cross attention so you so that's the x is basically image inputs visual inputs the Y thing is basically the text
+20:06 inputs and the first layer is basically the Gated cross attention dense layer okay a gated cross attention layer along
+20:11 with the dense layer and then there is a typical language model layer so let's look into the details on further on the
+20:17 right side okay so the cross the cross attention works as usual uh basically
+20:23 you know if you remember the self attention of course have q KBS coming from the same input but in Cross
+20:28 attention you basically use the language side input you know called as y here to
+20:33 supply the query okay the visual input basically gives you the keys and the values and those are the ones that
+20:39 basically uh are fed s qkv to your cross attention sublayer of course you have residual connections around them and you
+20:45 have basically the feed forward position-wise feet forward layer with resal connections as well um further uh
+20:52 after this basically you have the typical U you know Transformer um decoder layer which is basically um you
+20:58 know you know self attention followed by another feet forward layer okay so that's the architecture of flamingo
+21:04 model now of course the only thing that is left to understand in this architecture is how do these perceiver Samplers work which I'll basically
+21:09 describe on the next slide okay but another interesting thing to notice is that at a given text token you know at a
+21:15 given text token the model attends to the visual tokens of the image that appeared just before so remember that so
+21:21 so you see I mean in an autor regressive sense you would basically want this text to be attending to this image to this
+21:27 text and everything before that right but remember you know the way the attention Mass are defined in Flamingo
+21:33 is that the model does not attend to every image in the past but only attends to the image just before this particular
+21:38 text these particular text tokens okay the nearest image okay now um Flamingo
+21:44 of course depends on pre-trend models but then these pre Trend models are fine-tuned using a large amount of data
+21:50 so more details about these data sets are in the paper uh but uh the data sets basically include multimodal massive web
+21:55 the m3w data set which basically compris of inter Le image and text pairs okay uh
+22:01 it also basically is trained on image uh and text and video and text pairs um you
+22:06 know as as Pro as as present in these data sets Align data set ltip long text and image pays data set vtp video and
+22:13 text pays data set okay um so this this image on the left is the same as on the
+22:19 previous slide but as I promised now I'm going to go into details about the perer resampler what does this guy do okay so
+22:26 this guy basically uh you know um can actually process multiple images so uh
+22:32 here there are two images as you see you could basically also provide video by the way right so whichever way so
+22:39 whether your conversation has multiple images or it has a video you basically take those frames and you provide them
+22:44 as inputs here okay so the vision encoder is basically taking those frames um you know and taking all of those
+22:50 three inputs um these three inputs as I mentioned could be like frames of a video or three different images in your
+22:56 conversation okay um position signals are also added indicating the sequence
+23:01 in which the images appear okay um you um I mean after after you know and of
+23:07 course the vision encoder essentially gives you um if it a VI based encoder of course it gives you tokens so the imag
+23:14 is basically divided into multiple tiles for each tile you have tokens as we discussed in the previous session okay
+23:19 so you get those tokens um and then you flatten those tokens so essentially of course you have these multiple tokens
+23:25 you just organize them in a onedimensional manner so you just keep one after the other and that basically gives you your XF so remember what is
+23:33 your XF so essentially if you had three images and you have like nine tokens coming from each of those images you basically have like 27 different tokens
+23:40 representing the visual input the overall visual input across multiple images okay now the idea is that you may have
+23:47 variable number of images right but what you want is a fixed size output for example a 32 sized output 32 tokens only
+23:54 okay now to be able to get a fixed size output you basically use this perceiver res sampler okay what this guy does is a
+23:59 very simple thing okay you essentially on the right side what you see is learn latent queries now what does this mean
+24:06 this basically means you know if you basically wanted a 32 sized output you basically have 32 embeddings 32 vectors
+24:12 okay on the right side they are like latent queries okay so and we can call them as X okay we call them as X they're
+24:19 randomly initialized and they're going to be trained over time okay they're randomly initialize but they're going to be trained over time now um you see uh
+24:27 and then the way per res sampler works is there are multiple layers of cross attention actually in this in this in
+24:33 this P resampler guy okay so you basically have XF and you have X XF
+24:38 remember representing the current images in that senses X representing the Learned latent queries in that senses
+24:44 okay you basically uh use x as the queries and XF and X concatenated as
+24:49 keys and values you compute you know self attention um U and and as far as I
+24:55 remember this is complete self attention this is not autor regressive is not self attention so you compute complete self
+25:00 attention and then you do feed forward computation and you know if you started with 3 to lent queries you will
+25:06 basically get a 32 sized output now that's basically super important because that enable that ensures that you have a
+25:12 32 sized output coming in um from uh from the overall images from the overall
+25:18 images that you basically pass in as input to you know to to this model okay that's how Pur sampler works and that's
+25:24 how overall flamingo works okay so this flamingo now let's switch gears to yet
+25:30 another model and this is this time is the blip model OKAY blip became actually very very popular so U it also came up
+25:38 in22 and it's a icml paper I'll spend some time uh talking about how blip
+25:43 works okay uh and as you will see blip basically uh is a very interesting model because it s of just Builds on the
+25:49 advances in multimodel multimodel encoding okay um so of course basically
+25:54 it's going to be visual language pre-training and the nice part about blip is that you could use it for both
+26:00 as a multimodel encoder for image and video understanding but you could also use it for Generation okay so models
+26:06 earlier have before this have either focused on understanding all generation but blip was one of those first few
+26:11 models to do both of them okay uh blip has been trained on small handleable data sets like Coco um you know or
+26:19 rather previous models were just trained on very very small handleable data sets like coco or noisy data sets like common
+26:24 crawl but blip was actually trained on a very very you know rigorous cleaning pipeline again I'm not going to talk
+26:30 about the rigorous cleaning pipeline in this session uh if you want to read about that you can read in the paper but
+26:36 they have a very very interesting pipeline using which they have cleaned the data across multiple iterations and ensured that the pre-t tring has been
+26:42 done on super awesome super clean and you know super clean data okay so let's
+26:48 look at the architecture for blip Model A very interesting architecture you basically take an image divide into
+26:53 different tiles just like you would do in a typical Vision Transformer kind of a model okay um and uh as you can uh so
+27:00 so you know blips architecture can actually be can actually be described as a multimodal mixture of encoder decoder
+27:08 okay multimodal mixture of encoder decoder as you see there are like these four towers and I'll explain of course what these four towers do but it's a
+27:14 multimodal mixture of encod or decode okay it comprises of these four things as you see them right um basically the
+27:21 four things uh are unimodal image encoder so this is the unimodal image
+27:27 encoder okay unimodal text encoder it's a bird base in case of blip okay so and
+27:33 um Vision encoder is basically vit base or VL and this basically they believe in 16 Cross 16 uh pixel images as Styles
+27:42 okay so that's that uh the third module is image grounded text encoder and the fourth one is image grounded text
+27:48 decoder so basically you see if you want to do um you know multimodal understanding this is the guy this is
+27:54 the guy you are looking at third guy right and if you want to do multimodel input based generation and the fourth gu
+27:59 is what you're looking at okay so more or less you might have sort of broadly understood now how this thing works but
+28:05 let me go into details now so this is the image you basically divide into 16 pixel cross 16 pixel tiles you pass them
+28:12 as input to a viit model and the viit model basically of course is basically a standard Transformer encoder model so it
+28:19 has self attention it has feed forward it basically gives you an encoding for the entire image okay you have those
+28:24 encoding text to encoding image tokens now basically uh much of this model has
+28:29 been pre-trained has been trained on image and text image and caption data so here is the caption a little girl
+28:36 holding a kitten next to a blue fence okay so you take the text Data prepend
+28:41 it with a CLS token pass it through the text encoder so text encoder is basically a bidirectional self attention
+28:46 the usual one with residual connections add and normalize and so on there's no cross attention here basically just a
+28:52 feed forward another feed forward sub layer position with feed forward standard Transformer encoder okay uh in
+28:58 layer and layers of vision encoder as well okay and the two basically are pre- Trend together using this uh image text
+29:06 contrastive loss much like the clip model OKAY much like the clip model in a batch of n samp you know let's let's
+29:13 call it B samples right in a batch of B text image samples you would have B crossb Pairs and there would be you know
+29:19 only B of those aligned pairs versus b square minus B are nonaligned pairs you
+29:24 basically want to maximize the similarity of those B Pairs and minimize similarity of those b square minus B
+29:30 pair so the same image text um you know contrastive learning okay um now once
+29:36 you've done that you basically have very good image embeddings coming from here so that's the image embeddings and
+29:42 notice that these image embeddings are going to be used for further computation okay so for further computation these
+29:47 image embeddings are going further computation okay um now the image
+29:52 grounded text encoder basically takes the same text but with a special extra token added in the in the beginning
+29:57 called encode a special token sort of randomly initialized learned over back propagation okay um and this guy
+30:04 basically is is like a standard U you know text encoder except that it also has a cross encoder a cross attention
+30:11 module a cross attention sublayer right so it has a biodirection self attention feed forward as well but there's in
+30:17 between a cross attention um sublayer which basically uh takes these image inputs for cross attention purposes okay
+30:25 and then it is basically pre-rain using this image text matching loss now very interesting loss um I mean you know
+30:31 again the way you would basically enable this loss is by providing matching text and image Pairs and mismatching text and
+30:38 image Pairs and all all all that this uh you know uh the encode tokens
+30:44 representation needs to do is to basically predict whether this whether predict a zero or a one zero for
+30:49 mismatching and one for matching image text PS okay the last module is of course uh the
+30:55 language model so essentially it's uh a causal I mean it's a decoder so therefore it's a image grounded causal
+31:02 text decoder so it has a causal self attention sublayer and of course a feedforward sublayer as well with a cross attention and as you can imagine
+31:08 the cross attention guy basically um just uh feeds just takes just takes the image input for cross attention um and
+31:15 the text input um basically goes over U goes goes through the entire model um um
+31:20 and and information Fusion between the text and the image happens so it's to generate awesome captions okay so that's
+31:26 how basically the blip model works but when it came to blip 2 you know which came in 2023 blip 2 is like V2 of blip
+31:33 basically these guys also realized that this Q forer guy you know this perceiver
+31:38 resampler kind of a technique it's a little different technique it's not same as perceiver resampler right but there's
+31:45 an interesting technique uh which basically helps you get really good results get better results okay so
+31:50 therefore they also use the SK forer technique and we'll understand what this Q forer technique means uh but one thing
+31:57 to notice is that blip and blip 2 are actually pretty different uh architectures okay so now let me talk
+32:05 about how does blip 2 architecture look like broadly and then we'll go into details on the next slide okay um so as
+32:12 you can see blip to architecture basically also enables both the things you can basically do vision and language
+32:18 representation learning and you could use it for encoding purposes right uh or classification purposes but you also
+32:25 have a vision to language generative learning so you could basically also generate interesting answers or captions
+32:30 or utterances in the multimodel dialogue and so on okay um the first one you
+32:35 could basically say uh you know it's basically bootstrapping the pre-trained image model so there's an image encoder
+32:41 and so on and the second phase basically tries to boost bootstrap pre-trained large language models okay so so there
+32:48 are two phases in which the pre-training of this blip two model is going to be done but overall you see the blip two
+32:53 model is going to support our standard multimodal generative use cases given this image and given a piece of text
+32:59 from the user write a romantic message that goes along with this photo the model is able to generate text like love
+33:05 is like a sunset it's hard to see it coming but when it does it's so beautiful and so on right so it generates an interesting message around
+33:11 that okay um now as I said the blip two model is pre-trained in two stages the
+33:17 first stage basically it tries to pre-rain the first box so Vision language representation learning stage
+33:24 with a Frozen image encoder the image encoder is frozen this stage okay the second stage is for the second box
+33:30 Vision to language generative learning stage with a Frozen large language model okay now and the interesting thing in
+33:38 the first stage is basically this Q forer guy uh which basically takes the text um of course the image input goes
+33:45 to the image encoder but it also takes as input these extra bunch of queries and these queries you might actually
+33:51 relate them to the per the sampler queries just like per ampler would take a fixed set of query latent vectors this
+33:57 gu Al going to do the same you know it's going to take U uh a bunch of uh you see
+34:04 um uh querent vectors you know qu vectors but unlike the per res sampler
+34:11 which is basically only used to come up with the representation for the image this guy is also going to take the text part okay so it's basically going to be
+34:18 um going to be Computing uh uh revised latent representations of those quaries but in a text sensitive manner okay so
+34:25 we'll basically look at details on the next slide in fact the Q forer inside itself because it has to process images
+34:31 and text by itself it actually has an image Transformer and a text Transformer inside itself okay um and that leads me
+34:39 to this uh to this diagram right to this architecture from the previous slide Q
+34:44 forer is a combination of an image Transformer and a text Transformer okay so you basically take the input image
+34:50 you pass through the image encoder this image encoder can be a standard viit or whatever right so you basically divide
+34:56 the image into different parts and pass it through a standard V you basically get um uh you know get get a
+35:02 representation get get these latent vectors uh from the input image uh right U using using those vi or or clip kind
+35:08 of models okay now uh the this this entire yellow box is basically the Q
+35:14 forer guy okay so as I promised it basically has two parts an image Transformer and a text Transformer this
+35:21 guy is image Transformer this guy's text Transformer okay so so as you see this
+35:26 image Transformer has three different sublayers self attention cross attention and feed forward okay as input this
+35:33 image Transformer basically takes learn query vectors now again this is a fixed size of query vectors let's say 32 U you
+35:39 know is standard size but you could you could also do with like 10 query vectors and so on okay the image encoder is
+35:46 basically giving out these outputs image representations which are basically used for cross attention they are basically
+35:51 fed as input to the Cross attention not to every layer but to every other block and that's basically pretty standard I
+35:56 mean typically when you do cross attention It's s of standard that you do it every other block okay so that's that
+36:02 um so that's that now um on the right side you see basically uh the text and
+36:09 uh here you have the standard text encoder the standard Transformer encoder okay it has self attention and it has feed forward okay uh but there are like
+36:17 differences in the way these self attention layers work okay it's actually very fancy how these self attention
+36:23 layers work across these image and text Transformers okay the self potential layers basically tie the two together in
+36:31 fancy ways and I'm going to talk about those fancy ways on the right side in the slide okay uh the two are of course
+36:37 trained together and the two are trained together is basically meaning the entire of Q for is trained together um um uh
+36:43 you know using these three different U pre-training losses the image text matching loss the image text contrast to
+36:49 learning loss and image grounded text generation loss the three losses are sort of self descriptive in nature I
+36:54 don't think I need to describe again but just for the sake of completeness Right image text matching is going to
+36:60 basically just say if this image and text basically match with each other or not binary classification image text
+37:05 contrastive learning is the clip style contrastive learning right given this image and positive and negative text pairs you know um um um you know compute
+37:13 uh so the similarity between positive pairs should be higher than similarity between negative pairs that's the idea right you could have negative text
+37:19 pieces or negative image pieces whichever okay uh image grounded text generation is basically going to
+37:24 generate caption tokens and basically based on matching with the ground to caption tokens there's going to be a crossentropy loss which is going to back
+37:31 propagated right so that's basically your three loss functions but what is really interesting is the way this self
+37:37 attention mechanism works you know in the face of these three uh loss functions okay uh the queries you see
+37:45 which are there on the image Transformer side they can interact with each other okay of course the queries can interact
+37:51 with each other because of the self attention guy but they can optionally also interact with the text through the self attention layers you see this is a
+37:57 ni information propagation is also happening between the text and the image Transformer via these self attention layers okay um um the image features are
+38:06 frozen and they are passed through the cross attention which we already talked about but let's see how this fancy attention masking is going on between
+38:12 the text and the image Transformers okay so uh and this self attention differs
+38:18 based on the loss function that you are uh that you are Computing okay so uh The
+38:23 Masks differ uh depending on the loss function so this is for image text match this for image grounded text generation
+38:29 and is for image text contrasted learning okay now of course the white thing basically means is unmasked okay
+38:35 so now when you're doing image text matching the interesting part is that all queries of course attend onto all
+38:40 queries but they also attend onto text tokens okay so it's like complete B directional self attention across query
+38:46 and text pairs it's basically like you concatenated text and image and you basically are doing complete self
+38:51 attention Okay but it's not just basically that you do complete self attention in the input layer but you do across all of those end different layers
+38:58 in the both the Transformers okay so both the Transformers are really connected in that sense is of course their feed forwards being sep separated
+39:05 out and and completely different with their own way it's not shared at all and so on okay so B directional self
+39:11 attention mask is basically what is used for image text matching for uh image grounded text generation as you would
+39:17 imagine the text is going to be since it's generating stuff it's not going to be bidirectional it's Al it's of course
+39:23 going to be Auto regressive in nature but you know every text token basically to every query token also okay so it's
+39:30 basically like every text token can um can attend to previous text tokens or all the query tokens okay that's
+39:36 basically that now the third one is image text contrastive learning and there you know the obvious part is that
+39:43 uh you know text tokens attend to query tokens query tokens attend uh uh you know uh uh essentially U you know um and
+39:51 query tokens attend to the text tokens okay um um sorry so sorry um in in the
+39:57 image text contract learning sorry the Mage contrastive learning the idea is to be able to of course train both of the
+40:02 towers independently so the query tokens only attend to themselves right unlike
+40:07 what I said a little while back you know the query tokens just attend to themselves and the text tokens just attend to themselves text tokens only
+40:14 okay that's how you get the two towers and at the end you basically compute the image text contrast uh contrastive loss
+40:20 okay so that's a fancy way in which the Q forer guy is trained um and uh of course that's the first phase of
+40:26 training where you basically just train the Q forer weights with the Frozen image encoder and the second phase of
+40:31 course you're going to basically do the large language model uh pre-training okay now how do you use this guy so well
+40:39 uh I mean you know um essentially U you basically take the input image you pass
+40:44 through the image encoder you have the lat learned queries you pass through the Q forer uh by the way the Q forer's
+40:50 output does not really output text tokens at all it basically just output these learned queries the learn queries
+40:55 basically get outputed to the to the to the llm decoder so if you basically just wanted to use llm decoder you would I
+41:02 mean and in this in their case they basically also use opt model um you know
+41:07 for the decoder based llms okay um um so so the way you would do this you take
+41:13 the latent learn lat queries you connect via a fully encoded fully connected layer and give it as input to the LM
+41:18 decoder guy okay but sometimes you also want to process text as input so for
+41:24 example visual question answering kind of scenarios you also have extra text which you want to provide so in which case what you could do is to do the same
+41:31 thing on the um you know on the input side you basically get the learn queries connect with the fully connected layer
+41:36 you know pass those queries I mean they are now in the in the llm space you can also provide the text and give it all as
+41:43 a part of the LM encoder and then basically use the decoder say to start decoding and generate the outputs okay
+41:50 so you know for the pre-trained image encoder they basically experimented with vit models uh large models and you know
+41:57 huge model models with with from from clip and from Eva clip okay um and they
+42:02 also um for for for the Frozen language models basically they used o op for
+42:07 decoder based models fl5 for encoder decoder LMS the pre-training has been done on data sets similar to blip so
+42:14 remember the cleaned pipeline the cleaning pipeline rigorous cleaning pipeline they use those data sets plus they use 129 million images from Coco
+42:21 visual genome CC 3M CC 12m uh and sbu right very large data sets in that sense
+42:27 115 million images from The Lion uh 400 million data set okay so they pre-train
+42:32 very very rigorously in that senses and no wonder that leads to super awesome accuracies is using web
+42:37 tool okay now next let me talk about the Imp plug model uh imp plug model again
+42:43 uh you know it's a 2022 model um and uh as I talk about M plug model I must also
+42:48 now tell you that uh people started uh not just fine-tuning these models but
+42:54 also instruction tuning these models so now the models that I'm going to talk about are inst are trained on
+43:01 instruction based image text pairs okay so basically U there's going to be an instruction with an image what to do
+43:07 with the image okay and in this league I'm going to talk about various kinds of models we start with you know imp plug
+43:13 but here I'm also going to talk about lava and mini gbd4 okay so that's that
+43:18 um so you see um I mean the architecture is what you see on the right side so
+43:23 essentially uh there's a visual encoder which takes the image where there's a text encoder and then there's a text
+43:29 decoder okay um so um for the text encoder essentially you use six layers
+43:36 of the bird base the remaining six layers are what you see here this part that is in Orange is actually called as
+43:42 the cross model skip connected Network I'll talk about this of course you can see the architecture here and you can
+43:48 sort of make sense out of it yourself but it's a but it's it's a six layer you know bird base which is used for the
+43:54 text part um uh but uh that's what it is practically okay um and on the right
+44:01 hand side you basically see the standard Transformer decoder with all the three sublayers the ca of self attention cross attention and feet forward and that's
+44:07 basically a 12 layer Transformer decoder model okay um for the visual encoder basically this guy they basically use
+44:14 clip vit model um clip base or clip large uh sorry V base or VI large model
+44:20 okay so that's that now the only thing that is left for me to explain here is basically what is this multi what is
+44:26 this cross model skip connected Network right so this an interesting Network okay um I mean in some ways it is not
+44:32 very different from what we have learned so far basically uh you process the image via visual encoder you process the
+44:38 text using a text encoder which is a six layer bird base for six layers of the bird base when you get these representations from the image side and
+44:44 the V and and the and the text side you basically use um I mean you know the uh
+44:50 asymmetric Co tension in that sense is where you basically use the image side so as to basically Supply cross
+44:55 attention Okay queries are from the the text keys and values from the image side right whatever outputs you get from here
+45:01 you basically combine with the image image outputs image encodings right and you essentially um you know you
+45:08 essentially uh do the standard Transformer encoder self attention and feed forward yeah now uh among these six
+45:16 layer stuff uh as far as I remember they basically do two layer of this asymmetric quention and one layer of
+45:22 this of this you know full self attention and then they repeat the entire thing two times and that
+45:27 basically leads to the six layers of the of you know pre-train from the bird base okay so that's basically the plug model
+45:35 uh it's a pretty simple model in that perspective um and of course the outputs coming from the from the um imp plug
+45:42 encoder are actually fed into the cross attention mod module uh cross attention Su layer so as to start generating
+45:48 outputs from the lmm decorder okay um now of course it is pretend using these
+45:54 four different loss functions so the first one is the image text contrastive loss image text matching loss you know
+46:00 which we understand by now anyway right and uh um it's basically also pretend
+46:06 using the mass language modeling so in the on the text side you could be masking a few things and expecting the model to generate those text pieces so
+46:13 that's also there and lastly basically of course you have to have a generative prefix LM loss the auto regressive loss
+46:18 in that sens okay so that's about the pre-training now of course the last thing that is left is pre-training data
+46:24 so they basically pre-rain using 14 million images and text from Ms Coco for the image text pair uh visual genome
+46:29 conceptual captions conceptual captions 12 million and spu caption so the standard data sets which have been used to pre-train other multimodal generative
+46:36 models as well okay so that's M plug now let's talk about lava okay so lava
+46:43 became super popular in recent times in fact lava uh has multiple versions the latest one is lava 1 vision and I'm not
+46:50 going to talk too much details about La One Vision the architecture doesn't change too much it's just that the model is trained much more rigorously okay
+46:57 let's just talk about lava by itself okay so lava by itself is you know came
+47:02 up in 2023 uh lava is uh uh you know this AR the architecture is as follows
+47:09 you basically um take an image pass it through a vision encoder uh and then you learn a projector uh projection layer so
+47:17 that you can project these image embeddings onto the text space the llm text space both in terms of the space
+47:24 itself the the encoding space right and second in terms of the size of the dimension so dimensionality itself okay
+47:30 both of those basically are are transformed using this trans you know using this projector in that senses or a
+47:36 transcoder in some ways right um and then you also have uh if you have the text piece U you know some text
+47:42 associated with the image as part of input you basically also concate it and give it to the large language model and
+47:47 the large language model generates a response so the architecture is super simple in that senses okay uh you use
+47:53 the uh Coco image captioning data and um uh for for for training this model for pretraining this model and you
+47:60 essentially U you know um um use the language only gbd4 so now that's the awesome part I mean you're using gbd4
+48:07 which is really a very expensive and a heavy model and therefore it knows how to generate the output nicely okay um so
+48:14 basically the model is trained using uh 158k language image instruction
+48:20 following samples remember all of these basically imp plug lava mini gbd4 they have been of course trained using the
+48:26 standard image text capture and image texture data sets but they've also been you know instruction tuned later using
+48:32 some instruction tuning data which is specifically made available okay so for example in lava they especially created
+48:37 these 158k language image instruction following samples which are obtained from 58k conversations or rather which
+48:44 which contain 58k conversational data 23k detailed descriptions of images and 77k complex reasoning uh kind of you
+48:52 know complex reasoning given the image kind of a data okay um U so all of these
+48:57 data sets by the way have been generated using gbd4 itself so all of them have been generated using fot prompting to
+49:03 gbd4 okay um so obviously the image based gbd4 in that senses right but then
+49:09 the the the large language model they use is just the text based gbd4 so the preining is done in two
+49:15 stages for this model so first it is pretin for feature alignment and the second stage is to pretin it end to
+49:20 endend I mean or other you know you can call it fine tuning and to end stage two so the first stage is really preing second stage is fine tuning in that
+49:25 senses okay so the first stage basically involves taking the conceptual caption cc3 million data uh and they take the
+49:34 data set and filter out 595k image text pays from there and they use it for pre-training um they also pre-train
+49:40 using the conversational data you see these 58k conversation they use that also for pre-training okay uh in this
+49:46 pre-training stage the visual encoder and the llm weights are frozen and only the projector is basically what is
+49:52 pre-trained that's basically the one that is learned okay uh and you know of course the loss basically is defined
+49:57 over answer tokens whatever answers are generated you basically compute the loss over them back propagate learn the
+50:03 projector by keeping the large language model and the vision encoder fro okay in
+50:09 stage two you basically uh again um um you know you keep the visual encoder
+50:14 Frozen weights Frozen but update both the pre-end weights of the projection layer and the large language model so
+50:19 the visual encoder is basically kept as it is but then you know in the second stage of fine tuning you also fine tune
+50:25 the large language model weights okay um uh and then the fine tuning is actually
+50:30 done on the entire 158k instruction tuning data okay um uh so uh so well I
+50:37 mean the data is generated using gbd4 but the model of course uh basically gbd4 is not publicly available so the
+50:44 model actually that is used is Lama so essentially it combines uh the pre-end
+50:50 the vision encoder that is used is the pre-trend clip Vision encoder so basically you use the vitl vit large
+50:55 Vision encoder and then you combined with the Lama U you know large language model um and and then do the training in
+51:03 two stages the pre-training stage and the fineing stage okay now while doing this of course you also give a language
+51:10 instruction some sort of a system message to tell the model what to do okay uh and uh essentially when it is
+51:16 conversational data this is a system message that you can provide a chat between a curious human and an artificial intelligence assistant the
+51:23 assistant gives helpful detailed and polite answers to the humans questions okay so the AL although the model has
+51:29 not been specially instruction tuned for safety and so on but you know the assumption is that since you ask the
+51:34 model to be polite it will basically uh give polite helpful and safe answers in that senses okay um so that's that so
+51:42 the system message so basically the inputs that go into the large language model uh is is templatized as follows
+51:48 you basically give the system message you basically then give a special token stop token and a new line and then you
+51:53 say the human says something that's the instruction right and then the assistant says something
+51:59 and then the human says something and then the assistant says something this this particular stuff X1 instruct X2
+52:04 instruct that you see there now you know it could be either text and image or image and text depending on uh uh I mean
+52:12 and and the these lava models have been trained using data sets with one image so the first one could be basically
+52:18 sometimes you keep the text you keep the text first and then the image and sometimes you keep the V text you know
+52:24 keep the image first and then the text okay it could be either so lava model has not been pretrained using data with
+52:30 multiple inter Le images and so on okay that's that and of course therefore for the remaining utterances the remaining
+52:35 turns of course you just pass the text and you append that particular thing so that's how you basically give it a full
+52:41 conversation as input and you know you basically um you basically uh ask the
+52:47 model uh to generate the assistant replies essentially right that's the
+52:52 lava model um let me quickly talk about video Lama and then next I'm going to
+52:57 talk about mini gbd4 and call it done in that senses for this session okay so video Lama now video Lama of course
+53:04 basically uh is um uh is is is a model which can actually process video um so
+53:10 you basically take an input video uh you pass it pass the video frames to a visual encoder A viit and A Q forer
+53:17 combination so uh basically uh I mean the viit model takes each of those
+53:23 frames comes up with some representations and you basically give it to a q for model and the Q for comes up with the limited number of queries in
+53:28 that senses right so the video Q forer Aggregates the frame level representations and shares the same
+53:34 architecture with query Transformer the Q forer that we saw in the blip two case Okay the audio encoder basically um uh
+53:41 you know um takes those audio segments creates uh the audio spectrogram out of
+53:48 it now you see um what is audio audio basically comprises of frequency and wavelength and so on right magnitude at
+53:55 different frequencies and so on so all of that can be represented using a nice image called as a spectrogram and there
+54:01 are many many um pre-processing libraries like Pi audio and AOC city which can give you a spectrogram given a
+54:06 particular audio sample okay so you take those spectrograms and then basically give it to an audio encoder okay uh and
+54:13 this audio encoder essentially just uses basically this is just the same as audio spectrogram Transformer from image p and
+54:19 you take both of these representations um um and here is a representation
+54:25 coming for every image frame and and here is a representation coming for every audio segment in that sensus okay
+54:31 you combine them with u positional information and give it to video Q for this is the Q forer place right so
+54:37 essentially video q forer and audio Q forer such that at the end of it you basically get exactly the same number of
+54:44 queries from both the sides and uh then uh what you do is to basically do linear transformation so that's to bring them
+54:51 both the video part and the audio part in the same as the text space and then you can basically combine with the text
+54:56 instructions like human says something and then you can put up the video and the audio information describe this
+55:02 video and uh in their case they use vuna Lama is the llm so is to basically then generate awesome captions for this video
+55:09 okay so you could think about this kind of a model as if it basically provides video and audio soft prompts along with
+55:16 the text prompt to the llm so as to generate awesome captions okay um as you
+55:21 notice this guy is basically the multibranch cross model training part of video Lama architecture there's a vision
+55:27 language part on the left side and there's a audio language branch on the right side Vision language part of course needs to be pre-trained so it's
+55:34 pre-trained using video caption data set web withd 2 million um which has video clips to text generation task right and
+55:41 also on the image caption data so it's basically trained both using image text payers and video text paays okay um so
+55:47 the way the fine turning is done fine turning is done using video based conversation data so there are two phases for the vision language Branch
+55:54 the first phase basically um does the pre training using video text and image text Data uh caption data typically but
+56:01 the F training is actually done using video based conversational data um uh for for for visual instruction tuning
+56:07 right um so and and the data basically comes from several sources three different sources but details you can
+56:13 again read in the paper okay the audio part basically is pre-trained using audio Text data so audio related
+56:19 components uh on a audio caption data so you have the audio caption data which is used to pre-rain the audio language br
+56:27 okay lastly let me talk about this last this third instruction tuning model called mini gbd4 uh instruction tuning
+56:34 based multimodel model called mbd4 the architecture actually honestly is very very similar um uh to uh to to the
+56:41 previous two architecture that it talked about the lava and the video Lama models and in fact it's a simpler architecture
+56:47 if you ask me really right so it basically has the llm vuna which takes hash human as the input and also it
+56:53 takes you know whatever images or video you provide basically process them through a V and a q fora setup does a
+57:00 projection linear projection and also takes another other text tokens just to generate awesome captions okay uh just
+57:07 like the other two models it you know video llama uh and and the lava model it also aligns a frozen visual encoder with
+57:13 a Frozen um Frozen llm so as to uh with a projection layer so as to generate good captions uh the training is done in
+57:20 two phases um pre-training and fine tuning pre-training phase you basically keep the vision encoder and the llm
+57:26 Frozen both the vision Cod and llm just like in the lava pre-training where you basically just pre-rain the projection
+57:31 layer okay uh but the pre-rain data is actually much more rigorous you basically use a combination of image
+57:37 captioning data set from Lon conceptual captions and spu okay the F tuning part
+57:43 is also more rigorous compared to the lava framework where you find tune using instruction tuning data 3,500 specially
+57:49 curated detailed image description pairs um and the input input format I already
+57:54 talked about you basically give it as hash and then the image features the IMG token image features end of IMG token uh
+58:02 and and the instruction and then the instruction the assistant instruction that sense okay an instruction basically
+58:08 they try with two different instructions for results that they show in the paper like describe this image in detail or could you describe the contents the
+58:13 image and so on and they show some awesome results in the paper some of the results I'm also showing here in fact
+58:18 many of many of these results that you see here uh are based on other kinds of models like
+58:24 gbd4 not many details are known about the architecture but uh I just also
+58:29 wanted to show you these models are so strong now that can they can basically take these um audio um uh about let's
+58:37 say a meeting chat which is going on so there a meeting chat which is going on uh maybe you couldn't hear if you cannot
+58:43 but the idea is that uh uh it's it's a meeting which is going on between four speakers and uh the idea is to basically
+58:51 ask the model hey what's going on in this meeting okay uh and the model nicely describes basically Ally
+58:57 different people because people refer to each other by their names and that's how the model understands who are the people they are four speakers in the audio and
+59:03 Mark is saying something and Nick is saying something dark and z are talking about something and so on and you know
+59:08 if you basically actually ask it can you describe um describe the transcript with speaker names it can actually do that as
+59:14 well this is what exactly what these guys have been saying Mark is saying good morning the first team meeting you know team is saying morning I mean other
+59:20 people say morning and then you know um so it nicely attributes um whatever pieces of text that was said uh or
+59:27 whatever pieces of speech that was said to the right speaker right also called as a speaker diation task okay these
+59:33 models can also do really awesome um uh awesome uh you know text generation on very long videos so for example this is
+59:40 again a demo from GPD 4o U um you know demo page you can actually look at uh
+59:45 this demo on the on that link okay so you can take a 45 minute almost a 45 minute lecture video and you can
+59:52 basically just tell the model hey summarize this for me now that's huge right 45 minutes is such a a long video
+59:57 but this model gbd4 can very nicely summarize in fact it can actually create slides as well so it can basically say
+60:03 hey there's a first slide introduction challenges of optimizing LMS optimization flow and it it basically nice nicely gives you bullet points and
+60:09 sub bullet points and so on and continues on the next slide I basically also continued uh more more description
+60:15 as as you see it here okay so very nice tools that are available for lecture
+60:21 summarization okay in summary in this session I talked about many multimodel
+60:27 use cases where the input is multimodel inputs you know where the inputs are multimodel nature but the generated text
+60:32 is uh generated output is text right uh I broadly talked about uh models like
+60:38 Frozen in fact I tried to cover what has happened in the multimodal generative world in the past uh three four years or
+60:46 so I started with Frozen then I went into Flamingo we talked about blip and blip to right uh we also talked about
+60:53 imp plug um and rather basically these ones that we talked about imp plug lava
+60:58 video Lama mini gbd4 these are more instruction tuned multimodel models the first ones the first four are not really
+61:05 instruction tuned uh I mean of course the instruction tuned models do better um but we understood detailed
+61:11 architecture of each of those models now clearly uh in this session I not talk about image generation or video
+61:17 generation but that's something uh that you can learn about uh from other sources okay thanks for your attention
+61:24 you know connect happy to connect with you those are my coordinates and if you want to learn about learn more about these
+61:31 models or even image and video generation that's my YouTube where you can um you know Listen to More such
+61:37 videos thanks so much and now open to questions

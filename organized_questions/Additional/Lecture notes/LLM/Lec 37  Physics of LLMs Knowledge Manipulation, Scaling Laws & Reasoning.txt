@@ -1,0 +1,3685 @@
+00:00 So today we'll be talking about physics
+00:02 
+
+00:02 of LLMs. Okay. So uh I am a u third year
+00:07 
+
+00:07 PhD student at IIT Delhi under professor
+00:09 
+
+00:09 Tanmay. So I I actively work in the area
+00:11 
+
+00:11 of efficient LLMs including the the
+00:14 
+
+00:14 physics aspect of LLM. So uh in this
+00:17 
+
+00:17 particular uh lecture uh what you can
+00:20 
+
+00:20 expect. So uh just to give a disclaimer.
+00:23 
+
+00:23 So this is a still a very nent area of
+00:26 
+
+00:26 research and uh this particular series
+00:29 
+
+00:29 uh is um it's it's a tutorial okay done
+00:33 
+
+00:33 um like taken by professor Alan Zoo from
+00:37 
+
+00:37 MEA and uh the tutorial is quite vast so
+00:40 
+
+00:40 in uh an 1 hour lecture I was not able
+00:43 
+
+00:43 to like put all the concepts uh together
+00:46 
+
+00:46 but I wanted to have the um the broad
+00:50 
+
+00:50 highlights of the research so that if
+00:52 
+
+00:52 anyone is interested they can actually
+00:54 
+
+00:54 take this uh research into you know
+00:56 
+
+00:56 further. So and I think you already have
+00:60 
+
+00:60 gone through one lecture on physics of
+01:01 
+
+01:01 LLM. So I'll quickly recap what I think
+01:04 
+
+01:04 the previous speaker has already
+01:05 
+
+01:05 covered. So there are two aspects to do
+01:08 
+
+01:08 theory. Okay. One is a computational or
+01:11 
+
+01:11 statistical learning uh theory where you
+01:14 
+
+01:14 can analytically measure some of the uh
+01:17 
+
+01:17 some of the you know complexity measures
+01:19 
+
+01:19 like vis dimension or you can have a
+01:22 
+
+01:22 pack learnability theory or you can try
+01:25 
+
+01:25 to you know come up with some
+01:26 
+
+01:26 theoretical bounds right so these
+01:29 
+
+01:29 concepts are very rigorous because they
+01:31 
+
+01:31 are mathematical right but there are
+01:34 
+
+01:34 also some disadvantages like sometimes
+01:36 
+
+01:36 they are very difficult to understand
+01:38 
+
+01:38 right even by experts
+01:40 
+
+01:40 uh some of the assumptions are too
+01:42 
+
+01:42 idealistic. So you can't replicate this
+01:44 
+
+01:44 on let's say a 32 layer LLM right. So
+01:46 
+
+01:46 most of the theory work uh is done on
+01:50 
+
+01:50 let's say two two layer MLPS or even you
+01:53 
+
+01:53 know models with linear activations and
+01:56 
+
+01:56 so on right uh so it can only analyze
+01:59 
+
+01:59 shallow networks and the theory rarely
+02:01 
+
+02:01 connect with the practice right so the
+02:03 
+
+02:03 models that we typically use in practice
+02:06 
+
+02:06 they are too large or too complex to be
+02:09 
+
+02:09 um analyzed theoretically.
+02:11 
+
+02:11 uh on the other spectrum you have
+02:13 
+
+02:13 ethology which is uh the science of
+02:15 
+
+02:15 animal behavior right so this is more
+02:17 
+
+02:17 like a experiments that you can perform
+02:20 
+
+02:20 so here basically you can treat LLMs
+02:22 
+
+02:22 like monkeys or maybe guinea pigs right
+02:24 
+
+02:24 and then you can change the environment
+02:27 
+
+02:27 and then you can observe how they behave
+02:29 
+
+02:29 differently right so the advantage is
+02:31 
+
+02:31 that uh anyone can do all these kind of
+02:34 
+
+02:34 things uh you can also like study large
+02:36 
+
+02:36 models with ethology
+02:38 
+
+02:38 and you could also like derive some
+02:41 
+
+02:41 interesting insights that can be like
+02:43 
+
+02:43 some mechanical interpretation, how
+02:45 
+
+02:45 models think, how model do reasoning, uh
+02:48 
+
+02:48 chain of thought and and many more,
+02:50 
+
+02:50 right? But the disadvantages could be
+02:53 
+
+02:53 that uh ethology can be sometimes too
+02:55 
+
+02:55 subjective, right? So you only focus on
+02:58 
+
+02:58 the use case that you want to prove or
+03:00 
+
+03:00 disprove, right? So sometimes they are
+03:02 
+
+03:02 less rigorous. uh sometimes they tend to
+03:06 
+
+03:06 have false claims or maybe some uh you
+03:08 
+
+03:08 know um reader bias or practitioner bias
+03:11 
+
+03:11 right so the physics lies somewhere in
+03:14 
+
+03:14 between okay so
+03:18 
+
+03:18 uh as I mentioned so this particular
+03:20 
+
+03:20 series of tutorial uh was done by
+03:23 
+
+03:23 professor Alenzu and it was uh like uh
+03:27 
+
+03:27 split into multiple parts part one part
+03:29 
+
+03:29 two part three and then recently uh
+03:31 
+
+03:31 there was also a part four So why
+03:34 
+
+03:34 physics of LMS right? Because with this
+03:38 
+
+03:38 kind of concept you can actually
+03:40 
+
+03:40 decompose intelligence into multiple
+03:42 
+
+03:42 building blocks right. So you can uh
+03:45 
+
+03:45 like have some core capabilities of uh
+03:48 
+
+03:48 of the model of interest and then you
+03:50 
+
+03:50 can study each of those capabilities in
+03:52 
+
+03:52 a very controlled manner. Right? So you
+03:54 
+
+03:54 have the full control of the
+03:55 
+
+03:55 environment. So you can avoid data
+03:57 
+
+03:57 leakage. You can you know control your
+03:59 
+
+03:59 experiments in terms of the depth or the
+04:02 
+
+04:02 width that you want to achieve right. uh
+04:05 
+
+04:05 the experiments could be highly
+04:06 
+
+04:06 repeatable right you can vary uh many
+04:09 
+
+04:09 hyperparameters you can vary the size of
+04:11 
+
+04:11 the model the size of the data set uh
+04:14 
+
+04:14 the depth the dimensions of the model
+04:16 
+
+04:16 and so on right so you have the entire
+04:18 
+
+04:18 control of the experiments right uh and
+04:21 
+
+04:21 you can also derive universal laws you
+04:23 
+
+04:23 can derive scaling laws and many more
+04:25 
+
+04:25 right
+04:26 
+
+04:26 uh and also with this kind of control
+04:29 
+
+04:29 setup you can do probing right so you
+04:31 
+
+04:31 can actually see how the model actually
+04:34 
+
+04:34 works the inner workings of the model
+04:36 
+
+04:36 right so having a very controlled setup
+04:38 
+
+04:38 actually helps in many ways so that's
+04:40 
+
+04:40 the reason I think uh this particular
+04:42 
+
+04:42 concept of physics of large language
+04:44 
+
+04:44 models is very important to study so
+04:47 
+
+04:47 this is the project page and this is the
+04:49 
+
+04:49 YouTube channel and each of the parts
+04:51 
+
+04:51 are also you know being recorded in a
+04:53 
+
+04:53 dedicated online talks so you can uh you
+04:56 
+
+04:56 are advised to actually go through this
+04:57 
+
+04:57 lecture series because uh like uh the
+04:59 
+
+04:59 videos they contain uh lot of
+05:02 
+
+05:02 information uh lot of key information
+05:03 
+
+05:03 that would definitely help in your uh
+05:06 
+
+05:06 future research or your understanding of
+05:07 
+
+05:07 the subject.
+05:09 
+
+05:09 So today we will talk about first we'll
+05:12 
+
+05:12 talk about the part three of their
+05:14 
+
+05:14 series which is the knowledge. So how
+05:16 
+
+05:16 large language models uh store or
+05:19 
+
+05:19 retrieve knowledge. Uh I think some of
+05:21 
+
+05:21 the uh concepts on the uh knowledge uh
+05:24 
+
+05:24 storage of language models has already
+05:26 
+
+05:26 been discussed in the last lecture. So
+05:28 
+
+05:28 I'll just quickly recap the key results
+05:29 
+
+05:29 from the last lecture. So I think you
+05:32 
+
+05:32 have already gone through some of these
+05:33 
+
+05:33 uh results. So uh first thing that they
+05:36 
+
+05:36 highlighted in their result is that the
+05:38 
+
+05:38 mix training is very important right. So
+05:40 
+
+05:40 you can't just do a pre-training. You
+05:41 
+
+05:41 also need to do uh some QA type training
+05:44 
+
+05:44 in order to um learn or teach a large
+05:48 
+
+05:48 language model on knowledge extraction
+05:50 
+
+05:50 kind of task. uh instruction fine-tune
+05:53 
+
+05:53 uh does not necessarily mean that a
+05:55 
+
+05:55 model would be good in knowledge
+05:56 
+
+05:56 extraction unless the pretend data is
+05:58 
+
+05:58 augmented in in certain ways. uh then
+06:02 
+
+06:02 they also introduce some probing
+06:03 
+
+06:03 technique to explain why and how and
+06:06 
+
+06:06 where the knowledge is stored uh in an
+06:07 
+
+06:07 LLM. Uh then another interesting uh
+06:11 
+
+06:11 result that they highlighted that
+06:13 
+
+06:13 knowledge on celebrity helps minority.
+06:15 
+
+06:15 So knowledge on the u the knowledge
+06:18 
+
+06:18 pairs or the knowledge entities that are
+06:20 
+
+06:20 frequently occurring uh can also help in
+06:23 
+
+06:23 extracting the knowledge on uh rare
+06:25 
+
+06:25 events or rare knowledge tpples right
+06:28 
+
+06:28 and they also highlighted that some of
+06:29 
+
+06:29 the encoder models like bird they uh
+06:32 
+
+06:32 they're not suitable for knowledge
+06:33 
+
+06:33 extraction right so you actually need
+06:35 
+
+06:35 autogressive models uh trained uh
+06:37 
+
+06:37 suitably uh for beta knowledge
+06:39 
+
+06:39 extraction
+06:42 
+
+06:42 now uh in today first we'll talk about
+06:44 
+
+06:44 knowledge manipulation So now let's
+06:46 
+
+06:46 understand what is knowledge
+06:47 
+
+06:47 manipulation. Okay. So let's say uh
+06:49 
+
+06:49 there's a question right uh was Joe
+06:51 
+
+06:51 Biden born in an even year right now in
+06:55 
+
+06:55 order to answer this question a model
+06:57 
+
+06:57 needs to first uh know what is the birth
+06:60 
+
+06:60 year of Joe Biden? Then it needs to know
+07:02 
+
+07:02 what is an even year and then finally it
+07:04 
+
+07:04 needs to answer whether Joe Biden was
+07:06 
+
+07:06 born in an even year or not. Right? So
+07:09 
+
+07:09 there are multiple possibilities. Right?
+07:11 
+
+07:11 The model can make certain mistakes. One
+07:13 
+
+07:13 mistake could be that the model knows
+07:14 
+
+07:14 what event means. uh it can even answer
+07:18 
+
+07:18 but it it cannot answer whether uh 1946
+07:22 
+
+07:22 which is the uh year uh when Joe Biden
+07:25 
+
+07:25 was born whether it's even or not right
+07:27 
+
+07:27 or it can actually answer whether 1946
+07:30 
+
+07:30 is even or not but it it can't connect
+07:32 
+
+07:32 both the dots right uh there can be a
+07:35 
+
+07:35 possibility where the model doesn't even
+07:37 
+
+07:37 know what is what even means right uh
+07:40 
+
+07:40 the model may not know the birth year of
+07:43 
+
+07:43 Joe Biden which comes under part 3.1 one
+07:46 
+
+07:46 which you already have seen and then
+07:48 
+
+07:48 under the correct scenarios the model
+07:51 
+
+07:51 can infer that okay 1946 is even and
+07:54 
+
+07:54 Biden was born in 1946 and then it can
+07:58 
+
+07:58 uh generate the final response uh or it
+08:01 
+
+08:01 can even you know like have the exact
+08:05 
+
+08:05 fact in the training data and it can
+08:07 
+
+08:07 memorize right and based on that
+08:09 
+
+08:09 memorized uh knowledge it can retrieve
+08:12 
+
+08:12 the answer that okay uh Joe Biden was
+08:14 
+
+08:14 born uh in an even year but again this
+08:16 
+
+08:16 is memorization and this is not uh our
+08:18 
+
+08:18 interest in in this particular talk. So
+08:20 
+
+08:20 we are particularly interested in this
+08:22 
+
+08:22 part which is the first block where the
+08:24 
+
+08:24 model infers where the model first
+08:26 
+
+08:26 extracts the knowledge that Joe Biden
+08:28 
+
+08:28 was born in 1946. Then it uses some sort
+08:32 
+
+08:32 of reasoning capability or some
+08:34 
+
+08:34 deduction capability
+08:36 
+
+08:36 and then it infers that okay 1946 is
+08:39 
+
+08:39 even and then based on these two facts
+08:42 
+
+08:42 it finally answers that Joe Biden was
+08:44 
+
+08:44 born in an even year.
+08:48 
+
+08:48 So uh the authors they also showed that
+08:51 
+
+08:51 you know some of the proprietary models
+08:52 
+
+08:52 like even GPD4 right they also sometimes
+08:55 
+
+08:55 failed to respond to knowledge
+08:56 
+
+08:56 manipulation questions. So this is an
+08:58 
+
+08:58 actual example where uh it was asked
+09:01 
+
+09:01 that was Donald Trump born uh in an
+09:04 
+
+09:04 event. So it
+09:08 
+
+09:08 like extracted the uh right answer but
+09:12 
+
+09:12 then it uh deducted the final response
+09:15 
+
+09:15 incorrectly. So it said that Donald
+09:18 
+
+09:18 Trump was born on June 14th but then it
+09:21 
+
+09:21 said that it's an odd day right uh which
+09:23 
+
+09:23 is not correct and then uh once asked uh
+09:27 
+
+09:27 once you know uh responded back to the
+09:29 
+
+09:29 model uh then the model says that okay
+09:31 
+
+09:31 uh sorry for the oversight you are
+09:34 
+
+09:34 correct. So like this uh there are
+09:36 
+
+09:36 several occasions where even a
+09:37 
+
+09:37 proprietary large pretend models can
+09:39 
+
+09:39 also fail to uh respond to very simple
+09:42 
+
+09:42 knowledge manipulation questions right.
+09:44 
+
+09:44 So what's the solution right like how do
+09:45 
+
+09:45 we make this large proprietary models to
+09:48 
+
+09:48 uh solve this kind of simple uh
+09:50 
+
+09:50 knowledge manipulation tasks. So one way
+09:52 
+
+09:52 is to use chain of thought right uh and
+09:54 
+
+09:54 I'll also explain it later on. So
+09:57 
+
+09:57 basically if you ask the model uh in the
+10:00 
+
+10:00 same same uh sort of conversation that
+10:03 
+
+10:03 okay tell me the reason also right so
+10:06 
+
+10:06 there uh the model tends to do some sort
+10:09 
+
+10:09 of selfcorrection and then it uh tries
+10:11 
+
+10:11 to answer correctly on the same
+10:14 
+
+10:14 knowledge manipulation question.
+10:17 
+
+10:17 So in their control setup and I think
+10:19 
+
+10:19 you have already seen these two data
+10:20 
+
+10:20 sets bios and bio. So basically they
+10:23 
+
+10:23 have generated their own synthetic data
+10:25 
+
+10:25 based on fixed set of entities and their
+10:28 
+
+10:28 attributes and they also had a fixed
+10:29 
+
+10:29 template. So based on that they
+10:31 
+
+10:31 generated two sets of data set. One data
+10:34 
+
+10:34 set was generated entirely
+10:35 
+
+10:35 programmatically
+10:37 
+
+10:37 and another data sets was rewritten by
+10:40 
+
+10:40 some large language models. Uh so the
+10:42 
+
+10:42 same data set they used for uh knowledge
+10:44 
+
+10:44 manipulation task as well.
+10:46 
+
+10:46 [clears throat] So uh basically there
+10:49 
+
+10:49 are two things that they did for
+10:50 
+
+10:50 knowledge manipulation. one is called
+10:52 
+
+10:52 partial retrieval and the second is
+10:54 
+
+10:54 called dual retrieval. So we've already
+10:56 
+
+10:56 seen knowledge extraction so I'll skip
+10:57 
+
+10:57 this. So the third box here which is the
+10:60 
+
+10:60 partial retrieval. So what is partial
+11:01 
+
+11:01 retrieval? So instead of asking
+11:05 
+
+11:05 uh for the full fact you ask for some
+11:07 
+
+11:07 partial fact for instance what is the
+11:09 
+
+11:09 birth day in the month for Ana Briar
+11:12 
+
+11:12 forger right? So the answer is two. Uh
+11:15 
+
+11:15 similarly what is the birth year? Right?
+11:16 
+
+11:16 So I think they only used two entities
+11:19 
+
+11:19 which is the uh birth date and the place
+11:22 
+
+11:22 of birth for the dual and partial
+11:25 
+
+11:25 retrieval uh example. So here um I've
+11:27 
+
+11:27 already highlighted. So this is for the
+11:29 
+
+11:29 dual retrieval. So in dual retrieval
+11:31 
+
+11:31 basically you ask two questions in the
+11:34 
+
+11:34 same uh same text right so where was
+11:37 
+
+11:37 this person born and which company did
+11:39 
+
+11:39 this person work for right? So this is
+11:41 
+
+11:41 also kind of knowledge manipulation
+11:42 
+
+11:42 because you need to first understand the
+11:44 
+
+11:44 context. You need to retrieve the
+11:45 
+
+11:45 individual facts and then you need to
+11:47 
+
+11:47 connect them uh in the single response.
+11:49 
+
+11:49 Right? So this is also not very
+11:51 
+
+11:51 straightforward as a simple knowledge
+11:53 
+
+11:53 extraction. Right? So these are the two
+11:54 
+
+11:54 tasks that they predominantly used and
+11:58 
+
+11:58 then here are the results. So the left
+12:01 
+
+12:01 block is the uh is the um knowledge
+12:06 
+
+12:06 partial knowledge retrieval result. The
+12:09 
+
+12:09 middle one is the dual retrieval result
+12:11 
+
+12:11 and the third block is the original
+12:13 
+
+12:13 knowledge um extraction uh result. So
+12:17 
+
+12:17 the key things that we can observe over
+12:19 
+
+12:19 here. So if you see here the right uh
+12:22 
+
+12:22 the third block you would you would see
+12:24 
+
+12:24 lot of hundreds right which means that
+12:26 
+
+12:26 the model is uh able to extract each and
+12:29 
+
+12:29 every um response correctly right but if
+12:33 
+
+12:33 you see the other two boxes you see
+12:36 
+
+12:36 there is a certain drop in performance
+12:38 
+
+12:38 right so even for a very simple
+12:40 
+
+12:40 derivation that what is the birthday of
+12:42 
+
+12:42 that person or what is the birth year of
+12:44 
+
+12:44 the person the performance can drop from
+12:46 
+
+12:46 100% to in some cases to 85% Right? So
+12:49 
+
+12:49 15% drop, right? Uh and in in some cases
+12:53 
+
+12:53 you could like for birth year
+12:55 
+
+12:55 particularly you could see even you know
+12:57 
+
+12:57 uh severely poor performance like 20%
+12:60 
+
+12:60 accuracy right which is uh which is
+13:03 
+
+13:03 almost like 80% drop right. Uh for the
+13:06 
+
+13:06 dual retrieval also there are some cases
+13:08 
+
+13:08 where you would see a very like
+13:10 
+
+13:10 negligible performance like uh 3.6% or
+13:13 
+
+13:13 17%. Right? So uh as I I I was speaking
+13:17 
+
+13:17 so if you see here there are several
+13:19 
+
+13:19 hundreds right so the model was able to
+13:21 
+
+13:21 extract let's say the birth day or uh
+13:24 
+
+13:24 let's say what else uh even the birth
+13:26 
+
+13:26 city also right in some cases uh there
+13:29 
+
+13:29 are some poor results but if we ignore
+13:31 
+
+13:31 them mostly it is above 8 98% right so
+13:34 
+
+13:34 the model is fairly uh accurate in
+13:36 
+
+13:36 extracting the birth day or the birth
+13:38 
+
+13:38 city of the person right but if you see
+13:41 
+
+13:41 uh the partial uh retrieval right so you
+13:44 
+
+13:44 would see a lot drops like here if you
+13:46 
+
+13:46 see for this particular combination uh
+13:48 
+
+13:48 the performance uh dropped to 82% for
+13:51 
+
+13:51 birthday uh and for birth year it
+13:53 
+
+13:53 dropped to even 20%. Right? Which is 80%
+13:56 
+
+13:56 drop. Uh similarly if you see the uh the
+13:59 
+
+13:59 dual retrieval uh the uh performance
+14:01 
+
+14:01 right you would see lot of drops right.
+14:04 
+
+14:04 So for instance you can see uh that for
+14:08 
+
+14:08 uh the city name and the uh uh the city
+14:12 
+
+14:12 and the uh the the entity name right so
+14:15 
+
+14:15 there is a drop from 26% to 17%.
+14:18 
+
+14:18 However, interestingly, there are some
+14:20 
+
+14:20 cases where the performance even
+14:22 
+
+14:22 improves, right? So, for instance, if
+14:24 
+
+14:24 you see here, if you just take the C
+14:26 
+
+14:26 name uh the name of the uh the person uh
+14:31 
+
+14:31 and then if you just take the city name
+14:33 
+
+14:33 and if you like combine them, then
+14:35 
+
+14:35 sometimes the performance can improve,
+14:36 
+
+14:36 right? So, there are like lots of
+14:38 
+
+14:38 results. So, we may not need to look at
+14:40 
+
+14:40 all the results individually. But at an
+14:43 
+
+14:43 overall level if we synthesize the
+14:44 
+
+14:44 results then it's it shows that dual
+14:47 
+
+14:47 retrieval is generally easy when both
+14:49 
+
+14:49 tasks are easy. So if you have two task
+14:52 
+
+14:52 where the performance is good then you
+14:54 
+
+14:54 can also have like your performance on
+14:56 
+
+14:56 the dual task retrieval uh good enough.
+14:58 
+
+14:58 Uh however if there's a causal and
+14:60 
+
+14:60 special relationship between the piece
+15:01 
+
+15:01 of knowledge then their order may
+15:03 
+
+15:03 matter. Right? So what they have shown
+15:05 
+
+15:05 that if you let's say ask first the
+15:10 
+
+15:10 uh let's say uh
+15:13 
+
+15:13 uh the university name and then you ask
+15:15 
+
+15:15 the city name uh versus if you ask the
+15:18 
+
+15:18 city name first and then the university
+15:20 
+
+15:20 name the performance changes right and
+15:22 
+
+15:22 that is because there is a uh the
+15:24 
+
+15:24 special or causal relationship between
+15:26 
+
+15:26 the different piece of knowledge or
+15:28 
+
+15:28 different entities which can actually
+15:30 
+
+15:30 hinder how the model does the knowledge
+15:33 
+
+15:33 manipulation. ation. So in the later on
+15:35 
+
+15:35 we will see how model does knowledge
+15:36 
+
+15:36 manipulation. So that is one result and
+15:39 
+
+15:39 then another result is that even if an
+15:41 
+
+15:41 attribute can be perfectly extracted
+15:43 
+
+15:43 partial retrieval of the later tokens
+15:45 
+
+15:45 may be still poor. So by later tokens it
+15:49 
+
+15:49 means that let's say if you have a birth
+15:51 
+
+15:51 day then your initial tokens are birth
+15:54 
+
+15:54 day or the month and the later tokens
+15:56 
+
+15:56 are the birth years. Right? So here we
+15:58 
+
+15:58 have seen that particularly for birth
+16:00 
+
+16:00 years the model is struggling. Right? So
+16:02 
+
+16:02 that's what they synthesized from these
+16:04 
+
+16:04 results that partial retrieval the later
+16:07 
+
+16:07 tokens might be still poor.
+16:10 
+
+16:10 So uh then there there were few
+16:12 
+
+16:12 additional tasks that they that they
+16:14 
+
+16:14 performed. Another one was uh knowledge
+16:17 
+
+16:17 classification where you class so
+16:20 
+
+16:20 instead of just retrieving you classify
+16:22 
+
+16:22 uh so basically it's a um multi-class
+16:25 
+
+16:25 classification kind of problem and they
+16:27 
+
+16:27 they also use some modular arithmetic.
+16:29 
+
+16:29 So because they don't want the numbers
+16:31 
+
+16:31 to be too large and then they don't want
+16:33 
+
+16:33 to focus on arithmetic. Uh so the first
+16:36 
+
+16:36 uh like the third set of task is
+16:38 
+
+16:38 knowledge classification and the fourth
+16:40 
+
+16:40 one is a comparison. So basically doing
+16:41 
+
+16:41 some some subtraction or some operation
+16:44 
+
+16:44 on uh two sets of facts.
+16:48 
+
+16:48 So there also I think what they observed
+16:51 
+
+16:51 that without chain of thought examples
+16:53 
+
+16:53 the model's test accuracy is
+16:55 
+
+16:55 significantly low even for very simple
+16:57 
+
+16:57 singlestep manipulation task. Right? So
+16:59 
+
+16:59 uh here they have like shown the results
+17:02 
+
+17:02 on different training setups different
+17:04 
+
+17:04 pre-training setups on the on the test
+17:07 
+
+17:07 data.
+17:09 
+
+17:09 Uh then uh in another corollary they
+17:12 
+
+17:12 showed that even when CO2 CO2 CAT
+17:16 
+
+17:16 examples are included during training
+17:18 
+
+17:18 the model still struggles to answer
+17:20 
+
+17:20 without a hint during testing. So
+17:22 
+
+17:22 basically what they kind of highlighted
+17:24 
+
+17:24 that just having the the chain of
+17:27 
+
+17:27 thought prompts in the training data is
+17:29 
+
+17:29 not sufficient. Right? So this is uh
+17:32 
+
+17:32 contrary to the uh the actual subject of
+17:36 
+
+17:36 prompting. Right? where people showed
+17:38 
+
+17:38 that you only need to do this kind of
+17:40 
+
+17:40 prompting during training, right? In
+17:41 
+
+17:41 order to uh teach the language model,
+17:43 
+
+17:43 right? But what they are saying here is
+17:45 
+
+17:45 that uh even if you have the chain of
+17:49 
+
+17:49 thought prompting in the during training
+17:51 
+
+17:51 but don't use it in test time, your
+17:54 
+
+17:54 model can still perform very poorly,
+17:55 
+
+17:55 right? So basically uh you have to also
+17:58 
+
+17:58 put this hints during test time.
+18:02 
+
+18:02 And then finally the difference between
+18:03 
+
+18:03 a pre-trend and a QA fine tuned model is
+18:05 
+
+18:05 very minimal for downstream knowledge
+18:07 
+
+18:07 manipulation tasks. So the problem is
+18:08 
+
+18:08 not the knowledge storage rather the
+18:12 
+
+18:12 problem is knowledge um manipulation or
+18:15 
+
+18:15 like connecting the connecting multiple
+18:17 
+
+18:17 knowledges
+18:20 
+
+18:20 and then uh another interesting uh task
+18:22 
+
+18:22 that they uh that they evaluated is
+18:25 
+
+18:25 knowledge inverse search. So basically
+18:28 
+
+18:28 instead of asking the birth day of a
+18:31 
+
+18:31 person, you ask the other way. So who
+18:33 
+
+18:33 was the person who was born on this
+18:35 
+
+18:35 particular date? Uh you can also put
+18:38 
+
+18:38 like more information uh what was the
+18:40 
+
+18:40 person uh born on this date in this
+18:43 
+
+18:43 place and so on. So there are uh
+18:46 
+
+18:46 multiple templates that they use for
+18:48 
+
+18:48 inverse search. So the interesting
+18:50 
+
+18:50 results that they observe is that
+18:52 
+
+18:52 inverse search is very difficult for
+18:53 
+
+18:53 large language models. Even for models
+18:55 
+
+18:55 like GPD 3.5 or GPD 4 inverse search is
+18:58 
+
+18:58 fairly difficult. So if you see the
+18:60 
+
+18:60 results here [snorts] uh for a forward
+19:03 
+
+19:03 search GPD 3.5 accuracy is 89%. But for
+19:06 
+
+19:06 the same model the inverse search
+19:08 
+
+19:08 accuracy drops to 23%. Right? Same goes
+19:11 
+
+19:11 for GPD4 as well. So the proprietary
+19:14 
+
+19:14 models are also not very suitable for
+19:16 
+
+19:16 doing the invert search. Right? And then
+19:18 
+
+19:18 they also tested it on Chinese data set.
+19:20 
+
+19:20 Uh and then they also tested it on some
+19:23 
+
+19:23 essays and English English text. Right?
+19:28 
+
+19:28 So then uh how do we do knowledge
+19:30 
+
+19:30 inverse search right? So one thing that
+19:32 
+
+19:32 they uh that they uh tried is they also
+19:36 
+
+19:36 tried some data augmentation. Okay. So
+19:38 
+
+19:38 basically instead of uh putting the name
+19:41 
+
+19:41 of the person at the very beginning they
+19:43 
+
+19:43 put it at multiple places. So uh so for
+19:46 
+
+19:46 instance this is one uh type of template
+19:49 
+
+19:49 that they use for augmentation the
+19:51 
+
+19:51 person was born. So instead of uh using
+19:54 
+
+19:54 the actual person's name in the first
+19:56 
+
+19:56 line they mentioned the person was born
+19:57 
+
+19:57 on this this date and after that in the
+19:60 
+
+19:60 second line they said that this is the
+20:02 
+
+20:02 person this is the name of the person
+20:03 
+
+20:03 and then uh she spent her early days in
+20:06 
+
+20:06 in in in this city and so on. So this is
+20:08 
+
+20:08 one augmentation technique. Then this is
+20:10 
+
+20:10 another augmentation technique where
+20:11 
+
+20:11 they put the name of the person in the
+20:13 
+
+20:13 third sentence and so on. So like this
+20:15 
+
+20:15 you can like generate multiple templates
+20:17 
+
+20:17 right. So this is one kind of data
+20:18 
+
+20:18 augmentation that they used to
+20:21 
+
+20:21 understand how the data augmentation can
+20:24 
+
+20:24 help a model in doing the inverse search
+20:26 
+
+20:26 [snorts] and then they uh saw some
+20:29 
+
+20:29 results uh although the results are not
+20:31 
+
+20:31 that good. So you would see lot of zeros
+20:34 
+
+20:34 right. So uh what they said that models
+20:37 
+
+20:37 have near zero accuracy to inverts
+20:39 
+
+20:39 knowledge search even for simple task
+20:41 
+
+20:41 all to first uh even with the bio plus
+20:44 
+
+20:44 qm mix training approach and even with
+20:46 
+
+20:46 strong pre-trained data uh knowledge
+20:47 
+
+20:47 augmentation. So even after this kind of
+20:49 
+
+20:49 augmentation the model fails to generate
+20:52 
+
+20:52 the right answer.
+20:56 
+
+20:56 So uh then uh how do you uh do knowledge
+20:59 
+
+20:59 inverse search right? So one technique
+21:02 
+
+21:02 that they highlighted in their paper is
+21:05 
+
+21:05 you could actually have a kind of a rack
+21:07 
+
+21:07 kind of setup right where you can also
+21:09 
+
+21:09 put the maybe you know some some
+21:12 
+
+21:12 description of the text within the
+21:15 
+
+21:15 context right so what they showed that
+21:17 
+
+21:17 let's say you have a pre-trained data
+21:18 
+
+21:18 like this and then you can actually you
+21:22 
+
+21:22 know modify this data in such a way
+21:25 
+
+21:25 where the model uh can have access to
+21:28 
+
+21:28 some sort of lookup key right that it
+21:31 
+
+21:31 can look up to and then it can do the uh
+21:34 
+
+21:34 the reverse the the inverse search right
+21:36 
+
+21:36 so with forward knowledge search this is
+21:38 
+
+21:38 not needed right but with reverse search
+21:41 
+
+21:41 the model doesn't have any reference to
+21:43 
+
+21:43 look for right so and in order to
+21:44 
+
+21:44 augment that information uh you may need
+21:48 
+
+21:48 to add some uh some descriptions or
+21:51 
+
+21:51 maybe you know uh some positional
+21:53 
+
+21:53 indexing to the context so that the
+21:55 
+
+21:55 model can retrieve that part of
+21:57 
+
+21:57 knowledge and it can uh further uh
+21:59 
+
+21:59 respond to the invert search constant.
+22:01 
+
+22:01 So the results that they synthesize is
+22:04 
+
+22:04 that to improve invert search of
+22:05 
+
+22:05 critical documents by LLMs, not only we
+22:07 
+
+22:07 can employ rag or pre-process training
+22:09 
+
+22:09 data to include reverse knowledge or
+22:11 
+
+22:11 practically but we can also introduce
+22:13 
+
+22:13 line numbers. So by introducing line
+22:15 
+
+22:15 number or maybe the paragraph number the
+22:17 
+
+22:17 model can have access to some reference
+22:19 
+
+22:19 uh that it can use to then finally do
+22:22 
+
+22:22 the reverse search. So this is one way
+22:23 
+
+22:23 out. So to summarize what we learned in
+22:28 
+
+22:28 knowledge manipulation uh knowledge
+22:30 
+
+22:30 partial or dual retrieval is very
+22:32 
+
+22:32 difficult even for proprietary models
+22:34 
+
+22:34 like GBD4. Knowledge classification and
+22:37 
+
+22:37 comparison is also very hard right
+22:40 
+
+22:40 knowledge invert search is almost
+22:41 
+
+22:41 impossible. uh all the models uh tend to
+22:46 
+
+22:46 have near zero accuracy and then uh what
+22:50 
+
+22:50 they claimed to be uh uh some Turing
+22:54 
+
+22:54 test to distinguish humans from
+22:55 
+
+22:55 contemporary AI is the is is the is
+22:57 
+
+22:57 their ability to do the inverse search
+22:59 
+
+22:59 right so universal counter examples
+23:02 
+
+23:02 applicable to proprietary models that we
+23:04 
+
+23:04 just saw that the models they need
+23:07 
+
+23:07 explicit uh indexing or explicit uh
+23:10 
+
+23:10 reference information in order to do uh
+23:13 
+
+23:13 inverse uh knowledge search and we will
+23:15 
+
+23:15 move on to the next part which is the
+23:16 
+
+23:16 knowledge capacity scaling law. Okay. So
+23:20 
+
+23:20 uh and this concept is actually very
+23:22 
+
+23:22 interesting and this you could actually
+23:24 
+
+23:24 use in many other areas. Okay. So the uh
+23:27 
+
+23:27 main concept is that how do you uh
+23:29 
+
+23:29 quantify knowledge right so what they
+23:32 
+
+23:32 say that if you have let's say a control
+23:35 
+
+23:35 setup right so you know how how much
+23:38 
+
+23:38 vocabulary you have how many different
+23:40 
+
+23:40 number of entities are there what are
+23:42 
+
+23:42 their possible values and so on then you
+23:43 
+
+23:43 can actually have a proper like
+23:45 
+
+23:45 theoretical uh bound or a theoretical
+23:48 
+
+23:48 like quantity right to quantify the
+23:51 
+
+23:51 knowledge or the maximum possible
+23:53 
+
+23:53 knowledge of a model right so for
+23:55 
+
+23:55 instance if Let's say the birthdays are
+23:57 
+
+23:57 uniformly drawn uh from 12 for the
+24:00 
+
+24:00 month, 28 for the days and then let's
+24:02 
+
+24:02 say 200 years, right? Then the
+24:05 
+
+24:05 possibility is uh 12 into 28 into 200
+24:08 
+
+24:08 and then you convert it into bits. So it
+24:11 
+
+24:11 roughly gets to 60 bit, right? Uh
+24:14 
+
+24:14 similarly let's say there are 300 US
+24:16 
+
+24:16 cities. So you can actually have this
+24:19 
+
+24:19 much information content, right? So like
+24:21 
+
+24:21 that for their entire bios, bio and
+24:25 
+
+24:25 their biod this data sets uh they
+24:28 
+
+24:28 actually came up with their um like
+24:30 
+
+24:30 total knowledge uh quantity right which
+24:34 
+
+24:34 is this formula. So you can just go
+24:36 
+
+24:36 through their paper just to understand
+24:38 
+
+24:38 how they came up with this formula but I
+24:40 
+
+24:40 think it's uh quite intuitive also
+24:42 
+
+24:42 right. So this is the maximum possible
+24:44 
+
+24:44 uh knowledge that you can get by
+24:47 
+
+24:47 pre-training a model on this data set.
+24:49 
+
+24:49 Right? So what now they want to do is uh
+24:53 
+
+24:53 so this is the maximum knowledge. So now
+24:55 
+
+24:55 they pre-train some LLM on this data and
+24:58 
+
+24:58 then based on the loss that they that
+25:01 
+
+25:01 they get from there they can have some
+25:05 
+
+25:05 understanding of how much knowledge is
+25:07 
+
+25:07 actually learned by the model right and
+25:09 
+
+25:09 from there you can actually have some
+25:11 
+
+25:11 sort of bound right so uh one key
+25:14 
+
+25:14 concept that they introduced here is
+25:16 
+
+25:16 called in exposure okay so what they are
+25:19 
+
+25:19 saying that uh the exp the number of
+25:22 
+
+25:22 times a knowledge entity is exposed to
+25:24 
+
+25:24 the model matters not just the number of
+25:27 
+
+25:27 passes. So the difference is that
+25:29 
+
+25:29 [snorts] uh let's say you have a data
+25:30 
+
+25:30 set right uh and let's say you train
+25:33 
+
+25:33 your model for let's say 100 epochs
+25:36 
+
+25:36 right so you would expect that the model
+25:38 
+
+25:38 sees each data 100 times right but
+25:41 
+
+25:41 that's not same as seeing a knowledge
+25:43 
+
+25:43 fact 100 times right because in a data
+25:46 
+
+25:46 set you can have that same knowledge
+25:48 
+
+25:48 fact occurring multiple times right so
+25:51 
+
+25:51 in order to have a full control over how
+25:54 
+
+25:54 many times uh a model sees a knowledge
+25:56 
+
+25:56 fact or knowledge let's say tpple uh
+25:59 
+
+25:59 they introduce this concept of n
+26:01 
+
+26:01 exposure right so they say key uh I only
+26:05 
+
+26:05 want my model to see one knowledge for
+26:08 
+
+26:08 let's say 100 or maybe thousand times
+26:13 
+
+26:13 so the key results that they uh showed
+26:15 
+
+26:15 in the knowledge capacity GPD2 trained
+26:18 
+
+26:18 with standard optimizer consistently
+26:21 
+
+26:21 achieves two bit per parameter capacity
+26:22 
+
+26:22 ratio so each parameter can contain up
+26:24 
+
+26:24 to two bit right uh and And this
+26:27 
+
+26:27 includes varial various model sizes,
+26:29 
+
+26:29 depths, widths, uh data sizes, types and
+26:32 
+
+26:32 hyperparameters, right? And this is
+26:34 
+
+26:34 observed mostly in a thousand exposure
+26:36 
+
+26:36 uh setup, right? So the model sees each
+26:40 
+
+26:40 knowledge thousands time thousand times.
+26:43 
+
+26:43 Now if you reduce the exposure count uh
+26:47 
+
+26:47 let's say with 100 exposure, then they
+26:50 
+
+26:50 say that the model is under trend and
+26:51 
+
+26:51 then the capacity ratio falls to one bit
+26:53 
+
+26:53 per parameter. So the amount of
+26:56 
+
+26:56 knowledge memorized or learned by the
+26:58 
+
+26:58 model falls almost uh by 50%. Right? Uh
+27:02 
+
+27:02 and then they also had some interesting
+27:05 
+
+27:05 uh observations that uh it's it's a it's
+27:08 
+
+27:08 a universal rule that uh in a th00and
+27:11 
+
+27:11 exposure setup uh the capacity ratio is
+27:13 
+
+27:13 two bit perimeter and this happens even
+27:16 
+
+27:16 without MLP layers. Right? So basically
+27:18 
+
+27:18 from this uh result they conclude that
+27:21 
+
+27:21 the attention layers can also store
+27:22 
+
+27:22 knowledge. I think this is also kind of
+27:24 
+
+27:24 counterintuitive because previous
+27:26 
+
+27:26 research showed that the MLP blocks are
+27:29 
+
+27:29 responsible for storing the knowledge of
+27:30 
+
+27:30 a large language model, right? Uh and
+27:32 
+
+27:32 then they showed that with 100 exposures
+27:35 
+
+27:35 some of the even notable models like
+27:38 
+
+27:38 Llama and Mistral their capacity ratio
+27:40 
+
+27:40 is also lower and in fact they are also
+27:43 
+
+27:43 lower than the GPD2 models uh capacity
+27:47 
+
+27:47 uh which is much much smaller in size.
+27:50 
+
+27:50 Right? And then further controlled
+27:52 
+
+27:52 experiments indicate that the gated MLP
+27:54 
+
+27:54 usage of llama and mistral and these
+27:57 
+
+27:57 kind of models they tend to underperform
+27:59 
+
+27:59 uh in in knowledge storage right so
+28:01 
+
+28:01 basically what they say that uh you
+28:04 
+
+28:04 don't need any mechanism in the MLP
+28:06 
+
+28:06 right even the simple MLP introduced in
+28:08 
+
+28:08 the GPD model is good enough for uh
+28:10 
+
+28:10 knowledge storage.
+28:14 
+
+28:14 Uh then they also showed that uh quant
+28:17 
+
+28:17 how quantization affects the knowledge
+28:19 
+
+28:19 storage. So from float 16 to float 32 to
+28:24 
+
+28:24 if you like quantize the model to let's
+28:26 
+
+28:26 say int 8 then it doesn't uh affect the
+28:29 
+
+28:29 scaling loss at all [snorts] but if you
+28:32 
+
+28:32 further quantize the model to let's say
+28:34 
+
+28:34 int four then you can have like 2x
+28:37 
+
+28:37 result in terms of the capacity right so
+28:39 
+
+28:39 the capacity bits per param falls
+28:43 
+
+28:43 and then they also had a scaling law for
+28:46 
+
+28:46 the mixture of expert or the efficient
+28:48 
+
+28:48 models So they showed that with uh
+28:51 
+
+28:51 mixture of experts uh let's say with 32
+28:54 
+
+28:54 experts uh despite using only roughly
+28:57 
+
+28:57 10% of the total parameter during
+28:59 
+
+28:59 inference you could only see uh some
+29:02 
+
+29:02 marginal drop in the uh knowledge
+29:04 
+
+29:04 capacity right so in thousand exposure
+29:07 
+
+29:07 setup you only see like 30% words uh in
+29:11 
+
+29:11 100 exposure setup you see like 50% drop
+29:14 
+
+29:14 so in under training setup you always
+29:17 
+
+29:17 see higher drops right? Uh for obvious
+29:19 
+
+29:19 reasons.
+29:22 
+
+29:22 And then another uh interesting uh
+29:24 
+
+29:24 experiment that they did on with the
+29:26 
+
+29:26 junk data. So let's say you uh inject
+29:29 
+
+29:29 some junk into your pre-training data,
+29:32 
+
+29:32 how does it impact the uh the knowledge
+29:34 
+
+29:34 capacity of the model. So what they
+29:36 
+
+29:36 showed that uh if you use 100 exposure
+29:41 
+
+29:41 then it having a junk data in your
+29:43 
+
+29:43 pre-training can make things almost 20
+29:45 
+
+29:45 time worse. Right? However, if you
+29:47 
+
+29:47 increase the exposure uh then the the
+29:51 
+
+29:51 impact actually kind kind of reduces. So
+29:54 
+
+29:54 from 20x it reduces to up to 3x. It
+29:56 
+
+29:56 still works but the impact is uh much uh
+29:60 
+
+30:00 you know lower than what you would see
+30:02 
+
+30:02 in a 100 exposure setup. So I think the
+30:05 
+
+30:05 key thing to observe over here is that
+30:07 
+
+30:07 the exposure matters like how many times
+30:09 
+
+30:09 the model sees each uh individual
+30:12 
+
+30:12 knowledge that actually matters a lot uh
+30:15 
+
+30:15 for the model to understand or to uh
+30:18 
+
+30:18 like capture and save that knowledge
+30:21 
+
+30:21 into its uh memory right. Uh so one
+30:24 
+
+30:24 quick fix that they suggested uh to um
+30:28 
+
+30:28 marginalize the impact of uh junk data
+30:31 
+
+30:31 is uh just add the domain name right. So
+30:34 
+
+30:34 if you add the domain name then again
+30:36 
+
+30:36 the model can verify whether the the
+30:39 
+
+30:39 data is coming from some good verified
+30:41 
+
+30:41 source or not and based on that it can
+30:44 
+
+30:44 uh like it can categorically decide
+30:47 
+
+30:47 which data to store and which data to uh
+30:50 
+
+30:50 to skip right. So with that you can uh
+30:53 
+
+30:53 like mitigate some of the performance
+30:56 
+
+30:56 drop. So for instance uh for this setup
+30:60 
+
+30:60 uh you got a drop 3x and then you got 3x
+31:03 
+
+31:03 better. So essentially this is same as
+31:06 
+
+31:06 this right uh for a 100 exposure setup
+31:09 
+
+31:09 you got 20x words and then you uh can uh
+31:12 
+
+31:12 like improve the model by uh by 10x. So
+31:15 
+
+31:15 basically you will just have like 50%
+31:18 
+
+31:18 drop in the performance. Right? So this
+31:19 
+
+31:19 is one one strategy that they adopted
+31:21 
+
+31:21 and they also highlighted that this
+31:23 
+
+31:23 strategy kind of works.
+31:26 
+
+31:26 So uh to summarize universal law all LLM
+31:30 
+
+31:30 irrespective of their architecture
+31:31 
+
+31:31 irrespective of their size uh they can
+31:35 
+
+31:35 store two bit per knowledge if they are
+31:38 
+
+31:38 trained suitably with uh 1,000 exposure
+31:42 
+
+31:42 uh to each uh knowledge. uh if you have
+31:46 
+
+31:46 insufficient training then uh the model
+31:49 
+
+31:49 uh performance uh in terms of the
+31:51 
+
+31:51 knowledge capacity drops and some of the
+31:54 
+
+31:54 leading architectures like llama mistral
+31:56 
+
+31:56 they also tend to uh store lesser amount
+31:59 
+
+31:59 of knowledge as compared to GPD2
+32:03 
+
+32:03 uh then uh up to a certain quantization
+32:07 
+
+32:07 uh the capacity doesn't fall that much
+32:09 
+
+32:09 but if you do drastic quantization let's
+32:12 
+
+32:12 say to 4 bit or maybe 2 bit then you
+32:15 
+
+32:15 tend to have um very poor knowledge
+32:18 
+
+32:18 capacity [snorts] and mix of expert is
+32:21 
+
+32:21 also quite robust to knowledge capacity
+32:24 
+
+32:24 and then finally uh they showed that the
+32:27 
+
+32:27 mixed quality data scaling loss exist.
+32:30 
+
+32:30 So if you have bad quality data in your
+32:32 
+
+32:32 pre-training then uh the model uh can uh
+32:36 
+
+32:36 hallucinate or it can like uh do fairly
+32:41 
+
+32:41 bad in the uh retrieval kind of tasks.
+32:45 
+
+32:45 So then in the next part which is the
+32:47 
+
+32:47 part two of physics of LLM we're going
+32:49 
+
+32:49 to talk about the hidden reasoning
+32:51 
+
+32:51 process. So here also I will skip most
+32:52 
+
+32:52 of the part I'll just keep I'll just you
+32:55 
+
+32:55 know talk about the key results that
+32:56 
+
+32:56 they got and how they did it. Uh so so
+32:60 
+
+32:60 uh uh these are the authors of the
+33:02 
+
+33:02 series. So uh for reasoning first they
+33:07 
+
+33:07 came up with a data set. So what they
+33:09 
+
+33:09 claim that some of the you know um
+33:11 
+
+33:11 popular data sets like GSM uh they are
+33:14 
+
+33:14 too small right? uh they are too small
+33:16 
+
+33:16 and the format or the template they are
+33:18 
+
+33:18 also very restrictive and you can't use
+33:22 
+
+33:22 GSM 8K to uh to analyze uh every LLM
+33:27 
+
+33:27 because there's a possibility of data
+33:28 
+
+33:28 contamination right because some of the
+33:30 
+
+33:30 examples or some of the problems in GSM
+33:32 
+
+33:32 they are actually very simple right so
+33:34 
+
+33:34 you may never know whether this problem
+33:36 
+
+33:36 was already seen by the model during
+33:38 
+
+33:38 pre-training or not right so you can't
+33:40 
+
+33:40 reliably say whether the model is
+33:42 
+
+33:42 actually doing some reasoning or whether
+33:43 
+
+33:43 the model is just doing a memory ization
+33:45 
+
+33:45 right so they actually proposed another
+33:47 
+
+33:47 data set called IGSM which is uh
+33:50 
+
+33:50 infinite synthetic GSM like data so what
+33:53 
+
+33:53 they did so they had a fixed number of
+33:56 
+
+33:56 uh entities right and then they built
+33:58 
+
+33:58 some uh structured graph around them to
+34:02 
+
+34:02 come up with the uh the problem uh where
+34:05 
+
+34:05 reasoning is uh needed to uh answer a
+34:08 
+
+34:08 certain uh question right so their data
+34:13 
+
+34:13 set aims to capture multiple things. One
+34:16 
+
+34:16 is the direct dependency between some a
+34:18 
+
+34:18 set of variables. Uh then the instance
+34:21 
+
+34:21 dependency, right? Uh and then uh it
+34:24 
+
+34:24 also enables implicit dependency, right?
+34:28 
+
+34:28 Like what is what and what is not,
+34:30 
+
+34:30 right? So something like that. So it
+34:32 
+
+34:32 also involves some bit of uh you know
+34:34 
+
+34:34 common sense reasoning but not too much
+34:36 
+
+34:36 unlike GSM8K. So what they like said
+34:39 
+
+34:39 that you need to like um you need to
+34:43 
+
+34:43 take multiple things as apart like you
+34:47 
+
+34:47 cannot have the common sense reasoning
+34:49 
+
+34:49 within a mathematical reasoning task uh
+34:51 
+
+34:51 unlike the GSM8K. So with this
+34:53 
+
+34:53 controlled setup they kind of ensured
+34:55 
+
+34:55 all these dependencies and they also
+34:57 
+
+34:57 kind of ensured that a model which only
+34:60 
+
+34:60 knows this data can uh respond to the
+35:03 
+
+35:03 questions. You don't need any external
+35:04 
+
+35:04 knowledge for that. Right? So this is
+35:06 
+
+35:06 one uh example of uh of of a problem
+35:10 
+
+35:10 right. So there are multiple entities
+35:11 
+
+35:11 and then uh uh I mean you can also uh
+35:16 
+
+35:16 figure out how many operations you need
+35:18 
+
+35:18 to uh to uh finally answer the question.
+35:21 
+
+35:21 So for instance here for this particular
+35:23 
+
+35:23 problem uh you can actually answer this
+35:25 
+
+35:25 in seven operations. So uh these are the
+35:28 
+
+35:28 intermediate operations and then the
+35:29 
+
+35:29 final operation is the answer. So in
+35:31 
+
+35:31 total seven operations you can actually
+35:33 
+
+35:33 um answer the question
+35:36 
+
+35:36 and then again uh like the previous
+35:39 
+
+35:39 series they only focused on reasoning so
+35:41 
+
+35:41 they did some modular arithmetic.
+35:45 
+
+35:45 So uh some of the key results that they
+35:47 
+
+35:47 showed that and also okay uh one more
+35:49 
+
+35:49 thing so they also had like two three
+35:52 
+
+35:52 different variations of that data set
+35:54 
+
+35:54 based on how many operations are needed
+35:55 
+
+35:55 to answer a question. So for instance
+35:58 
+
+35:58 the data set which had uh the number of
+36:00 
+
+36:00 operations needed less than equals 15
+36:03 
+
+36:03 there are almost 7 billion solution
+36:05 
+
+36:05 templates right so you could understand
+36:07 
+
+36:07 that a model having a very brute force
+36:10 
+
+36:10 way to do reasoning is not sufficient or
+36:12 
+
+36:12 cannot like answer uh uh all the
+36:14 
+
+36:14 questions right similarly on the her
+36:17 
+
+36:17 data set where number of operations is
+36:19 
+
+36:19 uh 21 there total number of possible
+36:21 
+
+36:21 solution template it it exist exceeds 15
+36:25 
+
+36:25 trillion right So the results they are
+36:28 
+
+36:28 actually quite intriguing. So if you see
+36:30 
+
+36:30 here for operation number 15 the model
+36:34 
+
+36:34 performance is almost 99%. Right? Uh
+36:37 
+
+36:37 similarly on the hard data for 21 it's
+36:40 
+
+36:40 99%. So in any case it doesn't fall
+36:44 
+
+36:44 below 70% or something right. So even
+36:46 
+
+36:46 [clears throat] for number of operation
+36:48 
+
+36:48 23 uh the model performance is almost
+36:51 
+
+36:51 78%. Right? So uh what they uh deduce
+36:56 
+
+36:56 from this result first that uh the
+36:59 
+
+36:59 models the LLMs they do not have just a
+37:02 
+
+37:02 level zero reasoning right where they
+37:03 
+
+37:03 enumerate all possibilities in a brute
+37:05 
+
+37:05 force manner because the total number of
+37:07 
+
+37:07 solution template in this in these data
+37:09 
+
+37:09 sets they are so big that a model can't
+37:12 
+
+37:12 just do a brute force reasoning. So they
+37:14 
+
+37:14 say that the model can have a level one
+37:17 
+
+37:17 reasoning. So basically what the model
+37:19 
+
+37:19 does the model uses some sort of
+37:21 
+
+37:21 topological sort right so let's say the
+37:23 
+
+37:23 model uh knows that okay in order to
+37:27 
+
+37:27 answer to this question these are the
+37:29 
+
+37:29 variables or these are some of the
+37:31 
+
+37:31 entities that I need to use and then it
+37:34 
+
+37:34 can uh have a topological sort to
+37:37 
+
+37:37 understand which variable depends on
+37:39 
+
+37:39 what variable right so the model has
+37:41 
+
+37:41 some sort of mental process so they can
+37:44 
+
+37:44 uh like um they can arrange all the
+37:49 
+
+37:49 variables in the proper ordering and
+37:51 
+
+37:51 then based on that they can
+37:54 
+
+37:54 select the shortest possible path to
+37:56 
+
+37:56 answer to answer the question. Right? So
+37:58 
+
+37:58 this is what they call as level one
+37:60 
+
+37:60 reasoning and then in the later part
+38:01 
+
+38:01 they also showed that the model also
+38:03 
+
+38:03 exhibit uh level two reasoning where the
+38:06 
+
+38:06 model uh has a mental process even
+38:09 
+
+38:09 before knowing the question which is
+38:11 
+
+38:11 very interesting. So just by looking at
+38:13 
+
+38:13 the context the model
+38:16 
+
+38:16 can do some sort of mapping between the
+38:19 
+
+38:19 different variables and it understands
+38:21 
+
+38:21 and basically it has the entire uh
+38:23 
+
+38:23 structured graph in its mind. So then
+38:25 
+
+38:25 you ask any question then the model just
+38:27 
+
+38:27 highlights okay which all entities or
+38:29 
+
+38:29 node I need for this question. It does
+38:32 
+
+38:32 some topological sorting and then it
+38:34 
+
+38:34 generates the final answer. Right? So uh
+38:37 
+
+38:37 let me show you the level two reasoning.
+38:39 
+
+38:39 Okay. So this is the level one reasoning
+38:41 
+
+38:41 result. So uh so this is where they
+38:45 
+
+38:45 claim that the model do not use any
+38:48 
+
+38:48 unnecessary step. So these are all the
+38:50 
+
+38:50 results uh highlighting how many
+38:53 
+
+38:53 unnecessary steps or unnecessary
+38:55 
+
+38:55 operations taken by the model. So you
+38:57 
+
+38:57 would see that most of the values are
+38:58 
+
+38:58 very close to zero. Right? Uh even for a
+39:01 
+
+39:01 very like uh difficult data set with
+39:03 
+
+39:03 more number of operation uh the number
+39:05 
+
+39:05 of average unnecessary operation remains
+39:07 
+
+39:07 very small. Right? So what they claim
+39:10 
+
+39:10 that the model shows level one reasoning
+39:14 
+
+39:14 skill where it not only can highlight
+39:16 
+
+39:16 the uh important um variables uh for
+39:21 
+
+39:21 generating the response but it also um
+39:24 
+
+39:24 selectively uses only the important
+39:27 
+
+39:27 variables to generate the response and
+39:28 
+
+39:28 it it does it in the shortest possible
+39:32 
+
+39:32 uh reasoning path.
+39:35 
+
+39:35 And then uh this is the uh okay uh so
+39:39 
+
+39:39 this is the uh okay I'll talk about the
+39:40 
+
+39:40 level two uh maybe in in just a few
+39:43 
+
+39:43 minutes. So they also did some probing
+39:45 
+
+39:45 to understand how the model can do
+39:47 
+
+39:47 reasoning. For that they actually came
+39:49 
+
+39:49 up with uh multiple probing task like uh
+39:52 
+
+39:52 n a if parameter a is necessary for
+39:55 
+
+39:55 computing the answer dependency a b if
+39:58 
+
+39:58 parameter a depends on parameter b and
+40:00 
+
+40:00 so on. Right? So what they showed that
+40:03 
+
+40:03 for most of this probing task they got
+40:06 
+
+40:06 fairly accurate or like fairly near
+40:08 
+
+40:08 perfect result. Okay. which kind of
+40:11 
+
+40:11 tells them how the how a model does the
+40:15 
+
+40:15 reasoning right so for instance they
+40:17 
+
+40:17 showed that on n a task probing task the
+40:20 
+
+40:20 model uh performance is very close to
+40:23 
+
+40:23 99% very close to 100%. Similarly on the
+40:26 
+
+40:26 dependency uh probing task the model
+40:28 
+
+40:28 performance is very close to 100%. So
+40:30 
+
+40:30 basically the model
+40:32 
+
+40:32 is able to identify which parameter is
+40:34 
+
+40:34 necessary. Secondly, the model is able
+40:36 
+
+40:36 to identify which uh variable depends on
+40:40 
+
+40:40 what other variable. So basically it can
+40:42 
+
+40:42 build the entire dependency graph
+40:43 
+
+40:43 accurately. So this is the uh you know
+40:45 
+
+40:45 proof why the uh authors claim that uh
+40:49 
+
+40:49 the GPT2 achieves uh level one reasoning
+40:52 
+
+40:52 right.
+40:53 
+
+40:53 Uh so this is how they did the probing.
+40:56 
+
+40:56 So this is uh V probing what they call.
+40:59 
+
+40:59 So this is a problem this is a question
+41:01 
+
+41:01 and then they just you know put uh some
+41:04 
+
+41:04 parameter let's say they and this is for
+41:07 
+
+41:07 n right so whether a particular
+41:09 
+
+41:09 parameter is necessary or not right so
+41:11 
+
+41:11 they just put the parameter after having
+41:14 
+
+41:14 a start token and then this is the end
+41:17 
+
+41:17 token and then they just predict in the
+41:19 
+
+41:19 next token whether the value is true or
+41:22 
+
+41:22 false right so they freeze the
+41:24 
+
+41:24 pre-trained LLM they have a trainable
+41:27 
+
+41:27 rankar update on the embedding based on
+41:30 
+
+41:30 this parameters and then finally they
+41:32 
+
+41:32 have a trainable uh linear layer right
+41:34 
+
+41:34 so this is how they did the did all the
+41:36 
+
+41:36 probing and this is what they call V
+41:39 
+
+41:39 probing so uh this is uh the proof that
+41:43 
+
+41:43 they gave for the level two reasoning so
+41:45 
+
+41:45 level two reasoning is uh not only the
+41:48 
+
+41:48 model learns the dependency but uh like
+41:51 
+
+41:51 uh the dependency and the necessity of a
+41:53 
+
+41:53 parameter which is actually needed to
+41:56 
+
+41:56 answer that question but it can also So
+41:58 
+
+41:58 predict for the unnecessary uh
+42:01 
+
+42:01 variables, right? So the model also
+42:03 
+
+42:03 knows which variable uh which set of
+42:06 
+
+42:06 variables are not needed for this
+42:08 
+
+42:08 particular problem, right? So uh not
+42:10 
+
+42:10 even the problem even in the problem
+42:12 
+
+42:12 agnostic setup. So basically what the
+42:14 
+
+42:14 authors claim that uh uh the LLM can
+42:17 
+
+42:17 mentally compute all pair dependency
+42:19 
+
+42:19 graph even before the question is asked.
+42:21 
+
+42:21 Right? So uh and this is kind of uh you
+42:25 
+
+42:25 know um kind of
+42:28 
+
+42:28 uh
+42:30 
+
+42:30 uh like contrary to how a normal human
+42:33 
+
+42:33 being does the reasoning because we tend
+42:35 
+
+42:35 to start from the problem itself right
+42:36 
+
+42:36 and then we kind of select which all
+42:40 
+
+42:40 variables or which all like information
+42:42 
+
+42:42 piece we need to uh to uh answer to that
+42:45 
+
+42:45 question and then we do the deduction
+42:48 
+
+42:48 right but the model the LLM they does
+42:51 
+
+42:51 the mental computation even before
+42:53 
+
+42:53 knowing the problem. So they build the
+42:55 
+
+42:55 uh the dependency graph between all the
+42:57 
+
+42:57 different uh entities and variables even
+43:00 
+
+43:00 uh before seeing auh problem. So this is
+43:03 
+
+43:03 where uh the authors they get very you
+43:06 
+
+43:06 know optimistic about the AGI part that
+43:09 
+
+43:09 these are some of the skills that you
+43:11 
+
+43:11 don't teach the model during
+43:12 
+
+43:12 pre-training but these are some of the
+43:14 
+
+43:14 things that the model learned on its own
+43:16 
+
+43:16 uh uh once it is pre-trained on uh some
+43:19 
+
+43:19 suitable amount of data for suitable
+43:21 
+
+43:21 amount of compute
+43:25 
+
+43:25 and then one
+43:27 
+
+43:27 interesting thing that they analyzed
+43:28 
+
+43:28 where do the LLMs fail uh primarily for
+43:32 
+
+43:32 the reasoning tasks
+43:33 
+
+43:33 So uh couple of areas where a model can
+43:37 
+
+43:37 fail. One is if they uh predict this
+43:40 
+
+43:40 incorrectly during the planning stage.
+43:42 
+
+43:42 Right? So that is one area. Another area
+43:45 
+
+43:45 is uh the model tries to use some
+43:50 
+
+43:50 parameter which is not computed
+43:51 
+
+43:51 previously. Right? So and and this is
+43:54 
+
+43:54 not only uh showed with the GBT2 model
+43:57 
+
+43:57 but even with the proprietary models
+43:58 
+
+43:58 like GBT 4 or GBT 4. Right? So they uh
+44:01 
+
+44:01 they actually showed that even this
+44:03 
+
+44:03 proprietary models they tend to have
+44:05 
+
+44:05 these two types of mistakes. One is they
+44:07 
+
+44:07 use some unnecessary parameter and then
+44:10 
+
+44:10 second uh they try to use some uh uh
+44:14 
+
+44:14 some you know u correct parameter which
+44:17 
+
+44:17 is not computed previously. Right? So
+44:19 
+
+44:19 these are the only two areas that they
+44:22 
+
+44:22 highlighted. But yeah, I mean there can
+44:23 
+
+44:23 be multiple other areas where the models
+44:25 
+
+44:25 fail and they also have a mitigation
+44:27 
+
+44:27 strategy uh in their later part of the
+44:30 
+
+44:30 of the series uh just to you know help a
+44:33 
+
+44:33 model learn from their mistakes like how
+44:36 
+
+44:36 uh a model can avoid uh this kind of
+44:39 
+
+44:39 errors and then it can improve its uh
+44:42 
+
+44:42 reasoning capability. [snorts]
+44:47 
+
+44:47 >> And then uh one final uh result what
+44:50 
+
+44:50 matters in reasoning. So again uh some
+44:54 
+
+44:54 of the results are very
+44:55 
+
+44:55 counterintuitive. So unlike the past
+44:57 
+
+44:57 studies uh here in this paper the
+45:00 
+
+45:00 authors claimed that the size of the
+45:03 
+
+45:03 model which is sometimes uh you know um
+45:06 
+
+45:06 calculated based on the number of
+45:08 
+
+45:08 parameters the size doesn't matter the
+45:10 
+
+45:10 depth matters for particularly for
+45:12 
+
+45:12 reasoning. So they uh showed that even
+45:14 
+
+45:14 for a very small model uh with um just a
+45:20 
+
+45:20 minute. Okay. Yes. Uh so large model
+45:23 
+
+45:23 like you have lot of parameters but the
+45:26 
+
+45:26 depth is small like four layer the
+45:28 
+
+45:28 performance is quite poor like 72% 68%.
+45:32 
+
+45:32 Whereas you can have a small model but
+45:34 
+
+45:34 with larger depth uh 20 layer or
+45:36 
+
+45:36 something then you could see like almost
+45:38 
+
+45:38 uh you know 90 94% 95% accuracy right
+45:42 
+
+45:42 and they also said that this cannot be
+45:44 
+
+45:44 mitigated uh by chain of thought right.
+45:47 
+
+45:47 So the depth matters because uh by
+45:50 
+
+45:50 propagating information through multiple
+45:52 
+
+45:52 depths is where the the model learns the
+45:56 
+
+45:56 the mental mapping of the variables and
+45:59 
+
+45:59 uh building the dependency graph. Right?
+46:01 
+
+46:01 So uh they claim that the depth matters
+46:03 
+
+46:03 because the complexity of mental
+46:04 
+
+46:04 reasoning uh kind of linearly depends on
+46:08 
+
+46:08 the uh on the um reasoning depth. Right?
+46:16 
+
+46:16 So to summarize uh this series uh they
+46:19 
+
+46:19 had they generated some synthetic data
+46:21 
+
+46:21 set uh to study the reasoning capability
+46:24 
+
+46:24 of LLMs. Then they showed that LLMs
+46:27 
+
+46:27 exhibit level one reasoning skill and
+46:29 
+
+46:29 level two reasoning skill where the uh
+46:32 
+
+46:32 the model can mentally compute all the
+46:35 
+
+46:35 variables. They develop the uh the
+46:38 
+
+46:38 dependency graph between them and they
+46:39 
+
+46:39 also know which all variables are not
+46:41 
+
+46:41 needed. Right? uh and they also do the
+46:44 
+
+46:44 mental computation even before knowing
+46:46 
+
+46:46 the problem which uh is uh very much
+46:48 
+
+46:48 unlike uh to how a human being does the
+46:51 
+
+46:51 reasoning. uh then they also uh
+46:54 
+
+46:54 introduced this concept of V probing to
+46:56 
+
+46:56 probe how LLMs make the reasoning
+46:59 
+
+46:59 mistakes and how they do the reasoning
+47:00 
+
+47:00 correctly and then they finally
+47:02 
+
+47:02 concluded that depth matters
+47:05 
+
+47:05 uh not that just you know size matters
+47:09 
+
+47:09 and uh I'll just take 2 minutes uh so
+47:12 
+
+47:12 this is the first part of their uh
+47:14 
+
+47:14 lecture series where they showed how a
+47:17 
+
+47:17 model how a LLM learned the language
+47:19 
+
+47:19 structure [snorts] so uh again contrary
+47:22 
+
+47:22 to the work of mechanistic
+47:24 
+
+47:24 interpretation where people try to
+47:26 
+
+47:26 figure out some induction heads. What
+47:28 
+
+47:28 they did they actually came up with some
+47:30 
+
+47:30 CFG uh again where memorization is not
+47:34 
+
+47:34 possible because of uh the vast number
+47:36 
+
+47:36 of possibilities. So they actually came
+47:38 
+
+47:38 up with the CFGs and then they
+47:40 
+
+47:40 constructed some data set where they
+47:42 
+
+47:42 claimed that having ambiguity, having a
+47:45 
+
+47:45 hierarchical structure and having a very
+47:47 
+
+47:47 difficult parsing requirement is
+47:49 
+
+47:49 necessary to understand uh the the
+47:52 
+
+47:52 language understanding capability of
+47:54 
+
+47:54 language models. Unlike the existing
+47:56 
+
+47:56 data sets like Pentry Bank or the other
+47:58 
+
+47:58 uh you know kinds of linguistic data
+48:00 
+
+48:00 sets that we typically use they are not
+48:02 
+
+48:02 suitable for a large scale um study on
+48:06 
+
+48:06 large language models. The uh results
+48:08 
+
+48:08 are also fairly interesting. So if you
+48:11 
+
+48:11 see for uh various combinations and
+48:14 
+
+48:14 various uh data sets uh the result is
+48:17 
+
+48:17 almost close to 100%. So what they say
+48:19 
+
+48:19 that the LLMs can generate strings
+48:22 
+
+48:22 following CFGs accurately. They can
+48:24 
+
+48:24 generate diverse strings that satisfy
+48:26 
+
+48:26 the CFGs and they can also generate the
+48:30 
+
+48:30 strings following the CFG probability
+48:31 
+
+48:31 distribution. So there are three sets of
+48:33 
+
+48:33 results. So this is the accuracy. This
+48:35 
+
+48:35 is entropy and then this is the kale
+48:37 
+
+48:37 divergence to see uh you know whether
+48:40 
+
+48:40 the the generated strings probability
+48:43 
+
+48:43 distribution follows the actual CG
+48:45 
+
+48:45 probability distribution or not. So in
+48:46 
+
+48:46 terms of all these different experiments
+48:49 
+
+48:49 uh they had the uh observation where the
+48:52 
+
+48:52 LLMs pre-trained suitably can uh not
+48:55 
+
+48:55 only learn CGS accurately but they can
+48:58 
+
+48:58 also generate strings from the CFGs in
+49:00 
+
+49:00 an out of distribution fashion. Uh they
+49:03 
+
+49:03 can generate diverse set of strings and
+49:05 
+
+49:05 they can also follow the similar
+49:06 
+
+49:06 probability distribution. Right? So one
+49:09 
+
+49:09 key observation that they showed here is
+49:11 
+
+49:11 that uh just having a positional
+49:13 
+
+49:13 embedding uh is not sufficient. So if
+49:16 
+
+49:16 you see this results so this is GPT with
+49:19 
+
+49:19 not so this is vanilla GPD with
+49:20 
+
+49:20 positional embedding. So uh positional
+49:24 
+
+49:24 embedding is not sufficient. So what
+49:26 
+
+49:26 they said that having the relative
+49:28 
+
+49:28 distance between different tokens or
+49:30 
+
+49:30 some uh rotary embedding or some
+49:32 
+
+49:32 relative positioning is very important
+49:35 
+
+49:35 or positional in like a relative
+49:37 
+
+49:37 positioning or uh or even having some
+49:39 
+
+49:39 sort of uh relative um positioning
+49:42 
+
+49:42 within the attention block right is very
+49:44 
+
+49:44 important for large language models to
+49:46 
+
+49:46 learn CFGs. So this is the overall um
+49:50 
+
+49:50 the conclusion.
+49:53 
+
+49:53 So couple of things I have highlighted
+49:54 
+
+49:54 what next for this particular subject.
+49:58 
+
+49:58 So we could try using this concept on
+50:01 
+
+50:01 efficient language models right. So we
+50:03 
+
+50:03 can uh like have uh a physics enabled uh
+50:07 
+
+50:07 study on let's say you know prune models
+50:09 
+
+50:09 or uh maybe knowledge distillation
+50:11 
+
+50:11 distilled models and so on.
+50:14 
+
+50:14 uh then uh this kind of synthetic data
+50:16 
+
+50:16 generation mostly uh is done in an
+50:18 
+
+50:18 abstract setting right and in the in the
+50:20 
+
+50:20 setup of uh NLP but we could also uh
+50:24 
+
+50:24 extend this synthetic data generation
+50:25 
+
+50:25 process or at least think of generating
+50:27 
+
+50:27 this synthetic data generation process
+50:29 
+
+50:29 for multimodel scenarios. Uh thirdly,
+50:32 
+
+50:32 all these data sets are they they are
+50:34 
+
+50:34 very like high resource, right? So how
+50:36 
+
+50:36 do we replicate the same for low
+50:38 
+
+50:38 resource linguistic patterns? Okay. And
+50:40 
+
+50:40 then maybe another thing is uh how can
+50:43 
+
+50:43 we like combine multiple learning
+50:45 
+
+50:45 objectives like reasoning with
+50:46 
+
+50:46 knowledge, right? Uh multiple things
+50:49 
+
+50:49 together and then study how the model
+50:51 
+
+50:51 can perform because in real life you
+50:53 
+
+50:53 don't need these capabilities in
+50:55 
+
+50:55 isolation, right? So you need them
+50:57 
+
+50:57 together in the same model, right? So
+50:59 
+
+50:59 that is another interesting uh maybe uh
+51:02 
+
+51:02 future research path that we can
+51:03 
+
+51:03 explore. And then one more uh like
+51:06 
+
+51:06 module I skipped which is their fourth
+51:09 
+
+51:09 module which came up just recently where
+51:11 
+
+51:11 they also showed what kind of
+51:12 
+
+51:12 architectures are suitable for a large
+51:15 
+
+51:15 language model for what purposes. So uh
+51:18 
+
+51:18 you could also like go and read that uh
+51:20 
+
+51:20 paper or that tutorial. Okay. So, I
+51:24 
+
+51:24 think that's it I have for

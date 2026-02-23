@@ -1,0 +1,503 @@
+00:00 Hello everyone, I'm Jatin U. I am a research scientist at IBM research Bura
+00:07 and uh so you know the next couple of lectures we will look at u efficient LLMs
+00:15 right uh so so this is our team at IBM research
+00:20 just an introduction DH is our manager and Sachin is our senior manager uh
+00:26 Gorov DH and I will be taking some lectures uh in this series and uh we
+00:31 belong to convers conversational AI team where we you know uh look at how to
+00:37 customize the language models for uh tool calling or for specific clients if
+00:44 we have to train them on you know on client specific data how do we go about it right so these are the areas in which
+00:52 u broadly our team works and uh as you know uh so I have been on that side more
+00:60 often than I'm on this side Right. So even though this this is getting recorded uh feel free to interrupt we'll
+01:06 forget that we are recording the lecture. Right. My objective is that people who are sitting here they should
+01:12 be able to follow. Right? So either interrupt ask questions or I'll ask
+01:17 questions. Right? Okay. So let's get started. And uh let's start with a very
+01:25 small story anecdote. uh let us say you guys are training for marathon
+01:31 right and uh if I ask you to plot a graph between what would be your
+01:36 performance versus how much training you know training hours you put in for training what would that graph look like
+01:44 so here on the y-axis we have the training time and on the x-axis we have the performance so here what would what
+01:51 do you expect what would be the graph right so something
+02:01 right something like this and then of course there are a lot of other parameters for example who is training
+02:07 right if Hussein Bolt is training then it's going to be different for him versus if you and I are training right
+02:13 our capacity will also be a factor there right so the same story holds for
+02:19 language models and here we are looking at uh llama family of models Right? The
+02:27 size of the circle represents the size of the model. And here we can see that
+02:33 as the model size increases, its performance is improving. Bigger model is giving me better performance, right?
+02:40 But then it requires more training as well. The number of GPU hours required for training are really huge. And and
+02:48 and focus on the units on the y-axis. What does it say?
+02:56 million GPU hours right so how are we supposed to do it in one lifetime if we
+03:02 were to do it on one GPU is it it's not it's not feasible right and that is what
+03:09 the first part of the talk will focus on we will see how to efficiently train
+03:15 these LLMs or pre-train these LLMs how to exploit multiple GPUs that we have
+03:21 for training right so we will look at different forms of parallelism, data parallelism, tensor parallelism and so
+03:27 and so forth. Then uh let's look at another graph
+03:32 here. Here on the x-axis we have again the performance on some uh leaderboard
+03:40 and on the y-axis we have the speed as in uh at at what speed are we able to do
+03:46 inference on the model. Right? We are measuring it in terms of throughput which is how many tokens the model is
+03:52 able to spit out per second. Right? So here also we see that uh
+04:01 smaller models have lower performance and very high throughput
+04:07 right uh but but we see some interesting points here. For example, if you look at
+04:13 these two models, right? MPT 7 billion and lama 1 7 billion similar size
+04:22 similar performance right they're roughly 40 right they lie here but they
+04:27 have very different throughput so how is it possible how why is this
+04:32 more efficient in terms of throughut than this right so that brings us to the second
+04:39 part of the talk which is efficient implementation right here we will look at flash
+04:47 attention or page attention. Right? So these are implementing the same algorithm in a more efficient way and if
+04:54 required going to the GPU kernel and and and writing specific kernels for
+04:59 specific operations for example that's what flash attention does right okay
+05:06 now again coming back to the same chart let's look at these two data points
+05:11 right again similar performance similar sizes but one has better throughput than
+05:17 the other so one is mixture of expert model 8 cross 7 roughly 56 billion parameters. The other is llama 133
+05:24 billion. Right? So how come similar size models again have so different
+05:31 throughput. Right? Here we will look at the third aspect which can give us
+05:36 better throughput and better efficiency which is better design. Right? So we are changing we are we are uh designing a
+05:45 different algorithm or a better algorithm. In the previous one, we were writing the same algorithm efficiently.
+05:50 Here we are saying that we will come up with different architecture or better architectures which will give us more
+05:56 efficiency. Right? So in particular uh we may look at grouped query attention
+06:02 or mixture of expert models and if time permits. Okay. So so this is the broad overview
+06:09 of what we are going to cover in the next uh five lectures. We will look at uh you know how to scale training. We
+06:16 will where we will look at different forms of parallelism and then we will look at u efficient implementation
+06:21 leading to better throughput and better performance better scaling and then we will look at efficient design or
+06:27 efficient uh architectures for better uh throughput and better scaling and better
+06:32 performance as well right okay so for the first part we will religiously follow this tutorial it's an amazing
+06:38 tutorial on hugging phase you will get the link it it's called ultra ultra scale playbook right we'll we'll try to
+06:44 follow it as much as possible. Okay. So let's start from the basics, right? So
+06:51 how many of you have ever trained a neural model or a deep learning model?
+06:57 Forget about LLM, right? Okay. So what are the broad steps
+07:02 when you train a neural model? So what is the first thing that you do
+07:09 during training? Yeah, that's that's pre-processing of the data. Let's say you have clean data
+07:15 and you have written the class as well. Let's say we are training a simple MLP for now, right? My model uh class is an
+07:22 MLP class, right? Which is an NN dot modules. So in PyTorch, right? We're following
+07:29 PyTorch implementation, right? So you will have uh NN.linear layer,
+07:36 right? So X or whatever whatever you want to define, right? Then you can have
+07:41 uh function one function two which could be uh
+07:46 relu right and then you can have another nonlinear layer let's say we have a
+07:51 simple MLP we have defined that and we will have
+07:57 the corresponding forward function right we would define the corresponding forward function of this class right
+08:04 with some input x right so once we have written the code when we are training the training loop. What would the
+08:10 training loop look like? Good. Very good. So for batch
+08:18 in uh data loader. Yes.
+08:23 Then yeah. Okay. Good. So batch
+08:31 equal to batch dot CUDA. This puts it on the GPU, right? Very
+08:37 good. Then assuming that
+08:42 yeah so we have model class model let's call it model right we pass it through
+08:48 this what will we get let's assume we get loss right
+08:54 let let's say the model is computing the loss or or it can give you the activations or the probabilities in the
+08:59 end then you can compute the loss either ways right you can do that in the form okay very good then
+09:06 we do loss dot backward then
+09:14 okay cool so so loss do backward is right right we do this okay then we'll have something called optimizer
+09:21 will do optimizer step amazing so now let's look at what happens in the GPU
+09:27 memory when we do this right uh what all is eating up the GPU memory right so
+09:33 this is uh the the illustration here is you have multiple layers heads in a model. We are doing a forward pass as
+09:39 you have described right then uh when you do the forward pass right what will
+09:46 uh what you know so so what will be there in the memory first thing is you
+09:52 have already put your batch yeah your data input x right second thing would be
+09:59 actually zero would be that your model weights that is also
+10:05 on the GPU all of these layers their parameters are going to be on the GPU.
+10:11 Each layer will give you some output. So input is X here. You will have L one of
+10:16 X, right? This will also be on the GPU. We call these the output of these layers
+10:23 as activations, right? So activations.
+10:29 So why do we need these activations? Why are we keeping them in the memory?
+10:36 So we can pass it to the next layer and then clear the memory. Right?
+10:41 So for example when we are here in first, second, third, fourth layer, right? Output of the third layer is
+10:48 going to be L3X. Do I need to keep this in the memory?
+10:54 Right. So we will need it for right. Right. So where do we need it for
+10:59 back propagation? Yeah. So even if you have a linear layer
+11:04 let's say y = wx right what is the derivative in the back propagation we
+11:10 have to compute the derivative of w right so derivative of w what is the derivative of w
+11:15 so let's say when we are back propagating you will have the derivative of loss with respect to y when you're
+11:21 back propagating you will get that as input right so what would be derivative of w with derivative of w yeah
+11:31 for this X. Okay. W shape is uh 10 cross 100.
+11:42 X is 100 dimensional feature vector, right?
+11:49 So I will not do the math here but it's going to be del L by del Y, right? Time
+11:57 X transpose. That is the I mean you can check the shape
+12:03 right? So this is 10 + 1. This is 1 + 100. So the derivative will turn out to
+12:09 be a 10 + 100 matrix. That's what we need. We need derivative of each of the element of W. Right? I will not prove
+12:14 this here. Right? So to come in the in back propagation, we have to get the
+12:19 gradient of W and therefore we need to save X. What is the input of that layer?
+12:25 Right? These are called activations and therefore we need to save them in the memory until we have done the entire uh
+12:30 backward step and optimizer step. Right. So we need to save the activations
+12:35 model uh parameters are there and then you have activations. Right? I can
+12:41 include this X within the activations because X is the input to the first layer. Right? The batch is input to the
+12:47 first layer itself. Right? So I can I can put that in activations. Okay. What what else
+12:53 would be in the uh memory when you so activations are stored till
+13:00 here right? We have computed the activations here. When you do loss dot backward, you're computing
+13:07 the gradients, right? So just like every weight W was there, we'll have corresponding d W in the memory, right?
+13:14 So we will have the gradients, right? And then finally uh what happens
+13:23 within the optimizer? For example, Adam, I'm assuming that you are aware of what is Adam. So what all it needs to store
+13:31 an atom optimizer? Cool. Correct. So optimizer also needs memory
+13:39 because you need to update the first and second order moment for every parameter right for every w you will have that
+13:45 right. So you will have optimizer state
+13:53 right and uh I mean here we have 2x factor because moment and uh first
+14:00 moment and second moment right so all of this remains in the
+14:05 memory till you do optim.step right even after optim.step step. What
+14:13 all will get cleared from the memory? What all will remain in the memory?
+14:22 Parameters will remain. Yes,
+14:31 we may not need gradients but we can reserve. Yeah, we may not need we can flush out gradients because we have used
+14:37 them, right? Optimizer states do we persist them?
+14:44 Sure. That will also remain right and because we have to allocate space again and
+14:49 again for gradients pytor does some preparatory work and reserves some persistent memory of cache for that
+14:56 because it will need that. It knows that it is going to need that. Right? So it will keep space for the gradients as
+15:01 well. Right? On the other hand activations are input dependent. They
+15:07 will get cleared. Right? And the next batch will come and we'll fill the activations again.
+15:14 Right? So good. So we have already gone through through this. Right? So there's
+15:20 a forward pass and then we do backward pass. So this is the space let's say for the model parameters. This is the space
+15:27 for the gradients. We need to keep all of them. And we do the optimization step where we have two units for first order
+15:35 moment and second order moment. And then we update the gradients. we get the updated parameter. We update the
+15:40 parameters and get the updated parameters. Right? So uh this is what we
+15:46 have covered. We need model weights, model gradients, optimizer states and activations which are needed to compute
+15:52 the gradient. Right? And in this example uh if this matrix this first layer is
+15:58 let's say the weights are W and the second layer weights are M. Right? Uh
+16:04 model weights are going to be W and M. Model gradients are going to be dw and del m which we will save. Optimizer
+16:12 states we'll save separately and activations are going to be these right. Uh the hidden vector that we will get
+16:20 when we pass this input x to the li right. Okay. So this is memory profile
+16:25 of first four training step of a very small llama model. Right. Uh
+16:33 as you can see model parameters are always there. This this is model parameters right when we are doing the first pass
+16:41 first step activation memory is peing up it peaks till here right
+16:47 notice that in the first step it stays there for long this is because in the first step pytorch is doing some
+16:53 preparatory work reserving memory for you know what what it expect would come in the future then as the backward pass
+17:00 starts no memory for the gradient this orange part this is getting increased.
+17:06 Activation memory is simultaneously reducing, right? And then after the first step, you see that the optimizer
+17:12 state has also come into play. Right? So, so this is the optimizer memory which is almost double of the model
+17:19 parameters, right? Okay. So,
+17:24 as we can see here that memory for even one sequence, right, is roughly 50 GB is more than 50
+17:31 GB, right? I think this is for one sequence of 4196
+17:36 or 4096 uh tokens, right? But when we do
+17:41 a forward pass, we do it with a batch a bigger batch, right? Which contains not just one sequence but multiple
+17:48 sequences, right? So typically what is what is a typical batch size which we use for pre-training of LMS?
+17:55 Any guesses? What do you think?
+18:01 two. Okay. So, so a clarification. So, typically when we talk about batch size
+18:07 in pre-training, we talk about it in terms of uh number of tokens, not number
+18:13 of sequences. So, right. So, uh sequence length into you know u MBS or our bat
+18:23 size would give me token bat size. This is the formula, right? Uh let's say we have 1024 sequence length tokens
+18:30 sequences right and we have uh 400 sequences then our batch size is
+18:39 going to be 102 4 0 times 400 tokens whatever that comes out to right roughly
+18:44 four uh 4 million no 4 million yeah right so so we talk in terms of tokens
+18:51 number of tokens so typically what is the uh math size we use in pre-training I think.
+18:59 Okay. So, what is the advantage of bigger bat size versus smaller bat size?
+19:15 Right. If it take if it takes more time, will it take more time to converge or will it take less time to converge in
+19:21 terms of overall clock time?
+19:26 Right. So correct. Right. So so typically what we do is as you said that smaller bat size
+19:33 it will be fast to do forward pass. Bigger bat bat size it will be very slow to do the forward pass. Right. So
+19:39 typically what we do is that in the beginning of the training when loss is very high we take smaller bat size
+19:45 because we want quick signals. Right? Right? So we quickly want to move through the loss landscape and as we are
+19:52 approaching the optima or or the minima now we want to take small steps or we
+19:57 want to take steps we want to be more confident about our about the steps that we are taking right we we good we want
+20:04 good signal if you talk in terms of signal to noise ratio initially we are okay with noisy signal because you want to move when we are very far away from
+20:10 optima you want to move very quickly and therefore smaller bat size works better and as we move ahead in the training we
+20:17 prefer larger bat size, right? So people have fit a power law curve to what is
+20:23 the optimal bat size. So they define something called critical bat size which tells me you know at a particular loss
+20:28 level what batch size should I use that would give me fastest convergence right they fit a power law curve and in one of
+20:35 the papers for example they start with 16 million tokens right uh compare it
+20:40 with two sequences that someone was proposing right in the beginning they double it at 16 when uh the training has
+20:49 seen 69 billion tokens then they double it again at 690 billion tokens
+20:54 and then again at 4.7 trillion tokens. Right? So we start with smaller batch
+20:60 size and keep on increasing that and smaller the order of the small bat size here is 16 million tokens.
+21:08 Right? So what should we do? I mean this is this is for of roughly 4,000 tokens 50GB
+21:15 memory, right? So how should we fit uh bigger batches? How should we train?
+21:23 Right. Okay. So before we do that, let's I mean to answer that question, we need
+21:29 to carefully look at what exactly is there in the memory and what all can we
+21:34 reduce and improve. Okay. Okay. So let's quickly look at uh
+21:41 how much let's compute how much memory weights gradients and optimizer states
+21:46 take. Right. So this is the static kind of static memory. Right? The other the last part is activation memory which is
+21:51 dependent on the input. This will always remain on the GPU. Right? So this is I
+21:57 mean for reference I have one uh layer of uh transformer and we will compute
+22:04 the total memory which is required for u for this layer right so let's say our
+22:11 vocabulary size is v and embedding size is h right so v is the vocabulary size
+22:16 and h is the hidden dimension. So how much would token embeddings take?
+22:22 How many token embeddings are there?
+22:28 We have V tokens. Each token is taking H dimensions.
+22:34 So we have H into V. Right? So these are these many parameters and uh depending
+22:40 on whether we have four bytes or two bytes for one parameter, we will have the memory. Okay? Now let's talk about
+22:45 multi-headed attention. uh what all goes in multi-handed attention what is the first thing that
+22:51 happens
+22:57 yeah we have kqv right so these matrices and they are of size h square
+23:05 right h cross h right I mean even if you have multiple heads we ensure that the output
+23:11 is h dimensional only uh plus h if we have the corresponding bias
+23:17 right * 3 right and then uh once we have the
+23:24 output from each head we concatenate them and pass it through another projection layer right so that is again
+23:30 1 MLP which is h² + h
+23:36 sorry which is h square that is h only so that
+23:44 is why we have h² square, right? H is the dimension of the input and H is the dimension of the output,
+23:51 right? Uh then we have layer norm. What does the layer norm do?
+24:01 Right? So if we have a vector X of H dimension, what will it what will do on
+24:07 this?
+24:13 Normalize it. And does it have any parameters?
+24:21 Okay, so it there are two parameters because it not only normalizes it it defines where should the final value be,
+24:29 right? So it has its own mu plus sigma * x minus whatever expected value of x or
+24:38 divided by let's say x² expected value of x square depending on how you
+24:43 normalize you may have you may or may not have this but mu and sigma are the corresponding parameters. it is
+24:49 normalizing and then putting it in some other space with mean mu and sigma right so these are the two parameters right so
+24:55 we will have 2 h for each dimension right okay and uh what about mlp
+25:05 so mlp h grows to 4 h and then comes
+25:10 back to h right so we have h * 4 h + 4 h
+25:18 Right? These are the weights of the first not into two because here the bias is
+25:25 going to be h only. Here the bias was 4 H. Right? So it's going to be 4 H² + H.
+25:33 Right? So here we have 4 H and we have H. Okay. And then again layer norm which is going to be 2 H right. So it will
+25:40 turn out to be this. So this is the memory that that is
+25:45 required for uh weights, gradients and optimizer states. It's going to be
+25:50 proportional to this. So we have counted the number of parameters that are there in in an MLP layer. So this L * this
+25:57 right L is the number of layers and H * V we have token embings initially only
+26:04 and then in the after the L layers we have a layer norm an extra layer norm this two which corresponds to that right
+26:11 and uh with these parameters if we are storing in FP32 which is the classical
+26:18 way of storing right which requires four bytes per parameter uh we will require 4
+26:24 n memory three for 4n bytes for parameters, 4n for gradients and uh 8 n
+26:33 for optimizer first and second order moment right total 16 n bytes roughly right and uh we do computations in mixed
+26:42 precision as well. So in mixed precision training uh we keep the parameters and
+26:48 the gradients right in low precision. So all the computations are done in low
+26:55 precision. All the activations are computed in low precision. Once we have computed the
+27:01 gradients and we have to update the optimizer state using those gradients, we do that in high precision because
+27:07 that is accumulating over time. We want high precision there. Right? So, so for
+27:13 optimizer we keep it same 8 n for parameter and gradients for doing
+27:20 computation we reduce it by half and in addition uh we keep a high precision
+27:25 copy of the weights as well right because weights are also getting kind of updated over time and we want them in
+27:32 high precision right so we have a copy of the weights we call that master weights that is in 4N and this also
+27:39 totals 16n n. So why are we doing this?
+27:46 Faster computation. Very good. and
+28:00 uh so so we saw that right uh these this memory will always be there right it's
+28:07 something else which comes and go which is dependent on the input this memory pytor reserves after first pass right
+28:16 what is the last component of the memory other than these which which was taking up most of the
+28:22 space activations, right? That was taking the
+28:28 most of the space, right? And if we are doing computation in low precision, we will have activations in
+28:36 low precision and that is why we are using mix precision because activation faster computation very good. Second is
+28:43 we save on activation memory, right? Okay.
+28:49 Sorry. This one. Yeah. Uh okay. So let's say we are using Adam
+28:56 optimizer, right? Let's say we have only one matrix W that we are updating
+29:01 simplified, right?
+29:08 Yeah. Adam requires first moment and second moment, right? So it require
+29:15 it keeps a running or exponentially weighted average of the gradients at every step t right it keeps on
+29:22 accumulating that in uh memory right and then it also has m_sub_2 where it keeps
+29:29 on accumulating square of the gradients right this is used to update the memory
+29:36 right so we have two parameters for each uh two memory slots for each parameter
+29:42 and so therefore it's a n Right. Clear. Okay. Cool. So roughly, you know,
+29:49 you can multiply it with 16 to give to get the amount of memory that you will
+29:54 require on GPU. It's a rough map. So 1 billion will require roughly 16 uh GB memory,
+30:01 right? Okay. So now here we looked at memory for weights, gradient and
+30:06 optimizer sets. And let's look at the uh the biggest beast which is memory for
+30:12 activations. Right? Right. So what is uh so yeah so here we have the transformer
+30:19 layer on the left and uh for illustration I have this uh the the attention block uh here right so let's
+30:28 look at uh how much memory will the activations require right so we have kqv
+30:35 all of these will have some input right that will require some uh activation
+30:41 right so that will be batch size times
+30:46 sequence length. This is the number of tokens that we have, right?
+30:52 Times H, right? This is the same input. Yeah,
+31:01 this is the uh token embedding uh right emitted that is input to the
+31:06 QKV matrices, right? Make sense? Uh okay
+31:11 then we uh when we are doing uh self attention we take the Q and K and we
+31:16 multiply them Q transpose that will also require some memory right
+31:22 and then we do soft max right soft max will also require some memory how much
+31:27 memory will softmax require what do we do in softmax so for each sequence
+31:36 right for each sequence we have let's say 100 tokens each token will
+31:42 attend on itself on on all other tokens, right? So it's going to be sequence square,
+31:49 right? Right? So we need probability what is the probability or or the attention weight for the last token with
+31:56 respect to all the previous token let's say right those are we have a probability distribution there and then
+32:01 we have this for for all the tokens so it's roughly sequence of the order of sequence square right and uh we have
+32:09 some number of heads here right and then we have bat size as well
+32:15 so for for each sequence we have sequence square times number of heads plus bat size. So this is of the order
+32:21 of this. So everywhere else it's of the order of bat size, sequence length and
+32:26 h. And in the attention block within soft max because we are attending each
+32:33 token is attending on some other token. We have of the order of sequence square. Right? So let's skip this part and uh
+32:42 let's look at the final formula. You can you can do this on your own. This is simple. Right? So what we get is that
+32:48 for attention block the amount of activation memory that we'll require is
+32:55 the important thing to note here is it's it's sequence square right and everywhere else it's going to be of the
+33:01 order of sequence length time bat size* h these are the number of tokens that we
+33:06 have and it is linear with respect to that right bat size* sequence is the number of tokens that we have and h is the dimension of each token right so
+33:14 okay uh we You can see that it scales linearly. Sorry for for this mess up
+33:21 here. Uh the final formula here you can see you know some factor times sequence length
+33:27 bat size hidden dimension plus sequence square. This is of the order sequence square. And this is the thing that we
+33:32 may have to tame later on. Right? So uh to get a sense of you know how it looks
+33:39 like look at the scale on the y-axis here. Right? Even for a 8 billion model
+33:44 if you want to train with longer sequences because sequence square length square becomes the bottleneck it goes up
+33:50 to up to 1500 GB right so how should we uh
+33:56 handle these situations right okay so
+34:04 any guesses what can we do if activation is taking a lot of memory
+34:12 can we somehow avoid storing those activations.
+34:26 So recall why do we need these activations? Where we do where do we need this?
+34:32 Right? So we have a simple layer y= wx, right? I get X1 and I'm storing uh the
+34:39 input X and uh this is the activation that I'm
+34:44 storing right and uh for the next layer again uh
+34:50 you know whatever is the output of this let's say X0 this is X1 we are storing this and and
+34:57 each layer has multi-headed attention and MLP and we are storing activations
+35:03 for all of them in between Right, we saw what what all we are uh saving, right? U
+35:10 so is there a way where we can avoid saving the internal activations? Yeah.
+35:25 Well, if you do drop out then you will have to store the dropout mask as well
+35:30 for back propagation and then you know after that when you're back propagating
+35:36 you have to go through that as well right
+35:46 afterwards.
+35:51 Mhm.
+35:58 So you are saying that we do not we don't store it in the GPU, we store it in the CPU. That's what you're
+36:05 recommending, right? Okay. Uh okay, let's try to build
+36:11 up the solution here. Let's say I this is one layer. It has a multi-headed
+36:17 attention and then MLP right all of these have their
+36:25 internal internal activations as well within them as well there is an activation right and then uh MLP will
+36:32 also have its own activation input its input right so this is x0 and this is x1
+36:39 now we saw that you know uh the number of activations for multi attention they
+36:44 were of the order of sequence square right and here this was of the order of
+36:51 sequence batch SBH this is sequence square uh batch into number of heads
+36:57 right this was sequence everything else is sequence time batch time h this order
+37:02 right if let's say I don't I do not save this and I don't save this I I do not
+37:09 store these activations right I store x0
+37:15 which is the input to this layer. I store X1 which is the input to the next
+37:20 layer in between. I'm not storing anything.
+37:26 Does that give you a hint?
+37:32 What will I need? So in between there are multiple steps and I need the input
+37:37 to all of these steps. Right? Each layer let's say has f_sub_1, f_sub_2, f_sub_3
+37:43 functions. Right. And these F1, F2, FC, these are
+37:48 multi-headed attention MLP layer norm and all of those. Right?
+37:53 uh for back propagation for example through
+37:58 this layer which is computing f_sub_2 I need what is the input to the f_sub_2
+38:04 right this I'm I'm zooming this I have this block which is computing f_sub_2 to
+38:09 compute the gradient for this I need what is the input to f_sub_2 and that is
+38:16 f_sub_1 of x one x1 is the input here
+38:21 right Right? So x1 I'm storing right for f_sub_2 I need f_sub_1 of x1
+38:32 right to to compute the gradients. So instead of saving this
+38:39 can I compute it again I'm storing something in between some
+38:44 checkpoints right so as I said after every layer I'm storing something right
+38:51 and I go through the layer again
+38:57 to compute the internal activations right so for that we need how much memory we
+39:04 need we need memory Earth activations for a single layer not for all the layers
+39:09 but what is the there's no free lunch right what is the cost we are paying
+39:15 time computation cost right but at least this is making it feasible right we saw
+39:20 that it was not feasible earlier because memory was growing up we have let's say only 80 GB per GPU right so this is
+39:26 called activation recomputing or gradient checkpointing right what we are doing so this is the
+39:33 usual uh flow And what we do is that we
+39:39 save these checkpoints. We save these activations and internally for the
+39:46 activations within the layer we do a small forward pass during the backward pass. Right? So now you know uh there
+39:55 are different ways of doing it. If you are storing it if you are activate storing only at the end of each layer
+40:01 that is uh called full activation right uh it saves most of the memory
+40:07 because you're storing very less at the end of every layer but it is the most expensive your computation cost will go
+40:12 by 30 to 40%. Right. But through the profiling of the activations, we know
+40:18 that what takes most of the space
+40:23 which activations activations of which layer?
+40:30 Which which part? Sorry. Yeah. So that was multi-headed attention, right? Which was of the order
+40:36 of sequence square, right? So we can do selective
+40:42 checkpointing where we do not store checkpoints for the multiit detention.
+40:47 We save uh the check the activations for MLP. So that gives us 7 up to 70% memory
+40:54 reduction and only 2.7% extra computational cost. Right? So this is
+40:59 the first tool that we have used to make it work. Right? So before this it was
+41:05 not working it was breaking this at least you know there is a scope that it
+41:10 will work even though uh for a 8 billion model bat size one with
+41:17 uh you know so the activation memory with uh let's say for 4096 without any
+41:24 recmp computation it's 97 GB
+41:30 with selective activation we are able to reduce it to
+41:36 17 GB right and with full activations because we are not storing anything right we are
+41:41 storing only at the end of every layer 16 whatever 16 or 28 layers that are there so it reduces to one
+41:48 GB right so right so this is what we are able to gain by a very simple trick of
+41:56 gradient recomp computation and and by default in most of the libraries typically you would have this as on
+42:02 unless you are training a very small model. Yeah. Yeah. Yeah. Yeah. Right. Okay. So
+42:10 let's look at 1 billion model. So here notice that the model itself is not fitting within the memory. Right. It's it's roughly 100 GB. Right. The the the
+42:18 non-negotiable weights, gradients and optimizer states. So we can't we can't do anything here. Let's look at 1
+42:24 billion model. And here again uh even with 8192 sequence length right
+42:32 earlier look at the activation it was blowing up even with uh 4096 it was blowing up right with selective
+42:38 activations at least we are able to tame it and and now proceed with one bat size or right one bat size is taking up 225
+42:45 GB memory if you have till 80 GB we can still now increase the bat size
+42:51 right okay Now that we are able to you know start
+42:57 the engine at least do one forward pass backward pass with one bat size what can we do to increase the bat size
+43:05 so my objective is that I want to accumulate the gradients
+43:11 for let's say 100 sequences of length 4096
+43:19 right but I can't Right? Let's say with two or four bat
+43:25 size my memory gets hit. Let's focus on one billion model only. Now how can I
+43:31 compute the gradients for 100 sequences? What should I do?
+43:39 And and remember here that it's the activation memory which is becoming the culprit. These we are good for now.
+43:46 Right? This is roughly 16 GB for 1 billion model.
+43:51 Right? So again uh four sequence four uh
+43:56 sequences sequence equal to four it fits in 80GB but I want my batch size to be
+44:04 100. I want sequence length to be 100. How should I go about it?
+44:10 Can I do that first of all? Is it feasible? Can I do that? Can I get gradient from 100 sequences?
+44:19 Yes. each
+44:25 one. Very good. This is precisely the answer
+44:31 I was looking for. So what what he's suggesting is that uh different batches are independent of each other. I do not
+44:38 need activations from one batch for the second for computing the gradients of the second batch. Right? So I can do
+44:45 them sequentially. I can take one micro batch. So this is called a micro batch. Now right so four becomes my micro batch
+44:52 M BS and this uh becomes my
+45:00 BS full batch size right so for 100 batch size if we want to compute
+45:09 gradients from 100 sequences I compute gradients from four sequences at a time
+45:15 right keep within the gradients recall that We we have uh gradients for each
+45:21 parameter, right? I just keep on storing the gradients. I get delta W
+45:29 one from the first micro batch. I save it.
+45:34 I do forward pass and backward pass again. Then the gradients will get
+45:39 accumulated. I will get sorry I'll get DW2 from the second microbatch
+45:47 right up till in this case 25 microbatches right I can compute the
+45:53 gradient independently for each sequence does that make sense
+46:07 right very good very good So if you use bat size of four and do 25
+46:13 steps right so let's say I start with theta kn after four bat size I will change it to
+46:20 theta 1 if I do optimizer step I compute the gradients I compute the update the optimizer states I update the parameters
+46:27 right then so this first batch will come here let's let's call it x1
+46:33 then second batch comes x2 and I compute m of m theta theta 1 of x2
+46:40 to get the loss right and then I update it to theta_2
+46:46 here I computed m theta kn of x1 the remember if I compute the gradients
+46:55 from a smaller number of sequences they are noisy and now we are in a regime where we want to increase the bat size
+47:01 right so what I want is I want the grade so this will give me gradients let's say from uh uh let's use this notation delta
+47:09 theta 0 essentially means gradient at theta theta kn computed from x1 right
+47:15 and I will have theta kn plus alpha * delta theta kn of x1 this is how I will update right
+47:22 this will be my theta 1 roughly right so here now can you answer your question
+47:29 what is the difference
+47:48 100. Yes. Exactly. Exactly. So essentially you know what is happening is that you
+47:53 are starting from theta kn if you have if you are doing with only four samples or four sequences
+48:01 at a time you will move to theta 1 and then you will move to theta_2 move to theta 3 these are from x1 x2 x3 but what
+48:10 I want instead is that I want to move to some theta1 prime you and want to
+48:16 compute the loss from all of these at x not at theta That is the difference right
+48:23 but we don't have to store all
+48:34 right we do not you're right uh this is right and wrong both we do not have memory to store the activations for 100
+48:43 right we may have memory for storing the gradients of the 100 even though we don't need to do that because we need to
+48:49 just add the gradients. Right? Gradients are additive. We grad if you if I have to compute gradient over X1 and X2, I
+48:57 compute gradient over X1 and X2 and add, right? So I can accumulate I will have
+49:04 one big memory allocated for the gradients. I compute, right? So let's
+49:10 see uh here I do a forward pass and a backward pass,
+49:17 right? compute the gradients and store it here. This is the memory I have for this is the memory that I have for
+49:23 gradients right in the GPU. I get another
+49:29 uh micro batch. I do forward and backward and add to the same set of gradients. Right? And then again I do a
+49:38 forward and backward pass. I again store in the same gradient. So I'm accumulating the gradients here. Right? So that is what is called gradient
+49:44 accumulation. and update the optimization step once.
+49:49 What you were suggesting earlier it was that you will have an optimization step here and then optimization step here and
+49:54 then an optimization step here. These will be noisy gradients from computed from much smaller batch.
+50:02 Right? Okay. So we have looked at two ways of
+50:09 u handling the memory blowup issue. One was gradient checkpointing 70% reduction
+50:16 with only 2 3% extra competition cost. Second was you know if you're not able to fit all in one time you know do
+50:23 gradient accumulation run them sequentially at least you will get two link right okay
+50:29 now this was all on one GPU right if I tell
+50:35 you that we have three GPUs then you know can you do something better
+50:50 That's just something
+51:04 you could give the batches to the so that it not can
+51:10 like how we are three
+51:16 h so let's say I have three GPUs GPU 0 GPU 1 and GPU 2 right
+51:24 let's say I keep I have uh the optimizer states I have the model parameters
+51:32 there right so this is the optim state and these are the master weights that I have right model master weights
+51:40 Let's say in the beginning they are all in sync. They are same. All of the value of all of these is same. Right? We have
+51:46 a exact replica of these. Right? Uh
+51:51 so as both of you correctly pointed out that these micro batches are independent of each other. I can do a forward pass.
+52:00 Take the first micro batch, do the forward pass here, right? And then the
+52:06 backward pass and have my gradients, right? And then here also I can do the
+52:13 forward pass, backward pass, compute my gradients and compute my gradients here. They are independent of each other. Let us assume for now that my my back size
+52:20 is three times uh the micro back size now. Right? So I have these gradients.
+52:26 Gradient one, gradient 2, gradient three, right? I need to
+52:33 add them, right? So that that means we need to communicate these gradients with
+52:41 each other between the machines, right? So you can have a space because
+52:51 see this is happening on the GPU memory. So I'm not sure how will you keep a common space. Yes, I understand you're
+52:56 talking about shared memory and that typically happens in just keep one in GPU and then when you
+53:03 G2 and G3 just add it to
+53:09 right so you're saying that we compute it there in a transient some small
+53:14 memory and directly send it to yeah we can do that but let's now for
+53:20 now let's simplify things uh here right let's say because we know that you know
+53:26 we saw that we have space for optimizer model and gradients we can say that
+53:33 problem was with the activations right and earlier we were doing it sequentially on one GPU because of the
+53:40 activation me space that activations were taking we are saying that okay let's have these activations on three
+53:45 different GPUs for three different microbatches and compute the gradients let's assume for now for simplicity
+53:50 we'll get to that as well let's assume that we have the space for gradients These G1, G2 and G3 these are the
+53:57 gradients comput of the same parameters computed using different data points right so we are doing same comput
+54:03 exactly same computation on each on each GPU but on different data points right
+54:09 and we need to now communicate the gradients on all the machines right so what we need on each machine we need G1
+54:16 plus G2 plus G3 by three right this is the this is the gradient right and we
+54:23 need this on on all machines. Once we have this then we have the gradients and
+54:29 then we can update the optimizer which will update the model weights and then
+54:35 again after the end of the cycle everything is in sync with each other.
+54:40 Right? So now the question here is how are we communicating the gradients uh
+54:46 with each other. Right? So uh right so we have gone through all of this uh
+54:55 yeah so instead of processing smaller micro batches sequentially we process them parallelly on GPU0 GPU 1
+55:03 GPU 2 we keep a replica of all three parameters gradients and optim states
+55:09 for simplicity now right uh activations and gradients are computed
+55:16 locally and independently on each GPU. We communicate the gradients across GPUs
+55:24 and then independently update the optimizer states and parameters on each GPU. So now all the you know all the
+55:31 GPUs are in sync with each other with respect to the state of the training. Right? Now the question is how do we
+55:37 communicate between the gradients?
+55:43 Right? So think about it and we will start from here tomorrow.
+55:51 Right. All right. Thank

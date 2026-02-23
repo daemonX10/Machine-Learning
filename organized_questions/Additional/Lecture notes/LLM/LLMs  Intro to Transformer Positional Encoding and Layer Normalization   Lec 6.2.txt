@@ -1,0 +1,803 @@
+00:04 okay hi hi everyone welcome to the course again this is the part two of the Transformer model OKAY in the last class
+00:13 we started discussing different components of the Transformer model and
+00:18 so far we discussed attention self attention we noticed that the self
+00:23 attention operation is a linear operation therefore we had to include some sort of nonlinearity then we added
+00:29 feed forward Network right feed forward network was a position wise feed forward
+00:35 Network right so then you know in the
+00:40 encoder block we have a uh I mean in in each of the encoder blocks we will
+00:47 have S pention layer and the feed forward layer right in the decoder part
+00:52 of it uh in every block there's a self pention mask self pention right because
+00:57 the decoder block uh should not should not be aware of what is going to come in
+01:03 the future in the normal self attention every attention head has access to all
+01:09 the other positions right but in mask self attention the attention head has
+01:15 access to only the the left uh side of the uh representations not the right
+01:21 side okay and we also discussed that um
+01:27 you know in order to basically get an interaction between between the encoder and decoder layers we need a cross
+01:33 attention right in which the key will come the
+01:39 query will come from the from the decoder part and key and value will come from the encoder part right and then
+01:47 through that uh through a normal self pention mechanism right we will we will
+01:52 let the decoder interact with the encod okay that's what we discussed and we
+01:59 also mentioned in the last that Transformer since Transformer model accesses all the tokens in parallel
+02:06 right the position information is not properly maintained right so in order to
+02:12 you know let the model understand the position of every token we need an additional tokens which is called
+02:18 position embedding right uh the the additional uh token embedding called position embedding so we'll discuss
+02:24 positional embedding in today's class we will first discuss the the default positional embedding
+02:31 you know method proposed by vasani at all in the Transformer paper which is the sinusoidal positional impeding and
+02:37 then we move to the recent one which is the rotary po encoding rope okay and
+02:43 then we will also talk about some other small components in transformal like add uh add and Norm layer residual
+02:49 connection and add and nor layer right okay so this is today's breaking
+02:54 news so on August 2 Gemini 1.5 Pro which was released earlier also uh was
+03:00 released I think in February it was shown to suppress GPT 4
+03:05 and CLA 3.5 these are significantly uh larger models on this specific uh
+03:12 Benchmark this is a chat chatbot Arena Benchmark where there are multiple tasks
+03:17 and uh most of the tasks are basically ranked Ved by human annotators right you
+03:23 see there are more than 1 million human annotators which are uh which are
+03:29 assigned to essentially uh rank the outputs of all the Baseline methods uh
+03:35 all the competing methods and the Gemini 1.5 Pro T to be really effective right
+03:41 an overall rank of one and different task specific ranks for example math reasoning right coding and so on and so
+03:48 forth right so if you want to know more about this uh advancement you can look
+03:54 at the link here okay let's get started so
+04:01 in the Transformer model today we will focus on positional encoding add Norm
+04:06 layer and this resal connection okay so let's start with the positional encoding
+04:14 layer okay so so this is the survey paper that I would strongly recommend
+04:20 you guys to read this is this contains more or less you know all sorts of positional encoding uh methods proposed
+04:28 so far the archive version is is more updated this is published in a journal but you can look at the survey weaper to
+04:35 know more about different types of O encoding methods okay so in Transformer we have
+04:42 already seen that for every token let's say this these are three uh uh input
+04:48 words and these are X1 X2 X3 are the embeddings of the input words these
+04:53 embeddings can come from a pre-end model like uh like let's say what to F or GL k
+05:00 or it can be a simple one not encoding and what we do next we since these
+05:06 tokens are accessed in parallel right just to give more information about the
+05:11 position what we do we will add uh a positional encoding step here right now
+05:18 this is a vector a positional encoding a positional embedding is a vector right of same size of the input
+05:25 if the input Vector size is four this will also be four right so this this is the positional eming embedding for token
+05:32 one this is to for token two for token three and so on and so forth and then then what what we do we will basically
+05:39 sum the uh the word embedding right the token embedding and the position
+05:44 encoding and this will give you the resultant embedding which is position aware okay now obviously you you may ask
+05:54 why some why not concatenation right uh there is no reason behind uh concrete
+05:60 reason behind this but you know I mean you can also you can Al also concatenate the the original embedding vector and
+06:07 the positional embedding Vector when we sum them up the number of parameters that is needed will be decreased of
+06:14 course right because you don't you are not increasing it to 8 Bits this is still a 4bit uh a four size
+06:21 Vector but there is no concrete reason you can also concate if you
+06:26 want so so so this one is these these and these These are the position aare uh
+06:35 embedding and these embeddings these embeddings will be will be moved will be
+06:40 fed to the first layer of the encoder or the first layer of the decoder right each layer I mentioned
+06:47 already each layer consist of each encoded layer consist of unmasked multier self attention a feed forward
+06:53 Network and there are some components here and there each block of a decoder consist of mask attention M cell p
+06:60 attention a cross attention and a fit forward Network right so the input that is given to the block the first block is
+07:07 position a EMB right now remember sometimes people think that maybe this
+07:12 position information is added to every input of the layer it's not like that right say if this is the second layer it
+07:19 is not the case that I will again add the position information here the position information will only be added
+07:25 at the beginning here and here right okay so
+07:31 what is the simple way of encoding the position information what do you think a
+07:36 simple way could be that you know you can just encode first position by one second position by two third position by
+07:43 three and so on and so forth let say there are 30 tokens first position you'll be encoded using this one the
+07:48 number one the second one is two three and so so on and so forth this is the simple option for position zero the
+07:56 position embedding can be Zer all zeros right in the V for position one all ones for two all
+08:02 twos and so on and so forth for three all three and so on right this is not as simple right there are many problem the
+08:11 first problem is that the size of the input right varies the size of a
+08:16 sentence varies let's say let's say in one sentence there are 10 tokens 10
+08:22 words in another sentence there are 20 words right 20 tokens and so on so how
+08:28 do you how do you identify the max number right because remember the number
+08:34 the maximum number the maximum uh number of tokens should be
+08:40 predefined right so how do you identify the max number because you don't have access to that and it will also change
+08:47 if we increase the training set the second problem is uh the last let's say
+08:52 there is a sentence where there are only three tokens the last token embedding is
+08:58 3333 right the position liing there is another sequence where the last token is
+09:05 at the 30th position so the last uh positional embedding is 30 30 30 30
+09:11 right so look at here so the three and this three vector and the 30 vectors are
+09:17 different right so one may the model misinterpret by thinking that this three
+09:24 position embedding is is is same as here which is also the three the third
+09:30 position right how does the model know that this is the end of the token end of the sequence how does the model know
+09:37 this is the end of the sequence because here also you have 3 3 three okay so determining number one
+09:45 determining the uh length maximum length of a sequence is not possible through
+09:50 this approach right so what is the simple remedy to address
+09:56 this problem the simple remedy is you just normalize it right so let's say the
+10:01 max so in this sequence the maximum number of tokens is let's say three
+10:07 right so you divide everything by three isn't it if you divide it then the last embedding is going to be one one one one
+10:14 here also one one one one you divide everything so here in this case you divide by 30 so you divide every
+10:20 positioning by the max number of tokens present in the sequence right like
+10:26 this okay like this so now you guarantee that okay the last the last position uh
+10:33 information will be encoded by all ones irrespective of the size of the sequence length right but there are problems here
+10:40 what is the problem the problem here is it depends on the number of tokens in the sequence
+10:46 right so when you divide this by three and divide this by 30 look at the first
+10:54 position zero position first position this is the position ining 3333 and
+10:60 right and in this case the first first position is encoded by 2.2.2 although both of them denote
+11:07 denote the first position of the sequence right but now they are denoted using two different uh
+11:14 vectors this is not desirable right we always assume that you know uh for every
+11:21 position there should be an unique Vector right so that the model will also understand that you know this is a
+11:27 unique Vector so although this this approach addresses the problem of this is last token uh you know
+11:35 uniformity but it doesn't address the problem of two positions should be encoded using
+11:41 same vectors okay what do we do in this case how do we address this problem so
+11:47 in in a in a simple way right the simple way to address this problem is as follows now this is what was proposed in
+11:55 the original Transformer paper let me first motivate what does it mean so this is position zero position one position
+12:02 two 3 4 5 6 and so on and so forth okay let's assume that every position is
+12:07 encoded by uh a vector of size four okay so if I use a binary number concept
+12:16 right you can encode this by 0 you can encode one by 00 1 right two by 00 1 one
+12:24 Zer and so on and so forth you basically convert every integer to a binary
+12:30 so in this way if you do that you at least guarantee that all positions will
+12:36 be unique right and the model should be able to also differentiate uh different
+12:42 positions but of course adding this kind of binary numbers to a to a to a word embedding which itself is composed of
+12:50 fraction numbers right let's say 3.1 and you add a a binary Vector like 0000 1 0
+12:56 1 02 a fractional Vector doesn't make much sense right it also suffers from the same
+13:03 problem that we don't know what is the length of the uh input sequence right but we can motivate we can get motivated
+13:11 by this idea that you know if we use
+13:16 this kind of binary encoding techniques you can uh differentiate different
+13:21 positions and how do we encode this kind of thing how do we encode uh or how do
+13:26 we encode this kind of uh representation okay now look at the look at this
+13:33 numbers or look at these vectors very carefully let's say this is the least significant bit LSB right every number
+13:41 every unique number is altered every second position right 0o here 0 here 0 0
+13:48 right zero every number here is altered in fourth position so here here right
+13:54 here and so on every number here is altered in eighth position
+13:60 isn't it so you see some sort of periodicity right and we know what's the
+14:07 best uh way of capturing periodic signal use sinusoidal
+14:13 representation you know don't get afraid by this formula I explain okay so this
+14:19 is the positional embedding formula that was proposed in the Transformer model if
+14:24 this is the position vector and there are elements in this vector right these are different
+14:31 elements right first element second element and these elements are denoted by
+14:37 I okay so I equal to 0 I = to 1 I equal to 2 and so on and so forth here you see
+14:44 these are elements okay this is a vector and these are different elements so instead of
+14:50 using 01 I will use some trick to essentially determine the value of every
+14:56 element in the vector okay so I denotes the element
+15:01 within the vector pause is position right so position one position
+15:07 two position three and so on okay and D model is basically the the model
+15:14 size okay so in this case the model size is 512 okay now the model size is already
+15:21 fixed it's a constant right position is also fixed we know the position and I is
+15:26 also fixed and we see how we can use this okay so let's assume that I would like
+15:33 to encode the position information of the first position so pause is
+15:39 zero okay and the size here is four okay
+15:46 so so I so this I will vary from 0 to 4
+15:53 this is i = 0 to 1 2 3 4 right so every element of this position Vector will be
+15:58 determined by this formula so in this case this is going to be sign right position equals to0
+16:07 by 10,000 to the power let's say you are interested in I equal to 0 right I equal
+16:13 to 0 I equal to 0 0 by D is whatever right d is a fixed
+16:22 number so this this number is going to be the first element of the the position
+16:29 embedding okay the second element of the position embedding is going to be right
+16:35 S 0 10,000 2 * I 2 * 1 by
+16:44 D you may ask why this is the number 10,000 coming here right this is just a
+16:51 number that they proposed and this determines this value
+16:56 determines the frequency of the sine web isn't it think about it D is fixed D is fixed if
+17:05 I equals to0 or I equals to 1 I equals to I is a less I mean a small number
+17:12 then the frequency will be high right if high is a large number then the frequency will be less and we
+17:18 know that a high frequency sign curve looks like this and the low frequency sign curve may look like
+17:27 this right so we capture the first of the upper
+17:34 part of the vectors through the high frequency sign wave and the lower part of the vector by the low frequency I
+17:41 mean upper part means IAL 0 IAL to one and so so more or less you understood the
+17:48 concept right now let's see so you may wonder why do I need this
+17:54 I let us let us forget this I okay and let us only embed the positional Vector
+18:03 using the using only the position information okay so basically sign
+18:11 position now look at this figure here x-axis indicates the position position zero position 1 2 3 4 and y axis is a
+18:19 sign value look at here if we do that the
+18:25 zeroth position value and the sixth position value would be the same
+18:32 isn't it similarly you will you will see that the first position value and the Seven position value will be the same
+18:39 right but all these position should be unique right therefore we add the
+18:45 concept of frequency we add the concept of I Index right and if we if we do that if we add
+18:53 this then it would look like this IAL to 0 high frequency right you
+19:01 see the high frequent WB right I equals to two a bit low frequent WB and I
+19:06 equals to four even lower frequent wave and so on and so forth so 0o two four
+19:12 these are different uh indices in the vector
+19:18 now the concept wise I think this is clear now let's look at the beauty of this formula
+19:23 okay so let's say there are two
+19:30 consecutive positions position one position two x-axis indicates position okay position zero position one position
+19:37 two and so on and so forth and y axis is the sign sign value with different
+19:42 eyes let's look at two consecutive uh position zero and
+19:48 one okay ideally ideally what do you think
+19:54 intuitively if two words are close by right vers says if two words are very
+20:00 far should that information be also captured in the position information position Ting
+20:06 some if you look at this one carefully 0 and one I will call the this part of the
+20:13 figure as the low frequent band and this is the high frequent band okay so two nearby position zero
+20:21 and one you see that there low frequent uh sign numbers are quite
+20:27 similar the they are they they will be separated by the
+20:33 high frequent signal look at
+20:39 here right so they will be separated by the high frequent signals it
+20:45 means that if you if you compare two embeddings right position zero embedding
+20:51 and position one embedding right you will see at the zero position one
+20:56 positions there are there are changes but as we move away as we move far I
+21:02 equal to 4 6 8 right 10 12 30 40 you see that numbers are more or less
+21:10 same right agreed so two nearby positions are mostly separated by high
+21:17 frequent bands High frequent signals and high frequent signals are captured by the first few elements of the
+21:25 vector I = to 0 I = to 1 and so on and so forth okay now as you move on let's
+21:31 let's compare the zeroth position and let's say sixth position right zero
+21:39 position and the sixth position you see that the low band the low low signals
+21:46 low frequence signals they are itself capable enough to differentiate them
+21:51 look at this one so here you see the difference mostly the difference here but here you will see the difference at
+21:57 the low frequenc Zone okay so when you compare zeroth
+22:03 Vector zeroth position vector and the sixth position Vector you see that the high frequent digan will of course
+22:11 differentiate them but the low frequent Regan will also differentiate the best way to visualize
+22:17 this I have a visualization this is the this is a visualization so this is an position impeding of 50
+22:24 words okay 50 positions so each row indicates a a vector position Vector
+22:32 right each row indicates a position Vector so the first first row is the
+22:37 position information of the uh zero token and second one is the first token
+22:43 and so on and so forth each column indicates the elements of the vector I
+22:49 look at the first embedding you see this period City here right this white block
+22:56 is getting repeated right every every single position if you compare the first
+23:02 two bits here or first two elements here you see there's a difference and these are high frequent
+23:12 regions isn't it because I equal to 0 I = to one and so on and so forth this is
+23:17 not only this is not exactly the sign curve by the way because we will discuss it is composed of a mix of s and cos
+23:25 cosine now let's look at the third important property
+23:32 here so look at here there are there are two positional embeddings
+23:40 for zero and sixth respectively at I equals to 4 which is which is the lower frequency range they are more or less
+23:46 the same right as you move on I equal to two you see a difference okay as you move on as I
+23:55 equals to Z you further see the difference
+24:03 right so at low frequency the value is exactly the same this will start to differ differ significantly as we move
+24:10 to the high frequency high frequency zones okay so
+24:15 now the original uh Transformer paper they they used a com a combination of s
+24:23 and cosine right so so this is the formula that they use
+24:30 every odd position of the vector okay let's say I equals to 1 if I
+24:38 equals to 1 then EI I will be two and EI I + one will be
+24:43 three right so so the second element will be will be driven by
+24:50 S and the third element will be determined by Co
+24:55 cosine the frequency is the same this will be deter by S and this will be by
+25:01 so this is s and this is cosine right if I go to zero then this will be S and I =
+25:09 0 means 2 I + 1 will be 1 right so this will be cosine so the first element will
+25:15 be uh will be determined by S the second will be cosine third by S fourth by cosine and so on and so
+25:22 forth this is even complicated so far we have only seen once once one type of signal sign now
+25:30 here they said let's mix both s and cosine both are periodic and you know
+25:35 kind of complement so this will even uh help differentiate positions
+25:42 further let's look at whether uh this concept is enough to satisfy all the
+25:50 position embedding U you know properties so it is independent of the length of
+25:57 the sequence right it will give same embedding to the same
+26:02 position of in different sequences right
+26:07 okay two nearby wordss will be differentiate will be differentiated by
+26:13 the The High Frequency region right whereas Words which are F will be differentiated by both high frequency
+26:20 and low frequency region right so if we take the dot product or some sort of similarity you
+26:26 will see that the positional similarity between by words are quite High whereas
+26:31 those words which are far their position similarity is quite
+26:37 low now this is the formula okay uh let's say the model size is four so D
+26:44 mod is four and U and you have S cosine s cosine and so
+26:52 on and so forth so this this is the positional embedding and this will be added to the actual word embedding
+26:60 okay and this added Vector will be passed to the next layer the first layer this
+27:07 clear this is just a visualization uh you can also you can also just run this
+27:13 and see how it looks like by the way so this was proposed in
+27:19 vasan's paper but then later people realize that you know let's not make it
+27:24 complicated let's just consider this position embedding as a trainable
+27:29 parameter let's train this positional embeddings right so for every position you you will
+27:37 have a trainable Vector right which will be learned okay and this position Vector
+27:43 will be same across all the sequences that we're going to fit in right let's say you you have the
+27:50 first sequence X1 X2 X3 X4 second sequence y1 Y2 Y3 y4 y5
+27:59 Y6 third sequence Z1 Z2 Z3 okay the position Vector that we are we will
+28:05 learn would look like this let's say P1 P2 P3 P4 right plus plus plus plus P1
+28:16 the same position Vector will be learned based on the second sequence P1 P2 P3 P4
+28:23 right and so on and so forth so you can think of it as a kind
+28:28 of a dictionary where every element of the dictionary indicates the position Vector right so
+28:34 whenever you you feed a sequence you f the corresponding position encodings from the dictionary and you just add
+28:40 them and pass them and then when you do back propagation the position embeddings
+28:47 will also be updated
+28:52 okay so these are the three properties that we generally consider when people
+28:58 think of a new positional embedding techniques right the first property is called monotonicity which says that the
+29:05 proximity of the positional embedding positions decreases when the positions are far
+29:10 apart I already mentioned right let's say the position X so this is the vector
+29:16 right corresponding to the position and and there is another position X+
+29:22 m x X+ M and X+ n okay if m is greater than n meaning n
+29:31 comes earlier so x x + n x + m right so the the proximity between this and this
+29:38 should be higher the difference should be lower and the S the proximity should be higher if two wordss are close by
+29:45 right they are near their proximity should be higher okay so this proximity will be
+29:51 higher than the this one proximities can be captured in using similarity and any
+29:56 other matri the second property says it should be translation uh invariance meaning
+30:03 meaning the proximity of embedding embedded positions are translation in
+30:08 invariant now what does it mean let's say X1 X2
+30:15 X3 okay these are two three positions X1 X2 X3 and there's a number M so X1 + m
+30:23 X2 + m X3 + m right so you have three pair now X1 X1 + m X2 X2 + m X3 X3 + m
+30:33 right if you measure the proximity they should be the same it should not depend on the the
+30:41 original position X1 X2 X3 these are basically highlighting the relative positions okay the relative position
+30:48 should be intact the relative position difference or the proximity between between one and three positions and four
+30:55 and six positions right it should be simp this should be the
+31:00 same symmetricity it is also very obvious right uh the proximity between X
+31:07 and Y two positions should be same as the proximity between Y and X so if you if you try to come up with
+31:14 the new positional embedding these three properties should hold okay so let's
+31:20 move on to the very recent one in this paper this is called rotary positional encoding this was uploaded in
+31:27 2023 and since then recent methods like pal right GPT Neo gptj Lama one2 all
+31:35 these models are basically using this potion nobody uses the S sinusal
+31:41 representation okay the idea behind this is a bit complicated but very different
+31:47 from the signal approach okay so what is the idea
+31:52 here by the way they propose this rope embedding rope position embedding and
+31:58 and they just Incorporated this rope embedding to Transformer right and they came up with this model called R
+32:06 forer everything is same except the uh embedding and that actually made a lot
+32:12 of difference I'll tell you so why position information is so important when you see the result you will realize
+32:19 that you know this is although it looks like a very simple problem it's not not like that in fact if you read the uh Ser
+32:26 surve paper you will see so many variants have been proposed so far with small changes here and
+32:32 there okay so we have seen two kinds of thoughts in
+32:39 designing the poal embedding method right one is the absolute positional embedding in the absolute positional
+32:44 embedding you are essentially uh you are only focusing on
+32:50 the absolute positions right you are trying to somehow encode those positions right so how do we do that one way is EI
+32:58 either through uh through learning right you basically learn all the positional embeddings and the other way is the S
+33:05 cosine based approach that I mentioned earlier so this is absolute position coding uh this is just a demonstration
+33:11 of absolute position coding that I discussed so far this notations are important therefore I'm explaining it
+33:17 again so what is this XI XI is the word embeding okay input word eming uh for
+33:24 the corresponding position I or the word token I right
+33:29 so what is fq now remember from every token I generate three vectors query key
+33:37 and value right query will be generated through a function uh some function fq
+33:43 right which in the normal Transformer this is essentially a linear transformation we multiply the embedding
+33:49 with a matrix WQ right we multiply this by WQ and this is by w k and this is by
+33:56 WV but let's assume that these are generic functions okay now these are
+34:03 functions of the word embedding and the position
+34:08 M right in a normal Transformer what we do we basically X do XM plus
+34:16 PM PM is the position information right and here xn plus PN and so on and so
+34:23 forth right but again let's make it generic assume that there's a function which is be applied to XM and M meaning
+34:31 the water embeding and the position right now whether this is an absolute position or the embedding or
+34:38 what doesn't matter then what we do once we got the
+34:44 query key value vectors we essentially we we we get the attention score right
+34:50 this is essentially U query key. product followed by sigmoid uh followed by
+34:56 softmax and softmax will give you a distribution and then your output is going to be the weighted average of the
+35:04 values right the sof Max uh sof Max output right and this will be multiplied
+35:10 with all all V right and in the original paper they
+35:15 suggested this kind of s cosine based cres okay so in the relative position so this is absolute position let's look at
+35:21 the relative position encoding in relative position the idea is that we we don't care about the absolute position
+35:26 we only look at the relative between a pair of tokens so let's say the dog chased the pig uh Once Upon a Time the
+35:34 pig chased the dog right if you look at the relative positions between these two they are the
+35:42 same right although the the the two words got swapped right and the few
+35:48 tokens uh you know were added at the beginning but the relative position is the
+35:54 same the relative position is I mod I minus Z or mod M minus
+35:60 n okay so this so we we will basically try to preserve the relative position
+36:05 instead of preserving the absolute position let's look at some of the developments recent developments before
+36:11 rope right where people mostly focused on the relative position okay
+36:18 so so in this paper in this specific case you you see here the squarey key
+36:24 and value vectors are generated but but the query Vector has nothing to do with
+36:30 the position this is just a DOT product this is just a multiplication of the parameter and the word eding XM whereas
+36:39 keys and values they are in in in these two cases they use two positional
+36:47 embeddings you see the difference between this and the previous one in the previous one for for for for all these
+36:54 query key and value cases you add you basically add the position and the word embedding but here only for the key and
+37:01 value you add the the word embedding and the position embedding but look at this position impending very carefully it is
+37:10 PR right not PM PN by the way this the
+37:15 the the index M indicates the query and the index n indicates the key and value
+37:21 remember the key and values vectors are generated from the same token right so you have a quy and keys
+37:28 and values so this is R what is this R the r
+37:35 is essentially the relative distance between M and
+37:40 N okay R is M minus n now if it is arbit large M minus n you
+37:47 clip right you clip using basically threshold called R max if it is very
+37:52 small again you clip using this trold R mean right so the r is essentially a
+37:59 clip right of M minus n if M minus n ranges between R mean and R Max then it
+38:06 is okay if it exceeds r r Max you you consider R max if if it is below R me
+38:12 you consider R me so this is PR now how do we measure this PR this is
+38:21 trainable you will learn this uh PR this PR is added with the value and key
+38:28 not with the query okay this is the this is one way
+38:34 of preserving the relative position the second paper Transformer Excel they said
+38:39 that let's look at it in a different way so ultimately we are we will do
+38:46 query key. product right query qm
+38:53 keyk okay ultimately we'll do do product right and the or in in the in the
+38:59 original Transformer paper what was qm qm was
+39:05 WQ XM plus PM right what was
+39:13 km w k xn+
+39:19 PN right let us just unfold this so when
+39:24 we take the dot product of this and this you basically basically multiplying this and this right a transpose is a
+39:31 transpose because q q transpose K is basically a plus b into C plus d okay
+39:38 and this will result in four elements so these are the four elements okay now let's look at each of
+39:46 these elements very carefully the first element doesn't have any position
+39:53 information this is these are just you know what embeddings of uh of query and
+39:58 key the second element has a position information of the key the third element
+40:03 has a position information of the query and the last element doesn't have any any water eding this is these are just
+40:09 two positions that's all okay so what they
+40:14 suggested is that this in which is the position of the key or value right the
+40:23 position of key and value let's replace this by a relative position encoding so I'm
+40:30 replacing PN by p m minus
+40:36 n and this I will learn okay so whenever you see PM it is
+40:43 replaced by p m minus n PN it is replaced by p m minus
+40:49 n okay what's the second change the second change what they said is that the
+40:60 look at this one this PM what is PM PM is the position of
+41:07 the query right they said that we don't care about the position of
+41:13 the query because we have already taken care of the relative position of query and key now let's replace this by some
+41:19 sort of bias term or some sort of parameter that we l okay so PM you see the PM is replaced
+41:26 by V so PM is replaced by V but where are this PM basically uh appearing PM
+41:34 appears here PM also appears here right so here uh you're now these
+41:40 two PMS when they they get when they get multiplied with the remaining part they'll produce something else right so
+41:47 therefore they said let's not keep the same Vector let's introduce two
+41:52 vectors so this is V and this is U because they context are
+41:59 different okay so you see V transpose and U transpose here so what are the changes again the
+42:07 changes are as follows the position of the key will be replaced by the relative position the
+42:12 position of the query will be trainable okay this is this is there in
+42:19 the Transformer Excel paper now the T5 paper this and this I
+42:26 already discussed the T5 paper the famous encoder decoder paper that we'll discuss later in the T5 paper they said forget
+42:34 about all the terms okay we'll learn everything okay we'll only keep that ter
+42:40 which doesn't have any position right and the relative and the other terms just remove all the terms all the other
+42:47 terms where the position information is there we'll learn everything right and what they they learn they learned
+42:54 something called Big what is big B looks like
+43:01 this looks like very interesting so the so this is B 0 right this is B1 I I'll
+43:09 tell you what what are there this is B2 this is B3 this is b0 this is B minus one this is B1 this is B2 right this is
+43:17 B minus 2 uh B minus one B 0 B1 and so on and so forth what are these
+43:24 numbers this b0 is the bias or the learnable parameter which indicates the
+43:31 basically the basically the relative position between the between a current position with
+43:38 itself right three with three four with four what is B1 B1 indicates the the the
+43:47 the distance between three and four or seven or eight one or two right two
+43:53 words two subsequent what is B2 3 five right 11
+43:59 13 what is B3 three words what is B minus one okay 2
+44:07 one therefore this is B J okay and this again this will be
+44:14 learned and this will just be added to the query key do
+44:19 product okay uh there is other formulation another formulation in this formulation they said that uh it's very
+44:27 difficult to learn all these things let us uh keep this this term this term
+44:32 right and maybe let us keep uh let us keep let's say this term and the other
+44:38 terms can be can be captured using this bias and so on okay
+44:44 so de paper they again modified this one so this was the original equation you
+44:50 see they further modified they kept some terms right these terms some terms are kept some terms are removed some terms
+44:56 are modified and so on so these are basically the concept of relative uh position encoding now we'll see how this
+45:05 concept are used to essentially uh build the Rope embeding okay so let's see how
+45:11 we can uh how we can actually combine the relative position and the absolute position information together rope is
+45:18 the first paper which essentially leverages both the absolute position encoding and the relative position
+45:23 encoding together what is the idea the idea here is very interesting the idea here is
+45:30 that uh the dog Chas chase the Pig and the pig chase the dog the relative
+45:36 positions of dog and pig is the same and how do we capture this we capture this
+45:42 using the angle of these two vectors so dog is a
+45:47 is an embedding it is basically a vector Pig again has an embedding which is a vector we look at this
+45:54 angle okay if the absolute position of these two
+46:02 vectors will change keeping the relative position the same the embedding these two embeddings
+46:08 will just rotate let's say this is the this is the sentence but the absolute position of
+46:15 pig and dog is different from the previous one right but the relative position is is still the
+46:22 same they are separated by two words right so we rotate this to right this
+46:30 rotation essentially takes care of the change in the in the absolute position and the angle takes care of the relative
+46:37 position okay since the since the their relative positions are are the same the
+46:42 angle will not change but due to the rotation we'll also capture the F position
+46:48 change beautiful idea right in this paper they essentially mapped all the
+46:55 embeddings to the complex Place uh comp comp Lex space okay how many of you remember the
+47:01 complex complex number wonderful okay so please be
+47:08 careful this is a bit complicated to understand uh I will try to it's a very ma math heavy paper I will not go into
+47:14 the very details of the math I strongly suggest you to read the paper but I'll I'll try to give you the intuition
+47:20 behind the the Rope embeding so rope encodes the absolute
+47:26 position with a rotation Matrix so how do we rotate a v Vector we rotate a
+47:31 vector using a rotation matrix by the way all of you should know that when we multiply a matrix to a with a vector it
+47:39 is just a linear transformation right it's just a transformation
+47:45 now and and due to the transformation it may happen that you know the magnitude of this Vector gets
+47:52 changed right but rotation Matrix is a special Matrix if we multiply with the vector the magnitude will remain the
+47:59 same but the angle will change just to verify you uh take this
+48:06 Matrix okay cos 90 minus sin
+48:11 90 sin 0 cos 90
+48:18 okay essentially this is 0 -1 1 Z okay
+48:23 this is the rotation Matrix I claim that this a rotation Matrix if you multiply this let's say you apply this rotation
+48:30 Matrix to a vector uh to a vector 01 if you multiply what is going to happen
+48:36 minus one minus1 and uh 0er right what is minus1 0 min-1 XS is minus one and Y
+48:45 is z this one it basically rotated the vector by
+48:51 90° anticlockwise 90° I added 90° it rotated this by
+49:01 90° okay so we use the concept of rotation Matrix rotation Matrix is always orthogonal and so on and so there
+49:06 are many interesting properties okay so so we will incorporate the absolute
+49:14 we'll encode the absolute position using a rotation Matrix and this is important we will incorporate explicit relative
+49:21 position dependency in s pention formulation we will see later where when
+49:27 we calculate the self attention formulation the dot part between query key right we will see that there the
+49:33 relative position between a and N will be preserved you don't need to do it
+49:39 explicitly okay if it is not clear it will be clear very soon okay now let's look at the
+49:46 requirement that they that they basically uh considered
+49:51 so what is this XM what is XM XM is the XM is the query embedding right xn is
+49:58 the key embeding right m is the query position n is the query uh key position
+50:05 right so they said that I will try to come up with such a formula or such a
+50:12 function fq FK and G which will basically follow this
+50:19 property what does it mean so the function
+50:24 here which is applied to the query and the function here which is applied to
+50:29 the key these are dependent on the position information the absolute position
+50:35 information A and N but this dot product of these two functions right should be
+50:42 same as a g another function which will be a prop which will be a function of
+50:48 the relative distance of two positions I will try to come up with
+50:55 such an F Q a FK and G where fq and FK
+51:00 are dependent on the absolute position but G will be dependent on the relative
+51:06 position and when I do the dot product between fq and FK right the resultant uh
+51:13 uh value would basically be the same value which will produce with using
+51:18 G okay and one of the options of you know which basically satisfies this is
+51:24 as follows so fq this they said that fq can
+51:31 be written in this way remember what is fq fq is the transformation of your
+51:38 query uh embeddings and the positions right so they said that we already know
+51:43 this one XM and WQ XM is the word embedding and WQ is the query uh Matrix
+51:50 that we learn we will introduce this factor which is this is e to the power I mq the imaginary part
+51:57 the part of the vector e to the power I I is this imaginary part what is m m is
+52:04 the position of the query what is Theta Theta is the rotation rotation
+52:11 value so I will capture the position information using this uh imaginary
+52:18 component okay so why this is a Natural Choice I'll tell you why this is a
+52:24 Natural Choice similarly for the key I have w w k and xn right and E to i n
+52:32 Theta M Theta and N Theta the same rotation value
+52:39 Theta okay now if you take the dot product if when we take the dot product between uh the two complex numbers in a
+52:46 polar coordinate right what will happen right X let's say x i
+52:54 XJ you take the dot product right this will be x i let's say x u x i is how do
+53:01 you how do you represent this in a polar coordinate R Theta right so r i let's
+53:08 say this is R this is r i power Theta I and this is
+53:14 RJ Theta J okay when you take the dot between e e
+53:20 i e z i ZJ this is going to be do product Zi
+53:28 ZJ complex conjugate how many of you remember complex
+53:33 conjugate right go back and check what is complex conjugate okay when you do the complex conjugate this is
+53:39 essentially saying that r i r j e thet
+53:45 minus thet okay
+53:51 so if we do the dot product between these two this will result in this one
+53:58 w qxm w kxm right this wkxn star what is this
+54:04 this is the complex conjugate of this one this is Z1 this is Z2 I have to take
+54:09 the complex conjugate of Z2 so this is complex conjugate and e to the power i m
+54:14 Theta and e i n Theta so E I M minus n
+54:22 Theta okay now the interesting part is look at this m minus in so now this is
+54:29 my G and what they said is that when we expand this right cos cos theta plus I
+54:37 sin Theta right I will only take the real part of it not the IM imaginary part of it so the real part is going to
+54:44 be the output of G so G would look like this now let's
+54:49 see whether these three things satisfy the property that I was I was mentioning earlier F Q is a function of M and X XM
+54:58 F K is a function of n and n xn and N where G is a function of XM xn and M
+55:05 minus n okay all right uh few more maths
+55:15 so so this e m Theta right again if you
+55:20 if you remember the complex number right e m Theta can be represented using
+55:27 formula right which basically says that em Theta is nothing but a matrix like
+55:33 this again if you're not convinced go back and check okay so this is em Theta
+55:38 is nothing but a matrix like this which is a rotation Matrix so you are applying a rotation
+55:44 Matrix with this uh transformation right you are applying
+55:50 this rotation Matrix with this transformation so this is the rotation Matrix this is W Matrix and this is the
+55:58 so when you multiply this with the linear with this weight it will produce a vector this Vector will be multiplied
+56:05 with the rotation Matrix right and that will essentially
+56:12 rotate okay now whatever I mentioned so far is for the two dimensional case when the
+56:19 size of the vector is two now what happens if there are if the vector is of n Dimension right if the
+56:26 vector is of in dimension then this rotation Matrix would look like
+56:32 this what is this let's say the D Dimension right you have d by two number
+56:38 of small small blocks diagonal wise right this is the first
+56:47 block okay this is the second block this is the third block and so on
+56:53 D by2 number of blocks what does it mean can somebody tell tell me what is happening
+56:58 here if think about it if there are there's a vector of size d right you are
+57:05 taking every two elements of the vector and you are rotating you taking every two elements
+57:11 of the vector and you are rotating okay remember we also need to
+57:17 preserve the the all these properties right I mean the uh unique unique positional embeddings the relative
+57:23 positions and so on and so forth and how you determine this Theta Theta is essentially same as this
+57:31 Vasan paper right 10,000 to the power minus uh 2 uh 2 * I by
+57:40 D okay are we learning something
+57:46 here in this case look at this the numbers all this formula carefully are
+57:52 we learning something here are we learning something you're
+57:60 not W's are trainable parameters already there right we are not learning the PO
+58:06 information at all because Theta is already given Theta depends on
+58:12 I okay now when we take the dot product qm transpose KNN right what is qm Q qm
+58:20 is this rotation Matrix time WQ time XM right what is KNN KNN is another
+58:26 rotation Matrix right w k xn if you multiply if you do some arrangement here
+58:33 and there you will see that you will get a matrix which looks like this rotation
+58:40 Matrix which looks like this right which we call R right R is basically a
+58:47 function of M minus n okay so when we do attention self
+58:54 attention you basically preserve the relative information okay so the statement that I
+58:59 mentioned earlier incorporates explicit relative position dependency in the self attention formula is there in codes
+59:08 absolute position with the rotation Matrix is there so rotation Matrix takes care of this m and n right M and N when
+59:15 you do self attention you see the relative position is
+59:21 preserved okay this is a great paper I would say if if you read the math you
+59:27 will you'll be basically amazed okay so these are some of the properties
+59:33 uh uh in contrast to in contrast to the earlier positioning method rope is multiplicative remember this that I
+59:40 forgot to mention the position information is not additive here is multiplicative right is a multiplicative
+59:46 isn't it multiplicative rope naturally incorporate relative position
+59:51 information through rotation Matrix right instead of instead of altering terms that that I mentioned earlier uh
+59:58 and you know the rest of the things I already mentioned you can if you go through the slides you will realize okay
+60:04 let's look at some of the again just two properties are almost there if I plot the relative distance
+60:13 between tokens 2 3 4 5 6 and the relative value of the PO in coding you
+60:19 see that with the increase of the relative position the proximity value of
+60:25 a pair of uh position right PA of potion embeddings will decrease which was one of the properties
+60:31 right that with the increase of this it should decrease right X+ M and X+ n
+60:39 remember the second good thing is that although this Matrix looks like a very
+60:44 gigantic Matrix right but most of the entries in this Matrix is are zero right
+60:50 so if you do some some small math here and there if you see that this can be
+60:56 realiz by this okay where you look at the cost part you segregate the cost and sign
+61:02 part right and you multiply one part of the embedding with c and another part of
+61:08 the embedding with sign so this is also computationally very efficient let's look at the result okay
+61:15 so this row forer was tested with the original Transformer paper on the machine
+61:22 translation task German to English to German and there's a small small blue score Improvement right Ro former was
+61:30 also tested with the Board model okay it was it it showed significant Improvement
+61:37 remember we just added the positional information just change the position information remaining part is the same
+61:42 right with such change there's a gain from 71 to 86 85 to
+61:49 87 not only that but also the in the training time so this is the X xaxis
+61:55 indicates that uh the training time step right and y axis get the loss you see so
+62:01 this orange line is the board and the the original B without rope right and
+62:08 this blue line is theformer you see that the model also converges
+62:14 fast faster than b okay now if you see the per you know
+62:21 there is another model called performer and you know there are different Transformer versions long for performer
+62:27 and so on so in the performer model if we use rope and if you do not use rope
+62:32 so performer with rope performer without rope you see again the loss decreases uh
+62:38 you know quickly compared to the case where there is there is the you know the
+62:43 normal Po in okay so this is all about the um
+62:50 rotary positional encoding part so we have discussed what we have discussed positional encoding
+62:56 right for coding and the other modules are also discussed what are what the remaining one part which is remaining is
+63:03 a residual connection we all know what is a resal connection so let's say this is a layer right this is X okay and this
+63:10 this is basically a function if FX f it will produce FX right so I will
+63:16 basically have a shortcut from input to Output which will basically add the
+63:21 output with the input okay now this will be fed this will be fed to the next layer instead of
+63:27 feeding FX I'll feed f plus uh FX plus X right now why this is important this
+63:34 resal connection is important because it it helps you address the vanishing gradient problem because now you have a
+63:40 direct connection right you are not letting the gradient flow through the complicated portions of this F block
+63:47 right it can flow through this directly this will help in convergence
+63:53 and there are many important properties so what we do we add a residual connection here across sale pention you
+64:00 you will add another residual connection here across this um feed forward
+64:07 Network okay the last part is this add Norm add means the residual connection
+64:13 add and what is Norm Norm is layer normalization what is a layer
+64:18 normalization let's say when you do some complicated stuff within a layer within a specific layer
+64:25 let's say the layer is a self attention layer right you you basically result in a vector right now this
+64:32 Vector sometimes due to this operations some of the properties of these vectors get changed now what are these
+64:39 properties you know when you try to make the model fast fast in terms of
+64:45 convergence Etc we always make this Vector as smooth as possible now what do
+64:50 youan mean by smoothing basically a smoothing means that I want the elements of the vector to basically follow
+64:56 certain distribution right let's say you follow a distribution where uh you have
+65:02 zero mean and units standard deviation in that case what we do whenever you
+65:07 obtain a vector I basically apply another formula right where I make sure
+65:13 that all these elements basically ranges between between zero and one right and
+65:18 it also follows certain properties and so on and so forth okay let's uh now look at the
+65:26 batch and layer normalization which is essentially one of the components of the Transformer model if you remember the
+65:33 architecture once again right we had input position encoding right multier s
+65:40 pention feed forward Network right and uh residual connection and then we have
+65:47 this add Norm layer uh you know uh after every subcomponent of a layer right
+65:54 after every attention layer we have this adorm after every Feit forward layer we have an adorm and so on similarly in the
+66:03 decoder uh you have adorm here adorm here look at here after mask attention
+66:09 you have adorm after cross attention you have adorm after feed for feed forward also you an adorm layer right so let's
+66:18 look at what this what is the function of this adorm layer so add corresponds
+66:23 to this res connection you basic you are basically adding the input uh to the output of the layer okay uh let's look
+66:31 at the normalization part of it now the normalization of a uh of a vector or of
+66:38 an output right it is not restricted to Transformer model it is used you know uh
+66:44 all over the neural networks any deep learning model when you design we always
+66:50 try to add this uh normalization layer after every block okay after every layer
+66:55 uh there are multiple reasons behind this and what is this normalization it
+67:01 essentially this function this is operated on a specific Vector okay now
+67:07 this Vector is the vector can be the uh a single Vector like an output Vector in
+67:13 this case let's say a vector can a vector can correspond to a token right or a vector can be a concatenation of
+67:19 multiple vectors and so on okay so what is the purpose of this
+67:24 normalization layer the the purpose is that I will try to essentially um you
+67:30 know after every layer since there are so many operations within the layer it may happen that the entries uh uh within
+67:37 a single Vector get deviated right and uh it may not start following a certain
+67:43 pattern right what do you mean by a pattern a pattern can be let's say you want to make sure that the entry all the
+67:50 entries in the in a specific Vector ranges between 0 to one for example or let's say you want to make sure that the
+67:57 entries actually follow a certain distribution okay now this pattern actually gets destructed gets changed
+68:02 when you move from one layer to another layer due to this complicated operations within a layer okay so therefore we use
+68:10 uh we do this normalization normalization has a series of benefits the first benefit is that if we
+68:17 do normalization it will help you stabilize it will help you speed up the training process right uh by keeping the
+68:23 inputs to the to to each layer within a similar range or within a similar distribution it ensures that the
+68:29 gradients don't explode or the gradient don't vanish during bation
+68:35 right it also uh you know is very effective in accelerate the convergence
+68:40 right uh there are empirical studies which showed that if you use normalization versus if you do not use
+68:46 normalization right uh in the former case the model converges fast faster than the later case the
+68:54 third Advantage is preventing overfitting right there are methods like Dropout some of you know in the Deep
+69:01 learning right uh in deep learning we use the Dropout techniques where we essentially freeze some of the weights
+69:07 and uh you know along with Dropout and normalization it also helps you know address the over overfitting problem
+69:15 empirically and essentially I mean if you I mean if you think of all these
+69:21 three points together it essentially improves the the gradient flow right uh
+69:26 across the layers so normalizations can be of different types batch normalization
+69:32 layer normalization instance normalization weight normalization group normalization and so on and so forth but
+69:38 in this specific part of the lecture we'll focus on batch and layer normalizations so in Transformer we
+69:45 generally use layer normalization but batch layer normalization can also be used we look at the frosen cons of batch
+69:51 and layer Norm relations okay let's take an example to illustrate the idea of
+69:56 normalization let's say uh you are given a instance where uh
+70:04 there are two features one feature is the age of a student and the other
+70:09 feature is the the tution fees right in an academic year so based on the age of
+70:15 a student and the tution fees you want to determine whether the student is eligible for taking a loan on right
+70:24 so here the age ranges between 18 to 25 let's say you have a feature which
+70:29 ranges between 18 to 25 whereas the the tution fees in an academic year ranges between U 20K to uh 50k doll okay now
+70:39 you if you look at this two features now these two features essentially correspond to two entries in the
+70:46 vector right and the ranges are very different so one way to do this normalization is that
+70:52 you make sure that all these entries range between 0 to one how do we do that
+70:58 one way of doing this thing using right you can use this kind of minan Max uh
+71:03 normalization you subtract uh every entry by the mean entry of the feature
+71:10 right let's say the feature is uh age right you look at the minimum age
+71:15 present in the training set and you subtract that uh that minimum value of that feature from the uh element from
+71:23 the entry and the denominator is the max minus mean max
+71:29 value minus mean value so let's say the max value is 25 mean value is 18 so it is essentially 25 minus 18 and it it
+71:37 makes sure that the this will always be between 0 to one okay of course there are other ways also to make sure that
+71:45 the the range is between 0 to one now this is called normalization there is another term
+71:51 called standardization in a standardization what we do again giving the two features
+71:58 age and um tution fees right what we do we we will make sure that these two
+72:05 features follow a certain distribution okay uh let's say we make
+72:12 sure that the distribution in this distribution the mean is zero and the uh
+72:18 variance is one right how do we do this we for every feature we calculate the
+72:23 mean right and the standard deviation and we subtract the mean from the from
+72:29 the uh element from the value and we divide it by the standard deviation if you do that it it doesn't
+72:37 guarantee that it ranges between 0 to one it will not be 0 to one at all right but it will follow a certain
+72:42 distribution where we see that the mean is going to be zero and the standard deviation is unit okay now this is
+72:49 called standard this is called standardization but often times we will essentially use standardization and
+72:54 normalization interchangeably okay now let's focus on
+72:60 batch normalization in batch normalization what we do we will we'll
+73:05 we'll perform the normalization operation after every batch so we'll send a batch right we will stack all the
+73:12 outputs of the batch and then we will do the normalization right let's first look at the batch normalization properly okay
+73:19 let's assume that in a batch now batch is what batch is a collection of training instances right so
+73:27 let us assume that in your batch there are three instances this is the first training instance second training
+73:33 instance and third turning instance so the column corresponds to the the column indicates a feature
+73:39 Vector right or a vector in batch normalization what we do you take every
+73:46 element of the vector let's say you focus on the first element okay first element of the first Vector second uh
+73:53 first element of the second vector and the first element of the third Vector you you look at the first element of every vector and then
+74:01 you do the standardization meaning you you you calculate the mean and and and
+74:07 standard deviation right let's say the mean is four and the standard deviation is this one okay then you essentially
+74:14 subtract uh the mean from each of these elements right and divide this by the standard deviation now this is batch
+74:22 normalization where we are looking at the batch all these instances of the batch and first element of that instance
+74:28 in the first first element of every Vector right and you are essentially calculating the mean and standard
+74:34 deviation right so this is happening for instance for for for entry one for entry
+74:39 two for entry three entry four and so on and so forth so you are looking at all the instances within the batch and then
+74:45 you are doing this operation this is batch normalization what is the problem here
+74:51 the problem here is that uh your batch should be representative
+74:58 enough the batch should be representative enough of your entire population of your entire training set
+75:04 right if your bage is very small this mean and standard deviation remember the mean and standard deviation will vary
+75:10 when we when we basically feed another batch right so for for a particular
+75:16 batch you have a certain mean and standard deviation when you feed another batch the mean and stand will
+75:22 change okay so if the batch size is not not uh large enough right you may not
+75:29 you may not be able to basically get the correct distribution of the population okay um mathematically how do
+75:37 we uh formulate it look at here there are B number of instances in
+75:43 the batch okay and across the batch across the batch you are you are taking the
+75:50 mean and standard deviation right for a particular element right and you
+75:55 subtract the mean from the element and the then you divide it by the standard deviation right and this is happening
+76:01 for a specific for a specific element I right so I is the index ranging from 0
+76:12 to d d is a vector size often times what we do along with
+76:19 this bat normalization we also add some trainable parameters so let's say this
+76:24 is the updated value of the element along with the updated value we add some
+76:29 sort of gamma and beta right and these gamma and beta are basically learned during the back pration time okay
+76:39 so the first limitation as I mentioned if the bass size is small the sample mean and standard deviation are not
+76:46 represented representative enough of the actual distribution right and the network may not be able to learn the
+76:53 actual meaning okay uh this is not very suitable for uh for
+77:01 a Transformer kind of model why because in a Transformer kind of model which is
+77:06 a sequence model the sequence length actually varies right let say you have a
+77:12 batch where there are um there are sequences of length four there are
+77:18 batches where sequences are of length eight and so on and so forth so this may not be a suitable option for the that
+77:25 kind of cases right and you you easily understand why let's say there's a badge
+77:32 where there is one sequence of size four another sequence of size eight another sequence of size 16 right how do we do
+77:38 this uh mean right because you right in the second second instance you have this
+77:44 fifth element which is not not present in the first first instance so when this
+77:49 this varies this may not be a right approach okay okay so in layer normalization what
+77:56 we do we will not look at all the instances of a batch there's no concept of batch here at all right we look at
+78:04 every vector and all the elements of this Vector will be used to calculate
+78:10 the mean and standard div okay here again every column indicates an instance
+78:16 right I will look at column wise entries and then I will basically uh measure the
+78:22 mean and standard deviation so one 3 57 mean is four standard deviation is 2.23
+78:29 then I subtract this four
+78:35 right and so on and so forth so this will make sure that each Vector follows
+78:42 a distribution right the distribution may vary across vectors but every Vector
+78:47 follows a distribution okay look at here uh there are D dimensions for every
+78:53 Dimension we basically there are D dimensions and then for every element for every instance I measured the mean
+79:01 and standard deviation then I subtract mean from the standard deviation and sorry the mean from the element and this
+79:07 is the standard deviation here also I will use to learnable parameters if
+79:14 needed okay let's look at the difference between bat and layer normalization what
+79:21 do you think bat I already mentioned that um so in B normalization each
+79:28 feature right it it normalizes each feature or each element each entry in
+79:34 the vector independent independently across the Min right and in layer normalization we
+79:42 look at one U one input and then we look at all the elements of that input and we do layer normalization so bass
+79:50 normalization is dependent on the bass size right layer normalization is independent
+79:55 right but if the bat size is small it will affect bat normalization but layer
+80:02 normalization is independent of the size of the batch right doesn't matter batch mation requires different
+80:09 processing at the training and inference time now look at this one right what does it mean it it requires different
+80:16 processing at training and inference time as in layer nor relation is done
+80:21 along the length of the input to a specific layer the same set of operations can be used at as as both
+80:27 training and inference times okay so we have actually described all the components of Transformer right
+80:34 we have described positional embedding uh we have described two um ways to do
+80:39 position encoding right the sinusal operation and rope right we described
+80:45 residual connection we described fit forward Network right which is responsible for doing
+80:52 nonlinearity every encoder block block consist of mask self attention and fed
+80:58 forward and two uh adorm layer and two res connections right and you repeat
+81:04 this end blocks this block end times right in the decoder part since this is
+81:10 a decoder uh block you do mask attention and then this cross attention in the
+81:16 cross attention part here the key the query comes from decoder keys and values will come from the encoder one point to
+81:24 remember is that it is not the case that the first layer of the decoder will
+81:32 basically attend to the first layer of the encoder in the cross attention
+81:37 formulation it will not be like that okay every layer of every decoder layer
+81:43 will attend to the last layer of the encoder block okay so you have n block stacked
+81:50 and the last layer of the encoder block will produce your uh uh keys and values
+81:56 now every layer of the decoder will attend to those keys and values okay so the this diagram maybe a
+82:03 bit uh you know wrongly represented but I I hope you understood then fit forward Network
+82:11 right so now I have never mentioned how this model is
+82:16 trained right there are so many parameters how does this model will be trained now when this decoder blocks are
+82:24 stacked right after the decoder block let's say you are you you you want to perform some
+82:29 task and in Transformer the paper the task was machine translation right so next word prediction given
+82:36 a given a source sentence you basically predict uh the target sentence you you
+82:42 generate the target sentence right so what you do so you have this decoder block right every uh token you need to
+82:51 predict right so you feed start token it will generate something that will come
+82:57 during the inference time that will come to the next next place it will generate something and so on and so forth now
+83:04 during the training time what is going to happen during the training time remember
+83:09 Transformer will perform all the sequences in parallel process all the sequen in parallel right so during the
+83:15 training time you already know the translated version of the input right so all this
+83:23 so let let's say this is the last block okay this is the last block of the decoder
+83:30 right now each of these blocks each of these uh heads each of these heads each
+83:37 of these tokens will be fed through a linear layer right followed by nonlinearity S
+83:45 Max linear layer followed by nonlinearity it will essentially uh uh produce a distribution and from that
+83:52 distribution you pick the uh you see to sample to sample a specific token right
+83:57 if it is deterministic you take a gry you you use a gritty approach you take the uh token which has maximum uh
+84:05 probability right you also know what is the ground to token at that
+84:11 position because in the training set you already have the translated version
+84:16 right so you can basically compute the error right some sort of cross entropy
+84:21 error right and that gets back propagated so all this at
+84:28 every at every position of the decoder block you compute the error in
+84:37 parallel unlike RNN where you need to do this sequence here you are doing in
+84:43 parallel right so either you can uh sum them up and then take the total error
+84:50 and then you back back prop I think or or let's say you take each of these errors in isolation and then you back so
+84:56 better way is you just sum them up and then do the back propagation this back propagation essentially happens in end
+85:03 to end fashion meaning it will basically come the gradient will flow from here to here
+85:10 G gradient will also flow from here to here right
+85:16 so all the weights of the layers weights corresponding to the adorm layer weights
+85:23 corresponding to the Fe spe forward mask mask attention self attention and also
+85:29 weights corresponding to the input embeddings if you feel that during the uh I mean you you need some uh trainable
+85:36 parameters in the input or in the position embeding for example right I mentioned in know last uh in the in the
+85:43 in the previous part there are certain cases where we use trainable parameters in the positional embedding right so
+85:50 those uh parameters will also be updated right now think the the volume of volume
+85:57 of data sets that are needed to essentially train the entire
+86:03 network okay we'll talk about training later now uh this feed forward network
+86:11 will act as a nonlinear uh module this will essentially this self pention will
+86:17 help you pass messages from one head to another head right one position to another position I mentioned earlier
+86:23 that the sale pention is nothing but you know memory fishing operation
+86:28 and and this adorm essentially adorm layer will also help you reduce the
+86:35 covariant shift what is this covariant shift this is another another important
+86:41 part of the normalization layer what is covariant ship when you move from one layer to
+86:47 another layer it may happen that the the enre co varience of the population get ched
+86:54 because because of this operation right so if you do normalization again and again it will essentially reduce the the
+87:02 co variance uh sipped across different layers okay and then you have this mask
+87:08 attention which will help you prevent uh the attention you know looking up into the future decoding
+87:15 States this is all about Transformer okay so in the next uh lecture we will
+87:21 talk about um pre-training okay we'll we'll discuss U different types of
+87:28 raining techniques Elmo B right and then the subsequent lectures we'll also talk
+87:34 about GPD and T5 models encoded only and decoder only models okay thank you

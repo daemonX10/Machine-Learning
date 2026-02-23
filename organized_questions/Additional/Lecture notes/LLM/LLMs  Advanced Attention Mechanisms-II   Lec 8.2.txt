@@ -1,0 +1,415 @@
+00:03 welcome to uh another session of advanced attention mechanisms so
+00:09 yesterday uh what we uh discussed was what are the different ways of
+00:15 optimizing uh full full self attention and full self attention is quadratic in
+00:21 terms of time complexity as well as space space complexity so we try to figure out what are the different ways
+00:27 in which we can actually reduce the uh the time and the space complexity we looked at uh sliding window
+00:35 attention uh we before that we looked at KV caching that's a bit of optimization
+00:41 at the K and the V uh embedding level uh so that we can squeeze a little bit uh
+00:48 of the um of the Ram uh of the vram of the GPU we looked at self attention we
+00:56 then late after that we looked at uh m QA which is multi-query
+01:02 attention and the idea over there was to handle uh when we have a multi-head
+01:09 attention Network when you have you are playing with multiple different heads so how to uh uh reduce the time and space
+01:19 complexity uh without much loss of quality but again uh quality degrade
+01:27 degradation will happen because you are drastically reducing the V uh the V
+01:33 Matrix and the K Matrix into just one so we then looked into grouped query
+01:41 attention and we saw how we can sort of trade off between the full-fledged
+01:48 multi-headed attention versus The Other Extreme which is the mqa which is uh
+01:56 multi- quaria tension right so today uh we're going to look at something uh very
+02:03 interesting and again once you go through it you'll see that uh the idea at a at a scheme
+02:11 schematic level is pretty simple and probably we should have thought about it long back uh so we are going to look at
+02:19 uh uh a method in which you can actually
+02:25 preserve the performance as it is of any model uh which is a language model and
+02:32 but at the same time you can bring down the complexity to linear time so instead
+02:40 of quadratic time you can actually bring down the complexity to linear time right and sounds like magic but when you when
+02:48 we look into the pieces one by one by one you'll see that uh it's something
+02:55 that probably you could have thought through as well so
+03:02 uh so can we so so the topic of today's topic is can we optimize without
+03:08 performance degradation right so before we look into flash attention what is Flash attention
+03:15 and how we can actually achieve this uh let's peep a little bit into you know
+03:23 the GPU uh uh at at a very uh broad level of
+03:28 you know how the GPU memory hierarchy looks like right so uh usually whatever
+03:37 was happening before you know including KV cing and all of that that was going
+03:42 on at over here at the GPU hbm level so hbm represents high
+03:54 bandwidth memory right so so all your KV
+04:01 caching and every other kind of optimization or computation so starting
+04:06 from the dot product which is the similarity computation and then uh the
+04:12 scaling and then you know you are doing the softmax applying the softmax getting the percentages out applying that to the
+04:19 V so all of that computation as well as the storing of every single
+04:25 operation uh happens over here so at the HPM we are we also call this hbm V Ram
+04:33 or the virtual Ram so uh either way but hbm uh
+04:38 interestingly uh it's supposedly high bandwidth but if you look at uh the
+04:49 speed I mean it can process 1.5 tabes
+04:54 per per second uh so so that's uh that's the speed capacity
+05:00 of of an HPM while the storage is quite quite good you know so like uh as you
+05:08 would imagine so when gpus advertise themselves you see all different types
+05:13 of gpus they usually advertise themselves in terms of this B Ram or the hbm you know it's like uh 40gb 80GB code
+05:23 40gb code and so on and so forth right but then there is uh something else that
+05:30 is also associated with with the GPU uh but less talked about and and
+05:38 that's uh what we call as the S Ram or the static
+05:44 Ram now this is the GPU startic La okay so this is inside GPU and while is hugely faster so like
+05:57 much faster a lot faster than the
+06:03 hbm but at the same time the problem
+06:08 is that the space is very small it's very small so
+06:14 essentially we really can't use that for all the operations that we were saying
+06:20 in terms of computing your attention and contextual embedding and so on and so
+06:26 forth right so it's very fast but you don't have that much of SRAM uh em
+06:34 inside the GPU right uh so the idea is
+06:39 so can we somehow utilize uh this SRAM
+06:46 more and you know kind of do some sort of a
+06:52 trick so that we don't get to use the hbm that much we have to use the hbm but
+06:58 not so much as what we do now and instead can we use the SRAM Moree
+07:05 because if we can do that if we can use the SRAM Moree then definitely we are going to get lot
+07:11 faster uh you know uh speed right uh and and then also the performance and the
+07:19 remaining algorithm Still Remains the Same which means we are not tweaking in terms of the Contex window or anything
+07:26 like that or not reducing the heads nothing of that sort so so whatever Remains the Same so we are basically
+07:32 going to implement the same algorithm but harnessing the SRAM more as compared
+07:42 to the HPM so that's the philosophy right so that's the goal and we'll see how we can do
+07:48 that so so before we look into how we can do
+07:56 that so let's first try to understand how things happen without
+08:01 Flash right so uh so what happens usually so we start with this similarity
+08:09 right so this is a similarity the dot
+08:15 product right and this is this particular piece of
+08:23 code and what happens over here is that
+08:28 you first need to read your q and K and that needs to be stored so the Q Matrix
+08:34 and the K Matrix need to be stored and you read that from where from
+08:42 the vram or from the so this is from where you are
+08:48 reading so you read it from the hbm right and
+08:53 then you read that into the SRAM so from the a from the hbm to the
+09:03 SRAM so what's going on over here from the hbm to the SRAM so that's what is happening in the
+09:11 first step 1 a right and then what do you do you then you do the the
+09:17 similarity computation where in the SRAM right so
+09:26 you do the similarity computation and then you again write back that similarity score Matrix the N cross
+09:34 n or if you're doing sliding window then n cross W whatever so you're doing that
+09:41 uh you're writing that back to the
+09:46 hbm so you you you you read the Q and
+09:52 the K from the hbm and you wrote it back to the HPM after doing the computation
+09:58 right then when you the forward masking because this is a
+10:04 causal then this is a causal LM so when you want to do the if
+10:11 you want to do the for masking and that's why optional means it's not necessarily that it will only work for
+10:17 causal language model but if if you have a causal language model then you have to
+10:22 also do the masking the forward masking and that again would have
+10:28 this again this three steps so you again have to read that a which is the score
+10:35 Matrix from the h BM into the
+10:40 SRAM you then apply the masking on a to create let's say a prime
+10:47 which is your minus infinity and that that sort of stuff and then you again
+10:52 write that back to the hbm so so far how many reads and how
+10:57 many right you have two reads and two rights right into the HPM then after
+11:05 that you have soft Max you want to convert that
+11:10 into the personage right so you have the soft Max so when you do that
+11:18 again you read the a prime which is the m attention Matrix or rather the score
+11:26 Matrix into SRAM you do a do the soft Max create a prime prime and then write
+11:34 back a prime prime into hbm right and I've shown you the
+11:40 computation what what what what really happens just this much right so I've
+11:46 have not done the final application of the percentage into the V which is this guy so that would be
+11:54 again reading it back and again doing it right so this is just the first three steps
+12:01 okay now you see something that's going on over here is that while this is super
+12:14 fast okay why because it's it's happening in the SR right so this is
+12:19 super fast but the problem is that this is
+12:27 slow and this is even
+12:33 slower so basically it's not IO
+12:40 awareness is missing so this is what technically we we say that the input
+12:46 output awareness is missing it's it's basically it's unnecessarily doing a lot
+12:51 of writing intermediate writing unnecessarily right and then again reading it back and again writing it so
+12:58 it's unnecessarily doing a lot of back and forth back and forth and consuming a lot of the
+13:04 channel right and that's slow that the transfer of information storage from the
+13:11 hbm to the uh and and and kind of like sort of an irony that although hbm or
+13:18 vram is called hbm which is high bandwidth memory but still is actually
+13:24 not that fast I mean comp comparatively so
+13:30 uh so this is where we want to hit we want to hit this we don't like this sort of
+13:36 unnecessary um operations right as as simple as that and we want to simplify
+13:41 this so let's see whether we can simplify it so
+13:47 basically what we do is in flash attention we say that okay we are not
+13:52 going to do this intermediary writing and then again reading so we do this first similar
+13:60 thing okay so so the similarity
+14:06 part is this much and then once we do it we do
+14:15 not again store it back into the HPM we
+14:21 immediately do the masking if we have to do our
+14:27 masking you know and then we immediately apply the soft
+14:34 Max right and then we write it the final thing back
+14:41 into the HPM right so you if you if you look at
+14:46 it you see that the only uh slow thing that's happening is
+14:53 basically the first one and the fifth one right so the all the intermediary
+15:02 bottlenecks are removed so all these
+15:16 bottlenecks are
+15:22 removed convinced okay but this process of sort
+15:29 of fusing these operations you know eliminating the read
+15:37 and the right is called fused kernel I mean by kernel
+15:44 what it means in in know in ml is basically G GPU operations right so
+15:50 kernel has also s some meaning but in in our context what kernel really means is GPU
+15:56 operations right so you have a used so earlier you had had an elaborate kernel
+16:03 what you did was you zipped it into a fused kernel so that's the first uh thing
+16:10 that's kind of the first magic uh that that happens uh
+16:16 in in in the in in Flash attention but then that's not the only
+16:24 optimization I mean this is the first and the most important one but that's not the only operation that that that
+16:31 happens so there is something more when it you
+16:37 know in terms of the optimization so what uh what they started uh thinking
+16:44 and this was this was and interestingly something that I forgot to mention that
+16:49 this was year 2022 and if you can remember the GQ paper came in 2023 emlp right but this
+16:57 was a year before and this was 2022 and this was
+17:02 newps and this was a group from Stanford and yeah Sunny
+17:09 Buffalo so uh so what uh what they also did was they saw that okay all right so
+17:16 when we are doing the soft Max again the same problem that we are at every step
+17:22 at every single uh computation of you know uh
+17:30 trying to compute the percentage what we have to do is we have to do an exponentiation of the dot
+17:40 product and do it with all the other all the dot
+17:48 products for a given
+17:54 query right so this is the softmax this is this is this is the softmax
+18:02 operation right and irrespective
+18:09 of what kind of score you know for every score you are Computing this
+18:15 denominator you are redoing you're recomputing the denominator isn't it so
+18:21 let's say that you have John loves ice cream made in New York so when you are trying to uh compute the
+18:30 the what is the score of loves you know uh you know how much love
+18:37 is related to the keys of John and ice
+18:42 cream and Main and in and New York so you are in the denominator you are
+18:50 having the k.q of John and loves and and
+18:57 all of the others but when you try to do the same thing for let's say ice cream
+19:04 you are your denominator Still Remains the Same right because the denominator
+19:09 still you know sort of you're are trying to compute the same thing uh uh in terms
+19:15 of the entire entire summation right so
+19:20 uh in terms of the in terms of the K so the K KS all remain the
+19:26 same so so what they wanted to do was they wanted to figure out that can we sort of uh
+19:36 eliminate this summation you know can we make this uh a
+19:43 bit uh you know can we actually uh get rid of this denominator issue right so
+19:51 uh and and and the idea was that they said that okay all right so let's do something let's take one k at a time
+20:01 okay so let's say that uh I have
+20:07 John loves this is John K okay loves K
+20:12 let's say ice cream K made
+20:17 K okay in K New York K and so on let's
+20:23 say something like that and I take one k at a time let's say right now I in love
+20:28 SK and I'm trying to understand how much loves is influencing let's say over here so for
+20:36 every such K so let's say I am right now over here so for every such K I am also
+20:44 going to take a corresponding V because K is basically the representative of the
+20:50 corresponding V right so this would be loves
+20:56 V so if I'm attending to love k then I will take love V and then what I'm going
+21:03 to do I'm going to figure out okay how much is love K similar to any
+21:11 arbitrary uh let's say ice cream let's say this is not ice cream this is 1 2 3
+21:17 4 1 2 3 4 okay so this is sorry so this is made
+21:29 so so this is Q made okay made
+21:35 q and I'm trying to figure out how much
+21:42 is so this is where the soft Max will
+21:49 happen right which is made Q
+21:57 dot loves ke right and you and you do this dot
+22:06 product over here and then what you do is
+22:11 you after you take the dot product then you have to apply that percentage to the to the V to the corresponding V so you
+22:19 take the V from here and you apply the dot
+22:25 product or the percentage rather to the V to get the contextual
+22:33 eming let's say made Z let's say Z is the contextual
+22:47 embedding okay so so finally what you will get over
+22:55 here is you will get the contextual embedding
+23:00 of everyone right all
+23:06 the all the cues right so so so so so what's going
+23:14 on is if you look carefully you'll do an you will run an outer loop an outer for Loop over the K and there thereby the B
+23:22 and then for each one of that you compare that love with every
+23:27 other Q so all the CU so I showed it for one q but you do it for all the cues so so
+23:34 basically love K will be compared with John Q it will be then compared
+23:41 with uh love Q it will be then compared with ice cream
+23:48 QBE right and so on so so like this it will be compared with every one of them
+23:55 right and then you you do the final addition of all the influences and you
+24:03 store that over here right so that's how it will happen and similarly then you
+24:09 will move on to ice cream K and then ice cream K starts comparing it to every
+24:16 again to every other Q to understand how much is a similarity and then applies a
+24:22 percentage again to ice cream V to and and and gets that particular
+24:28 scores so basically you end up getting the soft
+24:34 Max uh over over here right so this is
+24:40 uh so this is what uh what what is going on and interestingly this computation happens
+24:47 in the SRA right even the copying the reading
+24:53 so this is the Reading part this copy is the Reading part
+24:59 So reading means always from the hbm to the SRAM and then this is also the
+25:06 reading so reading and then this is the computation right and then you write it
+25:14 where you write it in
+25:20 the you write it in the HPM okay so that's the final the final
+25:26 attention so that's what you need and that's what you write right so again uh
+25:32 looking back the final writing is this fifth step right so that's the that's
+25:41 the step five step
+25:47 five okay clear this process of taking one at a
+25:54 time and then letting it go through or compute or rather getting it compared
+26:01 with everybody else is called
+26:06 Ding that's the technical term that that's given it's called this this process is called tiling
+26:14 right but then there's a problem there's a problem with the tiling I don't know whether you have uh
+26:21 figured that out so the problem is that if you look
+26:26 carefully you'll see that this this attention has a
+26:33 sigma right so it sums over all the dot products but if you look at any
+26:41 particular any particular value this or this you'll see that you don't have the
+26:52 summation right it's just that you're not summing it up over all the
+26:59 yeah over all the similarities so that denominator is sort
+27:05 of missing so what's going on is so if I have to give you an example to make you
+27:10 understand what's going on so in the normal circumstances you
+27:15 would have done this right so you have let's say your query is just a onedimensional vector so let's say query
+27:22 is one and your K so you have three KS so let's say this is uh this is
+27:30 loves as a query and you have three KS let's say John
+27:36 loves ice cream and again 1 D all 1D so let's this this example is like you have
+27:43 a 1D uh you have a 1D
+27:50 Vector right and similarly your V's are going to be again John V love V and ice
+27:57 cream V so so I'm just trying to give you a very simple example to make you understand what's going on now your Q KT
+28:06 would be something like this right so that's what you would expect if you do a DOT
+28:12 product or if you do Q multiplied by K transpose you'll get this so
+28:18 this with this brings you here right and then you
+28:25 have V and then finally this context M the contextual
+28:34 embedding or the attention whatever you call it the attention so you
+28:40 finally do this and this would give you what this would give you so in the
+28:47 numerator you would have what you would have
+28:52 the so this one comes from
+28:59 this one right and this two comes from this
+29:06 two right so John as V is giving some of
+29:13 his influence or influencing John as an influencer is giving some of its
+29:19 DNA to whom to love right and the the the
+29:28 similar between love and John K is one so that's the that's the
+29:36 exponentiation that's where the exponentiation is happening right similarly this two comes from this
+29:44 two right so that's now now you're dealing with love as an influencer
+29:51 and love can at the most influence four but four multiplied by E ra 2 right and
+29:59 then you have this eight and then this three comes from here right so that's the similarity but
+30:06 in the denominator you have to have all of them right so this
+30:13 denominator Remains the Same so you can also write it like this right so you could have you could have so basically
+30:20 what really happens is during the uh computation what really
+30:26 goes on is this
+30:34 E1 + sare Q right so this part this
+30:42 denominator remains same and is recomputed that's that was the problem
+30:48 right and that's why we came with this idea of can we do something about the
+30:55 denominator right we could have oh oh by the way I want to tell you something that we could have just stopped the
+31:00 process over here and we could have gotten some optimization already because
+31:06 we are you know getting rid of this extra read and write and we could have just be happy over here but we were not
+31:12 happy I mean they were not happy they wanted to do more so they thought that okay can we do something with this Sigma
+31:20 but then the problem is that what happens is this is what is the target
+31:26 this is what you would like to do right right every time this is what it
+31:33 it should come to this at the end of the day it should come to this but what is happening is at the first step let's say
+31:41 let's say the first step you have this E1 which is this which is this
+31:47 one and you get the numerator which is 2 e which is this guy but in the
+31:55 denominator if you initialize with zero in the denominator you get this now this
+32:00 is definitely not the same as the denominator that you would have expected
+32:06 you expect the denominator to be e 1 plus e 2 plus e 3 but right now
+32:14 your denominator is just AAS one with this process with this inner looping
+32:22 process you don't have because you don't yet you have not yet computed ER to and
+32:28 e 3 so you don't know what is E2 and what is E3 so all that you have in the
+32:34 denominator is e one and that's what is happening here so this is
+32:45 this right so that's the softmax denominator problem so you have a softmax denominator so you are missing
+32:52 in this example You're missing two two other uh pieces in the denominator
+33:01 okay all right so but then you are looping right so this is one one of the
+33:07 loops but then you keep looping so as you Loop so what really happens
+33:13 is so as you live so this is what is the target so this is the target this is what you should end up
+33:20 with once you complete the entire Loop right so once you complete the entire Loop you should come to this stage come
+33:27 to this point point right so what happens is okay so what they did was
+33:32 they did a trick you know and this trick is called sumbody statistics it's very simple trick so what the this is like
+33:38 okay all right let this be like this don't worry let it be like
+33:43 it you know the game is not yet over so let this be as it is as of now right but
+33:51 then what I do is when I go to the next stage and when I compute this because this is what I get
+33:58 and in the denominator I have this what I would do is I would now make
+34:05 my current denominator what I got versus the
+34:12 previous denominator which was
+34:19 this so in other words this D equals to D + DB
+34:36 right so that's what happens over here and that's
+34:43 what is used right now then what is what about
+34:48 the numerator numerator you only have this but then you also have to bring back the previous numerator
+34:60 okay so how you do it you like you do this with this formula as simple as that
+35:05 so you say that okay I will multiply E1 multiplied
+35:12 by
+35:18 this and this would cancel out and I I would get this back right so as simple
+35:27 as that so basically I have to cancel in order to get that back I just have to cancel out that that's why I'm doing
+35:32 this multiplication it's basically basically uh a way of getting the numerator out
+35:39 but since you have lost the numerator because you have already divided it so
+35:46 again apply the denominator back as a multiplier to get the numerator back
+35:52 that's what you are doing right and then in the third step but still this is this
+35:57 is not the right thing because again you're missing now one component what
+36:03 are you missing you're missing what are you missing over here you're you're missing
+36:11 EQ right so that's what you are missing in the denominator right so what do you do you
+36:17 again do the same thing you say that okay let me just compute in this third step what is my
+36:23 current similarity and influence so that's this
+36:29 let me compute the simil this is the current similarity which is EQ let me have this and let me bring this
+36:40 back from the previous thing because now my D is
+36:46 basically D+
+36:53 DB right so I do that and now the the num Ator that is missing the part of the
+37:00 numerator that is missing again I do this which means I bring back the
+37:05 numerator by multiplying the final contextual in the previous step the contextual eming with
+37:11 the denominator so that I can again extract out the pull out the numerator
+37:16 and then plug that in right so finally once let's say that now I'm done with
+37:22 this let's this is the final step I get the same result
+37:29 which I wanted so Al although the in in the intermediate steps you're not having
+37:36 the correct answer but when you complete the loop you will get to the right
+37:43 answer once you finish the loop that's what is called summary
+37:50 statistics so you have to do so taking one uh one element at a time that's
+37:58 called tiling and then doing the computation one element at a time one element at a
+38:04 time and then that's called tiling but applying the for Loop in this manner so
+38:10 this is the for Loop and applying the for Loop in this
+38:16 manner is called the summary statistics I mean you apply summary
+38:22 statistics in in the part Loop so that you can you can finally get to the right
+38:29 result right so in other words you first compute this part then compute this part
+38:37 and add this up right and then move it back compute this part and then add this up so that's
+38:45 what is going on right so so that's uh that's the
+38:54 thing and the if you want to have a sort of sort
+39:00 of a Sero code of the operations so this is the this is a z code
+39:09 right so your the D is equals to D+
+39:14 DB and the N is equals to n the previous n plus NB now the previous n so this is
+39:23 n previous now the N previous
+39:29 will come when you again when you multiply the denominator to get back the numerator from the
+39:35 quotient all right so how how well did they do so if you look at uh if you if you
+39:43 compare that you know in terms of the not the usual py uh implementation of of
+39:49 of gpt2 so they looked at gpt2 which is a causal model language model and then
+39:57 they apply flash attention to g52 and when they did this fused kernel
+40:04 what happened was uh they could reduce
+40:09 the uh the the the inference time drastically like like like
+40:16 dramatically right and uh and if you if you carefully look at
+40:23 this this this graph you would see that the real operation time you know or or
+40:30 the or the inference time the the you know happens over here over here and
+40:37 over here so which means the computation the matrix multiplication computation is not really that slow what is slow is
+40:46 because of the io because of that read and write and that's why it takes more time during the
+40:53 masking and during the soft Max and during the Dropout because you again have to read it back and again write it
+40:59 back and again you have to read it back and again write it back so the real computation is not that uh that
+41:07 expensive right the io the io is more expensive
+41:12 right so uh so what did we do so we could
+41:19 actually reduce the uh n² or the quadratic time complexity into
+41:27 a time complexity because of the fuse
+41:32 kernel because of the fuse kernel and with
+41:38 further uh tiling and uh and summary statistics we could reduce it even
+41:44 further right so so the the best this was the best known so so NV nvdia ml
+41:52 puff is basically a a benchmark
+41:58 a benchmarking where you com you compare all the best MLP or ml performance
+42:04 implementations all the best implementation so far and at a very low level of the hardware architecture in
+42:11 terms of GPU accelerators and the best so it it it
+42:16 outperformed the best uh uh the best result that was known so far so uh by
+42:26 certain uh by sort of like uh two and a half
+42:32 minutes now recently there has been even more Improvement in terms of how
+42:37 actually the the fusion of the kernel happens so there has been recent more implementation uh
+42:44 Improvement uh I think there there's something like flash attention two so
+42:50 version two has come up recently so now so have we uh finally solve the
+42:58 attention hurdle so now that it seems like it's linear time so have we finally solved the attention
+43:05 problem it's uh the answer is not not
+43:10 really a yes I mean it's a yes provided your GPU has a
+43:16 Cuda not now not all gpus have Cuda so that you need to understand so only mbdi
+43:24 gpus have Cuda right so if you are not using an nvdi nvd GP GPU uh and let's
+43:34 say you are using an amdgpu then you have to rewrite the entire kernel you know that fused that fused kernel you
+43:41 have to rewrite that entire kernel in rocm or if you're using an Intel GPU
+43:47 then you have to rewrite the entire kernel in sycl right uh also your GPU should have
+43:55 a fast shared GPU memory which is the Sr so not all gpus come with an SRAM that's
+44:01 also something that you have to understand so the older gpus don't come with even in MVD the older gpus don't
+44:08 come with an SRAM and finally you need tensor cores now tensor CES are very specific cores
+44:17 which are which are very different than the other kind of GPU cores where you
+44:22 can only do matrix multiplication or Matrix operations and that that was made only for dedicated for for ML task
+44:30 because or or rather neural model task because most of you neural model operations will be Matrix operations
+44:36 right and uh and this entire kernel has been written in a way to to to optimize
+44:44 or to harness that that that that feature right so you this all these
+44:51 operations all the computation in Flash attention the computation part happens
+44:56 in the tensor course so it has been written in a way say that it is using it uses the tensor cor so if
+45:02 your GPU doesn't have tensor cores then uh you can't run flash attention as
+45:08 simple as that so the problem is it's too much Pro NB NB IDI right and it goes
+45:15 with all this sort of like ampere Volta Turing and so on and so forth so all the new new architecture model so it goes
+45:22 with that the other bigger problem is that if there is a new your attention let's say
+45:28 you come up with your own attention you know not self attention but something new something of your own
+45:36 kind you are at a toss because then you have to rewrite your kernel in Cuda you
+45:43 have to rewrite the entire colel in Cuda you cannot just simply plug and play Flash attention and get a very fast
+45:51 performance you have to rewrite the entire kernel yourself right so that's
+45:56 another another problem with uh with this so it's it's pretty in it's almost like as
+46:04 if they were they were trying to figure out how to because they were working on
+46:09 nvd uh gpus and they were trying to figure out how to optimize the nvdi gpus
+46:15 and they they found this idea and then they published so that's that's that was
+46:20 the thing so the key takeways would be avoid unnecessary hbm read WR so that's
+46:27 the first thing to learn that the hbm read write wherever that is happening is
+46:33 not good so avoid it you know try to reduce it as much as possible and you
+46:38 need to maximize the SRAM computation which means utilize the SRAM for
+46:43 computational purpose as much as possible so that these are the two key key
+46:48 takeaways uh for as far as flash attention uh is
+46:55 concerned and if you want to learn more uh about all the new uh stuffs that's
+47:02 going on for regarding attention so what are the new researches what kind of new kind of attentions are coming up and so
+47:08 on and so forth then you should uh uh look at this particular page in papers
+47:15 with code uh call attention you can just search it up and I've given the link
+47:21 over here also and you can then look into all the new attention
+47:28 uh research the new kinds of attention that's going on and you can try them out
+47:33 many of them come with the code so you can try them out as well

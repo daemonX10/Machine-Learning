@@ -582,7 +582,7 @@ print(f"Solutions match: {np.allclose(w, w_lstsq)}")
 
 ## Question 8
 
-**Define and differentiate between homogeneous and non-homogeneous systems.**
+**Define and differentiate between homogenous and non-homogenous systems.**
 
 ### Answer
 

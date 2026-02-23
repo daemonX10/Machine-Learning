@@ -1,0 +1,5401 @@
+00:00 Hello everyone and welcome back to this
+00:02 
+
+00:02 series of lectures on efficient LLMs. Uh
+00:05 
+
+00:05 so let us continue our discussion on uh
+00:08 
+
+00:08 uh efficient training versus inference
+00:10 
+
+00:10 in L&Ms. Uh so in the last lecture there
+00:13 
+
+00:13 were a lot of very basic doubts. So I
+00:15 
+
+00:15 wanted to ask a very basic question and
+00:17 
+
+00:17 start with that. Right? So the question
+00:19 
+
+00:19 is what is it that we are modeling in
+00:22 
+
+00:22 the language model right? So I'll give
+00:25 
+
+00:25 you an example. So example, if I have a
+00:26 
+
+00:26 computer vision model which is doing
+00:28 
+
+00:28 classification, right? I am modeling T
+00:31 
+
+00:31 of the class
+00:34 
+
+00:34 given the input image X as a parameter
+00:38 
+
+00:38 theta, right? So it's essentially a
+00:40 
+
+00:40 discriminative model which is giving me
+00:42 
+
+00:42 P of Y given X for all Y belonging to
+00:46 
+
+00:46 the classes.
+00:49 
+
+00:49 Right? This is what we can get and this
+00:51 
+
+00:51 is parameterized as theta.
+00:54 
+
+00:54 Now in a language model was it what is
+00:57 
+
+00:57 it that we are you know modeling when I
+01:01 
+
+01:01 say p theta of x or when I say m theta
+01:06 
+
+01:06 of x m is the language model what is it
+01:11 
+
+01:11 that I'm computing and what is it that
+01:12 
+
+01:12 I'm maximizing what is it that I'm
+01:14 
+
+01:14 modeling here so in general in a
+01:16 
+
+01:16 language model what we are modeling is
+01:18 
+
+01:18 the language which essentially means
+01:21 
+
+01:21 that if I have a model P theta
+01:25 
+
+01:25 and I randomly get any sentence X which
+01:30 
+
+01:30 is a sequence of let's say X1 to X uh T
+01:35 
+
+01:35 let's for example let us restrict our
+01:37 
+
+01:37 understanding to fixed T number of words
+01:40 
+
+01:40 right now you know if I have 50,000
+01:44 
+
+01:44 words in my vocabulary right this is the
+01:47 
+
+01:47 size of my vocabulary how many such
+01:50 
+
+01:50 sequences are possible here
+01:53 
+
+01:53 at each position at each word I have 50
+01:56 
+
+01:56 50k choices right v choices and
+01:59 
+
+01:59 therefore I have v ^ t choices these are
+02:02 
+
+02:02 the total number of sentences that I
+02:04 
+
+02:04 have if I have a random model it will
+02:06 
+
+02:06 assign almost equal probability to all
+02:08 
+
+02:08 of those but all of these are not you
+02:12 
+
+02:12 know valid sentences in a language be it
+02:14 
+
+02:14 English be it Hindi be it a programming
+02:17 
+
+02:17 language
+02:18 
+
+02:18 right so what we are modeling is that we
+02:22 
+
+02:22 want to we We want our parameters theta
+02:24 
+
+02:24 to be such that the probability it
+02:27 
+
+02:27 assigns to a sentence is high if x is a
+02:34 
+
+02:34 valid sentence.
+02:38 
+
+02:38 This is what we want to model in a
+02:40 
+
+02:40 language model. We are modeling the
+02:41 
+
+02:41 language. So our model should assign
+02:44 
+
+02:44 higher probability to sentences which
+02:46 
+
+02:46 are valid. This can be done in an
+02:48 
+
+02:48 encoder only model. This can be done in
+02:50 
+
+02:50 a decoder only model as well. Right?
+02:52 
+
+02:52 Now, how do we model this? No, that is a
+02:56 
+
+02:56 modeling choice. Right? In a decoder
+02:58 
+
+02:58 only model, we factoriize this
+03:01 
+
+03:01 distribution
+03:03 
+
+03:03 as a
+03:05 
+
+03:05 conditional distribution as in we say
+03:08 
+
+03:08 that this is equal to P theta of X.
+03:13 
+
+03:13 Uh I should not use small letters that
+03:16 
+
+03:16 is the that is for a specific sentence.
+03:18 
+
+03:18 Whereas uh when I'm using capital it is
+03:21 
+
+03:21 a random variable. So x is a random
+03:24 
+
+03:24 variable which is you know t-d
+03:26 
+
+03:26 dimensional right. Uh so the way we
+03:30 
+
+03:30 factoriize its probability is you know
+03:32 
+
+03:32 we say that this is equal to p theta of
+03:34 
+
+03:34 x1
+03:36 
+
+03:36 into p theta of x2 given x1
+03:42 
+
+03:42 * p theta of x3 given x1 and x2 and so
+03:48 
+
+03:48 and so forth. XT given X1 to XTUS1.
+03:53 
+
+03:53 This is a modeling choice that we are
+03:55 
+
+03:55 making, right? And by virtue of this
+03:57 
+
+03:57 modeling choice, we are able to find,
+03:59 
+
+03:59 you know, the next token prediction as
+04:01 
+
+04:01 well, right? So the transformer model,
+04:06 
+
+04:06 you know, when I when I pass this X as
+04:09 
+
+04:09 an input to the transformer model, I
+04:12 
+
+04:12 want to compute P theta of X and
+04:15 
+
+04:15 maximize that. And the way transformer
+04:18 
+
+04:18 model computes a decoder only model
+04:20 
+
+04:20 computes it is by factorizing this
+04:23 
+
+04:23 probability in this fashion.
+04:25 
+
+04:25 Right? So we get the prob P theta of X1.
+04:30 
+
+04:30 Right? we get P theta of X2 given X1 as
+04:33 
+
+04:33 well simultaneously
+04:35 
+
+04:35 when I the way and why are we getting it
+04:38 
+
+04:38 simultaneously because the way we are
+04:39 
+
+04:39 modeling it because of by the virtue of
+04:41 
+
+04:41 you know uh tensor multiplication and uh
+04:44 
+
+04:44 self attention right we can do it we
+04:47 
+
+04:47 don't when to in order to compute the
+04:49 
+
+04:49 last token's prob conditional
+04:50 
+
+04:50 probability we don't have to wait for
+04:53 
+
+04:53 computing the previous token's
+04:55 
+
+04:55 probability right we can do it in
+04:57 
+
+04:57 parallel
+04:59 
+
+04:59 >> does that make sense generate the right
+05:02 
+
+05:02 >> we are not generating
+05:04 
+
+05:04 let's let's stop here right we are
+05:06 
+
+05:06 talking about training I'm saying I want
+05:08 
+
+05:08 to maximize my theta in such a way that
+05:10 
+
+05:10 it maximizes the probability of valid
+05:12 
+
+05:12 sentences and a decoder only model right
+05:15 
+
+05:15 factorizes it in this way
+05:18 
+
+05:18 when I pass it when I pass it through
+05:20 
+
+05:20 the transformer layer right I get all of
+05:23 
+
+05:23 these probabilities simultaneously now
+05:25 
+
+05:25 contrast it with RNN's have you covered
+05:27 
+
+05:27 RNN's
+05:29 
+
+05:29 >> is it possible to get these
+05:31 
+
+05:31 simultaneously in RNN it's a sequential
+05:33 
+
+05:33 process right and and why are we able to
+05:36 
+
+05:36 do it uh in parallel
+05:41 
+
+05:41 because of self attention right because
+05:43 
+
+05:43 the way this it is happening you can
+05:45 
+
+05:45 think of it as a graph neural network as
+05:47 
+
+05:47 well at each layer right I have token 1
+05:51 
+
+05:51 x1 to xt now I have small letters here
+05:54 
+
+05:54 because these are specific words right
+05:55 
+
+05:55 this is not a random variable I'm
+05:56 
+
+05:56 representing a specific sentence here xt
+05:59 
+
+05:59 T let's so this is this is let's say at
+06:02 
+
+06:02 layer zero I have the embeddings of all
+06:05 
+
+06:05 of these tokens layer 1
+06:08 
+
+06:08 right is looking at or is attending to
+06:13 
+
+06:13 the embeddings of these tokens that we
+06:16 
+
+06:16 computed in layer
+06:19 
+
+06:19 not as output of layer not right as the
+06:21 
+
+06:21 output of layer not we got we got the
+06:23 
+
+06:23 token embeddings right we got the token
+06:26 
+
+06:26 embeddings we processed them through KQV
+06:29 
+
+06:29 And then this last token is attending on
+06:31 
+
+06:31 all of this
+06:34 
+
+06:34 and computing its outward probability
+06:37 
+
+06:37 right or output embedding. And and this
+06:40 
+
+06:40 token is attending to all the previous
+06:42 
+
+06:42 tokens.
+06:43 
+
+06:43 And because of self attention we are
+06:45 
+
+06:45 able to process all of this in parallel
+06:46 
+
+06:46 in one go.
+06:48 
+
+06:48 >> This is true only for
+06:51 
+
+06:51 >> this is true only for the training part.
+06:52 
+
+06:52 We are at the training part only. Right?
+06:54 
+
+06:54 So now let us look at you know how does
+06:57 
+
+06:57 a training how does a forward pass uh
+07:00 
+
+07:00 look looks like in a in a toy language
+07:02 
+
+07:02 model right so we have the embedding
+07:04 
+
+07:04 layer initially we have a transformer
+07:07 
+
+07:07 layers here we have let's say number of
+07:09 
+
+07:09 layers is 32 we have 32 transformer
+07:11 
+
+07:11 layers and in the end we have an lm head
+07:14 
+
+07:14 which will map the token embedding to a
+07:17 
+
+07:17 probability distribution over v size
+07:19 
+
+07:19 vocabulary size right and in the forward
+07:22 
+
+07:22 pass this input ids is
+07:24 
+
+07:24 sentence X which is which will be equal
+07:26 
+
+07:26 to X1 to XT
+07:30 
+
+07:30 right and we first get the embedding of
+07:33 
+
+07:33 each of these input words
+07:36 
+
+07:36 through this layer once we have the
+07:38 
+
+07:38 embeddings we sequentially go through
+07:41 
+
+07:41 all the layers
+07:43 
+
+07:43 right in the end we get the embedding at
+07:44 
+
+07:44 at each position we pass it through the
+07:47 
+
+07:47 LM head to get the logits what what
+07:49 
+
+07:49 would be the size of the logits here it
+07:50 
+
+07:50 is going to be
+07:53 
+
+07:53 T cross
+07:56 
+
+07:56 V at each and and what and what is it
+07:59 
+
+07:59 what does it represent at the first
+08:02 
+
+08:02 position which was let's say beginning
+08:04 
+
+08:04 of sentence
+08:06 
+
+08:06 it represents
+08:08 
+
+08:08 the probability of the next the to the
+08:11 
+
+08:11 word at position X1 given given BOS
+08:16 
+
+08:16 right so this is the that entire
+08:19 
+
+08:19 distribution and we look ahead with
+08:21 
+
+08:21 teacher force and see what was the first
+08:23 
+
+08:23 word. So the first word for example is
+08:25 
+
+08:25 the cat sat on the mat. This was our uh
+08:32 
+
+08:32 sentence. So the first word is the. When
+08:36 
+
+08:36 we initialize weights randomly this
+08:38 
+
+08:38 distribution is going to be uniform
+08:40 
+
+08:40 after training the probability of the is
+08:43 
+
+08:43 going to be very high.
+08:45 
+
+08:45 Right? And right so
+08:50 
+
+08:50 All properties are during training
+08:53 
+
+08:53 >> during training. Yes. Yes. In one
+08:55 
+
+08:55 forward pass we get not only this but we
+08:58 
+
+08:58 also get uh uh this distribution as well
+09:00 
+
+09:00 which let's say represents the
+09:02 
+
+09:02 distribution at position sat right
+09:06 
+
+09:06 >> like first itation
+09:09 
+
+09:09 let's say the probability of.5
+09:14 
+
+09:14 it
+09:15 
+
+09:15 >> so will the probability still
+09:18 
+
+09:18 change
+09:20 
+
+09:20 >> right so what do you mean by iteration
+09:21 
+
+09:21 here
+09:22 
+
+09:22 >> so once the all
+09:25 
+
+09:25 inputs
+09:28 
+
+09:28 through all.
+09:31 
+
+09:31 >> So one what is one input in your case?
+09:34 
+
+09:34 >> So here it is one sentence.
+09:35 
+
+09:35 >> One sentence right. So one right. So one
+09:38 
+
+09:38 sentence is the input here. When it goes
+09:41 
+
+09:41 through the model once model would have
+09:43 
+
+09:43 adjusted its weights to increase the
+09:45 
+
+09:45 probability of that sentence. Let's say
+09:47 
+
+09:47 I overfeit on this. This is the only
+09:48 
+
+09:48 sample that I have in my training data.
+09:50 
+
+09:50 Let us assume that. So I run this
+09:52 
+
+09:52 forward pass thousand times. and by then
+09:55 
+
+09:55 it has over fit on this. Now when I pass
+09:60 
+
+09:60 the partial sentence the cat sat let's
+10:04 
+
+10:04 say I pass this through the model right
+10:07 
+
+10:07 when I pass this through the model
+10:09 
+
+10:09 the model is going to give me the
+10:11 
+
+10:11 probability at at bos it's going to give
+10:14 
+
+10:14 me the probability for the token
+10:20 
+
+10:20 the
+10:21 
+
+10:21 right it will be very high because this
+10:24 
+
+10:24 is the only sentence that we have
+10:26 
+
+10:26 trained it
+10:28 
+
+10:28 Right? And again because we because the
+10:31 
+
+10:31 model does it in parallel, right?
+10:33 
+
+10:33 Because of self attention. Here also we
+10:36 
+
+10:36 will have a distribution when you do the
+10:38 
+
+10:38 forward pass, right? What would this
+10:40 
+
+10:40 distribution look like?
+10:43 
+
+10:43 This distribution corresponds to the
+10:45 
+
+10:45 embedding of the word SAT which has been
+10:48 
+
+10:48 created using
+10:51 
+
+10:51 the tokens that had existed prior to
+10:53 
+
+10:53 this before this. And when we were
+10:56 
+
+10:56 training,
+10:57 
+
+10:57 how how did we modify this distribution
+10:60 
+
+10:60 during training?
+11:03 
+
+11:03 When we were training using this
+11:04 
+
+11:04 sentence,
+11:06 
+
+11:06 right? The cat sat uh uh I mean the
+11:10 
+
+11:10 output had a distribution at each token,
+11:14 
+
+11:14 right? This is for the cat and sat.
+11:17 
+
+11:17 Let's say here when we were processing
+11:20 
+
+11:20 the token, the this distribution
+11:23 
+
+11:23 was
+11:24 
+
+11:24 changed so that the probability of the
+11:28 
+
+11:28 word cat let's say this is cat this
+11:32 
+
+11:32 let's say this corresponds to cat
+11:35 
+
+11:35 this is maximized
+11:37 
+
+11:37 and when we processed
+11:41 
+
+11:41 the sat when we got this distribution
+11:43 
+
+11:43 how did we what what loss did we compute
+11:45 
+
+11:45 using this logits so when we train what
+11:48 
+
+11:48 is the loss that we use
+11:60 
+
+11:60 Yeah. And at each token the loss is the
+12:01 
+
+12:01 cross entropy loss where we maximize the
+12:04 
+
+12:04 probability of in this case here we will
+12:06 
+
+12:06 maximize the probability of the token on
+12:09 
+
+12:09 wherever the token on lies whatever is
+12:11 
+
+12:11 the probability we would have maximized
+12:12 
+
+12:12 that. Now once the model is trained and
+12:14 
+
+12:14 I pass this sequence the cat sat
+12:17 
+
+12:17 through this in the end I will have a
+12:19 
+
+12:19 probability distribution.
+12:22 
+
+12:22 How should this distribution look like?
+12:30 
+
+12:30 I have trained the model.
+12:35 
+
+12:35 >> Yes. So the token on right. So this is
+12:41 
+
+12:41 on the token on we will have a very high
+12:42 
+
+12:42 probability
+12:44 
+
+12:44 right. So this will have a very high
+12:46 
+
+12:46 probability let's say.9
+12:50 
+
+12:50 and and how do we use this model for
+12:52 
+
+12:52 training okay we say that okay now this
+12:53 
+
+12:53 is the highest probability token let's
+12:55 
+
+12:55 pick that and this becomes my next token
+12:58 
+
+12:58 right so my so my sentence now become
+12:59 
+
+12:59 the cat's hat on
+13:02 
+
+13:02 now how do I get the next token I can
+13:04 
+
+13:04 pass this sentence as well
+13:08 
+
+13:08 right through the model in the end I
+13:10 
+
+13:10 will again have a distribution over v
+13:14 
+
+13:14 size and And here the will have the
+13:16 
+
+13:16 highest probability the token
+13:17 
+
+13:17 corresponding to the I will pick that.
+13:20 
+
+13:20 And now this becomes the
+13:23 
+
+13:23 the input right and when I pass this
+13:26 
+
+13:26 through the
+13:28 
+
+13:28 model I will again have a distribution
+13:32 
+
+13:32 and here which token will have the
+13:34 
+
+13:34 highest probability
+13:36 
+
+13:36 match. And now if let us say in addition
+13:40 
+
+13:40 to this I have another sentence which is
+13:41 
+
+13:41 the cats at on the table
+13:44 
+
+13:44 and I'm training using both of these
+13:47 
+
+13:47 right then at this position when I'm
+13:50 
+
+13:50 processing the token the which has to
+13:53 
+
+13:53 give me the probability of the next
+13:54 
+
+13:54 token both matt and table will have high
+13:58 
+
+13:58 probability because that's how I have
+13:59 
+
+13:59 trained the model. Sometimes I'm asking
+14:01 
+
+14:01 it to increase the probability of matt
+14:03 
+
+14:03 sometime asking it to increase the
+14:04 
+
+14:04 probability of table. So both will have
+14:06 
+
+14:06 high probability. Let's say 44
+14:09 
+
+14:09 for example right now which one should I
+14:11 
+
+14:11 pick
+14:13 
+
+14:13 right while generating it's a choice I
+14:16 
+
+14:16 can either pick the one which has the
+14:17 
+
+14:17 highest probability let's say one is4
+14:20 
+
+14:20 one and the other is 04 I can either
+14:23 
+
+14:23 pick 41 or I can sample from that
+14:25 
+
+14:25 distribution
+14:27 
+
+14:27 right and that is called sampling
+14:30 
+
+14:30 right is this is this part clear because
+14:32 
+
+14:32 this is how we motivated by I mean the
+14:34 
+
+14:34 all The efficient implementation that
+14:37 
+
+14:37 we're doing during inference we
+14:39 
+
+14:39 motivated it by this.
+14:41 
+
+14:41 >> So during each passing
+14:45 
+
+14:45 we are trying
+14:51 
+
+14:51 >> during training we pass the sequence
+14:54 
+
+14:54 only once and we get all the
+14:57 
+
+14:57 distribution that every token.
+14:59 
+
+14:59 >> So in each pass we will be updating that
+15:03 
+
+15:03 token right. Yeah. Yeah. Yeah. We'll be
+15:05 
+
+15:05 maximizing. So our loss essentially is
+15:07 
+
+15:07 going to be uh so we will get P theta of
+15:12 
+
+15:12 X1
+15:13 
+
+15:13 given B O S
+15:17 
+
+15:17 time P theta of X2 given B O S and X1.
+15:24 
+
+15:24 This is the probability of the sentence
+15:27 
+
+15:27 X. Right?
+15:28 
+
+15:28 And if I take the log, it's going to be
+15:30 
+
+15:30 log of this plus log of this plus log of
+15:35 
+
+15:35 p thetax t given the previous right and
+15:39 
+
+15:39 if I'm maximizing
+15:41 
+
+15:41 this then I'm maximizing the sum of
+15:43 
+
+15:43 these
+15:45 
+
+15:45 right so every I mean so so
+15:47 
+
+15:47 automatically at every position the
+15:49 
+
+15:49 conditional distribution that we have
+15:50 
+
+15:50 you're trying to you know maximize that
+15:52 
+
+15:52 not individually but uh at a collective
+15:55 
+
+15:55 level I mean for the entire sentence
+15:58 
+
+15:58 Right. And because of the way we are
+15:59 
+
+15:59 factorizing it in a decoder only model,
+16:01 
+
+16:01 we are able to use it for generation. We
+16:03 
+
+16:03 cannot use an encoder only model for
+16:04 
+
+16:04 generation.
+16:06 
+
+16:06 in order
+16:10 
+
+16:10 we have either
+16:19 
+
+16:19 it's basically
+16:25 
+
+16:25 so essentially
+16:31 
+
+16:31 we are trying to predict
+16:34 
+
+16:34 the
+16:36 
+
+16:36 Yes.
+16:43 
+
+16:43 >> Which we don't have.
+16:44 
+
+16:44 >> Yes.
+16:45 
+
+16:45 >> So therefore we cannot use it for
+16:46 
+
+16:46 generating the from from left to right.
+16:48 
+
+16:48 I mean I I can train I can very well
+16:51 
+
+16:51 train a model from right to left as
+16:52 
+
+16:52 well. I can factoriize it in the reverse
+16:55 
+
+16:55 order as well. I can always say that it
+16:57 
+
+16:57 is you know P of P theta of XT
+17:01 
+
+17:01 * P theta of XT given XT minus one sorry
+17:06 
+
+17:06 XT -1 given XD right the other way
+17:10 
+
+17:10 around we can we can do that that will
+17:11 
+
+17:11 be a perfect language model but it's it
+17:14 
+
+17:14 cannot generate from left to right
+17:18 
+
+17:18 can
+17:23 
+
+17:23 >> why can't we generate because in an
+17:24 
+
+17:24 encoder only model if I have X1 to XT as
+17:27 
+
+17:27 my token right let's say the same
+17:30 
+
+17:30 example the cat sat on the mat the way I
+17:37 
+
+17:37 am
+17:38 
+
+17:38 you know modeling the probability for
+17:41 
+
+17:41 this token
+17:43 
+
+17:43 and right it is dependent on all the
+17:46 
+
+17:46 other tokens in the past as well as in
+17:48 
+
+17:48 the future
+17:51 
+
+17:51 and I cannot compute this with only this
+17:55 
+
+17:55 only the past
+17:58 
+
+17:58 I need to know the future as well
+18:02 
+
+18:02 right so we can't we can't generate
+18:07 
+
+18:07 how it change
+18:11 
+
+18:11 >> yes so encoder decoder is fine it's
+18:13 
+
+18:13 perfectly fine it has a decoder
+18:14 
+
+18:14 component which will generate so the
+18:15 
+
+18:15 idea of encoder decoder is that you know
+18:19 
+
+18:19 there is some input on which you have to
+18:21 
+
+18:21 always condition right so the the input
+18:24 
+
+18:24 that you have x1 to x let's say u how
+18:28 
+
+18:28 should I call it so I'm using the word i
+18:31 
+
+18:31 input I1 to i t right this is let's say
+18:35 
+
+18:35 the question what is the capital of
+18:37 
+
+18:37 India right now to understand the
+18:40 
+
+18:40 question because it is given
+18:43 
+
+18:43 while I am encoding the word capital
+18:47 
+
+18:47 I should exploit what is there in the
+18:48 
+
+18:48 future as well right if if India is
+18:51 
+
+18:51 there I should you know it will be much
+18:53 
+
+18:53 faster if I can book I don't have to
+18:55 
+
+18:55 wait till the sentence ends to get a
+18:58 
+
+18:58 meaning of the entire sentence
+19:01 
+
+19:01 right so I will be able to encode the
+19:04 
+
+19:04 knowledge in the input
+19:07 
+
+19:07 through a birectional uh you know
+19:11 
+
+19:11 through birectionality I mean each token
+19:13 
+
+19:13 can look into the future as well future
+19:15 
+
+19:15 tokens as well right
+19:19 
+
+19:19 >> we are still able to
+19:22 
+
+19:22 >> we are able to do that we're able to do
+19:25 
+
+19:25 what decoder model
+19:29 
+
+19:29 >> yes
+19:35 
+
+19:35 >> yes
+19:41 
+
+19:41 >> see this is the encoder part of encoder
+19:43 
+
+19:43 decoder
+19:44 
+
+19:44 in the decoder part the way decoder
+19:47 
+
+19:47 works is that it it it only looks at the
+19:49 
+
+19:49 past
+19:51 
+
+19:51 right it the the decoder part is able to
+19:53 
+
+19:53 generate the model. It's not the encoder
+19:55 
+
+19:55 part which is generating the generate
+19:57 
+
+19:57 the text. Encoder is encoding the
+19:58 
+
+19:58 question the input.
+20:00 
+
+20:00 >> My question is like
+20:09 
+
+20:09 yeah
+20:21 
+
+20:21 >> previous ones. Yes.
+20:24 
+
+20:24 tokens.
+20:25 
+
+20:25 >> Yeah. All these are previous tokens.
+20:26 
+
+20:26 Yes.
+20:31 
+
+20:31 >> All of these. It'll attend on all of
+20:33 
+
+20:33 these.
+20:38 
+
+20:38 >> So I'm failing to understand your
+20:40 
+
+20:40 question. Your is your question how is
+20:41 
+
+20:41 encoder decoder different from decoder
+20:43 
+
+20:43 only model?
+20:44 
+
+20:44 >> My question is
+20:46 
+
+20:46 >> huh? So my question is basically
+20:50 
+
+20:50 in both the cases it will be able to
+20:53 
+
+20:53 >> the because by the virtue of the decoder
+20:55 
+
+20:55 bird cannot generate
+20:58 
+
+20:58 >> right decoder because of the decoder
+21:00 
+
+21:00 it's a decoder part which is able to
+21:02 
+
+21:02 generate it's not the encoder part which
+21:03 
+
+21:03 is able to generate encoder can be used
+21:05 
+
+21:05 for other discriminative task like
+21:06 
+
+21:06 classification for example so yeah
+21:16 
+
+21:16 okay So okay that is why do we have why
+21:18 
+
+21:18 do we have encoder models right so I
+21:21 
+
+21:21 mean this is the evolution that that's
+21:22 
+
+21:22 how it happens right for there are
+21:23 
+
+21:23 certain tasks for example machine
+21:26 
+
+21:26 translation where we know what is the
+21:28 
+
+21:28 input right so the initial models that
+21:31 
+
+21:31 were generated that were created for
+21:32 
+
+21:32 tasks like uh you know sequence to
+21:34 
+
+21:34 sequence mapping or machine translation
+21:36 
+
+21:36 is is an example there there encoder
+21:39 
+
+21:39 decoder models were created because it
+21:41 
+
+21:41 it makes more sense you know to exploit
+21:43 
+
+21:43 what we already know which is the input
+21:46 
+
+21:46 the input uh the the input sentence,
+21:49 
+
+21:49 right? So they try to get the
+21:51 
+
+21:51 information from the encoder from from
+21:54 
+
+21:54 the input through the encoder only model
+21:56 
+
+21:56 which which is much more efficient than
+21:57 
+
+21:57 the decoder only model
+22:02 
+
+22:02 >> because it can look into the future as
+22:03 
+
+22:03 well.
+22:14 
+
+22:14 at the position of India we are able yes
+22:16 
+
+22:16 but but the but the uh token embedding
+22:20 
+
+22:20 here capital is not aware of what what
+22:23 
+
+22:23 was what's going to come right and while
+22:26 
+
+22:26 translating if I have to I may need that
+22:29 
+
+22:29 information here as well that
+22:30 
+
+22:30 information might get useful we don't
+22:34 
+
+22:34 Right. for the task like machine
+22:35 
+
+22:35 translation,
+22:37 
+
+22:37 right? And and eventually decoder only
+22:40 
+
+22:40 models prevailed, right? I mean, we have
+22:42 
+
+22:42 been able to scale them up and we have
+22:43 
+
+22:43 been able to, you know,
+22:46 
+
+22:46 improve the performance so much that
+22:47 
+
+22:47 encoder decoder models are out of
+22:49 
+
+22:49 fashion now. They're not they're not
+22:50 
+
+22:50 being used, right? And and why should
+22:52 
+
+22:52 that be? I I don't know why should that
+22:55 
+
+22:55 be. But one intuition could be that you
+22:57 
+
+22:57 know we're training such huge models
+22:59 
+
+22:59 with such huge data that maybe this
+23:01 
+
+23:01 constraint of the decoder only model
+23:02 
+
+23:02 that you're not able to look into the
+23:04 
+
+23:04 future is acting as a regularizer some
+23:06 
+
+23:06 sort of a regulariz some sort of a
+23:07 
+
+23:07 constraint onto the model architecture
+23:09 
+
+23:09 itself even for the cases like machine
+23:12 
+
+23:12 translation where uh you know we have
+23:15 
+
+23:15 the input a priority we know that we
+23:16 
+
+23:16 have the input a priority
+23:18 
+
+23:18 right that is one hypo I mean one
+23:21 
+
+23:21 conjecture I don't know
+23:24 
+
+23:24 right So uh
+23:27 
+
+23:27 okay
+23:29 
+
+23:29 so is this part clear because this was
+23:31 
+
+23:31 this is crucial right? Okay, so uh with
+23:34 
+
+23:34 this toy lm how does a training loop
+23:38 
+
+23:38 looks like? We get one sentence from the
+23:41 
+
+23:41 data. We pass it through the model. We
+23:43 
+
+23:43 get the logs. These logs are modeling P
+23:47 
+
+23:47 theta of X1
+23:50 
+
+23:50 P theta of X2 given X1 comma and up to P
+23:54 
+
+23:54 theta of XT given the entire sequence
+23:57 
+
+23:57 till XT minus from X1 to XT minus one.
+23:60 
+
+23:60 We have all of these probabilities,
+24:02 
+
+24:02 right? Multiplying these or gives me the
+24:04 
+
+24:04 probability of the sentence and that's
+24:06 
+
+24:06 what we try to maximize. We compute the
+24:07 
+
+24:07 cross entropy loss between the logs
+24:11 
+
+24:11 and the labels.
+24:13 
+
+24:13 And what are the labels for the token
+24:16 
+
+24:16 the
+24:17 
+
+24:17 label is going to be
+24:20 
+
+24:20 the cat sat on the mat for this token?
+24:26 
+
+24:26 The what is the label that we have when
+24:29 
+
+24:29 we compute cross entropy we will get the
+24:32 
+
+24:32 logit from from this position right so
+24:36 
+
+24:36 what is the label against which we
+24:37 
+
+24:37 compute the cross entropy loss
+24:42 
+
+24:42 no the label is the prediction the cat
+24:45 
+
+24:45 yes this is the label so this is the
+24:47 
+
+24:47 label and this is the input
+24:51 
+
+24:51 right so so we shift I mean this this
+24:53 
+
+24:53 entire sentence shifted to the left
+24:54 
+
+24:54 becomes a label All right. Now
+24:58 
+
+24:58 I have put the forward pass here for our
+24:59 
+
+24:59 reference and uh as we discussed gener I
+25:03 
+
+25:03 mean if you have to use this model for
+25:04 
+
+25:04 inference which means that we can
+25:06 
+
+25:06 because it is a generative model we can
+25:07 
+
+25:07 use it to generate text right. So a
+25:10 
+
+25:10 naive way of doing it what it will do is
+25:12 
+
+25:12 that I pass the entire input id through
+25:15 
+
+25:15 the model. I get the logs right. I get
+25:18 
+
+25:18 the next token which is from the last
+25:20 
+
+25:20 logit right minus one will give me the
+25:22 
+
+25:22 last logit. I do arg max decoding and if
+25:26 
+
+25:26 the next token is end of sentence I
+25:28 
+
+25:28 break
+25:29 
+
+25:29 or if otherwise I just append it to the
+25:32 
+
+25:32 input ids and pass it in the for loop
+25:36 
+
+25:36 right and what we did in uh caching was
+25:38 
+
+25:38 we we observed that uh you know there
+25:41 
+
+25:41 are some redundant operations that we
+25:42 
+
+25:42 are doing we don't need to compute KV uh
+25:45 
+
+25:45 keys and values of the tokens which we
+25:47 
+
+25:47 have already processed and therefore we
+25:48 
+
+25:48 that's how we motivated caching right so
+25:52 
+
+25:52 okay So we covered this last time and uh
+25:55 
+
+25:55 the other thing uh you know that that
+25:59 
+
+25:59 you guys asked me to revisit was
+26:01 
+
+26:01 blockwise self attention computation
+26:03 
+
+26:03 right so let's let's look at it with an
+26:04 
+
+26:04 example let's say uh the input is the
+26:07 
+
+26:07 key difference between LLM training and
+26:08 
+
+26:08 inference this is the input and I want
+26:12 
+
+26:12 to compute the uh self attention right
+26:15 
+
+26:15 so I have the keys for all and the
+26:19 
+
+26:19 values for all so these are the values
+26:20 
+
+26:20 of each token this is the keys And let
+26:22 
+
+26:22 us say I'm computing it for the query Q8
+26:25 
+
+26:25 right uh blue color I'm using to
+26:28 
+
+26:28 represent the uh you know HBM memory
+26:31 
+
+26:31 which is 80 GB right and this is the
+26:34 
+
+26:34 expression that we want to compute which
+26:35 
+
+26:35 is e to the power
+26:39 
+
+26:39 q8 transpose or a dotproduct of this
+26:41 
+
+26:41 with uh k1
+26:44 
+
+26:44 * v1 right plus e ^8 * k2 * v2 2 up to e
+26:54 
+
+26:54 ^8 * k8 v8 divided by so these are the
+26:59 
+
+26:59 soft max weights divided by summation
+27:02 
+
+27:02 over all these exponents right this is
+27:04 
+
+27:04 what we want to compute uh so I've put
+27:06 
+
+27:06 it here and the way we want to do it is
+27:08 
+
+27:08 in a blockwise fashion I want to first
+27:11 
+
+27:11 compute this over
+27:14 
+
+27:14 a block the first block let's say k1 to
+27:16 
+
+27:16 k4 using the query q I get the
+27:21 
+
+27:21 scores the score is Q8 dotproduct with
+27:25 
+
+27:25 K1 right I exponentiate this E ^ Q8 dot
+27:31 
+
+27:31 Q8K1
+27:33 
+
+27:33 right and then I multiply this with the
+27:36 
+
+27:36 V's I get this A1 * V1 plus A2 * V2 plus
+27:40 
+
+27:40 A3 * V3 I get L1 I put this L1 back into
+27:45 
+
+27:45 the memory HBM so all of this pink is
+27:47 
+
+27:47 being done in the SRAMM right which is
+27:50 
+
+27:50 fast and notice that we are not storing
+27:53 
+
+27:53 the attention. We are not materializing
+27:54 
+
+27:54 it in the blue boxes or in the HBM. We
+27:57 
+
+27:57 store L1 here and in addition to that we
+27:59 
+
+27:59 also store O1. So O1 is the output
+28:03 
+
+28:03 vector which is computed using soft max
+28:06 
+
+28:06 over these four and in addition to this
+28:09 
+
+28:09 we also need the sum over uh the
+28:13 
+
+28:13 denominator that we have right so this
+28:15 
+
+28:15 is this is the denominator right that we
+28:18 
+
+28:18 use. Similarly, we can do this for the
+28:21 
+
+28:21 the remaining four, right? We get L2 and
+28:25 
+
+28:25 we get O2. Now, how should we combine
+28:28 
+
+28:28 these two to get this expression?
+28:30 
+
+28:30 Come on, let's do it together. Tell me
+28:35 
+
+28:35 these are the vectors. In the numerator,
+28:37 
+
+28:37 we have vector and the denominator we
+28:39 
+
+28:39 have a scalar. Right? Uh
+28:44 
+
+28:44 can we what is the denominator here?
+28:46 
+
+28:46 Let's first get the denominator.
+28:48 
+
+28:48 The denominator is sum over all the the
+28:51 
+
+28:51 keys, right? Similarity of the query
+28:54 
+
+28:54 with the with the keys, right? So what
+28:56 
+
+28:56 should this be
+29:01 
+
+29:01 using these four numbers? What what
+29:03 
+
+29:03 should be the denominators?
+29:06 
+
+29:06 Huh?
+29:08 
+
+29:08 L1 + L2, right? So this is L1 plus L2,
+29:13 
+
+29:13 right? What would be the numerator?
+29:17 
+
+29:17 plus 01 L1 plus
+29:21 
+
+29:21 O2 L2 pool right so so we are able to
+29:26 
+
+29:26 split the attention into blockwise
+29:27 
+
+29:27 computations and this is what uh you
+29:31 
+
+29:31 know page detention does we have the
+29:33 
+
+29:33 first block
+29:35 
+
+29:35 right we have the second block we can
+29:37 
+
+29:37 com we have this query we can compute
+29:40 
+
+29:40 the attention using the first block and
+29:43 
+
+29:43 the second block right in parallel and
+29:46 
+
+29:46 then we can combine them right okay now
+29:50 
+
+29:50 what if I don't want to compute it in
+29:51 
+
+29:51 parallel
+29:55 
+
+29:55 let's say you know I want to first
+29:56 
+
+29:56 compute this I want to load it uh in the
+29:59 
+
+29:59 memory one by one in the Slam one by one
+30:01 
+
+30:01 I don't have sufficient Slam and that is
+30:02 
+
+30:02 what flash attention does by the way it
+30:05 
+
+30:05 loads first KV block corresponding to
+30:08 
+
+30:08 this right it keeps it in the memory
+30:11 
+
+30:11 right and in the inner loop for each
+30:14 
+
+30:14 query it computes L1 and O1 for each
+30:16 
+
+30:16 query in parallel because it can
+30:18 
+
+30:18 parallelize tensor operations. It can
+30:19 
+
+30:19 give it to multiple threads. K and V are
+30:21 
+
+30:21 loaded once in the memory in parallel.
+30:25 
+
+30:25 It computes L1 and O1 for all the
+30:28 
+
+30:28 queries. Now let's say let's focus on
+30:30 
+
+30:30 only one query for now. I have computed
+30:32 
+
+30:32 this now and this is in the SRAMM
+30:36 
+
+30:36 and using the second I load the second
+30:38 
+
+30:38 block in the memory. I compute L2 and O2
+30:41 
+
+30:41 right. I don't want to keep both of them
+30:43 
+
+30:43 in the memory. Can I update? So this is
+30:46 
+
+30:46 the space that I have reserved in the
+30:48 
+
+30:48 HBM for these two variables. Can I how
+30:52 
+
+30:52 how should I update these two using
+30:54 
+
+30:54 this?
+30:57 
+
+30:57 I want to maintain the idea is that L1
+31:01 
+
+31:01 and L2 here were the attentions of
+31:04 
+
+31:04 individual subsequences. Now what I want
+31:06 
+
+31:06 now is that I have computed L1 and O1
+31:09 
+
+31:09 for a subsequence K1 to K4. Then I load
+31:13 
+
+31:13 all of these this the sub second block.
+31:16 
+
+31:16 And when I'm updating I'm putting on the
+31:19 
+
+31:19 uh HBM I want to just update these
+31:21 
+
+31:21 spaces that I have.
+31:24 
+
+31:24 I want to have L only and not one. I
+31:27 
+
+31:27 just want to have L and O.
+31:30 
+
+31:30 Right? I want to use these to update my
+31:32 
+
+31:32 L's and O's. Right? I can how can I do
+31:35 
+
+31:35 that? My L would be
+31:38 
+
+31:38 L +
+31:40 
+
+31:40 L2 the local variable that I computed
+31:43 
+
+31:43 here and my O would be
+31:49 
+
+31:49 L into O plus
+31:53 
+
+31:53 yeah so so exactly L L2 into O2 so this
+31:57 
+
+31:57 way I just maintain L and O in my HBM
+32:00 
+
+32:00 and I keep on updating it right and this
+32:02 
+
+32:02 is exactly what flash attention
+32:05 
+
+32:05 Right. Load one K and V N is in the pink
+32:10 
+
+32:10 memory which is fast memory. Keep it
+32:12 
+
+32:12 there. Parallely compute for all the
+32:15 
+
+32:15 queries, right? And write in their
+32:18 
+
+32:18 corresponding L's and O's. Load the
+32:21 
+
+32:21 second block
+32:23 
+
+32:23 of K and V, parallely compute it for all
+32:27 
+
+32:27 queries and update the respective memory
+32:29 
+
+32:29 in HP. Right. Okay. So yes. So what now
+32:34 
+
+32:34 there is a lot of homework that you have
+32:36 
+
+32:36 to do. Uh you have to you know read
+32:39 
+
+32:39 about safe soft max the way we computed
+32:41 
+
+32:41 has some numerical instability. So you
+32:43 
+
+32:43 have to read about this and then you
+32:45 
+
+32:45 have to read about the concept of
+32:46 
+
+32:46 tiling. We we uh simplified a lot of
+32:50 
+
+32:50 things here. Right.
+33:01 
+
+33:01 >> Yeah. Yeah. Yeah. So yes, so that leads
+33:02 
+
+33:02 to safe softmax and this is this concept
+33:04 
+
+33:04 is not new in general also when you do
+33:07 
+
+33:07 soft max right or log softmax
+33:10 
+
+33:10 those things are used that is not new to
+33:12 
+
+33:12 flash attention that is a standard thing
+33:15 
+
+33:15 and
+33:19 
+
+33:19 >> why u
+33:24 
+
+33:24 >> yeah yeah so the idea is essentially
+33:26 
+
+33:26 numerical stability and the problem is
+33:30 
+
+33:30 that you know in softmax we are
+33:31 
+
+33:31 computing
+33:33 
+
+33:33 exponents right now let's say my
+33:36 
+
+33:36 attention scores are 1 million 1 million
+33:39 
+
+33:39 and 2
+33:40 
+
+33:40 right uh 1 billion or uh or let's say
+33:45 
+
+33:45 you know 90 900,000 these are my tension
+33:48 
+
+33:48 scores right of the order of 10 ^ 9 now
+33:52 
+
+33:52 when I do e to the^ of this number it's
+33:54 
+
+33:54 going to be really highly unstable right
+33:57 
+
+33:57 but when I'm doing soft max
+33:60 
+
+33:60 does the absolute number matter or the
+34:02 
+
+34:02 relative numbers matter. If I have 10 ^
+34:03 
+
+34:03 9 versus 10 ^ 9 + 8 let's say the other
+34:07 
+
+34:07 one is this right it's the difference
+34:10 
+
+34:10 that matters
+34:12 
+
+34:12 right so so in order to avoid computing
+34:15 
+
+34:15 the exponents over very large numbers or
+34:17 
+
+34:17 very small very large numbers now right
+34:20 
+
+34:20 they they first figure out what is the
+34:22 
+
+34:22 maximum that is there right and then
+34:25 
+
+34:25 they subtract that maximum from all of
+34:26 
+
+34:26 those so that everything is in the same
+34:28 
+
+34:28 range
+34:30 
+
+34:30 right cool uh uh so if you implement uh
+34:34 
+
+34:34 you know these things on your own you'll
+34:35 
+
+34:35 realize uh right otherwise it's
+34:38 
+
+34:38 difficult to remember okay so this is
+34:40 
+
+34:40 this and uh yeah so this is where we
+34:44 
+
+34:44 left uh you know we were talking about
+34:47 
+
+34:47 VLMs and at a high level VLM has three
+34:49 
+
+34:49 or four major components one is a front
+34:52 
+
+34:52 end which is which could be also a a CLI
+34:55 
+
+34:55 right you can simply launch a VLM server
+34:58 
+
+34:58 uh through a command line command line
+35:00 
+
+35:00 interface it has you know to to manage
+35:03 
+
+35:03 big models. It has a distributed model
+35:06 
+
+35:06 executor where it is at the back end
+35:08 
+
+35:08 essentially it is using tensor
+35:09 
+
+35:09 parallelism on a single node and
+35:10 
+
+35:10 pipeline parallelism across nodes right
+35:13 
+
+35:13 and then there is a scheduleuler which
+35:14 
+
+35:14 will schedule or route different uh
+35:16 
+
+35:16 requests and then you have a block
+35:18 
+
+35:18 manager which will manage the paged
+35:21 
+
+35:21 attention stuff right okay so yes so now
+35:27 
+
+35:27 this brings us to another homework which
+35:29 
+
+35:29 is in continuation of uh you know
+35:32 
+
+35:32 efficient inference part we could not
+35:34 
+
+35:34 cover flash decoding
+35:37 
+
+35:37 right the and we could not cover
+35:39 
+
+35:39 speculative decoding. So flash decoding
+35:41 
+
+35:41 essentially means so so when you look at
+35:44 
+
+35:44 flash attention as you said that you
+35:46 
+
+35:46 know the way flash attention works is
+35:47 
+
+35:47 that they load one block of K and V in
+35:50 
+
+35:50 the memory and parallelize across all
+35:52 
+
+35:52 the queries query one query two query
+35:54 
+
+35:54 three query
+35:57 
+
+35:57 t all of these are computed in parallel
+36:01 
+
+36:01 right and once uh for one k and v and
+36:05 
+
+36:05 then next k and v are loaded in the
+36:08 
+
+36:08 memory and then we again we do we
+36:11 
+
+36:11 process Q1 to QT in parallel right now
+36:14 
+
+36:14 when you're decoding you have only one
+36:16 
+
+36:16 query for a batch
+36:18 
+
+36:18 so if you use just this flash attention
+36:22 
+
+36:22 this parallelization you know you'll see
+36:24 
+
+36:24 only 1% GPU utilization
+36:30 
+
+36:30 everything's going to be empty right so
+36:32 
+
+36:32 so they modify it a little and they come
+36:36 
+
+36:36 up with something called flash decoding
+36:37 
+
+36:37 the idea is what We looked at in the
+36:39 
+
+36:39 block decoding that you have K's and
+36:41 
+
+36:41 different blocks of K's and V's, right?
+36:43 
+
+36:43 So you can you can parallelize on the
+36:44 
+
+36:44 dimension of K's and V's, right? So you
+36:48 
+
+36:48 you parallelly compute
+36:51 
+
+36:51 for all K's and V's. Let's say I split
+36:53 
+
+36:53 my KVs into five blocks, right? Uh K1 V1
+36:58 
+
+36:58 block one and K2 V2 K3 V3. I load all of
+37:02 
+
+37:02 these simultaneously in my SRAMM, right?
+37:07 
+
+37:07 and and and uh you know each core will
+37:10 
+
+37:10 be working on on on each of these
+37:12 
+
+37:12 blocks. I have the same query Q and I
+37:16 
+
+37:16 compute the flash attention of Q over KV
+37:19 
+
+37:19 the way we doing it in the block
+37:20 
+
+37:20 attention right
+37:22 
+
+37:22 all across in parallel and once I have
+37:24 
+
+37:24 the output I can combine them I will I
+37:27 
+
+37:27 will have O1 V1 here which I have to put
+37:30 
+
+37:30 in the H now I cannot do it because I'm
+37:31 
+
+37:31 not doing it sequentially I'm doing it
+37:33 
+
+37:33 parallelly therefore I will store O1 and
+37:35 
+
+37:35 V1 in the HBM O2 and V2 in the HBM and
+37:39 
+
+37:39 O3 and V3 in the HBM and then combine
+37:43 
+
+37:43 Right. So this is what flash decoding
+37:44 
+
+37:44 is. Speculative decoding essentially
+37:46 
+
+37:46 means that u you know you can make a
+37:50 
+
+37:50 guess somehow. Let's say I say the cat
+37:53 
+
+37:53 sat you make a guess on the mat. Somehow
+37:56 
+
+37:56 you are able to make a guess right now.
+37:60 
+
+37:60 Can I verify all of them together?
+38:01 
+
+38:01 Because I know that you know a forward
+38:03 
+
+38:03 pass can process all the tokens
+38:04 
+
+38:04 simultaneously. If I make a sentence the
+38:07 
+
+38:07 cat on the mat complete sentence and I
+38:09 
+
+38:09 pass it through the model can I very I
+38:11 
+
+38:11 mean then then it if it passes then I'm
+38:13 
+
+38:13 good I got in one step I got not one but
+38:15 
+
+38:15 more than one tokens
+38:18 
+
+38:18 right so that is the idea of speculative
+38:20 
+
+38:20 decoding where you guess and then verify
+38:22 
+
+38:22 so you uh yeah so this is and I will not
+38:25 
+
+38:25 go into much details here
+38:28 
+
+38:28 u and there is because there is one more
+38:30 
+
+38:30 important piece that we have to cover
+38:31 
+
+38:31 and we have to finish it today right
+38:34 
+
+38:34 which is the third part. Uh recall that
+38:37 
+
+38:37 we we talked about efficient training
+38:39 
+
+38:39 because we wanted to train huge models
+38:41 
+
+38:41 requirement was million GPU hours we
+38:43 
+
+38:43 cannot do it serally. We talked about
+38:45 
+
+38:45 parallelism for scale right and then we
+38:47 
+
+38:47 saw that uh two models had different
+38:50 
+
+38:50 throughput right they were similar size
+38:53 
+
+38:53 mainly because that was mainly because
+38:55 
+
+38:55 of the efficient implementation in one
+38:56 
+
+38:56 of those where we covered flash
+38:58 
+
+38:58 attention lier kernels and then we saw
+39:00 
+
+39:00 that you know throughput is related to
+39:03 
+
+39:03 inference right you get you measure
+39:04 
+
+39:04 throughput during inference so what are
+39:06 
+
+39:06 the efficient inference techniques that
+39:07 
+
+39:07 are available we saw KV caching page
+39:10 
+
+39:10 detention and we have left flash
+39:11 
+
+39:11 decoding and speculative decoding for
+39:13 
+
+39:13 homework Now, now the third part was you
+39:17 
+
+39:17 know again uh recalling this graph where
+39:19 
+
+39:19 we are measuring throughput versus the
+39:20 
+
+39:20 performance. We saw that there are these
+39:23 
+
+39:23 two models
+39:25 
+
+39:25 right which have similar performance and
+39:27 
+
+39:27 much different throughput much higher
+39:30 
+
+39:30 throughput even though the model size is
+39:31 
+
+39:31 bigger right it's roughly 56 billion
+39:34 
+
+39:34 this is 33 billion so how are we able to
+39:37 
+
+39:37 do that and and the answer there lies in
+39:40 
+
+39:40 the efficient design of this model which
+39:42 
+
+39:42 is mixture of experts right so that's
+39:45 
+
+39:45 what we will cover u in this part and uh
+39:51 
+
+39:51 to motivate that uh let's let's you know
+39:54 
+
+39:54 let's first look at some interesting
+39:55 
+
+39:55 study that happened in 2020. This is
+39:57 
+
+39:57 called neural scaling laws.
+40:08 
+
+40:08 So what it says is that you know the
+40:09 
+
+40:09 bigger the better meaning if you have a
+40:11 
+
+40:11 bigger model you will have better
+40:13 
+
+40:13 performance right. So in this graph for
+40:15 
+
+40:15 example you have on the x-axis the size
+40:17 
+
+40:17 of the model and this is the test loss
+40:21 
+
+40:21 loss on some test data and they are
+40:23 
+
+40:23 showing that it follows a power law
+40:26 
+
+40:26 right so the loss is uh alpha * x ^ beta
+40:31 
+
+40:31 this is the power law that they're
+40:32 
+
+40:32 fitting and they show that if the model
+40:35 
+
+40:35 size increases the parameters the the
+40:38 
+
+40:38 performance improves right and this is
+40:40 
+
+40:40 true for not just the model size but
+40:42 
+
+40:42 also for compute and data data set size
+40:45 
+
+40:45 as well. As we train on more data,
+40:47 
+
+40:47 performance improves, as we are allowed
+40:49 
+
+40:49 to compute more, performance improves,
+40:52 
+
+40:52 right? But then uh again going back to
+40:55 
+
+40:55 the first slide that we had
+40:60 
+
+40:60 this 75 billion
+41:03 
+
+41:03 almost 75 billion model takes 1.75
+41:07 
+
+41:07 million GPU hours. Right? Now there is a
+41:10 
+
+41:10 model switch transformer which is 1.6
+41:12 
+
+41:12 trillion
+41:14 
+
+41:14 How much time will it take?
+41:17 
+
+41:17 Right? At least five to six times of
+41:20 
+
+41:20 this.
+41:22 
+
+41:22 So what should we do? We want to
+41:25 
+
+41:25 increase the model size because we know
+41:27 
+
+41:27 via neural scaling laws that if model
+41:29 
+
+41:29 size increases the performance improves.
+41:32 
+
+41:32 Right? Now we want to increase the model
+41:33 
+
+41:33 size.
+41:35 
+
+41:35 But that is going to take a lot of time
+41:37 
+
+41:37 to train. So what should we do about it?
+41:40 
+
+41:40 Okay. So is there any efficient way to
+41:43 
+
+41:43 increase the model size and to answer
+41:47 
+
+41:47 that let's uh look at you know
+41:51 
+
+41:51 how we use LLMs right so we use these
+41:54 
+
+41:54 LLMs and we we train it for multiple
+41:56 
+
+41:56 tasks right we doing it we you know we
+41:59 
+
+41:59 are it's it's the next token prediction
+42:01 
+
+42:01 during pre-training but when we use it
+42:02 
+
+42:02 we use it for summarization we use it
+42:04 
+
+42:04 for coding we use it as a question
+42:06 
+
+42:06 answering agent and so forth right now
+42:09 
+
+42:09 in general when You train a model for
+42:12 
+
+42:12 multiple tasks. What is it called in
+42:14 
+
+42:14 classical ML?
+42:19 
+
+42:19 >> Multiask
+42:21 
+
+42:21 multitask
+42:22 
+
+42:22 learning, right? So where you are
+42:24 
+
+42:24 creating one model for multiple tasks
+42:28 
+
+42:28 and how does uh a multitask
+42:33 
+
+42:33 uh model you know architecture looks
+42:35 
+
+42:35 like? Typically you have a lot of common
+42:39 
+
+42:39 layers. the input passes through the
+42:41 
+
+42:41 common layers and then you have task
+42:44 
+
+42:44 specific parameters.
+42:47 
+
+42:47 So here also if I if we know which for
+42:50 
+
+42:50 which task this input is right
+42:53 
+
+42:53 we will go through all of these common
+42:56 
+
+42:56 layers but we will route it to one of
+42:58 
+
+42:58 the heads
+43:01 
+
+43:01 right so this is and so so only these
+43:04 
+
+43:04 will be active we will have activations
+43:06 
+
+43:06 for only these although the overall
+43:08 
+
+43:08 model size you know it has three three
+43:12 
+
+43:12 u such heads
+43:15 
+
+43:15 right if you look at the parameter of
+43:16 
+
+43:16 the head we have three time we have
+43:19 
+
+43:19 increased it by three times but when we
+43:21 
+
+43:21 are using it it's going to be the
+43:24 
+
+43:24 computation and activation will be only
+43:26 
+
+43:26 through 1x right so but can we use it
+43:30 
+
+43:30 directly here this architecture
+43:35 
+
+43:35 no because because I mean when we are
+43:38 
+
+43:38 training multitask models we generally
+43:40 
+
+43:40 in our training data we know what is the
+43:42 
+
+43:42 task here the input is x comma task ID
+43:49 
+
+43:49 And that's how we route it to the
+43:50 
+
+43:50 specific um head right but we don't have
+43:53 
+
+43:53 this we don't have this uh when we
+43:56 
+
+43:56 training language models so what is the
+43:58 
+
+43:58 alternative
+44:01 
+
+44:01 right
+44:04 
+
+44:04 so what should we do and and and in
+44:06 
+
+44:06 contrast to this we know that in LLM our
+44:08 
+
+44:08 LLM looks like only this it doesn't have
+44:11 
+
+44:11 this part right all all the layers are
+44:15 
+
+44:15 active All parameters are active for all
+44:17 
+
+44:17 the tasks.
+44:20 
+
+44:20 But then where should we introduce this
+44:22 
+
+44:22 sparity or where should we introduce
+44:23 
+
+44:23 this multiple heads in the language
+44:25 
+
+44:25 model.
+44:27 
+
+44:27 Right? So this is the question that we
+44:28 
+
+44:28 have to answer and
+44:33 
+
+44:33 the answer lies in mixture of experts.
+44:34 
+
+44:34 It's not a new idea. Mix just like
+44:37 
+
+44:37 multitask learning architecture. There
+44:39 
+
+44:39 is a standard multitask learning
+44:40 
+
+44:40 architecture. There's a standard
+44:41 
+
+44:41 architecture for mixture of experts
+44:42 
+
+44:42 model as well. first published in 1991
+44:46 
+
+44:46 right uh by the Jeff Henton group uh and
+44:49 
+
+44:49 and let's first visit that you know how
+44:51 
+
+44:51 does it look like we we will integrate
+44:53 
+
+44:53 it with transformers later on let's
+44:55 
+
+44:55 first look at how does a mixture of
+44:56 
+
+44:56 expert model look like in a in a
+44:59 
+
+44:59 classical neural network you have an
+44:60 
+
+44:60 input X that goes through one neural
+45:03 
+
+45:03 network let's call it expert now it goes
+45:05 
+
+45:05 through one expert and we get the output
+45:08 
+
+45:08 in mixture of experts what do we want we
+45:10 
+
+45:10 want multiple experts
+45:13 
+
+45:13 Right? And we want to route this input X
+45:16 
+
+45:16 through one or many or all of these
+45:20 
+
+45:20 experts depending on how we uh model it.
+45:23 
+
+45:23 Right? But uh how do we decide that? How
+45:26 
+
+45:26 do we route? We don't have that
+45:28 
+
+45:28 information and we only have input X. So
+45:30 
+
+45:30 what should we do?
+45:33 
+
+45:33 Anyone any guess?
+45:43 
+
+45:43 routing to all and then see and and make
+45:47 
+
+45:47 a prediction from all of those.
+46:05 
+
+46:05 Right?
+46:07 
+
+46:07 And so this could be one strategy.
+46:12 
+
+46:12 But then all of these are randomly
+46:14 
+
+46:14 selected. How will the allocation happen
+46:17 
+
+46:17 for the first one?
+46:20 
+
+46:20 Randomly.
+46:21 
+
+46:21 And it may
+46:24 
+
+46:24 get you into troubles. It may Let's
+46:27 
+
+46:27 think about it.
+46:29 
+
+46:29 Right. Another alternative is can we
+46:33 
+
+46:33 learn to route? Right?
+46:37 
+
+46:37 >> Getting right. So let's include a
+46:40 
+
+46:40 getting network into our model. This is
+46:43 
+
+46:43 nothing but a w. We're learning it.
+46:47 
+
+46:47 Right? WG. We pass X through it. It will
+46:51 
+
+46:51 give me a
+46:53 
+
+46:53 probability distribution over all the
+46:55 
+
+46:55 experts, right? let's say uh g x2 and
+46:58 
+
+46:58 gxn minus one here I'm highlighting two
+47:00 
+
+47:00 experts for now right and uh so we let's
+47:05 
+
+47:05 say we select these two experts using
+47:07 
+
+47:07 some mechanism
+47:09 
+
+47:09 and
+47:10 
+
+47:10 we get the corresponding outputs
+47:13 
+
+47:13 right and we take a linear or convex sum
+47:16 
+
+47:16 of these two using the corresponding
+47:18 
+
+47:18 probabilities right so this this is the
+47:20 
+
+47:20 expected value this is the expected
+47:22 
+
+47:22 output that I have right so one expert
+47:23 
+
+47:23 is giving me y minus one as the output
+47:25 
+
+47:25 the other is giving me I2 as the output
+47:27 
+
+47:27 the expected out output is the
+47:28 
+
+47:28 corresponding probability times that
+47:30 
+
+47:30 right and uh depending upon how we model
+47:34 
+
+47:34 you know if we don't care about the
+47:36 
+
+47:36 computation cost and we just want to
+47:38 
+
+47:38 increase I mean we want to use it as a
+47:40 
+
+47:40 modeling choice we can
+47:43 
+
+47:43 you know have all the experts as active
+47:45 
+
+47:45 so this getting network will give me a
+47:47 
+
+47:47 distribution over all the experts I get
+47:50 
+
+47:50 the expected output which is probability
+47:53 
+
+47:53 of selecting the first expert multiplied
+47:54 
+
+47:54 by the output from the 6 foot right and
+47:58 
+
+47:58 this probability this gating is a soft
+47:60 
+
+47:60 max over uh I mean this is just a linear
+48:02 
+
+48:02 layer uh we have this learnable
+48:05 
+
+48:05 parameter WG this is getting trained
+48:08 
+
+48:08 along with all the expert layers right
+48:11 
+
+48:11 okay cool now I mean uh let's look at a
+48:15 
+
+48:15 quick chronology of mixture of experts
+48:17 
+
+48:17 uh model so they were first introduced
+48:19 
+
+48:19 in 1991 by Jeff Hinton then they were
+48:21 
+
+48:21 first used in deep learning in an LSTM
+48:23 
+
+48:23 architecture uh by Ionetal in 2013
+48:28 
+
+48:28 and then in 2021 we got first uh you
+48:32 
+
+48:32 know MO layer in the transformer based
+48:34 
+
+48:34 model. This was switch transformers
+48:36 
+
+48:36 and then came mixtrill which was uh you
+48:39 
+
+48:39 know when it came it could uh it was a
+48:41 
+
+48:41 small model as compared to the its
+48:42 
+
+48:42 competitors and it was able to beat many
+48:44 
+
+48:44 of those and then uh recently we got
+48:47 
+
+48:47 GPT4 which is also a mixture of expert
+48:49 
+
+48:49 deepseek and minax models right okay now
+48:53 
+
+48:53 the question is where should we use uh
+48:56 
+
+48:56 this mixture of experts so now we got
+48:58 
+
+48:58 the idea of mixture of experts we know
+48:59 
+
+48:59 that there is an architecture called
+49:00 
+
+49:00 mixture of experts now how should we
+49:02 
+
+49:02 integrate it with transformers
+49:04 
+
+49:04 Where should we use it?
+49:08 
+
+49:08 Where should we insert this?
+49:15 
+
+49:15 Any guesses? This is this is how a
+49:17 
+
+49:17 transformer block looks like, right? We
+49:20 
+
+49:20 have uh self attention, normalization,
+49:22 
+
+49:22 feed forward, and then normalization
+49:24 
+
+49:24 again add again
+49:27 
+
+49:27 the feed forward layer, right? So this
+49:30 
+
+49:30 this feed forward layer remember that
+49:32 
+
+49:32 recall that self attention is the one
+49:35 
+
+49:35 where tokens are interacting with each
+49:37 
+
+49:37 other. X is going to be X1 to XT in self
+49:40 
+
+49:40 attention you know they are going to
+49:41 
+
+49:41 interact with each other whereas in feed
+49:45 
+
+49:45 forward right it's kind of it's an MLP
+49:48 
+
+49:48 each token is processed independently
+49:51 
+
+49:51 right so each token is proc if I call
+49:53 
+
+49:53 this as an expert
+49:56 
+
+49:56 and each token is routed to the same
+49:58 
+
+49:58 expert right so let's try to replace
+50:02 
+
+50:02 this with a mixture of experts right so
+50:04 
+
+50:04 let's take an example let's say my input
+50:06 
+
+50:06 is only Two words more parameters.
+50:09 
+
+50:09 Yeah.
+50:21 
+
+50:21 Yes.
+50:23 
+
+50:23 >> Yeah. So we cannot assign any uh meaning
+50:27 
+
+50:27 semantic meaning to it. Right. It will
+50:29 
+
+50:29 automatically learn and share the task.
+50:32 
+
+50:32 So there is no I mean I cannot say
+50:34 
+
+50:34 although there are some analysis paper
+50:36 
+
+50:36 we cannot say that this expert is doing
+50:37 
+
+50:37 coding this expert is doing machine
+50:39 
+
+50:39 translation and so and so forth. We
+50:41 
+
+50:41 don't know that and and the assignment
+50:43 
+
+50:43 is also you know learning we are
+50:44 
+
+50:44 learning the getting network as well.
+50:46 
+
+50:46 Essentially it's like
+50:49 
+
+50:49 >> it is a feed forward layer but instead
+50:52 
+
+50:52 of one we have many and each token will
+50:56 
+
+50:56 choose where to go which one to pick.
+51:02 
+
+51:02 >> The gain is that we are able I mean we
+51:05 
+
+51:05 motivated it by saying that uh
+51:09 
+
+51:09 that you know we want to increase the
+51:10 
+
+51:10 model size. So we replaced one feed
+51:13 
+
+51:13 forward layer with eight feed forward
+51:16 
+
+51:16 layers. Right? And intuitively the gain
+51:17 
+
+51:17 is that we are increasing the capacity.
+51:20 
+
+51:20 It may happen that model automatically
+51:22 
+
+51:22 learns that expert one is is for coding,
+51:24 
+
+51:24 expert two is for machine translation,
+51:26 
+
+51:26 expert 3 is for summarization and so and
+51:29 
+
+51:29 so forth. We can only hope, right? But
+51:31 
+
+51:31 at least now the model has the capacity,
+51:35 
+
+51:35 right? I mean that's the whole idea,
+51:36 
+
+51:36 right? I mean uh we we modify the
+51:39 
+
+51:39 architecture according to our intuitions
+51:41 
+
+51:41 and hope that you know model will
+51:43 
+
+51:43 capture now the model has the capacity
+51:45 
+
+51:45 to capture our intuition right and and
+51:47 
+
+51:47 learnability also improves from that
+51:49 
+
+51:49 perspective right otherwise a two-layer
+51:51 
+
+51:51 MLP is a universal approximator right
+51:54 
+
+51:54 but the learnability is the issue
+51:58 
+
+51:58 okay so the way it looks is that you
+51:60 
+
+51:60 know the both the tokens more parameters
+52:02 
+
+52:02 interact with each other in the self
+52:03 
+
+52:03 attention layer we do add and nom
+52:05 
+
+52:05 separately for these
+52:07 
+
+52:07 And then we have a router which will
+52:10 
+
+52:10 decide where to route this token more
+52:12 
+
+52:12 and this token parameters. It will be
+52:14 
+
+52:14 different for both. So for example here
+52:16 
+
+52:16 it routes to feed forward on it uh the
+52:19 
+
+52:19 second expert with some probability 65
+52:22 
+
+52:22 and it routes to
+52:25 
+
+52:25 uh the first expert with probability.8
+52:27 
+
+52:27 eight, right? We multiply these two and
+52:30 
+
+52:30 we get uh pass it through the forward
+52:32 
+
+52:32 layers, right? Okay, so this is the MOE
+52:34 
+
+52:34 layer and uh how are we able to reduce
+52:39 
+
+52:39 the computation
+52:43 
+
+52:43 here? Are we able to reduce the
+52:45 
+
+52:45 computation?
+52:48 
+
+52:48 The computation is similar but model
+52:51 
+
+52:51 parameters have increased, right? So if
+52:53 
+
+52:53 there are recall how many parameters are
+52:56 
+
+52:56 there in in in a feed forward network we
+52:59 
+
+52:59 have four 4 H square the first H2 4 H
+53:04 
+
+53:04 and we have another 4 H square for 4 H2
+53:08 
+
+53:08 H this has 4 H bias terms and this has h
+53:12 
+
+53:12 bias terms right so this is 8 H² + 5 H
+53:17 
+
+53:17 versus in attention we have KQV3
+53:21 
+
+53:21 mappings H² square plus there's a
+53:24 
+
+53:24 projection layer where we concatenate
+53:26 
+
+53:26 all the attention heads output and and
+53:27 
+
+53:27 pass it through a linear layer which is
+53:29 
+
+53:29 which is 1 H square right so this is 4 4
+53:32 
+
+53:32 H² so most of the parameters are here
+53:35 
+
+53:35 it's double right 8 square versus 4 H
+53:37 
+
+53:37 square right and we are able to with
+53:41 
+
+53:41 with let's say 10 experts we are able to
+53:43 
+
+53:43 make it 10 * 8 H square right we have
+53:47 
+
+53:47 been able to increase the model capacity
+53:48 
+
+53:48 of the model has increased and during
+53:51 
+
+53:51 training computation remains the same
+53:54 
+
+53:54 because each word is routed to only one
+53:57 
+
+53:57 in this particular architecture. We can
+53:59 
+
+53:59 route it to two as well or three as well
+54:01 
+
+54:01 or top k as well right in general and uh
+54:08 
+
+54:08 yes
+54:10 
+
+54:10 so okay this is the and so that that's
+54:14 
+
+54:14 why they called sparsely activated
+54:15 
+
+54:15 transformer layers right okay so this is
+54:18 
+
+54:18 the mo layer and yeah so I will skip
+54:21 
+
+54:21 this you can you can go through this
+54:23 
+
+54:23 yourself what essentially we are saying
+54:24 
+
+54:24 here is we are computing how the
+54:26 
+
+54:26 gradients are going to flow through
+54:27 
+
+54:27 through uh the router and through the
+54:29 
+
+54:29 parameters here we need to train the
+54:31 
+
+54:31 router here as well right G we need to
+54:33 
+
+54:33 train G of X we need to train uh uh
+54:36 
+
+54:36 there is W here right this WG and we
+54:39 
+
+54:39 need to train the parameters of FFN we
+54:41 
+
+54:41 need the uh the gradients through both
+54:44 
+
+54:44 of them right so this is simple uh chain
+54:45 
+
+54:45 rule let's skip this for now but then we
+54:48 
+
+54:48 need to address some important questions
+54:51 
+
+54:51 which is why are these experts not
+54:54 
+
+54:54 collapsing in practice
+54:57 
+
+54:57 we are starting them randomly. This is
+54:59 
+
+54:59 the question that I think I raised
+54:60 
+
+55:00 earlier, right? U
+55:04 
+
+55:04 it may so happen that all of them learn
+55:06 
+
+55:06 the same the same weights, right? So
+55:10 
+
+55:10 what is preventing uh their collapse? So
+55:13 
+
+55:13 there was a paper which studied which
+55:15 
+
+55:15 tried to study this systematically
+55:17 
+
+55:17 through synthetic experiments. What they
+55:19 
+
+55:19 did was that they created synthetic
+55:21 
+
+55:21 data. They created uh this data. There
+55:24 
+
+55:24 are two classes positive class and the
+55:26 
+
+55:26 negative class. There are these four
+55:28 
+
+55:28 clusters. The data is divided into four
+55:30 
+
+55:30 clusters. We can see that you know this
+55:34 
+
+55:34 part is separable linearly. This is
+55:36 
+
+55:36 separable linearly. This is separable
+55:38 
+
+55:38 linearly and this is also separable
+55:40 
+
+55:40 linearly in the higher dimensional
+55:42 
+
+55:42 space. This is a two dimensional
+55:43 
+
+55:43 projection. Right? So we know that there
+55:46 
+
+55:46 is a mixture of expert model which can
+55:48 
+
+55:48 with four experts. This this this is
+55:50 
+
+55:50 expert one. This is expert two, expert
+55:53 
+
+55:53 three and expert four. So if I train an
+55:56 
+
+55:56 MOE model with this data, this is what I
+55:58 
+
+55:58 expect it to learn, right? Okay. Now
+56:02 
+
+56:02 they first try it with each expert being
+56:06 
+
+56:06 a just a linear layer. W
+56:08 
+
+56:08 E I * X.
+56:12 
+
+56:12 This is the linear expert that they that
+56:14 
+
+56:14 they first trained, right? And they
+56:16 
+
+56:16 observed that it doesn't learn anything.
+56:20 
+
+56:20 Now let's try to understand this graph.
+56:22 
+
+56:22 uh color represents that when I pass
+56:25 
+
+56:25 this data point, this is the data point
+56:27 
+
+56:27 for classification to a to the model.
+56:30 
+
+56:30 Right? To which expert it goes. So each
+56:33 
+
+56:33 color represents a different expert.
+56:36 
+
+56:36 Blue is one expert, green is another
+56:38 
+
+56:38 expert, red is another expert. Right?
+56:41 
+
+56:41 What am I expecting? I'm expecting that
+56:43 
+
+56:43 this should be all of these data points
+56:44 
+
+56:44 should go to one expert. Let's say blue.
+56:46 
+
+56:46 I want all of these to be blue. I want
+56:49 
+
+56:49 all of these to be green. Let's say I
+56:52 
+
+56:52 want I want this to go to blue expert,
+56:54 
+
+56:54 this to green expert, this to red
+56:56 
+
+56:56 expert. But what we see is that the
+56:59 
+
+56:59 points here are going to all the experts
+57:02 
+
+57:02 red, green, blue, yellow. Right? So this
+57:05 
+
+57:05 is the problem. And
+57:09 
+
+57:09 when they introduce nonlinearity in the
+57:12 
+
+57:12 architecture that solved the problem
+57:16 
+
+57:16 you know that when with the nonlinearity
+57:19 
+
+57:19 when they train it they see a very clean
+57:22 
+
+57:22 distribution right that you know all the
+57:25 
+
+57:25 points here are going to one expert and
+57:27 
+
+57:27 that is what we wanted right so they
+57:30 
+
+57:30 essentially they try to motivate it they
+57:31 
+
+57:31 say that you know when we have just a
+57:32 
+
+57:32 convex loss curve which is in the case
+57:35 
+
+57:35 of a linear classifier higher. Even if
+57:37 
+
+57:37 we start from different points because
+57:39 
+
+57:39 of the shape of the curve, it kind of
+57:40 
+
+57:40 you know they all collapse to the same
+57:42 
+
+57:42 parameters and in the and when we have
+57:46 
+
+57:46 you know nonlinearity the loss shape is
+57:49 
+
+57:49 non-convex even if you start at the same
+57:51 
+
+57:51 parameters the non the non-convexity of
+57:54 
+
+57:54 the loss curve will you know push them
+57:55 
+
+57:55 in different directions. Right? So this
+57:57 
+
+57:57 was one analysis that they did about why
+57:59 
+
+57:59 you know the these are not collapsing
+58:02 
+
+58:02 right. Okay. So uh you know we we saw
+58:06 
+
+58:06 that you know with the mixture of expert
+58:08 
+
+58:08 models there are various pros because of
+58:10 
+
+58:10 which we selected them. The first one is
+58:12 
+
+58:12 that we are able to increase the model
+58:13 
+
+58:13 size right by the number of experts that
+58:17 
+
+58:17 we have and the computation remains the
+58:19 
+
+58:19 same because we selectively route to
+58:21 
+
+58:21 only one of those right and uh because
+58:24 
+
+58:24 of which we get faster inference and
+58:26 
+
+58:26 efficient pre-training as well but there
+58:28 
+
+58:28 are some issues as well right I mean
+58:31 
+
+58:31 there's no free lunch so we have 10
+58:34 
+
+58:34 experts will they fit on the GPU
+58:39 
+
+58:39 right the model size is going to series
+58:41 
+
+58:41 we looked at I mean the first part of
+58:43 
+
+58:43 the uh this lecture series focused on uh
+58:46 
+
+58:46 on managing the memory of the GPU. If
+58:48 
+
+58:48 you increase the the model size uh
+58:51 
+
+58:51 beyond a point this GPU memory of one uh
+58:57 
+
+58:57 uh memory of one GPU will become
+58:59 
+
+58:59 insufficient and we have already looked
+59:01 
+
+59:01 at various tools to tackle it. We looked
+59:03 
+
+59:03 at data parallelism, tensor parallelism,
+59:05 
+
+59:05 context parallelism and pipeline
+59:06 
+
+59:06 parallelism. Which of these can be used
+59:10 
+
+59:10 in this case? Can you use any of these
+59:11 
+
+59:11 in this case,
+59:23 
+
+59:23 right? So we can but
+59:28 
+
+59:28 pipeline parallelism can always be used.
+59:29 
+
+59:29 Yes, because you know we will have
+59:31 
+
+59:31 different layers on different uh GPUs
+59:34 
+
+59:34 and we can always use pipeline
+59:35 
+
+59:35 parallelism.
+59:37 
+
+59:37 Cool. But then we define a new type of
+59:41 
+
+59:41 analism by you know because the
+59:43 
+
+59:43 architecture is like that you have
+59:44 
+
+59:44 separate experts. They don't need to sit
+59:47 
+
+59:47 on each on on one GPU. They can sit on
+59:50 
+
+59:50 different GPUs. Right? So this is the
+59:52 
+
+59:52 fifth dimension of parallelism that we
+59:54 
+
+59:54 did not cover earlier because we had not
+59:56 
+
+59:56 looked at murals expert model. So this
+59:58 
+
+59:58 is expert parallelism.
+59:60 
+
+60:00 In one GPU all of this is the layer. All
+60:03 
+
+60:03 the experts are sitting on one GPU. We
+60:07 
+
+60:07 split them we split them on on multiple
+60:10 
+
+60:10 GPUs and it's and combine it with let's
+60:13 
+
+60:13 say data parallelism right now in data
+60:16 
+
+60:16 parallelism
+60:17 
+
+60:17 both the GPUs recall what what happens
+60:19 
+
+60:19 in data parallelism
+60:21 
+
+60:21 what is different and what is same
+60:25 
+
+60:25 data is different model is same right so
+60:28 
+
+60:28 we have uh
+60:32 
+
+60:32 right we have different data points we
+60:35 
+
+60:35 have a sequence X1 and we have a
+60:37 
+
+60:37 sequence X2 right some token of this
+60:41 
+
+60:41 sequence
+60:44 
+
+60:44 right let's say X I getting may decide
+60:47 
+
+60:47 that it needs to go to this one this
+60:50 
+
+60:50 expert right and some token here
+60:54 
+
+60:54 similarly X2J may have to go be routed
+60:58 
+
+60:58 to FFN1 right so this requires
+61:00 
+
+61:00 communication across the GPUs right so
+61:04 
+
+61:04 this increases of course you know all to
+61:06 
+
+61:06 all dispatch and all to all combine. Uh
+61:09 
+
+61:09 but we can't avoid that. Okay. And uh
+61:13 
+
+61:13 you know this I mean here we we saw that
+61:15 
+
+61:15 you know we're using it in conjunction
+61:17 
+
+61:17 with uh data parallelism. We can combine
+61:20 
+
+61:20 it with other parallelism strategies as
+61:21 
+
+61:21 well. Okay.
+61:24 
+
+61:24 Now uh one issue that we tackled earlier
+61:28 
+
+61:28 was that of expert collapse that the
+61:31 
+
+61:31 experts collapsed right. But what if the
+61:35 
+
+61:35 router collapse
+61:37 
+
+61:37 meaning router the getting network is
+61:39 
+
+61:39 also learnable. What if it learns the
+61:41 
+
+61:41 weight in such a way that it routes
+61:44 
+
+61:44 everything everything to first expert
+61:46 
+
+61:46 all the tokens are routed to first
+61:47 
+
+61:47 expert. Then what will happen? I mean
+61:50 
+
+61:50 the other GPUs are going to be idle
+61:53 
+
+61:53 right and this anyway we don't want that
+61:56 
+
+61:56 right? I mean those are wasted um
+61:58 
+
+61:58 parameters.
+61:60 
+
+61:60 So how should we avoid it? Any idea, any
+62:04 
+
+62:04 guesses? How should we avoid uh router
+62:07 
+
+62:07 collapse?
+62:16 
+
+62:16 >> How should we do that? How should we
+62:18 
+
+62:18 ensure that each expert is used uh
+62:21 
+
+62:21 equally?
+62:29 
+
+62:29 Very good. If one is used more add some
+62:31 
+
+62:31 penalty that is called you know have a
+62:35 
+
+62:35 loss function which penalizes skewed
+62:40 
+
+62:40 distribution right so that's called load
+62:42 
+
+62:42 balancing loss we can design that uh you
+62:46 
+
+62:46 know different papers design it
+62:47 
+
+62:47 differently we can quickly look at one
+62:50 
+
+62:50 specific design which was used in uh in
+62:54 
+
+62:54 in switch transformer paper so the idea
+62:56 
+
+62:56 is very simple let's say we have uh
+63:02 
+
+63:02 expert one to expert
+63:05 
+
+63:05 N and token one to token
+63:10 
+
+63:10 T in the uh in the batch right now uh
+63:16 
+
+63:16 let us count
+63:18 
+
+63:18 how many tokens are getting routed to
+63:20 
+
+63:20 each expert right so let's say token J
+63:26 
+
+63:26 is routed to expert
+63:29 
+
+63:29 I. So this is one here, right? And then
+63:32 
+
+63:32 we can count you know which which other
+63:34 
+
+63:34 tokens are outed to token I right. So
+63:36 
+
+63:36 here we will get f of i which is going
+63:39 
+
+63:39 to be sum of this divided by
+63:44 
+
+63:44 uh t number of tokens that we have right
+63:47 
+
+63:47 so this so so this fraction is sum of
+63:50 
+
+63:50 this divided by t the fraction of tokens
+63:52 
+
+63:52 dispatched to expert I is f of i right
+63:56 
+
+63:56 okay which is which is defined as this
+63:60 
+
+63:60 and uh again in the same
+64:03 
+
+64:03 graph
+64:06 
+
+64:06 uh let's say I have expert I and I'm
+64:09 
+
+64:09 looking at token J.
+64:12 
+
+64:12 What is the router giving me here? The
+64:14 
+
+64:14 router is giving me probability of
+64:18 
+
+64:18 selecting expert I given
+64:21 
+
+64:21 token J.
+64:24 
+
+64:24 Right?
+64:26 
+
+64:26 And I want to compute probability of
+64:28 
+
+64:28 selecting the expert I. This will be
+64:31 
+
+64:31 equal to
+64:34 
+
+64:34 This is the conditional probability
+64:37 
+
+64:37 time P of TJ and summation right uh do
+64:44 
+
+64:44 we have P of TJ we don't we don't have
+64:46 
+
+64:46 we don't know right so and and you can
+64:48 
+
+64:48 look at it as you know this is the
+64:50 
+
+64:50 probability times some value and this is
+64:53 
+
+64:53 the expectation of essentially this is
+64:57 
+
+64:57 you can view it as expectation of P of
+64:59 
+
+64:59 EI given TJ Right? Does that make sense?
+65:04 
+
+65:04 I mean, if you have to compute
+65:05 
+
+65:05 expectation, how do you do? Let's say
+65:07 
+
+65:07 you want to compute expected score. All
+65:09 
+
+65:09 right? Uh, so you see how many students
+65:12 
+
+65:12 get a score of S1, you multiply it with
+65:15 
+
+65:15 that n_sub_1 times how many students get
+65:17 
+
+65:17 a score of score 2, n_sub_2, let's say,
+65:21 
+
+65:21 and and divided by n1 + n_sub_2, right?
+65:25 
+
+65:25 So, this is probability of score 1,
+65:28 
+
+65:28 right? P of S_sub_1 * S1 this is P of
+65:33 
+
+65:33 S_sub_2 * S_sub_2 similarly if I have to
+65:36 
+
+65:36 compute the expected value of this term
+65:39 
+
+65:39 that will be you know we multiply with
+65:41 
+
+65:41 the probability and and then this right
+65:43 
+
+65:43 and another way of computing this
+65:45 
+
+65:45 average score is going to be if I can't
+65:47 
+
+65:47 compute the probability how do we do it
+65:49 
+
+65:49 from a sample
+65:52 
+
+65:52 I mean right so for example here itself
+65:55 
+
+65:55 in the class if we have to compute the
+65:57 
+
+65:57 the average score, right? Let's say five
+65:60 
+
+66:00 students got a score of 10 and 15
+66:04 
+
+66:04 students got a score of 20. My average
+66:07 
+
+66:07 is going to be 5 * 10 + 15 * 20 divided
+66:09 
+
+66:09 by 20. Alternatively, I can ask each of
+66:13 
+
+66:13 you what is your score and keep a simple
+66:16 
+
+66:16 average, right? That's how we estimate
+66:19 
+
+66:19 the probability. Right? So, so similarly
+66:21 
+
+66:21 here I have P of EI given given TJ for
+66:27 
+
+66:27 all J. I can take the average of these,
+66:31 
+
+66:31 right? So I can simply say P of EI given
+66:35 
+
+66:35 TJ summation over
+66:38 
+
+66:38 J by 1 by T number of tokens that I
+66:42 
+
+66:42 have. This gives me P of E probability
+66:45 
+
+66:45 of selecting an expert. Okay. now or or
+66:48 
+
+66:48 P of I probability of selecting next
+66:50 
+
+66:50 word I. Now let's look at this loss term
+66:54 
+
+66:54 f_sub_1 p1 plus f_sub_2 p2 plus f n pn.
+67:01 
+
+67:01 This is the loss term that they use
+67:04 
+
+67:04 for load balancing.
+67:06 
+
+67:06 Let's try to look at intuitively why it
+67:08 
+
+67:08 makes sense. Right? Let's say f_sub_1 is
+67:10 
+
+67:10 very high. That means all the tokens
+67:14 
+
+67:14 were routed to expert one.
+67:17 
+
+67:17 To minimize this, what should we do?
+67:20 
+
+67:20 We should P1 should reduce, right? So,
+67:23 
+
+67:23 this should reduce if F1 is is high,
+67:29 
+
+67:29 right? And because
+67:31 
+
+67:31 uh the probabilities are going to sum to
+67:34 
+
+67:34 one. P1 to PN sum to one. Something
+67:37 
+
+67:37 should increase.
+67:40 
+
+67:40 And what should we increase without you
+67:42 
+
+67:42 know increasing the overall value? We
+67:43 
+
+67:43 want to minimize, right? This is the
+67:44 
+
+67:44 loss term you want to minimize, right?
+67:48 
+
+67:48 Which which one should we pick to
+67:50 
+
+67:50 increase without affecting the overall
+67:53 
+
+67:53 loss?
+67:56 
+
+67:56 Which has lowest score. Right? So if
+67:59 
+
+67:59 this has the uh if this has the lowest
+68:03 
+
+68:03 one, we will increase
+68:08 
+
+68:08 the probability from here. We'll take
+68:09 
+
+68:09 the weight from here and and give it to
+68:11 
+
+68:11 this. That's how I mean to maximize this
+68:14 
+
+68:14 uh loss term you know probability of
+68:17 
+
+68:17 those experts is getting reduced where
+68:20 
+
+68:20 we are allocating more and probability
+68:22 
+
+68:22 of those experts is increasing where we
+68:24 
+
+68:24 are allocating less right so so
+68:27 
+
+68:27 intuitively this this will try to
+68:28 
+
+68:28 balance the load and equilibrium will
+68:30 
+
+68:30 come at 1 by n right okay so we covered
+68:34 
+
+68:34 uh this part as well where we are trying
+68:37 
+
+68:37 to add a new loss term to prevent router
+68:39 
+
+68:39 collapse right expert vertical as it did
+68:41 
+
+68:41 not happen because of the nonlinearity.
+68:43 
+
+68:43 We saw that the training time is in
+68:45 
+
+68:45 million GPU hours and we have to exploit
+68:49 
+
+68:49 multiple GPUs. For that we looked at
+68:51 
+
+68:51 various parallelism uh strategies data
+68:54 
+
+68:54 parallelism, tensor parallelism, context
+68:56 
+
+68:56 parallelism, pipeline parallelism and
+68:58 
+
+68:58 then we today we looked at expert
+68:59 
+
+68:59 parallelism as well. Right? uh together
+69:02 
+
+69:02 they are called 5D parallelism
+69:05 
+
+69:05 right then uh we looked at another graph
+69:09 
+
+69:09 where we were looking at the throughput
+69:11 
+
+69:11 versus the performance and we observed
+69:14 
+
+69:14 two anomalies first one was this where
+69:16 
+
+69:16 we saw that uh you know this model has
+69:21 
+
+69:21 yeah same parameter size but higher
+69:23 
+
+69:23 throughut and we attributed it to its
+69:25 
+
+69:25 efficient implementation. So we looked
+69:27 
+
+69:27 at flash attention which is the norm.
+69:28 
+
+69:28 You cannot train any model without flash
+69:30 
+
+69:30 attention any meaningful model without
+69:32 
+
+69:32 flash attention
+69:33 
+
+69:33 right and uh then we saw that there are
+69:36 
+
+69:36 fused kernels for other tasks as well
+69:38 
+
+69:38 and there's a library called liar
+69:39 
+
+69:39 kernels that does that right that's what
+69:42 
+
+69:42 we looked at then uh you know this graph
+69:45 
+
+69:45 is about throughput right so throughput
+69:47 
+
+69:47 means inference so we need to do
+69:49 
+
+69:49 inference also efficiently and then we
+69:51 
+
+69:51 looked at standard techniques for
+69:53 
+
+69:53 efficient inference starting with KV
+69:54 
+
+69:54 caching VLM which is an inference
+69:58 
+
+69:58 uh serving serving LLM serving influence
+70:01 
+
+70:01 engine which is very quite popular. Uh
+70:03 
+
+70:03 then we left flash decoding and
+70:05 
+
+70:05 speculative decoding for homework right
+70:07 
+
+70:07 and then today uh you know we went back
+70:11 
+
+70:11 to our initial graph and focused on the
+70:14 
+
+70:14 second anomaly that we saw which was
+70:16 
+
+70:16 that there are two models one is quite
+70:18 
+
+70:18 bigger than the other but still has
+70:21 
+
+70:21 better throughput. Right? So how is it
+70:24 
+
+70:24 happening and we uh attributed that to a
+70:28 
+
+70:28 better architectural uh choice
+70:31 
+
+70:31 architecture design better design which
+70:33 
+
+70:33 is mixture of experts and we looked at
+70:34 
+
+70:34 the inner workings of mixture of expert
+70:36 
+
+70:36 as a layer and how it is integrated uh
+70:39 
+
+70:39 in in a transformer block and then we
+70:41 
+
+70:41 also looked at uh why the uh different
+70:44 
+
+70:44 experts are not collapsing during
+70:46 
+
+70:46 training and we also looked at how do we
+70:48 
+
+70:48 avoid the router collapse and so this uh
+70:52 
+
+70:52 with this we can conclude uh this
+70:55 
+
+70:55 lecture series where we which had three
+70:57 
+
+70:57 parts to it. The first one was
+70:59 
+
+70:59 parallelism strategies. The second part
+71:01 
+
+71:01 was efficient implementation and the
+71:03 
+
+71:03 third part was efficient design
+71:05 
+
+71:05 architecture design where we covered
+71:07 
+
+71:07 mixture of experts. Right? So yeah we
+71:10 
+
+71:10 can conclude here and uh
+71:13 
+
+71:13 if you want we can quickly go through
+71:16 
+
+71:16 the first block here if that would help
+71:18 
+
+71:18 because this is where we spent most of
+71:20 
+
+71:20 the time. We spent four lectures here.
+71:22 
+
+71:22 So let's very quickly recap uh you know
+71:26 
+
+71:26 what we were doing. Our objective was to
+71:28 
+
+71:28 train big models on big data. We saw
+71:32 
+
+71:32 that GPU memory is not sufficient. One
+71:35 
+
+71:35 GPU memory is not sufficient. To
+71:37 
+
+71:37 understand that we looked at what lies
+71:39 
+
+71:39 in the GPU memory during training. There
+71:41 
+
+71:41 are four parts to it. Model weights,
+71:44 
+
+71:44 parameters, optimizer states and
+71:46 
+
+71:46 activations. We saw that these three are
+71:49 
+
+71:49 proportional to H²
+71:53 
+
+71:53 + H. We have 12 of these and 13 of these
+71:57 
+
+71:57 per layer. Right? This is small. Uh but
+72:02 
+
+72:02 when we look at activations, this was
+72:04 
+
+72:04 big because of the self attention part.
+72:08 
+
+72:08 We in addition to this H square plus H,
+72:10 
+
+72:10 we have sequence length times sequence
+72:13 
+
+72:13 length uh as well, right? And then we
+72:16 
+
+72:16 have number of heads time this and time
+72:21 
+
+72:21 batch size * 5. Right? So the
+72:25 
+
+72:25 activations would typically look like a
+72:28 
+
+72:28 three-dimensional
+72:30 
+
+72:30 tensor with batch size here, sequence
+72:32 
+
+72:32 length here and the hidden dimension
+72:34 
+
+72:34 here. And in various data parallelism
+72:37 
+
+72:37 strategies, we tried to break this
+72:40 
+
+72:40 tensor across different dimensions.
+72:43 
+
+72:43 Right? In data parallelism we said that
+72:45 
+
+72:45 okay we will have one batch and we will
+72:48 
+
+72:48 process it on one GPU take the second
+72:50 
+
+72:50 batch process it on second GPU and so
+72:52 
+
+72:52 and so forth right and uh from where did
+72:56 
+
+72:56 the idea of this originate this
+72:58 
+
+72:58 originated when we looked at uh you know
+73:01 
+
+73:01 gradient accumulation because if you
+73:03 
+
+73:03 don't have multiple GPUs we can repeat
+73:05 
+
+73:05 repeat this
+73:08 
+
+73:08 uh you know DP times on a single GPU as
+73:11 
+
+73:11 well and we also looked at this the
+73:14 
+
+73:14 concept of uh
+73:16 
+
+73:16 of gradient recomputation or gradient
+73:19 
+
+73:19 checkpointing right where we said that
+73:22 
+
+73:22 you know if it requires so much space
+73:25 
+
+73:25 right let's not use it let's not store
+73:28 
+
+73:28 it the attentions uh matrix that we get
+73:32 
+
+73:32 uh right the after softmax we decided to
+73:36 
+
+73:36 let go of it and recomputee it again
+73:39 
+
+73:39 during the backward pass we saw that we
+73:41 
+
+73:41 are able to get 70% % speed up by
+73:44 
+
+73:44 increasing our compute uh by just four
+73:46 
+
+73:46 or 5%. Right? Okay. Then uh
+73:51 
+
+73:51 after data parallelism you know we saw
+73:53 
+
+73:53 that when we parallelize
+73:59 
+
+73:59 the data like
+74:03 
+
+74:03 and you look at the different GPUs there
+74:06 
+
+74:06 is a lot of redundancy there. We have
+74:08 
+
+74:08 the optimizer states lying on each of
+74:11 
+
+74:11 the GPUs. we have a copy of the model
+74:15 
+
+74:15 parameters on each of the GPUs and we
+74:18 
+
+74:18 reserve some space for the gradient of
+74:19 
+
+74:19 each parameter as well on some GPUs
+74:21 
+
+74:21 right so we looked at sharding
+74:23 
+
+74:23 techniques where we said that okay in
+74:26 
+
+74:26 the first uh in in first sharding
+74:28 
+
+74:28 strategy we said that we don't need the
+74:29 
+
+74:29 optimizer on all the GPUs we shard it
+74:32 
+
+74:32 for each with let's say from with
+74:34 
+
+74:34 dimension zero each for each layer some
+74:37 
+
+74:37 parameters are going to stay on GPU 1
+74:38 
+
+74:38 some parameters on GPU 2 some parameters
+74:40 
+
+74:40 on GPU 3 right but If we are
+74:43 
+
+74:43 distributing the parameter, we will need
+74:45 
+
+74:45 communication, right? And and uh now
+74:49 
+
+74:49 when we need communication, we try to
+74:52 
+
+74:52 overlap it with computation, right? So
+74:55 
+
+74:55 we
+74:56 
+
+74:56 right so that's what we tried to
+74:58 
+
+74:58 exploit. Uh then we looked at uh 02
+75:02 
+
+75:02 where we sharded in addition to the
+75:06 
+
+75:06 optimizer states we also sharded the
+75:09 
+
+75:09 gradients, right? because we I mean once
+75:11 
+
+75:11 we use the gradients to update the
+75:13 
+
+75:13 optimizer
+75:15 
+
+75:15 we don't need to reserve the u the
+75:18 
+
+75:18 gradient for each parameter on all the
+75:21 
+
+75:21 GPUs we can reserve some space for the
+75:24 
+
+75:24 corresponding parameters that we have on
+75:25 
+
+75:25 the optimizer right temporarily allocate
+75:29 
+
+75:29 the memory for for a particular layer
+75:32 
+
+75:32 for all for all the weights in that
+75:35 
+
+75:35 layer right for the gradients of all the
+75:36 
+
+75:36 weights compute the gradient Right? And
+75:40 
+
+75:40 then transfer it transfer a part of it
+75:43 
+
+75:43 to wherever the corresponding optimizer
+75:45 
+
+75:45 lies and store it there. Right? And then
+75:48 
+
+75:48 in the third part we sharded the
+75:52 
+
+75:52 model weights as well. But then if you
+75:54 
+
+75:54 are sharding the model weights how do
+75:56 
+
+75:56 you do a forward pass? Well you gather,
+75:58 
+
+75:58 right? So because you have to gather
+75:60 
+
+75:60 that increases the communication cost as
+76:01 
+
+76:01 well, right? So these are the three uh
+76:03 
+
+76:03 data parallelism and fully sharded data
+76:05 
+
+76:05 parallelism strategies that we looked
+76:07 
+
+76:07 at. Right?
+76:08 
+
+76:08 uh but this is still not good for big
+76:10 
+
+76:10 models and large sequences and uh then
+76:14 
+
+76:14 we looked at splitting the activation
+76:19 
+
+76:19 across GPUs right so earlier again uh
+76:23 
+
+76:23 batch size sequence length and we have
+76:26 
+
+76:26 hidden dimensions we the data
+76:30 
+
+76:30 parallelism we split this now we will
+76:31 
+
+76:31 try to split the hidden dimension right
+76:34 
+
+76:34 in tensor parallelism
+76:37 
+
+76:37 uh For example, in the MLP layer, we
+76:39 
+
+76:39 have the inner uh the up projection
+76:41 
+
+76:41 projects H to 4 H. And we saw that we
+76:46 
+
+76:46 can keep each of these separately on
+76:49 
+
+76:49 four GPUs, right? And uh for the uh
+76:54 
+
+76:54 attention block, we said that you know
+76:55 
+
+76:55 it there are multiple heads. So there's
+76:58 
+
+76:58 a natural way of splitting. We can keep
+76:60 
+
+76:60 each head on a separate GPUs. But this
+77:01 
+
+77:01 will again increase some uh
+77:03 
+
+77:03 communication cost, right? uh while
+77:06 
+
+77:06 looking at tensor parallelism we saw
+77:08 
+
+77:08 that
+77:10 
+
+77:10 you know so again in tensor parallelism
+77:12 
+
+77:12 we have the
+77:14 
+
+77:14 same input
+77:16 
+
+77:16 right but different computations on
+77:18 
+
+77:18 different GPUs first GPU is process is
+77:20 
+
+77:20 is computing these neurons second GPU is
+77:23 
+
+77:23 computing these neurons right so same
+77:25 
+
+77:25 input different neurons we are able to
+77:28 
+
+77:28 parallelize uh MLP layer and attention
+77:31 
+
+77:31 but then we have layer norm and dropouts
+77:35 
+
+77:35 Right. So we thought that you know in
+77:37 
+
+77:37 addition to this we can introduce
+77:39 
+
+77:39 sequence parallelism where once we
+77:42 
+
+77:42 gather the output from different GPUs we
+77:44 
+
+77:44 can scatter them across the dimension of
+77:47 
+
+77:47 the sequence length. So sequence
+77:49 
+
+77:49 parallel is parallelizing across the
+77:52 
+
+77:52 third dimension that was left which is
+77:55 
+
+77:55 uh the sequence length. We use the term
+77:57 
+
+77:57 sequence parallelism only in conjunction
+77:59 
+
+77:59 with tensor parallelism. Right? There is
+78:03 
+
+78:03 uh right now all of this is good but
+78:08 
+
+78:08 still this is not sufficient if we have
+78:10 
+
+78:10 very large sequences right so if you
+78:13 
+
+78:13 have very large sequences then you know
+78:16 
+
+78:16 we can take motivation from sequence
+78:17 
+
+78:17 parallelism and devise something called
+78:20 
+
+78:20 uh context parallelism where
+78:25 
+
+78:25 different GPUs will have different parts
+78:28 
+
+78:28 of the uh input sequence. So this is x1,
+78:33 
+
+78:33 x2, x3. This is subsequence 1,
+78:36 
+
+78:36 subsequence 2, subsequence 3 of my input
+78:39 
+
+78:39 x which is you know concatenation of
+78:41 
+
+78:41 these three, right? Uh we say we split
+78:44 
+
+78:44 the model vertically, right? We say that
+78:49 
+
+78:49 x1 will be processed from on one GPU, x2
+78:54 
+
+78:54 will be processed on another GPU, x3
+78:56 
+
+78:56 will be processed on the third GPU. But
+78:58 
+
+78:58 now you know uh
+79:02 
+
+79:02 both the GPUs here are doing the same
+79:05 
+
+79:05 computation same MLP right same
+79:07 
+
+79:07 computation on different inputs in some
+79:10 
+
+79:10 sense right
+79:12 
+
+79:12 does that make sense right now but the
+79:14 
+
+79:14 issue here is that self attention needs
+79:17 
+
+79:17 to communicate X1 has to attend on X2
+79:20 
+
+79:20 and X3 as well right and to address that
+79:23 
+
+79:23 we studied ring attention which was
+79:26 
+
+79:26 similar to the block attention that we
+79:28 
+
+79:28 looked today at today as well, right?
+79:30 
+
+79:30 So, uh to handle uh the attention which
+79:34 
+
+79:34 is split on multiple GPUs, we look at
+79:36 
+
+79:36 ring attention and then but uh here we
+79:41 
+
+79:41 observed that the communication overhead
+79:44 
+
+79:44 beyond a node was prohibitive that you
+79:47 
+
+79:47 know on one node we have eight GPUs.
+79:48 
+
+79:48 communication is very fast there between
+79:50 
+
+79:50 those eight GPUs. But you know in in
+79:52 
+
+79:52 tensor parallelism same input is being
+79:55 
+
+79:55 computed at different on in different
+79:58 
+
+79:58 GPUs. We have to combine the results
+80:01 
+
+80:01 before passing it to the next layer.
+80:03 
+
+80:03 Right? So there's a lot of communication
+80:04 
+
+80:04 overhead. We cannot uh split beyond a
+80:07 
+
+80:07 node. So what should we do for that? We
+80:09 
+
+80:09 looked at pipeline parallelism where we
+80:13 
+
+80:13 you know uh
+80:16 
+
+80:16 where we
+80:18 
+
+80:18 create a
+80:20 
+
+80:20 pipeline of the model essentially right
+80:22 
+
+80:22 we have first few layers on one GPU
+80:26 
+
+80:26 all the activations for those layers lie
+80:28 
+
+80:28 on that GPU you know let's say layer 1
+80:30 
+
+80:30 to layer 4 the activations from the
+80:32 
+
+80:32 layer four are passed on the second GPU
+80:34 
+
+80:34 but there we saw that because of the
+80:36 
+
+80:36 pipeline there's a lot of wastage GPU
+80:39 
+
+80:39 are sitting idle and then we looked at
+80:40 
+
+80:40 various scheduling techniques right and
+80:43 
+
+80:43 and allocation. How do we how should we
+80:45 
+
+80:45 allocate the layers with GPU and how
+80:47 
+
+80:47 should we schedule looked at one forward
+80:49 
+
+80:49 one backward for example right and then
+80:51 
+
+80:51 we also looked at uh in the end uh where
+80:55 
+
+80:55 you know we said that we will have first
+80:58 
+
+80:58 few layers on GPU one and then again the
+81:01 
+
+81:01 last few layers on GPU GPU 1 right the
+81:04 
+
+81:04 whole idea is we want to quickly do my
+81:06 
+
+81:06 work and give the output to the other
+81:08 
+
+81:08 because the other is waiting for me
+81:10 
+
+81:10 right so instead of having layer 1 to
+81:12 
+
+81:12 layer four on one GPU I have one to
+81:14 
+
+81:14 layer two on one and then uh 1 2 3 4 5 6
+81:19 
+
+81:19 7 8 9 10 on the 9 10 again on the GPU
+81:22 
+
+81:22 one. Right? So this is uh with this we
+81:25 
+
+81:25 concluded the parallelism strategies.
+81:28 
+
+81:28 Okay. Again uh some homework for you
+81:31 
+
+81:31 guys. Now you know with all the
+81:33 
+
+81:33 background that we have covered in these
+81:35 
+
+81:35 six lectures you should be able to
+81:36 
+
+81:36 understand all of these papers because
+81:39 
+
+81:39 you know mostly these mixture of expert
+81:41 
+
+81:41 models are are big models and to train
+81:43 
+
+81:43 them you need uh you know multiGPU
+81:45 
+
+81:45 training and parallelism we have already
+81:47 
+
+81:47 covered that so you should be able to
+81:48 
+
+81:48 understand all these three papers right
+81:51 
+
+81:51 yeah so that's all
+81:54 
+
+81:54 good thank Two.

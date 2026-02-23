@@ -1,0 +1,3757 @@
+00:00 Hi everyone,
+00:02 
+
+00:02 welcome to this course
+00:05 
+
+00:05 uh the last lecture on um of this course
+00:09 
+
+00:09 and the lecture is on interpretability
+00:11 
+
+00:11 right which is one of the hot areas
+00:13 
+
+00:13 these days and uh given that the size of
+00:16 
+
+00:16 the models we really do not know how
+00:18 
+
+00:18 this model works right so last two three
+00:21 
+
+00:21 years there have been a lot of
+00:22 
+
+00:22 developments uh in understanding
+00:25 
+
+00:25 different working principles of LMS so
+00:28 
+
+00:28 one lecture is not up to explain uh all
+00:32 
+
+00:32 types of research in interpretability
+00:34 
+
+00:34 and explanability in LMS. So what I'll
+00:37 
+
+00:37 do I'll give you a very uh brief
+00:40 
+
+00:40 overview of what is happening and uh I
+00:43 
+
+00:43 also suggest you to look at my last
+00:46 
+
+00:46 year's course on um on on intro to LLM.
+00:50 
+
+00:50 Uh in that uh lecture we in that course
+00:53 
+
+00:53 we gave a lecture on u on on model
+00:56 
+
+00:56 editing which is related to
+00:58 
+
+00:58 interpretability. Right. uh methods like
+01:00 
+
+01:00 grace roam right look at that lecture
+01:04 
+
+01:04 and you'll get more ideas about uh
+01:06 
+
+01:06 interpretability editing and stuff like
+01:08 
+
+01:08 that but here I'll try to give you a
+01:10 
+
+01:10 very very uh you know high level
+01:12 
+
+01:12 overview of all the almost all the major
+01:16 
+
+01:16 uh ways to interpret models
+01:20 
+
+01:20 but before that uh today's breaking news
+01:22 
+
+01:22 is as follows uh coen 3VL uh has been
+01:26 
+
+01:26 released
+01:28 
+
+01:28 Uh this is this comes with both instruct
+01:31 
+
+01:31 and thinking versions right the instruct
+01:34 
+
+01:34 version um matches or even exceeds
+01:37 
+
+01:37 Gemini 2.5 Pro in major tasks right and
+01:42 
+
+01:42 u and you see this leaderboard right as
+01:45 
+
+01:45 usual
+01:46 
+
+01:46 this bits different models with
+01:48 
+
+01:48 different performance and so on so this
+01:51 
+
+01:51 was released on September 23rd you look
+01:54 
+
+01:54 at the blog to get more ideas about this
+01:58 
+
+01:58 okay So
+02:01 
+
+02:01 uh you know what is the objective uh of
+02:04 
+
+02:04 model interpretability?
+02:06 
+
+02:06 So I'm pretty sure I don't need to
+02:08 
+
+02:08 motivate why this is important given
+02:10 
+
+02:10 that all the models that that are uh
+02:13 
+
+02:13 that are being released these days um
+02:16 
+
+02:16 most of the models not all the models
+02:18 
+
+02:18 are blackbox right specifically models
+02:21 
+
+02:21 released by open AI Google right claude
+02:25 
+
+02:25 uh these models are all closed source
+02:28 
+
+02:28 models so
+02:31 
+
+02:31 um so it's very important to understand
+02:34 
+
+02:34 what these models do and uh why these
+02:37 
+
+02:37 models perform certain task and why uh
+02:40 
+
+02:40 these models don't perform certain task
+02:42 
+
+02:42 right so both understanding of u uh
+02:47 
+
+02:47 which type of knowledge the model
+02:49 
+
+02:49 understands which types of knowledge the
+02:51 
+
+02:51 model model doesn't understand both
+02:53 
+
+02:53 these things are important
+02:56 
+
+02:56 and of course the u the other aspects
+02:59 
+
+02:59 are uh the other aspects of this
+03:01 
+
+03:01 interpretability research are as follows
+03:04 
+
+03:04 if you understand how these models work
+03:08 
+
+03:08 then you can also think of making this
+03:10 
+
+03:10 these models safe right you understand
+03:14 
+
+03:14 let's say you know what kind of
+03:16 
+
+03:16 deceptions these models uh are prone to
+03:19 
+
+03:19 what kind of uh hallucinations the model
+03:22 
+
+03:22 can generate right misuse of models and
+03:24 
+
+03:24 so on and then you basically try to
+03:26 
+
+03:26 tight tighten this models by you know
+03:29 
+
+03:29 putting more and more whatever uh layers
+03:31 
+
+03:31 components modules and so on
+03:34 
+
+03:34 accountability
+03:35 
+
+03:35 Now uh as an LLM researcher, it is very
+03:38 
+
+03:38 important uh uh to be accountable for
+03:42 
+
+03:42 something that you design that you that
+03:44 
+
+03:44 you hand over to your customer, right?
+03:46 
+
+03:46 For example, you design a model, you
+03:48 
+
+03:48 give it to a bank or a hospital, but you
+03:50 
+
+03:50 do not know how your model works, right?
+03:52 
+
+03:52 So you are not accountable. So if you
+03:54 
+
+03:54 are not accountable, you should not do
+03:55 
+
+03:55 this kind of research, right? So
+03:57 
+
+03:57 understanding why a model made certain
+03:60 
+
+03:60 certain decision or certain harmful
+04:04 
+
+04:04 uh prediction or why the model has bias
+04:07 
+
+04:07 and so on.
+04:09 
+
+04:09 uh this should be
+04:11 
+
+04:11 this should be explained right
+04:14 
+
+04:14 then debugging and model edit uh editing
+04:17 
+
+04:17 as I mentioned right uh if you know how
+04:20 
+
+04:20 this model works right then you can
+04:22 
+
+04:22 actually think of edit this model modify
+04:24 
+
+04:24 this model this is again a very
+04:26 
+
+04:26 fascinating area where
+04:29 
+
+04:29 uh there are studies which show that if
+04:31 
+
+04:31 you know certain components of your uh
+04:34 
+
+04:34 model certain neurons of your models are
+04:36 
+
+04:36 responsible for producing bias you can
+04:39 
+
+04:39 actually steer those neurons, right?
+04:41 
+
+04:41 Steering means you can reduce the
+04:43 
+
+04:43 activation of those neurons, right?
+04:46 
+
+04:46 Let's say if you know that certain
+04:47 
+
+04:47 neurons are um are responsible for uh
+04:51 
+
+04:51 for performing um you know superior or
+04:54 
+
+04:54 let's say uh making a superior
+04:56 
+
+04:56 prediction what you can do you can steer
+04:59 
+
+04:59 those neurons uh with high activation so
+05:02 
+
+05:02 that those neurons would lead to better
+05:05 
+
+05:05 performance. So model editing in general
+05:08 
+
+05:08 is a very interesting idea. U and I
+05:11 
+
+05:11 always say that if u this this becomes
+05:15 
+
+05:15 successful in terms of like all sorts of
+05:18 
+
+05:18 uh you know corner co if all sorts of
+05:20 
+
+05:20 corner cases can be address adjusted and
+05:23 
+
+05:23 and addressed. So then you can also
+05:27 
+
+05:27 think think of an alternative learning
+05:29 
+
+05:29 paradigm right you do not need gradient
+05:31 
+
+05:31 descent at all right you can just think
+05:33 
+
+05:33 of editing your uh model parameters and
+05:36 
+
+05:36 you in inject or include new new
+05:39 
+
+05:39 knowledges right to the model but
+05:42 
+
+05:42 unfortunately given the current um you
+05:46 
+
+05:46 know research u it needs a lot of lot of
+05:50 
+
+05:50 exploration right so but again this is a
+05:53 
+
+05:53 very fascinating area in ALM
+05:57 
+
+05:57 Scientific curiosity of course I mean as
+05:58 
+
+05:58 a scientist we always want to understand
+06:02 
+
+06:02 you know why certain things happen right
+06:04 
+
+06:04 let's say the gravitation so if you see
+06:07 
+
+06:07 you know an apple is falling from a tree
+06:09 
+
+06:09 right you always try to understand uh
+06:12 
+
+06:12 you know what is the law or rule or
+06:14 
+
+06:14 regulation behind uh such such motion
+06:17 
+
+06:17 right and of course from a regulatory
+06:20 
+
+06:20 and uh governance perspective right
+06:23 
+
+06:23 let's say if you look at the uh United
+06:26 
+
+06:26 uh European Union's AI act and also uh
+06:30 
+
+06:30 other acts in different countries they
+06:32 
+
+06:32 strictly say that your model should be
+06:34 
+
+06:34 interpretable your model should be
+06:36 
+
+06:36 auditable right otherwise you you may
+06:39 
+
+06:39 not be allowed to uh to deploy these
+06:41 
+
+06:41 kind of models
+06:43 
+
+06:43 and u related terms u transparency is as
+06:47 
+
+06:47 I said uh if you if your model is
+06:49 
+
+06:49 transparent then you you basically can
+06:51 
+
+06:51 also um understand different uh
+06:54 
+
+06:54 components and uh you know you can
+06:56 
+
+06:56 replace those components explanability.
+06:60 
+
+06:60 So you know there's a certain difference
+07:02 
+
+07:02 between interpretability and
+07:03 
+
+07:03 explanability. Interpretability means
+07:07 
+
+07:07 you try to understand how your model's
+07:12 
+
+07:12 internal components work. Right?
+07:15 
+
+07:15 Explanability means you try to explain a
+07:18 
+
+07:18 model's output.
+07:20 
+
+07:20 Right? Let's say a model produces a
+07:22 
+
+07:22 negative sentiment uh of a of a review,
+07:25 
+
+07:25 right? And you ask the model why the
+07:26 
+
+07:26 model predicted negative sentiment and
+07:28 
+
+07:28 then the model explains that you know
+07:30 
+
+07:30 these were the these are the tokens
+07:32 
+
+07:32 which are present in the input and these
+07:34 
+
+07:34 tokens are mostly negative sentiment uh
+07:37 
+
+07:37 you know this tokens be negative
+07:38 
+
+07:38 sentiments and so on. Therefore, so
+07:41 
+
+07:41 explanability is more related to the
+07:43 
+
+07:43 outcome. Interpretability is more
+07:45 
+
+07:45 related to the internal working of the
+07:48 
+
+07:48 model. Right? Sometimes people use these
+07:51 
+
+07:51 two terms interchangeably but there are
+07:53 
+
+07:53 you know certain differences causality.
+07:58 
+
+07:58 So if you know that one component or one
+08:00 
+
+08:00 neuron is responsible I'll tell you what
+08:03 
+
+08:03 neuron is right. I mean this is not a
+08:06 
+
+08:06 typical neural network. It's a deep
+08:08 
+
+08:08 model. Right? So there is uh the concept
+08:10 
+
+08:10 of neuron is also very vague but I'll
+08:12 
+
+08:12 tell you what neuron is. So um so if you
+08:17 
+
+08:17 know that certain set of neurons are
+08:19 
+
+08:19 responsible for certain output then you
+08:21 
+
+08:21 can also think of a causal mapping
+08:23 
+
+08:23 between a neuron and the task right
+08:25 
+
+08:25 [snorts]
+08:26 
+
+08:26 and then a conceptual interpretability
+08:29 
+
+08:29 mapping internal features to human
+08:30 
+
+08:30 concepts I talk about all these things
+08:32 
+
+08:32 uh in different parts of the lecture and
+08:35 
+
+08:35 the major challenge in large language
+08:37 
+
+08:37 model interpretability is that as
+08:39 
+
+08:39 opposed to let's say a tiny model or a
+08:42 
+
+08:42 shallow model like let's say a two layer
+08:44 
+
+08:44 three layer perceptron two layer three
+08:45 
+
+08:45 layer CNN right the problem here is that
+08:48 
+
+08:48 so many parameters are there and u but
+08:52 
+
+08:52 interestingly even the number of
+08:54 
+
+08:54 parameters are so large right for us
+08:56 
+
+08:56 this is too much right but if you look
+08:58 
+
+08:58 at the concepts which are present in our
+09:00 
+
+09:00 in our world the concept the term
+09:03 
+
+09:03 concept is also very vague right so if
+09:05 
+
+09:05 you think of the the concept or the
+09:07 
+
+09:07 feature
+09:09 
+
+09:09 or the amount of features that are
+09:11 
+
+09:11 present in the world right to explain in
+09:13 
+
+09:13 certain objects, right? So the amount of
+09:16 
+
+09:16 features are much much much higher than
+09:18 
+
+09:18 the number of neurons present in a
+09:20 
+
+09:20 neural network in a in LM which
+09:22 
+
+09:22 basically indicates that there is no I
+09:26 
+
+09:26 mean if you look at uh uh you know a
+09:30 
+
+09:30 simple principle right principle for
+09:32 
+
+09:32 example uh from uh theory of automation
+09:35 
+
+09:35 right so you can say that there is no
+09:37 
+
+09:37 single neuron right which is which
+09:39 
+
+09:39 represent a concept right because there
+09:42 
+
+09:42 are too many concepts and there are too
+09:44 
+
+09:44 little neurons neurons, right? Two less
+09:46 
+
+09:46 neurons. What does it mean? It means
+09:47 
+
+09:47 that a single neuron is responsible for
+09:49 
+
+09:49 multiple concepts,
+09:51 
+
+09:51 right? And and this idea is called
+09:54 
+
+09:54 superposition, right? We'll talk about
+09:56 
+
+09:56 this. And these kind of neurons which
+09:59 
+
+09:59 represent multiple features are called
+10:02 
+
+10:02 polymantic neurons.
+10:05 
+
+10:05 Okay? So there are two types of neurons
+10:07 
+
+10:07 which are out there. One is called
+10:08 
+
+10:08 monossemantic neurons or is called
+10:10 
+
+10:10 polymantic neurons. Monossemantic
+10:12 
+
+10:12 neurons are those which represent a
+10:14 
+
+10:14 single concept and polymantic neurons
+10:17 
+
+10:17 are those which represent multiple
+10:18 
+
+10:18 concepts. [snorts]
+10:20 
+
+10:20 The other problem is that as you move
+10:22 
+
+10:22 from one layer to another layer you see
+10:25 
+
+10:25 that the representation also changes.
+10:28 
+
+10:28 Right? So let's say in layer 1 uh second
+10:32 
+
+10:32 neuron is is get uh the uh second neuron
+10:36 
+
+10:36 has got triggered
+10:38 
+
+10:38 for certain feature in layer two second
+10:42 
+
+10:42 neuron will be triggered for another
+10:44 
+
+10:44 feature
+10:46 
+
+10:46 right and as you increase the depth of
+10:49 
+
+10:49 the
+10:51 
+
+10:51 of the model right you see even
+10:53 
+
+10:53 complicated patterns
+10:56 
+
+10:56 and the other problem is And you know
+10:59 
+
+10:59 this has even become more complicated
+11:01 
+
+11:01 because in the in context learning setup
+11:04 
+
+11:04 right when you give examples and you ask
+11:06 
+
+11:06 the model to perform certain task let's
+11:08 
+
+11:08 say the model doesn't know anything
+11:10 
+
+11:10 about the task but in the in context you
+11:13 
+
+11:13 give evidences and you ask the model to
+11:15 
+
+11:15 perform certain task in context learning
+11:17 
+
+11:17 there is no gradient descent
+11:20 
+
+11:20 right but still the model is able to
+11:23 
+
+11:23 produce the output. So it is not about
+11:26 
+
+11:26 the the the the the parameter values. If
+11:30 
+
+11:30 it is only about the parameter values
+11:32 
+
+11:32 then the model should not be able to uh
+11:34 
+
+11:34 respond to an unknown task.
+11:37 
+
+11:37 So there is something else which also
+11:40 
+
+11:40 triggers the model to perform to perform
+11:42 
+
+11:42 an unknown task. So very interesting
+11:44 
+
+11:44 right?
+11:46 
+
+11:46 If you look at the timeline of
+11:47 
+
+11:47 interpretability right back in 2013 2014
+11:51 
+
+11:51 when uh you know uh AlexNet and other uh
+11:56 
+
+11:56 CNN models were introduced people
+11:58 
+
+11:58 started looking at uh uh visualizing the
+12:01 
+
+12:01 kernel right and understanding which
+12:04 
+
+12:04 components of the kernels are getting
+12:06 
+
+12:06 triggered when you give certain feature
+12:08 
+
+12:08 and so on. So this is basically about so
+12:11 
+
+12:11 those research were mostly about seeing
+12:13 
+
+12:13 what neurons see
+12:15 
+
+12:15 right now after that uh uh transformer
+12:18 
+
+12:18 and bot models people started looking at
+12:21 
+
+12:21 uh linear probing. So they started probe
+12:24 
+
+12:24 the they started probing the model by by
+12:28 
+
+12:28 adversarial prompts right by um by
+12:31 
+
+12:31 different types of prompts which may
+12:33 
+
+12:33 lead to different outputs and and then
+12:36 
+
+12:36 people also started looking at attention
+12:38 
+
+12:38 vectors right attention metrics and
+12:40 
+
+12:40 there are papers which showed that
+12:44 
+
+12:44 attention um vectors are
+12:48 
+
+12:48 interpretability right and then 20 uh
+12:52 
+
+12:52 2020 to 2022
+12:55 
+
+12:55 um anthropic started looking at
+12:57 
+
+12:57 mechanistic interpretability and um
+13:01 
+
+13:01 concept of induction head right um and
+13:04 
+
+13:04 and so on and so forth were were
+13:06 
+
+13:06 proposed and then 23 24
+13:10 
+
+13:10 anthropic again remember anthropic is a
+13:12 
+
+13:12 is a company which is which is known for
+13:16 
+
+13:16 their research on uh interpretability
+13:19 
+
+13:19 right a person called nil landa some of
+13:21 
+
+13:21 you though uh he's very famous um um and
+13:25 
+
+13:25 one of the proponents of mechanistic
+13:26 
+
+13:26 interpretability
+13:28 
+
+13:28 uh he left anthropic though recently but
+13:31 
+
+13:31 um if if you if you look at you know
+13:34 
+
+13:34 their papers uh those papers are really
+13:36 
+
+13:36 interesting
+13:38 
+
+13:38 so now they they looked at it from a
+13:42 
+
+13:42 different perspective interpretability
+13:44 
+
+13:44 then uh there is something called sparse
+13:46 
+
+13:46 autoenccoder based understanding I'll
+13:48 
+
+13:48 talk about all these things and then In
+13:51 
+
+13:51 2023 2024 methods like Rome grace all
+13:55 
+
+13:55 these methods uh were proposed for model
+13:57 
+
+13:57 editing and now we are using AI to
+14:02 
+
+14:02 interpret AI.
+14:04 
+
+14:04 Okay.
+14:07 
+
+14:07 Okay. So broadly if you look at the
+14:08 
+
+14:08 taxonomy of interpretability research
+14:11 
+
+14:11 one is kind of local explanation local
+14:14 
+
+14:14 interpretability other is global
+14:16 
+
+14:16 interpretability. In local
+14:18 
+
+14:18 interpretability you try to uh interpret
+14:20 
+
+14:20 a a specific inputs or or a specific
+14:24 
+
+14:24 output right it's mostly input output
+14:26 
+
+14:26 driven so feed an input get an output
+14:28 
+
+14:28 and try to understand why the model
+14:30 
+
+14:30 produces output right very local whereas
+14:34 
+
+14:34 global explanability is more about why
+14:36 
+
+14:36 the model behaves in this way right
+14:39 
+
+14:39 irrespective of certain task or maybe
+14:43 
+
+14:43 across different across different data
+14:46 
+
+14:46 sets of similar task,
+14:49 
+
+14:49 right? So, trying to come up with a
+14:51 
+
+14:51 generic behavior understanding of a
+14:53 
+
+14:53 model as opposed to a local
+14:55 
+
+14:55 understanding of a model. [snorts] So,
+14:58 
+
+14:58 the local explanation uh was mostly the
+15:01 
+
+15:01 um the the the um the old school methods
+15:04 
+
+15:04 which were there in 20 2120
+15:10 
+
+15:10 during that time. But all addition
+15:12 
+
+15:12 methods are global explanation methods.
+15:15 
+
+15:15 So let's talk about local explanation
+15:18 
+
+15:18 very briefly. These are not that useful
+15:20 
+
+15:20 method these days.
+15:22 
+
+15:22 So one is feature attribution.
+15:25 
+
+15:25 A simple idea in feature attribution we
+15:27 
+
+15:27 all know in a traditional machine
+15:28 
+
+15:28 learning setup
+15:30 
+
+15:30 you drop one feature right in isolation
+15:33 
+
+15:33 and you see how how much is the impact
+15:36 
+
+15:36 of that feature right? Also [snorts] you
+15:38 
+
+15:38 can part up a feature by adding noise to
+15:40 
+
+15:40 a feature and then you see um how this
+15:44 
+
+15:44 model perform right. You can also look
+15:46 
+
+15:46 at gradient descent and the uh the the
+15:49 
+
+15:49 gradient value of every parameter
+15:52 
+
+15:52 right you backtrack look at gradient
+15:54 
+
+15:54 value of every parameter and then you
+15:56 
+
+15:56 see for which feature uh the gradient
+15:59 
+
+15:59 value updation uh is maximum right and
+16:02 
+
+16:02 you can say that that feature is useful
+16:04 
+
+16:04 [snorts]
+16:05 
+
+16:05 again two pioneering work lime and shap
+16:08 
+
+16:08 some of you know these two methods are
+16:10 
+
+16:10 uh very very prominent methods proposed
+16:13 
+
+16:13 uh uh prelim error, right? Uh in case of
+16:18 
+
+16:18 line, very simple idea. So
+16:22 
+
+16:22 you feed an input, get an output, right?
+16:25 
+
+16:25 And then you put up your input, you get
+16:27 
+
+16:27 an output, right? So you have you have
+16:31 
+
+16:31 true labels, input, output and false. So
+16:35 
+
+16:35 sorry, true data, input, output and
+16:37 
+
+16:37 false data, uh product input and output,
+16:40 
+
+16:40 right? So you collect such pairs,
+16:42 
+
+16:42 positive samples, negative samples.
+16:44 
+
+16:44 Okay. And then what you do, you train a
+16:47 
+
+16:47 logistic regression or a decision tree,
+16:50 
+
+16:50 a simple decision tree. You have the
+16:52 
+
+16:52 sample examples and you train a decision
+16:54 
+
+16:54 tree, right? And from the decision tree,
+16:56 
+
+16:56 you try to identify. Remember here
+16:58 
+
+16:58 features are uh labeled features. Sorry,
+17:01 
+
+17:01 uh human defined features not like a
+17:03 
+
+17:03 deep deep feature, right? And then you
+17:06 
+
+17:06 try to understand you know for which
+17:09 
+
+17:09 feature uh the decent tree is giving
+17:11 
+
+17:11 more weight and so on and so forth,
+17:13 
+
+17:13 right? So you you use a surrogate model
+17:15 
+
+17:15 which is a decent tree for you or a
+17:18 
+
+17:18 regression for you right and from there
+17:21 
+
+17:21 you try to understand which feature in
+17:23 
+
+17:23 the input to the deep model was
+17:25 
+
+17:25 responsible for this
+17:28 
+
+17:28 right shape is a game theoretic approach
+17:31 
+
+17:31 where uh every neuron every feature uh
+17:35 
+
+17:35 acts as a player right
+17:38 
+
+17:38 and uh so every feature acts as a player
+17:40 
+
+17:40 and every feature has a saply value
+17:42 
+
+17:42 right and u uh the overall sapply value
+17:45 
+
+17:45 uh of all the features basically um uh
+17:50 
+
+17:50 indicate the overall prediction of a
+17:51 
+
+17:51 model and then you do some game
+17:53 
+
+17:53 theoretic approach to understand
+17:54 
+
+17:54 importance.
+17:56 
+
+17:56 So these are some of the so lime and
+17:58 
+
+17:58 shap had been two major research uh
+18:03 
+
+18:03 major interpretability uh approaches
+18:05 
+
+18:05 that people used to use um to understand
+18:08 
+
+18:08 a deep neural network right again before
+18:10 
+
+18:10 LLM before 2020
+18:13 
+
+18:13 these days also people use this mostly
+18:15 
+
+18:15 to explain uh CNN RNN kind of models
+18:18 
+
+18:18 [snorts]
+18:19 
+
+18:19 and then attention method right
+18:21 
+
+18:21 attention uh vector you look at the
+18:23 
+
+18:23 attention metrics right and try to
+18:25 
+
+18:25 visualize is um which uh component of
+18:28 
+
+18:28 your attention matrix is responsible and
+18:31 
+
+18:31 attention will give you
+18:32 
+
+18:32 interpretability. But then uh three
+18:35 
+
+18:35 papers came back to back in 2019.
+18:38 
+
+18:38 This is the first paper which argues
+18:41 
+
+18:41 that attention may not be considered as
+18:43 
+
+18:43 interpretability and then uh this paper
+18:46 
+
+18:46 again strengthen the claim that
+18:48 
+
+18:48 attention is not explanability and then
+18:51 
+
+18:51 other paper uh claim that attention is
+18:53 
+
+18:53 actually explainability.
+18:55 
+
+18:55 Okay. So all these three papers came in
+18:57 
+
+18:57 2019. Okay. Very interesting paper. Go
+18:60 
+
+19:00 through these papers. Right. But uh I
+19:03 
+
+19:03 mean we still believe that attention
+19:06 
+
+19:06 will give you enough ideas about the
+19:08 
+
+19:08 interpretability. So you cannot just
+19:10 
+
+19:10 throw the attention vectors attention uh
+19:13 
+
+19:13 matrix matrices right you can use
+19:16 
+
+19:16 attention matrices along with your other
+19:18 
+
+19:18 techniques to understand the model.
+19:22 
+
+19:22 The third approach is more of an example
+19:24 
+
+19:24 based approach where
+19:27 
+
+19:27 uh in the in context setup okay you're
+19:29 
+
+19:29 not doing any learning in the in context
+19:31 
+
+19:31 setup setup you
+19:34 
+
+19:34 try to come up with some examples right
+19:36 
+
+19:36 that would that would basically break
+19:39 
+
+19:39 the model for example if you and in this
+19:42 
+
+19:42 paper
+19:44 
+
+19:44 and this is more from an adversarial
+19:47 
+
+19:47 point of view adversarial attack point
+19:48 
+
+19:48 of view right let's say if if so in this
+19:51 
+
+19:51 paper the author showed that if you
+19:54 
+
+19:54 write uh this uh as a as a prefix of
+19:58 
+
+19:58 your prompt absolutely here is
+20:02 
+
+20:02 right you see the model starts producing
+20:04 
+
+20:04 harmful response right and there is no
+20:07 
+
+20:07 logic behind this but the the idea is
+20:09 
+
+20:09 that you you you you keep on probing the
+20:11 
+
+20:11 model by by sending
+20:14 
+
+20:14 uh prompts to break the model right and
+20:17 
+
+20:17 in certain cases the model will break
+20:20 
+
+20:20 and there many such cases,
+20:22 
+
+20:22 counterfactual explanation, data
+20:24 
+
+20:24 influence and so on and so forth. These
+20:25 
+
+20:25 are all of the these are all about in
+20:27 
+
+20:27 context examples right influential
+20:30 
+
+20:30 training examples in context examples
+20:32 
+
+20:32 which lead to these kind of attacks.
+20:37 
+
+20:37 The fourth one is as I mentioned
+20:39 
+
+20:39 explanability right this is not
+20:42 
+
+20:42 interpretability explanability. So model
+20:44 
+
+20:44 produces something and then you ask the
+20:47 
+
+20:47 model not just by writing a prompt but
+20:51 
+
+20:51 maybe in some other ways that why the
+20:53 
+
+20:53 model produce this output right uh so
+20:57 
+
+20:57 model will explain in some ways in
+21:00 
+
+21:00 natural language and you can you can say
+21:04 
+
+21:04 that or you can consider that as a
+21:06 
+
+21:06 reasonable reason behind the model uh
+21:09 
+
+21:09 behind the output of the model.
+21:12 
+
+21:12 Okay. Now this explanation is generated
+21:14 
+
+21:14 by the model. Remember this.
+21:17 
+
+21:17 So
+21:20 
+
+21:20 um
+21:22 
+
+21:22 in some papers people also reported
+21:26 
+
+21:26 that um uh that there is no guarantee
+21:30 
+
+21:30 that the explanation that the model is
+21:32 
+
+21:32 producing is the actual explanation
+21:34 
+
+21:34 behind producing the output.
+21:37 
+
+21:37 Okay. So the the model is not a human
+21:39 
+
+21:39 being right that if you ask the human
+21:41 
+
+21:41 being tell me why you think this is
+21:43 
+
+21:43 correct the human being says that the
+21:45 
+
+21:45 these are the reasons right but model
+21:47 
+
+21:47 again this models are all autogressive
+21:49 
+
+21:49 models only next prediction so there is
+21:52 
+
+21:52 no reason uh to believe that the
+21:55 
+
+21:55 explanation that the model produces is
+21:57 
+
+21:57 the right reason uh for the model to
+21:60 
+
+21:60 produce that output.
+22:02 
+
+22:02 Okay. [snorts]
+22:05 
+
+22:05 Now moving to the global explanation.
+22:08 
+
+22:08 These are more important. [snorts]
+22:10 
+
+22:10 We'll discuss three techniques. Linear
+22:12 
+
+22:12 probing,
+22:15 
+
+22:15 sparse autoenccoder
+22:17 
+
+22:17 and logit lens.
+22:21 
+
+22:21 What is linear probing? Please listen to
+22:23 
+
+22:23 me carefully. Very simple idea.
+22:26 
+
+22:26 So you have deep lms, right?
+22:30 
+
+22:30 Let's look at So let's look at one
+22:32 
+
+22:32 activation. What is activation by the
+22:34 
+
+22:34 way? So activation is uh attention. So
+22:38 
+
+22:38 multi so think of a layer multi
+22:40 
+
+22:40 attention feed forward network and
+22:42 
+
+22:42 output of the feed forward network is
+22:43 
+
+22:43 the activation the vector.
+22:46 
+
+22:46 So you you you first choose an
+22:48 
+
+22:48 activation okay any activation in any
+22:51 
+
+22:51 layer and you try to understand the
+22:54 
+
+22:54 contribution of this activation. What
+22:56 
+
+22:56 you do?
+22:58 
+
+22:58 So [clears throat] you feed an input X,
+23:01 
+
+23:01 the model will produce an output Y and
+23:04 
+
+23:04 the Y is the output of the model from
+23:05 
+
+23:05 the last layer. And let's say you are
+23:07 
+
+23:07 looking at activation the in the first
+23:09 
+
+23:09 layer.
+23:10 
+
+23:10 So your activation is let's say the
+23:12 
+
+23:12 activation vector is Z.
+23:15 
+
+23:15 So so let me write
+23:18 
+
+23:18 X I
+23:21 
+
+23:21 Yi. X I is the input to the model. Yi is
+23:25 
+
+23:25 the output from the model.
+23:27 
+
+23:27 And let's say
+23:30 
+
+23:30 let's say u let's say the input is uh
+23:38 
+
+23:38 the movie was horrible. This was the
+23:40 
+
+23:40 input. Okay.
+23:42 
+
+23:42 And you want you want the model to uh to
+23:46 
+
+23:46 basically generate next set of tokens.
+23:49 
+
+23:49 the model will generate um that um you
+23:53 
+
+23:53 know movie had a lot of uh you know
+23:57 
+
+23:57 lotable lot of horrible scenes right and
+23:59 
+
+23:59 so on and so forth right and that's your
+24:01 
+
+24:01 y
+24:03 
+
+24:03 is something which I will not consider
+24:05 
+
+24:05 anymore x is something I will consider
+24:08 
+
+24:08 [snorts]
+24:08 
+
+24:08 so along with x now remember x can also
+24:12 
+
+24:12 be used for sentiment analysis
+24:14 
+
+24:14 movie was horrible right so z so zi
+24:21 
+
+24:21 is the output is the sentiment label of
+24:24 
+
+24:24 that input, right? It's a meta data,
+24:27 
+
+24:27 right?
+24:29 
+
+24:29 So so [clears throat]
+24:32 
+
+24:32 what you do now you and and and what is
+24:36 
+
+24:36 f what is f lx? f lx is the l layer
+24:42 
+
+24:42 activation some activation at the l
+24:44 
+
+24:44 layer.
+24:46 
+
+24:46 Okay, given that the input is X X I. So,
+24:51 
+
+24:51 so what you do now you uh train a
+24:55 
+
+24:55 classifier. A classifier can be
+24:57 
+
+24:57 loggation.
+24:59 
+
+24:59 And what's the data set to train this
+25:01 
+
+25:01 model? The data set is uh your u your
+25:05 
+
+25:05 activation F and the corresponding label
+25:09 
+
+25:09 Z.
+25:11 
+
+25:11 Okay, you train the classifier. So now
+25:15 
+
+25:15 you take some held out data and you
+25:18 
+
+25:18 measure the performance of the
+25:19 
+
+25:19 classifier. Right? Now tell me if your
+25:22 
+
+25:22 classification is high, accuracy is very
+25:26 
+
+25:26 high, what does it mean?
+25:30 
+
+25:30 What does it mean?
+25:34 
+
+25:34 The setup is clear. What does it mean?
+25:37 
+
+25:37 So it means zed is not the hidden set.
+25:39 
+
+25:39 Zed is the level, the ground truth
+25:42 
+
+25:42 level. It means that the intermediate
+25:46 
+
+25:46 activation F is responsible for that
+25:50 
+
+25:50 prediction
+25:51 
+
+25:51 because in your classification your
+25:53 
+
+25:53 input is what f and z a pair there's no
+25:58 
+
+25:58 x there's no y is not needed at all
+26:04 
+
+26:04 right agree so that intermediate
+26:08 
+
+26:08 activation is responsible for this so
+26:10 
+
+26:10 this is called probing
+26:12 
+
+26:12 Right. And this conclusion can change if
+26:14 
+
+26:14 you move from one activation to another
+26:16 
+
+26:16 activation
+26:18 
+
+26:18 boot force approach. But yeah, now if I
+26:21 
+
+26:21 take the end of the processing, right,
+26:24 
+
+26:24 the one that is saying that may give you
+26:27 
+
+26:27 idea of why the model generated Y.
+26:32 
+
+26:32 But I'm not interested in Y at all.
+26:36 
+
+26:36 I am not interested in Y at all. I am
+26:38 
+
+26:38 just interested in X and Z.
+26:40 
+
+26:40 >> [snorts]
+26:41 
+
+26:41 >> So then I say that this activation is
+26:45 
+
+26:45 responsible for the feature called
+26:48 
+
+26:48 sentiment
+26:51 
+
+26:51 and language has multiple features
+26:53 
+
+26:53 sentiment poss tagging and so on and so
+26:55 
+
+26:55 forth right so I can only say that this
+26:58 
+
+26:58 activation is responsible for dealing
+27:01 
+
+27:01 with sentiment that's all remember this
+27:04 
+
+27:04 is more of a cause correlation not
+27:06 
+
+27:06 causation
+27:08 
+
+27:08 why not causation because I'm not asking
+27:10 
+
+27:10 the model why this uh output was
+27:13 
+
+27:13 predicted, why this output is not
+27:15 
+
+27:15 predicted. This is only about
+27:16 
+
+27:16 correlating the
+27:19 
+
+27:19 activation with the sentiment with Z.
+27:25 
+
+27:25 So now look, let's look at uh so the
+27:27 
+
+27:27 other aspects is more of a neuron and
+27:28 
+
+27:28 activation level explanation.
+27:31 
+
+27:31 What is neuron? Neuron is basically
+27:37 
+
+27:37 single entry of an activation.
+27:39 
+
+27:39 Activation is a vector. Every entry of
+27:42 
+
+27:42 the activation is a neuron. So neuron is
+27:47 
+
+27:47 a scalar value
+27:49 
+
+27:49 obtained from
+27:51 
+
+27:51 a combination of nonlinearity and
+27:53 
+
+27:53 linearity.
+27:55 
+
+27:55 Okay. So
+27:59 
+
+27:59 in mechanistic interpretability
+28:03 
+
+28:03 what we're trying to understand is how
+28:06 
+
+28:06 human interprets an algorithm right
+28:10 
+
+28:10 so for mechanistic interpretability
+28:12 
+
+28:12 every token is a vector in high
+28:15 
+
+28:15 dimensional space
+28:18 
+
+28:18 right every token is a vector in a space
+28:22 
+
+28:22 every feature
+28:25 
+
+28:25 is a subset of the vector.
+28:31 
+
+28:31 So vector is an input, right? In every
+28:34 
+
+28:34 input as a vector.
+28:37 
+
+28:37 A feature is a subset of that uh vector.
+28:41 
+
+28:41 But which subset you do not know.
+28:44 
+
+28:44 Con what are concepts? Concepts are like
+28:46 
+
+28:46 sentiment, politeness, gender,
+28:50 
+
+28:50 ethnicity, age, job. These are concepts.
+28:54 
+
+28:54 [snorts]
+28:56 
+
+28:56 And what is neuron? Neuron is a single
+28:58 
+
+28:58 scalar value that I mentioned in your
+29:00 
+
+29:00 activation vector. [snorts]
+29:02 
+
+29:02 So they came up with the idea called
+29:05 
+
+29:05 residual stream.
+29:07 
+
+29:07 What is residual stream? [snorts]
+29:09 
+
+29:09 So you can actually think of
+29:12 
+
+29:12 so what what we do we feed an input.
+29:17 
+
+29:17 The input goes through u
+29:23 
+
+29:23 multi attention then a feed forward
+29:26 
+
+29:26 operation and then it produces output
+29:28 
+
+29:28 and through residual connection we add
+29:31 
+
+29:31 that output to the input right now you
+29:34 
+
+29:34 can think of a stream
+29:37 
+
+29:37 right
+29:39 
+
+29:39 it starts with the input X
+29:42 
+
+29:42 and at every layer this
+29:46 
+
+29:46 attention
+29:47 
+
+29:47 and feed forward is happening every
+29:49 
+
+29:49 layer
+29:52 
+
+29:52 and the output of this residual stream
+29:54 
+
+29:54 the output of this operation attention
+29:57 
+
+29:57 and feed forward network is getting
+29:59 
+
+29:59 added to this residual stream. Right? So
+30:02 
+
+30:02 this is a new way of looking at uh now
+30:05 
+
+30:05 if you if you if you dig deeper into
+30:08 
+
+30:08 every neuron you you you take only one
+30:10 
+
+30:10 token for example forget about multiple
+30:11 
+
+30:11 tokens you take one token
+30:14 
+
+30:14 and you think of this token at XI and
+30:17 
+
+30:17 how this token token's representation
+30:19 
+
+30:19 changes over layers token moves through
+30:23 
+
+30:23 attention feed forward network right
+30:26 
+
+30:26 produces a new representation again
+30:27 
+
+30:27 attention feed forward network right so
+30:29 
+
+30:29 you can actually decouple all these
+30:31 
+
+30:31 tokens.
+30:34 
+
+30:34 Okay. So, it's a new way of
+30:36 
+
+30:36 understanding things. And what is
+30:37 
+
+30:37 circuit?
+30:39 
+
+30:39 Fancy term neuron circuit. Neural
+30:42 
+
+30:42 circuit. Right. What is circuit? Circuit
+30:44 
+
+30:44 is essentially a
+30:48 
+
+30:48 computational unit. Right? Now you you
+30:52 
+
+30:52 fed you feed an input you get an output
+30:56 
+
+30:56 and you check which
+30:59 
+
+30:59 attention head activation feed forward
+31:02 
+
+31:02 network triggered or got triggered when
+31:06 
+
+31:06 you feed this input
+31:09 
+
+31:09 and we call this as a circuit neuron uh
+31:12 
+
+31:12 neural circuit. Now in mechanistic
+31:15 
+
+31:15 interpretability
+31:17 
+
+31:17 what we assume that features are linear
+31:20 
+
+31:20 meaning you can add features right u
+31:23 
+
+31:23 let's say you remember this um example
+31:27 
+
+31:27 that we always used
+31:29 
+
+31:29 um uh king minus women plus right minus
+31:34 
+
+31:34 men plus women is queen and so on right
+31:37 
+
+31:37 in those examples we always assume that
+31:39 
+
+31:39 these are linear right therefore we do
+31:41 
+
+31:41 all these linear operations here also
+31:42 
+
+31:42 same [snorts] So we these are hypothesis
+31:46 
+
+31:46 by the way nobody knows whether models
+31:48 
+
+31:48 actually follow this linearity or not.
+31:50 
+
+31:50 [snorts] Uh
+31:53 
+
+31:53 so [clears throat and cough]
+31:54 
+
+31:54 so they say that network representations
+31:57 
+
+31:57 can be described in terms of
+31:59 
+
+31:59 independently understandable features
+32:02 
+
+32:02 right and these features can be added
+32:04 
+
+32:04 features can be deleted uh to obtain
+32:07 
+
+32:07 another set of features right
+32:12 
+
+32:12 the idea behind superposition
+32:14 
+
+32:14 superposition is a concept which
+32:16 
+
+32:16 basically says [snorts]
+32:19 
+
+32:19 that our neural network is uh
+32:25 
+
+32:25 is so small that u the the the linear
+32:30 
+
+32:30 representation methods
+32:33 
+
+32:33 uh would be very difficult uh to be used
+32:37 
+
+32:37 for explanation right and they said that
+32:39 
+
+32:39 there are multiple dimensions that a
+32:43 
+
+32:43 neural network captures and and such
+32:45 
+
+32:45 dimensions are very difficult to dis
+32:47 
+
+32:47 disentangle right And due to the
+32:50 
+
+32:50 superposition right now, let me give an
+32:53 
+
+32:53 example. So let's say you have one
+32:56 
+
+32:56 linguistic feature that the sentence is
+32:59 
+
+32:59 a question. Let's say there's a sentence
+33:01 
+
+33:01 and it's a question uh kind of question
+33:03 
+
+33:03 sentence, right? There's a question
+33:04 
+
+33:04 mark. So one feature is that the
+33:07 
+
+33:07 sentence is a question. And another
+33:09 
+
+33:09 feature is that the subject of the
+33:11 
+
+33:11 sentence is plural.
+33:13 
+
+33:13 Okay, these are concepts, right? And
+33:15 
+
+33:15 these concepts are so vague. Let's
+33:17 
+
+33:17 assume that there are two there are
+33:19 
+
+33:19 these two concepts. One concept
+33:21 
+
+33:21 indicates whether the the
+33:25 
+
+33:25 uh the question the sentence is a
+33:27 
+
+33:27 question or not. Other is whether the
+33:28 
+
+33:28 subject is a plural or not. Right? So
+33:31 
+
+33:31 every neuron
+33:33 
+
+33:33 can be thought of as a combination of
+33:35 
+
+33:35 these two features.
+33:38 
+
+33:38 So 0.7 into f_sub_1 plus 0.3 into
+33:41 
+
+33:41 f_sub_2.
+33:44 
+
+33:44 Right? because of superposition
+33:47 
+
+33:47 and because of this reason
+33:50 
+
+33:50 and remember these these features are
+33:51 
+
+33:51 linearly combined right so therefore as
+33:54 
+
+33:54 I mentioned the hypothesis is that
+33:55 
+
+33:55 everything is linear [snorts]
+33:58 
+
+33:58 because of that we call these neurons as
+34:00 
+
+34:00 polyymmetric neurons so superposition is
+34:03 
+
+34:03 the property of the network and
+34:05 
+
+34:05 polymanticity is a property of the
+34:07 
+
+34:07 neuron
+34:11 
+
+34:11 okay
+34:13 
+
+34:13 and It is not that all neurons are
+34:16 
+
+34:16 polymantic.
+34:18 
+
+34:18 There are neurons which are
+34:19 
+
+34:19 monosseymantic. And how do you know
+34:20 
+
+34:20 that? You let's say
+34:24 
+
+34:24 you send a series of similar prompts
+34:28 
+
+34:28 right questions and all plurals subjects
+34:31 
+
+34:31 are plurals and you see that there are
+34:34 
+
+34:34 certain features which never get
+34:36 
+
+34:36 triggered certain neurons but there are
+34:39 
+
+34:39 certain neurons which always get
+34:41 
+
+34:41 triggered. Right now what you do you
+34:43 
+
+34:43 change the prompt you send you start you
+34:46 
+
+34:46 start sending uh non question sentence
+34:49 
+
+34:49 and sing singular subject sentence and
+34:52 
+
+34:52 you see that
+34:54 
+
+34:54 those neurons which got triggered
+34:56 
+
+34:56 earlier are not getting triggered
+34:59 
+
+34:59 right but there are some neurons which
+35:02 
+
+35:02 will also be triggered now those got
+35:04 
+
+35:04 triggered earlier they'll be triggered
+35:06 
+
+35:06 now also and those are polymmetric
+35:09 
+
+35:09 neurons Right. [snorts]
+35:12 
+
+35:12 Now, how do you analyze these concepts?
+35:15 
+
+35:15 These concepts can be analyzed using
+35:17 
+
+35:17 something called sparse autoenccoder.
+35:18 
+
+35:18 Sparse autoenccoder is a very old
+35:20 
+
+35:20 concept in in uh autoenccoder setup
+35:23 
+
+35:23 [snorts]
+35:24 
+
+35:24 where
+35:26 
+
+35:26 your so this is sparse autoenccoder.
+35:28 
+
+35:28 This is normal autoenccoder. [snorts]
+35:31 
+
+35:31 Sparse autoenccoder uh in any
+35:33 
+
+35:33 autoenccoder setup your input and output
+35:35 
+
+35:35 the same. Right? But in sparse autoen
+35:37 
+
+35:37 your hidden representation
+35:40 
+
+35:40 is sparse dimension is high compared to
+35:43 
+
+35:43 input and you you enforce with the
+35:47 
+
+35:47 constraint that sum of these elements of
+35:50 
+
+35:50 this vector hidden state would be zero.
+35:54 
+
+35:54 Right? What is the reason behind this?
+35:56 
+
+35:56 The reason is that when you project a uh
+35:59 
+
+35:59 an input a small dimension to a high
+36:02 
+
+36:02 dimension right the idea is that the
+36:06 
+
+36:06 concepts which are entangled now can be
+36:08 
+
+36:08 dis entangled
+36:12 
+
+36:12 right so what you do is very interesting
+36:15 
+
+36:15 the idea is let's say again
+36:19 
+
+36:19 you target a specific activation
+36:23 
+
+36:23 specific activation right alth layer
+36:25 
+
+36:25 activation for example example
+36:26 
+
+36:26 [laughter]
+36:28 
+
+36:28 and then what you do
+36:31 
+
+36:31 let's say this is your LH layer
+36:32 
+
+36:32 activation
+36:35 
+
+36:35 okay now you add a sparse autoenccoder
+36:38 
+
+36:38 SAE
+36:40 
+
+36:40 what is the output of this SA the same
+36:42 
+
+36:42 activation right now what you what you
+36:46 
+
+36:46 are doing here is that as follows so you
+36:48 
+
+36:48 are multiplying this with the matrix W1
+36:53 
+
+36:53 and this is another matrix W2
+36:56 
+
+36:56 Right? [laughter] And then what you do,
+36:60 
+
+36:60 you feed this uh uh the output of this
+37:05 
+
+37:05 uh this one uh the sparse encoder which
+37:08 
+
+37:08 is same as the input, right? To the next
+37:11 
+
+37:11 layer,
+37:13 
+
+37:13 right? Clear. And
+37:21 
+
+37:21 right now look at this example here. So
+37:24 
+
+37:24 this is your input activation to the
+37:27 
+
+37:27 sparse order encoder. This is the
+37:29 
+
+37:29 encoder part for W1 W2. W1 is encoder.
+37:31 
+
+37:31 W2 is decoder of the sparse order
+37:34 
+
+37:34 encoder. Right? So W1 is encoder.
+37:37 
+
+37:37 You multiply this and then you uh you
+37:40 
+
+37:40 take some nonlinearity. Then you get a
+37:43 
+
+37:43 sparse represent. you get a sparse
+37:45 
+
+37:45 representation. This is the hidden state
+37:47 
+
+37:47 of SA, right? Then you multiply with the
+37:50 
+
+37:50 decoder matrix which is W2, right? And
+37:53 
+
+37:53 you reconstruct the activation
+37:56 
+
+37:56 and the sparse autoenccoder. This is the
+37:59 
+
+37:59 objective. Okay, so this is a
+38:00 
+
+38:00 reconstruction loss you want to minimize
+38:02 
+
+38:02 and this is the uh this is the L1 norm
+38:05 
+
+38:05 of your hidden state
+38:08 
+
+38:08 that you minimize. If you minimize L1
+38:10 
+
+38:10 norm, what does it mean? Some of the
+38:12 
+
+38:12 values will be zero.
+38:15 
+
+38:15 Right? [gasps]
+38:16 
+
+38:16 And then what you do
+38:19 
+
+38:19 you try to understand now here what is
+38:22 
+
+38:22 important this decoder matrix
+38:25 
+
+38:25 right now so this decoder matrix
+38:31 
+
+38:31 this is your let's say this is your
+38:33 
+
+38:33 decoder matrix okay
+38:36 
+
+38:36 and so every
+38:38 
+
+38:38 collection
+38:40 
+
+38:40 of the decoder matrix is a feature
+38:45 
+
+38:45 So the idea is that
+38:48 
+
+38:48 the decoder matrix
+38:50 
+
+38:50 since this is connected with the hidden
+38:53 
+
+38:53 state of SAE right if at all you are
+38:59 
+
+38:59 able to disentangle the features in a
+39:01 
+
+39:01 hidden state right the decoder matrix
+39:05 
+
+39:05 will also be uh able to capture those
+39:07 
+
+39:07 disentanglement
+39:10 
+
+39:10 okay now here as you
+39:13 
+
+39:13 So
+39:16 
+
+39:16 now what you do let's say you you
+39:19 
+
+39:19 understand that
+39:22 
+
+39:22 that this connection let's say this is
+39:25 
+
+39:25 this is let's say D let's say W whatever
+39:28 
+
+39:28 W21 one one connection right
+39:33 
+
+39:33 in SA by the way in SA these connections
+39:36 
+
+39:36 are called neurons not the activations
+39:40 
+
+39:40 okay but Remember these are connections
+39:43 
+
+39:43 of the ACE not the LLM. Okay. Now what
+39:48 
+
+39:48 you do is that let's say you know that
+39:50 
+
+39:50 this W21
+39:53 
+
+39:53 corresponds to the feature ing
+39:57 
+
+39:57 right with certain interpretability
+39:59 
+
+39:59 score confidence score right
+40:03 
+
+40:03 this so this is another uh uh W which
+40:07 
+
+40:07 corresponds to some chemistry terms.
+40:10 
+
+40:10 Okay. Now what you do if you know this
+40:13 
+
+40:13 what you do in the inference time
+40:16 
+
+40:16 in the inference time what you do
+40:19 
+
+40:19 you give some input right and you know
+40:22 
+
+40:22 that in this activation right uh I have
+40:26 
+
+40:26 in this activation I need to so remember
+40:29 
+
+40:29 in SE input and output are the same
+40:32 
+
+40:32 right in this activation
+40:35 
+
+40:35 for this activation and let's say that
+40:37 
+
+40:37 your input is corresponding to chemistry
+40:39 
+
+40:39 term
+40:40 
+
+40:40 Right? So you know that for this
+40:42 
+
+40:42 activation
+40:44 
+
+40:44 a subset of this vector corresponds to
+40:47 
+
+40:47 this chemistry term. Right? How do you
+40:49 
+
+40:49 know? Because from this matrix, right?
+40:52 
+
+40:52 And what you do? You increase the value.
+40:56 
+
+40:56 You increase the value of the
+40:57 
+
+40:57 corresponding activations.
+41:02 
+
+41:02 You can do that because this is vector.
+41:05 
+
+41:05 You can increase in such a way that you
+41:07 
+
+41:07 can also do normalization after that and
+41:09 
+
+41:09 so on and so forth. Right? If you do
+41:12 
+
+41:12 that then if the if your task is related
+41:16 
+
+41:16 to chemistry
+41:18 
+
+41:18 you see again
+41:23 
+
+41:23 is clear.
+41:25 
+
+41:25 So what you do here you add a SE module
+41:29 
+
+41:29 to an activation and you try to
+41:31 
+
+41:31 understand which dimension of the
+41:32 
+
+41:32 activation is responsible for which
+41:34 
+
+41:34 feature. [snorts]
+41:38 
+
+41:38 And because of this sparity the hope is
+41:41 
+
+41:41 that the model uh disentangles the
+41:44 
+
+41:44 features
+41:49 
+
+41:49 and you do this in the decoder layer of
+41:51 
+
+41:51 SE because decoder layer. So remember
+41:55 
+
+41:55 you change this to the decoder layers of
+41:58 
+
+41:58 SAPE and the decoder layers will be
+42:00 
+
+42:00 multiplied uh will will produce this uh
+42:05 
+
+42:05 will produce this output and that output
+42:07 
+
+42:07 will be fed to the next layer and so on
+42:08 
+
+42:08 and so forth.
+42:11 
+
+42:11 So this is what is written here in this
+42:13 
+
+42:13 sparse autoenccoder. [snorts]
+42:16 
+
+42:16 So in this paper
+42:18 
+
+42:18 they showed that there are there exist a
+42:23 
+
+42:23 lot of monossemantic neurons. It is not
+42:25 
+
+42:25 that all neurons are polymantic. There
+42:27 
+
+42:27 exist lot of monossemantic neurons. For
+42:29 
+
+42:29 example uh so this distribution of
+42:32 
+
+42:32 neurons is corresponding to the French
+42:35 
+
+42:35 words. This uh sorry from the word not
+42:38 
+
+42:38 this distribution of neurons correspond
+42:40 
+
+42:40 to the correspond to different French
+42:42 
+
+42:42 words. So whenever you send a French
+42:45 
+
+42:45 whenever you send French inputs only
+42:47 
+
+42:47 these neurons got trigger get get
+42:49 
+
+42:49 triggered otherwise these neurons will
+42:50 
+
+42:50 not get triggered
+42:54 
+
+42:54 but they also showed that there exist a
+42:57 
+
+42:57 lot of such mono such polymantic neurons
+43:01 
+
+43:01 which get triggered uh in different uh
+43:03 
+
+43:03 in different biogram pairs. For example,
+43:06 
+
+43:06 let's say
+43:08 
+
+43:08 u if let's say there are uh six
+43:11 
+
+43:11 unrelated engram pairs which start with
+43:13 
+
+43:13 the word gate factors right um orgams uh
+43:18 
+
+43:18 sorry uh uh district vision and so on
+43:23 
+
+43:23 and you see that um um you know although
+43:27 
+
+43:27 these engrams are different but the same
+43:31 
+
+43:31 set of neurons always get triggered uh
+43:33 
+
+43:33 for these neurons
+43:35 
+
+43:35 They also showed
+43:37 
+
+43:37 that as you increase the depth of the uh
+43:40 
+
+43:40 layer, right, representation sparity
+43:43 
+
+43:43 increases on average,
+43:48 
+
+43:48 right? Which is also obvious. Think
+43:50 
+
+43:50 about it because now you are increasing
+43:51 
+
+43:51 the size of the model. So as you
+43:53 
+
+43:53 increase the size of the model, sparity
+43:55 
+
+43:55 will increase.
+43:58 
+
+43:58 There are different types of sparse
+43:60 
+
+43:60 autoenccoder. One is called per layer
+44:03 
+
+44:03 sparse autoenccoder where
+44:07 
+
+44:07 uh now this is your res stream right
+44:11 
+
+44:11 stream. What you do for every input to
+44:14 
+
+44:14 the residual stream you have a sparse
+44:16 
+
+44:16 order encoder
+44:20 
+
+44:20 shared SAE you have a single SAE
+44:24 
+
+44:24 which is applied to all the layers. This
+44:27 
+
+44:27 is called shared AC
+44:29 
+
+44:29 sparse crosscoder. Very fancy term
+44:33 
+
+44:33 sparse crosscoder. The input is the the
+44:36 
+
+44:36 input can be concatenation of all the
+44:40 
+
+44:40 outputs of the layers. Layer 1, layer
+44:43 
+
+44:43 two, layer three. Let's say you want to
+44:44 
+
+44:44 focus on three layers. You take the
+44:46 
+
+44:46 residual stream output from layer 1,
+44:48 
+
+44:48 layer two, layer three, concatenate them
+44:51 
+
+44:51 and pass. Right?
+44:54 
+
+44:54 You can also have u u sparse
+44:58 
+
+44:58 autoenccoder
+44:60 
+
+44:60 which tries to understand how a residual
+45:02 
+
+45:02 stream works. For example, before
+45:05 
+
+45:05 sending it to residual stream, you run a
+45:08 
+
+45:08 sparse autoenccoder. After getting the
+45:10 
+
+45:10 output from the residual stream, you run
+45:12 
+
+45:12 another sparse auto encoder and you see
+45:14 
+
+45:14 the difference
+45:16 
+
+45:16 and so on and so forth. Right? Now this
+45:18 
+
+45:18 layer output says that before adding the
+45:22 
+
+45:22 output to the receiver stream here only
+45:25 
+
+45:25 you add a sparse autoenccoder.
+45:29 
+
+45:29 [clears throat] Another concept is
+45:30 
+
+45:30 called transcoder.
+45:33 
+
+45:33 Right? What is transcoder? It's very
+45:36 
+
+45:36 similar to sparse autoenccoder. The
+45:38 
+
+45:38 difference here is that
+45:40 
+
+45:40 in sparse autoenccoder your input and
+45:42 
+
+45:42 output are the same.
+45:45 
+
+45:45 But in transcoder your input and output
+45:47 
+
+45:47 will be different. Okay. So let's say
+45:50 
+
+45:50 you want to understand how feed forward
+45:53 
+
+45:53 network works. MLP works.
+45:57 
+
+45:57 Activation sorry uh attention and feed
+45:60 
+
+45:60 forward network. You try to understand
+46:02 
+
+46:02 how feed forward network works. So what
+46:04 
+
+46:04 you do? So you take the output of your
+46:08 
+
+46:08 attention.
+46:10 
+
+46:10 You take the output of feed forward
+46:13 
+
+46:13 network and this is your training data.
+46:16 
+
+46:16 Output of so input to MLP and output to
+46:19 
+
+46:19 MLP is your training data. You already
+46:21 
+
+46:21 run this. You got the data set. [snorts]
+46:25 
+
+46:25 Then what you do you add an autoenccoder
+46:29 
+
+46:29 whose input will be this and output will
+46:31 
+
+46:31 be this.
+46:34 
+
+46:34 Clear?
+46:36 
+
+46:36 Clear. And whatever representations you
+46:39 
+
+46:39 learn through encoder, this
+46:43 
+
+46:43 can be considered as equivalent to what?
+46:47 
+
+46:47 MLP
+46:50 
+
+46:50 because MLP also gets that input and
+46:53 
+
+46:53 produces that output and you also tries
+46:56 
+
+46:56 to mimic the same thing. So the
+46:58 
+
+46:58 representation that you get
+47:02 
+
+47:02 from transcoder
+47:04 
+
+47:04 transcoder produces what a hidden state
+47:08 
+
+47:08 that representation is equivalent to the
+47:10 
+
+47:10 MLP operation that that you do.
+47:14 
+
+47:14 Okay. So this is what it is showing
+47:15 
+
+47:15 here. Look MLP input. So this is your so
+47:18 
+
+47:18 this is your transcoder
+47:21 
+
+47:21 MLP input. MLP output is a is is
+47:24 
+
+47:24 something that you use for training.
+47:26 
+
+47:26 Right? So you basically you replace this
+47:29 
+
+47:29 MLP completely by transcoder and you see
+47:32 
+
+47:32 how what happens. But what is SAPE? SA
+47:35 
+
+47:35 is not same as this. SAPE is applied on
+47:37 
+
+47:37 top of MLP output
+47:40 
+
+47:40 on top of activation.
+47:42 
+
+47:42 Right?
+47:44 
+
+47:44 So this is SAE. SA input is MLP output
+47:47 
+
+47:47 and output is also MLP output.
+47:53 
+
+47:53 The other concept is called logit lens.
+47:55 
+
+47:55 Very simple idea. Logic lens. You look
+47:59 
+
+47:59 at per layer activation
+48:02 
+
+48:02 and you multiply that activation with an
+48:05 
+
+48:05 unmbedding layer. The same thing that
+48:08 
+
+48:08 you do in the last layer of transformer,
+48:10 
+
+48:10 right? You do the same for every
+48:12 
+
+48:12 activation.
+48:14 
+
+48:14 The idea is that you want to understand
+48:16 
+
+48:16 how for a specific word let's say the
+48:18 
+
+48:18 word the word good
+48:22 
+
+48:22 what is the rank of that specific word
+48:24 
+
+48:24 in one layer and how the rank of that
+48:27 
+
+48:27 word changes over layers
+48:30 
+
+48:30 right let's say you know that the model
+48:32 
+
+48:32 produces the output good therefore it
+48:35 
+
+48:35 means that the during sampling time
+48:38 
+
+48:38 let's say the grid sampling the rank of
+48:41 
+
+48:41 that what good was at the top therefore
+48:43 
+
+48:43 it was sampled
+48:45 
+
+48:45 Now I believe if you backtrack and see
+48:48 
+
+48:48 you see that the word the the rank of
+48:50 
+
+48:50 that word good was not always the always
+48:53 
+
+48:53 one right let's say [snorts]
+48:56 
+
+48:56 look at this output
+48:59 
+
+48:59 word language
+49:02 
+
+49:02 okay and if you look at the rank at the
+49:04 
+
+49:04 initial activation the rank was 4571
+49:08 
+
+49:08 then it got six it got 627 then 102 108
+49:13 
+
+49:13 Right? And then gradually uh the rank
+49:16 
+
+49:16 started increasing.
+49:20 
+
+49:20 Okay.
+49:24 
+
+49:24 And the other method is circuit as I
+49:26 
+
+49:26 mentioned in mechanistic
+49:27 
+
+49:27 interpretability.
+49:29 
+
+49:29 The concept is called the term is called
+49:32 
+
+49:32 activation patching
+49:35 
+
+49:35 and a very fancy term. What is
+49:37 
+
+49:37 activation patching? Please listen to
+49:38 
+
+49:38 this carefully. Okay. I'll not draw.
+49:40 
+
+49:40 Hopefully I'll be able uh to make you
+49:42 
+
+49:42 understand what is activation patching.
+49:44 
+
+49:44 [snorts]
+49:45 
+
+49:45 I explained this activation patching in
+49:46 
+
+49:46 the previous class in the previous
+49:47 
+
+49:47 year's lecture.
+49:49 
+
+49:49 Okay. So what is activation patching?
+49:52 
+
+49:52 Think of an error. Okay. And you think
+49:56 
+
+49:56 of two different outputs, right? One
+49:60 
+
+49:60 output is called clean out. Sorry, two
+50:03 
+
+50:03 different prompts inputs. One input is
+50:05 
+
+50:05 called clean input, right? And let's say
+50:07 
+
+50:07 the clean input is the Eiffel Tower is
+50:10 
+
+50:10 in Paris.
+50:12 
+
+50:12 Okay. And the other input is called
+50:14 
+
+50:14 corrupted input. Corrupted input is very
+50:17 
+
+50:17 different from clean input. Let's say
+50:18 
+
+50:18 the corrupted input is the colossium is
+50:21 
+
+50:21 in Rome.
+50:23 
+
+50:23 There are different inputs, right? If
+50:25 
+
+50:25 you feed the clean input, you feed it
+50:28 
+
+50:28 and the model predicts something. You
+50:30 
+
+50:30 look at all the activations and store
+50:31 
+
+50:31 the activations.
+50:34 
+
+50:34 Then you in a separate run separate run
+50:36 
+
+50:36 again start from scratch you feed this
+50:39 
+
+50:39 corrupted input you store all the
+50:40 
+
+50:40 activations
+50:42 
+
+50:42 right and your focus is in a specific is
+50:45 
+
+50:45 your focus is on a specific activation
+50:47 
+
+50:47 right now in a third run what you do you
+50:52 
+
+50:52 use the corrupted activations
+50:55 
+
+50:55 right if you take the corrupted
+50:56 
+
+50:56 activations the model will not produce
+50:59 
+
+50:59 the output parries never produce
+51:03 
+
+51:03 Now what you do you focus on one
+51:06 
+
+51:06 activation and you replace that
+51:07 
+
+51:07 activation
+51:09 
+
+51:09 you replace that activation you replace
+51:12 
+
+51:12 that activation by the clean inputs
+51:15 
+
+51:15 activation corresponding clean inputs
+51:17 
+
+51:17 activation
+51:20 
+
+51:20 is just a vector right you replace a
+51:22 
+
+51:22 corrupted activation vector by the clean
+51:26 
+
+51:26 the corresponding clean uh activation
+51:28 
+
+51:28 vector
+51:30 
+
+51:30 and you see what is the probability of
+51:32 
+
+51:32 the word Paris after this change.
+51:38 
+
+51:38 Okay. So if so so and this is called
+51:42 
+
+51:42 activation patching.
+51:45 
+
+51:45 So before activation patching the
+51:48 
+
+51:48 probability of parish would be very low.
+51:50 
+
+51:50 After activation patching you see some
+51:52 
+
+51:52 gain
+51:54 
+
+51:54 right and that and and if because of
+51:58 
+
+51:58 that activation it happens that
+51:60 
+
+51:60 therefore therefore you can say that
+52:02 
+
+52:02 that activation is responsible now this
+52:04 
+
+52:04 is not correlation remember this is
+52:05 
+
+52:05 causation
+52:08 
+
+52:08 difference between this and the previous
+52:09 
+
+52:09 one okay any question here
+52:18 
+
+52:18 >> because no so I'm I'm I'm I am measuring
+52:21 
+
+52:21 the pro probability of the word Paris.
+52:23 
+
+52:23 >> But why are we not focusing on?
+52:26 
+
+52:26 >> No, the Rome is something which is which
+52:29 
+
+52:29 is not of my interest. My interest is to
+52:31 
+
+52:31 see whether I can I I can I can opt in
+52:34 
+
+52:34 Paris.
+52:34 
+
+52:34 >> So you see
+52:37 
+
+52:37 >> yeah come closer to this. Yes. And
+52:41 
+
+52:41 activation patching can also be done in
+52:43 
+
+52:43 other way. For example, you have a clean
+52:45 
+
+52:45 activation and then you corrupt it by
+52:48 
+
+52:48 some corrupted activation and you see
+52:50 
+
+52:50 how the output gets changed the other
+52:52 
+
+52:52 way around. Okay,
+52:57 
+
+52:57 this is the Rome paper which I explained
+52:59 
+
+52:59 in my previous course. You look at it.
+53:02 
+
+53:02 The last idea is called activ activation
+53:05 
+
+53:05 steering. This is last slide. [snorts]
+53:08 
+
+53:08 The idea is
+53:11 
+
+53:11 there are certain
+53:14 
+
+53:14 because of the fact that the features
+53:16 
+
+53:16 are linear.
+53:18 
+
+53:18 There are certain activations which are
+53:20 
+
+53:20 responsible for certain concepts right
+53:24 
+
+53:24 and [snorts]
+53:26 
+
+53:26 these concepts are called these uh
+53:29 
+
+53:29 features are called steering vectors.
+53:32 
+
+53:32 What is the idea? The idea is that
+53:36 
+
+53:36 let's say you have an LLM
+53:40 
+
+53:40 and you feed all positive samples
+53:43 
+
+53:43 corresponding to wedding. I love
+53:46 
+
+53:46 wedding. I want to go to wedding right
+53:48 
+
+53:48 weddings are gorgeous and so on. All
+53:50 
+
+53:50 positive samples and you look at a
+53:52 
+
+53:52 certain activation and for every
+53:55 
+
+53:55 whenever you pass a positive sample you
+53:57 
+
+53:57 take the activation and you finally you
+53:59 
+
+53:59 average them.
+54:02 
+
+54:02 In other case you pass all negative uh
+54:06 
+
+54:06 examples of wording.
+54:09 
+
+54:09 Look at the activation that activation
+54:11 
+
+54:11 average them take the difference.
+54:15 
+
+54:15 If you take the difference the
+54:17 
+
+54:17 difference vector is called steering
+54:19 
+
+54:19 vector which should be responsible for
+54:22 
+
+54:22 the positive sentiment positive minus
+54:24 
+
+54:24 negative.
+54:28 
+
+54:28 Okay. Now you feed a negative sample a
+54:32 
+
+54:32 negative instance or any neutral example
+54:34 
+
+54:34 in your inference time right and in that
+54:37 
+
+54:37 activation uh uh in that activation
+54:40 
+
+54:40 location you add giving so you feed the
+54:43 
+
+54:43 inference vector input you get an
+54:46 
+
+54:46 activation for that specific place and
+54:49 
+
+54:49 you add that steering vector
+54:52 
+
+54:52 and you see the model will always
+54:53 
+
+54:53 produce the positive sample positive
+54:55 
+
+54:55 instance
+54:57 
+
+54:57 let me give an example
+54:59 
+
+54:59 So your prompt is I hate you because
+55:04 
+
+55:04 ideally the model produced this. You are
+55:06 
+
+55:06 the most disgusting thing I have ever
+55:08 
+
+55:08 seen.
+55:10 
+
+55:10 Next sentence next for prediction. Right
+55:12 
+
+55:12 now what you do you add the steering
+55:15 
+
+55:15 vector corresponding to love.
+55:18 
+
+55:18 You see the model produce you are so
+55:20 
+
+55:20 beautiful and I want to be with you
+55:23 
+
+55:23 forever. Given that the prompt is I hate
+55:25 
+
+55:25 you because
+55:28 
+
+55:28 okay similarly let's say I went up to my
+55:32 
+
+55:32 friend and said right you see that what
+55:36 
+
+55:36 we say I'm sorry I can't help you no
+55:40 
+
+55:40 blah blah blah what you do now you add
+55:42 
+
+55:42 the steering vector corresponding to the
+55:44 
+
+55:44 word waiting
+55:46 
+
+55:46 right how do you get the uh uh steering
+55:49 
+
+55:49 vector of waiting tell me
+55:53 
+
+55:53 You got it early from from the training
+55:56 
+
+55:56 set, right? You send a lot of wedding
+55:58 
+
+55:58 related things and non-wedding related
+55:60 
+
+55:60 things and you measure the differences.
+56:02 
+
+56:02 Then you see the model will say I'm
+56:03 
+
+56:03 going to talk to you about waiting and
+56:05 
+
+56:05 so on and so forth.
+56:08 
+
+56:08 Okay. Now this applies to
+56:12 
+
+56:12 language neurons, task neurons and so on
+56:15 
+
+56:15 and so forth. Very fascinating concepts,
+56:16 
+
+56:16 very new ideas, two three months old,
+56:18 
+
+56:18 right? So if you are interested, you can
+56:20 
+
+56:20 look at this ideas. Okay. So with this I
+56:23 
+
+56:23 stop uh and that concludes the this
+56:27 
+
+56:27 discourse.

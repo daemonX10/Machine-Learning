@@ -1778,7 +1778,7 @@ def solve_upper(U, y):
 
 ## Question 21
 
-**What does it mean for a matrix to be singular?**
+**What are singular or ill-conditioned matrices?**
 
 ### Answer
 
@@ -1880,7 +1880,7 @@ X_pinv = np.linalg.pinv(X)  # Works even when X is rank-deficient
 
 ## Question 22
 
-**Explain Singular Value Decomposition (SVD) and its applications.**
+**What is the Singular Value Decomposition (SVD) and its applications in machine learning?**
 
 ### Answer
 
@@ -1997,7 +1997,7 @@ def pseudo_inverse(A):
 
 ## Question 23
 
-**What is matrix factorization and why is it useful?**
+**Explain the concept of matrix factorization.**
 
 ### Answer
 
@@ -2117,7 +2117,7 @@ R_approx = U @ V.T  # Predicted ratings (including for 0s)
 
 ## Question 24
 
-**Describe the concept of a linear transformation.**
+**What is a linear transformation in linear algebra?**
 
 ### Answer
 
@@ -2248,7 +2248,7 @@ def visualize_transform(A, title="Linear Transformation"):
 
 ## Question 25
 
-**Explain the kernel (null space) and image (range) of a linear transformation.**
+**Describe the kernel and image of a linear transformation.**
 
 ### Answer
 
@@ -2366,7 +2366,7 @@ print("Kernel of full-rank B:", kernel_B.shape)  # (2, 0) - empty
 
 ## Question 26
 
-**What is a change of basis and why is it important?**
+**How does change of basis affect matrix representation of linear transformations?**
 
 ### Answer
 
@@ -2478,7 +2478,7 @@ X_reconstructed = pca.inverse_transform(X_pca)
 
 ## Question 27
 
-**Explain the role of linear algebra in neural networks.**
+**Describe the role of linear algebra in neural network computations.**
 
 ### Answer
 
@@ -2611,7 +2611,7 @@ def batch_norm(x, gamma, beta, eps=1e-5):
 
 ## Question 28
 
-**How is linear algebra used in recommendation systems?**
+**Explain how the SVD is used in recommendation systems.**
 
 ### Answer
 
@@ -2763,7 +2763,7 @@ def find_similar_items(V, item_idx, top_n=3):
 
 ## Question 29
 
-**Explain the role of linear algebra in data preprocessing.**
+**Explain how you would preprocess data to be used in linear algebra computations.**
 
 ### Answer
 
@@ -2893,7 +2893,7 @@ print("L2 norms:", np.linalg.norm(X_l2, axis=1))  # All 1.0
 
 ## Question 30
 
-**How can you compute the rank of a matrix efficiently?**
+**Describe ways to find the rank of a matrix effectively.**
 
 ### Answer
 

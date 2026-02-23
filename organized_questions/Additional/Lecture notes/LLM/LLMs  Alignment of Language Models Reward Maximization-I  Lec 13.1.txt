@@ -1,0 +1,445 @@
+00:03 okay everyone hello uh so in the last two classes we have looked at in context
+00:08 learning and instruction tuning and today we are at the third step of creating something like CH gbd which is
+00:16 alignment uh so when we were doing pre-training our data was just
+00:21 unstructured uh unstructured text from the internet when we were doing instruction tuning our data had some
+00:28 structure there was an input and there was an output field right there was an instruction and then there was an outut in reinforcement
+00:34 learning uh we have a instruction and what we'll have is a reward model or a
+00:41 human being uh giving reward we'll have uh uh so we won't have output but we'll
+00:46 have a way of judging the outputs and our task would be to make our uh model
+00:55 better uh uh in terms of whether it's human judgment or whether it's judgment
+01:00 given by the reward okay so the yeah okay so we'll see about
+01:07 uh how we do this so the first question is why is
+01:12 instruction tuning not sufficient I mean why do we even need this alignment phase
+01:17 okay first of all has everybody here heard this term alignment in the context of Lang language models uh yes yeah not
+01:25 so basically align at a very high level you have a model model which already
+01:31 does reasonably well uh you have done pre-training on top of it you have done instruction tuning on top of it uh but
+01:39 it sometimes generates outputs that you don't like right and uh you want it to
+01:45 generate outputs that are liked by humans or a reward model and you want to prevent generation outputs that are not
+01:52 likely and that's your align that's what a very uh high level definition of
+01:57 alignment is that you uh want to align Its Behavior with respect to a human
+02:02 being or a reward model so why is instruction tuning not enough why can't instruction tuning not do this job uh of
+02:09 alignment I mean I can uh give input ask and outputs and if I give very good
+02:15 output it should ideally be able to align right so uh okay this picture is already there let me go back a little
+02:21 bit so that and I want to ask this question that why do you think that uh instruction tuning is not sufficient for
+02:27 alignment Yeah so basically uh uh uh when you give
+02:34 instruction tuning all you are saying this is the input and this is the correct output okay and uh the model May
+02:41 learn that correct output but it will also learn a bunch of other correct outputs uh uh also which you as a human
+02:51 being or a reward model may not like so you want to preserve the correct outputs that the instruction tuning phase give
+02:57 but you also don't want that other outputs that got whose probability also increased because of the consequence of
+03:04 uh back propagation because of the consequence of the gradient desent kind of training that you have done right
+03:10 so you want to so so instruction tuning the idea is uh so for example look at
+03:17 these two outputs like uh suppose uh you ask uh somebody asks an llm what is the
+03:22 best way to lose weight quickly and there are two sols reduce carb intake so that's what you want to say okay
+03:28 increase exercises increase protein content blah blah blah you don't want to say that okay you should stop eating
+03:34 entirely for a few days right but how do you actually encode this information that don't say this particular sentence
+03:40 uh neither instruction tuning nor pretaining actually prevent this sentence from uh getting generated and
+03:47 for that you need alignment so the whole purpose of alignment if is to prevent
+03:53 certain outputs that are undesirable from getting generated does it make sense
+04:03 so this is uh you can classify the alignment methods uh in different ways
+04:09 here I have put two of the classifications uh the reward maximization
+04:18 approach and uh so you can classify based on what your alignment objective
+04:24 is so are you trying to maximize some reward uh whether it's a human given
+04:29 reward or a reward model given reward so are you trying to do that or are you trying to do some sort of contrastive
+04:36 learning uh and then there third uh variant which is distribution
+04:43 matching so we'll actually study the first two uh the first two lectures will
+04:48 be about reward maximizations and the third this is uh lecture one and lecture two and the
+04:55 third lecture will be about dpu and the contrastive approaches okay we will not study uh distribution matching uh in
+05:02 this course so you can also classify your alignment methods based on whether uh
+05:10 you are doing online alignment and offline alignment so what does it mean uh what by online alignment online means
+05:17 that you generate the outputs uh get the reward from a reward model let's say and
+05:22 improve the model generate the output again get the reward and improve the model so the uh the outputs are generate
+05:30 it from the policy as it gets updated that's called online okay and uh offline
+05:35 means you generate the outputs once or you maybe don't even generate the output get the output from somewhere okay and
+05:42 get the get them labeled by uh humans so uh if you are training based on outputs
+05:49 that are generated from the model as it improves that's online if you are training on output that was generated by
+05:56 some other model uh maybe even the uh instruction tune model but uh then it's
+06:02 an offline okay does it make sense
+06:10 generated from the model as it
+06:20 trains and this is DPO is generated out offline these are
+06:25 basically when I say generator I mean outputs
+06:34 then you also have mixed approaches which is which has become more common these days where you don't generate from
+06:40 the model at uh whatever is current s you basically fix the model generate some outputs and keep on improving do
+06:47 some uh steps for improvement then generate again so these are these are
+06:52 almost online but not completely online so the model may be better than what you are generating from okay okay so
+07:00 uh before we get into rlf uh let's talk about reinforcement learning and we'll at our mind uh the picture will be of a
+07:07 large language model only uh at the back of our mind we will assume that we talking about large language model so in reinforcement
+07:14 learning uh you have a policy and the policy uh is basically either a
+07:21 distribution or it's a you can think of it as a function that takes your current state and generates an action or uh in
+07:29 what is more common in language model is a distribution so you have a current state uh I will talk about what current
+07:35 state is but given the current state uh uh a distribution over what you can do
+07:40 next is called a policy so in the context of large language model your
+07:45 state is basically whatever tokens that are that have been generated like if you uh you let's say solving some task let's
+07:54 say adding two numbers then the prompt add two numbers and the whatever the numbers are that will be your State uh
+08:01 uh and if you have generated already some tokens those will also be a part of State okay so uh this picture that you
+08:06 can see below the prom Tokens The Tokens that have already been generated these
+08:12 form the state at any given time step State at time step
+08:21 T okay and your policy is something is a probable distribution over what the next
+08:28 action should be given when this state and obviously the next setion here
+08:35 generally when I say next setion uh please assume that action is a token here the token that we so so basically
+08:42 uh there is actually no agent which is interacting with the enir it's just a large language model right and all it
+08:48 can do is generate a token that's all it can do so your action is the next token that can generate
+08:56 uh and basically as I mentioned policy captures the distrib distribution over all possible tokens uh that it can
+09:02 generate in the next time step so since policy is a distribution
+09:07 over the next token that can generate what would be an action it's a basically a token so every time it will generate a
+09:14 token and that's equivalent to the policy to the uh to an action being taken
+09:20 okay so uh in this example uh so the generation of a token by ANM is the
+09:25 action here and if uh if you can see the example here the prompt is where is Taj
+09:31 Mahal and so these are the prompt tokens and LM has also generated some tokens
+09:38 these are the state at sometime Step St all the tokens of the prompt all the tokens that have been generated so far
+09:45 and action is the next token uh which is is uh so the so this picture should be
+09:51 there in the back of your mind when uh we think of policy so policy is nothing but a large language model uh as in our
+09:59 case the policy is a large language model and the actions are just next tokens that it can generate and this is
+10:05 how it looks like so generally in RL there is an environment there's actually
+10:10 an environment where your uh agent so uh there actually policy is uh agents is
+10:18 also called agents policy so you can think of uh agent which is which has this policy for taking actions so
+10:24 generally there's an environment where the agent is interacting right uh for example if you have a robot uh working
+10:30 on the ground then the environment is the ground but for llms here there is
+10:38 actually no real environment there is an abstract environment and the environment here is
+10:45 uh basically the input prompt the output generated and whatever feedback that you
+10:51 get it's it's no there's no concrete environment here it's basically uh all the tokens and all the reward together
+10:57 they are called the environment does it make sense okay so if you see this word environment
+11:03 don't get confused we will not use it except for in this picture because here the picture in this picture I wanted to
+11:08 show how reinforcement line Looks like that's why this term environment is there which will disappear after the future slides so don't worry about
+11:15 environment such so uh reinforcement Lear so in super fine tuning when you do
+11:20 so let's say when you were doing pre-training what you did you collected lots of unstructured text there was no
+11:26 input output you just collected documents and trained your model right when you did instruction tuning you
+11:31 collected some instruction and some output instruction one output one and so on so and train your mod on top of that
+11:36 so reinforcement learning you don't have input output but what you have is instruction and a reward model which can
+11:43 tell you whether whatever output gets generated is good or not so you don't have an output uh output to train on all
+11:50 you have is a reward model and outputs will get generated by the policy in
+11:56 whatever your language model are right so when all you have is a reward model and your training based on that reward
+12:01 model uh then uh that is one way to define reinforcement earning so you're
+12:07 getting reward and then improving yourself based on the
+12:15 reward okay so uh in this case what the environment does so the general in
+12:21 general the job of environment is to uh basically environment causes two things one it gives you uh gives the policy a
+12:28 reward based for taking a certain action okay you did a good job or a bad job for uh in this action and uh it also causes
+12:36 the state to change like if a robot is walking on the floor the robot is at a new position in the floor right so
+12:41 that's a new State uh of the robot with respect to the floor in the case of llms
+12:46 uh the state change is simple you have you had the uh previously generated tokens and
+12:54 it environment basically the state change is just an addition of a new
+12:59 token this is the 0 uh it will just get up uh appended to
+13:09 the previously generated tokens to the form the new state that's all the state change means here okay so the state is
+13:15 the to tokens in the case of is it
+13:22 fine okay uh also in many cases uh what might happen is that you might not get a
+13:28 reward immediately right you will take some action uh let say if I ask you
+13:34 where is Taj Mahal and the answer is Taj mahel and it's not completed right so you may not get a reward because we
+13:40 don't know if it's going to say is in arra or in us or whatever is going to say right so uh so the reward may be
+13:47 zero uh at a given time step and uh that is
+13:55 fine and this is how uh a PO uh the uh
+13:60 reinforcement learning uh the interaction of agent with an environment
+14:05 will look like over several times steps so uh the uh the policy of the agent
+14:10 takes an action T8 uh and the environment updates the
+14:16 state from St to St plus1 and gives a reward RT again the agent policy takes a new action based on the new state again
+14:23 the environment gives a new reward and the state gets updated and this can keep repeating in the case of LM it will keep
+14:29 repeating until you end get an end of text token okay in the case of a robot moving uh uh on the ground you might get
+14:38 this might end when robot reaches where it's supposed to reach or it might end when the robot reaches in a state where
+14:43 it cannot come out or Fells down or something right so uh this is how uh uh
+14:50 M interaction between user and environment takes place over several time
+14:56 steps okay so when I say LM as a
+15:01 policy uh so I as I mentioned earlier LMS are
+15:06 often used as a policy right so this is how LM as a policy looks like again this is slightly repetition of what we have
+15:12 seen earlier but this is just to concretize uh when I say policy what do I mean it's a large language model and
+15:19 it's a takes some input tokens the here the snot is the tokens all the uh prompt
+15:24 tokens here and this policy
+15:30 has a distribution over what the next token should be and a not is sampled uh
+15:35 from that particular policy and because there's no end of text generated so you get a reward of
+15:42 Zero no end of text is
+15:49 generated so now what will happen uh this action will get appended to form a
+15:56 new state S1 okay and the policy will take based on this new state your policy
+16:02 your L language model will have a new distribution of what the next token should be and it will generate an action
+16:08 uh which is the word mahel and again end of text is not generated so you'll get a reward of zero
+16:13 okay is this clear okay and now this what uh token that was generated in the
+16:20 previous step so again I'm using the word token and action interchange will be here because the tokens are the actions in this case Okay sometimes it
+16:26 might be that the tokens are not the actions not action but the for now assume that all the uh each action is actually a token only so a new token is
+16:33 generated and it's again uh appended and you keep on doing this keep on doing this uh so sorry about this this should
+16:42 be end of
+16:49 text and and you keep on until you uh generate end of text at which time you
+16:54 will get a reward of plus one or minus one or whatever you will get some reward uh
+17:05 okay so we have talked about LM as a policy and that's pretty clear but what is the reward model here or or who is
+17:11 the reward model here so one thing is every time the model generates an output
+17:17 it start ends it generates an end of text we can ask a human we can show it to human and say okay give me a reward
+17:22 for this particular output but and then based on that reward I will improve the model and again output not imagine doing
+17:29 this like you have a model you show the output to a bunch of humans get the reward train the model again show outputs it's going to be extremely
+17:36 expensive like uh the training of the model will require hundreds of humans working over several hours waiting for
+17:42 the model to generate output and then giving rewards right this is not a very feasible setting to work with so what is
+17:50 generally done is that you try to replace the re human reward model with
+17:56 actually an llm who uh who will do do the job of human so you want an LM to
+18:02 mimic the job of humans for giving rewards okay so so again LM is reward
+18:09 model the idea is simple uh uh you have an instruction or a task I'm using the
+18:15 notation X here because this is a very common notation X and Y that people use for language models uh uh X as the input
+18:23 and Y is the output so you have an instruction X and
+18:29 you have an output y uh you have a reward model which is uh
+18:35 large language model and it it gives a number as an
+18:40 output right and ideally what you want is that
+18:46 if I give two responses to this reward model let's say y1 and
+18:51 Y2 it should give me higher reward for y1 if y1 is better than x uh y1 is
+18:58 better than Y2 okay okay now who is deciding the definition
+19:03 of better uh if there's a human being who is deciding okay uh which response is better than which then it's called R
+19:10 then uh this entire pipeline will be referred to as rlf and if there is an AI
+19:17 who is deciding which response is better than which then this pipeline will be referred to as RL a that's it it's this
+19:24 the uh the difference in the names only comes from where the preferences or the rewards come from uh who is deciding
+19:31 what is better okay so we'll look at a concrete example
+19:37 of a reward model now this is how the architecture of a reward model will look like uh you have uh a Transformer
+19:46 encoder or decoder I'm assuming a Transformer based reward model so you have a Transformer encoder decoder uh in
+19:52 terms of encod you can think that it's BT or Roberta whatever
+19:60 and for for decoder you can think this is
+20:05 llama or
+20:11 mistal so irrespective of what you have you feed the uh tokens of the prompt
+20:19 these are the prompt
+20:27 tokens you feed the tokens of the generated output and you feed them to the
+20:34 transform model now all of these transform whether you dealing with bir or you dealing with llama before the
+20:39 final projection layer there's going to be an embeding layer okay so uh in in uh decoder type models there will be a
+20:46 vocabulary position layer after that you can discard it uh in encoder models there will be they might will they can
+20:52 be a vocabulary position if you're dealing with B right so you discard those vocabulary projection layer the
+20:57 final linear layer which projects the embeddings to vocabulary you discard that and you all you get is a bunch of embeddings right now uh you want to get
+21:06 a number finally right so what you can do is you can take the average of these embeddings apply a linear layer uh which
+21:12 Maps this to onedimensional uh so linear layer takes an embedding size hidden size input and generates a
+21:18 onedimensional output and you can call that your reward okay or you can take
+21:23 let's say the last token embedding for a so you can alternatively take last token
+21:29 embeding only for decoder only models this is also what people have
+21:34 used why last token embedding why not first token embedding can anybody say
+21:39 why can't we take the for the decod only model why can't we take the first token embedding and apply a linear L on top of
+21:44 it to get the reward correct correct the in decod only model only the last tokening has seen
+21:51 the entire input nothing else has seen the uh entire input so far so yeah so the last is definitely important
+22:01 okay so that was the architecture now let's look at training how do you how what does one go about training a reward
+22:09 model okay so the uh I thought how what is the best way to talk about training
+22:15 because actually it's not the difficult thing to train reward model uh the loss function is pretty simple and I could
+22:20 have written the loss function directly uh but with uh what happens with that is that you guys will read
+22:27 about bradle Terry preference mod models and then you guys will get confused okay that how what is this so that's why I
+22:33 will talk about rly model which is actually ultimately whatever we get from
+22:38 this and whatever uh uh we get in terms of humanistically thinking about it is
+22:44 going to the same right but it's just good to be aware so what is a brandit
+22:49 preference model it's a probability distribution over outcomes of pairwise
+22:54 comparisons so if I ask you what is a Bern distribution what is the Bern model it's a uh prob distribution over uh
+23:01 outcome of binary out over binary outcomes right uh so gion can be a prob
+23:09 distribution over some continuous value out uh uh outcomes right so similarly
+23:14 Brad preference model is a prob distri over when you are doing pair wise comparisons and what I mean is that suppose you have n items which y1 to YN
+23:23 and uh there are some scores associated with those n items okay P1 to PN then
+23:29 what the Bradley tence model says is that probability
+23:35 that an item Yi will be preferred over YJ so this how
+23:42 you write preferred uh I'm guessing there is a slide like this
+23:47 some uh is equal to pi over p +
+23:55 P so if you assume that the probability of preferring one output
+24:01 over the other has this nice looking structure then you can say that okay the
+24:07 my set of outcomes my set of entities follow a brad lary preference model
+24:13 structure this I don't know this may not look intuitive at a uh probably at first
+24:19 observation why are we uh writing that by the preference is this way maybe if
+24:24 you guys write it down uh probably play around with it you might feel more comfortable but the idea is simple that
+24:30 if you have a model that follows the where the preferences follow this nice structure then it's a b model and if all
+24:37 of these pis are greater than zero then uh you can
+24:44 write in exponential form
+24:50 also so R is you just log of P for in this particular case uh I have just uh
+24:57 let me where are I equal to log
+25:03 of and the reason I've written this is because this is what is used for
+25:08 language and llms which we'll see the next slide does anybody need more seconds
+25:15 with the previous slide was it fine okay okay so now when I am when I uh I'm
+25:24 using a large language uh reward model LM based reward model and when I'm dealing with input and outputs what does
+25:31 my brary preference model will look like uh so if you have an input X and two outputs y1 and Y2 how should I write my
+25:39 probability of y1 Y to given now we'll say given X
+25:47 because uh your preferences will depend on what the input prompt is right if if
+25:53 your prompt is about Taj Mahal then the preferences should be about Taj Mahal so
+25:58 probability that y1 is preferred respect to uh compared to Y2 in the case of uh L uh in the case
+26:07 of LMS can be written like this R star X comma
+26:16 y1 [Music] on where R star is an unknown uh
+26:25 function that it may not be continuous it may not be differentiable it may not have nice property also but it's some so
+26:31 we say when I say when I assume that the preferences follow a brary model I'm
+26:37 assuming that there is some uh unknown function which will take the input prompt and then generator output and
+26:43 give me some number and uh the probability that I will prefer y1 or Y2
+26:48 will look something like this so rstar can be any arbitrary function in learning a
+26:56 reward model our job is to reach the this optimal this uh this reward function this optimal reward function uh
+27:05 that is uh uh that we assume uh for the
+27:11 our brary model okay so we assume a brary model but we don't know what the underlying REM function and our job is to reach that okay so uh and how will
+27:19 you reach it first thing is you will say okay let me parameterized uh let me parameterize
+27:25 uh my this prob distribution distribution so we'll call P Theta y1
+27:32 greater than Y2 given xal to exponential of R Theta X
+27:44 y1 so again what we're trying to do is we trying to reach this optimal uh ideal re uh reward function R star uh that
+27:52 characterizes my badary model and the way I will do is I will assume a parametric form for the reward function
+27:58 R Theta and I will Define uh uh this the probability this parametric probability
+28:04 of preferring y1 to Y2 and what is the next step in maximum likelihood estimation you param define a parametric
+28:10 form of the distribution that you want to learn and then you define your log likelihood
+28:16 okay uh is this fine everybody has everybody written this down or has everybody understood this or does
+28:22 anybody have any doubts about this part this parameterization
+28:29 okay so now if you are given training data of the form input preferred output
+28:36 rejected output and you uh you want to find the ideal reward function by maximizing log
+28:42 probability so first of all let's write down what does the log probability look like for one
+28:49 input so L Theta for let's this say this
+28:54 output x y + Yus
+28:60 so this is log lik right so this log probability P Theta of y + greater than
+29:10 Yus given X and what is this quantity uh we defined in the previous
+29:17 SL this expon this exponen of R Theta right so log
+29:22 of exponential R Theta
+29:31 I can let's say if I can I can divide by R thet exponential R thet X Y minus on
+29:38 both sides on numerator and denominator so what will this become log
+29:46 of exponential of R Theta x y
+29:54 + - R Theta X Yus
+30:02 upon
+30:08 plus actually this second term will become one this particular term this this is what will become one because I'm
+30:15 dividing by exponential R right and what is this quantity that I have written e to the power something upon 1 plus e to
+30:22 the^ something Sig function right so this is the log
+30:30 sigmoid R Theta x y + r Theta X comma
+30:38 Yus and this is what is maximized and you will maximize it over over all these
+30:45 preferences present in training data right and this is how you will train your reward model so effectively all
+30:50 you're doing is maximizing the likelihood of an parametric brary model
+30:55 okay to learn the preferences so so this is exactly what I wrote uh right and so
+31:01 you maximize the uh log likelihood of all the preference pairs
+31:07 in the train data that you have and uh that will give you uh the reward model
+31:13 and intuitively what what is it doing uh so okay first of all okay this we have
+31:18 already DED so I don't think I have to mention anything here so in was it was it what is it doing uh this is if you
+31:25 look at this function you're maximizing log is a uh monotonically increasing function these are all monotonically
+31:32 increasing functions so effectively when you maximize this you are increasing this
+31:38 quantity and decreasing this quantity you're trying to uh uh increase the gap
+31:44 between the positive reward of the positive response and the reward of the negative response right you're pushing
+31:50 the reward of the positive response as high as possible and pushing the reward negative which is intuitively what you
+31:55 will do right so actually this expression you could have written without going to the rary preference model route also but it's good to know
+32:02 about rary because you will see it in lot of papers so it's something that is good to know so now as you asked right
+32:07 where does this data come from uh so for the prompts you can uh so the input part
+32:13 can come from any instruction data set like if you uh it depends on uh it can
+32:18 be sum the instruction can be a summarization summarize the following it can be a question uh from those question
+32:24 answering task it can also be a partial conversation so these can come from any of the data set that you used during
+32:30 instruction tuning maybe during instruction tuning you divided the data into two parts you some part you use for
+32:35 instruction tuning and some of the prompts you decided to use for RF uh which is what generally what people
+32:41 do or uh what chat GPD uh did was and
+32:47 what instru GPD did was it took the prompts that humans submitted while
+32:53 using gbd3 the previous the pre-rain model whatever prompts they Ed for GB3 and probably for instru GB also they
+32:59 took all those prompts and uh uh they did RF on top of those
+33:05 prompts okay in terms of uh outputs uh outputs can come either from an
+33:12 instruction uh instruction tuning instruction tune alignment that you wish to align like if you trying to align
+33:17 llama the outputs can come from llama that's one possibility which is Al which is quite
+33:23 common during alignment the other possibility is okay actually since you're dealing with reward model you can actually use
+33:31 outputs from any other llm also uh you you might want to increase the diversity
+33:36 in the possible responses by taking outputs from a lot of different El out there and we'll see examples of that
+33:44 later and finally the third part is preferences uh so as I mentioned you can
+33:50 uh show the outputs two outputs to human and ask them that which is better uh and
+33:56 there are some data sets which publicly sets which are like on the of that format or you can use another
+34:03 LM uh to decide which of which of the output is better and we'll see an example for that also so these are the
+34:10 publicly available preference data sets uh uh in the first one is summarize from feedback by open Ai and uh here the task
+34:18 there is only one task uh summarize the following document and the prompt contains the task as well as the
+34:24 document and the outputs uh are generated by instruct GPD
+34:30 models uh and the pref actually outputs I'm guessing they instru G models yes
+34:35 and the preferences uh uh come from hum so this is a pretty good data uh it's very clean data it's if you want to test
+34:43 any RF Alo it's very easy to check on top of this data and it's a very standard data if you write a paper on RF
+34:50 this is what uh people tend to use then there this Ultra feedback data uh so
+34:56 here while this summarized from feedback was very clean in where the prompts are coming from where the outputs are coming
+35:02 from and the where the pr are coming from Ultra feedback is a mix uh so the prompts consist of a huge number of
+35:09 different possible tasks like it can mathematical reasoning logical reasoning summarization whatever task you can
+35:15 think of uh they might be there in that data set so there's no uh uh there's no
+35:21 restriction on the what the task can be and the outputs are again generated from
+35:26 a huge bunch of models uh gbd family Lama family Bard wizard LM
+35:32 alpaka and the preferences are generated by
+35:38 gbd4 this uh so this data set was used to create model zir and a bunch of other
+35:45 models the F 7B on top of M so you when I say on top of means uh
+35:54 you use Mr 7B as a starting point and create a RF an aligned model this is the aligned
+36:01 model uh next I want to talk about one of the ways uh that uh one of the uh AI
+36:09 approaches for collecting preferences which is called constitutional AI uh
+36:14 this was by anthropic and uh uh yeah so the idea was that you have
+36:21 a pre-trained language model and uh you can give it some
+36:26 principles uh to uh how to give judge an output you can tell it okay uh choose the responses
+36:35 which are less harmful or you can say choose the response that is wise ethical polite friendly so there are were 16
+36:42 different principles uh that constitutional a used for and uh each
+36:48 time they gave the LM a different principle and asked them to choose a response based on that principle
+36:55 okay so as you guys already discussed in context learning this is just uh an
+37:00 example of uh in context learning you you will also give other examples uh of
+37:07 other prompts to the model to generate those preferences okay fine now let's go to
+37:15 the last part we will start the last part to give a intuitive picture what is to what of what is come going to come in
+37:20 the next class uh but we'll the mathematical details of this reward maximization will be there in the next
+37:26 class okay so so far what all we have looked we looked at what the policy looks like
+37:32 which is an LM what the reward model looks like which is again an LM what the data looks like which is in the form of preferences and now final part is given
+37:39 that we have everything let's train the model so also we have a reference policy
+37:47 uh and why is uh reference Policy important because you are not going to align a model you're not going to take a
+37:54 randomly initialized model align you're going to take a model that has been pre-trained that mean instruction tuned and you're going to use that as the
+38:00 starting point of alignment that is referred to as the base policy or reference policy and you have a reward model that
+38:09 we have seen how to run and now you want to find a policy Pi Theta star Pi Theta star optimal policy which generates
+38:17 output that have high reward but also stays close to your
+38:22 starting point which was a reference policy so this first part that learn a policy that generates output with high
+38:29 reward that part is clear right that's the whole aim of uh reinforcement learning uh that's one of the aims of
+38:36 reinforce the reward maximization right so but the second thing does anybody
+38:41 know why we need to stay close to the reference policy so it can uh so the answer is that uh you don't want to
+38:49 forget everything that you learned during the pre-training and during the uh instruction tuning phase and if you
+38:55 do not allow uh do not stay close to the reference policy what might happen is
+39:02 that you might over optimize the reward model let's see what that means over optimization so yeah as I mentioned
+39:08 reward models are they're not perfect right you have just trained them on preferences you collected some human
+39:14 preferences some AI generated preferences and told them this is better than this but all you showed them was natural language output you didn't show
+39:20 them the entire space of outputs you can't expect them to give a perfect
+39:25 score for each output so what can happen that if you only
+39:30 focus on reward maximization what will happen is that the policy will find a specific output that will make
+39:37 absolutely no sense but will have extremely high reward and it's very easy to do this is the standard aders serial
+39:42 generation that people used to do earlier that you can given any uh new network or given any not even neur
+39:49 Network given any model you can find a model which has high prob find an output
+39:55 which has high probability but makes no sense so here you can find an output that is high reward uh but it's
+40:01 completely meaningless and then your policy will be make no sense
+40:07 right the second reason uh you care about closeness to a reference model is that if you're only trying to maximize
+40:13 the reward you are trying to reach output that has high highest reward right but sometimes you want to maintain
+40:19 diversity if I ask CHP to write a poem and if it every time it generates the same poem which has the highest reward
+40:24 that's not very interesting to me I want to make sure that the final policy that it learns can generate a bunch of
+40:31 different poem not just the poem with the highest reward right so uh so staying close to the uh to the starting
+40:38 point can make sure that you are not focusing only on the highest Revol uh
+40:44 Optima does it make sense okay okay so let's see how the objective
+40:52 looks like so when I say policy with high reward what does it mean for a
+40:58 policy to have high reward uh because policy is not an output right it's a new
+41:03 network it's a distribution over outputs so when I say that I want a policy that is high reward what what do you guys
+41:09 think of what does that mean yeah so one answer is that the expected value of the
+41:15 policy uh expected Val of the reward where the distribution is the policy should be high and in terms of if you
+41:22 want to see a picture this is how it should look like that you have a policy you give a prompt to it write a poem and
+41:30 it generates a bunch of poems right these are the bunch of poems
+41:36 that are there and now if you score each of these
+41:43 poems individually using the reward model these poems are each of them are scored individually although it looks like that there's a big reward model
+41:49 taking all the poems each of the poems you score them individually you'll get a reward for each poem and the average of
+41:56 those rewards should be high so uh whenever somebody says expectation
+42:01 of something uh the immediate picture that should come to your mind is uh okay
+42:06 there's an underlying distribution where the samples are coming from and you evaluate that function over each of the
+42:12 sample that's your expectation and take the average okay so expectation uh the uh the intutive picture should be of
+42:18 sampling it may not be sampling it turn out that you have to compute exact expectation but whenever say somebody say expectation always think of sampling
+42:25 and then averaging sampling and then aaging okay so here what are we sampling the poems and what are we everything the
+42:31 reward of each poem and this is uh what should that should be high the average reward of the poems so in uh uh let me
+42:41 see yeah let me write down the equation of what this means that expected value
+42:46 of y coming from PI Theta y given X expectation
+42:52 under this P Theta y given subtitution reward of X comma y
+42:60 should be high this is what should be
+43:05 high and the entire figure is comput trying to compute that expectation now how do we make sure that
+43:11 the policy stays close to the reference policy what does it mean to be close to
+43:16 uh yeah anybody any ideas yeah regularizer but it's a
+43:22 regularizer but how do I enfor what sort of regularizer how how do I enforce that two policies stay close to each other
+43:28 huh Divergence so Divergence these policies are probability distributions
+43:34 so policies are probability distributions so when I say
+43:42 closeness I means distance in the dist probility distribution space right
+43:48 so I can talk about kale Divergence between pi
+43:56 Theta and can kale diverence be written in an expectation format too can how do you
+44:02 write K diver in expectation format so it's the expected value of the uh negative entropy is not
+44:10 completely correct negative cross I mean it's related to cross entropy but here Pi Theta is coming into the picture so
+44:16 we have to cross entropy discard some term so let's not go that direction uh K
+44:21 Divergence will be equal to the expectation under
+44:27 Pi Theta y given X of what something can anybody tell me what this quantity is
+44:34 there what is the expectation that we taking it's a log ratio of probabilities
+44:41 log y Theta y given
+44:46 X ref y given
+44:52 X so again this is an expectation so what does that mean so whenever there's an expectation the immediate for picture
+44:57 that you come to your mind is that sample from whatever distribution you are uh that you Computing the
+45:03 expectation of you generate samples from that and uh and then uh so this will give you so
+45:12 here you generated gave the prompt write a poem you got n poems and uh you
+45:17 compute this ratio for each of this poem so you'll feed it to the reference policy you have already fed to the
+45:23 previous policy and you will get this term KR so here when I say KR this is the this is what I'm referring to as
+45:29 KR KR it's not a standard term this is just something that I'm using for this
+45:34 log probability ratio and then you take the average of this log probability ratios that's what will you give you an
+45:40 approximation to the kale Divergence now okay uh almost everybody is done
+45:46 everything is done uh this next step is finally we'll combine let's combine both these objectives and then we'll end okay
+45:53 so yeah so let me write down all the objectives that are there the first one is the reward maximization which is expected value
+46:01 under Pi Theta y given X RX comma y the expected value of the
+46:08 reward this is this is something you want to maximize okay put this Arrow up
+46:13 then you have the KE diverence I will write it again in the form of expectation y Theta y given
+46:21 X log of Pi Theta y given X
+46:28 p y x and finally you will multiply this
+46:34 with a scaling Factor Lambda uh and then uh you will add them
+46:41 up so the combined object will look something like this uh not at so this is something that you want to decrease
+46:46 right so if you want to maximize what will it look like expected value of pi Theta y given X let me combine both of
+46:55 them RX y minus Lambda log Pi Theta by given x 4
+47:05 Pi y x this is your combined
+47:13 objective so why scaling Factor uh because I don't may not want to give equal weight to reward maximization and
+47:19 diver minimization I might want to give smaller weight to dation because uh I'm
+47:25 okay with losing some uh I'm going slight slightly away from the base policy it depends on with how many
+47:31 samples you have and how trust how much you trust those samples uh all those
+47:37 based on all those factors you will decide the value of Lambda so what are the takeaways alignment methods can prevent certain undesirable outputs from
+47:43 getting generated and uh uh the RM alignment method uses llm as a policy
+47:49 llm as a reward model and reward maximization as the objective uh you can use either human generated preferences
+47:56 or AI generated preferen ref es uh you want to stay close to the reference policy to prevent reward hacking and in
+48:04 the next lecture we'll see how do we go about training the policy
+48:09 okay thank you

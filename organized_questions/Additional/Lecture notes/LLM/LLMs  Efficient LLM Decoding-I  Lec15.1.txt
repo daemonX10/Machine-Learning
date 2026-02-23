@@ -1,0 +1,500 @@
+00:03 okay good morning everyone I'm Jan and uh today we will be discussing about efficient LM decoding in this lecture
+00:10 series okay so let's get started so the first question is why are
+00:15 we talking about uh efficient inference and not efficient training what is the difference between the two right with
+00:22 respect to llms so to answer that question let's quickly recap you know how it goes how llms work right so for
+00:29 example let's take a very simple sequence The Cat Sat on a mat and we are
+00:34 training the language model with this sequence right and at the time of training we will do a forward pass to
+00:40 the llm right so while we are doing the forward pass at the end we will get a
+00:46 probability distribution over all the tokens at every step right so this is this is token 1 this is token V where V
+00:53 is the vocabulary size and at every step this is at Step Zero we get a distribution over all the to tokens
+01:01 right and this everything is done in parallel right at every we not doing it
+01:06 step by step at parallel at every step we have a distribution and what is this distribution supposed to mean so well
+01:13 when we are training we train it in a way that you know uh we try to maximize
+01:19 the probability of the next token right so at the Step Zero we would find the probability of the token the which is
+01:25 the next token here right and we will try to maximize that that is the learning objective in language model
+01:30 right so if you're given this the we'll try to maximize the probability of cat this is the token cat at step one right
+01:38 and so and so forth now when we have we have trained this right uh when we have to do an
+01:46 inference right let's say the input sequence is the cat sat and we have to
+01:51 complete the sentence right so what we do is that we run a forward pass once
+01:56 with this input sequence the cat sack the language model will process this parallely the entire sequence and will
+02:04 give us a distribution at every step right we have a distribution at Step Zero we have a distribution at step one
+02:11 step two and step three here we are mostly interested in the distribution at step three because that is what will
+02:17 tell us that is a distribution over the next token right so whatever is the
+02:23 maximum probability token in this distribution we will pick that right so let's say it turns out to be on so we
+02:29 will select on we get the next token right we fill it here but then how do we
+02:35 proceed next right so in inference we take this sequence again the cat sat on
+02:41 this is the new sequence we pass it through the model and again we will get a distribution from the last step we can
+02:47 again pick the token with the maximum probability let's say a and then again we fill whatever is the token with the
+02:54 maximum probability we fill it here at the next step we run the forward pass again right through the entire sequence
+02:60 and we we get uh the token of the next Max probability which is let's say Matt and so on and so forth right and here
+03:06 again we do a forward pass till we get end of sequence token right so we had to
+03:13 run forward pass four times to get four tokens now let us compare it with
+03:19 training at the time of training to process the same sequence the cat sat on
+03:24 the mat we ran the forward pass once and got the probability distribution over
+03:29 all the tokens simultaneously in parallel whereas at the time of inference we had to run the forward pass
+03:37 once for every token this is very expensive and therefore we need
+03:42 efficient methods for running decoding right in our
+03:49 example we ran forward pass four times to generate four tokens this is not
+03:54 feasible at production scale right this is too much of latency and too much of time and resources wasted
+04:01 can we optimize it is there a way can we revisit the forward path at the time of inference to optimize this right and to
+04:08 optimize this let's focus on uh the attention layer because that is the major bottleneck at the time of uh
+04:15 inference right so let us see uh so this is uh to recap this is the uh this is
+04:20 one attention block one one block of the Transformer right uh we have
+04:25 multi-headed retention then L normalization then feed forward uh this is is the place where tokens are going
+04:32 to interact with each other everywhere else it's going to be they're going to be processed independently right so these are the
+04:38 four token embeddings uh the for the scat and sat they color coded right now
+04:45 we'll focus on this multi-headed retention block here so the first thing that happens in the multi-headed retention or attention is that we first
+04:53 have three matrixes or weight matrices for query key and value right multiply
+04:60 these embeddings with the respective matrices give us the uh the query Vector key vector and value Vector note that
+05:07 each of these Vector is query Vector is four cross D dimensional where D is the is the hidden State Dimension
+05:12 right and now I'm rearranging it here so what happens when we are Computing attention is that uh we have to compute
+05:21 so when when we we have to compute the attention Matrix which essentially tells us how much a token depends on its uh
+05:28 previous tokens right and these are the normalized attention weights and uh the
+05:34 output embedding for this token s uh the start start of the sequence is going to be obtained by multiplying this
+05:40 attentions weight with the EM the value of this uh itself right for the token
+05:47 the the corresponding output embedding is going to be computed using these two
+05:53 attention WID so what is this attention WD this is the similarity of the token the right with
+06:00 uh the start of sequence and how do we get that we get that by using the query Vector the right and multiplying it with
+06:08 the key of the start of the token right okay and so and so
+06:14 forth now and after this after we have computed the attentions we at the end of
+06:19 the network we pass the embedding that we get at each step through a classifier
+06:25 which gives us this probability distribution right so this is what happens in the first pass and and now
+06:30 and and this gives us the next token fee of uh next token on right for which the probability is maximum now when we are
+06:37 doing uh the forward pass again with this additional token on do we need to compute the entire soft
+06:44 Max or can we leverage certain things that we have already computed in the previous step right so we have already
+06:50 computed this attention metrics uh at least partially right uh the output
+06:56 embeddings are also computed for the first three tokens these keys and the values have also been
+07:02 computed earlier we don't we would not need the queries here because we don't need the uh we don't need to compute
+07:10 their corresponding output embeddings now right the only thing that we need here is uh you know the query of on in
+07:18 terms of queries right so can we C what we can do is that we can cache the already computed matrices that we have
+07:24 already competed in the previous step right so we create a cache for the keys so this is the cache which contains the
+07:30 key values or key embeddings of each of the tokens from the previous step right
+07:36 and similarly we cach the values V right and now to compute the output emitting
+07:43 here here we need the attention weight here right and for that what we do is
+07:48 that we compute the query Vector for the next for the last token that was generated in the last step which is on
+07:56 we take the key Vector of the first token here here right and compute the
+08:02 similarity score and so and so forth right the notice now that we are reading
+08:07 these key values from the cache right and now for on we do not
+08:15 have its key embedding in the cache we compute it and we cach it right and then
+08:21 this gives us the attention scores this is essent this will determine the output embedding for the token on which will
+08:27 give us a distribution over the next tokens right so we can uh use the value vectors
+08:33 and the attention probabilities to compute the output embedding here but
+08:38 then again for the token which was generated at the at the last step on we do not have the value embedding we
+08:45 compute it we cash it and we use it to give us the output embedding for the
+08:52 uh for the for the token on and once we have the output emitting here again you
+08:58 know we can pass it through once we are done with all the attention blocks in the end we can pass it through the
+09:04 classifier and get a distribution over the next token we pick the best token a right and in the last iteration what we
+09:11 did what we added to the KV cache was the embedding of token on right key embedding of token on and
+09:19 value embedding of token V we can easily discard the query embeddings because we
+09:24 don't need that right and we fill at step five and then
+09:29 we continue you know Brewing the cash and you know uh proceeding with the uh
+09:36 inference right so what have we done here is that we have divided the llm
+09:42 inference into two parts right first is the prefill part where the entire prompt
+09:48 for example here the prompt is computer science is right in this the entire prompt is processed parall right we
+09:55 create the KV cache and then we decode we get we we get the next token from
+10:03 iteration two onwards we get one token at a time right and in the process we
+10:10 keep on updating the KV cache right this is sequential from step
+10:16 two onwards each generated token is appended to the previous input and the process is repeated until we get the
+10:23 stopping criteria which is either the end of sequence token or the maximum to tokens that we requested right
+10:30 okay so so this is what summarizes our first optimization that we did right so
+10:36 what is the first optimization that we did we created a KV cache which distinguished which converted the entire
+10:43 inference into two parts prefilling and then sequential generation and this reduced what did it where did it help us
+10:51 right we are growing KV cach but we are Computing less now we are leveraging whatever we computed earlier we are
+10:57 caching it and we are using it again right so now let us look at the memory
+11:03 usage of KV cache so this two here is for two
+11:08 matrices that we are storing K and V this Precision is the Precision for
+11:14 example are we storing the KV cach in fp32 or are we storing it in in in uh 16
+11:21 bits right this is the presion this is the number of attention layers because for each layer you will have to maintain
+11:29 a KV cache this is the hidden Dimension
+11:34 right uh the dimension of the of each embedding this is the sequence output
+11:41 sequence length or the entire sequence that we are processing right uh for each token we need to maintain a a k and a v
+11:48 Vector right so this is the sequence length and this is the total B size number of sequences that we are
+11:53 processing in one batch right and uh let's take an example of a model uh opt
+12:01 13 billion here uh let's say we storing in fp16 phion we have two bites uh we have
+12:09 40 layers Dimension is 5120 and this model uh you know allows
+12:15 2048 as the maximum sequence length let's say we are processing um inputs of 2048 tokens and let's say our bat size
+12:22 is 10 so this gives us a KB cache of 17 GB
+12:28 right for 10 for a back size of
+12:33 10 right and the model size here is essentially 26
+12:39 GB right so on let's say we are processing it on a 40gb a00 right which which has a
+12:48 GPU memory of 40gb almost 65% is going to be used by the model
+12:54 parameters right 26 GBS and roughly 30% around 12gb is available for KV cach
+13:02 right so what is the expected throughput that you're going to get here is eight batches of 2048
+13:09 tokens right so this is again inefficient right I mean can we you know
+13:15 do something better than this can we manage our KV cach in a better way for
+13:21 example here we have assumed that you know there are 20 48 tokens in each sequence but is that true are all input
+13:28 sequences of the same length right so how can we you know optimize it further so for that let's look at you
+13:36 know the memory management of KV cache uh how the KV cach is managed you know
+13:42 in the GPU let us say there is a prompt the cat sat the same prompt that we were
+13:47 using earlier and a prompt B which is you only let's say with the two requests
+13:53 in the first request we specify Max tokens as 2048 and in the second one we have Max
+13:58 tokens of 5 2 so now a typical standard KV cach manager the way it allocates
+14:06 memory you know it it needs continuous uh memory in the GPU because most of the
+14:11 tensor operations they require even matrix multiplication right they require keys and vectors to be in the continuous
+14:18 memory right so here for the first prompt we will have 2048 slots reserved
+14:25 for the second prompt we have 512 slots reserved and depending upon the memory allocator
+14:32 that we are using right there will be some external fragmentation right they will not be allocated in the same space
+14:38 there will be some space in between which will be kind of lost some slots that will be lost right and now let's say you know
+14:46 when we are running the the the inference we are at this iteration this is the current iteration we where we are
+14:52 this token has already been generated here the catat on and uh here this is the first token that has been gener
+14:60 generated right so this KV cache is reserved for the input in both the both
+15:07 the places these slots right this slot is you know for the tokens that have
+15:12 been generated till now then you can uh you know let's say
+15:18 uh when you're managing it you can assume that there are certain slots which will be used in the future these are reserved for you know the future
+15:24 tokens that are going to come in both uh the uh sequences and beyond that uh you
+15:31 know there are a huge list of slots which go unused right so here this is this is
+15:39 internal fragmentation for a request right these are reserved why because we
+15:46 allocated the memory based on the max tokens or you know uh or or uh Max
+15:53 tokens that the model can support or the number of tokens in the request right
+15:58 now can we you know take some lessons from OS which does a lot of memory
+16:04 management and apply it here right so so this scheme that we discussed this chunk
+16:11 pre-allocation scheme KV cache is stored in continuous memory because most of the tensor operations you know require
+16:17 memory to be continuous and uh the chunks of memory are allocated statically the idea here is that you
+16:23 know we don't want to move around the allocated memory again and again if if
+16:28 it gets filled up right however the actual input or the eventual tokens that
+16:35 you're going to generate could be much smaller than this right
+16:40 so this resulted in three types of uh fragmentation at any point in time right
+16:47 uh some slots were reserved for the future tokens those will be used eventually but at any point in time you
+16:53 know we are still reserving that there is an internal fragmentation this happens because
+17:00 this happens because we over
+17:06 allocate based on the max tokens which the model supports or the max tokens
+17:11 based on the input request right Max tokens requested by the by the user
+17:18 right and then there is external fragmentation that happens because of the the allocator right because whenever
+17:25 it is allocating memory for a new request there will be certain slot which we which we may lose in between right it
+17:31 may have its own algorithm for for allocating these slots right so again coming back to the
+17:39 previous example of 13 billion op model if we have uh on a 40gb Nvidia right we
+17:46 we discussed that the parameters are going to occupy 26 GB 65% this is static
+17:52 this will always be there because model parameters have to be loaded in the model and they have to remain in the GP always right and we get roughly 30% for
+18:00 the KV cash which essentially means that with the existing allocation you know the way
+18:07 GPU memory is handled we will max out with eight
+18:15 batches right now what we are going to discuss next you know is efficient
+18:20 management of this memory right and in particular there is
+18:26 a system called VM which introduced paged attention right
+18:31 uh it it's able to you know increase the bat size to up to
+18:38 40 and what are they doing they're simply managing the KV cache
+18:44 properly right okay and this results in
+18:49 uh you know further increase in the throughput as well we are able to process if you're using BLM server to uh
+18:56 process the request you'll be able to process roughly 3.2 request ests per second as opposed to8 requests you know
+19:02 if you're doing it naively if you managing the memory naively right
+19:08 so let's look at you know how do they do it and let's look at their motivation
+19:13 first I mean from where did they get the intuition in the idea so the idea is very simple and it comes it is inspired
+19:19 by the virtual memory and paging right in the OS so for example in in the you
+19:25 know the operating system if it gets different there are different processes which are running on the operating system system right each process
+19:30 requires its own memory right so process a and then let's say there are two processes in the physical memory you
+19:38 know it's not necessary that the memory will be allocated contigous in continuous chunks to to each processes
+19:46 right so this is let's say this is the physical memory and we see that this page is for this page and this page page one and four are for process one they're
+19:52 not you know contigous and then page Z and page two are used by process B right
+19:59 if if I draw an analogous here this request a is the input prompt a that we
+20:05 have it is analogous to process a request B is the input prompt b or
+20:12 another input that we have so this is the KV cache which we will divide into blocks and manage it right so yeah so so
+20:19 so this management of KV Cas in VM is done is is inspired by virtual memory we
+20:27 see the processes here as input prompts right virtual memory is similar to
+20:34 something called logical KV blocks that we will see right so so in logical KV blocks for a for a given request you
+20:41 know the entire memory is going to be continuous all the pages are going to be continuous right but in the so this is
+20:47 The Logical KV block and then we have we map physical memory to physical KV blocks this is how
+20:54 you know GPU will store the memory right here it will not be contiguous and then
+20:59 we have a table of pages or a block table right to map virtual memory to the
+21:06 physical memory right okay so these These are the analogous uh in
+21:14 the in in the page retention or in VMS right so we will have these components there okay so essentially what they are
+21:21 doing is that they are breaking the entire KV cache into blocks let's say
+21:27 each block is of size four let's take that for for example right and let's say there are seven blocks
+21:33 here so these are called physical KV blocks this is where the memory will be you know the actual physical GPU memory
+21:40 will be allocated this is the actual state of the physical memory now for each request right let's
+21:47 say we have first input that comes in for each request we will have a corresponding logical KV block if there
+21:54 are two requests we will have two logical KV blocks but physical memory will be common right so there's one
+22:01 physical memory then we have a block table which will
+22:06 map logical KV blocks to physical KV blocks so for example let's say uh The
+22:12 Prompt is today we are learning about llms and this is the input
+22:18 prompt in The Logical KB block you know the tokens are logical KV blocks are assigned to
+22:26 each token in a continuous fashion this is how The Logical C block will look like the first the zeroth block here is
+22:34 mapped to seventh physical block right so this the the sequence is exactly same
+22:41 here right and we keep a track of how many blocks are filled in in a given how
+22:48 many slots are filled in a given block right so all the four slots are filled
+22:53 here then the block one in the logical
+22:59 KV block is mapped to block one again in
+23:04 the physical KV block and here only three slots are filled tracking right
+23:10 now let's say next completion is memory the next token that we get is memory we
+23:16 put that here in The Logical KV block right we see we increment this number of
+23:24 fill to four we see that there is a slot available right we increase that to four and put the next token uh K&B you know
+23:31 keys and values embeddings for the next for the token memory in this slot in the
+23:37 same block now this is filled right now when the next token comes let's say the
+23:42 next token is on today we are learning about llms and memory on
+23:51 now a new block from the physical KV is going to get allocated on demand
+23:59 right depending upon the condition of the physical KV right it's it's not
+24:04 necessary that it it's going to be continuous it's not necessary right we will add the corresponding entry in the
+24:11 you know block table and number of fill tokens is one
+24:17 and when we get the next token demand in the actual in The Logical block it will
+24:23 be here continuous to on we look up in the block table we see that number of fill tokens is one which
+24:29 is Les it's not the block is not fed yet is not is not completely filled so we you know allocate this slot from the
+24:36 same block to the next token right and
+24:41 uh yeah so that's how you know they view the entire uh KV cach that's how they're
+24:46 managing the entire KV cach using paging right now corresponding to the
+24:53 internal fragmentation in the previous uh you know when we are doing it when we in the KN way of managing KV cache there
+25:00 is an internal fragmentation here as well but however internal fragmentation is restricted to the is bounded is upper
+25:07 bounded by the block size for example here it's it cannot be more than three right okay so now and let's say we
+25:15 get another request uh we'll have its own block
+25:20 table we will allocate the corresponding memory in the physical KV block right
+25:29 and we you know we will create the block table for this and you know yeah so that's how it
+25:35 will proceed so this Dynamic block mapping that we are doing so what we did here
+25:41 was that it was you know allocating the memory on Demand right so this Dynamic
+25:47 block mapping what does it enable us right in addition to you know uh
+25:52 avoiding allocating the entire Chunk in one go and you know um reducing
+25:59 the internal fragmentation up to the the block size what else can it support
+26:05 right so it turns out that you know uh if we have let's say a single prompt
+26:12 and we need multiple completions for this right so have you ever seen this scenario where we have a single prompt
+26:18 and we would ask the model to create multiple competions for this so beam
+26:23 search is one example yes and uh so when you use chat GP have
+26:29 you ever seen that it shows you two completions simultaneously it asks you to you know pick the one which is the
+26:35 best right so I think you studied about alignment and reward models so how are
+26:42 the reward models trained right preferences of what over
+26:51 what exactly right so to create that data for human annotation also we would
+26:58 create two outputs for the same input and ask the human annotators to pick the best right so this is a common scenario
+27:05 where uh you know for the same input we would require multiple outputs right and
+27:11 there is something called rejection sampling as well where we do uh create
+27:16 multiple outputs and select the best based on let's say some reward function
+27:23 right reward function could be even you know the sequence to which model itself assigns higher probability right I mean
+27:30 it could be any reward function as otherwise in fact have you ever used um
+27:35 co-pilot get up copilot does it show two options right use right so because there
+27:43 could be multiple code Corrections or there could be multiple ways of writing the code the same function right and it
+27:49 may generate both and the user may select the one which is uh you know
+27:54 which it prefers right so this is a very common scenario right and uh VM you know so for example
+28:04 here I you know we deliberately took this example because both the prompts are same if you noticed
+28:12 right right but then if VM is oblivion of it
+28:19 if both the requests are coming from different users just as a matter of chance then of course you know it will
+28:25 assign different KV blocks for both the request requests so but if it happens to
+28:30 come from the same user and from the same the request emanates from the same user and the user wants to see multiple
+28:36 request can we do something better can we exploit the fact that the there are common you know there's a common prefix
+28:43 to both right so looks like this you know paging technique uh can do that as
+28:49 well so let's let's look at an example how does it do so um okay so here this is The
+28:56 Logical KV block we'll definitely have logical KV block separately for the two requests right so this is The Logical KV
+29:02 block for request a this is The Logical KV block for request B right both
+29:07 contain the same tokens to begin with right now in the physical KV blocks you
+29:15 know they share they share the physical KV block so only block five and block seven in the physical KV are
+29:22 populated both because we have a separate block table for both the requests right so this is the block
+29:28 table for block table for request a and this is the block table for request
+29:37 B they are separate right we
+29:43 can write so this is this is I think incorrect this should be the first one
+29:49 is mapped to physical block five and the second one is maps to 7 yeah so this is this is
+29:56 incorrect to begin with uh they will have the same value right now
+30:02 when the generation happens both sequences will generate a different token right okay so how do we manage for
+30:09 that which one will go in here right we have only one slot here
+30:15 okay so any guesses how should it uh how should this be
+30:24 handled okay randomly fine and how should we manage it how should we I mean
+30:29 what happens to the other one then let's say this one we get the output here first today we are learning about llm
+30:35 and let's say this comes out to be Memory let's say randomly this is assigned
+30:42 memory then what will happen when this token gets generated let's say this is
+30:47 today we are learning about llm and how this is the next token which we need so
+30:52 how will we do we have to block this part here okay
+30:60 and then how how fine okay so it's kind of similar to
+31:06 that and in order to do it what it needs to do is that it needs to maintain a reference count KV cash needs to know
+31:13 how many requests requests are actually you know pointing to these to each block
+31:20 right so for both the blocks right now reference count is two right let's say this token
+31:29 is memory that gets generated here right so first thing that we do is
+31:35 that we reduce so we go here we check that uh this this particular block has a
+31:41 reference count of two that means someone else is also sharing it I should
+31:46 leave it as it is right because you know someone else is going to come later and we'll also
+31:52 require this if I modif modify it here that may create a problem right so we I
+31:57 first reduce the refence count to one exactly copy it on right then when I
+32:03 have to write I first copy it to some other block right let's say I I allocate a new KV block to right and
+32:12 fill the token the KV for the token memory here right and now we will have
+32:19 to change the uh this thing also here the page table right now this second uh
+32:25 block is now mapping to physical block two right and all the tokens are filled
+32:32 here right now notice that this still has it has a reference count
+32:37 of two right this is we still you know even though we had to create a copy of
+32:44 uh of this block seven right this is still shared by both right and now when
+32:51 uh the next token how is generated and we have to assign a KV block it goes
+32:56 here it sees that the reference count is one that means I'm the only one using it it can easily assign the memory block
+33:03 here right for how right so
+33:08 uh we end up creating a copy right so how many times a copy will be created
+33:14 let's say we start with a big prompt which is occupying three four blocks in the physical KV right so at Max you know
+33:23 how many blocks will be copied over if there are two requests
+33:29 only one right the last one right the others will always be shared right
+33:35 so yeah and then you know after this it will because the reference count is now one this will never get get touched
+33:41 anyway this one will never get touched anyway right this is seven this will not get touched
+33:49 anyway and everywhere else the reference count is one and uh the generation will
+33:54 continue as it is right so this is basically how blocks are shared in
+33:59 parallel sampling right uh okay so let's look at
+34:06 you know how did we improve the memory efficiency here right remember earlier
+34:12 we had uh this allocation where for the first sequence the cat
+34:18 set right we reserved this was 2048 math sequence that we reserved
+34:25 right and then there was another thing which was uh another example we only and
+34:33 for this we reserved 5 and2 tokens right there was this external
+34:39 fragmentation right the cat sat whatever the completion is going to
+34:46 happen in the future at this point we are reserving something for that as well here these slots these are the
+34:54 reserved slots this was also some sort of a fragmentation that was happening and then these are is the biggest
+35:01 problem because you know they were never going to get used because we over reserved this was the
+35:06 internal internal fragmentation that happened right so out of these three
+35:15 external fragmentation reserved and internal fragmentation how you know what are are
+35:22 we able to reduce right so I mean we I've shown it
+35:27 here internal fragment is bounded by the block size what about external fragmentation earlier you know if if a
+35:34 particular again let me draw it again earlier this was the part reserved for
+35:41 request one request a this was reserved for request B in
+35:48 between there were only two slots will they ever be
+35:54 used they will never be used right so whereas here there is no such
+36:01 scenario there is you know there is no such scenario where there are certain blocks which are left between two um two
+36:08 blocks there are no slots which are left between two blocks as such right so there is no external fragmentation
+36:15 here right and how much are we reserving for the uh future tokens here are we
+36:23 reserving anything for the future tokens here yeah that is also bounded by the size of the
+36:29 right so internal fragmentation is minimal it only happens at the last last
+36:34 block which upper bounded by the block size and you know the number of Ved
+36:40 tokens per sequence is less than the block size right for a sequence
+36:47 you never have anything allocated to it more than the block size so it's always upper bounded by the block size right and notice that you know
+36:54 sequences of the order of 100 or 200 or th000 tokens right and relative to that
+36:59 a block size typical block size that is used is 16 or 32 I mean I took four for an example but with reference to that
+37:06 it's kind of minimal it's 1110 right and there is no external fragmentation here right so on an average here the
+37:15 wasted space is typically less than 4% of the entire KV cach whereas earlier
+37:22 you know whatever potentially the K utilization of KV cach would be much more than that is wasted right
+37:28 so this is this is the advantage of uh managing the KV C in this fashion
+37:35 converting the KV cach into blocks and so so right okay so now the next
+37:42 question is that you know you remember that we allocated the memory in a
+37:49 continuous uh slots why it was it was done with the purpose right because most
+37:55 of the tensor operations would require memories so have you ever faced that in coding that you know you create a slice
+38:01 of a tensor from from two different places and if you concatenate that and if you try to you know do some uh
+38:07 operation in the forward pass it complains you have to do do contiguous many of times right I mean if you have
+38:14 gotten your hands dirty with py to coding you would know this you would have faced this issue many times right so that's exactly the same thing that
+38:20 you know it requires the two tensors I mean if you're creating if you're taking two small matrices and concatenating
+38:28 them if they are on different blocks in the uh in the KV in in the GPU memory
+38:34 you know you cannot find you cannot run um you know tensor operations on on them
+38:39 right so you have to convert bring them together into continuous space which again is a costly operation right and
+38:47 here what all do we need to do right to compute attention we would what all do we need
+38:54 so we have K and V values in the cache right when we get a the new query let's say Q is the new query Vector for the
+39:01 next token that we get right what do we need to do for to get the output
+39:07 embedding of that token right what do we need to do to to
+39:13 compute the attention let's say this is the the query for that right so let's
+39:18 take our example the cat sat on uh let's
+39:24 say here I am I am processing this token a right how do you compute the output
+39:32 embedding of this token let's say this Q is the query of this token a right Q of
+39:38 a what do you need to do let's say this is WQ this is the output of WQ so WQ * a
+39:46 gave us Q of a this is the query edic that we got right so what we first do is that we take the query it attends on the
+39:55 right it attends on on the previous tokens we need for that we need the keys right
+40:01 K of uh the key of cat K of sat and K of
+40:09 on right we put that in a matrix and then multiply with the query to get this
+40:15 is get transpose right so we uh yeah right so this is the key edting of first
+40:20 and this is the query edting like this this is the this is the embedding Dimension d right we multiply that and
+40:26 we get the attention scores right right so a of Q with a of the squ with respect
+40:33 to the and so and so forth a of query with respect to on these are the attention scores that we get this
+40:38 requires a matrix multiplication right k q into K
+40:45 transpose that's that's how you computer tension right and here we have only single qu so Q right but then these
+40:53 keys are not continuous or are they because the way we have stored it in blocks at Max we
+40:60 can get only four or whatever 16 or 32 keys in a continuous memory the blocks
+41:07 would be you know anywhere right so it may happen that uh it may happen
+41:13 that let's say the block size is two and these two the cat right is on block one
+41:21 in the physical memory and let's say this is the physical KV let's say it may happen that the is here cat is here and
+41:28 sat is here on is here how do we do it no because these are not this is not
+41:34 contigous this is not continuous right okay so now how do we compute
+41:42 attention soft Max so that's what we need right once we have these attention weights we can compute that into
+41:48 probabilities soft by doing the soft Max right so we'll have probabilities P of the to P of on um right and then we we
+41:58 again once we have the probabilities we again need the corresponding values right because the output emitting is going to be summation of this Pi I with
+42:06 v of I where I is from whatever uh the
+42:11 cat sat on right this this these are also not
+42:17 continuous so how do we do that how do we compute soft Max over fragmented
+42:22 memory right okay so any any idea about
+42:28 this so they they Define you know a new function which is paged attention a new
+42:33 implementation of attention to come to do that exactly and uh any guesses on
+42:39 you know how would they have done that very good yeah so this has this is exactly you know at a conceptual level
+42:46 this is exactly same as the the higher level concept is same as flash attention and what is that higher level concept
+42:52 that higher level concept is essentially that you can decompose the attention you you know into you can
+42:58 compute attention over blocks and then recompute it right so so it's I mean it's very simple right so what you do is
+43:05 that let's say in the same example the cat sat on right what do I have to do so
+43:13 the entire soft max if I have to compute it over the entire sequence it will be
+43:19 you know e to the power query into K1 plus e to the^ quy into K2 plus e ^
+43:28 quy into K4 divided by summation over all of these right
+43:34 right and if I comput it over only this the cat this numerator Remains the
+43:41 Same right and in fact if I take a step further right I need to multiply it with
+43:46 the values V1 and V2 here right ultimately and and V4 here right because
+43:52 numerator is the same I can comp compute the numerator for each block so the for
+43:57 you know for the Cat part I will compute the numerator right and I will store the sum
+44:04 separately I can right when I'm what I need to the denominator is going to be e
+44:09 the summation e to the^ Q into k i i goes from 1 to 4 right in the entire
+44:15 thing so I can again split that into two parts e to the^ q k i i from 1 to 2 plus
+44:21 to the^ q i k q k i i equal to 3 to 4 right over the first part and over the
+44:28 second part right what I can do is that for each block I can compute its
+44:33 contribution in the numerator right and its contribution in the denominator and then I can aggregate
+44:40 right so this is exactly what uh this says that softmax over two blocks A1 and
+44:45 A2 right A1 and A2 are the attention scores attention scores can be computed independently right attention score is Q
+44:52 into K transpose and exponentiation of that right that can be it separately for
+44:58 the two blocks and this is what it is saying that soft Max over A1 and A2 is
+45:04 nothing but it can be decomposed into soft into the two right Alpha times so
+45:10 what what are these alphas and betas what are these going to be alphas and betas let's say let's stick to this
+45:22 example right so this exactly so this Alpha for example is going to be
+45:27 summation from I = to 1 till 4 of K into
+45:32 Q sorry um Q into K I transpose this is
+45:40 divided
+45:49 by right except that this should be in the denominator and the other some should be in the
+45:55 numerator right because this a soft Max over A1 already has a division with sum of
+46:02 the first two right you rem multiply it with that and then divide by sum of all the four right so the same trick that we
+46:09 use in Flash attention and uh so how is VM and Page
+46:15 attention results in efficient inference right so it first it reduces memory fragmentation with paging that is a
+46:21 first thing that we discussed and uh the second thing is that you know when you have to do parallel sampling for example
+46:28 in beam search or in general right you can reduce the memory usage by sharing
+46:34 of the KV blocks by multiple requests right so um so this is this
+46:42 graph Compares uh VM with standard hugging
+46:47 face do generate right have you ever used hugging face model and loaded that in the GPU and tried to use it to
+46:54 generate something right so when you do that naely When you call you know a model do generate with some input
+47:01 sequence the catat right with respect to that you get 24x higher throughput in this case right
+47:10 and uh just like VM there is another inference engine which is a text
+47:15 generation inference by Pyar right compared to that also they get 3.5x higher throughput I mean when it
+47:22 was introduced and later on uh uh page attention and uh was also Incorporated
+47:28 in um in in TGI as well TGI Library as well right so uh at the system level so
+47:36 so we studied two concepts here right one was of paging and the other was of
+47:42 page retention right together you know there so these guys have started a
+47:47 company that this originated from Sanford and they created a product called VM which is highly popular and
+47:54 they are you know providing it as an end to end M serving engine so what you can
+47:59 do is that you can pip install VM and then say start server and give the model
+48:04 name right it will start the server give you a URL and then you can send your
+48:10 request to that URL in P like different users can send requests in parallel and
+48:15 even in fact in our research team we use it heavily I mean because you know there are uh for example if I have to start a
+48:23 405 billion model right every it it takes half an hour to just get loaded and started in multiple gpus right so
+48:30 it's infusible if everyone in the research team tries to upload you know start their own model right so we use
+48:38 this very heavily we use VM to have one hosting right and in the entire research
+48:44 team uh we share the URLs and the entire research team calls you know uses that in the
+48:49 research right so uh this the the this entire serving that is there it has
+48:55 three major components right there's a front end to it then there is a distributed model executor right you
+49:01 need a dist I mean these days if you are serving a big model it will not fit on a single GPU right so you need multiple
+49:07 workers these are the different gpus right so this is a distributed model executor and then there is a
+49:14 scheduler which will you know schedule the different jobs right and there's a
+49:20 centralized engine that manages the block block tables if you need right so
+49:25 essentially this VM is you know mostly pyot code and pyot and uh some Cuda code
+49:33 uh for the for implementation of page detention and they're using Megatron for
+49:40 so Megatron is a library which is used to split bigger a big model into
+49:45 different on multiple gpus they're using that and Ray is essentially you know a distributed parall computing framework
+49:51 which you know they're essentially doing parallel computations here right so they need a par computation framework dis it
+49:56 this distributed computing framework right so okay so till now what have we
+50:03 uh covered so remember we started with you know the objective is efficient llm inference why are we doing it why are we
+50:11 not talking about efficient llm training because at the time of training we know the entire sequence and the entire
+50:17 sequence can be processed in parallel right whereas when we are doing
+50:22 inference we are generating one token at a time sequentially right
+50:28 which which makes it very slow right so first thing that we looked at right to
+50:33 make this fast is K caching this avoided multiple forward passes right M this
+50:40 avoided redundant computation whatever we computed in the earlier steps we
+50:45 cached them so that we can use them again right then there also we saw that
+50:52 the memory utilization is not efficient the GPU memory utilization is not efficient the way it is being done and
+50:58 for that we studied page detention in BLM which introduced two concepts one
+51:04 was the paging for efficient KV cach management and the other was paged
+51:09 attention to compute attention using those gpus uh memories
+51:15 right but can we do something else can we you know speed up the attention
+51:21 computation so for example you pointed out flash attention right so flash attention the objective of flash
+51:26 attention and Page attention was completely different right page detention was the objective was to do uh attention computation of
+51:34 fragmented memory whereas flash attention was introduced to speed up the
+51:39 attention computation right so can we leverage that can we speed up the the
+51:45 the computation itself right we have efficient management of the memory but now can we speed up the
+51:51 operations right so of course that's what we will study next right
+51:57 so can how can we leverage flash attention for fast inference right so
+52:02 that's called flash decoding conceptually it's very similar to flash attention I will briefly recap flash
+52:10 attention and then we will discuss uh flash recoding so what have we
+52:15 handled here we avoided redundant computation right
+52:23 redundant computation check right this is
+52:31 efficient memory KV KV cach memory or for GPU
+52:37 memory right for KV cach memory management we did that check flash
+52:44 attention will cover Speedy computations right Speedy
+52:52 computations we'll cover that next right but still the entire
+52:59 generation process is sequential right we are still generating one token at a
+53:04 time right so can we generate more than one token at a time can we generate you
+53:10 know 10 tokens at a time and then speed up we get 10x speed up right if we get 10 tokens at a time then that's 10x
+53:16 speed up which matters a lot especially when you're serving it in production right so that is the next thing that we
+53:23 will cover that is called speculative decoding
+53:30 right and within that there are different ways of generating you know uh
+53:36 multiple tokens at a time and we'll discuss those right so that's it for today and tomorrow we will uh cover
+53:43 first flash attention and then we will cover speculative decoding and what are the different ways U you know of
+53:50 generating multiple parallel completions completions with more than one token right so that's it
+53:57 uh for today we'll continue tomorrow thank you

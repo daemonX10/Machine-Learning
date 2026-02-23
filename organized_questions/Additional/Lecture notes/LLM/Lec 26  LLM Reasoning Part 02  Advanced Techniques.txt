@@ -1,0 +1,3913 @@
+00:00 So last time we covered two topics for
+00:04 
+
+00:04 inducing reasoning or chain of thoughts.
+00:07 
+
+00:07 Uh the the star paper which is self-plot
+00:10 
+
+00:10 reasoner and the thought preference
+00:13 
+
+00:13 optimization paper. Right? So today uh
+00:16 
+
+00:16 so the first was a SFT approach and the
+00:19 
+
+00:19 second was a DPO based approach. This
+00:23 
+
+00:23 third approach that we'll talk about is
+00:24 
+
+00:24 a GRPO based approach.
+00:26 
+
+00:26 as you all know sorry is a online
+00:30 
+
+00:30 reinforcement learning algorithm
+00:32 
+
+00:32 uh online means the samples will come
+00:35 
+
+00:35 from the policy and they will be
+00:36 
+
+00:36 immediately used for training. So unlike
+00:39 
+
+00:39 DPO where like unlike the version that
+00:41 
+
+00:41 we saw for thought process optimization
+00:43 
+
+00:43 where you do the sampling
+00:46 
+
+00:46 uh uh sampling first over all the data
+00:50 
+
+00:50 entire data set and then do the training
+00:52 
+
+00:52 and then do the sampling right so GRPO
+00:54 
+
+00:54 is uh an online learning method
+00:57 
+
+00:57 reinforcement learning method
+00:60 
+
+00:60 and we'll see an example of a method uh
+01:03 
+
+01:03 example of a model very famous model
+01:05 
+
+01:05 that came out January this year that
+01:08 
+
+01:08 uses this uh GRPO with verifiable reward
+01:11 
+
+01:11 for inducing reasoning and they do it
+01:13 
+
+01:13 very successfully and they uh were able
+01:15 
+
+01:15 to even beat or comp uh obtain
+01:18 
+
+01:18 comparable performance uh as 01. So and
+01:22 
+
+01:22 finally we'll look at uh how do we
+01:24 
+
+01:24 induce reasoning in weaker models
+01:26 
+
+01:26 because deepseek R10 the base model was
+01:28 
+
+01:28 a very powerful model trained on a huge
+01:30 
+
+01:30 amount of mad data it was a 670 billion
+01:33 
+
+01:33 model I think so if you don't have such
+01:35 
+
+01:35 a powerful model that has been trained
+01:37 
+
+01:37 on such a huge amount of mad data let's
+01:39 
+
+01:39 say you have a llama 8 billion or
+01:41 
+
+01:41 something how do you uh go about
+01:44 
+
+01:44 inducing reasoning in those vehicle
+01:46 
+
+01:46 models that's what we'll look at at the
+01:48 
+
+01:48 last
+01:51 
+
+01:51 Okay. So, we are all familiar what with
+01:54 
+
+01:54 what verifiable rewards are, right? Uh
+01:57 
+
+01:57 why I'm talking about verifiable reward
+01:58 
+
+01:58 because that's what is used for inducing
+02:02 
+
+02:02 reasoning because it's an absolute
+02:03 
+
+02:03 reward. It's a uh it's not a noisy
+02:06 
+
+02:06 reward. Uh and uh there might be a bit
+02:09 
+
+02:09 of a noise but it's not a I mean you
+02:11 
+
+02:11 cannot even if you over this reward it's
+02:14 
+
+02:14 a good thing. You won't uh be doing
+02:17 
+
+02:17 reward hacking. I mean it's not reward
+02:18 
+
+02:18 hacking. this reward is not a bad idea
+02:20 
+
+02:20 actually that's what I'm trying to say.
+02:22 
+
+02:22 So that's why we uh are interested in
+02:24 
+
+02:24 verifiable rewards and we have talked
+02:26 
+
+02:26 about verifiable reward uh in previous
+02:29 
+
+02:29 classes also. So verifiable reward means
+02:32 
+
+02:32 that uh once you generate a solution
+02:36 
+
+02:36 from the model using a language model uh
+02:38 
+
+02:38 from the model for a given input you can
+02:41 
+
+02:41 exactly verify whether the final
+02:43 
+
+02:43 solution is correct or not. For math you
+02:45 
+
+02:45 might simply extract the final number.
+02:47 
+
+02:47 Let's say it's a number or it's an
+02:50 
+
+02:50 expression. You can extract that number
+02:52 
+
+02:52 expression and do some sort of matching
+02:55 
+
+02:55 with the gold number of expression that
+02:56 
+
+02:56 you have. Right?
+02:60 
+
+02:60 Similarly, if you have uh code, you can
+03:03 
+
+03:03 uh just run unit test cases on the
+03:05 
+
+03:05 generated code. And we've talked about
+03:07 
+
+03:07 this. So, I will not go into detail. And
+03:09 
+
+03:09 math and code is are the two things that
+03:11 
+
+03:11 we'll focus on for the rest of the
+03:12 
+
+03:12 slides. So, uh we will keep these two
+03:14 
+
+03:14 only for now.
+03:18 
+
+03:18 Okay. Now this also what we have talked
+03:20 
+
+03:20 about. There's nothing special about
+03:22 
+
+03:22 inducing reasoning with GRP actually. Uh
+03:25 
+
+03:25 the only thing different from what we
+03:28 
+
+03:28 have talked about when we talk discussed
+03:30 
+
+03:30 GRP earlier is that now our base model
+03:33 
+
+03:33 is itself pretty powerful. It has seen a
+03:35 
+
+03:35 lot of uh lot of uh complicated hard
+03:39 
+
+03:39 math problems and coding problems.
+03:41 
+
+03:41 Right? So that's the only difference
+03:43 
+
+03:43 otherwise and and the other thing is
+03:45 
+
+03:45 that we are using verifiable reward
+03:46 
+
+03:46 other than this this is a standard GRP
+03:48 
+
+03:48 there's no nothing very interesting
+03:50 
+
+03:50 about as such uh so how does standard
+03:53 
+
+03:53 GRP looks like uh so this is a thinking
+03:57 
+
+03:57 model so you will say solve this
+03:59 
+
+03:59 following math problem and uh if you're
+04:03 
+
+04:03 using tokenizer chat template you will
+04:05 
+
+04:05 put enable thinking equal to true and
+04:07 
+
+04:07 when you give enable thinking equal to
+04:08 
+
+04:08 true it the model will first generate a
+04:11 
+
+04:11 thought between think tags and then it
+04:14 
+
+04:14 will generate a solution. Right?
+04:18 
+
+04:18 So this policy uh is your uh model that
+04:22 
+
+04:22 you're trying to train
+04:24 
+
+04:24 and it generates a bunch of thought and
+04:27 
+
+04:27 corresponding solutions.
+04:30 
+
+04:30 So uh but [clears throat] the next step
+04:31 
+
+04:31 is that in uh when you are dealing with
+04:35 
+
+04:35 uh an online reinforcement learning
+04:36 
+
+04:36 algorithm the next step is to compute
+04:38 
+
+04:38 the reward of each of the uh solutions.
+04:42 
+
+04:42 So so if it is a math problem you'll
+04:45 
+
+04:45 extract the final answer. So maybe the
+04:47 
+
+04:47 final answer is in some boxed template
+04:49 
+
+04:49 or some template that you specified in
+04:52 
+
+04:52 your prompt. you'll extract that uh part
+04:55 
+
+04:55 and then you will send it to uh you'll
+04:57 
+
+04:57 compute a verifiable reward. So
+04:60 
+
+04:60 verifiable reward might be a binary
+05:01 
+
+05:01 reward. just take whatever you extracted
+05:04 
+
+05:04 it might just and the ground truth and
+05:05 
+
+05:05 will say whether these two match or not
+05:07 
+
+05:07 right
+05:10 
+
+05:10 you get a verifiable reward with for
+05:12 
+
+05:12 each of the outputs and now uh you can
+05:17 
+
+05:17 apply grpo for example now what you will
+05:21 
+
+05:21 do is you will say log probability of
+05:22 
+
+05:22 this
+05:24 
+
+05:24 times the reward of this so uh if you're
+05:27 
+
+05:27 just doing reinforce it will look like
+05:29 
+
+05:29 log probability
+05:31 
+
+05:31 of
+05:33 
+
+05:33 first one
+05:35 
+
+05:35 times the reward of that one plus
+05:39 
+
+05:39 log probability of last one
+05:42 
+
+05:42 times the reward. But GRPO
+05:45 
+
+05:45 uh as you are familiar with it is that
+05:47 
+
+05:47 it's it's not a uh it's not fully online
+05:51 
+
+05:51 in the sense that you create a roll out
+05:55 
+
+05:55 you take some samples and you from a
+05:57 
+
+05:57 fixed policy and then do training and
+05:59 
+
+05:59 then update the policy for sampling. I
+06:01 
+
+06:01 mean the policy for sampling does not uh
+06:05 
+
+06:05 always equal to the policy of training
+06:06 
+
+06:06 it there's some sort of lag between
+06:08 
+
+06:08 those two right so the expression is
+06:10 
+
+06:10 more complicated for uh GRPO and uh
+06:15 
+
+06:15 this is the expression
+06:18 
+
+06:18 uh so in GRPO
+06:21 
+
+06:21 the sampling policy is
+06:27 
+
+06:27 so the these are all things that I
+06:28 
+
+06:28 already covered so I'm not going to go
+06:30 
+
+06:30 into detail Just to remind that we have
+06:31 
+
+06:31 a old policy from which we sample and
+06:35 
+
+06:35 then we have we compute this uh sorry r
+06:41 
+
+06:41 theta =<unk> theta by pi theta. Okay.
+06:47 
+
+06:47 So and uh uh
+06:52 
+
+06:52 y given x and this is y given x. So this
+06:56 
+
+06:56 is you can think of it as the importance
+06:58 
+
+06:58 weight
+06:60 
+
+06:60 and we don't want this importance weight
+07:02 
+
+07:02 to blow up. So we clip it and then do
+07:05 
+
+07:05 reinforcement learning. Okay. So this is
+07:07 
+
+07:07 where I will leave GRPO uh because it's
+07:10 
+
+07:10 already covered.
+07:13 
+
+07:13 So RT theta as I mentioned it's the
+07:15 
+
+07:15 importance weight that's the ratio of
+07:16 
+
+07:16 probability under the policy that you're
+07:19 
+
+07:19 training and under the policy that from
+07:21 
+
+07:21 which the samples came from.
+07:23 
+
+07:23 Uh the key [clears throat] trick of GRPO
+07:25 
+
+07:25 is that the advantage of a sample is
+07:28 
+
+07:28 computed uh in a normalized way. What do
+07:32 
+
+07:32 I mean by normalized? Uh if you have
+07:34 
+
+07:34 eight samples, you compute the mean of
+07:36 
+
+07:36 those eight samples, you comput the
+07:37 
+
+07:37 standard deviation of reward, sorry,
+07:39 
+
+07:39 mean of the reward of those eight
+07:40 
+
+07:40 samples and the standard deviation of
+07:42 
+
+07:42 the reward of the samples and then you
+07:45 
+
+07:45 do this normalization.
+07:49 
+
+07:49 So this is how you assign reward to an
+07:51 
+
+07:51 individual output and uh the idea is
+07:54 
+
+07:54 that if something is better than average
+07:56 
+
+07:56 you want to increase the probability of
+07:58 
+
+07:58 that and if something is worse than
+07:59 
+
+07:59 average you want to decrease the
+08:01 
+
+08:01 probability of that. So reward will so
+08:02 
+
+08:02 the advantage will be negative if it is
+08:04 
+
+08:04 something if it's worse than average and
+08:06 
+
+08:06 it will be positive if it is better than
+08:07 
+
+08:07 average.
+08:12 
+
+08:12 Okay. So uh so uh we will leave grpo at
+08:16 
+
+08:16 this point and let's talk about a model
+08:19 
+
+08:19 that uses this gpo and rlv. So after
+08:22 
+
+08:22 this model came out deep carb lot of
+08:24 
+
+08:24 different models like quen 3 k 1.5 and 2
+08:29 
+
+08:29 and grock and lot of different models
+08:31 
+
+08:31 came out who use the same approach for
+08:34 
+
+08:34 doing with minor modification in the
+08:36 
+
+08:36 reinforcement learning algorithm but
+08:37 
+
+08:37 overall approach you may say same that
+08:39 
+
+08:39 you collect a lot of data uh for which
+08:42 
+
+08:42 the final output is verifiable and then
+08:44 
+
+08:44 do gpo with a verifiable reward
+08:48 
+
+08:48 gpo or a small modification of gpo. So
+08:51 
+
+08:51 for deepc carbon uh uh they focused on
+08:56 
+
+08:56 math and code data and the zero here is
+08:59 
+
+08:59 uh means that this deepc carbon zero is
+09:01 
+
+09:01 that uh there is no
+09:05 
+
+09:05 sft
+09:06 
+
+09:06 in this model
+09:09 
+
+09:09 and effectively all the data that you
+09:11 
+
+09:11 would use during SFT is already consumed
+09:13 
+
+09:13 during their pre-training stage. So
+09:15 
+
+09:15 there is no separate tuning uh for this
+09:18 
+
+09:18 model and you directly apply our
+09:21 
+
+09:21 reinforcement learning on top of the
+09:23 
+
+09:23 pre-trained model. Right?
+09:26 
+
+09:26 [clears throat]
+09:27 
+
+09:27 So uh the prompt of the deepseek model
+09:29 
+
+09:29 looks like something like this. Uh a
+09:31 
+
+09:31 conversation between user and assistant.
+09:33 
+
+09:33 The user asks a question and the
+09:35 
+
+09:35 assistant solves it. The assistant first
+09:38 
+
+09:38 thinks about the reasoning process in
+09:39 
+
+09:39 the mind and then provides the user with
+09:41 
+
+09:41 the answer. So basically it's just
+09:44 
+
+09:44 prompting the model to uh first generate
+09:48 
+
+09:48 set of reasoning steps and then the
+09:50 
+
+09:50 final answer the reasoning should be
+09:52 
+
+09:52 enclosed between think tags. The final
+09:54 
+
+09:54 answer is between the answer tags
+09:57 
+
+09:57 uh and think reasoning process. So this
+09:59 
+
+09:59 is the structure that they have given
+10:00 
+
+10:00 that you generate output of. So this is
+10:02 
+
+10:02 a prompt that they give to the model for
+10:05 
+
+10:05 training.
+10:08 
+
+10:08 So if you see the chat template is very
+10:10 
+
+10:10 simple user colon assistant colon
+10:12 
+
+10:12 there's not much to a chat template and
+10:15 
+
+10:15 they use this on top of a very powerful
+10:18 
+
+10:18 base model which is a deepseek v3 base
+10:21 
+
+10:21 which has seen a huge amount of math and
+10:22 
+
+10:22 code data
+10:25 
+
+10:25 and then they use gRPO with verifiable
+10:27 
+
+10:27 reward.
+10:29 
+
+10:29 So the they you uh they use for math
+10:33 
+
+10:33 data they use uh math code data they use
+10:36 
+
+10:36 accuracy reward and for math data the
+10:37 
+
+10:37 reward is simply that you extract
+10:39 
+
+10:39 whatever is enclosed in those boxed or
+10:41 
+
+10:41 whatever tag so uh that they specify. So
+10:43 
+
+10:43 first they will have something like put
+10:45 
+
+10:45 your final answer within box or put your
+10:47 
+
+10:47 final answer in this format. Then they
+10:50 
+
+10:50 will use a parcel to extract uh the
+10:52 
+
+10:52 final answer and then uh that final
+10:56 
+
+10:56 answer will be matched with the ground
+10:57 
+
+10:57 truth and the reward will be given based
+10:59 
+
+10:59 on whether it matches or not maybe + 1 -
+11:02 
+
+11:02 1 or plus 10 - 10. [snorts] So this is
+11:04 
+
+11:04 for math for code they extract the code
+11:07 
+
+11:07 part. So let's say uh the code requires
+11:10 
+
+11:10 you to uh find the shortest number in
+11:12 
+
+11:12 list. So there will be a reasoning step
+11:14 
+
+11:14 and then there will be a small function
+11:17 
+
+11:17 uh to small function that would compute
+11:20 
+
+11:20 the shortest number given a list of
+11:21 
+
+11:21 numbers. So they will extract the code
+11:24 
+
+11:24 part and they will run unit test on top
+11:25 
+
+11:25 of that code. So the assumption is that
+11:28 
+
+11:28 your code already contains unit test
+11:31 
+
+11:31 that can be run. So the not the code the
+11:33 
+
+11:33 query already contains unit test that
+11:35 
+
+11:35 can be run on the code generated
+11:38 
+
+11:38 and that once you run unit test you'll
+11:40 
+
+11:40 get a reward. And finally there is a
+11:42 
+
+11:42 format reward uh because they want the
+11:44 
+
+11:44 model to generate output in this thing
+11:46 
+
+11:46 tax and answer tax. So if the format
+11:48 
+
+11:48 looks like this they will give a reward
+11:50 
+
+11:50 of plus one otherwise they will give a
+11:52 
+
+11:52 reward of minus one. And then [snorts]
+11:54 
+
+11:54 uh the accuracy reward and the format
+11:56 
+
+11:56 reward of weight together and they are
+11:58 
+
+11:58 used for reinforcement learning.
+12:02 
+
+12:02 Does does this make sense? Okay.
+12:05 
+
+12:05 So that's it. I mean there uh nothing
+12:08 
+
+12:08 much about the doing uh about inducing
+12:12 
+
+12:12 reasoning using GRPO because the
+12:14 
+
+12:14 approach is just GRPO on top of a very
+12:18 
+
+12:18 powerful base model with verifiable data
+12:20 
+
+12:20 verifiable reward and if you do that uh
+12:24 
+
+12:24 you get uh uh this curve on uh this
+12:28 
+
+12:28 performance is on a IME. So, AIM is a
+12:32 
+
+12:32 Olympiad level
+12:35 
+
+12:35 math problems
+12:39 
+
+12:39 from 1983.
+12:43 
+
+12:43 So, I think this contains only till 2023
+12:47 
+
+12:47 because 2024 and 2025
+12:50 
+
+12:50 are used for evaluating the models,
+12:52 
+
+12:52 right? These are for evaluation. These
+12:54 
+
+12:54 are very tough math problems. And if you
+12:56 
+
+12:56 see the performance of the model at the
+12:59 
+
+12:59 beginning of training. So look at passet
+13:01 
+
+13:01 one. Uh I don't remember what concept
+13:04 
+
+13:04 one is. So I'll uh so this passet one
+13:08 
+
+13:08 problem
+13:09 
+
+13:09 I think actually I don't know. So this
+13:12 
+
+13:12 pass one initially is close to 15% or
+13:15 
+
+13:15 16% whatever and uh after
+13:20 
+
+13:20 7,000 8,000 steps of training it's 70%.
+13:24 
+
+13:24 So these are very very tough problems
+13:25 
+
+13:25 and solving even one problem is a huge
+13:27 
+
+13:27 challenge. So if you can see that the
+13:29 
+
+13:29 performance on uh Olympia level problems
+13:32 
+
+13:32 jumps a lot by uh doing reinforcement
+13:36 
+
+13:36 learning. Now there is some there can be
+13:38 
+
+13:38 some issue with this evaluation also in
+13:40 
+
+13:40 the sense that many of the problems uh
+13:43 
+
+13:43 that you're getting evaluated against
+13:45 
+
+13:45 might you might have already seen during
+13:46 
+
+13:46 training but still the model is does
+13:49 
+
+13:49 improve uh a lot because when you
+13:51 
+
+13:51 construct uh huge amount of data for
+13:54 
+
+13:54 pre-training for math and code you end
+13:56 
+
+13:56 up taking a lot of problems from
+13:58 
+
+13:58 evaluation a lot of people might have
+13:59 
+
+13:59 solved a problem in a different way and
+14:01 
+
+14:01 put it on the web right especially
+14:03 
+
+14:03 because these are MPR problems people
+14:05 
+
+14:05 lot of people solve these problems all
+14:06 
+
+14:06 over the world, right?
+14:10 
+
+14:10 Okay. Another interesting thing is that
+14:13 
+
+14:13 the length of the responses also improve
+14:14 
+
+14:14 the not only the performance. So why
+14:16 
+
+14:16 would the length uh of the responses
+14:20 
+
+14:20 improve when we are trying to teach
+14:22 
+
+14:22 reasoning?
+14:26 
+
+14:26 >> Correct. Correct. Exactly. So now the
+14:28 
+
+14:28 there might be a lot of new patterns
+14:30 
+
+14:30 that might be emerging in its reasoning
+14:32 
+
+14:32 process that it would not generally do.
+14:35 
+
+14:35 Uh let's say if you were just if you
+14:36 
+
+14:36 would to just take the base model and
+14:38 
+
+14:38 apply it on a problem, it would probably
+14:40 
+
+14:40 solve it and if it and then give the
+14:41 
+
+14:41 answer. But now it might be doing a lot
+14:43 
+
+14:43 more things and we'll see what kind of
+14:44 
+
+14:44 things it might be doing. It might be
+14:46 
+
+14:46 backtracking tracking it might be
+14:47 
+
+14:47 verifying the solution might be
+14:49 
+
+14:49 exploring multiple parts and that is the
+14:51 
+
+14:51 interesting part of this GRPU uh this
+14:53 
+
+14:53 deepseek work uh they showed that just
+14:57 
+
+14:57 by doing GRPO with verifiable reward if
+14:60 
+
+14:60 you just keep doing it lot of
+15:02 
+
+15:02 interesting reasoning trajectories
+15:04 
+
+15:04 emerge that would not have emerged
+15:07 
+
+15:07 uh if you had just do done supervised
+15:09 
+
+15:09 training if you had uh just uh so a lot
+15:12 
+
+15:12 of patterns emerged during reinforcement
+15:14 
+
+15:14 learning until This time actually no
+15:16 
+
+15:16 everybody used to think that
+15:16 
+
+15:16 reinforcement learning is uh if you have
+15:20 
+
+15:20 heard of the Yan Leon's uh uh the way
+15:23 
+
+15:23 Yanik said is that reinforcement
+15:25 
+
+15:25 learning is a cherry on top of the cake
+15:26 
+
+15:26 it's a small thing that it's not the
+15:28 
+
+15:28 entire cake it's not its contribution is
+15:30 
+
+15:30 tiny but when this paper came out uh
+15:33 
+
+15:33 people realized that reinforcement
+15:34 
+
+15:34 learning is the main part of the cake
+15:36 
+
+15:36 actually it is the one that is
+15:38 
+
+15:38 drastically that can drastically make a
+15:40 
+
+15:40 difference in how the model and that's
+15:42 
+
+15:42 what people hope still that uh that we
+15:46 
+
+15:46 will be able to generate or create
+15:49 
+
+15:49 models that can actually solve novel
+15:50 
+
+15:50 research problems by doing reinforcement
+15:53 
+
+15:53 learning. Right?
+15:56 
+
+15:56 So uh so why do the lensing as as you
+15:59 
+
+15:59 said there are a lot of new reasoning
+16:01 
+
+16:01 patterns that emerge that would not have
+16:06 
+
+16:06 uh emerged uh that that were not there
+16:09 
+
+16:09 in the starting point. And what are
+16:11 
+
+16:11 those patterns? Uh verification. Okay, I
+16:13 
+
+16:13 have computed an answer. Let me check uh
+16:15 
+
+16:15 I I know I can verify this answer uh by
+16:18 
+
+16:18 putting it in some equation. So let me
+16:20 
+
+16:20 just verify by putting it in equation.
+16:22 
+
+16:22 So that's verification is not something
+16:23 
+
+16:23 that the model generally does before
+16:25 
+
+16:25 earlier models that uh or before O1 came
+16:27 
+
+16:27 out uh the models would not always
+16:30 
+
+16:30 verify their answer when they were
+16:31 
+
+16:31 generated right and people also don't
+16:33 
+
+16:33 want all these huge step when they
+16:35 
+
+16:35 generate the answer they want the final
+16:36 
+
+16:36 answer. So verification was not a very
+16:38 
+
+16:38 common thing.
+16:40 
+
+16:40 Similarly, backtracking. Matagra game is
+16:42 
+
+16:42 that you generate a solution and then
+16:44 
+
+16:44 you realize oh I have made a mistake uh
+16:48 
+
+16:48 at certain point and uh then you uh
+16:51 
+
+16:51 maybe at the third point it looks like I
+16:52 
+
+16:52 made it looks like this looks wrong
+16:53 
+
+16:53 maybe I made a mistake let me go back
+16:55 
+
+16:55 and then come up with a different
+16:56 
+
+16:56 solution and then go back and come up
+16:58 
+
+16:58 with so this idea of uh going back and
+17:02 
+
+17:02 keep on coming up with no different
+17:04 
+
+17:04 solution for the same problem that also
+17:06 
+
+17:06 not very common in llama uh models or
+17:09 
+
+17:09 the uh mist models from the previous
+17:12 
+
+17:12 year, right?
+17:15 
+
+17:15 Sub so these these two important things
+17:18 
+
+17:18 that emerged. These two are questionable
+17:20 
+
+17:20 things. The sub goal setting uh again
+17:23 
+
+17:23 sub goal setting is uh basically saying
+17:26 
+
+17:26 that okay I have to solve this big
+17:27 
+
+17:27 problem. Let me break it into small
+17:28 
+
+17:28 parts and then solve each of them. uh
+17:31 
+
+17:31 this uh this this is actually this
+17:34 
+
+17:34 sounds important and it's actually
+17:35 
+
+17:35 important but uh uh doesn't emerge very
+17:40 
+
+17:40 naturally in reinforcement learning and
+17:42 
+
+17:42 uh uh so these two verification
+17:44 
+
+17:44 backtracking are more uh uh emerge more
+17:46 
+
+17:46 naturally at least for some problems at
+17:48 
+
+17:48 least in some cases
+17:51 
+
+17:51 okay so this is an example of deepseek
+17:53 
+
+17:53 R1's output uh the question is James
+17:56 
+
+17:56 write a three-page letter to two
+17:60 
+
+17:60 different friends twice a week. How many
+18:01 
+
+18:01 pages does he write? Uh yeah. And uh if
+18:06 
+
+18:06 you look at the okay the question is not
+18:08 
+
+18:08 that difficult but if you look at the
+18:08 
+
+18:08 reasoning pattern it comes up with hm
+18:10 
+
+18:10 let's break this problem down step by
+18:13 
+
+18:13 step. So this is the step by step
+18:14 
+
+18:14 breaking which is always which is which
+18:16 
+
+18:16 was there even before deepcard but then
+18:20 
+
+18:20 uh this weight pattern this
+18:22 
+
+18:22 alternatively the model exploring
+18:25 
+
+18:25 alternative paths and then verification
+18:27 
+
+18:27 is this correct? Let me confirm this is
+18:29 
+
+18:29 a verification. So this is back uh
+18:32 
+
+18:32 multiple solutions
+18:39 
+
+18:39 then backtracking. Oh sorry verification
+18:48 
+
+18:48 and again this is another some sort of
+18:51 
+
+18:51 verification very natural language very
+18:53 
+
+18:53 natural looking verifications emerged
+18:55 
+
+18:55 started emerging in models when they
+18:57 
+
+18:57 started doing reinforcement learning for
+18:59 
+
+18:59 very long and that's why the responses
+19:00 
+
+19:00 became very very long like 32,000 tokens
+19:02 
+
+19:02 or 100,000 tokens.
+19:10 
+
+19:10 So this covers deep C carbon and
+19:12 
+
+19:12 actually uh
+19:15 
+
+19:15 yeah okay so I've already shown how the
+19:17 
+
+19:17 performance improves. Now question is if
+19:19 
+
+19:19 I just take apply take this
+19:21 
+
+19:21 reinforcement learning approach the GRPO
+19:23 
+
+19:23 with a verifiable reward and I apply it
+19:25 
+
+19:25 on my favorite model let's say llama
+19:27 
+
+19:27 3.18 billion or will I get the same
+19:34 
+
+19:34 emergence of improvement in reasoning
+19:37 
+
+19:37 improvement in performance on reasoning
+19:38 
+
+19:38 task or not.
+19:42 
+
+19:42 So the answer is no it does not this
+19:44 
+
+19:44 approach the answer already written
+19:46 
+
+19:46 which is that if you apply this approach
+19:48 
+
+19:48 on all models it's not going to happen
+19:50 
+
+19:50 it's not going to help and the reason is
+19:52 
+
+19:52 that most of these models the starting
+19:54 
+
+19:54 point it doesn't know that these kind of
+19:56 
+
+19:56 reasoning patterns exist so these
+19:58 
+
+19:58 reasoning patterns cannot emerge
+19:60 
+
+19:60 magically by reinforcement learning the
+20:02 
+
+20:02 base model your starting point should
+20:03 
+
+20:03 know something about these reasoning
+20:05 
+
+20:05 patterns so it should have seen those
+20:08 
+
+20:08 kind of patterns either during its
+20:09 
+
+20:09 pre-training or during its supervised
+20:12 
+
+20:12 SFT uh phase RL is not going to make
+20:16 
+
+20:16 magic these kind of magical things
+20:17 
+
+20:17 happen. So this is opposite of what we
+20:19 
+
+20:19 saw that RL was bringing the magic but
+20:21 
+
+20:21 now we are saying that it's true only
+20:23 
+
+20:23 when your model has seen a huge amount
+20:26 
+
+20:26 of those reasoning patterns during its
+20:28 
+
+20:28 pre-training or supervised SFT phase.
+20:33 
+
+20:33 Okay. So this uh so there was this paper
+20:36 
+
+20:36 which says uh the cognitive behaviors
+20:38 
+
+20:38 that enable self-improving reasoners.
+20:41 
+
+20:41 This is a paper uh that talked about
+20:44 
+
+20:44 sorry these reasoning patterns that we
+20:46 
+
+20:46 discussed earlier right uh okay so
+20:50 
+
+20:50 so they took a game simple game which in
+20:53 
+
+20:53 required you to do backtracking and uh
+20:57 
+
+20:57 verification in order to solve the
+20:58 
+
+20:58 problem right so the game was simple
+20:60 
+
+20:60 that you are given uh four uh symbols
+21:03 
+
+21:03 plus minus multiplication and division
+21:05 
+
+21:05 and uh you are given
+21:08 
+
+21:08 uh some numbers you have to combine
+21:10 
+
+21:10 those numbers
+21:11 
+
+21:11 to find uh to uh to create the target.
+21:14 
+
+21:14 So either adding subtracting doing a lot
+21:16 
+
+21:16 of different things suppose I give you
+21:18 
+
+21:18 24 you have to find what combination of
+21:20 
+
+21:20 these numbers will give me 24.
+21:22 
+
+21:23 [clears throat] So what they observed is
+21:24 
+
+21:24 that these mod the models that were in
+21:27 
+
+21:27 which it was easy to integrate
+21:29 
+
+21:29 reasoning. So Quen was known that this
+21:31 
+
+21:31 year people tried these using GRP plus
+21:34 
+
+21:34 RLB on top of Quen and it worked very
+21:36 
+
+21:36 well. So people knew that Quen uh uh can
+21:40 
+
+21:40 is it's easy to teach reasoning to
+21:42 
+
+21:42 Quinn. So what these guys observed is
+21:45 
+
+21:45 that uh Quen can generate these
+21:49 
+
+21:49 reasoning patterns before you even teach
+21:52 
+
+21:52 it. I mean so uh if you just take the
+21:54 
+
+21:54 quen uh base model it already has those
+21:57 
+
+21:57 reasoning patterns those uh uh
+21:60 
+
+21:60 backtracking those verification and
+22:02 
+
+22:02 those kind of whereas llama did not have
+22:04 
+
+22:04 those reasoning patterns to begin with.
+22:06 
+
+22:06 So when they applied it for the
+22:08 
+
+22:08 countdown task uh to they have uh did
+22:11 
+
+22:11 reinforcement learning on this task of
+22:13 
+
+22:13 countdown game uh they saw that the
+22:17 
+
+22:17 performance of Quen improved
+22:18 
+
+22:18 significantly but llama
+22:21 
+
+22:21 the performance of llama improved very
+22:23 
+
+22:23 uh slowly
+22:25 
+
+22:25 and the response length actually went
+22:28 
+
+22:28 down for llama whereas for Quinn it went
+22:33 
+
+22:33 uh it it was it settled around 600
+22:36 
+
+22:36 tokens or something.
+22:38 
+
+22:38 So basically Quinn realized that it has
+22:40 
+
+22:40 to use those reasoning patterns to solve
+22:42 
+
+22:42 this problem. Lamb actually just said
+22:44 
+
+22:44 that I will either directly solve it or
+22:46 
+
+22:46 I will not solve it. I'm not going to do
+22:48 
+
+22:48 extra reasoning for these problems.
+22:51 
+
+22:51 So the length increase will not happen
+22:54 
+
+22:54 automatically and the extra these
+22:56 
+
+22:56 beautiful reasoning patterns will not
+22:57 
+
+22:57 emerge naturally. You have to teach
+22:59 
+
+22:59 them. [snorts] So uh that's what I'm
+23:02 
+
+23:02 calling as the role of initial behavior.
+23:04 
+
+23:04 the initial model that you start with
+23:05 
+
+23:05 should have these uh so if you look at
+23:08 
+
+23:08 this uh verification quen has 62 uh 62
+23:14 
+
+23:14 uh so this uh the the average number of
+23:16 
+
+23:16 cases where it demonstrates verification
+23:19 
+
+23:19 is already 62%. So in 60 62% of the
+23:22 
+
+23:22 cases it already shows verification
+23:24 
+
+23:24 whereas llama 3 billion only shows in
+23:26 
+
+23:26 10% of the cases and even llama 70
+23:28 
+
+23:28 billion which is a 30 times bigger model
+23:30 
+
+23:30 shows it in only half of the cases.
+23:33 
+
+23:33 Similarly backtracking
+23:36 
+
+23:36 uh quen shows in 65% of the cases
+23:38 
+
+23:38 whereas llama and 3 billion as well as
+23:41 
+
+23:41 70 billion shows in around only 20% of
+23:43 
+
+23:43 the cases.
+23:45 
+
+23:45 [clears throat]
+23:45 
+
+23:45 So as I mentioned the base model is
+23:47 
+
+23:47 important. You need to have a good
+23:49 
+
+23:49 starting point before you start doing
+23:50 
+
+23:50 RL.
+23:53 
+
+23:53 So how do we get induce these reasoning
+23:55 
+
+23:55 patterns? If if I all I want is I have a
+23:58 
+
+23:58 llama 3 million. How do I make sure that
+24:01 
+
+24:01 we'll do these reasoning? I have these
+24:02 
+
+24:02 reasoning patterns. And the idea is
+24:04 
+
+24:04 simple that you distill the powerful
+24:07 
+
+24:07 model. Distill the reasoning patterns
+24:08 
+
+24:08 from the powerful model into this small
+24:11 
+
+24:11 model. So you take this powerful model
+24:15 
+
+24:15 uh something like deepcar one uh let's
+24:19 
+
+24:19 say it's deepc carb one
+24:22 
+
+24:22 generate multiple thoughts and solutions
+24:24 
+
+24:24 verify them using the verifier and only
+24:27 
+
+24:27 the cases which are verified you use
+24:29 
+
+24:29 them for sft or training.
+24:33 
+
+24:33 So if you uh if you have an option that
+24:36 
+
+24:36 okay I have this weak model which does
+24:37 
+
+24:37 not understand reasoning very well
+24:39 
+
+24:39 should I do distillation from a powerful
+24:41 
+
+24:41 model or should I just do reinforcement
+24:43 
+
+24:43 learning on top of it. Always do
+24:44 
+
+24:44 distillation. Reinforcement learning uh
+24:47 
+
+24:47 is not going to help unless your
+24:49 
+
+24:49 starting point is already seen knows
+24:52 
+
+24:52 that behavior. So always prefer
+24:53 
+
+24:53 distillation to over RL in those kind of
+24:56 
+
+24:56 task. And the distation idea is very
+24:57 
+
+24:57 simple that you just take examples from
+24:59 
+
+24:59 the powerful model and train your weaker
+25:02 
+
+25:02 model on top of the examples.
+25:09 
+
+25:09 Okay. So this completes the
+25:10 
+
+25:10 distillation. This completes the uh
+25:12 
+
+25:12 deepcar one as well as distillation
+25:14 
+
+25:14 part. But what if there is no teacher
+25:16 
+
+25:16 available? Let's say you are training a
+25:19 
+
+25:19 model for a task and you don't have any
+25:21 
+
+25:21 powerful teacher trained on that task
+25:23 
+
+25:23 and you don't want to go with the 100 or
+25:25 
+
+25:25 600 billion model uh for your task. You
+25:28 
+
+25:28 maybe want to work with 10 billion model
+25:30 
+
+25:30 uh or 7 billion model for your
+25:33 
+
+25:33 so is there something that you can do?
+25:36 
+
+25:36 Can you create these patterns
+25:38 
+
+25:38 and train your model on top of these
+25:40 
+
+25:40 reasoning patterns? So you have some
+25:42 
+
+25:42 different problem not math not code but
+25:44 
+
+25:44 a very different problem. Can you create
+25:46 
+
+25:46 these reasoning patterns uh for your
+25:49 
+
+25:49 problem and then train your model on top
+25:51 
+
+25:51 of those reasoning patterns?
+25:54 
+
+25:54 So uh so the next work what we going to
+25:57 
+
+25:57 talk about is how do I create these
+25:60 
+
+25:60 solutions that have reasoning patterns
+26:02 
+
+26:02 without a reasoning model and then how
+26:04 
+
+26:04 do I train is simple but how do I create
+26:06 
+
+26:06 these patterns okay so
+26:09 
+
+26:09 let's look at so how do you teach a
+26:11 
+
+26:11 model to restart means that you are uh
+26:15 
+
+26:15 you were coming up with a solution and
+26:16 
+
+26:16 then you realized oh this solution is
+26:18 
+
+26:18 not going to work and then you said okay
+26:20 
+
+26:20 let me try a different solution that's a
+26:21 
+
+26:21 restart that you ignored what
+26:23 
+
+26:23 or you decided that you this approach is
+26:26 
+
+26:26 not working let me try a completely
+26:27 
+
+26:27 different approach right so how do you
+26:29 
+
+26:29 teach restart the idea uh if you teach
+26:32 
+
+26:32 restart it's not that difficult what you
+26:35 
+
+26:35 will do is you will uh take your
+26:37 
+
+26:37 whatever we can learn that you are
+26:38 
+
+26:38 working with let's say llama and uh you
+26:41 
+
+26:41 will take the difficult math problem
+26:43 
+
+26:43 that you're solving let's say you will
+26:45 
+
+26:45 get multiple solutions some are correct
+26:47 
+
+26:47 some are wrong and then what we'll do is
+26:51 
+
+26:51 something called linearization
+26:53 
+
+26:53 Linearation means you'll put solution
+26:55 
+
+26:55 one and then you can say hm that does
+26:57 
+
+26:57 not look right let me try a different
+26:59 
+
+26:59 approach. You'll put solution two and
+27:00 
+
+27:00 then oh this does not look right either
+27:02 
+
+27:02 let me try this third approach and then
+27:04 
+
+27:04 you would put solution three and say oh
+27:06 
+
+27:06 this seems correct hence the answer is
+27:08 
+
+27:08 x. Yeah
+27:09 
+
+27:09 >> you are creating
+27:11 
+
+27:11 uh so basically you're prompting an lm
+27:14 
+
+27:14 to somehow take these two wrong
+27:16 
+
+27:16 solutions and one correct solution to
+27:17 
+
+27:17 create this natural looking solution.
+27:19 
+
+27:19 We'll discuss in more detail how to do
+27:21 
+
+27:21 this. Uh but somehow you have to
+27:24 
+
+27:24 linearize your wrong and correct
+27:26 
+
+27:26 solutions.
+27:29 
+
+27:29 And once you have linearized it then you
+27:32 
+
+27:32 can do supervised tuning on top of these
+27:34 
+
+27:34 uh chains that you have created these
+27:36 
+
+27:36 reasoning chains. You can call it
+27:39 
+
+27:39 reasoning because it's trying multiple
+27:40 
+
+27:40 solutions here. So it's some some
+27:42 
+
+27:42 limited form of reasoning
+27:44 
+
+27:44 and then you can do SFT and hope that
+27:46 
+
+27:46 your model now incorporates this
+27:48 
+
+27:48 reasoning pattern.
+27:49 
+
+27:49 So this was one simple thing. But what
+27:51 
+
+27:51 if you want to teach
+27:54 
+
+27:54 u backtracking? Backtracking means that
+27:57 
+
+27:57 you are solving the problem and uh at
+28:00 
+
+28:00 the seventh step you realized oh there's
+28:02 
+
+28:02 [snorts] a mistake. Oh this doesn't this
+28:04 
+
+28:04 doesn't seem to go anywhere. Maybe there
+28:06 
+
+28:06 was a mistake in the fourth step. So let
+28:07 
+
+28:07 me restart from the fourth step. So you
+28:10 
+
+28:10 want to go back to the fourth step and
+28:11 
+
+28:11 try a different solution now. Right? Uh
+28:13 
+
+28:13 [snorts] so how do you do backtracking?
+28:16 
+
+28:16 So this is let's say this is a problem.
+28:17 
+
+28:17 A box is 2 cm high, 5 cm long and it can
+28:22 
+
+28:22 hold certain amount of clay. The second
+28:24 
+
+28:24 box is twice the height and something
+28:26 
+
+28:26 something and what is n.
+28:29 
+
+28:29 So now what you will do is you will the
+28:31 
+
+28:31 first thing is that you want to make
+28:32 
+
+28:32 sure that your answer is in steps
+28:33 
+
+28:33 because you want to reach backtrack to a
+28:35 
+
+28:35 some certain step. You want to make sure
+28:37 
+
+28:37 that the answer is generated in steps.
+28:39 
+
+28:39 This is so you can prompt the LM that
+28:40 
+
+28:40 okay generate step by step and after
+28:42 
+
+28:42 each step put double slash in twice or
+28:44 
+
+28:44 something like that. So it's easy to
+28:46 
+
+28:46 extract the steps.
+28:48 
+
+28:48 So you extract the steps of the uh you
+28:51 
+
+28:51 generate the solution step by step. Step
+28:54 
+
+28:54 one, step two, step three, step four.
+28:55 
+
+28:55 And step four you realize no this part
+28:58 
+
+28:58 is wrong. This answer is actually wrong.
+28:60 
+
+28:60 448 g is not the answer. And then
+29:03 
+
+29:03 [clears throat] so now you want to
+29:05 
+
+29:05 restart from a point where there was a
+29:07 
+
+29:07 mistake. So I think I don't remember.
+29:10 
+
+29:10 Let's I think yeah. So let's say the
+29:12 
+
+29:12 mistake was in this step.
+29:15 
+
+29:15 Let's say this was a mistake.
+29:22 
+
+29:22 So you want to start from the step just
+29:24 
+
+29:24 before the mistake and retry the
+29:28 
+
+29:28 solution. Right?
+29:31 
+
+29:31 And maybe now you reach the correct
+29:33 
+
+29:33 solution.
+29:38 
+
+29:38 So
+29:39 
+
+29:39 so two things how do I get this such a
+29:42 
+
+29:42 tree right? So we'll talk about this
+29:43 
+
+29:43 later. And now once I have this tree and
+29:46 
+
+29:46 I have that this solution is correct and
+29:48 
+
+29:48 this solution is wrong. [clears throat]
+29:50 
+
+29:50 How do I form something that I can use
+29:52 
+
+29:52 for SFT?
+29:57 
+
+29:57 So first step is that you rewrite each
+29:59 
+
+29:59 of the steps. You have generated these 1
+30:01 
+
+30:01 2 3 4 and
+30:03 
+
+30:03 uh I've called it step three step four
+30:05 
+
+30:05 step five again but it's I think it's
+30:08 
+
+30:08 fine. Yeah. So now you want to rewrite
+30:10 
+
+30:10 each of these somehow combine this wrong
+30:12 
+
+30:12 step and the uh wrong solution and the
+30:14 
+
+30:14 correct solution. So you will what you
+30:17 
+
+30:17 will do you'll prompt the LM you'll say
+30:18 
+
+30:18 that uh given a partially thought out
+30:21 
+
+30:21 solution and the current step your job
+30:24 
+
+30:24 is to rewrite the current step into a
+30:26 
+
+30:26 thought that smoothly continues the
+30:28 
+
+30:28 previous thoughts. So uh you're telling
+30:31 
+
+30:31 LM that convert this each step to
+30:33 
+
+30:33 actually a thought that flows naturally.
+30:36 
+
+30:36 Okay? Because you don't want to teach
+30:38 
+
+30:38 the LM that okay this step broke and
+30:40 
+
+30:40 that step started that will be difficult
+30:41 
+
+30:41 to teach. You want to teach it more of a
+30:44 
+
+30:44 smoothly following solution that we saw
+30:45 
+
+30:45 in the case of deep deepse right. So you
+30:48 
+
+30:48 asked it to rewrite the step first step
+30:50 
+
+30:50 and you wrote it second step condition
+30:52 
+
+30:52 on the previous rewritten steps. It
+30:54 
+
+30:54 wrote it third one and also fourth one.
+30:57 
+
+30:57 So here let's say it has rewritten the
+30:59 
+
+30:59 four steps that we saw previously uh l
+31:05 
+
+31:05 and now the fifth step we know that the
+31:08 
+
+31:08 solution is wrong right and we also know
+31:12 
+
+31:12 that the correct solution is that you go
+31:14 
+
+31:14 you that you restart from this point
+31:16 
+
+31:16 this that for the correct solution you
+31:18 
+
+31:18 have to restart from this point right so
+31:20 
+
+31:20 now we want we prompt the lm that this
+31:22 
+
+31:22 solution is wrong this step is wrong and
+31:26 
+
+31:26 in order to find the correct solution.
+31:27 
+
+31:27 So given a partially sorry this one
+31:30 
+
+31:30 given a partially thought out solution
+31:32 
+
+31:32 which ends by identifying itself to be
+31:34 
+
+31:34 incorrect. You're telling the model that
+31:35 
+
+31:35 the it's incorrect solution the back uh
+31:40 
+
+31:40 and needing to backtrack the backtrack
+31:42 
+
+31:42 step backtrack step says that the
+31:44 
+
+31:44 solution is supposed to backtrack to
+31:45 
+
+31:45 your uh uh so you are given this that
+31:48 
+
+31:48 the solution incorrect solution and
+31:51 
+
+31:51 you're also told that you have to
+31:52 
+
+31:52 backtrack to this step.
+31:55 
+
+31:55 Your job is to continue the existing
+31:57 
+
+31:57 solution thoughts by backtracking to
+31:60 
+
+31:60 this part. So the model you when you
+32:03 
+
+32:03 prompt element model will generate oh
+32:04 
+
+32:04 that this this does not seem right. Let
+32:06 
+
+32:06 me go back to where I calculated the
+32:08 
+
+32:08 volume of the second uh only of the
+32:10 
+
+32:10 first box. Uh let me go back to that
+32:12 
+
+32:12 point because I think that there was a
+32:14 
+
+32:14 mistake after that. So I will go back to
+32:15 
+
+32:15 that point. So it will generate
+32:17 
+
+32:17 something sort of a continuation. So
+32:19 
+
+32:19 basically what you're trying to do is
+32:20 
+
+32:20 giving a natural flow to this broken
+32:24 
+
+32:24 graph. If I if you had just put the
+32:25 
+
+32:25 steps there, it would not have looked
+32:27 
+
+32:27 very natural, right? So, you're trying
+32:29 
+
+32:29 to convert this tree into a naturally
+32:32 
+
+32:32 flowing center. You're uh you are
+32:33 
+
+32:33 linearizing the tree in a way, right?
+32:36 
+
+32:36 [clears throat]
+32:38 
+
+32:38 And then now you can uh now you have the
+32:42 
+
+32:42 backtracking step. Now you can again use
+32:44 
+
+32:44 the previous prompt rewriting of steps.
+32:46 
+
+32:46 So the you will add the nodes of the
+32:50 
+
+32:50 different path and now what you have got
+32:53 
+
+32:53 gotten is a linearization of the tree
+32:55 
+
+32:55 that you can use for supervised tuning.
+32:59 
+
+32:59 Does this make sense? Uh that how do you
+33:01 
+
+33:01 take a tree that and linearize it and
+33:05 
+
+33:05 convert it into something that you can
+33:06 
+
+33:06 use as answer for squares training.
+33:09 
+
+33:09 Okay.
+33:16 
+
+33:16 Okay. So this was how if if you are
+33:18 
+
+33:18 given the tree, how do you use how do
+33:20 
+
+33:20 you convert it into something that can
+33:21 
+
+33:21 be used for? But how do I get this tree
+33:23 
+
+33:23 in the first place? So [clears throat]
+33:26 
+
+33:26 uh we uh so this paper that uh these
+33:31 
+
+33:31 slides are based on it uses mark of
+33:32 
+
+33:32 chain research. Yeah.
+33:41 
+
+33:41 >> Separately.
+33:42 
+
+33:42 >> So, first you have the separate steps.
+33:43 
+
+33:43 Uh you already have this tree, right?
+33:47 
+
+33:47 >> And now the question is how and I know
+33:50 
+
+33:50 that this this path is incorrect. This
+33:53 
+
+33:53 path is correct. Given that I have this
+33:55 
+
+33:55 tree structure, how do I create a
+33:58 
+
+33:58 natural-look solution? Right.
+34:05 
+
+34:05 not the tree given the tree how do I uh
+34:08 
+
+34:08 I'm prompting the lm to convert each of
+34:11 
+
+34:11 them into natural looking natural
+34:13 
+
+34:13 looking flow and then somehow add a
+34:15 
+
+34:15 flowing sentence from here to here
+34:16 
+
+34:16 basically I'm adding a sentence that
+34:18 
+
+34:18 will allow me to flow from here to here
+34:21 
+
+34:21 and I'm also converting each of the
+34:22 
+
+34:22 steps into a natural looking sentence so
+34:24 
+
+34:24 the entire thing looks natural
+34:27 
+
+34:27 >> already has the already has a tree you
+34:30 
+
+34:30 are giving the tree beforehand And then
+34:31 
+
+34:31 you are saying that okay now convert it
+34:33 
+
+34:33 into something that looks like a proper
+34:35 
+
+34:35 solution. But how to get the tree is the
+34:36 
+
+34:36 second part which is MCTS march tree.
+34:41 
+
+34:41 Any other question?
+34:48 
+
+34:48 Okay.
+34:51 
+
+34:51 So uh as I mentioned we use mark of
+34:53 
+
+34:53 chain research for generating the
+34:54 
+
+34:54 solution and the idea is that you want
+34:57 
+
+34:57 to generate solutions that
+34:60 
+
+34:60 uh because the you can see you can just
+35:02 
+
+35:02 sample multiple solutions but they may
+35:04 
+
+35:04 not intersect at any point uh and also
+35:07 
+
+35:07 you might not be able to do a very good
+35:09 
+
+35:09 job if you just sample random solutions.
+35:10 
+
+35:10 So mark tree sol tree search allows you
+35:13 
+
+35:13 to explore high reward solutions.
+35:17 
+
+35:17 uh uh so it combines exploration uh as
+35:20 
+
+35:20 well as exploitation where you try to
+35:22 
+
+35:22 exploit the goodness of a solution in
+35:24 
+
+35:24 order to decide how to construct the
+35:26 
+
+35:26 tree and we will look at we'll see that
+35:29 
+
+35:29 so each node represents a partial
+35:32 
+
+35:32 solution
+35:34 
+
+35:34 uh and the edges correspond to the steps
+35:37 
+
+35:37 so partial solution means that all the
+35:39 
+
+35:39 steps of the solution so far and so
+35:42 
+
+35:42 edges are the steps themselves and nodes
+35:45 
+
+35:45 are the part partial solutions
+35:47 
+
+35:47 So the tree would look something like
+35:49 
+
+35:49 this. If you if I were to make the tree
+35:51 
+
+35:51 using this approach as is. It will say
+35:54 
+
+35:54 uh the first node would be uh step one
+35:57 
+
+35:57 determine the dimension of the box. The
+35:59 
+
+35:59 second node will be step one and step
+36:00 
+
+36:00 two combined and the action would be
+36:03 
+
+36:03 step two only. So this will looks very
+36:05 
+
+36:05 dirty. So what I will do is I will not
+36:07 
+
+36:07 use this tree structure and I will use a
+36:09 
+
+36:09 simpler tree structure which we have
+36:11 
+
+36:11 been uh uh using so far where
+36:15 
+
+36:15 yeah where I will just put the actions
+36:17 
+
+36:17 themselves inside the node not that
+36:19 
+
+36:19 partial solution. So this node actually
+36:22 
+
+36:22 represents the partial solution and this
+36:23 
+
+36:23 node represent everything so far. So
+36:25 
+
+36:25 each of the node represent uh each of
+36:27 
+
+36:27 the node so this node actually
+36:28 
+
+36:28 represents partial solution so far.
+36:38 
+
+36:38 But just like putting the step over
+36:40 
+
+36:40 there it's easy to represent. Okay. And
+36:42 
+
+36:42 we can do that because there is uh
+36:45 
+
+36:45 generally this marov chain research is
+36:46 
+
+36:46 used in when you let's say in games
+36:49 
+
+36:49 right where there's opponent also or
+36:50 
+
+36:50 there's an environment which is uh
+36:52 
+
+36:52 stoastic. So when there's something uh
+36:55 
+
+36:55 other than the lm in the picture uh it
+36:58 
+
+36:58 becomes important to represent the node
+37:00 
+
+37:00 and action edges separately. But here in
+37:03 
+
+37:03 our case lm is the only one generating
+37:06 
+
+37:06 the solution and the next step
+37:08 
+
+37:08 generating the step and the next state
+37:10 
+
+37:10 is always uh st + one is so if you are
+37:14 
+
+37:14 represent them as state s0 s1 so st + 1
+37:18 
+
+37:18 is always st
+37:20 
+
+37:20 times the uh sorry concatated with the
+37:22 
+
+37:22 action that you took it's always a
+37:24 
+
+37:24 concatation here so we are working with
+37:26 
+
+37:26 a very deterministic environment where
+37:27 
+
+37:27 the action is just that generates is
+37:30 
+
+37:30 just appended so we can do this uh
+37:33 
+
+37:33 modification of putting the notes uh uh
+37:36 
+
+37:36 using the notes to represent actions.
+37:42 
+
+37:42 Okay. Oops. Looks like I wrote over
+37:44 
+
+37:44 here. So now the question is which node
+37:46 
+
+37:46 should I expand? [snorts] And now let's
+37:48 
+
+37:48 say I'm generating the tree. Which node
+37:49 
+
+37:49 should I expand? And so I need to
+37:51 
+
+37:51 determine somehow that which node is
+37:53 
+
+37:53 most likely to reach the final solution.
+37:55 
+
+37:55 I need some way to measuring for
+37:57 
+
+37:57 measuring the quality of a node in order
+37:58 
+
+37:58 to decide where to go next. Right?
+38:01 
+
+38:01 That's what MCTS will tell me.
+38:06 
+
+38:06 So how do I decide how good a node is?
+38:09 
+
+38:09 Let's say I have reached I I was
+38:10 
+
+38:10 generating this tree. I generated a step
+38:12 
+
+38:12 one. I generated a step two. Now I want
+38:14 
+
+38:14 to know how good this step two that I
+38:16 
+
+38:16 generated is. What uh what can I do?
+38:21 
+
+38:21 Any ideas?
+38:23 
+
+38:23 I mean can I use a reward model here to
+38:26 
+
+38:26 uh determine whether so far the solution
+38:28 
+
+38:28 is good or not?
+38:30 
+
+38:30 >> [clears throat]
+38:30 
+
+38:30 >> No idea
+38:33 
+
+38:33 reward model can use the issue with
+38:35 
+
+38:35 reward model is that it's always trained
+38:36 
+
+38:36 on full solutions right not partial
+38:38 
+
+38:38 solutions so I can I ideally I can also
+38:42 
+
+38:42 train a something like a value function
+38:46 
+
+38:46 which takes a partial solution and tells
+38:47 
+
+38:47 you whether the partial solution is
+38:48 
+
+38:48 going to reach the final answer or not.
+38:51 
+
+38:51 We have discussed uh value functions
+38:53 
+
+38:53 earlier and we'll also value function
+38:55 
+
+38:55 will also come into a picture later but
+38:57 
+
+38:57 uh uh what the paper uh the paper called
+39:01 
+
+39:01 astro uh it what it does is it takes
+39:04 
+
+39:04 this partial solution and it tries to
+39:06 
+
+39:06 complete it.
+39:09 
+
+39:09 It generates multiple solutions
+39:11 
+
+39:11 completion. So completion one,
+39:13 
+
+39:13 completion two
+39:16 
+
+39:16 and so on. Let's say these two
+39:18 
+
+39:18 completions turn out to be correct.
+39:21 
+
+39:21 and these two completions
+39:25 
+
+39:25 turn out to be wrong. So in that case
+39:28 
+
+39:28 what it will do is it will say it will
+39:30 
+
+39:30 assign a reward of 2 / 4 =.5
+39:38 
+
+39:38 to this particular node
+39:40 
+
+39:40 right it's very uh a huge waste of time
+39:44 
+
+39:44 if you I mean it takes a lot of time you
+39:46 
+
+39:46 should run multiple solutions complete
+39:47 
+
+39:47 but that's uh I it has been shown that
+39:50 
+
+39:50 this results in very high quality nodes
+39:52 
+
+39:52 so their aim is to generate a very high
+39:53 
+
+39:53 quality data data for training so they
+39:56 
+
+39:56 choose uh this reward
+39:59 
+
+39:59 and the second thing that you do uh uh
+40:02 
+
+40:02 so this is a reward of a node. Now how
+40:05 
+
+40:05 do I
+40:07 
+
+40:07 so how so now see I finally what I want
+40:10 
+
+40:10 to do is this
+40:12 
+
+40:12 I want to determine that I whether I
+40:14 
+
+40:14 should break from this point whether I
+40:16 
+
+40:16 should use this node for uh creating a
+40:18 
+
+40:18 new node or this node I need to
+40:20 
+
+40:20 determine the val uh value of each node
+40:22 
+
+40:22 so how so now I've computed the reward
+40:24 
+
+40:24 of this node can I use that reward to
+40:26 
+
+40:26 somehow update the value of the nodes
+40:29 
+
+40:29 how do I update the value of the nodes
+40:31 
+
+40:31 that are previous to this node
+40:35 
+
+40:35 So uh so if you were doing exact MCTS
+40:39 
+
+40:39 you would use uh Q uh the Q function.
+40:42 
+
+40:42 The Q function basically means that
+40:44 
+
+40:44 given a state if I take an action uh
+40:48 
+
+40:48 what is the likelihood that I will reach
+40:52 
+
+40:52 what is the what is the reward average
+40:53 
+
+40:53 reward cumulative reward I will get if I
+40:56 
+
+40:56 just follow the policy from there on.
+40:58 
+
+40:58 So,
+40:60 
+
+41:00 so in normal MCT regular MCTs you use a
+41:02 
+
+41:02 Q function but since our states are very
+41:06 
+
+41:06 simple the environment is uh just
+41:08 
+
+41:08 appending the next step to my solution.
+41:11 
+
+41:11 I we will not be working with Q
+41:13 
+
+41:13 function. Uh but in uh this I have put
+41:16 
+
+41:16 this slide only to tell you that uh what
+41:18 
+
+41:18 you what do you do when
+41:22 
+
+41:22 uh when you're working in uh with
+41:24 
+
+41:24 environment which is not just not
+41:26 
+
+41:26 deterministic. creates a stoastic
+41:27 
+
+41:27 environment. Okay.
+41:30 
+
+41:30 So this is the Q function that function
+41:31 
+
+41:31 that we'll use for for our case. Uh the
+41:35 
+
+41:35 value of a node
+41:37 
+
+41:37 is the value of all its uh children. So
+41:41 
+
+41:41 nst is uh the children of ST.
+41:49 
+
+41:49 So it's a weighted average of the value
+41:51 
+
+41:51 of all its children plus the reward
+41:55 
+
+41:55 of the node
+42:02 
+
+42:02 and you uh normalize it
+42:09 
+
+42:09 and we'll look at at an example how this
+42:12 
+
+42:12 looks like in practice.
+42:17 
+
+42:17 So okay let's look at this. So let's say
+42:20 
+
+42:20 the reward of this step this node is
+42:23 
+
+42:23 zero value is zero and it has been seen
+42:26 
+
+42:26 only one. So n is basically how many
+42:28 
+
+42:28 times
+42:31 
+
+42:31 this node
+42:36 
+
+42:36 has been
+42:42 
+
+42:42 encountered or seen.
+42:47 
+
+42:47 So how many times you have passed
+42:48 
+
+42:48 through this node. So why do we care
+42:50 
+
+42:50 about n? So if you have passed let's say
+42:52 
+
+42:52 to a particular node a lot of different
+42:54 
+
+42:54 lot of times that means that you have
+42:56 
+
+42:56 done sufficient search on top of this
+42:58 
+
+42:58 node. Maybe you don't want to use those
+42:60 
+
+42:60 nodes where you have which you have seen
+43:02 
+
+43:02 a lot of times because you want to do
+43:04 
+
+43:04 some exploration also. You want to
+43:05 
+
+43:05 explore nodes which uh so that will come
+43:07 
+
+43:07 later. But uh so n is the number of uh
+43:10 
+
+43:10 so this n is the number of times this
+43:13 
+
+43:13 state you have reached this state when
+43:15 
+
+43:15 you run mcts.
+43:24 
+
+43:24 the state s
+43:28 
+
+43:28 has been
+43:30 
+
+43:30 selected.
+43:32 
+
+43:32 Okay.
+43:34 
+
+43:34 So if uh if so if I tell you that the
+43:36 
+
+43:36 reward is zero, value is zero and uh it
+43:38 
+
+43:38 has been seen one time, reward is one
+43:40 
+
+43:40 and value is one, it has also been seen
+43:41 
+
+43:41 one time. So what would be the value of
+43:44 
+
+43:44 our this let's call it node one. What
+43:47 
+
+43:47 will be the value of this node? It will
+43:48 
+
+43:48 be uh reward of this node which is 0.9
+43:54 
+
+43:54 plus value of this node which is 0 *
+43:57 
+
+43:57 number of 1 + 1 into 1 upon
+44:03 
+
+44:03 1 + 1 + 1 which is 3. So this will be
+44:06 
+
+44:06 1.9 by 3.
+44:12 
+
+44:12 So this is how you compute. So the value
+44:13 
+
+44:13 of the nodes is always uh computed
+44:15 
+
+44:15 bottom up. You start with the leaf and
+44:17 
+
+44:17 then you back backtrack the value
+44:19 
+
+44:19 upwards.
+44:26 
+
+44:26 Yeah. So this is what it is 1 + 0 +.9
+44:30 
+
+44:30 over 3.
+44:33 
+
+44:33 Okay. So we have talked about these
+44:34 
+
+44:34 steps before I actually talked about
+44:36 
+
+44:36 what MCTS does. And the reason is I
+44:38 
+
+44:38 wanted to uh motivate the parts which
+44:40 
+
+44:40 are more intuitive before we go into we
+44:43 
+
+44:43 talk about the entire algorithm. Uh so
+44:45 
+
+44:45 effectively I have already covered how
+44:47 
+
+44:47 do you evaluate the node. This is just
+44:49 
+
+44:49 uh you compute the reward at each node
+44:52 
+
+44:52 right basically and the way you compute
+44:54 
+
+44:54 the reward is either you can learn a
+44:56 
+
+44:56 value function or you can generate
+44:58 
+
+44:58 multiple solutions and see how many uh
+45:00 
+
+45:00 run to completion. And we've also seen
+45:02 
+
+45:02 back propagation. This is just computing
+45:05 
+
+45:05 the
+45:09 
+
+45:09 value function
+45:13 
+
+45:13 starting from the leaves.
+45:17 
+
+45:17 Starting
+45:19 
+
+45:19 from leaves
+45:22 
+
+45:22 and then going upwards. Right? So we
+45:24 
+
+45:24 have seen these two steps which are
+45:25 
+
+45:25 which were actually the main steps.
+45:27 
+
+45:27 Expansion is simply means that you take
+45:30 
+
+45:30 the whatever uh model that you're do
+45:33 
+
+45:33 using let's say llama you just sample
+45:35 
+
+45:35 the
+45:37 
+
+45:37 next step
+45:39 
+
+45:39 from a given node
+45:44 
+
+45:44 from a selected node. The only part that
+45:48 
+
+45:48 is left is
+45:50 
+
+45:50 how do I select a node? How do I decide
+45:52 
+
+45:52 which node to select? uh so given if I
+45:56 
+
+45:56 have given this tree partial tree
+45:57 
+
+45:57 structure which node should I select
+45:59 
+
+45:59 next and then I expand it to generate a
+46:02 
+
+46:02 next step then I evaluate we have seen
+46:04 
+
+46:04 how to evaluate it and then I approate
+46:06 
+
+46:06 so we have seen uh we know how to expand
+46:09 
+
+46:09 just generation uh sampling the next
+46:10 
+
+46:10 step from the lm we know how to evaluate
+46:12 
+
+46:12 we know how to approate but now given
+46:14 
+
+46:14 that I have all this information how do
+46:16 
+
+46:16 I select the note
+46:19 
+
+46:19 so let's say if you were just trying to
+46:21 
+
+46:21 exploit the tree as much as possible
+46:23 
+
+46:23 what would you do You would always pick
+46:25 
+
+46:25 the you will start. So this is your tree
+46:27 
+
+46:27 structure. Let's say
+46:33 
+
+46:33 right you will always pick the one with
+46:35 
+
+46:35 the highest value. This let's say this
+46:36 
+
+46:36 is the highest value. You will pick this
+46:38 
+
+46:38 and let's say this is the highest value.
+46:39 
+
+46:39 So you will keep on going down the tree
+46:41 
+
+46:41 always with the highest value and you
+46:42 
+
+46:42 will end up with a node which is which
+46:44 
+
+46:44 has very high value and that you can
+46:47 
+
+46:47 expand to generate a child. Right?
+46:52 
+
+46:52 If you were doing exploration only that
+46:53 
+
+46:53 means what does what do I mean by
+46:55 
+
+46:55 exploration only that you want to uh
+46:57 
+
+46:57 always pick nodes that have not been
+46:59 
+
+46:59 explored much. So then you will always
+47:02 
+
+47:02 so see you can just use this 1 / n you
+47:07 
+
+47:07 always pick the node which has the
+47:08 
+
+47:08 highest value of 1 / nst + 1. But uh
+47:12 
+
+47:12 this square root of nst + 1 / 1 + nst1
+47:16 
+
+47:16 is uh basically you are trying to say
+47:19 
+
+47:19 that this node the it parent has been
+47:21 
+
+47:21 picked a lot but it itself has not been
+47:24 
+
+47:24 picked those node whose parent has been
+47:25 
+
+47:25 picked a lot but it but it itself has
+47:27 
+
+47:27 not been picked right. [snorts] So if
+47:29 
+
+47:29 you were to uh you will use some
+47:31 
+
+47:31 inversely proportional function of your
+47:34 
+
+47:34 uh the number of times a node has been
+47:36 
+
+47:36 seen if you were just doing
+47:37 
+
+47:37 explorations.
+47:38 
+
+47:38 But when [clears throat] you uh when
+47:40 
+
+47:40 when you do MCDs you combine both you
+47:43 
+
+47:43 say that I not only want nodes that have
+47:45 
+
+47:45 high value but I also want nodes that
+47:48 
+
+47:48 have not been explored. So you use this
+47:51 
+
+47:51 formula is this combination. This is the
+47:54 
+
+47:54 model's probability of the generating
+47:55 
+
+47:55 the action or the step. [snorts]
+47:58 
+
+47:58 So this formula is used to decide which
+48:01 
+
+48:01 note uh at every point which note should
+48:03 
+
+48:03 I pick.
+48:11 
+
+48:11 So the selected node will correspond to
+48:13 
+
+48:13 a partial solution. Then once you reach
+48:16 
+
+48:16 that partial solution, you will generate
+48:18 
+
+48:18 k possible next steps and then you will
+48:22 
+
+48:22 compute the reward associated with each
+48:24 
+
+48:24 of those k possible next steps. Uh uh
+48:27 
+
+48:27 and then you will update the value
+48:29 
+
+48:29 function which is the so this this is
+48:31 
+
+48:31 the expansion phase.
+48:36 
+
+48:36 This is evaluation
+48:41 
+
+48:41 and then you will send the reward
+48:43 
+
+48:43 upwards to update the value function
+48:45 
+
+48:45 which is backtracking.
+48:52 
+
+48:52 So let's consider this example.
+48:56 
+
+48:56 Uh we [clears throat] have two nodes. Uh
+48:58 
+
+48:58 we have this small sub tree that is so
+49:00 
+
+49:00 we have three nodes. One is the root
+49:02 
+
+49:02 node and two the first step node. Two
+49:05 
+
+49:05 possible first step nodes
+49:07 
+
+49:07 s1 and s_ub_2. [clears throat]
+49:10 
+
+49:10 And here uh this is one step of the
+49:14 
+
+49:14 solution
+49:16 
+
+49:16 of the solution.
+49:24 
+
+49:24 So let's say I found that this uh taking
+49:28 
+
+49:28 this action a z at step s0 gives me the
+49:32 
+
+49:32 uh is the better path. Let's say so the
+49:36 
+
+49:36 the function that we saw earlier, right?
+49:37 
+
+49:37 What is the function? One second. this
+49:39 
+
+49:39 function right so let's say I found that
+49:41 
+
+49:41 this function is highest
+49:44 
+
+49:44 for this path for so taking action a z
+49:48 
+
+49:48 at step s0 uh is what maximizes that
+49:51 
+
+49:51 function the which is called the upper
+49:53 
+
+49:53 confidence bound so I will take that
+49:56 
+
+49:56 note and I will expand it and so this is
+49:59 
+
+49:59 the expansion phase when you expand it
+50:01 
+
+50:01 you will get
+50:03 
+
+50:03 two new uh steps uh two new possible
+50:07 
+
+50:07 continuations you will compute the
+50:09 
+
+50:09 reward of each of those two steps using
+50:11 
+
+50:11 whatever reward function you're using or
+50:14 
+
+50:14 value either the value function or by
+50:17 
+
+50:17 running it to completion whatever way
+50:18 
+
+50:18 you are interested in you will compute
+50:20 
+
+50:20 the reward of these two steps and then
+50:23 
+
+50:23 you will update the value of all the
+50:26 
+
+50:26 nodes. So what will be the value of this
+50:28 
+
+50:28 node? Uh because so this node has just
+50:31 
+
+50:31 been expanded. You will say the value is
+50:34 
+
+50:34 one and it has been seen only once so
+50:37 
+
+50:37 far and this value is zero and this also
+50:40 
+
+50:40 has been seen only
+50:43 
+
+50:43 once so far. Right? And then you will uh
+50:48 
+
+50:48 propagate this value upwards.
+50:53 
+
+50:53 Okay. So now given this think you will
+50:56 
+
+50:56 update uh the value of this node s1. So
+51:00 
+
+51:00 it's uh what will be the value of this
+51:02 
+
+51:02 new node? So this uh this was the old
+51:04 
+
+51:04 value. The new value will be
+51:07 
+
+51:07 uh 1 the value of this 1 * discount 1 +
+51:12 
+
+51:12 0 into 1 plus the reward over 3. So this
+51:18 
+
+51:18 is how you will update the value of this
+51:20 
+
+51:20 particular node
+51:23 
+
+51:23 and uh whatever you get here let's say
+51:26 
+
+51:26 it's 2 + 1 3 by 1 + 1 2x 3 oops
+51:31 
+
+51:31 where is it
+51:36 
+
+51:36 you will use this value now update
+51:40 
+
+51:40 uh v 0
+51:42 
+
+51:42 update
+51:44 
+
+51:44 v 0 based on
+51:47 
+
+51:47 updated V1
+51:50 
+
+51:50 and V2.
+51:54 
+
+51:54 This is your back propagation step.
+52:01 
+
+52:01 Okay. So now we saw so this was just a
+52:04 
+
+52:04 uh just uh just a view of how MCTS is
+52:09 
+
+52:09 used to create this tree structure and
+52:11 
+
+52:11 we've already seen that once we have
+52:13 
+
+52:13 this tree structure what we do we find
+52:15 
+
+52:15 some wrong solutions one last correct
+52:17 
+
+52:17 solution linearize them somehow and then
+52:20 
+
+52:20 use for SFT
+52:23 
+
+52:23 once we have this SFT model ready now we
+52:26 
+
+52:26 can apply RLV now this becomes so now
+52:28 
+
+52:28 the idea that once you do this SFT model
+52:30 
+
+52:30 has learned how to do backtracking or
+52:32 
+
+52:32 has learned how to do verification.
+52:33 
+
+52:33 verification we have not seen how to add
+52:36 
+
+52:36 but uh it has learned how to do
+52:38 
+
+52:38 backtracking right so now we can
+52:42 
+
+52:42 uh apply gRPO
+52:45 
+
+52:45 and once you do that you see that uh the
+52:48 
+
+52:48 uh as you do reinforcement learning on
+52:50 
+
+52:50 top of this model the at the starting
+52:52 
+
+52:52 let's say there was the number of
+52:54 
+
+52:54 backtracks was only one on math 500 data
+52:56 
+
+52:56 set but after as you continue training
+52:60 
+
+52:60 the number of backtracking behavior
+53:02 
+
+53:02 increases
+53:03 
+
+53:03 uh quite quite a lot
+53:11 
+
+53:11 and this is the performance. So the
+53:12 
+
+53:12 other so now if you now this is the
+53:15 
+
+53:15 comparison that you could have taken the
+53:16 
+
+53:16 model and directly done supervised
+53:19 
+
+53:19 tuning on top of uh without linearizing
+53:22 
+
+53:22 those traces you could have just picked
+53:23 
+
+53:23 the correct solution and done supervised
+53:25 
+
+53:25 training right uh and then did the
+53:28 
+
+53:28 reinforcement learning. So one is you
+53:30 
+
+53:30 created this linearization of back of
+53:32 
+
+53:32 traces. The other is you don't do linear
+53:35 
+
+53:35 linearization just do MCTS pick one
+53:37 
+
+53:37 correct solution with the highest reward
+53:38 
+
+53:38 and do SFT and uh and then apply R. So
+53:41 
+
+53:41 that is your direct SFT.
+53:43 
+
+53:43 So direct so there is
+53:46 
+
+53:46 a fourpoint difference between direct
+53:48 
+
+53:48 SFT and A2 SFT is where you create these
+53:52 
+
+53:52 reasoning chains and then do SFT. Uh so
+53:54 
+
+53:54 in both the cases you are doing MCTS you
+53:56 
+
+53:56 still doing MCTS. The difference is that
+53:58 
+
+53:58 whether you're linearizing. So this is
+54:00 
+
+54:00 nonlinearization.
+54:02 
+
+54:02 You're just picking the correct
+54:03 
+
+54:03 solution.
+54:08 
+
+54:08 Pick
+54:10 
+
+54:10 the correct path. You just pick the
+54:14 
+
+54:14 correct path and then do SFT. So if you
+54:15 
+
+54:15 do that,
+54:17 
+
+54:17 your performance on math 500 is 65 on
+54:20 
+
+54:20 AMC is 45 and 16.7 AP. And if you do
+54:24 
+
+54:24 S2FT there is improvement improvement
+54:26 
+
+54:26 and not so much improvement here but
+54:29 
+
+54:29 after RL after RL both of them improve
+54:33 
+
+54:33 uh there's somewhat more improvement
+54:35 
+
+54:35 with linearization. So actually I wanted
+54:38 
+
+54:38 to cover this paper because I wanted to
+54:40 
+
+54:40 uh this has MCTS explained in a wellway
+54:43 
+
+54:43 so it will be good to know about MCTS
+54:45 
+
+54:45 mark of chain uh research
+54:49 
+
+54:49 and yeah I think that's it.
+54:54 
+
+54:54 We'll stop at this point. So this is the
+54:55 
+
+54:55 paper uh
+54:58 
+
+54:58 this one is a paper that talks about
+54:60 
+
+54:60 mark of chain research the one that I
+55:02 
+
+55:02 covered here and uh I we also covered
+55:05 
+
+55:05 these two papers here and the first
+55:08 
+
+55:08 three papers we covered in the last
+55:09 
+
+55:09 class.

@@ -614,7 +614,7 @@ for p in [1, 2]:
 
 ## Question 11
 
-**How does theARIMA (Autoregressive Integrated Moving Average)model extend theARMAmodel?**
+**How does the ARIMA (Autoregressive Integrated Moving Average) model extend the ARMA model?**
 
 **Definition:**
 ARIMA extends ARMA by adding an Integration (I) component that handles **non-stationary** data through differencing. It's the most widely used classical forecasting model.
@@ -692,7 +692,7 @@ print(f"Next 10 forecasts: {forecast[:5]}...")
 
 ## Question 12
 
-**What is the role of theACF (autocorrelation function)andPACF (partial autocorrelation function)intime series analysis?**
+**What is the role of the ACF (autocorrelation function) and PACF (partial autocorrelation function) in time series analysis?**
 
 **Definition:**
 - **ACF:** Measures **total** correlation between $Y_t$ and $Y_{t-k}$ (includes indirect effects through intermediate lags)
@@ -760,7 +760,7 @@ Model Selection from ACF/PACF:
 
 ## Question 13
 
-**What isExponential Smoothing, and when would you use it intime series forecasting?**
+**What is Exponential Smoothing, and when would you use it in time series forecasting?**
 
 **Definition:**
 Exponential Smoothing is a family of forecasting methods where predictions are weighted averages of past observations, with weights decaying exponentially (more recent observations get higher weights).
@@ -917,7 +917,7 @@ print(f"MAE: {mae:.2f}")
 
 ## Question 15
 
-**Explain the concept ofcross-validationin the context oftime series analysis.**
+**Explain the concept of cross-validation in the context of time series analysis.**
 
 **Definition:**
 Time series cross-validation is a technique to estimate model performance on unseen future data while respecting temporal order. Standard k-fold CV cannot be used because shuffling destroys time dependencies.
@@ -1006,7 +1006,7 @@ print(f"Average MAE across folds: {np.mean(errors):.3f}")
 
 ## Question 16
 
-**How does theARCH (Autoregressive Conditional Heteroskedasticity)model deal withtime series volatility?**
+**How does the ARCH (Autoregressive Conditional Heteroskedasticity) model deal with time series volatility?**
 
 **Definition:**
 ARCH models time-varying volatility by making the variance conditional on past squared errors. It captures **volatility clustering** - periods of high volatility followed by high volatility, and vice versa.
@@ -1074,7 +1074,7 @@ print(f"\nForecast variance: {forecast.variance.values[-1]}")
 
 ## Question 17
 
-**Describe theGARCH (Generalized Autoregressive Conditional Heteroskedasticity)model and its application.**
+**Describe the GARCH (Generalized Autoregressive Conditional Heteroskedasticity) model and its application.**
 
 **Definition:**
 GARCH extends ARCH by including lagged conditional variances in addition to lagged squared errors. It's the most widely used model for volatility forecasting.
@@ -1145,7 +1145,7 @@ print("\nVolatility forecast:", np.sqrt(forecast.variance.values[-1]))
 
 ## Question 18
 
-**Explain the concepts ofcointegrationanderror correction modelsintime series.**
+**Explain the concepts of cointegration and error correction models in time series.**
 
 **Definition:**
 - **Cointegration:** Two or more non-stationary series are cointegrated if a linear combination of them is stationary. They share a long-run equilibrium relationship.
@@ -1218,7 +1218,7 @@ if pvalue < 0.05:
 
 ## Question 19
 
-**What is meant bymultivariate time series analysis, and how does it differ fromunivariate time series analysis?**
+**What is meant by multivariate time series analysis, and how does it differ from univariate time series analysis?**
 
 **Definition:**
 - **Univariate:** Analyzing a single time series variable
@@ -1290,7 +1290,7 @@ print("Joint forecast:\n", pd.DataFrame(forecast, columns=['Y', 'X']))
 
 ## Question 20
 
-**Explain the concept ofGranger causalityintime series analysis.**
+**Explain the concept of Granger causality in time series analysis.**
 
 **Definition:**
 Granger causality tests whether past values of one time series (X) help predict another series (Y) beyond what Y's own past provides. It's about **predictive causality**, not true cause-and-effect.

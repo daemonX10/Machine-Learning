@@ -1,0 +1,2764 @@
+00:02 So now we discussed transformer. We'll
+00:04 
+
+00:04 move towards transformer gradually.
+00:06 
+
+00:06 Right? So
+00:09 
+
+00:09 quick recap of attention again. We have
+00:13 
+
+00:13 we have an encoder layer, a decoder
+00:16 
+
+00:16 layer, right? The queries are coming
+00:19 
+
+00:19 from decoder. Keys are coming from
+00:21 
+
+00:21 encoder, right? Then we have u
+00:27 
+
+00:27 the dot product, right? U and then we uh
+00:31 
+
+00:31 basically uh get the short max and from
+00:34 
+
+00:34 short max we get the uh we get the what
+00:39 
+
+00:39 weighted sum and from weighted sum we
+00:42 
+
+00:42 get the uh attention output right so
+00:45 
+
+00:45 attention
+00:47 
+
+00:47 uh values attention distribution
+00:50 
+
+00:50 attention output
+00:53 
+
+00:53 okay
+00:55 
+
+00:55 now think about it so I so he he asked
+00:58 
+
+00:58 the
+00:59 
+
+00:59 that
+01:01 
+
+01:01 if the attention mechanism allows you to
+01:05 
+
+01:05 access all the tokens, right? By the
+01:08 
+
+01:08 way, remember attention
+01:12 
+
+01:12 uh I mean if you already have
+01:16 
+
+01:16 forget about machine translation, if you
+01:18 
+
+01:18 already have two sequences given,
+01:21 
+
+01:21 you can actually use attention in
+01:22 
+
+01:22 parallel.
+01:27 
+
+01:27 Isn't it
+01:30 
+
+01:30 not not in case of machine translation?
+01:31 
+
+01:31 Let's say you have two let's say you
+01:33 
+
+01:33 have two to two sequences and your task
+01:35 
+
+01:35 is to align two sequences. That's all.
+01:38 
+
+01:38 Right? You are given two sequences and
+01:39 
+
+01:39 your task is to align two sequences.
+01:41 
+
+01:41 It's not an extra prediction task. Then
+01:44 
+
+01:44 you can then you can compute attention
+01:46 
+
+01:46 in parallel because you are already
+01:48 
+
+01:48 given all the tokens
+01:50 
+
+01:50 and attentions are attention values are
+01:52 
+
+01:52 not dependent on the tokens on on on on
+01:55 
+
+01:55 each other, right?
+01:59 
+
+01:59 So the question that he asked is that if
+02:03 
+
+02:03 the if through attention you you you can
+02:06 
+
+02:06 access to all the input tokens, why do I
+02:09 
+
+02:09 need this connection,
+02:13 
+
+02:13 right? So why so this is my encoder,
+02:21 
+
+02:21 right? And this is my decoder.
+02:25 
+
+02:25 And I already said that each kod state
+02:29 
+
+02:29 have can have access to all the encoder
+02:31 
+
+02:31 states right even in parallel if it's a
+02:35 
+
+02:35 non it's an alignment problem.
+02:38 
+
+02:38 Why do I need this?
+02:41 
+
+02:41 Because these are the culprits.
+02:44 
+
+02:44 Why? Because of this recurrent
+02:46 
+
+02:46 dependency. You are not able to process
+02:48 
+
+02:48 tokens in parallel.
+02:51 
+
+02:51 If these
+02:53 
+
+02:53 connections had not been there, you
+02:56 
+
+02:56 could have accessed all the tokens in
+02:58 
+
+02:58 parallel.
+02:60 
+
+02:60 Right? Isn't it?
+03:03 
+
+03:03 If this connection had not been there,
+03:05 
+
+03:05 you could have access all the tokens in
+03:06 
+
+03:06 parallel.
+03:10 
+
+03:10 And in in self attention, we will do
+03:12 
+
+03:12 this. Okay. So, in self attention, what
+03:15 
+
+03:15 we do? We will remove the temporal
+03:18 
+
+03:18 dependency. So we will remove the temp
+03:20 
+
+03:20 this recurrent connection right and we
+03:22 
+
+03:22 allow the decoder states to access to
+03:24 
+
+03:24 all the encoder states. Can you think of
+03:26 
+
+03:26 problem here?
+03:28 
+
+03:28 If we do that if we remove all this all
+03:31 
+
+03:31 this sequence connections
+03:34 
+
+03:34 what's going to the problem?
+03:38 
+
+03:38 What's going to the problem?
+03:40 
+
+03:40 So basically you have this right?
+03:43 
+
+03:43 You have this this is in these are
+03:45 
+
+03:45 encoder states. These are decoder
+03:47 
+
+03:47 states, right? Encoder each decoder
+03:49 
+
+03:49 state can access two encoder states
+03:51 
+
+03:51 separately in parallel, right? What's
+03:55 
+
+03:55 the problem?
+03:57 
+
+03:57 Order, right? So x1, x2, x3
+04:03 
+
+04:03 and x3, x2, x1 are same
+04:08 
+
+04:08 because you are accessing tokens
+04:10 
+
+04:10 independent of their positions, right?
+04:13 
+
+04:13 We will discuss later that if if there
+04:16 
+
+04:16 is a mechanism to incorporate the
+04:17 
+
+04:17 position information into the uh into
+04:21 
+
+04:21 the model some ways right then you can
+04:23 
+
+04:23 you can you can do this parallel
+04:24 
+
+04:24 processing right. So for the time being
+04:26 
+
+04:26 you assume that there is a mechanism
+04:28 
+
+04:28 which takes care of this position
+04:30 
+
+04:30 information.
+04:32 
+
+04:32 Okay. Now let's discuss this self
+04:34 
+
+04:34 attention uh the idea behind self
+04:36 
+
+04:36 attention.
+04:38 
+
+04:38 So in self attention what we do
+04:42 
+
+04:42 and we will discuss this uh uh uh
+04:45 
+
+04:45 irrespective of any sequence to sequence
+04:47 
+
+04:47 model just assume that you have a you
+04:49 
+
+04:49 have an you have an RNA right and you
+04:52 
+
+04:52 want to incorporate this cell attention
+04:54 
+
+04:54 on top of an RN
+04:57 
+
+04:57 okay
+04:59 
+
+04:59 so this is my input these are the inputs
+05:02 
+
+05:02 right or H1 H2 H3 are the hidden states
+05:06 
+
+05:06 right So what I do here
+05:10 
+
+05:10 is that for every hidden state from
+05:13 
+
+05:13 every hidden state I will generate three
+05:16 
+
+05:16 vectors query key and value.
+05:20 
+
+05:20 From every hidden state I will generate
+05:22 
+
+05:22 Q1 query K1 key and value V1. So from H1
+05:28 
+
+05:28 I will generate Q1 K1 V1. How I I'll
+05:31 
+
+05:31 tell you later. From H2 I'll generate Q2
+05:35 
+
+05:35 K2 V2.
+05:37 
+
+05:37 From H3 I'll generate Q3 K3 V3.
+05:45 
+
+05:45 Okay.
+05:47 
+
+05:47 And how do we do that? Basically we will
+05:50 
+
+05:50 use three matrices. WQ corresponding to
+05:54 
+
+05:54 query, W K corresponding to key and WV
+05:58 
+
+05:58 corresponding to value.
+06:00 
+
+06:00 So these are matrices. So basically Q1
+06:06 
+
+06:06 is
+06:08 
+
+06:08 WQ
+06:10 
+
+06:10 *
+06:11 
+
+06:11 H1.
+06:13 
+
+06:13 Okay. K1 is W K * H1.
+06:22 
+
+06:22 V1 is WV * H1.
+06:28 
+
+06:28 So from each one I am generating three
+06:32 
+
+06:32 different vectors through three three
+06:35 
+
+06:35 different linear projections. That's
+06:37 
+
+06:37 all.
+06:40 
+
+06:40 And you if you want you can also do some
+06:42 
+
+06:42 nonlinearity.
+06:44 
+
+06:44 Similarly using the same set of matrices
+06:48 
+
+06:48 right I will generate Q2 K2 V2 right and
+06:51 
+
+06:51 Q3 K3 V3. Remember these matrices are
+06:56 
+
+06:56 being shared across tokens. So for for
+07:00 
+
+07:00 the for for all different inputs I have
+07:03 
+
+07:03 the same set of matrices. So parameters
+07:05 
+
+07:05 are shared.
+07:07 
+
+07:07 Okay. So I get query key value. Then
+07:10 
+
+07:10 what's the next task? I need to take the
+07:13 
+
+07:13 dot product between query and key.
+07:15 
+
+07:15 Right? So for so so every query
+07:19 
+
+07:19 every query will attend to all the keys.
+07:24 
+
+07:24 So so basically
+07:26 
+
+07:26 uh Q3 will Q3 will attend to K3
+07:32 
+
+07:32 meaning Q3 and K3 we have a dot product
+07:36 
+
+07:36 between Q3 and K3. Q3 will attend to K2.
+07:39 
+
+07:39 Q3 will attend to K1.
+07:42 
+
+07:42 So here I'll get Q3
+07:46 
+
+07:46 dot product K3 Q3 K3 Q3
+07:50 
+
+07:50 uh
+07:52 
+
+07:52 Q3 K2 and Q3 K1
+07:57 
+
+07:57 right here
+07:60 
+
+07:60 I'll get Q2
+08:03 
+
+08:03 K1
+08:05 
+
+08:05 Q2 K2
+08:08 
+
+08:08 and Q2 K3. Now, now here I'm assuming
+08:12 
+
+08:12 that it's an RNN of fixed size and every
+08:15 
+
+08:15 state can access to all the other
+08:17 
+
+08:17 states. It's not like only only uh the
+08:20 
+
+08:20 future I mean only the later state can
+08:23 
+
+08:23 access to the previous all state can
+08:25 
+
+08:25 access to all the other states. We're
+08:26 
+
+08:26 assuming that
+08:28 
+
+08:28 similarly here we'll get Q1 K1 Q1 K2 q1
+08:36 
+
+08:36 K3.
+08:39 
+
+08:39 Okay. So, and what are they? These are
+08:44 
+
+08:44 So, these are attention
+08:47 
+
+08:47 values,
+08:49 
+
+08:49 scores. So, from attention scores,
+08:52 
+
+08:52 what's the next task? I'll pass it
+08:53 
+
+08:53 through sigma. I'll get the
+08:55 
+
+08:55 distribution,
+08:58 
+
+08:58 get some distribution,
+08:60 
+
+08:60 three different distributions, right?
+09:02 
+
+09:02 Agreed? And then these distributions
+09:05 
+
+09:05 will provide me the weights, right?
+09:07 
+
+09:07 Let's say I'll get W1 uh W11 W1 2 W13
+09:14 
+
+09:14 here,
+09:16 
+
+09:16 right? What's next?
+09:19 
+
+09:19 Weighted sum and this will be W11 * V1 +
+09:26 
+
+09:26 W12
+09:27 
+
+09:27 * V2 V2 is coming from here
+09:31 
+
+09:31 plus W13 * V3.
+09:36 
+
+09:36 Similarly here, similarly here. So I'll
+09:38 
+
+09:38 get an attention vector A1 here,
+09:42 
+
+09:42 attention vector A2 here, attention
+09:44 
+
+09:44 vector A3 here. Clear? So we got this
+09:48 
+
+09:48 query key and value, right? Uh from each
+09:52 
+
+09:52 of the hidden states, right? And then
+09:54 
+
+09:54 every query basically has appended to
+09:57 
+
+09:57 all the keys, right? And then we got
+10:00 
+
+10:00 this U vector. We feed it to a sort max.
+10:05 
+
+10:05 We got a distribution and the
+10:07 
+
+10:07 distribution essentially gives you an
+10:08 
+
+10:08 idea of the weight and then we what we
+10:11 
+
+10:11 did we did the weighted sum of the value
+10:15 
+
+10:15 vectors right. So,
+10:18 
+
+10:18 so the major difference between
+10:19 
+
+10:19 attention and self attention is that in
+10:22 
+
+10:22 attention um you you uh I mean in
+10:26 
+
+10:26 vanilla setup you need a query and a
+10:29 
+
+10:29 keys
+10:30 
+
+10:30 and values are the same right and in the
+10:33 
+
+10:33 sequential sequence model with attention
+10:35 
+
+10:35 we showed that um uh the the recurrent
+10:40 
+
+10:40 dependencies are the issues right
+10:42 
+
+10:42 therefore we thought that uh let us just
+10:45 
+
+10:45 remove the recurrent dependencies and
+10:47 
+
+10:47 later let let each of the hidden states
+10:49 
+
+10:49 you know attends to all the other hidden
+10:51 
+
+10:51 states. Okay. So
+10:54 
+
+10:54 and uh you know you you might be
+10:57 
+
+10:57 wondering why these vectors are called
+10:60 
+
+10:60 queries, keys and values, right?
+11:03 
+
+11:03 So as the name suggest these names have
+11:06 
+
+11:06 some resemblance with uh typical
+11:09 
+
+11:09 information retrieval kind of setup
+11:12 
+
+11:12 where we write a query right we
+11:16 
+
+11:16 uh so when we write a query what are the
+11:18 
+
+11:18 keys the keys are essentially the meta
+11:22 
+
+11:22 information the metadata of documents
+11:25 
+
+11:25 present on internet right for example it
+11:28 
+
+11:28 can be set of keywords it can be the
+11:31 
+
+11:31 snippet of a document right and so on
+11:33 
+
+11:33 and so forth. So you can think I mean
+11:35 
+
+11:35 this is just an analogy by the way.
+11:36 
+
+11:36 Okay.
+11:38 
+
+11:38 So uh the snippet of a document the
+11:41 
+
+11:41 keywords of a document these are like I
+11:43 
+
+11:43 mean you can consider them as keys right
+11:46 
+
+11:46 and then what we do given a query we
+11:48 
+
+11:48 look at the similarity between the query
+11:51 
+
+11:51 and the uh the keys of documents right
+11:56 
+
+11:56 and see here also we are doing the same
+11:58 
+
+11:58 thing we are measuring the similarity
+11:60 
+
+11:60 between query and key using dot product
+12:02 
+
+12:02 right and once the similarity is
+12:04 
+
+12:04 measured right what what we do next in
+12:07 
+
+12:07 the information retrieval setup. we
+12:10 
+
+12:10 identify the uh set of documents which
+12:13 
+
+12:13 are important right and we retrieve the
+12:15 
+
+12:15 document which is I mean we basically
+12:18 
+
+12:18 rank all the documents based on based on
+12:20 
+
+12:20 some some similarity and sometimes in in
+12:24 
+
+12:24 information retrieval I'm not talking
+12:26 
+
+12:26 about search is different retrieval is
+12:28 
+
+12:28 different right in search you just rank
+12:31 
+
+12:31 all the documents and that's it right in
+12:33 
+
+12:33 retrieval your task is also to identify
+12:37 
+
+12:37 the portion of the document which is
+12:39 
+
+12:39 relevant to the query
+12:42 
+
+12:42 right let's say you have a book and
+12:45 
+
+12:45 while matching the query with the Q you
+12:48 
+
+12:48 with the key you identified that book to
+12:50 
+
+12:50 be relevant right but the entire book
+12:53 
+
+12:53 may not be relevant only a part of the
+12:55 
+
+12:55 book may be relevant right now how do we
+12:57 
+
+12:57 get which part of the book is relevant
+12:60 
+
+12:60 so so this value vector
+13:04 
+
+13:04 essentially tells you look the the the
+13:06 
+
+13:06 value vector is obtained from the hidden
+13:08 
+
+13:08 state with some uh some uh you know
+13:12 
+
+13:12 linear transformation right
+13:15 
+
+13:15 so you can think of this linear
+13:16 
+
+13:16 transformation as basically retrieving a
+13:19 
+
+13:19 part of the document
+13:21 
+
+13:21 apart from the document right so your
+13:23 
+
+13:23 entire document is H and a part of the
+13:26 
+
+13:26 document is w wrpose H or W * H
+13:31 
+
+13:31 right so you essentially
+13:34 
+
+13:34 uh you know you essentially retrieve
+13:37 
+
+13:37 only that part of document not the
+13:38 
+
+13:38 entire document. So this is just an
+13:41 
+
+13:41 analogy and therefore
+13:44 
+
+13:44 you know it makes sense in this context.
+13:46 
+
+13:46 So shell attention again you know
+13:49 
+
+13:49 pictorially so for every uh hidden state
+13:52 
+
+13:52 we have query keys and values and we use
+13:54 
+
+13:54 these three equations
+13:57 
+
+13:57 to obtain query keys and values right
+13:60 
+
+13:60 and then we do dot product right and we
+14:03 
+
+14:03 then we pass the dot product through a
+14:05 
+
+14:05 short max it will give you a
+14:07 
+
+14:07 distribution and then uh we do the
+14:09 
+
+14:09 weighted we take the weighted sum of the
+14:12 
+
+14:12 values okay
+14:14 
+
+14:14 So
+14:16 
+
+14:16 and then you basically consider the
+14:19 
+
+14:19 entire the entire operations that we
+14:22 
+
+14:22 talked about so far as a layer right. So
+14:27 
+
+14:27 layer one
+14:29 
+
+14:29 layer one what's what are the inputs?
+14:32 
+
+14:32 Your inputs are uh the tokens and the
+14:35 
+
+14:35 corresponding representations. Right?
+14:37 
+
+14:37 And I told earlier in in in in uh you
+14:40 
+
+14:40 know in last part that um uh that when
+14:45 
+
+14:45 we remove the recurrent dependencies
+14:47 
+
+14:47 right the position information is gone.
+14:50 
+
+14:50 So we need some sort of positional
+14:51 
+
+14:51 encoding here. We'll talk about position
+14:53 
+
+14:53 encoding later. So
+14:56 
+
+14:56 the input to the layer one is uh the
+14:59 
+
+14:59 embedding right embedding let's say
+15:02 
+
+15:02 embedding uh let's say for this input X1
+15:05 
+
+15:05 embedding E1 plus the position
+15:08 
+
+15:08 information the positional encoding of
+15:10 
+
+15:10 E1
+15:12 
+
+15:12 X1 right and you feed this vector uh to
+15:15 
+
+15:15 to the to the layer right and in the
+15:18 
+
+15:18 layer what what what will happen is that
+15:20 
+
+15:20 you basically do the self attention
+15:22 
+
+15:22 operation and that will give you the
+15:25 
+
+15:25 attention vectors right so attention
+15:27 
+
+15:27 vectors here will be A1 A2 and A3 that's
+15:31 
+
+15:31 what we discussed so far so layer one so
+15:35 
+
+15:35 this is layer one similarly similarly
+15:37 
+
+15:37 you can think of stack of layers where
+15:41 
+
+15:41 the outputs of layer 1 will be fed to
+15:44 
+
+15:44 layer two and in layer two the same set
+15:46 
+
+15:46 of operations will happen right but
+15:49 
+
+15:49 remember in layer two you have a
+15:52 
+
+15:52 different sets of parameter ters.
+15:55 
+
+15:55 What are the parameter matrices? W Q, W
+15:59 
+
+15:59 K and WV. Right? So in layer 2, you will
+16:02 
+
+16:02 have another set of parameters.
+16:05 
+
+16:05 Layer three, another set of parameters.
+16:07 
+
+16:07 So you keep on adding more parameters.
+16:10 
+
+16:10 Right? So there's no D parameters. So
+16:11 
+
+16:11 you keep keep on adding more parameters
+16:14 
+
+16:14 and uh that would that would basically
+16:16 
+
+16:16 help you understand the document in a in
+16:19 
+
+16:19 a better way with more you know more
+16:21 
+
+16:21 informative way and so on and so forth.
+16:24 
+
+16:24 So
+16:26 
+
+16:26 right you stack up layers one by one and
+16:28 
+
+16:28 you keep repeating the same process. Now
+16:31 
+
+16:31 here
+16:33 
+
+16:33 so far we assumed that every key every
+16:37 
+
+16:37 query is attending to all the keys
+16:40 
+
+16:40 irrespective of the position right so so
+16:44 
+
+16:44 uh
+16:46 
+
+16:46 Q1 is is also attending to Q3 oh sorry
+16:49 
+
+16:49 Q1 is attending to K3 right Q1 is also
+16:53 
+
+16:53 attending to K2
+16:56 
+
+16:56 right it is not the case that uh Q1
+16:59 
+
+16:59 won't be able to attend Q uh uh K3.
+17:02 
+
+17:02 Okay. Later on we will see a different
+17:05 
+
+17:05 setup al together.
+17:07 
+
+17:07 Okay. So
+17:10 
+
+17:10 so attention self attention is is done.
+17:13 
+
+17:13 The problem with self attention is that
+17:15 
+
+17:15 uh is that uh
+17:19 
+
+17:19 uh you know sometimes if we use only one
+17:23 
+
+17:23 hit meaning only one set of parameter
+17:26 
+
+17:26 matrices in a layer
+17:28 
+
+17:28 you may miss out some information. For
+17:30 
+
+17:30 example, in case of CNN, right? So, what
+17:33 
+
+17:33 we do in case of CNN is that we apply
+17:36 
+
+17:36 multiple filters,
+17:39 
+
+17:39 right? And every filter corresponds to
+17:42 
+
+17:42 may correspond to a certain aspect of
+17:44 
+
+17:44 the image. For example, let's say you
+17:46 
+
+17:46 are trying to differentiate between cat
+17:49 
+
+17:49 and dog. And let's say one filter is
+17:51 
+
+17:51 responsible for identifying the uh the
+17:54 
+
+17:54 the uh the the ears, right? one filter
+17:57 
+
+17:57 is responsible for identifying the tail
+17:59 
+
+17:59 and so on and so forth. Right? But here
+18:03 
+
+18:03 uh so people thought that okay let us
+18:07 
+
+18:07 let us essentially you know um use the
+18:10 
+
+18:10 similar concept here right and add more
+18:13 
+
+18:13 parameters.
+18:15 
+
+18:15 So from single head cell attention now
+18:18 
+
+18:18 we are moving to multi head cell
+18:19 
+
+18:19 attention
+18:22 
+
+18:22 and what is multi cell attention. So
+18:25 
+
+18:25 same thing right. So for single head for
+18:28 
+
+18:28 every layer let's say layer one layer
+18:31 
+
+18:31 one you have
+18:36 
+
+18:36 wq
+18:38 
+
+18:38 w k wv
+18:41 
+
+18:41 right and
+18:45 
+
+18:45 u uh let's say wq1 w k1 wv1 the
+18:50 
+
+18:50 subscript one corresponds to layer right
+18:53 
+
+18:53 so using wq1 wk1 wv V1 you will get A1
+18:59 
+
+18:59 A2 A3 these are the additional vectors
+19:02 
+
+19:02 now what you do you add another set of
+19:05 
+
+19:05 parameters right W so let's say let's
+19:09 
+
+19:09 say this is called WQ111
+19:11 
+
+19:11 right superscript indicates head and
+19:15 
+
+19:15 subscript indicates layer
+19:19 
+
+19:19 WQ12
+19:21 
+
+19:21 WQ wk
+19:23 
+
+19:23 uh12
+19:25 
+
+19:25 WV 3 1 2
+19:28 
+
+19:28 Okay. So you you basically added another
+19:31 
+
+19:31 set of parameters.
+19:33 
+
+19:33 You will do the same operation. What you
+19:35 
+
+19:35 will get? You will get another uh right
+19:38 
+
+19:38 let us use this one right one one comma
+19:43 
+
+19:43 one
+19:45 
+
+19:45 right
+19:46 
+
+19:46 1 2 3 you get another set of u another
+19:52 
+
+19:52 set of attention vectors.
+19:59 
+
+19:59 Okay. So earlier you had one one one
+20:07 
+
+20:07 2 1 1 3 1. Now you have 1 one 2 1 2 2 1
+20:16 
+
+20:16 3 2
+20:19 
+
+20:19 Okay. And as and and and and this set of
+20:22 
+
+20:22 parameters is called head.
+20:25 
+
+20:25 So attention head one, attention head
+20:27 
+
+20:27 two, similarly attention head three and
+20:29 
+
+20:29 so on and so forth. So the more you you
+20:31 
+
+20:31 add you keep you you you add heads you
+20:35 
+
+20:35 basically uh add more parameters.
+20:39 
+
+20:39 Okay. So
+20:42 
+
+20:42 so from every head you get an attention
+20:45 
+
+20:45 vector right. So what will happen if we
+20:48 
+
+20:48 do that what will happen?
+20:50 
+
+20:50 So let's say the dimension of the state
+20:52 
+
+20:52 is D
+20:54 
+
+20:54 and from every attention vector so every
+20:57 
+
+20:57 attention vector is of size D
+21:01 
+
+21:01 right let's say you have K number of
+21:03 
+
+21:03 heads so how many so what will the
+21:06 
+
+21:06 dimension of this concatenated attention
+21:08 
+
+21:08 vectors K * D
+21:11 
+
+21:11 K * D right
+21:16 
+
+21:16 K * D but remember the output of this
+21:20 
+
+21:20 layer will be fed to the next layer. So
+21:23 
+
+21:23 the input to the next layer should be a
+21:26 
+
+21:26 dimension D but here we have KD so we
+21:30 
+
+21:30 need to project it to a D dimension
+21:32 
+
+21:32 vector. How do we do that? We use a
+21:34 
+
+21:34 linear layer with size KD * D right
+21:39 
+
+21:39 we'll add a linear layer here and this
+21:40 
+
+21:40 is called output
+21:44 
+
+21:44 matrix
+21:46 
+
+21:46 output position
+21:49 
+
+21:49 right so we'll for every token we have
+21:52 
+
+21:52 this output projection which will
+21:54 
+
+21:54 project it to u a dimensional vector
+22:00 
+
+22:00 right so we concatenate all the
+22:02 
+
+22:02 attention vectors and we project
+22:05 
+
+22:05 So this is called multi head attention.
+22:09 
+
+22:09 Okay. So this is a pictorial you know
+22:11 
+
+22:11 depiction of the entire thing.
+22:14 
+
+22:14 So this is the concatenated uh
+22:19 
+
+22:19 attention vector and then from attention
+22:21 
+
+22:21 vector we just follow the same process.
+22:26 
+
+22:26 Okay. Attention seems quite complicent
+22:29 
+
+22:29 seems quite complicated but it is
+22:31 
+
+22:31 actually a linear operation.
+22:35 
+
+22:35 Okay. Why is linear operation? Let's
+22:36 
+
+22:36 look at it.
+22:39 
+
+22:39 So, so this is key. This is query. This
+22:42 
+
+22:42 is value. Okay. This is this is uh
+22:46 
+
+22:46 attention distribution, right? And then
+22:49 
+
+22:49 attention vector.
+22:52 
+
+22:52 So, attention vector is what is
+22:55 
+
+22:55 basically sum over what is t?
+22:58 
+
+22:58 What is t? T is the number of value
+23:01 
+
+23:01 vectors.
+23:03 
+
+23:03 Right? So attention vector is weighted
+23:05 
+
+23:05 sum over all the val vectors.
+23:08 
+
+23:08 Right? L is the layer or position I
+23:11 
+
+23:11 guess.
+23:13 
+
+23:13 Okay. Now if you replace V
+23:17 
+
+23:17 by WVHT,
+23:20 
+
+23:20 right?
+23:23 
+
+23:23 Okay. And you see this WV is independent
+23:27 
+
+23:27 of T. You can keep you can keep you can
+23:30 
+
+23:30 move it outside.
+23:32 
+
+23:32 So WV comes outside
+23:35 
+
+23:35 and now you have this
+23:38 
+
+23:38 right both alpha and h what is alpha?
+23:41 
+
+23:41 Alpha is the uh the uh the probability
+23:45 
+
+23:45 of the short banks
+23:48 
+
+23:48 and ht is the hidden state. So
+23:51 
+
+23:51 essentially what you are doing you are
+23:54 
+
+23:54 multiplying the hidden state with the
+23:57 
+
+23:57 short max output.
+24:01 
+
+24:01 Okay. Now and this is a linear
+24:03 
+
+24:03 operation. It's a linear operation.
+24:07 
+
+24:07 Although you can claim that this short
+24:09 
+
+24:09 max is a nonlinear operation. So alpha
+24:11 
+
+24:11 alpha is an output of a nonlinear
+24:13 
+
+24:13 operation. But let's assume that alpha
+24:15 
+
+24:15 is fixed. Then the remaining operation
+24:17 
+
+24:17 is linear. Right?
+24:21 
+
+24:21 Right? So sale potention doesn't add any
+24:24 
+
+24:24 nonlinearity and that's the problem
+24:27 
+
+24:27 because if you not if you don't add
+24:29 
+
+24:29 nonlinearity you won't be able to you
+24:31 
+
+24:31 know understand the uh the complex
+24:33 
+
+24:33 structure of the input right so to do
+24:35 
+
+24:35 that what we will do now we will add
+24:39 
+
+24:39 something called position wise feed
+24:41 
+
+24:41 forward network
+24:43 
+
+24:43 position wise fn
+24:47 
+
+24:47 okay what is position wise fn
+24:50 
+
+24:50 So,
+24:54 
+
+24:54 so this part we have already discussed
+24:59 
+
+24:59 okay self attention and then attention
+25:01 
+
+25:01 vectors
+25:04 
+
+25:04 what we do now we will add let's say
+25:07 
+
+25:07 this is a1
+25:09 
+
+25:09 a2 a3 we add a feed forward network here
+25:15 
+
+25:15 and how does this look like this feed
+25:17 
+
+25:17 forward network first projected
+25:20 
+
+25:20 Dimensional attention vector to a to to
+25:23 
+
+25:23 a 2D vector
+25:25 
+
+25:25 up projection and then you it projects
+25:28 
+
+25:28 it to D.
+25:34 
+
+25:34 Okay, this is FFN. And why this is
+25:37 
+
+25:37 called position wise feed forward
+25:39 
+
+25:39 network? Because at every position you
+25:42 
+
+25:42 have this feed forward.
+25:46 
+
+25:46 It is not that you concatenate all
+25:48 
+
+25:48 attention vectors A1 concatenation A2
+25:51 
+
+25:51 concentration A3 and then you have a
+25:52 
+
+25:52 bulky feed forward network. No. Right.
+25:56 
+
+25:56 But one point to remember is that this
+25:59 
+
+25:59 FFN parameters how many parameters are
+26:02 
+
+26:02 there? There are two matrices D * 2D and
+26:05 
+
+26:05 2D * D.
+26:08 
+
+26:08 These parameter matrices are shared
+26:09 
+
+26:09 across two things.
+26:12 
+
+26:12 This is very very important.
+26:15 
+
+26:15 This is shared across tokens.
+26:21 
+
+26:21 Okay. Now I hope you understand why feed
+26:25 
+
+26:25 forward network how feed forward network
+26:28 
+
+26:28 adds nonlinearity because if you look at
+26:30 
+
+26:30 the equation here so your input is x
+26:32 
+
+26:32 which is a in our case. This is up
+26:35 
+
+26:35 projection plus bias and this is down
+26:38 
+
+26:38 projection. So you have two
+26:39 
+
+26:39 transformation and then after after up
+26:42 
+
+26:42 projection you pass it through a
+26:43 
+
+26:43 nonlinearity
+26:45 
+
+26:45 right and then you again do this down
+26:48 
+
+26:48 projection and then pass it through
+26:49 
+
+26:49 nonlinearity.
+26:51 
+
+26:51 All right. Uh so so now within a single
+26:55 
+
+26:55 layer what are the two operations? Self
+26:57 
+
+26:57 attention feed forward. Right.
+27:01 
+
+27:01 Let's move on.
+27:04 
+
+27:04 So, so far what we have said is that I
+27:07 
+
+27:07 have a stack of layers right and in
+27:12 
+
+27:12 every layer tokens every token can
+27:16 
+
+27:16 attend to all the other tokens
+27:17 
+
+27:17 irrespective of the position right but
+27:20 
+
+27:20 when it comes to next prediction I
+27:23 
+
+27:23 mentioned right a language model
+27:25 
+
+27:25 objective right the initial token cannot
+27:28 
+
+27:28 attend the future token because the
+27:30 
+
+27:30 future token has not been generated so
+27:34 
+
+27:34 Right. So what it means that uh
+27:40 
+
+27:40 that uh uh that Q1 will attend to K1,
+27:47 
+
+27:47 right? Q2 will attend to K1
+27:52 
+
+27:52 and Q2 can attend to K2, right? And Q3
+27:57 
+
+27:57 can attend to K1. Q3 K2. Q3 K3
+28:05 
+
+28:05 but the important point to note is that
+28:08 
+
+28:08 uh when we train such a model right
+28:12 
+
+28:12 during training I already know the
+28:14 
+
+28:14 entire token the set of tokens right so
+28:18 
+
+28:18 how do I let the model
+28:21 
+
+28:21 so I will I will basically protect the
+28:24 
+
+28:24 model or resist the model forcefully not
+28:28 
+
+28:28 to look at the future tokens although
+28:30 
+
+28:30 the tokens are available during the
+28:32 
+
+28:32 training time
+28:34 
+
+28:34 during test time it will not be
+28:35 
+
+28:35 available. So basically I need to mimic
+28:37 
+
+28:37 the way uh the model should perform
+28:40 
+
+28:40 during test time
+28:42 
+
+28:42 right during training time I would I let
+28:44 
+
+28:44 the model essentially mimic uh the way
+28:47 
+
+28:47 uh we perform things in the test time.
+28:51 
+
+28:51 You see the point right? I will not
+28:54 
+
+28:54 allow uh a a query at the i position to
+28:58 
+
+28:58 attend to the keys in i + 1 position or
+29:02 
+
+29:02 i +2 position. And how do we do that? We
+29:06 
+
+29:06 do this as follows.
+29:08 
+
+29:08 So,
+29:11 
+
+29:11 and all these operations are matrix
+29:13 
+
+29:13 operations. Remember this, right? So, we
+29:16 
+
+29:16 have a a query matrix Q
+29:21 
+
+29:21 where all the queries are stored, right?
+29:24 
+
+29:24 Q1, Q2, Q3, Q4 and so on, right? We have
+29:31 
+
+29:31 a key
+29:33 
+
+29:33 matrix
+29:35 
+
+29:35 right where all the keys are stored
+29:39 
+
+29:39 K1 K2 K3 dot dot dot
+29:45 
+
+29:45 right when we take a dot product between
+29:48 
+
+29:48 queries and keys right it will basically
+29:51 
+
+29:51 produce
+29:53 
+
+29:53 query key dot product where entries
+29:56 
+
+29:56 would look like this Q1
+29:59 
+
+29:59 K1 1
+30:01 
+
+30:01 Q1 K2 dot dot dot Q1 K let's say N right
+30:08 
+
+30:08 dot dot dot Q N K1 dot dot dot QN
+30:14 
+
+30:14 KN
+30:17 
+
+30:17 okay
+30:19 
+
+30:19 so in case of language modeling
+30:21 
+
+30:21 objective right Q1 K1 is okay but Q1 K2
+30:26 
+
+30:26 is not okay
+30:28 
+
+30:28 q1 K2 Q2 K1 is okay. Q2 K2 is okay. But
+30:33 
+
+30:33 Q Q2 K3 is not okay.
+30:36 
+
+30:36 Right? So what I will do I will
+30:39 
+
+30:39 essentially look at the look at the
+30:41 
+
+30:41 diagonal part and upper diagonal part
+30:43 
+
+30:43 and the upper diagonal part should not
+30:45 
+
+30:45 be uh should should not exist
+30:49 
+
+30:49 during the training time.
+30:53 
+
+30:53 Okay.
+30:55 
+
+30:55 So what I will do here I will multiply
+30:58 
+
+30:58 this matrix with another matrix which
+31:02 
+
+31:02 would look like this. All the lower
+31:04 
+
+31:04 diagonal elements will be one and all
+31:08 
+
+31:08 upper diagonal elements will be minus
+31:09 
+
+31:09 infinity.
+31:11 
+
+31:11 Why minus infinity I'll tell you.
+31:15 
+
+31:15 Okay. So if we multiply this with this
+31:18 
+
+31:18 matrix it will give you a matrix like
+31:20 
+
+31:20 this. Q1 K1 minus infinity minus
+31:24 
+
+31:24 infinity minus infinity then Q1 Q2 K1 Q2
+31:30 
+
+31:30 K2 minus infinity minus infinity right
+31:33 
+
+31:33 and so on and so forth
+31:36 
+
+31:36 why minus infinity
+31:39 
+
+31:39 because I'll pass this through short max
+31:42 
+
+31:42 right e to the power x by s^ x right and
+31:49 
+
+31:49 these are my x's
+31:53 
+
+31:53 Okay. So 1 by minus infinity will be
+31:58 
+
+31:58 0
+32:01 
+
+32:01 right 1 by minus infinity is one by e
+32:06 
+
+32:06 infinity which is infinity 1 by infinity
+32:08 
+
+32:08 is 0
+32:10 
+
+32:10 right. So essentially after short max
+32:13 
+
+32:13 these terms will vanish.
+32:16 
+
+32:16 So although during the training time you
+32:18 
+
+32:18 have tokens available right u but you
+32:22 
+
+32:22 essentially uh do not let the model look
+32:24 
+
+32:24 at those tokens using this operation and
+32:27 
+
+32:27 this is called masking
+32:30 
+
+32:30 okay and the enter operation is called
+32:32 
+
+32:32 mask attention
+32:34 
+
+32:34 self attention right and this is called
+32:37 
+
+32:37 mask self attention whatever
+32:40 
+
+32:40 m self attention
+32:47 
+
+32:47 Okay.
+32:50 
+
+32:50 So
+32:53 
+
+32:53 yeah, this is what I discussed. Now we
+32:56 
+
+32:56 are almost done. So we discussed self
+32:59 
+
+32:59 attention feed forward network, mask
+33:02 
+
+33:02 self attention feed forward network.
+33:05 
+
+33:05 Only one part is missing,
+33:08 
+
+33:08 right? So and we are discussing
+33:10 
+
+33:10 everything in the context of machine
+33:11 
+
+33:11 translation. Remember this okay where
+33:14 
+
+33:14 you have a source
+33:16 
+
+33:16 sentence you have a target sentence
+33:20 
+
+33:20 uh the source sentence is is in in one
+33:23 
+
+33:23 language and your task is to translate
+33:24 
+
+33:24 it to another language. During training
+33:26 
+
+33:26 time you have access to the parallel
+33:28 
+
+33:28 corpus right. So source uh sentence uh
+33:32 
+
+33:32 you know tokens in the in the source
+33:35 
+
+33:35 sentence can attend to all the other
+33:37 
+
+33:37 tokens. So you can use normal self
+33:40 
+
+33:40 attention followed by feed forward
+33:42 
+
+33:42 network in the target sentence you can
+33:45 
+
+33:45 use mask self attention.
+33:49 
+
+33:49 Okay. So what is missing here is that
+33:55 
+
+33:55 so self attention
+33:58 
+
+33:58 right feed forward network
+34:04 
+
+34:04 self attention feed forward network.
+34:09 
+
+34:09 Okay. And so on and so and here
+34:12 
+
+34:12 you have so it's the input
+34:17 
+
+34:17 mask self attention feed forward network
+34:24 
+
+34:24 mask self attention feed forward
+34:27 
+
+34:27 network.
+34:29 
+
+34:29 What is missing?
+34:31 
+
+34:31 The missing part is that there is no
+34:34 
+
+34:34 connection between this pillar and the
+34:36 
+
+34:36 this pillar. This tower and this tower.
+34:38 
+
+34:38 By the way, this tower is called encoder
+34:43 
+
+34:43 and this is called decoder
+34:45 
+
+34:45 is same as the encoder decoder you know
+34:48 
+
+34:48 mechanism I discussed for LSTM or RNN.
+34:52 
+
+34:52 There is no interaction so far
+34:55 
+
+34:55 between encoder and decoder. Right? How
+34:57 
+
+34:57 do we do that? We add
+35:01 
+
+35:01 another attention here, right? After
+35:05 
+
+35:05 mask shelf attention called cross
+35:08 
+
+35:08 attention.
+35:11 
+
+35:11 Okay.
+35:13 
+
+35:13 Cross attention. So this is this is
+35:15 
+
+35:15 cross attention. This is mask self
+35:17 
+
+35:17 attention. This is cross attention. What
+35:19 
+
+35:19 is cross attention?
+35:23 
+
+35:23 In cross attention
+35:27 
+
+35:27 this is again self attention uh
+35:29 
+
+35:29 mechanism right in cross attention the
+35:32 
+
+35:32 query will come from here
+35:36 
+
+35:36 and keys and values will come from here.
+35:38 
+
+35:38 Now remember after decoding once the
+35:41 
+
+35:41 decoding part is done what is the output
+35:43 
+
+35:43 what is the output of the sorry after
+35:45 
+
+35:45 the encoder part is done what is the
+35:46 
+
+35:46 output of the encoder
+35:49 
+
+35:49 the from the last layer you'll get again
+35:51 
+
+35:51 some attention uh vectors right let's
+35:53 
+
+35:53 say this is a1 a2 a3 a4 right and after
+35:58 
+
+35:58 the mask attention what is my output
+36:01 
+
+36:01 what's the output again set of attention
+36:05 
+
+36:05 vectors right let's say I call it uh
+36:08 
+
+36:08 decoder So D1, D2, D3 and D4. Right? Now
+36:13 
+
+36:13 from D1, D2, D3, D4, I will generate
+36:16 
+
+36:16 queries Q. And from A1, A2, A3, A4, I'll
+36:20 
+
+36:20 generate keys and values.
+36:23 
+
+36:23 So I'm basically adding another set of
+36:26 
+
+36:26 parameter matrices for cross attention.
+36:31 
+
+36:31 Okay, remember one point.
+36:34 
+
+36:34 This cross cross attention block will be
+36:37 
+
+36:37 there at every layer. So at every layer
+36:40 
+
+36:40 you have different set of parameters for
+36:42 
+
+36:42 cross attention. Okay.
+36:45 
+
+36:45 But every layer of cross attention will
+36:48 
+
+36:48 attend to the final layer of encoder. It
+36:51 
+
+36:51 is not that the first layer of cross
+36:54 
+
+36:54 attention in decoder is attending to the
+36:56 
+
+36:56 first layer of uh uh you know attention
+36:60 
+
+36:60 in encoder. It's not that. So encoder
+37:02 
+
+37:02 part is done. you get the attention uh
+37:04 
+
+37:04 vectors and then your cross attention
+37:07 
+
+37:07 will attend to that uh those set of
+37:11 
+
+37:11 vectors.
+37:17 
+
+37:17 Yeah, you can you can make multi. Yeah,
+37:21 
+
+37:21 multi it is multi.
+37:26 
+
+37:26 Okay.
+37:29 
+
+37:29 So using this you let the decoder model
+37:32 
+
+37:32 interact with the encoder model.
+37:37 
+
+37:37 So this is the architecture of
+37:39 
+
+37:39 transform. So we have covered more or
+37:42 
+
+37:42 less all the components. So this is my
+37:44 
+
+37:44 input. This is a positional encoding
+37:47 
+
+37:47 that we have not discussed so far. Input
+37:50 
+
+37:50 and and the positional encoding will be
+37:52 
+
+37:52 added. Now this will be fed to the to
+37:56 
+
+37:56 the first layer of the encoder. We have
+37:59 
+
+37:59 multi head cell attention right I will
+38:02 
+
+38:02 discuss this later then we have a feed
+38:04 
+
+38:04 forward network right so this is one
+38:06 
+
+38:06 block and you repeat the these blocks n
+38:09 
+
+38:09 times n can be six can be 12 can be 24
+38:12 
+
+38:12 and so on right so this is one encoder
+38:15 
+
+38:15 block one decoder block would look like
+38:18 
+
+38:18 this mask multi heads attention self
+38:20 
+
+38:20 attention
+38:22 
+
+38:22 cross multi head attention and then the
+38:27 
+
+38:27 feed forward network.
+38:30 
+
+38:30 Okay. Now in between you see there are
+38:33 
+
+38:33 some components here and there. So one
+38:35 
+
+38:35 component is this this residual
+38:37 
+
+38:37 connection. You see after every subm
+38:40 
+
+38:40 module within the layer we have a
+38:43 
+
+38:43 residual connection and why residual
+38:45 
+
+38:45 connection? So you know the you know the
+38:47 
+
+38:47 beauty of reset right it helps uh you
+38:51 
+
+38:51 know address the vanishing gradient
+38:53 
+
+38:53 problem right and and so on and so
+38:55 
+
+38:55 forth.
+38:58 
+
+38:58 And you also see that there is this
+39:00 
+
+39:00 small uh layer called add and norm right
+39:04 
+
+39:04 this is this is a uh normalization layer
+39:07 
+
+39:07 right in normalization layer what we do
+39:09 
+
+39:09 so we all know you know batch batch norm
+39:11 
+
+39:11 right but what they said is that batch
+39:14 
+
+39:14 norm has certain problems because batch
+39:16 
+
+39:16 norm is dependent on the batch right
+39:18 
+
+39:18 what is the batch batch is a set of
+39:20 
+
+39:20 instances and remember here you are
+39:22 
+
+39:22 dealing with sequences of texts so text
+39:25 
+
+39:25 can be of different length. So within a
+39:27 
+
+39:27 batch you you may see right uh instances
+39:31 
+
+39:31 of different lengths.
+39:33 
+
+39:33 So therefore they said that let's use
+39:35 
+
+39:35 layer normalization. And what is layer
+39:37 
+
+39:37 normalization? In batch normalization we
+39:39 
+
+39:39 basically take the you know average
+39:41 
+
+39:41 across all the instance in the batch and
+39:44 
+
+39:44 in the layer norm we essentially take
+39:46 
+
+39:46 the average across all the features of
+39:49 
+
+39:49 an instance.
+39:51 
+
+39:51 So it is independent of the length of an
+39:54 
+
+39:54 instance.
+39:57 
+
+39:57 Okay. And they showed that this is this
+39:59 
+
+39:59 gives more stability and support.
+40:02 
+
+40:02 That's all. Okay. That's all about u
+40:06 
+
+40:06 transformer. The only part which was
+40:08 
+
+40:08 which was missing is positional
+40:09 
+
+40:09 encoding.
+40:11 
+
+40:11 I will very very briefly talk about
+40:13 
+
+40:13 position encoding here. Please go back
+40:16 
+
+40:16 to my previous year's lecture. I made a
+40:19 
+
+40:19 uh a full uh I I took a full lecture on
+40:22 
+
+40:22 position encoding where we discussed
+40:24 
+
+40:24 different types of position encoding
+40:26 
+
+40:26 using the rope embedding right I mean uh
+40:28 
+
+40:28 along with the rope embedding which is
+40:30 
+
+40:30 the state of the art recently but I'll
+40:33 
+
+40:33 not discuss here uh anything about
+40:35 
+
+40:35 position encoding but only this part
+40:37 
+
+40:37 only the transformer in the transformer
+40:39 
+
+40:39 paper they
+40:41 
+
+40:41 came up with a notion of uh you know
+40:45 
+
+40:45 sinosoidal uh positional encoding
+40:48 
+
+40:48 Right. This I will discuss very briefly.
+40:49 
+
+40:49 Okay. So,
+40:53 
+
+40:53 so what is the length and again what is
+40:55 
+
+40:55 the purpose of the position encoding?
+40:57 
+
+40:57 The purpose is to encode the position.
+40:59 
+
+40:59 And why do we need that? Because the
+41:00 
+
+41:00 recurrent connection is not there,
+41:02 
+
+41:02 right?
+41:05 
+
+41:05 So, uh in the transformer paper they
+41:08 
+
+41:08 came up with this very weird kind of
+41:11 
+
+41:11 formula, right? Which apparently look
+41:13 
+
+41:13 looks quite quite uh you know quite
+41:16 
+
+41:16 dangerous.
+41:17 
+
+41:17 Right? And some of these numbers why
+41:21 
+
+41:21 10,000 why not 1,000? Why not 100? I
+41:24 
+
+41:24 don't know. Nobody knows. Right? But
+41:26 
+
+41:26 empirically uh this turned out to be
+41:28 
+
+41:28 very interesting. And this is also
+41:31 
+
+41:31 indep. So you do not need to learn the
+41:34 
+
+41:34 positional embedding, right? Sometimes
+41:36 
+
+41:36 you want to learn but in this case you
+41:38 
+
+41:38 don't need to learn. And it has a it it
+41:41 
+
+41:41 also basically captures the period
+41:43 
+
+41:43 periodicity uh you know among across
+41:46 
+
+41:46 positions.
+41:48 
+
+41:48 So uh look at here what is this? Let us
+41:53 
+
+41:53 first look at the formula. So it says
+41:56 
+
+41:56 that what is pause? Pause is the
+41:59 
+
+41:59 position of the token.
+42:01 
+
+42:01 Right? Position of the token. What is I?
+42:06 
+
+42:06 I is the I is one element in the
+42:09 
+
+42:09 position embedding vector
+42:12 
+
+42:12 right let's say for the first position
+42:16 
+
+42:16 this is my positional encoding
+42:18 
+
+42:18 okay which is a vector for position one
+42:21 
+
+42:21 for pause one this is my
+42:25 
+
+42:25 vector right where I indicates the
+42:27 
+
+42:27 elements
+42:30 
+
+42:30 not exactly the element but I
+42:31 
+
+42:31 corresponds to the elements
+42:34 
+
+42:34 of the vector Right? So if I equals to0
+42:40 
+
+42:40 then this would be let's say you are
+42:42 
+
+42:42 interested in uh generating the position
+42:45 
+
+42:45 information for the first position for
+42:47 
+
+42:47 the first token. So this will be one
+42:50 
+
+42:50 comma 0 right what is I mean forget
+42:54 
+
+42:54 about one essentially it will it will
+42:56 
+
+42:56 give you the entry for the zerooth
+42:58 
+
+42:58 position. This is zero position
+43:02 
+
+43:02 and this will be 1 when i= to0. So this
+43:05 
+
+43:05 will give you the entry for the first
+43:07 
+
+43:07 position.
+43:09 
+
+43:09 When i = to 1, this will be two and this
+43:14 
+
+43:14 will be three. Right? So you get you get
+43:17 
+
+43:17 the second element from this and the
+43:20 
+
+43:20 third element from this.
+43:22 
+
+43:22 Right? So you see that in the vector the
+43:26 
+
+43:26 first element comes from sine and the
+43:29 
+
+43:29 second element comes from cosine.
+43:34 
+
+43:34 Okay. Why sin cosine? Again please uh go
+43:37 
+
+43:37 back to my previous uh years lecture
+43:40 
+
+43:40 you'll understand. Okay I'll just give
+43:42 
+
+43:42 you an empirical uh some some example.
+43:45 
+
+43:45 So ew is the embedding of the vector
+43:49 
+
+43:49 which is coming from what to for example
+43:51 
+
+43:51 and this is my positional encoding.
+43:56 
+
+43:56 Okay. Sin cosine sin cosine sin cosine,
+43:60 
+
+43:60 right? And you see here u
+44:05 
+
+44:05 so so this corresponds to the case when
+44:07 
+
+44:07 i = to0 right and and this is also i =
+44:12 
+
+44:12 to0 but the second position this is i =
+44:15 
+
+44:15 to 1 i = to 1 right and then i= to 2 i=
+44:20 
+
+44:20 to 2 and so on and so
+44:22 
+
+44:22 this is my position information
+44:24 
+
+44:24 positional encoding I'll just add them
+44:27 
+
+44:27 and pass it to the next layer
+44:31 
+
+44:31 There are many papers which showed that
+44:35 
+
+44:35 uh uh we don't need all these things
+44:37 
+
+44:37 because since we have a lot of data
+44:39 
+
+44:39 right we can also learn the positional
+44:42 
+
+44:42 encoding right you just assume that it's
+44:44 
+
+44:44 also learnable parameter the vector it's
+44:46 
+
+44:46 also learnable parameter the way you are
+44:48 
+
+44:48 learning other vectors you also learn
+44:50 
+
+44:50 the position
+44:52 
+
+44:52 okay but then you know learning again
+44:54 
+
+44:54 learning might might be difficult
+44:57 
+
+44:57 static embedding might be useful
+44:59 
+
+44:59 Then people came up with this idea
+45:00 
+
+45:00 called rotary position in
+45:03 
+
+45:03 right please look at this paper this is
+45:05 
+
+45:05 a wonderful paper that's it about
+45:07 
+
+45:07 transforming okay in the next class we
+45:10 
+
+45:10 will discuss um different pre-telling
+45:13 
+
+45:13 strategies
+45:15 
+
+45:15 okay we'll briefly discuss Bart B and T5
+45:19 
+
+45:19 very briefly okay thank
