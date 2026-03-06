@@ -1126,7 +1126,64 @@ Distributed training  → Ray or Horovod
 
 **Describe steps to take when a model performs well on the training data but poorly on new data**
 
-*Answer to be added.*
+### Diagnosing and Fixing Overfitting
+
+When a model performs well on training data but poorly on new (test/validation) data, this is **overfitting** — the model has memorized noise rather than learning generalizable patterns.
+
+### Step-by-Step Investigation
+
+```python
+import numpy as np
+from sklearn.model_selection import cross_val_score, learning_curve
+import matplotlib.pyplot as plt
+
+# Step 1: Confirm overfitting with learning curves
+def plot_learning_curve(estimator, X, y):
+    train_sizes, train_scores, val_scores = learning_curve(
+        estimator, X, y, cv=5, n_jobs=-1,
+        train_sizes=np.linspace(0.1, 1.0, 10), scoring='accuracy'
+    )
+    plt.plot(train_sizes, train_scores.mean(axis=1), label='Train')
+    plt.plot(train_sizes, val_scores.mean(axis=1), label='Validation')
+    plt.xlabel('Training Size'); plt.ylabel('Score')
+    plt.legend(); plt.title('Learning Curve'); plt.show()
+
+# Step 2: Cross-validation to measure generalization gap
+from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=100)
+train_score = model.fit(X_train, y_train).score(X_train, y_train)
+cv_score = cross_val_score(model, X_train, y_train, cv=5).mean()
+print(f"Train: {train_score:.3f}, CV: {cv_score:.3f}, Gap: {train_score - cv_score:.3f}")
+```
+
+### Remediation Strategies
+
+| Strategy | Technique | Example |
+|----------|-----------|--------|
+| **More data** | Collect or augment | Data augmentation, SMOTE |
+| **Reduce complexity** | Simpler model | Fewer layers, shallower trees |
+| **Regularization** | Penalize large weights | L1/L2, dropout, early stopping |
+| **Feature selection** | Remove noise features | Mutual information, RFE |
+| **Ensemble methods** | Average multiple models | Bagging, boosting |
+| **Cross-validation** | Better evaluation | K-fold, stratified CV |
+
+```python
+# Step 3: Apply regularization
+from sklearn.linear_model import LogisticRegression
+
+# Before (overfitting)
+model_overfit = LogisticRegression(C=1e6, max_iter=1000)  # very low regularization
+
+# After (regularized)
+model_reg = LogisticRegression(C=0.1, penalty='l2', max_iter=1000)
+
+# Step 4: Feature selection
+from sklearn.feature_selection import SelectKBest, mutual_info_classif
+selector = SelectKBest(mutual_info_classif, k=10)
+X_selected = selector.fit_transform(X_train, y_train)
+```
+
+> **Interview Tip:** The core issue is the **bias-variance tradeoff**. Overfitting = low bias, high variance. Address it by increasing bias (simpler model, regularization) or reducing variance (more data, ensembles). Always plot learning curves first to confirm the diagnosis.
 
 ---
 
@@ -1134,7 +1191,65 @@ Distributed training  → Ray or Horovod
 
 **Explain the use of regularization in linear models and provide a Python example**
 
-*Answer to be added.*
+### Regularization in Linear Models
+
+Regularization adds a **penalty term** to the loss function to prevent overfitting by discouraging overly complex models (large coefficient values).
+
+### Types of Regularization
+
+| Type | Penalty Term | Effect | Model Name |
+|------|-------------|--------|------------|
+| **L1 (Lasso)** | $\lambda \sum \|w_i\|$ | Drives coefficients to exactly zero (feature selection) | `Lasso` |
+| **L2 (Ridge)** | $\lambda \sum w_i^2$ | Shrinks coefficients toward zero (never exactly) | `Ridge` |
+| **Elastic Net** | $\lambda_1 \sum \|w_i\| + \lambda_2 \sum w_i^2$ | Combines L1 and L2 benefits | `ElasticNet` |
+
+### Python Example
+
+```python
+import numpy as np
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
+# Generate data with many features (some irrelevant)
+np.random.seed(42)
+X = np.random.randn(100, 20)  # 20 features
+y = X[:, 0] * 3 + X[:, 1] * (-2) + X[:, 2] * 1.5 + np.random.randn(100) * 0.5
+
+# Compare models
+models = {
+    'Linear Regression': LinearRegression(),
+    'Ridge (L2)': Ridge(alpha=1.0),
+    'Lasso (L1)': Lasso(alpha=0.1),
+    'Elastic Net': ElasticNet(alpha=0.1, l1_ratio=0.5),
+}
+
+for name, model in models.items():
+    pipe = Pipeline([('scaler', StandardScaler()), ('model', model)])
+    scores = cross_val_score(pipe, X, y, cv=5, scoring='r2')
+    pipe.fit(X, y)
+    n_nonzero = np.sum(np.abs(pipe.named_steps['model'].coef_) > 1e-6)
+    print(f"{name:25s} | R²: {scores.mean():.3f} ± {scores.std():.3f} | Non-zero coefs: {n_nonzero}")
+
+# Output:
+# Linear Regression         | R²: 0.89 ± 0.05 | Non-zero coefs: 20
+# Ridge (L2)                | R²: 0.91 ± 0.04 | Non-zero coefs: 20
+# Lasso (L1)                | R²: 0.93 ± 0.03 | Non-zero coefs: 3  ← feature selection!
+# Elastic Net               | R²: 0.92 ± 0.03 | Non-zero coefs: 5
+
+# Tune regularization strength with cross-validation
+from sklearn.linear_model import RidgeCV, LassoCV
+ridge_cv = RidgeCV(alphas=[0.01, 0.1, 1, 10, 100]).fit(X, y)
+print(f"Best Ridge alpha: {ridge_cv.alpha_}")
+```
+
+### When to Use Each
+- **Ridge**: When all features are potentially relevant (correlated features)
+- **Lasso**: When you suspect many features are irrelevant (automatic feature selection)
+- **Elastic Net**: When features are correlated and you want feature selection
+
+> **Interview Tip:** Always **scale features** before regularization (StandardScaler), since the penalty term is sensitive to feature magnitudes. Use `RidgeCV`/`LassoCV` for automatic hyperparameter tuning.
 
 ---
 
@@ -1142,7 +1257,59 @@ Distributed training  → Ray or Horovod
 
 **What are the advantages of using Stochastic Gradient Descent over standard Gradient Descent ?**
 
-*Answer to be added.*
+### SGD vs. Batch Gradient Descent
+
+| Aspect | Batch GD | Stochastic GD (SGD) | Mini-Batch GD |
+|--------|----------|---------------------|---------------|
+| **Per-step data** | Entire dataset | 1 random sample | Batch of 32-256 |
+| **Speed per step** | Slow | Very fast | Fast |
+| **Convergence** | Smooth, stable | Noisy, oscillating | Balanced |
+| **Memory** | Full dataset in RAM | O(1) | O(batch_size) |
+| **Local minima** | Can get stuck | Noise helps escape | Moderate escape |
+| **Scalability** | Poor for large data | Excellent | Excellent |
+
+### Key Advantages of SGD
+
+1. **Scalability**: Processes one sample at a time — works with datasets that don't fit in memory
+2. **Faster convergence (wall-clock)**: Updates weights much more frequently
+3. **Escapes local minima**: Noise in gradient estimates helps explore the loss landscape
+4. **Online learning**: Can learn from streaming data incrementally
+5. **Regularization effect**: The inherent noise acts as implicit regularization
+
+### Python Example
+
+```python
+from sklearn.linear_model import SGDClassifier, LogisticRegression
+from sklearn.datasets import make_classification
+import time
+
+X, y = make_classification(n_samples=100000, n_features=50, random_state=42)
+
+# Batch approach
+start = time.time()
+lr = LogisticRegression(max_iter=1000).fit(X, y)
+print(f"Logistic Regression: {time.time()-start:.2f}s, Acc: {lr.score(X, y):.4f}")
+
+# SGD approach
+start = time.time()
+sgd = SGDClassifier(loss='log_loss', max_iter=1000, random_state=42).fit(X, y)
+print(f"SGD Classifier:      {time.time()-start:.2f}s, Acc: {sgd.score(X, y):.4f}")
+
+# SGD with partial_fit for online learning
+sgd_online = SGDClassifier(loss='log_loss')
+for i in range(0, len(X), 1000):  # process in chunks
+    sgd_online.partial_fit(X[i:i+1000], y[i:i+1000], classes=[0, 1])
+```
+
+### SGD Variants (Modern Optimizers)
+| Optimizer | Key Idea |
+|-----------|----------|
+| **Momentum** | Accumulates past gradients for smoother updates |
+| **RMSProp** | Adapts learning rate per parameter |
+| **Adam** | Combines Momentum + RMSProp (default for deep learning) |
+| **AdaGrad** | Larger updates for infrequent features |
+
+> **Interview Tip:** In practice, **mini-batch SGD** (not pure SGD) is used because it leverages GPU parallelism. Modern deep learning always uses **Adam** or **AdamW** (Adam with weight decay). Mention that learning rate scheduling (warmup, cosine annealing) is critical for SGD convergence.
 
 ---
 
@@ -1150,7 +1317,78 @@ Distributed training  → Ray or Horovod
 
 **Describe a situation where a machine learning model might fail, and how you would investigate the issue using Python**
 
-*Answer to be added.*
+### Common ML Failure Scenarios
+
+| Failure Mode | Symptom | Root Cause |
+|-------------|---------|------------|
+| **Data drift** | Accuracy drops over time | Production data differs from training data |
+| **Label leakage** | Unrealistically high accuracy | Target information leaks into features |
+| **Class imbalance** | High accuracy, low recall for minority class | Model predicts majority class always |
+| **Feature corruption** | Sudden performance drop | Missing values, schema changes, encoding errors |
+| **Concept drift** | Gradual degradation | Underlying relationships change |
+
+### Investigation Workflow with Python
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.metrics import classification_report, confusion_matrix
+
+# Scenario: Model deployed for fraud detection, suddenly missing real fraud cases
+
+# Step 1: Check data distributions (data drift)
+def check_data_drift(train_df, prod_df, features):
+    from scipy.stats import ks_2samp
+    for col in features:
+        stat, p_val = ks_2samp(train_df[col].dropna(), prod_df[col].dropna())
+        if p_val < 0.05:
+            print(f"⚠ DRIFT detected in '{col}': KS stat={stat:.3f}, p={p_val:.4f}")
+
+# Step 2: Check for missing/corrupted features
+def check_data_quality(df):
+    print("Missing values:")
+    print(df.isnull().sum()[df.isnull().sum() > 0])
+    print("\nData types:")
+    print(df.dtypes)
+    print("\nUnique values per column:")
+    print(df.nunique())
+
+# Step 3: Evaluate per-class performance
+def diagnose_predictions(y_true, y_pred):
+    print(classification_report(y_true, y_pred))
+    print("Confusion Matrix:")
+    print(confusion_matrix(y_true, y_pred))
+
+# Step 4: Check feature importance changes
+def compare_feature_importance(model_old, model_new, feature_names):
+    imp_old = model_old.feature_importances_
+    imp_new = model_new.feature_importances_
+    changes = pd.DataFrame({
+        'feature': feature_names,
+        'old_importance': imp_old,
+        'new_importance': imp_new,
+        'change': imp_new - imp_old
+    }).sort_values('change', key=abs, ascending=False)
+    print(changes.head(10))
+
+# Step 5: Analyze error cases
+def analyze_errors(X_test, y_true, y_pred):
+    errors = X_test[y_true != y_pred]
+    correct = X_test[y_true == y_pred]
+    print("Error cases statistics:")
+    print(errors.describe())
+    print("\nCorrect cases statistics:")
+    print(correct.describe())
+```
+
+### Systematic Debugging Checklist
+1. **Verify data pipeline** — schema changes, missing values, encoding issues
+2. **Compare distributions** — training vs. production data (KS test, PSI)
+3. **Evaluate per-segment** — break down metrics by subgroups
+4. **Check temporal patterns** — plot accuracy over time windows
+5. **Retrain on recent data** — test if concept drift is the cause
+
+> **Interview Tip:** Structure your answer as a systematic investigation: Data → Features → Model → Evaluation. Mention **monitoring tools** like Evidently AI, WhyLabs, or Great Expectations for production model monitoring.
 
 ---
 
@@ -1158,7 +1396,59 @@ Distributed training  → Ray or Horovod
 
 **What are Python’s profiling tools and how do they assist in optimizing machine learning code ?**
 
-*Answer to be added.*
+### Python Profiling Tools for ML
+
+| Tool | Type | Best For |
+|------|------|----------|
+| **`cProfile`** | CPU profiling | Function-level time analysis |
+| **`line_profiler`** | Line-by-line profiling | Pinpointing slow lines |
+| **`memory_profiler`** | Memory profiling | Finding memory leaks |
+| **`py-spy`** | Sampling profiler | Production profiling (low overhead) |
+| **`timeit`** | Benchmarking | Comparing small code snippets |
+| **`%%time` / `%%timeit`** | Jupyter magic | Quick notebook benchmarks |
+| **`scalene`** | CPU + Memory + GPU | All-in-one ML profiling |
+
+### Usage Examples
+
+```python
+# 1. cProfile - overall function profiling
+import cProfile
+import pstats
+
+def train_model():
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.datasets import make_classification
+    X, y = make_classification(n_samples=10000, n_features=50)
+    model = RandomForestClassifier(n_estimators=100)
+    model.fit(X, y)
+    return model.score(X, y)
+
+cProfile.run('train_model()', sort='cumulative')
+
+# 2. line_profiler - line-by-line analysis
+# pip install line_profiler
+# In Jupyter: %load_ext line_profiler
+# %lprun -f train_model train_model()
+
+# 3. memory_profiler - track memory usage
+# pip install memory_profiler
+from memory_profiler import profile
+
+@profile
+def memory_intensive():
+    import numpy as np
+    a = np.random.randn(10000, 10000)  # ~800 MB
+    b = a @ a.T
+    return b.mean()
+
+# 4. timeit for benchmarking
+import timeit
+setup = "import numpy as np; a = np.random.randn(10000)"
+print(timeit.timeit("np.sum(a)", setup=setup, number=1000))
+print(timeit.timeit("sum(a)", setup=setup, number=1000))  # Much slower
+```
+
+> **Interview Tip:** Start with `cProfile` to find the bottleneck function, then use `line_profiler` to find the exact slow line. For ML pipelines, the bottleneck is usually **data loading** or **feature engineering**, not model training.
 
 ---
 
@@ -1166,6 +1456,121 @@ Distributed training  → Ray or Horovod
 
 **Explain how unit tests and integration tests ensure the correctness of your machine learning code**
 
-*Answer to be added.*
+### Testing Strategy for ML Code
+
+| Test Type | What It Tests | Example |
+|-----------|--------------|--------|
+| **Unit tests** | Individual functions in isolation | Feature engineering, data transforms |
+| **Integration tests** | Components working together | Full pipeline: load → preprocess → train → predict |
+| **Regression tests** | Model performance doesn't degrade | Accuracy stays above threshold |
+| **Data validation** | Input data quality | Schema, ranges, distributions |
+
+### Unit Tests for ML
+
+```python
+import pytest
+import numpy as np
+import pandas as pd
+
+# ---- Feature Engineering Tests ----
+def normalize(arr):
+    """Min-max normalize an array."""
+    return (arr - arr.min()) / (arr.max() - arr.min())
+
+def test_normalize_basic():
+    result = normalize(np.array([1, 2, 3, 4, 5]))
+    assert result.min() == 0.0
+    assert result.max() == 1.0
+    assert len(result) == 5
+
+def test_normalize_constant():
+    """Edge case: all values identical."""
+    with pytest.raises((ZeroDivisionError, RuntimeWarning)):
+        normalize(np.array([5, 5, 5]))
+
+def test_normalize_negative():
+    result = normalize(np.array([-10, 0, 10]))
+    np.testing.assert_array_almost_equal(result, [0, 0.5, 1.0])
+
+# ---- Data Processing Tests ----
+def clean_data(df):
+    df = df.dropna(subset=['target'])
+    df['age'] = df['age'].clip(0, 120)
+    return df
+
+def test_clean_data_removes_null_targets():
+    df = pd.DataFrame({'age': [25, 30], 'target': [1, None]})
+    result = clean_data(df)
+    assert len(result) == 1
+    assert result['target'].isna().sum() == 0
+
+def test_clean_data_clips_age():
+    df = pd.DataFrame({'age': [-5, 25, 150], 'target': [1, 0, 1]})
+    result = clean_data(df)
+    assert result['age'].min() >= 0
+    assert result['age'].max() <= 120
+```
+
+### Integration Tests for ML Pipelines
+
+```python
+import pytest
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import make_classification
+
+def test_full_pipeline():
+    """Test that the full pipeline runs end-to-end."""
+    X, y = make_classification(n_samples=200, n_features=10, random_state=42)
+    
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('model', LogisticRegression())
+    ])
+    
+    pipeline.fit(X[:150], y[:150])
+    predictions = pipeline.predict(X[150:])
+    
+    # Check output shape and type
+    assert len(predictions) == 50
+    assert set(predictions).issubset({0, 1})
+    
+    # Check minimum acceptable performance
+    accuracy = (predictions == y[150:]).mean()
+    assert accuracy > 0.6, f"Accuracy too low: {accuracy}"
+
+def test_model_reproducibility():
+    """Same data + same seed = same results."""
+    X, y = make_classification(n_samples=100, random_state=42)
+    
+    model1 = LogisticRegression(random_state=42).fit(X, y)
+    model2 = LogisticRegression(random_state=42).fit(X, y)
+    
+    np.testing.assert_array_equal(model1.predict(X), model2.predict(X))
+
+def test_prediction_shape():
+    """Model output has expected dimensionality."""
+    X, y = make_classification(n_samples=100, n_classes=3, 
+                                n_informative=5, random_state=42)
+    model = LogisticRegression(max_iter=500).fit(X, y)
+    proba = model.predict_proba(X)
+    assert proba.shape == (100, 3)
+    np.testing.assert_almost_equal(proba.sum(axis=1), 1.0)  # probabilities sum to 1
+```
+
+### Running Tests
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=src --cov-report=html
+
+# Run only fast unit tests
+pytest tests/unit/ -v -x  # stop on first failure
+```
+
+> **Interview Tip:** ML testing extends beyond traditional software testing. Emphasize testing **data quality** (Great Expectations), **model performance** (regression tests on metrics), and **prediction consistency** (same input → same output). In production, add **monitoring tests** for data drift and model staleness.
 
 ---

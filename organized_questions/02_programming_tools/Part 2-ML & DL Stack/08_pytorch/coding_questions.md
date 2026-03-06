@@ -1205,7 +1205,55 @@ torch.onnx.export(model, dummy_input, 'model.onnx',
 
 **Implement a PyTorch DataLoader for a given CSV dataset**
 
-*Answer to be added.*
+### Solution
+
+```python
+import torch
+from torch.utils.data import Dataset, DataLoader
+import pandas as pd
+import numpy as np
+
+class CSVDataset(Dataset):
+    def __init__(self, csv_path, target_col='target', transform=None):
+        self.df = pd.read_csv(csv_path)
+        self.features = self.df.drop(columns=[target_col]).values.astype(np.float32)
+        self.labels = self.df[target_col].values.astype(np.float32)
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, idx):
+        x = torch.tensor(self.features[idx])
+        y = torch.tensor(self.labels[idx])
+        if self.transform:
+            x = self.transform(x)
+        return x, y
+
+# Create DataLoaders
+train_dataset = CSVDataset('train.csv', target_col='target')
+test_dataset = CSVDataset('test.csv', target_col='target')
+
+train_loader = DataLoader(
+    train_dataset,
+    batch_size=32,
+    shuffle=True,           # Shuffle training data
+    num_workers=4,          # Parallel data loading
+    pin_memory=True,        # Faster GPU transfer
+    drop_last=True          # Drop incomplete last batch
+)
+
+test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
+
+# Training loop
+for epoch in range(10):
+    for batch_x, batch_y in train_loader:
+        batch_x = batch_x.to('cuda')
+        batch_y = batch_y.to('cuda')
+        # Forward pass, loss, backward pass...
+```
+
+> **Interview Tip:** Always implement `__len__` and `__getitem__`. Use `pin_memory=True` for GPU training and `num_workers > 0` for parallel data loading. `shuffle=True` only for training, not validation/test.
 
 ---
 
@@ -1213,6 +1261,81 @@ torch.onnx.export(model, dummy_input, 'model.onnx',
 
 **Use PyTorch to implement a convolutional neural network (CNN) for image classification**
 
-*Answer to be added.*
+### Solution
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
+
+# Data pipeline
+transform_train = transforms.Compose([
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomCrop(32, padding=4),
+    transforms.ToTensor(),
+    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))
+])
+transform_test = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))
+])
+
+train_ds = datasets.CIFAR10('.', train=True, download=True, transform=transform_train)
+test_ds = datasets.CIFAR10('.', train=False, transform=transform_test)
+train_loader = DataLoader(train_ds, batch_size=128, shuffle=True, num_workers=2)
+test_loader = DataLoader(test_ds, batch_size=256, shuffle=False)
+
+# CNN Model
+class CNN(nn.Module):
+    def __init__(self, num_classes=10):
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 32, 3, padding=1), nn.BatchNorm2d(32), nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=1), nn.BatchNorm2d(64), nn.ReLU(),
+            nn.MaxPool2d(2), nn.Dropout2d(0.25),
+            nn.Conv2d(64, 128, 3, padding=1), nn.BatchNorm2d(128), nn.ReLU(),
+            nn.MaxPool2d(2), nn.Dropout2d(0.25),
+        )
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(128 * 8 * 8, 256), nn.ReLU(), nn.Dropout(0.5),
+            nn.Linear(256, num_classes)
+        )
+
+    def forward(self, x):
+        return self.classifier(self.features(x))
+
+# Training
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = CNN().to(device)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+criterion = nn.CrossEntropyLoss()
+
+for epoch in range(20):
+    model.train()
+    for images, labels in train_loader:
+        images, labels = images.to(device), labels.to(device)
+        optimizer.zero_grad()
+        outputs = model(images)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+    # Evaluate
+    model.eval()
+    correct = total = 0
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            _, predicted = outputs.max(1)
+            total += labels.size(0)
+            correct += predicted.eq(labels).sum().item()
+    print(f"Epoch {epoch+1}: Acc={100.*correct/total:.2f}%")
+```
+
+> **Interview Tip:** Always call `model.train()` and `model.eval()` to toggle dropout/batch norm. Use `torch.no_grad()` during evaluation to save memory. `optimizer.zero_grad()` must be called before each backward pass.
 
 ---

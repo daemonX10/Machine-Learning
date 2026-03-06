@@ -810,7 +810,7 @@ print(f"F1 Score:  {f1_score(y_true, y_pred):.2f}")
 
 ### Min-Max Normalization
 
-Formula: $x_{norm} = \frac{x - x_{min}}{x_{max} - x_{min}}$
+## Formula: $x_{norm} = \frac{ x - x_{min} }{ x_{max} - x_{min}}$
 
 ```python
 import numpy as np
@@ -3028,7 +3028,76 @@ model = train_federated(n_clients=5, n_rounds=10)
 
 **Implement the k-means clustering algorithm using only standard Python libraries**
 
-*Answer to be added.*
+### K-Means Clustering from Scratch
+
+```python
+import random
+import math
+
+def euclidean_distance(p1, p2):
+    """Calculate Euclidean distance between two points."""
+    return math.sqrt(sum((a - b) ** 2 for a, b in zip(p1, p2)))
+
+def kmeans(data, k, max_iters=100, tol=1e-4):
+    """
+    K-Means clustering algorithm.
+    
+    Args:
+        data: list of data points (each point is a list/tuple of features)
+        k: number of clusters
+        max_iters: maximum iterations
+        tol: convergence tolerance
+    
+    Returns:
+        centroids: final cluster centers
+        assignments: cluster label for each data point
+    """
+    n_features = len(data[0])
+    
+    # Step 1: Randomly initialize centroids
+    centroids = random.sample(data, k)
+    
+    for iteration in range(max_iters):
+        # Step 2: Assign each point to nearest centroid
+        assignments = []
+        for point in data:
+            distances = [euclidean_distance(point, c) for c in centroids]
+            assignments.append(distances.index(min(distances)))
+        
+        # Step 3: Recompute centroids
+        new_centroids = []
+        for cluster_id in range(k):
+            cluster_points = [data[i] for i in range(len(data)) if assignments[i] == cluster_id]
+            if cluster_points:
+                centroid = [sum(dim) / len(cluster_points) for dim in zip(*cluster_points)]
+            else:
+                centroid = random.choice(data)  # reinitialize empty cluster
+            new_centroids.append(centroid)
+        
+        # Step 4: Check convergence
+        shift = sum(euclidean_distance(old, new) for old, new in zip(centroids, new_centroids))
+        centroids = new_centroids
+        if shift < tol:
+            break
+    
+    return centroids, assignments
+
+# Usage
+data = [[1, 2], [1.5, 1.8], [5, 8], [8, 8], [1, 0.6], [9, 11]]
+centroids, labels = kmeans(data, k=2)
+print(f"Centroids: {centroids}")
+print(f"Labels: {labels}")
+```
+
+### Key Steps
+| Step | Description |
+|------|-------------|
+| **Initialize** | Randomly select k data points as initial centroids |
+| **Assign** | Assign each point to the nearest centroid |
+| **Update** | Recompute centroid as mean of assigned points |
+| **Converge** | Repeat until centroids stop moving (or max iterations) |
+
+> **Interview Tip:** Mention K-Means++ initialization (choosing initial centroids that are far apart) to avoid poor convergence. Also discuss the **elbow method** for choosing k by plotting inertia vs. k.
 
 ---
 
@@ -3036,7 +3105,103 @@ model = train_federated(n_clients=5, n_rounds=10)
 
 **Implement a decision tree from scratch in Python**
 
-*Answer to be added.*
+### Decision Tree Classifier from Scratch
+
+```python
+from collections import Counter
+import math
+
+def entropy(labels):
+    """Calculate entropy of a label list."""
+    counts = Counter(labels)
+    total = len(labels)
+    return -sum((c / total) * math.log2(c / total) for c in counts.values() if c > 0)
+
+def information_gain(data, labels, feature_idx, threshold):
+    """Calculate information gain for a binary split."""
+    parent_entropy = entropy(labels)
+    
+    left_mask = [d[feature_idx] <= threshold for d in data]
+    left_labels = [l for l, m in zip(labels, left_mask) if m]
+    right_labels = [l for l, m in zip(labels, left_mask) if not m]
+    
+    if not left_labels or not right_labels:
+        return 0
+    
+    n = len(labels)
+    child_entropy = (len(left_labels) / n) * entropy(left_labels) + \
+                    (len(right_labels) / n) * entropy(right_labels)
+    return parent_entropy - child_entropy
+
+def best_split(data, labels):
+    """Find the best feature and threshold to split on."""
+    best_gain = 0
+    best_feature, best_threshold = None, None
+    n_features = len(data[0])
+    
+    for feature_idx in range(n_features):
+        values = sorted(set(d[feature_idx] for d in data))
+        thresholds = [(values[i] + values[i+1]) / 2 for i in range(len(values) - 1)]
+        
+        for threshold in thresholds:
+            gain = information_gain(data, labels, feature_idx, threshold)
+            if gain > best_gain:
+                best_gain = gain
+                best_feature = feature_idx
+                best_threshold = threshold
+    
+    return best_feature, best_threshold, best_gain
+
+def build_tree(data, labels, depth=0, max_depth=5):
+    """Recursively build a decision tree."""
+    # Base cases
+    if len(set(labels)) == 1:
+        return {"leaf": True, "class": labels[0]}
+    if depth >= max_depth or len(data) < 2:
+        return {"leaf": True, "class": Counter(labels).most_common(1)[0][0]}
+    
+    feature, threshold, gain = best_split(data, labels)
+    if gain == 0:
+        return {"leaf": True, "class": Counter(labels).most_common(1)[0][0]}
+    
+    left_data, left_labels, right_data, right_labels = [], [], [], []
+    for d, l in zip(data, labels):
+        if d[feature] <= threshold:
+            left_data.append(d); left_labels.append(l)
+        else:
+            right_data.append(d); right_labels.append(l)
+    
+    return {
+        "leaf": False,
+        "feature": feature,
+        "threshold": threshold,
+        "left": build_tree(left_data, left_labels, depth + 1, max_depth),
+        "right": build_tree(right_data, right_labels, depth + 1, max_depth),
+    }
+
+def predict_one(tree, sample):
+    """Predict class for a single sample."""
+    if tree["leaf"]:
+        return tree["class"]
+    if sample[tree["feature"]] <= tree["threshold"]:
+        return predict_one(tree["left"], sample)
+    return predict_one(tree["right"], sample)
+
+# Usage
+data = [[2, 3], [1, 1], [4, 5], [6, 7], [5, 4], [3, 2]]
+labels = [0, 0, 1, 1, 1, 0]
+tree = build_tree(data, labels, max_depth=3)
+print(predict_one(tree, [3, 4]))  # Predicts class
+```
+
+### Splitting Criteria
+| Criterion | Formula | Use Case |
+|-----------|---------|----------|
+| **Entropy** | $-\sum p_i \log_2(p_i)$ | ID3, C4.5 |
+| **Gini Impurity** | $1 - \sum p_i^2$ | CART (sklearn default) |
+| **Information Gain** | Parent entropy − weighted child entropy | Feature selection |
+
+> **Interview Tip:** Discuss **pruning** (pre-pruning via max_depth, min_samples; post-pruning via cost-complexity). Mention that sklearn's `DecisionTreeClassifier` uses optimized C code with Gini impurity by default.
 
 ---
 
@@ -3044,6 +3209,86 @@ model = train_federated(n_clients=5, n_rounds=10)
 
 **Write a Python function to split a dataset into training and testing sets**
 
-*Answer to be added.*
+### Train-Test Split from Scratch
+
+```python
+import random
+
+def train_test_split(X, y, test_size=0.2, random_state=None):
+    """
+    Split dataset into training and testing sets.
+    
+    Args:
+        X: feature data (list of lists)
+        y: labels (list)
+        test_size: fraction of data for testing (0 to 1)
+        random_state: seed for reproducibility
+    
+    Returns:
+        X_train, X_test, y_train, y_test
+    """
+    if random_state is not None:
+        random.seed(random_state)
+    
+    n = len(X)
+    indices = list(range(n))
+    random.shuffle(indices)
+    
+    split_idx = int(n * (1 - test_size))
+    
+    train_indices = indices[:split_idx]
+    test_indices = indices[split_idx:]
+    
+    X_train = [X[i] for i in train_indices]
+    X_test = [X[i] for i in test_indices]
+    y_train = [y[i] for i in train_indices]
+    y_test = [y[i] for i in test_indices]
+    
+    return X_train, X_test, y_train, y_test
+
+# Usage
+X = [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12], [13, 14], [15, 16], [17, 18], [19, 20]]
+y = [0, 0, 1, 1, 0, 1, 0, 1, 1, 0]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
+# Train size: 8, Test size: 2
+```
+
+### Stratified Split (preserves class distribution)
+
+```python
+def stratified_split(X, y, test_size=0.2, random_state=None):
+    """Split while maintaining class proportions."""
+    if random_state is not None:
+        random.seed(random_state)
+    
+    # Group indices by class
+    class_indices = {}
+    for i, label in enumerate(y):
+        class_indices.setdefault(label, []).append(i)
+    
+    train_indices, test_indices = [], []
+    for label, indices in class_indices.items():
+        random.shuffle(indices)
+        split = int(len(indices) * (1 - test_size))
+        train_indices.extend(indices[:split])
+        test_indices.extend(indices[split:])
+    
+    random.shuffle(train_indices)
+    random.shuffle(test_indices)
+    
+    return ([X[i] for i in train_indices], [X[i] for i in test_indices],
+            [y[i] for i in train_indices], [y[i] for i in test_indices])
+```
+
+### Comparison with sklearn
+```python
+from sklearn.model_selection import train_test_split  # The standard way
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, 
+                                                     stratify=y, random_state=42)
+```
+
+> **Interview Tip:** Always mention **stratified splitting** for imbalanced datasets. For time series, use **chronological splits** (no shuffling). For small datasets, prefer **k-fold cross-validation** over a single train-test split.
 
 ---

@@ -1284,7 +1284,72 @@ JAX's key selling point is that it is **NumPy with superpowers**: same API but w
 
 **Why is NumPy more efficient for numerical computations than pure Python ?**
 
-*Answer to be added.*
+### NumPy vs. Pure Python Performance
+
+### Core Reasons
+
+| Factor | Pure Python | NumPy |
+|--------|------------|-------|
+| **Storage** | Objects on heap (28 bytes per int) | Contiguous C array (8 bytes per float64) |
+| **Loops** | Python interpreter loop (slow) | Pre-compiled C/Fortran loops |
+| **Type checking** | Every operation checks types | Homogeneous array, one check |
+| **Memory layout** | Scattered pointers | Contiguous block (cache-friendly) |
+| **Vectorization** | Not available | SIMD instructions (SSE, AVX) |
+| **BLAS/LAPACK** | Not used | Optimized linear algebra libraries |
+
+### Performance Demonstration
+
+```python
+import numpy as np
+import time
+
+n = 10_000_000
+
+# Pure Python
+python_list = list(range(n))
+start = time.time()
+result = sum(x * x for x in python_list)
+print(f"Python: {time.time()-start:.3f}s")
+
+# NumPy
+np_array = np.arange(n)
+start = time.time()
+result = np.sum(np_array ** 2)
+print(f"NumPy:  {time.time()-start:.3f}s")
+
+# NumPy is typically 50-100x faster for this operation
+```
+
+### Why is NumPy Faster?
+
+```
+Python list:  [ptr] → PyObject(type=int, val=1)
+              [ptr] → PyObject(type=int, val=2)   ← scattered in memory
+              [ptr] → PyObject(type=int, val=3)
+
+NumPy array:  [1][2][3][4][5][6][7][8]  ← contiguous block. CPU cache loves this!
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+              raw bytes, no Python overhead
+```
+
+1. **No per-element overhead**: NumPy stores raw numbers; Python wraps each in a PyObject (28+ bytes)
+2. **Vectorized C loops**: Operations run in compiled C code, not interpreted Python
+3. **CPU cache efficiency**: Contiguous memory means fewer cache misses
+4. **SIMD parallelism**: Modern CPUs process 4-8 numbers simultaneously via AVX instructions
+5. **Optimized libraries**: BLAS/LAPACK for linear algebra (tuned for specific CPU)
+
+### Memory Comparison
+```python
+import sys
+# Python list of 1000 ints: ~28,000 bytes (28 per object + pointers)
+# NumPy array of 1000 int64: ~8,000 bytes (8 per element, contiguous)
+
+python_size = sys.getsizeof(list(range(1000))) + 1000 * sys.getsizeof(1)
+numpy_size = np.arange(1000).nbytes
+print(f"Python: {python_size} bytes, NumPy: {numpy_size} bytes")  # ~3.5x difference
+```
+
+> **Interview Tip:** The three key words are: **contiguous memory**, **vectorized C operations**, and **no Python object overhead**. NumPy essentially moves the loop from Python to C, processes data in bulk, and leverages CPU hardware (SIMD, cache). This is why "avoid Python loops" is the #1 NumPy performance rule.
 
 ---
 
@@ -1292,7 +1357,66 @@ JAX's key selling point is that it is **NumPy with superpowers**: same API but w
 
 **Discuss the performance benefits of using NumPy’s in-place operations**
 
-*Answer to be added.*
+### In-Place Operations in NumPy
+
+In-place operations modify an array **without creating a copy**, saving memory and improving speed.
+
+### In-Place vs. Out-of-Place
+
+```python
+import numpy as np
+
+a = np.ones(10_000_000)
+
+# Out-of-place: creates a NEW array (2x memory)
+b = a + 1       # allocates new array, copies result
+
+# In-place: modifies existing array (no extra memory)
+a += 1          # modifies a directly
+a *= 2          # modifies a directly
+np.add(a, 1, out=a)  # explicit in-place with 'out' parameter
+```
+
+### Benefits
+
+| Benefit | Explanation |
+|---------|------------|
+| **Memory saving** | No temporary array allocated |
+| **Speed** | No memory allocation + no copy = faster |
+| **Cache friendly** | Data stays in the same location |
+| **Reduced GC pressure** | Fewer objects for garbage collector |
+
+### In-Place Methods
+
+```python
+# Augmented assignment operators
+a += b        # np.add(a, b, out=a)
+a -= b        # np.subtract(a, b, out=a)
+a *= b        # np.multiply(a, b, out=a)
+
+# Using 'out' parameter (works with any ufunc)
+np.sqrt(a, out=a)
+np.exp(a, out=a)
+np.clip(a, 0, 1, out=a)
+
+# In-place array modification
+a.fill(0)              # fill with value
+a[a < 0] = 0           # conditional in-place
+```
+
+### Cautions
+
+```python
+# Caution 1: dtype casting may fail in-place
+a = np.array([1, 2, 3], dtype=np.int32)
+# a += 0.5  # ERROR: can't cast float to int in-place
+
+# Caution 2: views share data
+b = a[::2]  # b is a VIEW of a
+b += 10     # this also modifies a!
+```
+
+> **Interview Tip:** Use in-place operations in **tight loops** and **memory-constrained** scenarios (GPU training, large datasets). The `out=` parameter is especially useful in neural network forward passes where you can reuse pre-allocated buffers.
 
 ---
 
@@ -1300,6 +1424,87 @@ JAX's key selling point is that it is **NumPy with superpowers**: same API but w
 
 **Discuss the use of NumPy for operations on polynomials**
 
-*Answer to be added.*
+### Polynomial Operations in NumPy
+
+NumPy provides two APIs for polynomial operations: the **legacy** `np.poly1d`/`np.polyfit` and the **modern** `np.polynomial` module.
+
+### Modern API (Recommended)
+
+```python
+import numpy as np
+from numpy.polynomial import polynomial as P
+
+# Define polynomial: 1 + 2x + 3x² (coefficients in ascending order)
+coeffs = [1, 2, 3]  # lowest degree first
+
+# Evaluate at specific points
+x = np.array([0, 1, 2, 3])
+y = P.polyval(x, coeffs)
+print(y)  # [1, 6, 17, 34]  (1 + 2*x + 3*x²)
+
+# Polynomial arithmetic
+p1 = [1, 2]      # 1 + 2x
+p2 = [3, 0, 1]   # 3 + x²
+
+sum_poly = P.polyadd(p1, p2)   # 4 + 2x + x²
+prod_poly = P.polymul(p1, p2)  # 3 + 6x + x² + 2x³
+deriv = P.polyder(coeffs)      # [2, 6]  (derivative: 2 + 6x)
+integral = P.polyint(coeffs)   # [0, 1, 1, 1]  (integral)
+
+# Find roots
+roots = P.polyroots([6, -5, 1])  # x² - 5x + 6 = 0 → [2, 3]
+```
+
+### Polynomial Fitting (Regression)
+
+```python
+# Generate noisy data
+x = np.linspace(0, 10, 100)
+y_true = 2 + 3 * x - 0.5 * x**2
+y_noisy = y_true + np.random.randn(100) * 2
+
+# Fit polynomial (modern API)
+coeffs_fit = P.polyfit(x, y_noisy, deg=2)
+print(f"Fitted: {coeffs_fit}")  # close to [2, 3, -0.5]
+
+# Evaluate fitted polynomial
+y_pred = P.polyval(x, coeffs_fit)
+
+# Legacy API (still common)
+coeffs_legacy = np.polyfit(x, y_noisy, deg=2)  # highest degree first!
+p = np.poly1d(coeffs_legacy)
+print(p)  # prints polynomial equation
+print(p(5))  # evaluate at x=5
+```
+
+### ML Applications
+
+```python
+# 1. Polynomial feature expansion for regression
+def polynomial_features(X, degree=3):
+    """Create polynomial features for regression."""
+    features = [np.ones(len(X))]  # bias term
+    for d in range(1, degree + 1):
+        features.append(X ** d)
+    return np.column_stack(features)
+
+X = np.array([1, 2, 3, 4, 5])
+X_poly = polynomial_features(X, degree=3)
+# [[1, 1, 1, 1], [1, 2, 4, 8], [1, 3, 9, 27], ...]
+
+# 2. Learning rate schedules (polynomial decay)
+def poly_decay(initial_lr, step, total_steps, power=2):
+    return initial_lr * (1 - step / total_steps) ** power
+```
+
+### Legacy vs. Modern API
+| Feature | Legacy (`np.poly1d`) | Modern (`np.polynomial`) |
+|---------|---------------------|-------------------------|
+| Coefficient order | Highest degree first | Lowest degree first |
+| Numerical stability | Poor for high degrees | Better (uses different basis) |
+| API consistency | Ad hoc | Unified across types |
+| Types | Only power series | Chebyshev, Legendre, Hermite, etc. |
+
+> **Interview Tip:** Use the **modern `np.polynomial`** API for numerical stability. For ML, polynomial features are a simple way to capture non-linear relationships in linear models (polynomial regression). Be aware of **overfitting** with high-degree polynomials — use regularization.
 
 ---

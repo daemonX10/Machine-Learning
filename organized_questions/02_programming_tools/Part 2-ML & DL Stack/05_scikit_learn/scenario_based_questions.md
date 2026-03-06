@@ -515,7 +515,48 @@ for feat1, feat2, corr in correlated_pairs:
 
 **How would you approach building a recommendation system using Scikit-Learn ?**
 
-*Answer to be added.*
+### Answer
+
+### Approach
+
+| Method | Description | Best For |
+|--------|-------------|----------|
+| **Content-Based** | Recommend items similar to user's past preferences | Known item features |
+| **Collaborative Filtering** | Use user-item interaction matrix | Many users, sparse data |
+| **Hybrid** | Combine content + collaborative | Production systems |
+
+```python
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD, NMF
+from sklearn.neighbors import NearestNeighbors
+import numpy as np
+
+# === Method 1: Content-Based (using item features) ===
+item_descriptions = ["Action movie with explosions", "Romantic comedy", "Thriller with suspense"]
+tfidf = TfidfVectorizer(stop_words='english')
+item_features = tfidf.fit_transform(item_descriptions)
+similarity_matrix = cosine_similarity(item_features)
+# Recommend items most similar to a given item
+
+# === Method 2: Collaborative Filtering (Matrix Factorization) ===
+# user_item_matrix: rows=users, cols=items, values=ratings
+user_item_matrix = np.array([[5, 3, 0, 1], [4, 0, 0, 1], [1, 1, 0, 5], [0, 0, 5, 4]])
+
+# SVD for matrix factorization
+svd = TruncatedSVD(n_components=2, random_state=42)
+user_factors = svd.fit_transform(user_item_matrix)
+item_factors = svd.components_
+predicted_ratings = user_factors @ item_factors  # Reconstruct
+
+# === Method 3: KNN-Based ===
+knn = NearestNeighbors(n_neighbors=5, metric='cosine')
+knn.fit(user_item_matrix)
+distances, indices = knn.kneighbors(user_item_matrix[0:1])
+# indices = most similar users
+```
+
+> **Interview Tip:** Scikit-Learn excels at content-based filtering (TF-IDF + cosine similarity) and basic matrix factorization (SVD). For large-scale collaborative filtering, mention specialized libraries like **Surprise** or **implicit**.
 
 ---
 
@@ -523,7 +564,58 @@ for feat1, feat2, corr in correlated_pairs:
 
 **Discuss the steps you would take to diagnose and solve performance issues in a machine learning model built with Scikit-Learn**
 
-*Answer to be added.*
+### Answer
+
+### Diagnostic Workflow
+
+| Step | Check | Tool |
+|------|-------|------|
+| 1 | **Data quality** | Missing values, class imbalance, outliers |
+| 2 | **Underfitting vs overfitting** | Learning curves |
+| 3 | **Feature relevance** | Feature importance, RFE |
+| 4 | **Hyperparameters** | GridSearchCV, validation curves |
+| 5 | **Model selection** | Compare multiple algorithms |
+| 6 | **Error analysis** | Confusion matrix, misclassified samples |
+
+```python
+from sklearn.model_selection import learning_curve, validation_curve, cross_val_score
+from sklearn.metrics import classification_report, confusion_matrix
+import numpy as np
+
+# Step 1: Check for underfitting/overfitting via learning curves
+train_sizes, train_scores, val_scores = learning_curve(
+    model, X, y, cv=5, train_sizes=np.linspace(0.1, 1.0, 10), n_jobs=-1
+)
+gap = train_scores.mean(axis=1)[-1] - val_scores.mean(axis=1)[-1]
+if gap > 0.1:
+    print("Overfitting: simplify model, add regularization, get more data")
+elif val_scores.mean(axis=1)[-1] < 0.7:
+    print("Underfitting: more features, complex model, less regularization")
+
+# Step 2: Validation curve to find optimal hyperparameter
+train_scores, val_scores = validation_curve(
+    model, X, y, param_name='max_depth', param_range=[3, 5, 10, 20, None], cv=5
+)
+
+# Step 3: Error analysis
+y_pred = model.predict(X_test)
+print(classification_report(y_test, y_pred))
+cm = confusion_matrix(y_test, y_pred)
+# Examine which classes are confused
+
+# Step 4: Feature importance
+importances = model.feature_importances_
+low_importance = np.where(importances < 0.01)[0]
+print(f"Low-value features: {low_importance}")
+
+# Step 5: Try better algorithms
+from sklearn.ensemble import GradientBoostingClassifier
+for name, m in [('RF', RandomForestClassifier()), ('GB', GradientBoostingClassifier())]:
+    scores = cross_val_score(m, X, y, cv=5)
+    print(f"{name}: {scores.mean():.4f}")
+```
+
+> **Interview Tip:** Always start with **learning curves** to diagnose bias vs variance. Then systematically check data quality, features, hyperparameters, and model choice. Document each step and its outcome.
 
 ---
 
@@ -531,6 +623,70 @@ for feat1, feat2, corr in correlated_pairs:
 
 **Propose a pipeline for processing and analyzing textual data from social media platforms using Scikit-Learn’s tools**
 
-*Answer to be added.*
+### Answer
+
+### Pipeline Architecture
+
+| Stage | Component | Purpose |
+|-------|-----------|---------|
+| 1 | **Text Cleaning** | Remove URLs, mentions, emojis, special chars |
+| 2 | **Tokenization** | Split text into words/n-grams |
+| 3 | **Vectorization** | Convert text to numerical features (TF-IDF) |
+| 4 | **Feature Engineering** | Add sentiment score, text length, hashtag count |
+| 5 | **Classification** | Train model (Logistic Regression, SVM, or ensemble) |
+
+```python
+import re
+import numpy as np
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score
+
+# Custom text cleaner
+class SocialMediaCleaner(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None): return self
+    def transform(self, X):
+        cleaned = []
+        for text in X:
+            text = re.sub(r'http\S+|www\S+', '', text)         # Remove URLs
+            text = re.sub(r'@\w+', '', text)                     # Remove mentions
+            text = re.sub(r'#(\w+)', r'\1', text)               # Remove # but keep word
+            text = re.sub(r'[^a-zA-Z\s]', '', text)              # Keep only letters
+            text = text.lower().strip()
+            cleaned.append(text)
+        return cleaned
+
+# Custom feature extractor for metadata
+class TextMetaFeatures(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None): return self
+    def transform(self, X):
+        features = []
+        for text in X:
+            features.append([
+                len(text),                                    # Text length
+                len(text.split()),                             # Word count
+                text.count('#'),                               # Hashtag count
+                text.count('!'),                               # Exclamation count
+                sum(1 for c in text if c.isupper()) / max(len(text), 1),  # Caps ratio
+            ])
+        return np.array(features)
+
+# Full pipeline
+pipeline = Pipeline([
+    ('cleaner', SocialMediaCleaner()),
+    ('tfidf', TfidfVectorizer(max_features=5000, ngram_range=(1, 2),
+                               sublinear_tf=True, stop_words='english')),
+    ('classifier', LogisticRegression(max_iter=1000, class_weight='balanced'))
+])
+
+# Train and evaluate
+# scores = cross_val_score(pipeline, texts, labels, cv=5, scoring='f1_weighted')
+# print(f"F1: {scores.mean():.4f}")
+```
+
+> **Interview Tip:** Social media text is noisy—always clean URLs, mentions, and special characters first. **TF-IDF with n-grams** works surprisingly well for social media classification. For production, consider pre-trained embeddings (BERT) instead of TF-IDF.
 
 ---

@@ -1715,7 +1715,35 @@ class DQNAgent:
 
 **Describe how you would install and set up Keras in a Python environment**
 
-*Answer to be added.*
+**Answer:**
+
+Keras is now integrated into TensorFlow as `tf.keras` (since TF 2.0). It can also be used standalone.
+
+| Method | Command | Notes |
+|--------|---------|-------|
+| **With TensorFlow** | `pip install tensorflow` | Recommended, includes `tf.keras` |
+| **Standalone** | `pip install keras` | Keras 3: multi-backend (TF, PyTorch, JAX) |
+| **GPU Support** | `pip install tensorflow[and-cuda]` | Auto-installs CUDA dependencies |
+
+```python
+# Installation
+# pip install tensorflow        # CPU + GPU
+# pip install keras              # Standalone Keras 3
+
+# Verify installation
+import tensorflow as tf
+print(tf.__version__)
+print(tf.keras.__version__)
+print("GPU available:", len(tf.config.list_physical_devices('GPU')) > 0)
+
+# Standalone Keras 3 (multi-backend)
+import os
+os.environ["KERAS_BACKEND"] = "tensorflow"  # or "torch" or "jax"
+import keras
+print(keras.__version__)
+```
+
+> **Interview Tip:** Since TF 2.0, always use `tf.keras` (not standalone `keras`) unless you need Keras 3 multi-backend support. GPU setup requires matching CUDA/cuDNN versions.
 
 ---
 
@@ -1723,7 +1751,34 @@ class DQNAgent:
 
 **What are some advantages of using Keras over other deep learning frameworks ?**
 
-*Answer to be added.*
+**Answer:**
+
+| Advantage | Description |
+|-----------|-------------|
+| **User-friendly** | Intuitive, high-level API designed for humans |
+| **Modular** | Layers, models, optimizers are plug-and-play components |
+| **Multi-backend** | Keras 3 runs on TensorFlow, PyTorch, and JAX |
+| **Fast prototyping** | Build models in minutes with Sequential or Functional API |
+| **Production-ready** | Seamless export to TF Serving, TFLite, ONNX |
+| **Extensible** | Easy to create custom layers, losses, and training loops |
+| **Community** | Massive ecosystem, extensive documentation, many tutorials |
+| **Integration** | Works with TensorBoard, tf.data, TF Serving out of the box |
+
+```python
+# Example: Build, train, evaluate in 10 lines
+import tensorflow as tf
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(128, activation='relu', input_shape=(784,)),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=10, validation_split=0.2)
+model.evaluate(X_test, y_test)
+```
+
+> **Interview Tip:** Keras' main advantage is **reducing cognitive load**: the same high-level API works whether you're building a simple classifier or a complex multi-input model. Unlike raw TensorFlow, you don't need to manage sessions, graphs, or variable scoping.
 
 ---
 
@@ -1731,7 +1786,40 @@ class DQNAgent:
 
 **How do you save and load models in Keras ?**
 
-*Answer to be added.*
+**Answer:**
+
+| Method | Saves | Format | Use Case |
+|--------|-------|--------|----------|
+| `model.save('model.keras')` | Architecture + weights + optimizer | Keras format | Default choice |
+| `model.save('model.h5')` | Architecture + weights + optimizer | HDF5 (legacy) | Backward compatibility |
+| `model.save_weights('w.weights.h5')` | Weights only | HDF5 | Fine-tuning, transfer learning |
+| `tf.saved_model.save(model, 'dir/')` | Full model as SavedModel | TF SavedModel | TF Serving deployment |
+| `model.to_json()` | Architecture only | JSON string | Share architecture |
+
+```python
+import tensorflow as tf
+
+# Save entire model (recommended)
+model.save('my_model.keras')           # Keras 3 native format
+loaded = tf.keras.models.load_model('my_model.keras')
+
+# Save/load weights only
+model.save_weights('weights.weights.h5')
+new_model = build_same_architecture()
+new_model.load_weights('weights.weights.h5')
+
+# Export for TF Serving (production deployment)
+tf.saved_model.save(model, 'saved_model_dir/')
+loaded = tf.saved_model.load('saved_model_dir/')
+
+# Export for mobile (TFLite)
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+tflite_model = converter.convert()
+with open('model.tflite', 'wb') as f:
+    f.write(tflite_model)
+```
+
+> **Interview Tip:** Use `.keras` format (new default) over `.h5` (legacy). For production deployment, export as **SavedModel** for TF Serving or **TFLite** for mobile. `save_weights()` is useful when you only need to transfer learned parameters.
 
 ---
 
@@ -1739,7 +1827,47 @@ class DQNAgent:
 
 **What is the purpose of the Dense layer in Keras ?**
 
-*Answer to be added.*
+**Answer:**
+
+The **Dense layer** (fully connected layer) is the fundamental building block where every input neuron connects to every output neuron. It performs: `output = activation(dot(input, weights) + bias)`.
+
+| Parameter | Description | Common Values |
+|-----------|-------------|---------------|
+| `units` | Number of output neurons | 32, 64, 128, 256 |
+| `activation` | Non-linear function | 'relu', 'sigmoid', 'softmax' |
+| `kernel_initializer` | Weight initialization | 'glorot_uniform' (default) |
+| `kernel_regularizer` | Weight penalty | `l2(0.01)` |
+| `use_bias` | Include bias term | True (default) |
+
+```python
+from tensorflow.keras import layers
+
+# Hidden layer: ReLU activation
+layers.Dense(128, activation='relu')
+
+# Output layer for binary classification
+layers.Dense(1, activation='sigmoid')
+
+# Output layer for multi-class classification
+layers.Dense(10, activation='softmax')
+
+# Output layer for regression
+layers.Dense(1)  # No activation (linear)
+
+# With regularization
+layers.Dense(128, activation='relu',
+             kernel_regularizer=tf.keras.regularizers.l2(0.01),
+             kernel_initializer='he_normal')
+```
+
+| Task | Output Units | Activation | Loss |
+|------|-------------|------------|------|
+| Binary classification | 1 | sigmoid | binary_crossentropy |
+| Multi-class | N classes | softmax | categorical_crossentropy |
+| Multi-label | N labels | sigmoid | binary_crossentropy |
+| Regression | 1 | None (linear) | mse |
+
+> **Interview Tip:** Dense layers are computationally expensive (many parameters). For large inputs, consider dimensionality reduction first. Always match the **output activation** with the correct **loss function**.
 
 ---
 
@@ -1747,7 +1875,48 @@ class DQNAgent:
 
 **How would you implement a Convolutional Neural Network in Keras ?**
 
-*Answer to be added.*
+**Answer:**
+
+A **Convolutional Neural Network** uses convolutional layers to automatically learn spatial hierarchies of features from images.
+
+| Layer | Purpose | Key Parameters |
+|-------|---------|----------------|
+| `Conv2D` | Extract spatial features | filters, kernel_size, activation |
+| `MaxPooling2D` | Downsample feature maps | pool_size |
+| `BatchNormalization` | Stabilize training | - |
+| `Flatten` | Convert 2D to 1D | - |
+| `Dense` | Classification head | units, activation |
+
+```python
+from tensorflow.keras import layers, models
+
+model = models.Sequential([
+    # Block 1
+    layers.Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(224, 224, 3)),
+    layers.BatchNormalization(),
+    layers.MaxPooling2D((2, 2)),
+
+    # Block 2
+    layers.Conv2D(64, (3, 3), activation='relu', padding='same'),
+    layers.BatchNormalization(),
+    layers.MaxPooling2D((2, 2)),
+
+    # Block 3
+    layers.Conv2D(128, (3, 3), activation='relu', padding='same'),
+    layers.BatchNormalization(),
+    layers.MaxPooling2D((2, 2)),
+
+    # Classifier
+    layers.Flatten(),
+    layers.Dense(256, activation='relu'),
+    layers.Dropout(0.5),
+    layers.Dense(10, activation='softmax')
+])
+
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+```
+
+> **Interview Tip:** CNN pattern: **(Conv -> BatchNorm -> ReLU -> Pool) x N -> Flatten -> Dense**. Use `padding='same'` to preserve spatial dimensions. In practice, use **pre-trained models** (ResNet, EfficientNet) via transfer learning.
 
 ---
 
@@ -1755,7 +1924,44 @@ class DQNAgent:
 
 **Can you describe how Recurrent Neural Networks are different and how to implement one in Keras ?**
 
-*Answer to be added.*
+**Answer:**
+
+**Recurrent Neural Networks** process sequential data by maintaining a hidden state that captures information from previous time steps, unlike feedforward networks that treat each input independently.
+
+| RNN Type | Strength | Keras Layer |
+|----------|----------|-------------|
+| **SimpleRNN** | Basic sequence processing | `layers.SimpleRNN(units)` |
+| **LSTM** | Long-range dependencies | `layers.LSTM(units)` |
+| **GRU** | Efficient alternative to LSTM | `layers.GRU(units)` |
+| **Bidirectional** | Context from both directions | `layers.Bidirectional(layers.LSTM(units))` |
+
+```python
+from tensorflow.keras import layers, models
+
+# LSTM for sequence classification
+model = models.Sequential([
+    layers.Embedding(vocab_size, 128, input_length=max_len),
+    layers.Bidirectional(layers.LSTM(64, return_sequences=True)),
+    layers.Bidirectional(layers.LSTM(32)),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.5),
+    layers.Dense(num_classes, activation='softmax')
+])
+
+# Key parameters
+# return_sequences=True  -> output at every timestep (for stacking RNNs)
+# return_sequences=False -> output only at last timestep (default, for classification)
+# return_state=True      -> also return final hidden and cell states
+
+# Time-series: use GRU (faster, similar performance)
+model = models.Sequential([
+    layers.GRU(64, return_sequences=True, input_shape=(timesteps, features)),
+    layers.GRU(32),
+    layers.Dense(1)  # Regression output
+])
+```
+
+> **Interview Tip:** Use **LSTM** or **GRU** over SimpleRNN (which suffers from vanishing gradients). Use `Bidirectional` for NLP tasks where full context matters. For very long sequences, consider **Transformers** instead.
 
 ---
 
@@ -1763,7 +1969,52 @@ class DQNAgent:
 
 **Explain the purpose of dropout layers and how to use them in Keras**
 
-*Answer to be added.*
+**Answer:**
+
+**Dropout** is a regularization technique that randomly sets a fraction of input units to zero during training, preventing neurons from co-adapting and reducing overfitting.
+
+| Aspect | Detail |
+|--------|--------|
+| **Purpose** | Prevent overfitting by randomly deactivating neurons |
+| **Training** | Randomly zeros out a fraction of inputs |
+| **Inference** | All neurons active, weights scaled down |
+| **Rate** | Fraction of inputs to drop (0.2-0.5 typical) |
+| **Effect** | Acts as ensemble of smaller networks |
+
+```python
+from tensorflow.keras import layers, models
+
+model = models.Sequential([
+    layers.Dense(256, activation='relu'),
+    layers.Dropout(0.5),        # Drop 50% of neurons (dense layers)
+    layers.Dense(128, activation='relu'),
+    layers.Dropout(0.3),        # Drop 30% (less aggressive)
+    layers.Dense(10, activation='softmax')
+])
+
+# For CNNs: SpatialDropout2D (drops entire feature maps)
+cnn_model = models.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu'),
+    layers.SpatialDropout2D(0.25),  # Better for conv layers
+    layers.MaxPooling2D(),
+    layers.Flatten(),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.5),  # Standard dropout for dense
+    layers.Dense(10, activation='softmax')
+])
+
+# For RNNs: use recurrent_dropout parameter
+layers.LSTM(64, dropout=0.2, recurrent_dropout=0.2)
+```
+
+| Guideline | Recommendation |
+|-----------|---------------|
+| Dense layers | 0.3-0.5 dropout rate |
+| Conv layers | 0.2-0.3 (or SpatialDropout2D) |
+| RNN layers | Use `recurrent_dropout` parameter |
+| After BatchNorm | Usually not needed together |
+
+> **Interview Tip:** Dropout is only active during **training** (`training=True`). For CNNs, use `SpatialDropout2D` instead of regular Dropout. Don't apply dropout after the output layer.
 
 ---
 
@@ -1771,7 +2022,47 @@ class DQNAgent:
 
 **How do you use Batch Normalization in a Keras model ?**
 
-*Answer to be added.*
+**Answer:**
+
+**Batch Normalization** normalizes layer inputs by adjusting and scaling activations, making training faster and more stable. It normalizes each mini-batch to have zero mean and unit variance, then applies learned scale and shift parameters.
+
+| Benefit | Description |
+|---------|-------------|
+| **Faster convergence** | Allows higher learning rates |
+| **Reduced internal covariate shift** | Stabilizes input distributions |
+| **Slight regularization** | Due to batch statistics noise |
+| **Less sensitivity** | To weight initialization |
+
+```python
+from tensorflow.keras import layers, models
+
+# Typical placement: after the linear transformation, before activation
+model = models.Sequential([
+    layers.Dense(256),
+    layers.BatchNormalization(),
+    layers.Activation('relu'),
+    layers.Dropout(0.3),
+    layers.Dense(128),
+    layers.BatchNormalization(),
+    layers.Activation('relu'),
+    layers.Dense(10, activation='softmax')
+])
+
+# In CNNs
+cnn = models.Sequential([
+    layers.Conv2D(64, (3, 3), padding='same'),
+    layers.BatchNormalization(),  # Normalize across spatial + channel dims
+    layers.Activation('relu'),
+    layers.MaxPooling2D((2, 2)),
+])
+
+# Training vs Inference behavior
+# Training: uses batch mean/variance
+# Inference: uses running mean/variance (accumulated during training)
+# Keras handles this automatically via training=True/False
+```
+
+> **Interview Tip:** Place BatchNorm **before** the activation function (this is debated but commonly recommended). During inference, BatchNorm uses exponential moving averages of batch statistics, not actual batch stats.
 
 ---
 
@@ -1779,7 +2070,58 @@ class DQNAgent:
 
 **Discuss how you would construct a residual network (ResNet) in Keras**
 
-*Answer to be added.*
+**Answer:**
+
+**Residual Networks (ResNets)** use skip connections (shortcuts) that allow gradients to flow directly through the network, solving the vanishing gradient problem in very deep networks.
+
+| Concept | Description |
+|---------|-------------|
+| **Skip connection** | Add input directly to output: `y = F(x) + x` |
+| **Identity shortcut** | When dimensions match, direct addition |
+| **Projection shortcut** | When dimensions differ, use 1x1 conv to match |
+| **Key insight** | Learning residuals F(x) = H(x) - x is easier than learning H(x) directly |
+
+```python
+from tensorflow.keras import layers, models, Input
+
+def residual_block(x, filters, downsample=False):
+    shortcut = x
+    stride = 2 if downsample else 1
+
+    # Main path
+    x = layers.Conv2D(filters, (3, 3), strides=stride, padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    x = layers.Conv2D(filters, (3, 3), padding='same')(x)
+    x = layers.BatchNormalization()(x)
+
+    # Adjust shortcut dimensions if needed
+    if downsample or shortcut.shape[-1] != filters:
+        shortcut = layers.Conv2D(filters, (1, 1), strides=stride, padding='same')(shortcut)
+        shortcut = layers.BatchNormalization()(shortcut)
+
+    x = layers.Add()([x, shortcut])  # Skip connection
+    x = layers.ReLU()(x)
+    return x
+
+# Build ResNet
+inputs = Input(shape=(32, 32, 3))
+x = layers.Conv2D(64, (3, 3), padding='same')(inputs)
+x = layers.BatchNormalization()(x)
+x = layers.ReLU()(x)
+x = residual_block(x, 64)
+x = residual_block(x, 128, downsample=True)
+x = residual_block(x, 256, downsample=True)
+x = layers.GlobalAveragePooling2D()(x)
+outputs = layers.Dense(10, activation='softmax')(x)
+
+model = models.Model(inputs, outputs)
+
+# Or use pre-trained ResNet
+base = tf.keras.applications.ResNet50(weights='imagenet', include_top=False)
+```
+
+> **Interview Tip:** ResNet's key innovation is that skip connections let gradients bypass layers, enabling training of networks with 100+ layers. In practice, use `tf.keras.applications.ResNet50` rather than building from scratch.
 
 ---
 
@@ -1787,7 +2129,44 @@ class DQNAgent:
 
 **Explain the role of optimizers in Keras**
 
-*Answer to be added.*
+**Answer:**
+
+**Optimizers** update model weights based on computed gradients to minimize the loss function. Different optimizers use different strategies for computing weight updates.
+
+| Optimizer | Update Rule | Best For |
+|-----------|-------------|----------|
+| **SGD** | Fixed step in gradient direction | Simple, good with momentum |
+| **Adam** | Adaptive LR per parameter | Default choice, most tasks |
+| **RMSprop** | Adaptive LR based on recent gradients | RNNs |
+| **AdamW** | Adam + weight decay | Transformers, modern architectures |
+| **Adagrad** | Adaptive LR, decreases over time | Sparse data, NLP |
+
+```python
+from tensorflow.keras import optimizers
+
+# Adam (default choice for most tasks)
+opt = optimizers.Adam(learning_rate=0.001)
+
+# SGD with momentum and Nesterov (good for CNNs)
+opt = optimizers.SGD(learning_rate=0.01, momentum=0.9, nesterov=True)
+
+# Learning rate scheduling
+lr_schedule = optimizers.schedules.CosineDecay(
+    initial_learning_rate=0.001, decay_steps=10000
+)
+opt = optimizers.Adam(learning_rate=lr_schedule)
+
+model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
+```
+
+| Guideline | Recommendation |
+|-----------|---------------|
+| Starting point | Adam with lr=0.001 |
+| CNNs (fine-tuning) | SGD with momentum=0.9, lr=0.01 |
+| Transformers | AdamW with warmup + cosine decay |
+| RNNs | Adam or RMSprop |
+
+> **Interview Tip:** **Adam** is the safe default, but **SGD with momentum** often achieves better final performance with proper tuning. Mention **learning rate scheduling** (cosine decay, warmup) as a key modern practice.
 
 ---
 
@@ -1795,7 +2174,43 @@ class DQNAgent:
 
 **What is the purpose of a loss function in Keras and how do you select one?**
 
-*Answer to be added.*
+**Answer:**
+
+A **loss function** measures how well the model's predictions match the true labels. The optimizer minimizes this value during training. The choice of loss depends on the task.
+
+| Task | Loss Function | Output Activation |
+|------|--------------|-------------------|
+| Binary classification | `binary_crossentropy` | sigmoid |
+| Multi-class (one-hot labels) | `categorical_crossentropy` | softmax |
+| Multi-class (integer labels) | `sparse_categorical_crossentropy` | softmax |
+| Multi-label classification | `binary_crossentropy` | sigmoid |
+| Regression | `mse` or `mae` | None (linear) |
+| Regression with outliers | `huber` | None |
+
+```python
+from tensorflow.keras import losses
+
+# Standard losses
+model.compile(loss='sparse_categorical_crossentropy')  # Integer labels
+model.compile(loss='binary_crossentropy')               # Binary
+model.compile(loss='mse')                                # Regression
+
+# Custom loss function
+def focal_loss(gamma=2.0, alpha=0.25):
+    def loss(y_true, y_pred):
+        y_pred = tf.clip_by_value(y_pred, 1e-7, 1 - 1e-7)
+        cross_entropy = -y_true * tf.math.log(y_pred)
+        weight = alpha * y_true * (1 - y_pred) ** gamma
+        return tf.reduce_sum(weight * cross_entropy, axis=-1)
+    return loss
+
+model.compile(loss=focal_loss(gamma=2.0))  # Good for imbalanced data
+
+# Label smoothing (prevents overconfidence)
+model.compile(loss=losses.CategoricalCrossentropy(label_smoothing=0.1))
+```
+
+> **Interview Tip:** Always match loss function with output activation. For **imbalanced datasets**, use **focal loss** or **class weights**. **Label smoothing** (0.1) is a simple trick that often improves generalization.
 
 ---
 
@@ -1803,7 +2218,48 @@ class DQNAgent:
 
 **Discuss the process of compiling a model in Keras**
 
-*Answer to be added.*
+**Answer:**
+
+**Compiling** configures the model for training by specifying the optimizer, loss function, and metrics. It must be called before `model.fit()`.
+
+| Parameter | Purpose | Examples |
+|-----------|---------|----------|
+| `optimizer` | Weight update algorithm | 'adam', 'sgd', optimizer object |
+| `loss` | Function to minimize | 'categorical_crossentropy', custom function |
+| `metrics` | Evaluation metrics (not used for training) | ['accuracy'], ['mae'] |
+| `loss_weights` | Weight per output (multi-output) | {'out1': 1.0, 'out2': 0.5} |
+
+```python
+import tensorflow as tf
+
+# Basic compilation
+model.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Advanced compilation with custom settings
+model.compile(
+    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3, clipnorm=1.0),
+    loss=tf.keras.losses.CategoricalCrossentropy(label_smoothing=0.1),
+    metrics=[
+        tf.keras.metrics.CategoricalAccuracy(name='accuracy'),
+        tf.keras.metrics.TopKCategoricalAccuracy(k=5, name='top5_acc'),
+        tf.keras.metrics.AUC(name='auc')
+    ]
+)
+
+# Multi-output model
+model.compile(
+    optimizer='adam',
+    loss={'classification': 'crossentropy', 'regression': 'mse'},
+    loss_weights={'classification': 1.0, 'regression': 0.3},
+    metrics={'classification': 'accuracy', 'regression': 'mae'}
+)
+```
+
+> **Interview Tip:** `compile()` is declarative: it sets up the training configuration but doesn't train. Metrics are for monitoring only and don't affect gradient computation. You can recompile a model (e.g., with a lower LR) without losing learned weights.
 
 ---
 
@@ -1811,7 +2267,49 @@ class DQNAgent:
 
 **Discuss different strategies for finding the optimal batch size and number of epochs in Keras**
 
-*Answer to be added.*
+**Answer:**
+
+| Concept | Definition | Effect |
+|---------|-----------|--------|
+| **Batch size** | Number of samples per gradient update | Memory usage, training dynamics |
+| **Epoch** | One complete pass through the entire dataset | Total training duration |
+| **Steps per epoch** | `total_samples / batch_size` | Gradient updates per epoch |
+
+### Finding Optimal Values
+
+| Strategy | Batch Size | Epochs |
+|----------|-----------|--------|
+| **Start small** | 32 (default) | 100+ with EarlyStopping |
+| **Increase for speed** | 64, 128, 256 | Adjust LR proportionally |
+| **GPU memory** | Largest that fits in GPU | - |
+| **Generalization** | Smaller batches often generalize better | - |
+
+```python
+import tensorflow as tf
+
+# Strategy 1: EarlyStopping determines optimal epochs automatically
+model.fit(X_train, y_train, epochs=200, batch_size=32,
+          validation_split=0.2,
+          callbacks=[
+              tf.keras.callbacks.EarlyStopping(patience=10,
+                                                restore_best_weights=True)
+          ])
+
+# Strategy 2: Learning Rate Finder
+# Gradually increase LR, plot loss vs LR, pick LR where loss decreases fastest
+
+# Strategy 3: Linear scaling rule
+# When increasing batch size by k, multiply learning rate by k
+# batch_size=32, lr=0.001  ->  batch_size=128, lr=0.004
+
+# Strategy 4: Use ReduceLROnPlateau with generous epochs
+callbacks = [
+    tf.keras.callbacks.ReduceLROnPlateau(factor=0.5, patience=5),
+    tf.keras.callbacks.EarlyStopping(patience=15, restore_best_weights=True)
+]
+```
+
+> **Interview Tip:** Use **EarlyStopping** so you never have to manually choose epochs. For batch size, start with 32 and double until GPU memory is full. Smaller batches act as regularization (more noise in gradients). Apply the **linear scaling rule** when changing batch size.
 
 ---
 
@@ -1819,7 +2317,49 @@ class DQNAgent:
 
 **Discuss the process of feature scaling and why it’s important for neural networks in Keras**
 
-*Answer to be added.*
+**Answer:**
+
+**Feature scaling** transforms input features to similar ranges so that no single feature dominates the learning process. Neural networks are especially sensitive to input scale because gradient-based optimization converges faster with normalized inputs.
+
+| Method | Formula | Output Range | Best For |
+|--------|---------|-------------|----------|
+| **StandardScaler** | (x - mean) / std | ~[-3, 3] | Most neural networks |
+| **MinMaxScaler** | (x - min) / (max - min) | [0, 1] | Image pixels, sigmoid outputs |
+| **Normalization layer** | Keras built-in | Learned | Integrated in model |
+
+```python
+import tensorflow as tf
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+# Method 1: Scikit-Learn (preprocessing pipeline)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)  # Use training stats!
+
+# Method 2: Keras Normalization layer (learns stats from data)
+normalizer = tf.keras.layers.Normalization(axis=-1)
+normalizer.adapt(X_train)  # Computes mean and std from training data
+
+model = tf.keras.Sequential([
+    normalizer,  # Built into the model
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+
+# Method 3: Simple division for images
+X_train = X_train.astype('float32') / 255.0  # Scale pixels to [0, 1]
+```
+
+### Why It Matters
+
+| Without Scaling | With Scaling |
+|----------------|-------------|
+| Slow convergence | Fast convergence |
+| Gradient dominated by large features | All features contribute equally |
+| Unstable training | Stable training |
+
+> **Interview Tip:** Neural networks **always** need scaled inputs. Use Keras `Normalization` layer to embed scaling into the model itself (no separate preprocessing needed at inference). For images, simply divide by 255.
 
 ---
 
@@ -1827,7 +2367,55 @@ class DQNAgent:
 
 **How to incorporate transfer learning into Keras ?**
 
-*Answer to be added.*
+**Answer:**
+
+**Transfer learning** reuses a model pre-trained on a large dataset and adapts it to a new, often smaller dataset. This leverages learned feature representations.
+
+| Phase | Approach | Learning Rate |
+|-------|----------|---------------|
+| 1. Feature extraction | Freeze base model, train new head | Normal (1e-3) |
+| 2. Fine-tuning | Unfreeze top layers of base | Very low (1e-5) |
+
+```python
+import tensorflow as tf
+
+# Step 1: Load pre-trained model
+base_model = tf.keras.applications.MobileNetV2(
+    weights='imagenet', include_top=False, input_shape=(224, 224, 3)
+)
+base_model.trainable = False  # Freeze all layers
+
+# Step 2: Add custom head
+model = tf.keras.Sequential([
+    base_model,
+    tf.keras.layers.GlobalAveragePooling2D(),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(num_classes, activation='softmax')
+])
+
+# Step 3: Train head (feature extraction)
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model.fit(train_ds, epochs=10)
+
+# Step 4: Fine-tune top layers
+base_model.trainable = True
+for layer in base_model.layers[:-30]:
+    layer.trainable = False  # Keep early layers frozen
+
+model.compile(optimizer=tf.keras.optimizers.Adam(1e-5),  # Low LR!
+              loss='categorical_crossentropy', metrics=['accuracy'])
+model.fit(train_ds, epochs=10)
+```
+
+| Available Models | Parameters | Top-1 Accuracy |
+|-----------------|------------|----------------|
+| MobileNetV2 | 3.4M | 71.3% |
+| ResNet50 | 25.6M | 74.9% |
+| EfficientNetB0 | 5.3M | 77.1% |
+| EfficientNetB7 | 66M | 84.3% |
+
+> **Interview Tip:** Two-phase approach: first train the head with frozen base, then fine-tune with a **10-100x lower learning rate**. Early layers learn universal features (edges, textures) that transfer well across domains.
 
 ---
 
@@ -1835,7 +2423,47 @@ class DQNAgent:
 
 **How would you convert a Keras model to TensorFlow’s SavedModel format for deployment?**
 
-*Answer to be added.*
+**Answer:**
+
+The **SavedModel** format is TensorFlow's standard serialization format for production deployment. It contains the model architecture, weights, and computation graph in a language-agnostic, recoverable format.
+
+| Format | Use Case | Command |
+|--------|----------|---------|
+| **SavedModel** | TF Serving, cloud deployment | `tf.saved_model.save()` |
+| **TFLite** | Mobile, edge devices | `TFLiteConverter` |
+| **ONNX** | Cross-framework compatibility | `tf2onnx` |
+| **TF.js** | Browser deployment | `tensorflowjs_converter` |
+
+```python
+import tensorflow as tf
+
+# Method 1: Direct SavedModel export
+model = tf.keras.Sequential([...])
+model.fit(X_train, y_train, epochs=10)
+
+# Export as SavedModel
+tf.saved_model.save(model, 'saved_model/my_model')
+# Or equivalently:
+model.save('saved_model/my_model')  # Detects directory = SavedModel
+
+# Load SavedModel
+loaded = tf.saved_model.load('saved_model/my_model')
+# Or:
+loaded = tf.keras.models.load_model('saved_model/my_model')
+
+# Inspect SavedModel
+!saved_model_cli show --dir saved_model/my_model --all
+
+# Convert to TFLite
+converter = tf.lite.TFLiteConverter.from_saved_model('saved_model/my_model')
+converter.optimizations = [tf.lite.Optimize.DEFAULT]  # Quantization
+tflite_model = converter.convert()
+
+# Convert to ONNX: pip install tf2onnx
+# python -m tf2onnx.convert --saved-model saved_model/my_model --output model.onnx
+```
+
+> **Interview Tip:** SavedModel is the **production standard** for TensorFlow. It stores the computation graph, enabling serving without Python. Use `tf.lite` for mobile and `tf2onnx` for cross-framework compatibility.
 
 ---
 
@@ -1843,7 +2471,55 @@ class DQNAgent:
 
 **Discuss the use of Keras in mobile and edge devices**
 
-*Answer to be added.*
+**Answer:**
+
+Keras models can be deployed on mobile and edge devices using **TensorFlow Lite** (TFLite) for optimized inference on resource-constrained hardware.
+
+| Technique | Size Reduction | Speed Gain | Accuracy Impact |
+|-----------|---------------|------------|-----------------|
+| **TFLite conversion** | ~2x | ~2x | Minimal |
+| **Quantization (dynamic)** | ~4x | ~2-3x | Very small |
+| **Quantization (int8)** | ~4x | ~3-4x | Small |
+| **Pruning** | ~2-10x | Varies | Small with fine-tuning |
+| **Knowledge distillation** | Any | Any | Model-dependent |
+
+```python
+import tensorflow as tf
+
+# 1. Build a mobile-friendly model
+model = tf.keras.applications.MobileNetV2(
+    weights='imagenet', input_shape=(224, 224, 3)
+)
+
+# 2. Convert to TFLite
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+
+# 3. Apply optimizations
+converter.optimizations = [tf.lite.Optimize.DEFAULT]  # Dynamic range quantization
+
+# Full integer quantization (requires representative dataset)
+def representative_data():
+    for i in range(100):
+        yield [np.random.rand(1, 224, 224, 3).astype(np.float32)]
+
+converter.representative_dataset = representative_data
+converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
+
+tflite_model = converter.convert()
+with open('model.tflite', 'wb') as f:
+    f.write(tflite_model)
+
+print(f"Model size: {len(tflite_model) / 1024 / 1024:.2f} MB")
+
+# 4. Run inference on device
+interpreter = tf.lite.Interpreter(model_path='model.tflite')
+interpreter.allocate_tensors()
+interpreter.set_tensor(input_index, input_data)
+interpreter.invoke()
+output = interpreter.get_tensor(output_index)
+```
+
+> **Interview Tip:** Use **MobileNet** or **EfficientNet-Lite** architectures (designed for mobile). Apply **quantization** to reduce model size 4x with minimal accuracy loss. TFLite supports Android, iOS, Raspberry Pi, and microcontrollers.
 
 ---
 
@@ -1851,7 +2527,68 @@ class DQNAgent:
 
 **What are Generative Adversarial Networks (GANs) and how would you implement them using Keras ?**
 
-*Answer to be added.*
+**Answer:**
+
+**Generative Adversarial Networks (GANs)** consist of two networks trained adversarially: a **Generator** creates fake data, and a **Discriminator** tries to distinguish real from fake.
+
+| Component | Role | Architecture |
+|-----------|------|-------------|
+| **Generator** | Creates realistic fake data from noise | Deconv / Upsampling layers |
+| **Discriminator** | Classifies real vs fake | Conv / Dense layers |
+| **Training** | Alternating minimax game | Custom training loop |
+
+```python
+import tensorflow as tf
+from tensorflow.keras import layers
+
+# Generator: noise -> image
+def build_generator(latent_dim=100):
+    model = tf.keras.Sequential([
+        layers.Dense(7 * 7 * 256, input_shape=(latent_dim,)),
+        layers.Reshape((7, 7, 256)),
+        layers.Conv2DTranspose(128, (4, 4), strides=2, padding='same'),
+        layers.BatchNormalization(),
+        layers.LeakyReLU(0.2),
+        layers.Conv2DTranspose(64, (4, 4), strides=2, padding='same'),
+        layers.BatchNormalization(),
+        layers.LeakyReLU(0.2),
+        layers.Conv2D(1, (7, 7), padding='same', activation='tanh')
+    ])
+    return model
+
+# Discriminator: image -> real/fake
+def build_discriminator():
+    model = tf.keras.Sequential([
+        layers.Conv2D(64, (3, 3), strides=2, padding='same', input_shape=(28, 28, 1)),
+        layers.LeakyReLU(0.2),
+        layers.Conv2D(128, (3, 3), strides=2, padding='same'),
+        layers.LeakyReLU(0.2),
+        layers.Flatten(),
+        layers.Dropout(0.3),
+        layers.Dense(1, activation='sigmoid')
+    ])
+    return model
+
+# Training step
+cross_entropy = tf.keras.losses.BinaryCrossentropy()
+
+@tf.function
+def train_step(real_images, batch_size, latent_dim):
+    noise = tf.random.normal([batch_size, latent_dim])
+    with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
+        fake_images = generator(noise, training=True)
+        real_output = discriminator(real_images, training=True)
+        fake_output = discriminator(fake_images, training=True)
+        gen_loss = cross_entropy(tf.ones_like(fake_output), fake_output)
+        disc_loss = (cross_entropy(tf.ones_like(real_output), real_output) +
+                     cross_entropy(tf.zeros_like(fake_output), fake_output)) / 2
+    gen_grads = gen_tape.gradient(gen_loss, generator.trainable_variables)
+    disc_grads = disc_tape.gradient(disc_loss, discriminator.trainable_variables)
+    gen_optimizer.apply_gradients(zip(gen_grads, generator.trainable_variables))
+    disc_optimizer.apply_gradients(zip(disc_grads, discriminator.trainable_variables))
+```
+
+> **Interview Tip:** GAN training is notoriously unstable. Key tricks: use **LeakyReLU** (not ReLU), **BatchNorm** in generator, **label smoothing**, and monitor both losses. If discriminator wins too easily, the generator can't learn (mode collapse).
 
 ---
 
@@ -1859,7 +2596,49 @@ class DQNAgent:
 
 **Discuss recent advancements in Keras , such as custom training loops**
 
-*Answer to be added.*
+**Answer:**
+
+Keras supports custom training loops by overriding `train_step()` or using `tf.GradientTape` directly. This is essential for non-standard training procedures like GANs, reinforcement learning, or multi-task learning.
+
+| Method | Complexity | Use Case |
+|--------|-----------|----------|
+| `model.fit()` | Simplest | Standard supervised learning |
+| Override `train_step()` | Medium | Custom loss, metrics, or logic |
+| `tf.GradientTape` loop | Full control | GANs, RL, research |
+
+```python
+import tensorflow as tf
+
+# Method 1: Override train_step (recommended for most custom needs)
+class CustomModel(tf.keras.Model):
+    def train_step(self, data):
+        x, y = data
+        with tf.GradientTape() as tape:
+            y_pred = self(x, training=True)
+            loss = self.compute_loss(y=y, y_pred=y_pred)
+        gradients = tape.gradient(loss, self.trainable_variables)
+        self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+        for metric in self.metrics:
+            if metric.name == "loss":
+                metric.update_state(loss)
+            else:
+                metric.update_state(y, y_pred)
+        return {m.name: m.result() for m in self.metrics}
+
+# Method 2: Full GradientTape loop
+optimizer = tf.keras.optimizers.Adam()
+loss_fn = tf.keras.losses.SparseCategoricalCrossentropy()
+
+for epoch in range(epochs):
+    for x_batch, y_batch in train_dataset:
+        with tf.GradientTape() as tape:
+            logits = model(x_batch, training=True)
+            loss = loss_fn(y_batch, logits)
+        grads = tape.gradient(loss, model.trainable_variables)
+        optimizer.apply_gradients(zip(grads, model.trainable_variables))
+```
+
+> **Interview Tip:** Override `train_step()` when you need custom logic but still want `model.fit()` features (callbacks, progress bar, distributed training). Use the full GradientTape loop only for maximum flexibility (e.g., GANs).
 
 ---
 ## Question 43
@@ -2268,7 +3047,52 @@ def style_transfer(content_image, style_image, epochs=1000, lr=0.02):
 
 **Discuss strategies to identify the cause of a performance bottleneck in a Keras model**
 
-*Answer to be added.*
+**Answer:**
+
+### Diagnostic Strategy
+
+| Bottleneck | Symptom | Tool | Fix |
+|-----------|---------|------|-----|
+| **Data pipeline** | GPU utilization < 80% | TF Profiler | `prefetch`, `cache`, parallel `map` |
+| **CPU-bound preprocessing** | Low GPU usage during training | `htop`, Profiler | Move preprocessing to GPU layers |
+| **Model too large** | OOM errors, slow forward pass | `model.summary()` | Reduce parameters, use mixed precision |
+| **I/O bottleneck** | Slow data loading | Profiler trace | Use TFRecord, SSD storage, `cache()` |
+| **Gradient computation** | Slow backward pass | Profiler | Gradient checkpointing, simpler model |
+
+```python
+import tensorflow as tf
+
+# 1. Profile with TensorBoard
+tensorboard_cb = tf.keras.callbacks.TensorBoard(
+    log_dir='./logs', profile_batch='10,20'  # Profile batches 10-20
+)
+model.fit(train_ds, callbacks=[tensorboard_cb])
+# Check "Profile" tab in TensorBoard
+
+# 2. Optimize data pipeline
+train_ds = (tf.data.Dataset.from_tensor_slices((X, y))
+    .cache()                              # Cache in memory/disk
+    .shuffle(buffer_size=10000)
+    .batch(64)
+    .map(preprocess, num_parallel_calls=tf.data.AUTOTUNE)  # Parallel preprocessing
+    .prefetch(tf.data.AUTOTUNE))          # Overlap data loading with training
+
+# 3. Mixed precision (2-3x speedup on modern GPUs)
+tf.keras.mixed_precision.set_global_policy('mixed_float16')
+
+# 4. XLA compilation
+model.compile(optimizer='adam', loss='mse', jit_compile=True)
+
+# 5. Benchmark data pipeline vs model
+import time
+for x, y in train_ds.take(100):
+    pass  # If this is slow, data pipeline is the bottleneck
+start = time.time()
+model.predict(X_test[:100])
+print(f"Inference time: {time.time()-start:.3f}s")  # If slow, model is the bottleneck
+```
+
+> **Interview Tip:** Most Keras performance bottlenecks are in the **data pipeline**, not the model. Use `tf.data` with `prefetch()`, `cache()`, and `AUTOTUNE`. The TF Profiler in TensorBoard pinpoints exactly where time is spent.
 
 ---
 

@@ -365,7 +365,80 @@ df['new'] = np.select(conditions, choices, default=0)
 
 **Describe how you could use Pandas to preprocess data for a machine learning model**
 
-*Answer to be added.*
+### Complete Preprocessing Pipeline with Pandas
+
+```python
+import pandas as pd
+import numpy as np
+
+# Load raw data
+df = pd.read_csv('raw_data.csv')
+
+# ---- Step 1: Data Inspection ----
+print(df.shape)             # (rows, cols)
+print(df.dtypes)            # column types
+print(df.describe())        # statistics
+print(df.isnull().sum())    # missing values per column
+print(df.duplicated().sum())  # duplicate rows
+
+# ---- Step 2: Handle Missing Values ----
+# Numerical: fill with median (robust to outliers)
+num_cols = df.select_dtypes(include='number').columns
+df[num_cols] = df[num_cols].fillna(df[num_cols].median())
+
+# Categorical: fill with mode
+cat_cols = df.select_dtypes(include='object').columns
+df[cat_cols] = df[cat_cols].fillna(df[cat_cols].mode().iloc[0])
+
+# Drop rows where target is missing
+df = df.dropna(subset=['target'])
+
+# ---- Step 3: Remove Duplicates ----
+df = df.drop_duplicates()
+
+# ---- Step 4: Handle Outliers ----
+for col in num_cols:
+    q1, q3 = df[col].quantile([0.25, 0.75])
+    iqr = q3 - q1
+    df[col] = df[col].clip(q1 - 1.5 * iqr, q3 + 1.5 * iqr)
+
+# ---- Step 5: Encode Categorical Variables ----
+# One-hot encoding for nominal categories
+df = pd.get_dummies(df, columns=['color', 'region'], drop_first=True)
+
+# Label encoding for ordinal categories
+size_map = {'S': 1, 'M': 2, 'L': 3, 'XL': 4}
+df['size_encoded'] = df['size'].map(size_map)
+
+# ---- Step 6: Feature Engineering ----
+df['age_squared'] = df['age'] ** 2
+df['income_per_age'] = df['income'] / (df['age'] + 1)
+df['purchase_date'] = pd.to_datetime(df['purchase_date'])
+df['day_of_week'] = df['purchase_date'].dt.dayofweek
+df['month'] = df['purchase_date'].dt.month
+
+# ---- Step 7: Normalize/Standardize ----
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scale_cols = ['age', 'income', 'score']
+df[scale_cols] = scaler.fit_transform(df[scale_cols])
+
+# ---- Step 8: Split Features and Target ----
+X = df.drop(columns=['target', 'purchase_date'])
+y = df['target']
+```
+
+### Preprocessing Checklist
+| Step | Method | Purpose |
+|------|--------|--------|
+| Missing values | `fillna()`, `dropna()` | Handle NaN/None |
+| Duplicates | `drop_duplicates()` | Remove redundant data |
+| Outliers | `clip()`, IQR method | Reduce noise |
+| Encoding | `get_dummies()`, `map()` | Convert categories to numbers |
+| Feature engineering | `dt.`, arithmetic | Create informative features |
+| Scaling | StandardScaler, MinMaxScaler | Normalize ranges |
+
+> **Interview Tip:** Always split data **before** scaling (fit scaler on train, transform test) to avoid data leakage. Use `sklearn.pipeline.Pipeline` to chain preprocessing steps and ensure reproducibility.
 
 ---
 
@@ -373,6 +446,88 @@ df['new'] = np.select(conditions, choices, default=0)
 
 **How would you use Pandas to prepare and clean ecommerce sales data for better insight into customer purchasing patterns?**
 
-*Answer to be added.*
+### Ecommerce Data Cleaning & Analysis with Pandas
+
+```python
+import pandas as pd
+import numpy as np
+
+# Load ecommerce data
+df = pd.read_csv('ecommerce_sales.csv')
+
+# ---- Step 1: Initial Cleaning ----
+# Convert dates
+df['order_date'] = pd.to_datetime(df['order_date'])
+df['ship_date'] = pd.to_datetime(df['ship_date'])
+
+# Remove cancellations and returns
+df = df[df['quantity'] > 0]
+df = df[df['total_price'] > 0]
+
+# Drop duplicates (same order on same product)
+df = df.drop_duplicates(subset=['order_id', 'product_id'])
+
+# Fix data types
+df['customer_id'] = df['customer_id'].astype(str)
+df['category'] = df['category'].astype('category')
+
+# ---- Step 2: Customer-Level Features ----
+customer_features = df.groupby('customer_id').agg(
+    total_orders=('order_id', 'nunique'),
+    total_spend=('total_price', 'sum'),
+    avg_order_value=('total_price', 'mean'),
+    unique_products=('product_id', 'nunique'),
+    unique_categories=('category', 'nunique'),
+    first_purchase=('order_date', 'min'),
+    last_purchase=('order_date', 'max'),
+    avg_quantity=('quantity', 'mean'),
+).reset_index()
+
+# Customer lifetime and recency
+customer_features['lifetime_days'] = (
+    customer_features['last_purchase'] - customer_features['first_purchase']
+).dt.days
+customer_features['recency_days'] = (
+    pd.Timestamp.now() - customer_features['last_purchase']
+).dt.days
+
+# ---- Step 3: RFM Analysis (Recency, Frequency, Monetary) ----
+customer_features['R_score'] = pd.qcut(customer_features['recency_days'], 5, labels=[5,4,3,2,1])
+customer_features['F_score'] = pd.qcut(customer_features['total_orders'].rank(method='first'), 5, labels=[1,2,3,4,5])
+customer_features['M_score'] = pd.qcut(customer_features['total_spend'], 5, labels=[1,2,3,4,5])
+
+# ---- Step 4: Time-Based Patterns ----
+df['day_of_week'] = df['order_date'].dt.day_name()
+df['hour'] = df['order_date'].dt.hour
+df['month'] = df['order_date'].dt.month
+
+# Weekly purchasing pattern
+weekly_pattern = df.groupby('day_of_week')['order_id'].nunique()
+print("Orders by day:", weekly_pattern.sort_values(ascending=False))
+
+# Monthly revenue trend
+monthly_revenue = df.set_index('order_date').resample('M')['total_price'].sum()
+
+# ---- Step 5: Product Analysis ----
+product_stats = df.groupby('product_id').agg(
+    times_purchased=('order_id', 'count'),
+    unique_buyers=('customer_id', 'nunique'),
+    revenue=('total_price', 'sum')
+).sort_values('revenue', ascending=False)
+
+# Market basket: products frequently bought together
+baskет = df.groupby('order_id')['product_id'].apply(list)
+```
+
+### Key Cleaning Steps
+| Issue | Solution |
+|-------|----------|
+| Invalid quantities/prices | Filter `> 0` |
+| Duplicate transactions | `drop_duplicates(subset=[...])` |
+| Mixed date formats | `pd.to_datetime(format=...)` |
+| Missing customer info | Fill or flag |
+| Category inconsistencies | `.str.lower().str.strip()` |
+
+> **Interview Tip:** Structure your answer around the **RFM framework** (Recency, Frequency, Monetary) — it's the gold standard for customer segmentation. Mention that these Pandas-computed features feed directly into clustering (K-Means) or classification models for churn prediction.
 
 ---

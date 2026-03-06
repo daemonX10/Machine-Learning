@@ -1956,7 +1956,38 @@ preprocessing = tf.keras.Sequential([
 
 **Explain the concept of eager execution in TensorFlow.**
 
-**Answer:** _[To be filled]_
+
+
+**Eager execution** is TensorFlow's default execution mode (since TF 2.0) where operations are evaluated immediately as they are called, returning concrete values instead of building a computational graph.
+
+| Aspect | Eager Execution | Graph Execution |
+|--------|----------------|-----------------|
+| Execution | Immediate | Deferred (build then run) |
+| Debugging | Easy (use print, pdb) | Hard (requires tf.print, sessions) |
+| Default in | TF 2.x | TF 1.x |
+| Performance | Slightly slower | Optimized by compiler |
+| Pythonic | Yes, natural Python flow | No, requires special TF ops |
+
+```python
+import tensorflow as tf
+
+# Eager mode (default in TF 2.x) - operations execute immediately
+a = tf.constant([[1, 2], [3, 4]])
+b = tf.constant([[5, 6], [7, 8]])
+c = tf.matmul(a, b)
+print(c.numpy())  # Works immediately, no session needed
+
+# You can use standard Python control flow
+if tf.reduce_sum(c) > 50:
+    print("Sum is large")
+
+# For production performance, use @tf.function to get graph benefits
+@tf.function
+def fast_matmul(a, b):
+    return tf.matmul(a, b)
+```
+
+> **Interview Tip:** Eager execution makes TF 2.x feel like NumPy. For production, wrap performance-critical code in `@tf.function` to get graph optimizations while keeping eager mode for debugging.
 
 ---
 
@@ -1964,13 +1995,78 @@ preprocessing = tf.keras.Sequential([
 
 **Explain the concept of graph mode versus eager mode in TensorFlow.**
 
-**Answer:** _[To be filled]_
+
+
+| Feature | Eager Mode | Graph Mode |
+|---------|-----------|------------|
+| **Execution** | Operations run immediately | Operations build a graph first, then execute |
+| **Debugging** | Standard Python debugger works | Requires `tf.print`, `tfdbg` |
+| **Performance** | Good for prototyping | Better for production (compiler optimizations) |
+| **Portability** | Python-dependent | Graphs can be exported and run without Python |
+| **Default** | TF 2.x default | TF 1.x default |
+| **Usage** | Development, debugging | Deployment, mobile, serving |
+
+```python
+import tensorflow as tf
+
+# Eager mode (default): runs immediately
+x = tf.constant(3.0)
+y = x ** 2 + 2 * x + 1
+print(y.numpy())  # 16.0, available immediately
+
+# Graph mode via @tf.function: traces Python into a graph
+@tf.function
+def compute(x):
+    return x ** 2 + 2 * x + 1
+
+result = compute(tf.constant(3.0))  # Runs as optimized graph
+
+# Best practice: develop in eager, deploy with @tf.function
+# @tf.function benefits:
+# - Automatic graph optimization (constant folding, op fusion)
+# - Exportable as SavedModel for serving
+# - Runs on GPU/TPU efficiently
+```
+
+> **Interview Tip:** TF 2.x gives you the best of both worlds: debug in **eager mode**, deploy in **graph mode** using `@tf.function`. Mention that `@tf.function` traces your Python code into a portable, optimizable graph.
 
 ## Question 33
 
 **What is a Session in TensorFlow ? Explain its role**
 
-*Answer to be added.*
+**Answer:**
+
+A **Session** (`tf.Session`) was TensorFlow 1.x's mechanism to execute computational graphs. It allocated resources (CPU/GPU), ran operations, and evaluated tensors.
+
+| Aspect | Detail |
+|--------|--------|
+| **Purpose** | Execute operations in a pre-built computational graph |
+| **TF 1.x** | Required: `sess.run(tensor)` to get values |
+| **TF 2.x** | Removed: eager execution replaces sessions |
+| **Resource mgmt** | Sessions managed GPU memory and device placement |
+
+```python
+# TF 1.x (legacy) - Sessions required
+import tensorflow.compat.v1 as tf1
+tf1.disable_eager_execution()
+
+a = tf1.placeholder(tf1.float32, shape=[2])
+b = tf1.constant([3.0, 4.0])
+c = a + b
+
+with tf1.Session() as sess:
+    result = sess.run(c, feed_dict={a: [1.0, 2.0]})
+    print(result)  # [4.0, 6.0]
+
+# TF 2.x (modern) - No sessions needed
+import tensorflow as tf
+a = tf.constant([1.0, 2.0])
+b = tf.constant([3.0, 4.0])
+c = a + b
+print(c.numpy())  # [4.0, 6.0] - immediate
+```
+
+> **Interview Tip:** Sessions are **TF 1.x only**. In TF 2.x, eager execution replaced them entirely. If you encounter legacy code, use `tf.compat.v1.Session()` for migration.
 
 ---
 
@@ -1978,7 +2074,40 @@ preprocessing = tf.keras.Sequential([
 
 **What is a Placeholder in TensorFlow , and how is it used?**
 
-*Answer to be added.*
+**Answer:**
+
+A **Placeholder** (`tf.placeholder`) was TF 1.x's way to define input nodes in a computational graph. Data was fed at runtime via `feed_dict` in a Session.
+
+| Aspect | Detail |
+|--------|--------|
+| **Purpose** | Define input slots for data feeding |
+| **TF 1.x** | `tf.placeholder(dtype, shape)` |
+| **TF 2.x** | Replaced by `tf.function` arguments and `tf.data` |
+| **Feed mechanism** | `sess.run(output, feed_dict={placeholder: data})` |
+
+```python
+# TF 1.x (legacy)
+import tensorflow.compat.v1 as tf1
+tf1.disable_eager_execution()
+
+x = tf1.placeholder(tf1.float32, shape=[None, 784])  # Batch of images
+y = tf1.placeholder(tf1.int32, shape=[None])           # Labels
+logits = tf1.layers.dense(x, 10)
+
+with tf1.Session() as sess:
+    sess.run(tf1.global_variables_initializer())
+    result = sess.run(logits, feed_dict={x: batch_images})
+
+# TF 2.x equivalent - just use function arguments
+@tf.function
+def predict(x):
+    return model(x)
+
+# Or use tf.data.Dataset for efficient input pipelines
+dataset = tf.data.Dataset.from_tensor_slices((images, labels)).batch(32)
+```
+
+> **Interview Tip:** Placeholders are **obsolete in TF 2.x**. Modern TF uses `tf.data.Dataset` for input pipelines and Python function arguments with `@tf.function` for graph tracing.
 
 ---
 
@@ -1986,7 +2115,45 @@ preprocessing = tf.keras.Sequential([
 
 **How do you use callbacks in TensorFlow ?**
 
-*Answer to be added.*
+**Answer:**
+
+**Callbacks** are objects that perform actions at various stages of training (epoch start/end, batch start/end). They enable monitoring, early stopping, learning rate scheduling, and checkpointing.
+
+| Callback | Purpose |
+|----------|---------|
+| `EarlyStopping` | Stop training when metric stops improving |
+| `ModelCheckpoint` | Save best model during training |
+| `ReduceLROnPlateau` | Reduce learning rate when metric plateaus |
+| `TensorBoard` | Log metrics for visualization |
+| `LearningRateScheduler` | Custom learning rate schedule |
+| `CSVLogger` | Log metrics to CSV file |
+
+```python
+import tensorflow as tf
+
+callbacks = [
+    tf.keras.callbacks.EarlyStopping(
+        monitor='val_loss', patience=5, restore_best_weights=True
+    ),
+    tf.keras.callbacks.ModelCheckpoint(
+        'best_model.keras', monitor='val_loss', save_best_only=True
+    ),
+    tf.keras.callbacks.ReduceLROnPlateau(
+        monitor='val_loss', factor=0.5, patience=3, min_lr=1e-7
+    ),
+    tf.keras.callbacks.TensorBoard(log_dir='./logs')
+]
+
+model.fit(X_train, y_train, epochs=100, validation_split=0.2, callbacks=callbacks)
+
+# Custom callback
+class PrintLR(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        lr = self.model.optimizer.learning_rate.numpy()
+        print(f"Epoch {epoch}: LR = {lr:.6f}, Loss = {logs['loss']:.4f}")
+```
+
+> **Interview Tip:** Always use **EarlyStopping** + **ModelCheckpoint** together. Set `restore_best_weights=True` to automatically load the best model when training stops.
 
 ---
 
@@ -1994,7 +2161,41 @@ preprocessing = tf.keras.Sequential([
 
 **What strategies does TensorFlow use to handle overfitting during training?**
 
-*Answer to be added.*
+**Answer:**
+
+| Strategy | Implementation | When to Use |
+|----------|---------------|-------------|
+| **Dropout** | `layers.Dropout(0.5)` | Dense layers, large networks |
+| **L2 Regularization** | `kernel_regularizer=tf.keras.regularizers.l2(0.01)` | Prevent large weights |
+| **Early Stopping** | `EarlyStopping(patience=5)` | Always recommended |
+| **Data Augmentation** | `RandomFlip`, `RandomRotation` layers | Image data |
+| **Batch Normalization** | `layers.BatchNormalization()` | Stabilize training |
+| **Reduce Model Size** | Fewer layers/units | Small datasets |
+| **More Data** | Collect or augment | Best long-term solution |
+
+```python
+import tensorflow as tf
+from tensorflow.keras import layers, regularizers
+
+model = tf.keras.Sequential([
+    layers.Dense(256, activation='relu',
+                 kernel_regularizer=regularizers.l2(0.01)),  # L2 regularization
+    layers.BatchNormalization(),                              # Batch norm
+    layers.Dropout(0.5),                                      # Dropout
+    layers.Dense(128, activation='relu',
+                 kernel_regularizer=regularizers.l2(0.01)),
+    layers.Dropout(0.3),
+    layers.Dense(10, activation='softmax')
+])
+
+callbacks = [
+    tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5,
+                                      restore_best_weights=True)
+]
+model.fit(X_train, y_train, epochs=100, validation_split=0.2, callbacks=callbacks)
+```
+
+> **Interview Tip:** Combine multiple strategies: **Dropout + L2 + EarlyStopping + BatchNorm**. Monitor the gap between training and validation loss to detect overfitting early.
 
 ---
 
@@ -2002,7 +2203,41 @@ preprocessing = tf.keras.Sequential([
 
 **Discuss how to use mixed-precision training in TensorFlow**
 
-*Answer to be added.*
+**Answer:**
+
+**Mixed-precision training** uses both 16-bit (float16) and 32-bit (float32) floating-point types during training. Computations use float16 for speed, while critical operations (loss scaling, weight updates) use float32 for numerical stability.
+
+| Aspect | float32 | float16 (mixed) |
+|--------|---------|-----------------|
+| Memory | Baseline | ~50% reduction |
+| Speed | Baseline | 2-3x faster on modern GPUs |
+| Precision | Full | Slightly reduced |
+| GPU Support | All | Volta+ (V100, A100, RTX) |
+
+```python
+import tensorflow as tf
+
+# Enable mixed precision globally (one line!)
+tf.keras.mixed_precision.set_global_policy('mixed_float16')
+
+# Build model normally - layers auto-use float16
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(256, activation='relu'),
+    tf.keras.layers.Dense(128, activation='relu'),
+    # Output layer should use float32 for numerical stability
+    tf.keras.layers.Dense(10, dtype='float32')
+])
+
+# Optimizer with loss scaling to prevent underflow
+optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
+model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Training proceeds normally
+model.fit(X_train, y_train, epochs=10, batch_size=128)
+```
+
+> **Interview Tip:** Mixed precision provides **2-3x speedup** with minimal accuracy loss. The key requirement is a GPU with Tensor Cores (NVIDIA Volta or newer). Always keep the final output layer in float32.
 
 ---
 
@@ -2010,7 +2245,49 @@ preprocessing = tf.keras.Sequential([
 
 **What support does TensorFlow offer for transfer learning ?**
 
-*Answer to be added.*
+**Answer:**
+
+**Transfer learning** reuses a model pre-trained on a large dataset (e.g., ImageNet) and adapts it to a new task, significantly reducing training time and data requirements.
+
+| Strategy | Method | When |
+|----------|--------|------|
+| **Feature Extraction** | Freeze base, train new head | Small dataset, similar domain |
+| **Fine-tuning** | Unfreeze top layers, train with low LR | Medium dataset |
+| **Full Fine-tuning** | Unfreeze all, train with very low LR | Large dataset |
+
+```python
+import tensorflow as tf
+
+# 1. Load pre-trained model (without top classification layer)
+base_model = tf.keras.applications.ResNet50(
+    weights='imagenet', include_top=False, input_shape=(224, 224, 3)
+)
+
+# 2. Feature extraction: freeze base model
+base_model.trainable = False
+
+model = tf.keras.Sequential([
+    base_model,
+    tf.keras.layers.GlobalAveragePooling2D(),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dense(256, activation='relu'),
+    tf.keras.layers.Dense(num_classes, activation='softmax')
+])
+
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model.fit(train_data, epochs=10)  # Train only new layers
+
+# 3. Fine-tuning: unfreeze top layers of base model
+base_model.trainable = True
+for layer in base_model.layers[:-20]:  # Freeze all except last 20 layers
+    layer.trainable = False
+
+model.compile(optimizer=tf.keras.optimizers.Adam(1e-5),  # Very low learning rate
+              loss='categorical_crossentropy', metrics=['accuracy'])
+model.fit(train_data, epochs=10)  # Fine-tune
+```
+
+> **Interview Tip:** Always start with **feature extraction** (frozen base), then optionally **fine-tune** top layers with a **very low learning rate** (1e-5). This two-phase approach prevents catastrophic forgetting.
 
 ---
 
@@ -2018,14 +2295,101 @@ preprocessing = tf.keras.Sequential([
 
 **Discuss how GradientTape works in TensorFlow**
 
-*Answer to be added.*
+**Answer:**
+
+`tf.GradientTape` is TensorFlow's automatic differentiation engine. It records operations on tensors inside its context, then computes gradients via backpropagation.
+
+| Feature | Description |
+|---------|-------------|
+| **Purpose** | Record operations for automatic differentiation |
+| **Scope** | Only tracks operations inside `with tf.GradientTape()` block |
+| **Default** | Watches only `tf.Variable` objects |
+| **Persistent** | Set `persistent=True` to compute multiple gradients |
+
+```python
+import tensorflow as tf
+
+# Basic gradient computation
+x = tf.Variable(3.0)
+with tf.GradientTape() as tape:
+    y = x ** 2 + 2 * x + 1  # y = x^2 + 2x + 1
+
+dy_dx = tape.gradient(y, x)
+print(dy_dx.numpy())  # 8.0 (dy/dx = 2x + 2 = 8)
+
+# Custom training with GradientTape
+model = tf.keras.Sequential([tf.keras.layers.Dense(10)])
+optimizer = tf.keras.optimizers.Adam()
+loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+
+for X_batch, y_batch in dataset:
+    with tf.GradientTape() as tape:
+        predictions = model(X_batch, training=True)
+        loss = loss_fn(y_batch, predictions)
+
+    gradients = tape.gradient(loss, model.trainable_variables)
+    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+
+# Higher-order gradients (persistent tape)
+x = tf.Variable(3.0)
+with tf.GradientTape(persistent=True) as tape:
+    y = x ** 3
+dy = tape.gradient(y, x)    # 27.0 (3x^2)
+d2y = tape.gradient(dy, x)  # 18.0 (6x)
+del tape  # Free resources
+```
+
+> **Interview Tip:** `GradientTape` is the foundation of custom training loops in TF 2.x. Use `persistent=True` only when you need multiple gradient computations from the same tape, and remember to `del tape` afterward.
 
 ---
 ## Question 40
 
 **How would you go about debugging a TensorFlow model that isn’t learning?**
 
-*Answer to be added.*
+**Answer:**
+
+### Systematic Debugging Checklist
+
+| Check | What to Look For | Fix |
+|-------|-----------------|-----|
+| **Loss not decreasing** | Loss stays flat or NaN | Check learning rate, loss function |
+| **Learning rate** | Too high (diverges) or too low (no progress) | Try 1e-3, then tune |
+| **Data pipeline** | Wrong labels, no shuffling, no normalization | Verify X-y alignment, scale inputs |
+| **Architecture** | Too small or too complex for the task | Start simple, then scale up |
+| **Activation functions** | Dead ReLU, vanishing gradients | Try LeakyReLU, check init |
+| **Loss function** | Wrong choice for the task | Classification: crossentropy; Regression: MSE |
+| **Gradient flow** | Vanishing or exploding gradients | Gradient clipping, BatchNorm |
+
+```python
+import tensorflow as tf
+
+# 1. Check data: verify labels match inputs
+for X_batch, y_batch in train_ds.take(1):
+    print(f"X shape: {X_batch.shape}, y shape: {y_batch.shape}")
+    print(f"y unique values: {tf.unique(tf.reshape(y_batch, [-1]))[0].numpy()}")
+
+# 2. Check gradients are flowing
+model = build_model()
+with tf.GradientTape() as tape:
+    pred = model(X_batch, training=True)
+    loss = loss_fn(y_batch, pred)
+grads = tape.gradient(loss, model.trainable_variables)
+for var, grad in zip(model.trainable_variables, grads):
+    if grad is not None:
+        print(f"{var.name}: grad mean={tf.reduce_mean(tf.abs(grad)):.6f}")
+    else:
+        print(f"{var.name}: NO GRADIENT!")
+
+# 3. Overfit on a single batch first
+small_ds = train_ds.take(1).repeat()
+model.fit(small_ds, steps_per_epoch=100, epochs=5)
+# If it can't overfit one batch, architecture or loss is wrong
+
+# 4. Use TensorBoard for visualization
+tensorboard_cb = tf.keras.callbacks.TensorBoard('./debug_logs', histogram_freq=1)
+```
+
+> **Interview Tip:** Always try to **overfit on a single batch first**. If the model cannot memorize one batch, the problem is in the architecture, loss function, or data pipeline rather than capacity.
 
 ---
 
@@ -2033,7 +2397,44 @@ preprocessing = tf.keras.Sequential([
 
 **Discuss common errors encountered in TensorFlow and how to resolve them**
 
-*Answer to be added.*
+**Answer:**
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| **Shape mismatch** | Input/output dimensions don't match | Check shapes with `model.summary()` |
+| **OOM (Out of Memory)** | Model/batch too large for GPU | Reduce batch size, use mixed precision |
+| **NaN loss** | Exploding gradients, bad data | Clip gradients, check for NaN in data |
+| **Incompatible dtypes** | Mixing float32/float64/int | Cast tensors: `tf.cast(x, tf.float32)` |
+| **Graph vs Eager issues** | Python ops inside `@tf.function` | Use `tf.py_function` or rewrite with TF ops |
+| **Variable not tracked** | Creating variables outside `__init__` | Define all layers in `__init__` |
+| **Slow training** | CPU instead of GPU | Check `tf.config.list_physical_devices('GPU')` |
+
+```python
+import tensorflow as tf
+
+# 1. Shape mismatch - check before training
+model.summary()  # Verify layer shapes
+print(f"Input shape expected: {model.input_shape}")
+print(f"Output shape: {model.output_shape}")
+
+# 2. OOM fix - limit GPU memory growth
+gpus = tf.config.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
+
+# 3. NaN detection
+if tf.reduce_any(tf.math.is_nan(loss)):
+    print("NaN detected in loss!")
+
+# 4. Gradient clipping to prevent exploding gradients
+optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3, clipnorm=1.0)
+
+# 5. Check GPU usage
+print(f"GPUs available: {tf.config.list_physical_devices('GPU')}")
+print(f"Built with CUDA: {tf.test.is_built_with_cuda()}")
+```
+
+> **Interview Tip:** Always call `model.summary()` before training to verify shapes. Use `set_memory_growth(True)` to prevent TF from allocating all GPU memory at once. Gradient clipping (`clipnorm=1.0`) solves most exploding gradient issues.
 
 ---
 
@@ -2041,7 +2442,50 @@ preprocessing = tf.keras.Sequential([
 
 **How can the TensorBoard tool be used to debug TensorFlow programs ?**
 
-*Answer to be added.*
+**Answer:**
+
+**TensorBoard** is TensorFlow's visualization toolkit for monitoring training metrics, model graphs, histograms, images, and more.
+
+| Feature | Purpose |
+|---------|---------|
+| **Scalars** | Track loss, accuracy, learning rate over time |
+| **Graphs** | Visualize model architecture |
+| **Histograms** | Distribution of weights and gradients |
+| **Images** | Display sample predictions |
+| **Profiler** | Identify performance bottlenecks |
+| **HParams** | Compare hyperparameter experiments |
+
+```python
+import tensorflow as tf
+import datetime
+
+# 1. Basic usage with callback
+log_dir = "logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+tensorboard_cb = tf.keras.callbacks.TensorBoard(
+    log_dir=log_dir,
+    histogram_freq=1,    # Log weight histograms every epoch
+    write_graph=True,    # Visualize model graph
+    write_images=True,
+    profile_batch='10,20'  # Profile batches 10-20
+)
+
+model.fit(X_train, y_train, epochs=50, validation_split=0.2,
+          callbacks=[tensorboard_cb])
+
+# 2. Custom scalar logging
+summary_writer = tf.summary.create_file_writer("logs/custom")
+for epoch in range(100):
+    with summary_writer.as_default():
+        tf.summary.scalar('custom_metric', value, step=epoch)
+        tf.summary.image('predictions', images, step=epoch)
+
+# Launch TensorBoard:
+# tensorboard --logdir=logs/
+# Then open http://localhost:6006 in browser
+```
+
+> **Interview Tip:** Always log to **timestamped subdirectories** so you can compare runs. Use `histogram_freq=1` for weight distribution analysis and the **Profiler** tab to find GPU/CPU bottlenecks.
 
 ---
 

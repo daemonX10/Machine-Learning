@@ -809,7 +809,71 @@ X_poly = polynomial_features(X.ravel(), degree=3)
 
 **How would you use NumPy to process image data for a convolutional neural network ?**
 
-*Answer to be added.*
+### Image Processing with NumPy for CNNs
+
+Images are represented as NumPy arrays with shape `(height, width, channels)` — e.g., `(224, 224, 3)` for a 224×224 RGB image.
+
+### Key Processing Steps
+
+```python
+import numpy as np
+
+# Loading images (typically via PIL/OpenCV, stored as numpy arrays)
+from PIL import Image
+img = np.array(Image.open('photo.jpg'))  # shape: (H, W, 3), dtype: uint8
+
+# 1. Normalization: scale pixel values to [0, 1]
+img_normalized = img.astype(np.float32) / 255.0
+
+# 2. Standardization: zero mean, unit variance (ImageNet stats)
+mean = np.array([0.485, 0.456, 0.406])  # per-channel mean
+std = np.array([0.229, 0.224, 0.225])   # per-channel std
+img_standardized = (img_normalized - mean) / std
+
+# 3. Resizing (center crop to 224x224)
+def center_crop(img, size=224):
+    h, w = img.shape[:2]
+    top = (h - size) // 2
+    left = (w - size) // 2
+    return img[top:top+size, left:left+size]
+
+# 4. Channel reordering: HWC → CHW (PyTorch expects CHW)
+img_chw = np.transpose(img_standardized, (2, 0, 1))  # (3, 224, 224)
+
+# 5. Batching: add batch dimension
+batch = np.expand_dims(img_chw, axis=0)  # (1, 3, 224, 224)
+
+# 6. Data augmentation with NumPy
+def random_horizontal_flip(img, p=0.5):
+    if np.random.random() < p:
+        return np.flip(img, axis=1)  # flip width axis
+    return img
+
+def random_brightness(img, factor=0.2):
+    delta = np.random.uniform(-factor, factor)
+    return np.clip(img + delta, 0, 1)
+
+# 7. Process a full batch
+def preprocess_batch(images, size=224):
+    batch = []
+    for img in images:
+        img = center_crop(img, size)
+        img = img.astype(np.float32) / 255.0
+        img = (img - mean) / std
+        img = np.transpose(img, (2, 0, 1))  # CHW
+        batch.append(img)
+    return np.stack(batch)  # (N, 3, 224, 224)
+```
+
+### Image as Array
+| Aspect | NumPy Representation |
+|--------|---------------------|
+| Grayscale | `(H, W)` — dtype uint8 |
+| RGB | `(H, W, 3)` — values 0-255 |
+| Batch | `(N, C, H, W)` for PyTorch, `(N, H, W, C)` for TensorFlow |
+| Float | `float32` after normalization |
+
+> **Interview Tip:** In practice, use `torchvision.transforms` or `tf.image` for augmentation pipelines. NumPy is used for **custom transforms** and understanding what happens under the hood. Mention that images should be `float32` (not float64) to save GPU memory.
 
 ---
 
@@ -817,7 +881,76 @@ X_poly = polynomial_features(X.ravel(), degree=3)
 
 **Discuss the role of NumPy in managing data for training a machine learning model**
 
-*Answer to be added.*
+### NumPy's Role in the ML Training Pipeline
+
+NumPy is the foundational layer for data management in virtually all Python ML frameworks.
+
+### Core Roles
+
+| Stage | NumPy's Role | Example |
+|-------|-------------|--------|
+| **Data loading** | Store datasets as arrays | `X = np.loadtxt('data.csv')` |
+| **Preprocessing** | Normalization, encoding | `X = (X - X.mean()) / X.std()` |
+| **Splitting** | Train/test/val splits | `X_train, X_test = X[:800], X[800:]` |
+| **Batching** | Create mini-batches | `batch = X[idx:idx+32]` |
+| **Feature engineering** | Create/transform features | `X_poly = np.column_stack([X, X**2])` |
+| **Label encoding** | One-hot encoding | `np.eye(n_classes)[labels]` |
+| **Evaluation** | Compute metrics | `accuracy = np.mean(y_pred == y_true)` |
+
+### Data Management Examples
+
+```python
+import numpy as np
+
+# 1. Loading and inspecting data
+data = np.genfromtxt('dataset.csv', delimiter=',', skip_header=1)
+X, y = data[:, :-1], data[:, -1]  # features and labels
+print(f"Shape: {X.shape}, Missing: {np.isnan(X).sum()}, Types: {X.dtype}")
+
+# 2. Preprocessing pipeline
+def preprocess(X):
+    # Handle missing values
+    col_means = np.nanmean(X, axis=0)
+    nan_mask = np.isnan(X)
+    X[nan_mask] = np.take(col_means, np.where(nan_mask)[1])
+    
+    # Standardize (z-score)
+    mean, std = X.mean(axis=0), X.std(axis=0)
+    X = (X - mean) / (std + 1e-8)  # avoid division by zero
+    return X, mean, std
+
+# 3. Train-validation-test split
+def split_data(X, y, train=0.7, val=0.15):
+    n = len(X)
+    idx = np.random.permutation(n)
+    t1, t2 = int(n * train), int(n * (train + val))
+    return (X[idx[:t1]], y[idx[:t1]],      # train
+            X[idx[t1:t2]], y[idx[t1:t2]],  # val
+            X[idx[t2:]], y[idx[t2:]])       # test
+
+# 4. Mini-batch generator
+def batch_generator(X, y, batch_size=32, shuffle=True):
+    n = len(X)
+    idx = np.random.permutation(n) if shuffle else np.arange(n)
+    for start in range(0, n, batch_size):
+        batch_idx = idx[start:start + batch_size]
+        yield X[batch_idx], y[batch_idx]
+
+# 5. One-hot encoding
+def one_hot(labels, n_classes):
+    return np.eye(n_classes)[labels.astype(int)]
+```
+
+### NumPy as Foundation for ML Libraries
+```
+NumPy arrays
+    ├── Pandas DataFrames (built on NumPy)
+    ├── scikit-learn (accepts NumPy arrays)
+    ├── PyTorch Tensors (np.array → torch.from_numpy)
+    └── TensorFlow Tensors (np.array → tf.convert_to_tensor)
+```
+
+> **Interview Tip:** NumPy is the **lingua franca** of ML data. All major frameworks convert to/from NumPy arrays. Key advantages: contiguous memory layout (cache-friendly), vectorized operations (no Python loops), and seamless C/Fortran interop. For large datasets, mention that NumPy arrays are more memory-efficient than Python lists by ~10x.
 
 ---
 
@@ -825,6 +958,88 @@ X_poly = polynomial_features(X.ravel(), degree=3)
 
 **Discuss the potential issues when importing large datasets into NumPy arrays**
 
-*Answer to be added.*
+### Challenges with Large Datasets in NumPy
+
+### Issue 1: Memory Constraints
+
+```python
+import numpy as np
+
+# A 100,000 × 10,000 float64 array = 8 GB of RAM!
+array_size_gb = 100000 * 10000 * 8 / (1024**3)  # 7.45 GB
+
+# Check available memory before loading
+import psutil
+available_gb = psutil.virtual_memory().available / (1024**3)
+print(f"Available: {available_gb:.1f} GB, Needed: {array_size_gb:.1f} GB")
+```
+
+### Issue 2: Data Type Overhead
+
+```python
+# Default float64 uses 8 bytes per element
+data_f64 = np.random.randn(1_000_000)  # 8 MB
+data_f32 = data_f64.astype(np.float32)  # 4 MB — 50% savings
+data_f16 = data_f64.astype(np.float16)  # 2 MB — 75% savings
+
+# For integers, use smallest sufficient type
+labels = np.array([0, 1, 2, 3], dtype=np.int8)    # 1 byte vs 8 bytes (int64)
+```
+
+### Solutions and Workarounds
+
+| Problem | Solution | Method |
+|---------|----------|--------|
+| **Out of memory** | Memory-mapped files | `np.memmap('data.dat', dtype='float32', mode='r', shape=(N, M))` |
+| **Too much precision** | Downcast dtypes | `arr.astype(np.float32)` |
+| **Slow CSV parsing** | Use optimized formats | HDF5, `.npy`, `.npz`, Parquet |
+| **All-at-once loading** | Chunked loading | `np.genfromtxt(..., max_rows=1000)` |
+| **Exceeds single machine** | Distributed computing | Dask, PySpark |
+
+```python
+# Solution 1: Memory-mapped files (access without loading into RAM)
+mmap_array = np.memmap('large_data.dat', dtype='float32', 
+                        mode='r', shape=(1_000_000, 500))
+# Only reads from disk when accessed
+chunk = mmap_array[1000:2000]  # only loads rows 1000-2000
+
+# Solution 2: Save/load in efficient binary format
+np.save('data.npy', large_array)        # single array
+np.savez_compressed('data.npz', X=X, y=y)  # multiple arrays, compressed
+
+# Loading is ~100x faster than CSV
+data = np.load('data.npz')
+X, y = data['X'], data['y']
+
+# Solution 3: Chunked processing
+def process_in_chunks(filename, chunk_size=10000):
+    results = []
+    offset = 0
+    while True:
+        try:
+            chunk = np.genfromtxt(filename, delimiter=',',
+                                  skip_header=1 + offset, max_rows=chunk_size)
+            results.append(chunk.mean(axis=0))  # process each chunk
+            offset += chunk_size
+        except (StopIteration, ValueError):
+            break
+    return np.array(results)
+
+# Solution 4: Use Dask for larger-than-memory arrays
+import dask.array as da
+x = da.from_npy_stack('data/')  # lazy loading
+result = x.mean(axis=0).compute()  # only computes when needed
+```
+
+### File Format Comparison
+| Format | Read Speed | File Size | Random Access |
+|--------|-----------|-----------|---------------|
+| CSV | Slow | Large | No |
+| `.npy` | Very fast | Moderate | No |
+| `.npz` | Fast | Small (compressed) | No |
+| HDF5 | Fast | Small | Yes |
+| memmap | Instant (lazy) | Same as raw | Yes |
+
+> **Interview Tip:** The #1 mistake is loading a full dataset into memory when you only need a subset. Mention **memory mapping** for exploration, **chunked processing** for ETL, and **Dask** for distributed computation. For ML training, frameworks like PyTorch's `DataLoader` handle batching automatically.
 
 ---

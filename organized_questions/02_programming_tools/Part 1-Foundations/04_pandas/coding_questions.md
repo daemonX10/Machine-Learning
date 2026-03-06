@@ -434,6 +434,61 @@ print(merged)
 
 **If you have a DataFrame with multiple datetime columns , detail how you would create a new column combining them into the earliest datetime**
 
-*Answer to be added.*
+### Finding the Earliest Datetime Across Multiple Columns
+
+```python
+import pandas as pd
+import numpy as np
+
+# Sample DataFrame with multiple datetime columns
+df = pd.DataFrame({
+    'order_date': ['2025-01-15', '2025-02-20', '2025-03-10'],
+    'ship_date': ['2025-01-18', '2025-02-15', '2025-03-12'],
+    'delivery_date': ['2025-01-25', '2025-02-22', '2025-03-08']
+})
+
+# Convert to datetime
+datetime_cols = ['order_date', 'ship_date', 'delivery_date']
+for col in datetime_cols:
+    df[col] = pd.to_datetime(df[col])
+
+# Method 1: Using min() across columns (recommended)
+df['earliest_date'] = df[datetime_cols].min(axis=1)
+print(df)
+#   order_date  ship_date delivery_date earliest_date
+# 0 2025-01-15 2025-01-18    2025-01-25    2025-01-15
+# 1 2025-02-20 2025-02-15    2025-02-22    2025-02-15
+# 2 2025-03-10 2025-03-12    2025-03-08    2025-03-08
+
+# Method 2: Using np.minimum for two columns
+df['earliest_two'] = np.minimum(df['order_date'], df['ship_date'])
+
+# Method 3: Using reduce for multiple columns
+from functools import reduce
+df['earliest_reduce'] = reduce(np.minimum, [df[col] for col in datetime_cols])
+
+# Method 4: Stack and groupby (handles NaT gracefully)
+df['earliest_stack'] = df[datetime_cols].stack().groupby(level=0).min()
+```
+
+### Handling NaT (Missing Datetimes)
+
+```python
+# With missing values
+df_with_nat = pd.DataFrame({
+    'date1': pd.to_datetime(['2025-01-15', pd.NaT, '2025-03-10']),
+    'date2': pd.to_datetime(['2025-01-18', '2025-02-15', pd.NaT]),
+})
+
+# min() skips NaT by default
+df_with_nat['earliest'] = df_with_nat[['date1', 'date2']].min(axis=1)
+# Row 1: 2025-02-15 (skips NaT in date1)
+# Row 2: 2025-03-10 (skips NaT in date2)
+
+# To get NaT if ANY column is NaT:
+df_with_nat['earliest_strict'] = df_with_nat[['date1', 'date2']].min(axis=1, skipna=False)
+```
+
+> **Interview Tip:** `df[cols].min(axis=1)` is the cleanest approach and handles NaT gracefully. For maximum datetime, use `.max(axis=1)`. This pattern is common in ML for computing **time-to-event features** (e.g., first interaction, earliest symptom).
 
 ---

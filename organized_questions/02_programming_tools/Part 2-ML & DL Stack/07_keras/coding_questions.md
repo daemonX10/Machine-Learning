@@ -1243,7 +1243,63 @@ train_ds = train_ds.map(lambda x, y: (preprocess(x), y))
 
 **Implement custom training logic in Keras by overriding the training step function**
 
-*Answer to be added.*
+### Solution
+
+```python
+import tensorflow as tf
+from tensorflow import keras
+import numpy as np
+
+class CustomModel(keras.Model):
+    def __init__(self, units=64, num_classes=10):
+        super().__init__()
+        self.dense1 = keras.layers.Dense(units, activation='relu')
+        self.bn = keras.layers.BatchNormalization()
+        self.dropout = keras.layers.Dropout(0.3)
+        self.dense2 = keras.layers.Dense(num_classes)
+        self.loss_fn = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        self.loss_tracker = keras.metrics.Mean(name="loss")
+        self.acc_metric = keras.metrics.SparseCategoricalAccuracy(name="accuracy")
+
+    def call(self, x, training=False):
+        x = self.dense1(x)
+        x = self.bn(x, training=training)
+        x = self.dropout(x, training=training)
+        return self.dense2(x)
+
+    def train_step(self, data):
+        x, y = data
+        with tf.GradientTape() as tape:
+            y_pred = self(x, training=True)
+            loss = self.loss_fn(y, y_pred)
+        gradients = tape.gradient(loss, self.trainable_variables)
+        self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+        self.loss_tracker.update_state(loss)
+        self.acc_metric.update_state(y, y_pred)
+        return {"loss": self.loss_tracker.result(), "accuracy": self.acc_metric.result()}
+
+    def test_step(self, data):
+        x, y = data
+        y_pred = self(x, training=False)
+        loss = self.loss_fn(y, y_pred)
+        self.loss_tracker.update_state(loss)
+        self.acc_metric.update_state(y, y_pred)
+        return {"loss": self.loss_tracker.result(), "accuracy": self.acc_metric.result()}
+
+    @property
+    def metrics(self):
+        return [self.loss_tracker, self.acc_metric]
+
+# Usage
+(X_train, y_train), (X_test, y_test) = keras.datasets.mnist.load_data()
+X_train = X_train.reshape(-1, 784).astype("float32") / 255.0
+
+model = CustomModel(units=128, num_classes=10)
+model.compile(optimizer="adam")
+model.fit(X_train, y_train, batch_size=64, epochs=5, validation_split=0.1)
+```
+
+> **Interview Tip:** Override `train_step()` when you need custom loss logic (e.g., GANs, multi-task learning). Override `test_step()` for custom evaluation. Always define tracked metrics in the `metrics` property.
 
 ---
 
@@ -1251,7 +1307,54 @@ train_ds = train_ds.map(lambda x, y: (preprocess(x), y))
 
 **Use the Keras functional API to create a model with shared layers and multiple inputs/outputs**
 
-*Answer to be added.*
+### Solution
+
+```python
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+# Shared embedding layer (e.g., for Siamese networks)
+shared_embedding = layers.Dense(64, activation='relu', name='shared_embed')
+
+# Input A
+input_a = layers.Input(shape=(100,), name='input_a')
+encoded_a = shared_embedding(input_a)
+encoded_a = layers.Dropout(0.3)(encoded_a)
+
+# Input B (uses SAME shared layer - weights are tied)
+input_b = layers.Input(shape=(100,), name='input_b')
+encoded_b = shared_embedding(input_b)
+encoded_b = layers.Dropout(0.3)(encoded_b)
+
+# Merge branches
+merged = layers.Concatenate()([encoded_a, encoded_b])
+merged = layers.Dense(128, activation='relu')(merged)
+merged = layers.Dropout(0.3)(merged)
+
+# Multiple outputs
+similarity_output = layers.Dense(1, activation='sigmoid', name='similarity')(merged)
+category_output = layers.Dense(10, activation='softmax', name='category')(merged)
+
+# Build multi-input, multi-output model
+model = keras.Model(
+    inputs=[input_a, input_b],
+    outputs=[similarity_output, category_output]
+)
+
+model.compile(
+    optimizer='adam',
+    loss={'similarity': 'binary_crossentropy', 'category': 'categorical_crossentropy'},
+    loss_weights={'similarity': 1.0, 'category': 0.5},
+    metrics={'similarity': 'accuracy', 'category': 'accuracy'}
+)
+
+model.summary()
+# model.fit({'input_a': X_a, 'input_b': X_b},
+#           {'similarity': y_sim, 'category': y_cat}, epochs=10)
+```
+
+> **Interview Tip:** The **Functional API** is essential for shared layers (Siamese networks), multi-input/output models, and non-linear topologies. Use `loss_weights` to balance multiple objectives.
 
 ---
 
@@ -1259,6 +1362,59 @@ train_ds = train_ds.map(lambda x, y: (preprocess(x), y))
 
 **Code an LSTM network in Keras to perform sentiment analysis on text data**
 
-*Answer to be added.*
+### Solution
+
+```python
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+
+# Load IMDB dataset
+vocab_size = 10000
+max_length = 200
+
+(X_train, y_train), (X_test, y_test) = keras.datasets.imdb.load_data(num_words=vocab_size)
+X_train = keras.preprocessing.sequence.pad_sequences(X_train, maxlen=max_length)
+X_test = keras.preprocessing.sequence.pad_sequences(X_test, maxlen=max_length)
+
+# Build LSTM model
+model = keras.Sequential([
+    layers.Embedding(vocab_size, 128, input_length=max_length),
+    layers.SpatialDropout1D(0.3),       # Dropout for embeddings
+    layers.Bidirectional(layers.LSTM(64, return_sequences=True)),
+    layers.Bidirectional(layers.LSTM(32)),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.5),
+    layers.Dense(1, activation='sigmoid')
+])
+
+model.compile(
+    optimizer='adam',
+    loss='binary_crossentropy',
+    metrics=['accuracy']
+)
+
+callbacks = [
+    keras.callbacks.EarlyStopping(monitor='val_loss', patience=3,
+                                   restore_best_weights=True),
+    keras.callbacks.ReduceLROnPlateau(factor=0.5, patience=2)
+]
+
+history = model.fit(X_train, y_train, epochs=20, batch_size=64,
+                    validation_split=0.2, callbacks=callbacks)
+
+test_loss, test_acc = model.evaluate(X_test, y_test)
+print(f"Test accuracy: {test_acc:.4f}")
+
+# Predict sentiment
+def predict_sentiment(text, word_index):
+    tokens = [word_index.get(w, 0) for w in text.lower().split()]
+    padded = keras.preprocessing.sequence.pad_sequences([tokens], maxlen=max_length)
+    score = model.predict(padded)[0][0]
+    return "Positive" if score > 0.5 else "Negative", score
+```
+
+> **Interview Tip:** Use **Bidirectional LSTM** to capture context from both directions. `SpatialDropout1D` is better than regular dropout for embedding layers. For production sentiment analysis, consider fine-tuning pre-trained transformers (BERT) instead.
 
 ---

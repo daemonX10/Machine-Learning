@@ -948,7 +948,65 @@ y = tf.constant([0, 1, 0])
 
 **How would you apply TensorFlow to predict stock market trends ?**
 
-*Answer to be added.*
+### Answer
+
+### Approach
+
+| Component | Choice | Reason |
+|-----------|--------|--------|
+| **Data** | Historical OHLCV + technical indicators | Captures price patterns |
+| **Model** | LSTM / Transformer | Handles sequential dependencies |
+| **Features** | Moving averages, RSI, MACD, volume | Domain-specific signals |
+| **Output** | Next-day direction (up/down) or price | Classification or regression |
+| **Evaluation** | Sharpe ratio, directional accuracy | Finance-specific metrics |
+
+```python
+import tensorflow as tf
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+
+# 1. Feature Engineering
+def create_features(df):
+    df['SMA_20'] = df['Close'].rolling(20).mean()
+    df['RSI'] = compute_rsi(df['Close'], 14)
+    df['Returns'] = df['Close'].pct_change()
+    df['Target'] = (df['Close'].shift(-1) > df['Close']).astype(int)
+    return df.dropna()
+
+# 2. Prepare sequences
+def create_sequences(data, seq_length=60):
+    X, y = [], []
+    for i in range(seq_length, len(data)):
+        X.append(data[i-seq_length:i, :-1])
+        y.append(data[i, -1])
+    return np.array(X), np.array(y)
+
+# 3. Build LSTM model
+model = tf.keras.Sequential([
+    tf.keras.layers.LSTM(64, return_sequences=True, input_shape=(60, n_features)),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.LSTM(32),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dense(1, activation='sigmoid')
+])
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# 4. Walk-forward validation (crucial for time-series)
+# Never shuffle time-series data; use expanding or rolling window
+```
+
+### Key Considerations
+
+| Challenge | Solution |
+|-----------|----------|
+| Look-ahead bias | Strict train/test temporal split |
+| Non-stationarity | Use returns, not raw prices |
+| Overfitting | Dropout, early stopping, walk-forward validation |
+| Feature leakage | Compute indicators before splitting |
+| Market regime changes | Rolling window retraining |
+
+> **Interview Tip:** Emphasize that stock prediction is extremely difficult. Mention **walk-forward validation** (never shuffle time-series), **feature engineering** from domain knowledge, and the importance of **risk-adjusted metrics** (Sharpe ratio) over raw accuracy.
 
 ---
 ## Question 12

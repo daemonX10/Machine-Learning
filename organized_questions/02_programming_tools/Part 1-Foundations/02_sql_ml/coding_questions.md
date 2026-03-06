@@ -1097,7 +1097,82 @@ SELECT * FROM ranked WHERE rank <= 10;  -- top 10 keywords per document
 
 **Create a SQL query to pivot a table transforming rows into columns**
 
-*Answer to be added.*
+### Pivoting Data in SQL
+
+Pivoting transforms **row values** into **column headers**, summarizing data in a cross-tabular format.
+
+### Sample Data
+```sql
+-- Original table: sales
+-- | product | quarter | revenue |
+-- |---------|---------|--------|
+-- | Widget  | Q1      | 1000   |
+-- | Widget  | Q2      | 1500   |
+-- | Gadget  | Q1      | 2000   |
+-- | Gadget  | Q2      | 2500   |
+```
+
+### Method 1: CASE + GROUP BY (Standard SQL — works everywhere)
+
+```sql
+SELECT 
+    product,
+    SUM(CASE WHEN quarter = 'Q1' THEN revenue ELSE 0 END) AS Q1_revenue,
+    SUM(CASE WHEN quarter = 'Q2' THEN revenue ELSE 0 END) AS Q2_revenue,
+    SUM(CASE WHEN quarter = 'Q3' THEN revenue ELSE 0 END) AS Q3_revenue,
+    SUM(CASE WHEN quarter = 'Q4' THEN revenue ELSE 0 END) AS Q4_revenue
+FROM sales
+GROUP BY product;
+
+-- Result:
+-- | product | Q1_revenue | Q2_revenue | Q3_revenue | Q4_revenue |
+-- |---------|------------|------------|------------|------------|
+-- | Widget  | 1000       | 1500       | 0          | 0          |
+-- | Gadget  | 2000       | 2500       | 0          | 0          |
+```
+
+### Method 2: PIVOT (SQL Server / Oracle)
+
+```sql
+-- SQL Server specific syntax
+SELECT product, [Q1], [Q2], [Q3], [Q4]
+FROM (
+    SELECT product, quarter, revenue
+    FROM sales
+) AS src
+PIVOT (
+    SUM(revenue)
+    FOR quarter IN ([Q1], [Q2], [Q3], [Q4])
+) AS pvt;
+```
+
+### Method 3: crosstab (PostgreSQL)
+
+```sql
+-- PostgreSQL using tablefunc extension
+CREATE EXTENSION IF NOT EXISTS tablefunc;
+
+SELECT * FROM crosstab(
+    'SELECT product, quarter, revenue FROM sales ORDER BY 1, 2',
+    'SELECT DISTINCT quarter FROM sales ORDER BY 1'
+) AS ct(product TEXT, Q1 NUMERIC, Q2 NUMERIC, Q3 NUMERIC, Q4 NUMERIC);
+```
+
+### Reverse: UNPIVOT (columns to rows)
+
+```sql
+-- SQL Server
+SELECT product, quarter, revenue
+FROM pivoted_sales
+UNPIVOT (revenue FOR quarter IN (Q1, Q2, Q3, Q4)) AS unpvt;
+
+-- Standard SQL equivalent
+SELECT product, 'Q1' AS quarter, Q1_revenue AS revenue FROM pivoted_sales
+UNION ALL
+SELECT product, 'Q2', Q2_revenue FROM pivoted_sales;
+```
+
+> **Interview Tip:** The CASE/GROUP BY approach is the most portable. PIVOT syntax varies by database. For ML, pivoting is often used to create **feature matrices** where each column represents a category (one-hot style).
 
 ---
 
@@ -1105,6 +1180,85 @@ SELECT * FROM ranked WHERE rank <= 10;  -- top 10 keywords per document
 
 **Write a SQL query that identifies and removes duplicate records from a dataset**
 
-*Answer to be added.*
+### Identifying and Removing Duplicates
+
+### Step 1: Identify Duplicates
+
+```sql
+-- Find duplicate rows based on specific columns
+SELECT 
+    name, email, phone,
+    COUNT(*) AS duplicate_count
+FROM customers
+GROUP BY name, email, phone
+HAVING COUNT(*) > 1;
+```
+
+### Step 2: See All Duplicate Records with Row Numbers
+
+```sql
+-- Use ROW_NUMBER to mark duplicates
+WITH ranked AS (
+    SELECT *,
+        ROW_NUMBER() OVER (
+            PARTITION BY name, email, phone  -- columns defining uniqueness
+            ORDER BY id                       -- keep the first occurrence
+        ) AS rn
+    FROM customers
+)
+SELECT * FROM ranked WHERE rn > 1;  -- shows all duplicate rows
+```
+
+### Step 3: Remove Duplicates (Keep First Occurrence)
+
+```sql
+-- Method 1: DELETE with CTE (SQL Server, PostgreSQL)
+WITH ranked AS (
+    SELECT *,
+        ROW_NUMBER() OVER (
+            PARTITION BY name, email, phone
+            ORDER BY id
+        ) AS rn
+    FROM customers
+)
+DELETE FROM ranked WHERE rn > 1;
+
+-- Method 2: DELETE with subquery (MySQL)
+DELETE c1 FROM customers c1
+INNER JOIN customers c2
+    ON c1.name = c2.name
+    AND c1.email = c2.email
+    AND c1.phone = c2.phone
+    AND c1.id > c2.id;           -- keep lower id
+
+-- Method 3: Create clean table (safe approach)
+CREATE TABLE customers_clean AS
+SELECT DISTINCT ON (name, email, phone) *  -- PostgreSQL
+FROM customers
+ORDER BY name, email, phone, id;
+
+-- Or using GROUP BY
+CREATE TABLE customers_clean AS
+SELECT MIN(id) AS id, name, email, phone
+FROM customers
+GROUP BY name, email, phone;
+```
+
+### ML Context: Deduplication in Data Pipelines
+
+```sql
+-- For ML features: deduplicate events per user per day
+WITH deduped_events AS (
+    SELECT *,
+        ROW_NUMBER() OVER (
+            PARTITION BY user_id, event_type, DATE(event_time)
+            ORDER BY event_time
+        ) AS rn
+    FROM user_events
+)
+SELECT * FROM deduped_events WHERE rn = 1;
+```
+
+> **Interview Tip:** Always back up data before deleting. Use the CTE + `ROW_NUMBER()` approach — it's the most flexible and readable. For ML datasets, duplicates can bias training; identify whether duplicates are exact copies vs. near-duplicates (fuzzy matching).
 
 ---

@@ -996,7 +996,46 @@ X_hashed = vectorizer.transform(text_data)
 
 **How can you scale features in a dataset using Scikit-Learn ?**
 
-*Answer to be added.*
+**Answer:**
+
+### Scaling Methods
+
+| Scaler | Formula | Use Case |
+|--------|---------|----------|
+| `StandardScaler` | (x - mean) / std | Most algorithms, normal distribution |
+| `MinMaxScaler` | (x - min) / (max - min) | Fixed range [0, 1], neural networks |
+| `RobustScaler` | (x - median) / IQR | Data with outliers |
+| `MaxAbsScaler` | x / max(abs(x)) | Sparse data |
+| `Normalizer` | x / ||x|| | Per-sample normalization |
+
+```python
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+
+# StandardScaler: mean=0, std=1
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)  # Fit + transform training
+X_test_scaled = scaler.transform(X_test)          # Only transform test!
+
+# MinMaxScaler: [0, 1] range
+scaler = MinMaxScaler(feature_range=(0, 1))
+X_scaled = scaler.fit_transform(X_train)
+
+# RobustScaler: Resistant to outliers (uses median and IQR)
+scaler = RobustScaler()
+X_scaled = scaler.fit_transform(X_train)
+
+# IMPORTANT: Always fit on training data only, then transform test data
+# This prevents data leakage
+```
+
+| Algorithm | Needs Scaling? |
+|-----------|---------------|
+| SVM, KNN, Logistic Regression | Yes |
+| Decision Trees, Random Forest | No |
+| Neural Networks | Yes |
+| PCA | Yes |
+
+> **Interview Tip:** Always fit the scaler on **training data only** and then transform both training and test data. Using a Pipeline automates this and prevents data leakage.
 
 ---
 
@@ -1004,7 +1043,43 @@ X_hashed = vectorizer.transform(text_data)
 
 **What are the strategies provided by Scikit-Learn to handle imbalanced datasets ?**
 
-*Answer to be added.*
+**Answer:**
+
+### Strategies for Imbalanced Datasets
+
+| Strategy | Description | Implementation |
+|----------|-------------|----------------|
+| **Class Weights** | Penalize misclassification of minority class more | `class_weight='balanced'` |
+| **Stratified Sampling** | Maintain class proportions in splits | `stratify=y` in train_test_split |
+| **Oversampling** | Increase minority class samples | `SMOTE()` from imbalanced-learn |
+| **Undersampling** | Decrease majority class samples | `RandomUnderSampler()` |
+| **Threshold Tuning** | Adjust decision threshold | Manual probability threshold |
+| **Metrics** | Use appropriate metrics | F1, precision, recall, AUC instead of accuracy |
+
+```python
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, f1_score
+
+# Method 1: Class weights (built-in, simplest)
+model = RandomForestClassifier(class_weight='balanced', random_state=42)
+
+# Method 2: SMOTE oversampling (pip install imbalanced-learn)
+from imblearn.over_sampling import SMOTE
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
+
+# Method 3: Threshold tuning
+model.fit(X_train, y_train)
+y_proba = model.predict_proba(X_test)[:, 1]
+threshold = 0.3  # Lower threshold to catch more minority class
+y_pred = (y_proba >= threshold).astype(int)
+
+# Always use appropriate metrics for imbalanced data
+print(classification_report(y_test, y_pred))
+```
+
+> **Interview Tip:** Never use accuracy for imbalanced datasets. Use **F1-score**, **precision-recall AUC**, or **balanced accuracy**. `class_weight='balanced'` is the quickest fix.
 
 ---
 
@@ -1012,7 +1087,32 @@ X_hashed = vectorizer.transform(text_data)
 
 **How do you split a dataset into training and testing sets using Scikit-Learn ?**
 
-*Answer to be added.*
+**Answer:**
+
+```python
+from sklearn.model_selection import train_test_split
+
+# Basic split (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.2,       # 20% for testing
+    random_state=42,     # Reproducibility
+    stratify=y           # Maintain class proportions
+)
+
+# Three-way split (60% train, 20% validation, 20% test)
+X_temp, X_test, y_temp, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=0.25, random_state=42)
+```
+
+| Parameter | Purpose |
+|-----------|---------|
+| `test_size` | Fraction for test set (0.2 = 20%) |
+| `random_state` | Seed for reproducibility |
+| `stratify` | Maintain class proportions |
+| `shuffle` | Shuffle before splitting (default True) |
+
+> **Interview Tip:** Always use `stratify=y` for classification tasks—it ensures each split has the same class distribution as the full dataset. For time-series, use `shuffle=False` or `TimeSeriesSplit`.
 
 ---
 
@@ -1020,7 +1120,50 @@ X_hashed = vectorizer.transform(text_data)
 
 **Explain how Imputer works in Scikit-Learn for dealing with missing data**
 
-*Answer to be added.*
+**Answer:**
+
+### Imputation Strategies
+
+| Imputer | Strategy | Best For |
+|---------|----------|----------|
+| `SimpleImputer(strategy='mean')` | Column mean | Numeric, normal distribution |
+| `SimpleImputer(strategy='median')` | Column median | Numeric, with outliers |
+| `SimpleImputer(strategy='most_frequent')` | Mode | Categorical features |
+| `SimpleImputer(strategy='constant', fill_value=0)` | Fixed value | Custom fill |
+| `KNNImputer(n_neighbors=5)` | KNN-based | Complex relationships |
+| `IterativeImputer()` | Multivariate regression | Advanced, MICE algorithm |
+
+```python
+from sklearn.impute import SimpleImputer, KNNImputer
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+import numpy as np
+
+X = np.array([[1, 2], [np.nan, 3], [7, np.nan], [4, 5]])
+
+# SimpleImputer: replaces NaN with a statistic
+imputer = SimpleImputer(strategy='median')
+imputer.fit(X)              # Learn column medians from data
+X_imputed = imputer.transform(X)  # Replace NaN with learned medians
+
+# KNNImputer: uses k-nearest neighbors
+imputer = KNNImputer(n_neighbors=3)
+X_imputed = imputer.fit_transform(X)
+
+# IterativeImputer: models each feature as a function of others (MICE)
+imputer = IterativeImputer(random_state=42)
+X_imputed = imputer.fit_transform(X)
+
+# Best practice: use in a Pipeline
+from sklearn.pipeline import Pipeline
+pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', StandardScaler()),
+    ('model', RandomForestClassifier())
+])
+```
+
+> **Interview Tip:** Always fit the imputer on **training data only** and transform both train and test sets. `KNNImputer` respects feature relationships but is slower; `SimpleImputer` is faster and sufficient for most cases.
 
 ---
 
@@ -1028,7 +1171,39 @@ X_hashed = vectorizer.transform(text_data)
 
 **How do you normalize or standardize data with Scikit-Learn ?**
 
-*Answer to be added.*
+**Answer:**
+
+### Normalization vs Standardization
+
+| Technique | Method | Output Range | Best For |
+|-----------|--------|-------------|----------|
+| **Standardization** | `StandardScaler` | mean=0, std=1 | Most ML algorithms |
+| **Normalization (MinMax)** | `MinMaxScaler` | [0, 1] | Neural networks, image pixels |
+| **Robust Scaling** | `RobustScaler` | Based on IQR | Data with outliers |
+| **L2 Normalization** | `Normalizer` | Unit norm per sample | Text (TF-IDF), KNN |
+
+```python
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, Normalizer
+
+# Standardization: z = (x - mean) / std
+scaler = StandardScaler()
+X_standardized = scaler.fit_transform(X_train)
+X_test_std = scaler.transform(X_test)  # Use training stats!
+
+# Min-Max Normalization: x_norm = (x - min) / (max - min)
+scaler = MinMaxScaler(feature_range=(0, 1))
+X_normalized = scaler.fit_transform(X_train)
+
+# Robust Scaling: x_robust = (x - median) / IQR
+scaler = RobustScaler()
+X_robust = scaler.fit_transform(X_train)
+
+# L2 Normalization: each sample has unit norm
+normalizer = Normalizer(norm='l2')
+X_normed = normalizer.fit_transform(X_train)
+```
+
+> **Interview Tip:** **Standardization** is the default choice for most ML algorithms. Use **MinMaxScaler** for neural networks. Use **RobustScaler** when data contains significant outliers. Always fit on training data only.
 
 ---
 
@@ -1036,7 +1211,54 @@ X_hashed = vectorizer.transform(text_data)
 
 **Explain the process of training a supervised machine learning model using Scikit-Learn**
 
-*Answer to be added.*
+**Answer:**
+
+### Step-by-Step Process
+
+| Step | Action | Code |
+|------|--------|------|
+| 1 | **Load data** | `pd.read_csv()` or `sklearn.datasets` |
+| 2 | **Explore & clean** | Handle missing values, outliers |
+| 3 | **Split data** | `train_test_split(X, y, test_size=0.2)` |
+| 4 | **Preprocess** | Scale, encode, impute |
+| 5 | **Select model** | Choose algorithm (e.g., RandomForest) |
+| 6 | **Train** | `model.fit(X_train, y_train)` |
+| 7 | **Evaluate** | `model.score(X_test, y_test)` |
+| 8 | **Tune** | `GridSearchCV` for hyperparameters |
+| 9 | **Deploy** | `joblib.dump(model, 'model.joblib')` |
+
+```python
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
+# 1-2. Load and prepare data
+X, y = load_data()
+
+# 3. Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
+
+# 4-5. Create pipeline with preprocessing + model
+pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('model', RandomForestClassifier(n_estimators=100, random_state=42))
+])
+
+# 6. Train
+pipeline.fit(X_train, y_train)
+
+# 7. Evaluate
+y_pred = pipeline.predict(X_test)
+print(classification_report(y_test, y_pred))
+
+# 8. Cross-validate for robust estimate
+scores = cross_val_score(pipeline, X_train, y_train, cv=5, scoring='accuracy')
+print(f"CV Accuracy: {scores.mean():.4f} ± {scores.std():.4f}")
+```
+
+> **Interview Tip:** Always use a **Pipeline** to prevent data leakage. Use **cross-validation** rather than a single train-test split for reliable performance estimates.
 
 ---
 
@@ -1044,7 +1266,62 @@ X_hashed = vectorizer.transform(text_data)
 
 **Explain the GridSearchCV function and its purpose**
 
-*Answer to be added.*
+**Answer:**
+
+### Definition
+`GridSearchCV` performs an exhaustive search over a specified parameter grid, evaluating each combination using cross-validation to find the hyperparameters that maximize model performance.
+
+### How It Works
+
+| Step | Action |
+|------|--------|
+| 1 | Define a grid of hyperparameter values |
+| 2 | For each combination, perform k-fold cross-validation |
+| 3 | Compute the mean CV score for each combination |
+| 4 | Select the combination with the best score |
+| 5 | Refit the model on the full training set with best params |
+
+```python
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+
+model = RandomForestClassifier(random_state=42)
+
+param_grid = {
+    'n_estimators': [50, 100, 200],
+    'max_depth': [5, 10, 20, None],
+    'min_samples_split': [2, 5, 10]
+}
+
+grid_search = GridSearchCV(
+    estimator=model,
+    param_grid=param_grid,
+    cv=5,                    # 5-fold cross-validation
+    scoring='accuracy',      # Metric to optimize
+    n_jobs=-1,               # Use all CPU cores
+    verbose=1,               # Show progress
+    return_train_score=True  # Also record training scores
+)
+
+grid_search.fit(X_train, y_train)
+
+print(f"Best parameters: {grid_search.best_params_}")
+print(f"Best CV score: {grid_search.best_score_:.4f}")
+print(f"Test score: {grid_search.score(X_test, y_test):.4f}")
+
+# Access detailed results
+import pandas as pd
+results_df = pd.DataFrame(grid_search.cv_results_)
+```
+
+| Attribute | Description |
+|-----------|-------------|
+| `best_params_` | Best hyperparameter combination |
+| `best_score_` | Mean CV score of best combination |
+| `best_estimator_` | Model refitted with best params on full training data |
+| `cv_results_` | Detailed results for all combinations |
+
+> **Interview Tip:** GridSearchCV tests ALL combinations (can be slow). For large search spaces, use **RandomizedSearchCV** or **HalvingGridSearchCV** instead.
 
 ---
 
@@ -1052,7 +1329,39 @@ X_hashed = vectorizer.transform(text_data)
 
 **What is the difference between .fit() , .predict() , and .transform() methods?**
 
-*Answer to be added.*
+**Answer:**
+
+### Core Methods
+
+| Method | Purpose | Used By | Example |
+|--------|---------|---------|---------|
+| `.fit(X, y)` | Learn parameters from data | All estimators | Learn mean/std, train weights |
+| `.predict(X)` | Generate predictions | Predictors (classifiers, regressors) | Output class labels or values |
+| `.transform(X)` | Transform data using learned params | Transformers (scalers, encoders) | Scale features, encode categories |
+| `.fit_transform(X)` | Fit + transform in one step | Transformers | More efficient for training data |
+| `.predict_proba(X)` | Predict class probabilities | Classifiers with probability support | Output probability per class |
+
+```python
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+
+# Transformer: fit() learns, transform() applies
+scaler = StandardScaler()
+scaler.fit(X_train)                    # Learn mean and std from training data
+X_train_scaled = scaler.transform(X_train)  # Apply transformation
+X_test_scaled = scaler.transform(X_test)    # Same params on test data
+
+# Predictor: fit() trains, predict() infers
+model = RandomForestClassifier()
+model.fit(X_train_scaled, y_train)     # Learn decision boundaries
+y_pred = model.predict(X_test_scaled)  # Make predictions
+y_prob = model.predict_proba(X_test_scaled)  # Class probabilities
+
+# fit_transform() = fit() + transform() (more efficient, only for training)
+X_train_scaled = scaler.fit_transform(X_train)  # Fit and transform in one call
+```
+
+> **Interview Tip:** Never call `fit_transform()` on test data—use `transform()` only. `fit()` should only see training data to prevent data leakage.
 
 ---
 
@@ -1060,7 +1369,63 @@ X_hashed = vectorizer.transform(text_data)
 
 **How would you explain the concept of overfitting , and how can it be identified using Scikit-Learn tools?**
 
-*Answer to be added.*
+**Answer:**
+
+### Definition
+**Overfitting** occurs when a model learns the training data too well, including noise, resulting in excellent training performance but poor generalization to unseen data.
+
+### How to Identify Overfitting
+
+| Signal | Indicator |
+|--------|-----------|
+| High train score, low test score | Large gap between train/test accuracy |
+| High variance in CV scores | Inconsistent performance across folds |
+| Learning curve gap | Training curve much higher than validation |
+| Model complexity | Too many parameters relative to data size |
+
+```python
+from sklearn.model_selection import cross_val_score, learning_curve, validation_curve
+from sklearn.ensemble import RandomForestClassifier
+import numpy as np
+import matplotlib.pyplot as plt
+
+model = RandomForestClassifier(random_state=42)
+
+# Method 1: Compare train vs test scores
+model.fit(X_train, y_train)
+train_score = model.score(X_train, y_train)
+test_score = model.score(X_test, y_test)
+print(f"Train: {train_score:.4f}, Test: {test_score:.4f}, Gap: {train_score - test_score:.4f}")
+
+# Method 2: Learning curves
+train_sizes, train_scores, val_scores = learning_curve(
+    model, X, y, cv=5, train_sizes=np.linspace(0.1, 1.0, 10), n_jobs=-1
+)
+plt.plot(train_sizes, train_scores.mean(axis=1), label='Train')
+plt.plot(train_sizes, val_scores.mean(axis=1), label='Validation')
+plt.legend(); plt.title('Learning Curve')
+
+# Method 3: Validation curve (tune one hyperparameter)
+param_range = [1, 5, 10, 20, 50, None]
+train_scores, val_scores = validation_curve(
+    model, X, y, param_name='max_depth', param_range=param_range, cv=5
+)
+
+# Solutions: regularization, simpler model, more data, cross-validation
+```
+
+### Solutions to Overfitting
+
+| Technique | How It Helps |
+|-----------|-------------|
+| Cross-validation | Detects overfitting early |
+| Regularization (L1/L2) | Constrains model complexity |
+| Simpler model | Fewer parameters |
+| More training data | Better generalization |
+| Feature selection | Removes noise features |
+| Early stopping | Stops before overfitting |
+
+> **Interview Tip:** A large gap between train and test scores is the clearest sign of overfitting. Use **learning curves** to diagnose whether you need more data or a simpler model.
 
 ---
 
@@ -1068,7 +1433,52 @@ X_hashed = vectorizer.transform(text_data)
 
 **How do you use Scikit-Learn to build ensemble models ?**
 
-*Answer to be added.*
+**Answer:**
+
+### Ensemble Methods in Scikit-Learn
+
+| Method | Strategy | Key Class |
+|--------|----------|-----------|
+| **Bagging** | Parallel trees, majority vote | `RandomForestClassifier` |
+| **Boosting** | Sequential, correct previous errors | `GradientBoostingClassifier`, `AdaBoostClassifier` |
+| **Voting** | Combine different model types | `VotingClassifier` |
+| **Stacking** | Meta-learner on top of base models | `StackingClassifier` |
+
+```python
+from sklearn.ensemble import (
+    RandomForestClassifier, GradientBoostingClassifier,
+    AdaBoostClassifier, VotingClassifier, StackingClassifier,
+    BaggingClassifier
+)
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+
+# Bagging
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# Boosting
+gb = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, random_state=42)
+ada = AdaBoostClassifier(n_estimators=100, random_state=42)
+
+# Voting: combine different models
+voting = VotingClassifier(
+    estimators=[('rf', rf), ('gb', gb), ('lr', LogisticRegression(max_iter=1000))],
+    voting='soft'  # Use predicted probabilities (better than 'hard' majority vote)
+)
+
+# Stacking: meta-learner combines base models
+stacking = StackingClassifier(
+    estimators=[('rf', rf), ('gb', gb), ('svc', SVC(probability=True))],
+    final_estimator=LogisticRegression(),  # Meta-learner
+    cv=5
+)
+
+# Train and evaluate any ensemble
+voting.fit(X_train, y_train)
+print(f"Voting accuracy: {voting.score(X_test, y_test):.4f}")
+```
+
+> **Interview Tip:** **Soft voting** (averaging probabilities) typically outperforms hard voting. **Stacking** often gives the best results but is most complex. Random Forest is the easiest starting point.
 
 ---
 
@@ -1076,7 +1486,51 @@ X_hashed = vectorizer.transform(text_data)
 
 **Describe the k-means clustering process as implemented in Scikit-Learn**
 
-*Answer to be added.*
+**Answer:**
+
+### K-Means Algorithm Steps
+
+| Step | Action |
+|------|--------|
+| 1 | Choose k (number of clusters) |
+| 2 | Initialize k centroids (default: k-means++) |
+| 3 | Assign each point to the nearest centroid |
+| 4 | Recompute centroids as mean of assigned points |
+| 5 | Repeat steps 3-4 until convergence |
+
+```python
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+import numpy as np
+
+# Scale data (important for distance-based algorithms)
+X_scaled = StandardScaler().fit_transform(X)
+
+# Fit K-Means
+kmeans = KMeans(n_clusters=3, init='k-means++', n_init=10, random_state=42)
+labels = kmeans.fit_predict(X_scaled)
+
+print(f"Inertia (within-cluster SSE): {kmeans.inertia_:.2f}")
+print(f"Silhouette Score: {silhouette_score(X_scaled, labels):.3f}")
+print(f"Cluster Centers: {kmeans.cluster_centers_.shape}")
+
+# Elbow method to find optimal k
+inertias = []
+for k in range(2, 11):
+    km = KMeans(n_clusters=k, random_state=42).fit(X_scaled)
+    inertias.append(km.inertia_)
+# Plot inertias — look for the "elbow" point
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `n_clusters` | Number of clusters k |
+| `init='k-means++'` | Smart initialization (avoids poor starts) |
+| `n_init=10` | Run 10 times with different seeds, keep best |
+| `max_iter=300` | Maximum iterations per run |
+
+> **Interview Tip:** Always **scale features** before K-Means. Use the **elbow method** (inertia) or **silhouette score** to choose k. K-Means assumes spherical clusters—use DBSCAN for arbitrary shapes.
 
 ---
 
@@ -1084,7 +1538,54 @@ X_hashed = vectorizer.transform(text_data)
 
 **How can you implement custom transformers in Scikit-Learn ?**
 
-*Answer to be added.*
+**Answer:**
+
+### Creating Custom Transformers
+
+Custom transformers inherit from `BaseEstimator` and `TransformerMixin` and implement `fit()` and `transform()`.
+
+```python
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.preprocessing import FunctionTransformer
+import numpy as np
+
+# Method 1: Class-based (full control)
+class OutlierClipper(BaseEstimator, TransformerMixin):
+    \"\"\"Clip outliers to percentile bounds.\"\"\"
+    def __init__(self, lower=5, upper=95):
+        self.lower = lower
+        self.upper = upper
+
+    def fit(self, X, y=None):
+        self.lower_bounds_ = np.percentile(X, self.lower, axis=0)
+        self.upper_bounds_ = np.percentile(X, self.upper, axis=0)
+        return self
+
+    def transform(self, X):
+        return np.clip(X, self.lower_bounds_, self.upper_bounds_)
+
+# Method 2: FunctionTransformer (quick, stateless)
+log_transformer = FunctionTransformer(np.log1p, inverse_func=np.expm1)
+X_log = log_transformer.fit_transform(X)
+
+# Use custom transformer in a Pipeline
+from sklearn.pipeline import Pipeline
+pipeline = Pipeline([
+    ('clipper', OutlierClipper(lower=1, upper=99)),
+    ('scaler', StandardScaler()),
+    ('model', RandomForestClassifier())
+])
+pipeline.fit(X_train, y_train)
+```
+
+### Key Rules
+- `fit()` must return `self`
+- `transform()` must return the transformed data
+- Store learned values with trailing underscore (e.g., `self.mean_`)
+- `BaseEstimator` provides `get_params()`/`set_params()` for GridSearchCV compatibility
+- `TransformerMixin` provides `fit_transform()` automatically
+
+> **Interview Tip:** Use `FunctionTransformer` for simple stateless transformations. Use class-based transformers when you need to learn parameters from training data (e.g., bounds, statistics).
 
 ---
 
@@ -1092,7 +1593,53 @@ X_hashed = vectorizer.transform(text_data)
 
 **Discuss the integration of Scikit-Learn with other popular machine learning libraries like TensorFlow and PyTorch**
 
-*Answer to be added.*
+**Answer:**
+
+### Integration Points
+
+| Integration | How | Use Case |
+|-------------|-----|----------|
+| **TF/PyTorch for feature extraction** | Use DL model outputs as sklearn features | Transfer learning + sklearn classifier |
+| **sklearn preprocessing + DL** | sklearn pipelines before DL models | Data preprocessing |
+| **Wrappers** | `scikeras.KerasClassifier` | Use Keras models with sklearn API |
+| **Metrics** | `sklearn.metrics` for DL evaluation | Consistent evaluation across frameworks |
+| **Hyperparameter tuning** | `GridSearchCV` with DL wrappers | Tune DL hyperparameters |
+
+```python
+# 1. Use TensorFlow model as feature extractor + sklearn classifier
+import tensorflow as tf
+from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
+
+base_model = tf.keras.applications.ResNet50(weights='imagenet', include_top=False, pooling='avg')
+features = base_model.predict(images)  # Extract features
+svc = SVC(kernel='rbf').fit(features, labels)  # Train sklearn classifier
+
+# 2. Wrap Keras model for sklearn API (pip install scikeras)
+from scikeras.wrappers import KerasClassifier
+
+def build_model(hidden_units=64, learning_rate=0.001):
+    model = tf.keras.Sequential([
+        tf.keras.layers.Dense(hidden_units, activation='relu', input_shape=(10,)),
+        tf.keras.layers.Dense(1, activation='sigmoid')
+    ])
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate), loss='binary_crossentropy')
+    return model
+
+keras_clf = KerasClassifier(model=build_model, epochs=50, verbose=0)
+# Now works with GridSearchCV, cross_val_score, Pipeline, etc.
+
+from sklearn.model_selection import GridSearchCV
+param_grid = {'model__hidden_units': [32, 64, 128], 'model__learning_rate': [0.001, 0.01]}
+grid = GridSearchCV(keras_clf, param_grid, cv=3)
+
+# 3. PyTorch + sklearn via skorch (pip install skorch)
+# from skorch import NeuralNetClassifier
+# net = NeuralNetClassifier(MyPyTorchModule, max_epochs=10, lr=0.01)
+# scores = cross_val_score(net, X, y, cv=5)
+```
+
+> **Interview Tip:** The key integration pattern is using DL for **feature extraction** and sklearn for **classical ML** on those features. Wrapper libraries (`scikeras`, `skorch`) let you use DL models within sklearn's `Pipeline`, `GridSearchCV`, and `cross_val_score`.
 
 ---
 ## Question 32

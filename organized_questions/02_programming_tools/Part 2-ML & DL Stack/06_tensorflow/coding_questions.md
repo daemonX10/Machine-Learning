@@ -1127,7 +1127,49 @@ class TransformerBlock(layers.Layer):
 
 **Build a simple convolutional neural network in TensorFlow for image classification**
 
-*Answer to be added.*
+### Solution
+
+```python
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.datasets import cifar10
+from tensorflow.keras.utils import to_categorical
+
+# Load and preprocess data
+(X_train, y_train), (X_test, y_test) = cifar10.load_data()
+X_train, X_test = X_train / 255.0, X_test / 255.0
+y_train, y_test = to_categorical(y_train, 10), to_categorical(y_test, 10)
+
+# Build CNN
+model = models.Sequential([
+    # Block 1
+    layers.Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(32, 32, 3)),
+    layers.BatchNormalization(),
+    layers.Conv2D(32, (3, 3), activation='relu', padding='same'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Dropout(0.25),
+    # Block 2
+    layers.Conv2D(64, (3, 3), activation='relu', padding='same'),
+    layers.BatchNormalization(),
+    layers.Conv2D(64, (3, 3), activation='relu', padding='same'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Dropout(0.25),
+    # Classifier
+    layers.Flatten(),
+    layers.Dense(256, activation='relu'),
+    layers.Dropout(0.5),
+    layers.Dense(10, activation='softmax')
+])
+
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+history = model.fit(X_train, y_train, epochs=20, batch_size=64,
+                    validation_split=0.1,
+                    callbacks=[tf.keras.callbacks.EarlyStopping(patience=5)])
+test_loss, test_acc = model.evaluate(X_test, y_test)
+print(f"Test accuracy: {test_acc:.4f}")
+```
+
+> **Interview Tip:** Always include **BatchNormalization** and **Dropout** to regularize CNNs. Use `padding='same'` to preserve spatial dimensions. EarlyStopping prevents overfitting.
 
 ---
 
@@ -1135,7 +1177,51 @@ class TransformerBlock(layers.Layer):
 
 **Create a recurrent neural network in TensorFlow to process sequential data**
 
-*Answer to be added.*
+### Solution
+
+```python
+import tensorflow as tf
+import numpy as np
+from tensorflow.keras import layers, models
+
+# Generate synthetic time-series data
+def create_sequences(data, seq_length):
+    X, y = [], []
+    for i in range(len(data) - seq_length):
+        X.append(data[i:i+seq_length])
+        y.append(data[i+seq_length])
+    return np.array(X), np.array(y)
+
+# Sine wave prediction
+t = np.linspace(0, 100, 1000)
+data = np.sin(t)
+seq_length = 50
+X, y = create_sequences(data, seq_length)
+X = X.reshape(-1, seq_length, 1)  # (samples, timesteps, features)
+
+split = int(0.8 * len(X))
+X_train, X_test = X[:split], X[split:]
+y_train, y_test = y[:split], y[split:]
+
+# Build RNN model with LSTM
+model = models.Sequential([
+    layers.LSTM(64, return_sequences=True, input_shape=(seq_length, 1)),
+    layers.Dropout(0.2),
+    layers.LSTM(32, return_sequences=False),
+    layers.Dropout(0.2),
+    layers.Dense(16, activation='relu'),
+    layers.Dense(1)
+])
+
+model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+history = model.fit(X_train, y_train, epochs=50, batch_size=32,
+                    validation_split=0.1,
+                    callbacks=[tf.keras.callbacks.EarlyStopping(patience=10,
+                               restore_best_weights=True)])
+print(f"Test MAE: {model.evaluate(X_test, y_test)[1]:.4f}")
+```
+
+> **Interview Tip:** Use **LSTM** or **GRU** over vanilla RNN to avoid vanishing gradients. Stack multiple LSTM layers with `return_sequences=True` on all but the last recurrent layer.
 
 ---
 
@@ -1143,7 +1229,62 @@ class TransformerBlock(layers.Layer):
 
 **Implement a custom training loop in TensorFlow for a basic neural network**
 
-*Answer to be added.*
+### Solution
+
+```python
+import tensorflow as tf
+from tensorflow.keras import layers
+import numpy as np
+
+# Simple dataset
+(X_train, y_train), (X_test, y_test) = tf.keras.datasets.mnist.load_data()
+X_train = X_train.reshape(-1, 784).astype('float32') / 255.0
+X_test = X_test.reshape(-1, 784).astype('float32') / 255.0
+
+train_ds = tf.data.Dataset.from_tensor_slices((X_train, y_train)).shuffle(10000).batch(64)
+test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(64)
+
+# Build model
+model = tf.keras.Sequential([
+    layers.Dense(128, activation='relu'),
+    layers.Dropout(0.3),
+    layers.Dense(10)
+])
+
+optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+
+# Metrics
+train_loss = tf.keras.metrics.Mean()
+train_acc = tf.keras.metrics.SparseCategoricalAccuracy()
+
+# Custom training loop
+for epoch in range(10):
+    train_loss.reset_state()
+    train_acc.reset_state()
+
+    for X_batch, y_batch in train_ds:
+        with tf.GradientTape() as tape:
+            logits = model(X_batch, training=True)
+            loss = loss_fn(y_batch, logits)
+
+        gradients = tape.gradient(loss, model.trainable_variables)
+        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+
+        train_loss.update_state(loss)
+        train_acc.update_state(y_batch, logits)
+
+    print(f"Epoch {epoch+1}: Loss={train_loss.result():.4f}, Acc={train_acc.result():.4f}")
+
+# Evaluate
+test_acc = tf.keras.metrics.SparseCategoricalAccuracy()
+for X_batch, y_batch in test_ds:
+    logits = model(X_batch, training=False)
+    test_acc.update_state(y_batch, logits)
+print(f"Test Accuracy: {test_acc.result():.4f}")
+```
+
+> **Interview Tip:** Custom training loops use `tf.GradientTape()` for automatic differentiation. Use `training=True/False` to toggle dropout/batch norm behavior. This approach gives full control over gradient manipulation and mixed-precision training.
 
 ---
 
@@ -1151,6 +1292,58 @@ class TransformerBlock(layers.Layer):
 
 **Write a TensorFlow function for data augmentation on an image dataset**
 
-*Answer to be added.*
+### Solution
+
+```python
+import tensorflow as tf
+from tensorflow.keras import layers
+
+# Method 1: Using Keras preprocessing layers (recommended for TF 2.x)
+data_augmentation = tf.keras.Sequential([
+    layers.RandomFlip("horizontal"),
+    layers.RandomRotation(0.1),
+    layers.RandomZoom(0.1),
+    layers.RandomContrast(0.1),
+    layers.RandomTranslation(0.1, 0.1),
+])
+
+# Integrate into model
+model = tf.keras.Sequential([
+    data_augmentation,
+    layers.Conv2D(32, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Conv2D(64, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(10, activation='softmax')
+])
+
+# Method 2: Using ImageDataGenerator (legacy but widely used)
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+datagen = ImageDataGenerator(
+    rotation_range=15,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    horizontal_flip=True,
+    zoom_range=0.1,
+    shear_range=0.1,
+    fill_mode='nearest'
+)
+
+# Method 3: Using tf.image for custom augmentation in tf.data pipeline
+def augment(image, label):
+    image = tf.image.random_flip_left_right(image)
+    image = tf.image.random_brightness(image, 0.2)
+    image = tf.image.random_contrast(image, 0.8, 1.2)
+    image = tf.image.random_saturation(image, 0.8, 1.2)
+    return image, label
+
+train_ds = tf.data.Dataset.from_tensor_slices((X_train, y_train))
+train_ds = train_ds.shuffle(1000).map(augment).batch(32).prefetch(tf.data.AUTOTUNE)
+```
+
+> **Interview Tip:** Prefer **Keras preprocessing layers** (Method 1) in TF 2.x as augmentation runs on GPU and integrates into the model. Augmentation only applies during training, not inference.
 
 ---

@@ -989,7 +989,63 @@ Emphasize that data lineage is not just a compliance requirement — it is essen
 
 **Can you explain the use of indexes in databases and how they relate to Machine Learning?**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Database Indexes
+
+An **index** is a data structure (typically a **B-tree** or **hash table**) that speeds up data retrieval by providing quick lookup paths, similar to a book's index.
+
+### Types of Indexes
+
+| Index Type | Description | Best For |
+|-----------|-------------|----------|
+| **B-tree** | Balanced tree, default type | Range queries, sorting, equality |
+| **Hash** | Direct key-value lookup | Exact equality matches |
+| **Bitmap** | Bit arrays per value | Low-cardinality columns |
+| **GIN/GiST** | Generalized inverted/search | Full-text search, JSON, arrays |
+| **Covering** | Includes all query columns | Avoiding table lookups |
+
+### Index Creation
+
+```sql
+-- Single column index
+CREATE INDEX idx_customer_email ON customers(email);
+
+-- Composite index (order matters!)
+CREATE INDEX idx_orders_user_date ON orders(user_id, order_date);
+
+-- Unique index (also enforces constraint)
+CREATE UNIQUE INDEX idx_unique_email ON customers(email);
+
+-- Partial index (PostgreSQL)
+CREATE INDEX idx_active_users ON users(last_login) WHERE is_active = true;
+```
+
+### Relevance to Machine Learning
+
+1. **Feature extraction speed**: Indexed columns allow fast aggregation queries for feature engineering
+2. **Training data retrieval**: Indexes on timestamp/partition columns enable efficient batch extraction
+3. **Real-time serving**: Index on user_id enables fast feature lookup during inference
+4. **Sampling**: Indexed primary keys allow efficient random sampling for training sets
+
+```sql
+-- Fast feature extraction with proper indexes
+CREATE INDEX idx_transactions_user_date ON transactions(user_id, transaction_date);
+
+-- This query is now fast:
+SELECT user_id,
+    COUNT(*) AS txn_count,
+    AVG(amount) AS avg_amount
+FROM transactions
+WHERE transaction_date >= '2025-01-01'
+GROUP BY user_id;
+```
+
+### Trade-offs
+- **Pros**: Faster reads, efficient WHERE/JOIN/ORDER BY
+- **Cons**: Slower writes (INSERT/UPDATE), extra storage, maintenance overhead
+
+> **Interview Tip:** For ML pipelines, index the columns used in WHERE clauses and JOINs of your feature extraction queries. Over-indexing slows down writes; use `EXPLAIN ANALYZE` to verify indexes are actually being used.
 
 ---
 
@@ -997,13 +1053,120 @@ Emphasize that data lineage is not just a compliance requirement — it is essen
 
 **Explain the importance of data normalization in SQL and how it affects Machine Learning models.**
 
-**Answer:** _[To be filled]_
+**Answer:**
+
+### Database Normalization
+
+Database normalization organizes tables to **reduce redundancy** and **improve data integrity** through a series of normal forms.
+
+### Normal Forms
+
+| Normal Form | Rule | Example Violation |
+|------------|------|--------------------|
+| **1NF** | Atomic values, no repeating groups | Storing `"red,blue"` in one cell |
+| **2NF** | 1NF + no partial dependencies | Non-key column depends on part of composite key |
+| **3NF** | 2NF + no transitive dependencies | `zip_code → city` stored in orders table |
+| **BCNF** | Every determinant is a candidate key | Stronger version of 3NF |
+
+### Normalization Example
+
+```sql
+-- DENORMALIZED (bad: redundancy)
+-- | order_id | customer_name | customer_email | product | price |
+-- Repeats customer info for every order
+
+-- NORMALIZED (3NF)
+CREATE TABLE customers (
+    customer_id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100) UNIQUE
+);
+
+CREATE TABLE orders (
+    order_id SERIAL PRIMARY KEY,
+    customer_id INT REFERENCES customers(customer_id),
+    product VARCHAR(100),
+    price DECIMAL(10, 2)
+);
+```
+
+### Impact on Machine Learning
+
+| Aspect | Normalized DB | Denormalized/Flat Table |
+|--------|--------------|-------------------------|
+| **Data quality** | Higher (no redundancy) | Risk of inconsistencies |
+| **Feature extraction** | Requires JOINs | Direct queries |
+| **Query performance** | Slower (joins) | Faster (pre-joined) |
+| **ML best practice** | Source of truth | Feature store / training table |
+
+```sql
+-- ML workflow: normalize for storage, denormalize for training
+CREATE TABLE ml_training_data AS
+SELECT 
+    o.order_id,
+    c.name, c.email,
+    o.product, o.price,
+    COUNT(*) OVER (PARTITION BY c.customer_id) AS total_orders,
+    AVG(o.price) OVER (PARTITION BY c.customer_id) AS avg_order_value
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id;
+```
+
+> **Interview Tip:** Distinguish **database normalization** (reducing redundancy, normal forms) from **data normalization** in ML (scaling features to [0,1] or z-scores). For ML, you typically denormalize data into flat feature tables for training — but maintain normalized source tables for data integrity.
+
+---
 
 ## Question 19
 
 **How would you optimize a SQL query that seems to be running slowly?**
 
-*Answer to be added.*
+### SQL Query Optimization Checklist
+
+### Step 1: Analyze the Query Plan
+
+```sql
+-- PostgreSQL
+EXPLAIN ANALYZE SELECT * FROM orders WHERE customer_id = 42;
+
+-- MySQL
+EXPLAIN SELECT * FROM orders WHERE customer_id = 42;
+
+-- Look for: Seq Scan (full table scan), high row estimates, nested loops on large tables
+```
+
+### Step 2: Common Optimizations
+
+| Problem | Solution | Example |
+|---------|----------|--------|
+| **No index** on WHERE column | Add index | `CREATE INDEX idx_cust ON orders(customer_id)` |
+| **SELECT *** | Select only needed columns | `SELECT id, name FROM ...` |
+| **N+1 queries** | Use JOINs instead | Replace loop queries with single JOIN |
+| **Functions on indexed columns** | Avoid wrapping in functions | `WHERE date_col >= '2025-01-01'` not `WHERE YEAR(date_col) = 2025` |
+| **Large IN lists** | Use JOINs or temp tables | Join against a values table |
+| **Missing statistics** | Update table statistics | `ANALYZE table_name;` |
+| **Correlated subqueries** | Rewrite as JOINs | Replace `WHERE x IN (SELECT ...)` with JOIN |
+
+### Step 3: Advanced Techniques
+
+```sql
+-- Partition large tables
+CREATE TABLE events (
+    event_id BIGINT,
+    event_date DATE,
+    data JSONB
+) PARTITION BY RANGE (event_date);
+
+-- Use materialized views for complex aggregations
+CREATE MATERIALIZED VIEW daily_stats AS
+SELECT DATE(created_at) AS day, COUNT(*), AVG(amount)
+FROM transactions GROUP BY DATE(created_at);
+
+-- Batch processing instead of one huge query
+SELECT * FROM large_table WHERE id BETWEEN 1 AND 100000;
+SELECT * FROM large_table WHERE id BETWEEN 100001 AND 200000;
+```
+
+> **Interview Tip:** Always start with `EXPLAIN ANALYZE`. The #1 optimization is usually **adding the right index**. For ML feature extraction, pre-compute expensive aggregations in materialized views and schedule refreshes.
 
 ---
 
@@ -1011,7 +1174,62 @@ Emphasize that data lineage is not just a compliance requirement — it is essen
 
 **How do you handle missing values in a SQL dataset?**
 
-*Answer to be added.*
+### Handling Missing Values (NULLs) in SQL
+
+### Detecting Missing Values
+
+```sql
+-- Count NULLs per column
+SELECT 
+    COUNT(*) AS total_rows,
+    COUNT(age) AS non_null_age,
+    COUNT(*) - COUNT(age) AS null_age,
+    ROUND(100.0 * (COUNT(*) - COUNT(age)) / COUNT(*), 2) AS null_pct_age
+FROM patients;
+
+-- Find rows with any NULL in critical columns
+SELECT * FROM patients
+WHERE age IS NULL OR weight IS NULL OR diagnosis IS NULL;
+```
+
+### Strategies for Handling NULLs
+
+| Strategy | SQL Implementation | When to Use |
+|----------|-------------------|-------------|
+| **Drop rows** | `WHERE col IS NOT NULL` | Few NULLs, large dataset |
+| **Default value** | `COALESCE(col, 0)` | Known safe default |
+| **Mean/Median imputation** | Subquery with AVG | Numerical columns, MCAR |
+| **Mode imputation** | Subquery with MODE | Categorical columns |
+| **Forward fill** | Window function LAG | Time series data |
+| **Flag + impute** | Add indicator column | Preserve missingness signal |
+
+```sql
+-- Method 1: Replace NULLs with default
+SELECT COALESCE(age, 0) AS age,
+       COALESCE(income, 'Unknown') AS income
+FROM customers;
+
+-- Method 2: Mean imputation
+SELECT 
+    COALESCE(age, (SELECT AVG(age) FROM patients)) AS age_imputed
+FROM patients;
+
+-- Method 3: Forward fill (last known value) for time series
+SELECT 
+    date, sensor_id,
+    COALESCE(reading, 
+        LAG(reading IGNORE NULLS) OVER (PARTITION BY sensor_id ORDER BY date)
+    ) AS reading_filled
+FROM sensor_data;
+
+-- Method 4: Flag missing + impute (best for ML)
+SELECT *,
+    CASE WHEN age IS NULL THEN 1 ELSE 0 END AS age_is_missing,
+    COALESCE(age, (SELECT AVG(age) FROM patients)) AS age_imputed
+FROM patients;
+```
+
+> **Interview Tip:** For ML, creating a **missing indicator** column alongside imputation often improves model performance — missingness itself can be informative. Never drop columns with >50% NULLs without checking if the missingness pattern is predictive.
 
 ---
 
@@ -1019,7 +1237,65 @@ Emphasize that data lineage is not just a compliance requirement — it is essen
 
 **How would you merge multiple result sets in SQL without duplicates?**
 
-*Answer to be added.*
+### Merging Result Sets Without Duplicates
+
+### UNION vs. UNION ALL
+
+| Operator | Duplicates | Performance |
+|----------|-----------|-------------|
+| **UNION** | Removes duplicates | Slower (requires sort/hash) |
+| **UNION ALL** | Keeps duplicates | Faster (no dedup step) |
+
+```sql
+-- UNION: combines and removes duplicates
+SELECT name, email FROM customers_us
+UNION
+SELECT name, email FROM customers_eu;
+
+-- UNION ALL: keeps all rows (faster, use when duplicates impossible)
+SELECT name, email FROM customers_us
+UNION ALL
+SELECT name, email FROM customers_eu;
+```
+
+### Advanced Merging Patterns
+
+```sql
+-- Merge 3+ tables with source tracking
+SELECT name, email, 'US' AS source FROM customers_us
+UNION
+SELECT name, email, 'EU' AS source FROM customers_eu
+UNION
+SELECT name, email, 'APAC' AS source FROM customers_apac;
+
+-- INTERSECT: only rows in BOTH sets
+SELECT user_id FROM premium_users
+INTERSECT
+SELECT user_id FROM active_users;  -- premium AND active
+
+-- EXCEPT / MINUS: rows in first set but NOT second
+SELECT user_id FROM all_users
+EXCEPT
+SELECT user_id FROM churned_users;  -- retained users
+```
+
+### ML Use Case: Combining Training Data
+
+```sql
+-- Combine positive and negative samples for training
+SELECT features.*, 1 AS label FROM fraud_cases
+JOIN features USING (transaction_id)
+UNION ALL
+SELECT features.*, 0 AS label FROM legitimate_cases
+JOIN features USING (transaction_id);
+```
+
+### Rules for UNION
+1. All SELECT statements must have the **same number of columns**
+2. Corresponding columns must have **compatible data types**
+3. Column names come from the **first SELECT**
+
+> **Interview Tip:** Use `UNION ALL` by default for performance; only switch to `UNION` when deduplication is needed. For ML data pipelines, `UNION ALL` with an explicit `DISTINCT` at the end gives you more control over which columns define uniqueness.
 
 ---
 
@@ -1027,7 +1303,79 @@ Emphasize that data lineage is not just a compliance requirement — it is essen
 
 **How would you handle very large datasets in SQL for Machine Learning purposes?**
 
-*Answer to be added.*
+### Handling Large Datasets in SQL for ML
+
+### Strategies Overview
+
+| Strategy | Technique | Scale |
+|----------|-----------|-------|
+| **Partitioning** | Split tables by date/key | Millions to billions of rows |
+| **Sampling** | Extract representative subset | Training data selection |
+| **Incremental processing** | Process in batches | Continuous pipelines |
+| **Materialized views** | Pre-compute aggregations | Expensive feature queries |
+| **Columnar storage** | Use columnar formats | Analytical queries |
+
+### Partitioning
+
+```sql
+-- Partition by date range
+CREATE TABLE events (
+    event_id BIGINT,
+    event_date DATE,
+    user_id INT,
+    data JSONB
+) PARTITION BY RANGE (event_date);
+
+CREATE TABLE events_2025_q1 PARTITION OF events
+    FOR VALUES FROM ('2025-01-01') TO ('2025-04-01');
+
+-- Queries automatically scan only relevant partitions
+SELECT * FROM events WHERE event_date >= '2025-03-01';  -- scans only Q1 partition
+```
+
+### Efficient Sampling
+
+```sql
+-- Random sampling (PostgreSQL)
+SELECT * FROM large_table TABLESAMPLE BERNOULLI(1);  -- ~1% sample
+
+-- Stratified sampling for balanced classes
+WITH ranked AS (
+    SELECT *,
+        ROW_NUMBER() OVER (PARTITION BY label ORDER BY RANDOM()) AS rn
+    FROM training_data
+)
+SELECT * FROM ranked WHERE rn <= 10000;  -- 10k per class
+```
+
+### Batch Processing
+
+```sql
+-- Process in chunks using cursor-style pagination
+SELECT * FROM features
+WHERE id > :last_processed_id
+ORDER BY id
+LIMIT 50000;  -- process 50k at a time
+```
+
+### Feature Computation at Scale
+
+```sql
+-- Materialized view for expensive features
+CREATE MATERIALIZED VIEW user_features AS
+SELECT 
+    user_id,
+    COUNT(*) AS total_orders,
+    AVG(amount) AS avg_order_value,
+    MAX(order_date) AS last_order_date
+FROM orders
+GROUP BY user_id;
+
+-- Refresh periodically
+REFRESH MATERIALIZED VIEW CONCURRENTLY user_features;
+```
+
+> **Interview Tip:** For very large ML datasets, the typical pattern is: **partition tables** → **sample for development** → **train on full data using batch extraction** → **materialize features**. Mention tools like Apache Spark SQL or BigQuery for datasets that exceed single-node capacity.
 
 ---
 
@@ -1035,7 +1383,80 @@ Emphasize that data lineage is not just a compliance requirement — it is essen
 
 **Discuss how you would design a system to regularly feed a Machine Learning model with SQL data**
 
-*Answer to be added.*
+### ML Data Pipeline Design with SQL
+
+### Architecture Overview
+
+```
+Source DB → ETL/ELT → Feature Store → Training Pipeline → Model
+   ↑                        ↓
+Scheduler (Airflow)    Prediction Service
+```
+
+### Key Components
+
+| Component | Tool Options | Purpose |
+|-----------|-------------|--------|
+| **Scheduler** | Airflow, Prefect, dbt | Orchestrate pipeline runs |
+| **ETL** | dbt, Spark, SQL scripts | Transform raw data to features |
+| **Feature Store** | Feast, Tecton, SQL views | Consistent feature access |
+| **Data Validation** | Great Expectations, dbt tests | Ensure data quality |
+| **Model Registry** | MLflow, W&B | Track model versions |
+
+### Implementation
+
+```sql
+-- Step 1: Scheduled feature extraction (run daily via Airflow)
+CREATE TABLE daily_features AS
+SELECT 
+    user_id,
+    DATE(NOW()) AS feature_date,
+    COUNT(*) FILTER (WHERE txn_date >= NOW() - INTERVAL '30 days') AS txn_count_30d,
+    AVG(amount) FILTER (WHERE txn_date >= NOW() - INTERVAL '30 days') AS avg_amount_30d,
+    MAX(txn_date) AS last_active
+FROM transactions
+GROUP BY user_id;
+
+-- Step 2: Data quality checks
+SELECT 
+    CASE WHEN COUNT(*) = 0 THEN 'FAIL: No rows' 
+         WHEN MIN(txn_count_30d) < 0 THEN 'FAIL: Negative counts'
+         ELSE 'PASS' END AS quality_check
+FROM daily_features;
+
+-- Step 3: Incremental updates (only process new data)
+INSERT INTO feature_history
+SELECT * FROM daily_features
+WHERE feature_date = CURRENT_DATE
+ON CONFLICT (user_id, feature_date) DO UPDATE 
+SET txn_count_30d = EXCLUDED.txn_count_30d;
+```
+
+### Python Integration
+
+```python
+# Airflow DAG example
+from airflow import DAG
+from airflow.providers.postgres.operators.postgres import PostgresOperator
+
+dag = DAG('ml_feature_pipeline', schedule_interval='@daily')
+
+extract_features = PostgresOperator(
+    task_id='extract_features',
+    sql='sql/daily_features.sql',
+    dag=dag
+)
+
+train_model = PythonOperator(
+    task_id='train_model',
+    python_callable=train_and_evaluate,
+    dag=dag
+)
+
+extract_features >> train_model
+```
+
+> **Interview Tip:** Emphasize **idempotency** (running the pipeline twice produces the same result), **data versioning** (snapshots of training data), and **monitoring** (alerts on data drift or quality failures). Mention the shift from batch to real-time with tools like Kafka + Flink.
 
 ---
 
@@ -1043,7 +1464,77 @@ Emphasize that data lineage is not just a compliance requirement — it is essen
 
 **How would you extract and prepare a confusion matrix for a classification problem using SQL?**
 
-*Answer to be added.*
+### Building a Confusion Matrix in SQL
+
+A confusion matrix compares **predicted labels** vs. **actual labels** for a classification model.
+
+### Step 1: Predictions Table Structure
+
+```sql
+-- Assume we have a predictions table
+CREATE TABLE predictions (
+    id SERIAL PRIMARY KEY,
+    actual_label VARCHAR(50),
+    predicted_label VARCHAR(50),
+    prediction_score FLOAT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Step 2: Generate Confusion Matrix
+
+```sql
+-- Binary classification confusion matrix
+SELECT 
+    actual_label,
+    SUM(CASE WHEN predicted_label = 'positive' THEN 1 ELSE 0 END) AS predicted_positive,
+    SUM(CASE WHEN predicted_label = 'negative' THEN 1 ELSE 0 END) AS predicted_negative,
+    COUNT(*) AS total
+FROM predictions
+GROUP BY actual_label
+ORDER BY actual_label;
+
+-- Result:
+-- | actual_label | predicted_positive | predicted_negative | total |
+-- |-------------|-------------------|-------------------|-------|
+-- | negative    | 5 (FP)            | 90 (TN)           | 95    |
+-- | positive    | 80 (TP)           | 15 (FN)           | 95    |
+```
+
+### Step 3: Calculate Metrics from Confusion Matrix
+
+```sql
+WITH cm AS (
+    SELECT
+        SUM(CASE WHEN actual_label = 'positive' AND predicted_label = 'positive' THEN 1 ELSE 0 END) AS tp,
+        SUM(CASE WHEN actual_label = 'negative' AND predicted_label = 'positive' THEN 1 ELSE 0 END) AS fp,
+        SUM(CASE WHEN actual_label = 'positive' AND predicted_label = 'negative' THEN 1 ELSE 0 END) AS fn,
+        SUM(CASE WHEN actual_label = 'negative' AND predicted_label = 'negative' THEN 1 ELSE 0 END) AS tn
+    FROM predictions
+)
+SELECT
+    tp, fp, fn, tn,
+    ROUND(1.0 * (tp + tn) / (tp + fp + fn + tn), 4) AS accuracy,
+    ROUND(1.0 * tp / NULLIF(tp + fp, 0), 4) AS precision,
+    ROUND(1.0 * tp / NULLIF(tp + fn, 0), 4) AS recall,
+    ROUND(2.0 * tp / NULLIF(2 * tp + fp + fn, 0), 4) AS f1_score
+FROM cm;
+```
+
+### Multi-Class Confusion Matrix
+
+```sql
+-- Dynamic pivot for any number of classes
+SELECT 
+    actual_label,
+    predicted_label,
+    COUNT(*) AS count
+FROM predictions
+GROUP BY actual_label, predicted_label
+ORDER BY actual_label, predicted_label;
+```
+
+> **Interview Tip:** Computing metrics in SQL is useful for **monitoring dashboards** (e.g., Grafana querying a predictions table). For complex analysis, extract to Python and use `sklearn.metrics.confusion_matrix()`. The SQL approach enables real-time metric tracking without Python.
 
 ---
 
@@ -1051,7 +1542,85 @@ Emphasize that data lineage is not just a compliance requirement — it is essen
 
 **How would you log and track predictions made by a Machine Learning model within a SQL environment?**
 
-*Answer to be added.*
+### ML Prediction Logging in SQL
+
+### Prediction Log Schema
+
+```sql
+CREATE TABLE prediction_log (
+    prediction_id BIGSERIAL PRIMARY KEY,
+    model_name VARCHAR(100) NOT NULL,
+    model_version VARCHAR(50) NOT NULL,
+    input_features JSONB,                    -- store raw input
+    predicted_label VARCHAR(100),
+    prediction_score FLOAT,
+    prediction_probabilities JSONB,          -- class probabilities
+    actual_label VARCHAR(100),               -- filled later (ground truth)
+    latency_ms INT,                          -- inference time
+    created_at TIMESTAMP DEFAULT NOW(),
+    request_id UUID DEFAULT gen_random_uuid()
+);
+
+-- Indexes for common queries
+CREATE INDEX idx_pred_model ON prediction_log(model_name, model_version);
+CREATE INDEX idx_pred_time ON prediction_log(created_at);
+CREATE INDEX idx_pred_label ON prediction_log(predicted_label);
+```
+
+### Logging from Python
+
+```python
+import psycopg2
+import json
+from datetime import datetime
+
+def log_prediction(conn, model_name, version, features, prediction, score, latency):
+    with conn.cursor() as cur:
+        cur.execute("""
+            INSERT INTO prediction_log 
+            (model_name, model_version, input_features, predicted_label, 
+             prediction_score, latency_ms)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (model_name, version, json.dumps(features), prediction, score, latency))
+    conn.commit()
+```
+
+### Monitoring Queries
+
+```sql
+-- Daily prediction volume and accuracy
+SELECT 
+    DATE(created_at) AS day,
+    model_version,
+    COUNT(*) AS total_predictions,
+    AVG(CASE WHEN predicted_label = actual_label THEN 1.0 ELSE 0.0 END) AS accuracy,
+    AVG(latency_ms) AS avg_latency_ms
+FROM prediction_log
+WHERE actual_label IS NOT NULL
+GROUP BY DATE(created_at), model_version
+ORDER BY day DESC;
+
+-- Detect prediction distribution drift
+SELECT 
+    predicted_label,
+    COUNT(*) AS count,
+    ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER(), 2) AS pct
+FROM prediction_log
+WHERE created_at >= NOW() - INTERVAL '7 days'
+GROUP BY predicted_label;
+
+-- Compare model versions (A/B testing)
+SELECT 
+    model_version,
+    COUNT(*) AS predictions,
+    AVG(prediction_score) AS avg_confidence,
+    AVG(latency_ms) AS avg_latency
+FROM prediction_log
+WHERE created_at >= NOW() - INTERVAL '24 hours'
+GROUP BY model_version;
+```
+
+> **Interview Tip:** Prediction logging enables **model monitoring**, **A/B testing**, **debugging**, and **retraining** (using logged predictions as ground truth after labeling). Mention GDPR considerations — input features may contain PII and need encryption or anonymization.
 
 ---
 
@@ -1059,6 +1628,102 @@ Emphasize that data lineage is not just a compliance requirement — it is essen
 
 **Discuss how to manage the entire lifecycle of a Machine Learning model using SQL tools**
 
-*Answer to be added.*
+### ML Lifecycle Management with SQL
+
+### Lifecycle Stages
+
+```
+Data Collection → Feature Engineering → Training → Evaluation → Deployment → Monitoring → Retraining
+      ↑                                                                              ↓
+      └────────────────────────────────────────────────────────────────────────┘
+```
+
+### SQL Schema for Lifecycle Management
+
+```sql
+-- 1. Data versioning
+CREATE TABLE dataset_versions (
+    dataset_id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    version INT,
+    row_count BIGINT,
+    schema_hash VARCHAR(64),
+    created_at TIMESTAMP DEFAULT NOW(),
+    query_used TEXT                     -- SQL that produced this dataset
+);
+
+-- 2. Experiment tracking
+CREATE TABLE experiments (
+    experiment_id SERIAL PRIMARY KEY,
+    model_name VARCHAR(100),
+    model_version VARCHAR(50),
+    dataset_id INT REFERENCES dataset_versions(dataset_id),
+    hyperparameters JSONB,
+    metrics JSONB,                      -- {"accuracy": 0.95, "f1": 0.92}
+    artifact_path VARCHAR(500),         -- path to saved model
+    status VARCHAR(20) DEFAULT 'running',
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 3. Model registry
+CREATE TABLE model_registry (
+    registry_id SERIAL PRIMARY KEY,
+    experiment_id INT REFERENCES experiments(experiment_id),
+    stage VARCHAR(20) DEFAULT 'staging', -- staging / production / archived
+    approved_by VARCHAR(100),
+    deployed_at TIMESTAMP,
+    notes TEXT
+);
+
+-- 4. Prediction monitoring (see Q25)
+-- 5. Retraining triggers
+CREATE TABLE retraining_triggers (
+    trigger_id SERIAL PRIMARY KEY,
+    trigger_type VARCHAR(50),            -- 'accuracy_drop', 'data_drift', 'scheduled'
+    threshold FLOAT,
+    current_value FLOAT,
+    triggered_at TIMESTAMP DEFAULT NOW(),
+    action_taken VARCHAR(100)
+);
+```
+
+### Automated Monitoring
+
+```sql
+-- Check if model needs retraining
+INSERT INTO retraining_triggers (trigger_type, threshold, current_value, action_taken)
+SELECT 
+    'accuracy_drop', 0.90, daily_accuracy,
+    CASE WHEN daily_accuracy < 0.90 THEN 'retrain_initiated' ELSE 'no_action' END
+FROM (
+    SELECT AVG(CASE WHEN predicted_label = actual_label THEN 1.0 ELSE 0.0 END) AS daily_accuracy
+    FROM prediction_log
+    WHERE created_at >= NOW() - INTERVAL '24 hours'
+    AND actual_label IS NOT NULL
+) daily;
+
+-- Model comparison for promotion decisions
+SELECT 
+    e.model_name, e.model_version,
+    e.metrics->>'accuracy' AS accuracy,
+    e.metrics->>'f1' AS f1_score,
+    mr.stage
+FROM experiments e
+JOIN model_registry mr ON e.experiment_id = mr.experiment_id
+WHERE e.model_name = 'fraud_detector'
+ORDER BY (e.metrics->>'f1')::FLOAT DESC;
+```
+
+### Tools Integration
+
+| Stage | SQL Role | Supporting Tool |
+|-------|----------|----------------|
+| Data | Source of truth, feature extraction | dbt, Airflow |
+| Training | Dataset versioning, experiment logging | MLflow, W&B |
+| Deployment | Prediction logging, A/B routing | Seldon, BentoML |
+| Monitoring | Drift detection, metric tracking | Evidently, Grafana |
+| Retraining | Trigger detection, data preparation | Airflow, Prefect |
+
+> **Interview Tip:** SQL serves as the **backbone** for ML lifecycle management — it stores data, features, predictions, and monitoring metrics. Dedicated MLOps tools (MLflow, Kubeflow) handle model artifacts and deployment, but SQL remains the central data layer. Emphasize the importance of **reproducibility** (tracking which data version trained which model).
 
 ---

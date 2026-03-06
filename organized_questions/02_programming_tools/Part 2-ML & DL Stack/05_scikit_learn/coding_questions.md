@@ -999,7 +999,52 @@ joblib.dump({'model': model, 'metadata': metadata}, 'model_with_meta.joblib')
 
 **Create a Python function that uses Scikit-Learn to perform a k-fold cross-validation on a dataset**
 
-*Answer to be added.*
+### Solution
+```python
+import numpy as np
+from sklearn.model_selection import KFold, StratifiedKFold, cross_val_score, cross_validate
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
+def kfold_cross_validation(X, y, model=None, n_splits=5, scoring='accuracy',
+                           stratified=True, random_state=42):
+    \"\"\"Perform k-fold cross-validation and return detailed results.\"\"\"
+    if model is None:
+        model = Pipeline([
+            ('scaler', StandardScaler()),
+            ('clf', RandomForestClassifier(n_estimators=100, random_state=random_state))
+        ])
+    
+    cv = (StratifiedKFold if stratified else KFold)(
+        n_splits=n_splits, shuffle=True, random_state=random_state
+    )
+    
+    # Multiple metrics support
+    if isinstance(scoring, list):
+        results = cross_validate(model, X, y, cv=cv, scoring=scoring,
+                                 return_train_score=True, n_jobs=-1)
+        for metric in scoring:
+            train = results[f'train_{metric}']
+            test = results[f'test_{metric}']
+            print(f"{metric}: Train={train.mean():.4f}±{train.std():.4f}, "
+                  f"Test={test.mean():.4f}±{test.std():.4f}")
+        return results
+    
+    scores = cross_val_score(model, X, y, cv=cv, scoring=scoring, n_jobs=-1)
+    for i, s in enumerate(scores):
+        print(f"Fold {i+1}: {s:.4f}")
+    print(f"Mean: {scores.mean():.4f} ± {scores.std():.4f}")
+    return {'scores': scores, 'mean': scores.mean(), 'std': scores.std()}
+
+# Usage
+X, y = load_iris(return_X_y=True)
+result = kfold_cross_validation(X, y, n_splits=5)
+result = kfold_cross_validation(X, y, scoring=['accuracy', 'f1_weighted'])
+```
+
+> **Interview Tip:** Always use **StratifiedKFold** for classification to maintain class proportions. Use `cross_validate()` for multiple metrics or train scores.
 
 ---
 
@@ -1007,7 +1052,65 @@ joblib.dump({'model': model, 'metadata': metadata}, 'model_with_meta.joblib')
 
 **Demonstrate how to use Scikit-Learn’s Pipeline to combine preprocessing and model training steps**
 
-*Answer to be added.*
+### Solution
+
+```python
+import numpy as np
+import pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV
+
+# Sample data with mixed types
+data = pd.DataFrame({
+    'age': [25, 30, np.nan, 45, 35, 28, 50, np.nan, 40, 33],
+    'salary': [50000, 60000, 55000, np.nan, 70000, 48000, 90000, 62000, np.nan, 58000],
+    'city': ['NY', 'LA', 'NY', 'LA', 'SF', 'NY', 'LA', 'SF', 'NY', 'LA'],
+    'target': [0, 1, 0, 1, 1, 0, 1, 1, 0, 1]
+})
+X = data.drop('target', axis=1)
+y = data['target']
+
+# Preprocessing pipelines for different column types
+numeric_transformer = Pipeline([
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', StandardScaler())
+])
+categorical_transformer = Pipeline([
+    ('imputer', SimpleImputer(strategy='most_frequent')),
+    ('encoder', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
+])
+
+preprocessor = ColumnTransformer([
+    ('num', numeric_transformer, ['age', 'salary']),
+    ('cat', categorical_transformer, ['city'])
+])
+
+# Full pipeline: preprocessing + model
+pipeline = Pipeline([
+    ('preprocessor', preprocessor),
+    ('classifier', RandomForestClassifier(random_state=42))
+])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+pipeline.fit(X_train, y_train)
+print(f"Accuracy: {pipeline.score(X_test, y_test):.4f}")
+
+# Hyperparameter tuning through the pipeline
+param_grid = {
+    'preprocessor__num__imputer__strategy': ['mean', 'median'],
+    'classifier__n_estimators': [50, 100, 200],
+    'classifier__max_depth': [5, 10, None]
+}
+grid = GridSearchCV(pipeline, param_grid, cv=3, n_jobs=-1)
+grid.fit(X_train, y_train)
+print(f"Best params: {grid.best_params_}")
+```
+
+> **Interview Tip:** Pipelines prevent data leakage by fitting preprocessing only on training data. Use `double_underscore__` notation to tune any nested step in `GridSearchCV`.
 
 ---
 
@@ -1015,6 +1118,58 @@ joblib.dump({'model': model, 'metadata': metadata}, 'model_with_meta.joblib')
 
 **Write a Python function that uses Scikit-Learn’s RandomForestClassifier and performs a grid search to find the best hyperparameters**
 
-*Answer to be added.*
+### Solution
+
+```python
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test_split
+from sklearn.datasets import load_breast_cancer
+from sklearn.metrics import classification_report
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from scipy.stats import randint
+
+def rf_grid_search(X, y, search_type='grid', cv=5, random_state=42):
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=random_state, stratify=y
+    )
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('rf', RandomForestClassifier(random_state=random_state))
+    ])
+
+    if search_type == 'grid':
+        param_grid = {
+            'rf__n_estimators': [50, 100, 200],
+            'rf__max_depth': [5, 10, 20, None],
+            'rf__min_samples_split': [2, 5, 10],
+            'rf__max_features': ['sqrt', 'log2']
+        }
+        search = GridSearchCV(pipeline, param_grid, cv=cv,
+                              scoring='f1_weighted', n_jobs=-1, verbose=1)
+    else:
+        param_dist = {
+            'rf__n_estimators': randint(50, 500),
+            'rf__max_depth': randint(3, 50),
+            'rf__min_samples_split': randint(2, 20),
+            'rf__max_features': ['sqrt', 'log2', None]
+        }
+        search = RandomizedSearchCV(pipeline, param_dist, n_iter=100, cv=cv,
+                                     scoring='f1_weighted', n_jobs=-1,
+                                     random_state=random_state)
+
+    search.fit(X_train, y_train)
+    print(f"Best params: {search.best_params_}")
+    print(f"Best CV score: {search.best_score_:.4f}")
+    print(classification_report(y_test, search.predict(X_test)))
+    return search.best_estimator_, search
+
+# Usage
+X, y = load_breast_cancer(return_X_y=True)
+best_model, results = rf_grid_search(X, y, search_type='random')
+```
+
+> **Interview Tip:** Start with **RandomizedSearchCV** for a broad search, then narrow down with **GridSearchCV**. Always wrap models in pipelines to prevent data leakage.
 
 ---

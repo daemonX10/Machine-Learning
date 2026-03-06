@@ -1287,7 +1287,34 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **What is PyTorch and how does it differ from other deep learning frameworks like TensorFlow ?**
 
-*Answer to be added.*
+**Answer:**
+
+**PyTorch** is an open-source deep learning framework developed by Meta AI (formerly Facebook). It provides a dynamic computational graph (define-by-run) and a Python-first development experience.
+
+| Feature | PyTorch | TensorFlow |
+|---------|---------|------------|
+| **Graph** | Dynamic (eager by default) | Static (graph mode) / Eager (TF 2.x) |
+| **Debugging** | Standard Python debugger | Requires special tools |
+| **Community** | Dominates research | Strong in production |
+| **Deployment** | TorchServe, ONNX | TF Serving, TFLite |
+| **Mobile** | PyTorch Mobile | TensorFlow Lite |
+| **API Style** | Pythonic, NumPy-like | Keras high-level API |
+
+```python
+import torch
+
+# Tensors (like NumPy arrays but GPU-accelerated)
+x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+y = x ** 2 + 2 * x
+y.sum().backward()     # Automatic differentiation
+print(x.grad)          # Gradients: [4.0, 6.0, 8.0]
+
+# GPU support
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+tensor = torch.randn(3, 3).to(device)
+```
+
+> **Interview Tip:** PyTorch dominates **research** (80%+ of papers) due to its dynamic graph and Pythonic API. TensorFlow has stronger **production deployment** tools. Both frameworks are converging in capabilities.
 
 ---
 
@@ -1295,7 +1322,37 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **In PyTorch, what is the difference between a Tensor and a Variable ?**
 
-*Answer to be added.*
+**Answer:**
+
+| Aspect | Tensor | Variable (deprecated) |
+|--------|--------|----------------------|
+| **Current status** | Primary data structure | **Deprecated since PyTorch 0.4** |
+| **Gradient tracking** | `requires_grad=True` | Was the only way to track gradients |
+| **Usage** | All operations | Legacy code only |
+| **API** | `torch.tensor()` | `torch.autograd.Variable()` |
+
+```python
+import torch
+
+# Modern PyTorch: Tensors handle everything
+x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+y = x ** 2
+y.sum().backward()
+print(x.grad)  # tensor([2., 4., 6.])
+
+# Legacy (deprecated, do NOT use):
+# from torch.autograd import Variable
+# x = Variable(torch.tensor([1.0, 2.0]), requires_grad=True)
+
+# Key: Variable was merged into Tensor in PyTorch 0.4
+# torch.Tensor now has all Variable functionality:
+# - .requires_grad  (track gradients)
+# - .grad           (stored gradients)
+# - .backward()     (compute gradients)
+# - .detach()       (stop gradient tracking)
+```
+
+> **Interview Tip:** `Variable` is **completely deprecated**. If you see it in code, it's legacy. Modern PyTorch uses `torch.Tensor` with `requires_grad=True` for all gradient operations.
 
 ---
 
@@ -1303,7 +1360,31 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **How can you convert a NumPy array to a PyTorch Tensor ?**
 
-*Answer to be added.*
+**Answer:**
+
+```python
+import torch
+import numpy as np
+
+# NumPy -> PyTorch Tensor
+np_array = np.array([1.0, 2.0, 3.0])
+tensor1 = torch.from_numpy(np_array)    # Shares memory (changes reflect both)
+tensor2 = torch.tensor(np_array)         # Creates a copy (independent)
+
+# PyTorch Tensor -> NumPy
+tensor = torch.tensor([1.0, 2.0, 3.0])
+np_array1 = tensor.numpy()              # Shares memory (CPU tensors only)
+np_array2 = tensor.detach().cpu().numpy()  # Safe: detach from graph, move to CPU
+```
+
+| Method | Direction | Memory | Notes |
+|--------|-----------|--------|-------|
+| `torch.from_numpy(arr)` | NumPy -> Tensor | Shared | Changes in one affect the other |
+| `torch.tensor(arr)` | NumPy -> Tensor | Copy | Independent, preferred for safety |
+| `tensor.numpy()` | Tensor -> NumPy | Shared | CPU tensors only |
+| `tensor.detach().cpu().numpy()` | Tensor -> NumPy | Copy | Safe for GPU tensors with gradients |
+
+> **Interview Tip:** Use `torch.tensor()` (copy) for safety unless memory sharing is intentional. For GPU tensors, always call `.detach().cpu().numpy()` to avoid errors. Shared memory via `from_numpy()` is useful for zero-copy data loading.
 
 ---
 
@@ -1311,7 +1392,40 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **What is the purpose of the .grad attribute in PyTorch Tensors ?**
 
-*Answer to be added.*
+**Answer:**
+
+The `.grad` attribute stores the gradient of a tensor computed during backpropagation. It is only populated for leaf tensors with `requires_grad=True` after calling `.backward()`.
+
+```python
+import torch
+
+# .grad stores computed gradients
+x = torch.tensor(3.0, requires_grad=True)
+y = x ** 2 + 2 * x + 1  # y = x^2 + 2x + 1
+y.backward()             # Compute dy/dx
+print(x.grad)            # tensor(8.) -> dy/dx = 2x + 2 = 8
+
+# Important: gradients accumulate by default!
+x.grad.zero_()           # Must manually zero before next backward
+y = x ** 3
+y.backward()
+print(x.grad)            # tensor(27.) -> dy/dx = 3x^2 = 27
+
+# In training loops, use optimizer.zero_grad()
+optimizer = torch.optim.SGD([x], lr=0.01)
+optimizer.zero_grad()    # Zeros all parameter gradients
+loss.backward()          # Compute gradients
+optimizer.step()         # Update parameters using gradients
+```
+
+| Property | Description |
+|----------|-------------|
+| `tensor.grad` | Stores accumulated gradients |
+| `tensor.requires_grad` | Whether to track gradients |
+| `tensor.grad_fn` | Function that created this tensor (for graph tracing) |
+| `tensor.is_leaf` | True for user-created tensors |
+
+> **Interview Tip:** Gradients **accumulate** in PyTorch (they are summed, not replaced). Always call `optimizer.zero_grad()` or `tensor.grad.zero_()` before each backward pass. This design enables gradient accumulation for large effective batch sizes.
 
 ---
 
@@ -1319,7 +1433,48 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **Explain what CUDA is and how it relates to PyTorch**
 
-*Answer to be added.*
+**Answer:**
+
+**CUDA** (Compute Unified Device Architecture) is NVIDIA's parallel computing platform that allows PyTorch to run computations on GPUs, providing massive speedups for tensor operations and neural network training.
+
+```python
+import torch
+
+# Check CUDA availability
+print(torch.cuda.is_available())          # True if GPU available
+print(torch.cuda.device_count())          # Number of GPUs
+print(torch.cuda.get_device_name(0))      # GPU name
+print(torch.cuda.current_device())        # Current GPU index
+
+# Move tensors to GPU
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+tensor = torch.randn(1000, 1000).to(device)
+# Or: tensor = torch.randn(1000, 1000, device='cuda')
+
+# Move model to GPU
+model = MyModel().to(device)
+
+# Move data to GPU in training loop
+for x, y in dataloader:
+    x, y = x.to(device), y.to(device)
+    output = model(x)
+
+# Multi-GPU with DataParallel
+if torch.cuda.device_count() > 1:
+    model = torch.nn.DataParallel(model)
+
+# Memory management
+torch.cuda.empty_cache()                  # Free unused GPU memory
+print(torch.cuda.memory_allocated())      # Current GPU memory usage
+```
+
+| Operation | CPU | GPU (CUDA) |
+|-----------|-----|------------|
+| Matrix multiply (1000x1000) | ~100ms | ~1ms |
+| Model training | Hours/days | Minutes/hours |
+| Batch inference | Slow | Fast with batching |
+
+> **Interview Tip:** Always use `.to(device)` pattern for device-agnostic code. Use `torch.cuda.empty_cache()` to free memory between experiments. For multi-GPU, prefer `DistributedDataParallel` over `DataParallel` for better performance.
 
 ---
 
@@ -1327,7 +1482,51 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **How does automatic differentiation work in PyTorch using Autograd ?**
 
-*Answer to be added.*
+**Answer:**
+
+**Autograd** is PyTorch's automatic differentiation engine that records all operations on tensors in a dynamic computational graph and computes gradients via reverse-mode differentiation (backpropagation).
+
+| Concept | Description |
+|---------|-------------|
+| **Dynamic graph** | Graph is built on-the-fly during forward pass |
+| **Leaf tensors** | User-created tensors with `requires_grad=True` |
+| **grad_fn** | Records the operation that created a tensor |
+| **backward()** | Traverses graph in reverse to compute gradients |
+
+```python
+import torch
+
+# Autograd tracks operations automatically
+x = torch.tensor(2.0, requires_grad=True)
+y = torch.tensor(3.0, requires_grad=True)
+
+z = x ** 2 + 3 * y    # z = x^2 + 3y
+z.backward()           # Compute gradients
+print(x.grad)          # dz/dx = 2x = 4.0
+print(y.grad)          # dz/dy = 3.0
+
+# Control gradient tracking
+with torch.no_grad():
+    # Operations here won't be tracked (inference, evaluation)
+    output = model(input_data)
+
+# Detach from graph
+detached = tensor.detach()  # Creates tensor sharing data but not tracking gradients
+
+# Custom autograd function
+class MyReLU(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, x):
+        ctx.save_for_backward(x)
+        return x.clamp(min=0)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        x, = ctx.saved_tensors
+        return grad_output * (x > 0).float()
+```
+
+> **Interview Tip:** Autograd builds a new graph for **every forward pass** (dynamic), unlike TF 1.x's static graph. Use `torch.no_grad()` during inference to save memory. The `backward()` call traverses this graph to compute all gradients in one pass.
 
 ---
 
@@ -1335,7 +1534,59 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **Describe the steps for creating a neural network model in PyTorch**
 
-*Answer to be added.*
+**Answer:**
+
+### Steps to Create a Model in PyTorch
+
+| Step | Action |
+|------|--------|
+| 1 | Define model class inheriting `nn.Module` |
+| 2 | Define layers in `__init__` |
+| 3 | Implement `forward()` method |
+| 4 | Initialize model and move to device |
+| 5 | Define loss function and optimizer |
+| 6 | Write training loop |
+
+```python
+import torch
+import torch.nn as nn
+
+class NeuralNetwork(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        super().__init__()
+        self.layer1 = nn.Linear(input_dim, hidden_dim)
+        self.bn1 = nn.BatchNorm1d(hidden_dim)
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.3)
+        self.layer2 = nn.Linear(hidden_dim, output_dim)
+
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.dropout(x)
+        x = self.layer2(x)
+        return x
+
+# Initialize
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = NeuralNetwork(784, 256, 10).to(device)
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+# Training loop
+for epoch in range(num_epochs):
+    model.train()
+    for X_batch, y_batch in train_loader:
+        X_batch, y_batch = X_batch.to(device), y_batch.to(device)
+        optimizer.zero_grad()
+        outputs = model(X_batch)
+        loss = criterion(outputs, y_batch)
+        loss.backward()
+        optimizer.step()
+```
+
+> **Interview Tip:** Always inherit from `nn.Module` and define all layers in `__init__`. The `forward()` method defines the computation graph. Never call `forward()` directly; use `model(x)` which also runs hooks.
 
 ---
 
@@ -1343,7 +1594,65 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **What is a Sequential model in PyTorch, and how does it differ from using the Module class?**
 
-*Answer to be added.*
+**Answer:**
+
+| Aspect | `nn.Sequential` | `nn.Module` |
+|--------|-----------------|-------------|
+| **Use case** | Simple linear stacks | Any architecture |
+| **Flexibility** | Limited (layers in order) | Full (custom forward logic) |
+| **Multiple inputs/outputs** | No | Yes |
+| **Skip connections** | No | Yes |
+| **Conditional logic** | No | Yes |
+
+```python
+import torch.nn as nn
+
+# nn.Sequential: for simple feed-forward networks
+model = nn.Sequential(
+    nn.Linear(784, 256),
+    nn.ReLU(),
+    nn.Dropout(0.3),
+    nn.Linear(256, 128),
+    nn.ReLU(),
+    nn.Linear(128, 10)
+)
+output = model(x)  # Passes through layers sequentially
+
+# nn.Module: for complex architectures
+class ResidualBlock(nn.Module):
+    def __init__(self, channels):
+        super().__init__()
+        self.conv1 = nn.Conv2d(channels, channels, 3, padding=1)
+        self.bn1 = nn.BatchNorm2d(channels)
+        self.conv2 = nn.Conv2d(channels, channels, 3, padding=1)
+        self.bn2 = nn.BatchNorm2d(channels)
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        residual = x                          # Skip connection
+        out = self.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out = out + residual                  # Add skip connection
+        return self.relu(out)
+
+# Pro tip: use Sequential inside Module for cleaner code
+class Encoder(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, 3), nn.ReLU(), nn.MaxPool2d(2)
+        )
+        self.classifier = nn.Sequential(
+            nn.Linear(64 * 14 * 14, 10)
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        x = x.view(x.size(0), -1)
+        return self.classifier(x)
+```
+
+> **Interview Tip:** Use `nn.Sequential` for simple stacks within larger `nn.Module` classes. Any architecture with skip connections, multiple branches, or conditional logic requires `nn.Module` with a custom `forward()` method.
 
 ---
 
@@ -1351,7 +1660,49 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **What is the role of the forward method in a PyTorch Module ?**
 
-*Answer to be added.*
+**Answer:**
+
+The `forward()` method defines how data flows through the model. It is called automatically when you invoke the model as a function: `output = model(input)`.
+
+| Aspect | Detail |
+|--------|--------|
+| **Purpose** | Defines the computation graph (forward pass) |
+| **Called by** | `model(x)` (NOT `model.forward(x)`) |
+| **Dynamic** | Can include Python control flow (if/else, loops) |
+| **Hooks** | `model(x)` triggers registered hooks; `model.forward(x)` does not |
+
+```python
+import torch
+import torch.nn as nn
+
+class DynamicNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear1 = nn.Linear(100, 64)
+        self.linear2 = nn.Linear(64, 32)
+        self.output_layer = nn.Linear(32, 10)
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        x = self.relu(self.linear1(x))
+
+        # Dynamic behavior: different paths based on input
+        if x.mean() > 0:
+            x = self.relu(self.linear2(x))
+        else:
+            x = self.relu(self.linear2(x)) * 2
+
+        return self.output_layer(x)
+
+# CORRECT: triggers hooks and proper behavior
+model = DynamicNet()
+output = model(input_tensor)
+
+# INCORRECT: bypasses hooks
+# output = model.forward(input_tensor)  # Don't do this!
+```
+
+> **Interview Tip:** Always call `model(x)`, never `model.forward(x)`. The `__call__` method wraps `forward()` and runs pre/post hooks. PyTorch's dynamic graph means `forward()` can contain arbitrary Python control flow, executed fresh each call.
 
 ---
 
@@ -1359,7 +1710,47 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **In PyTorch, what are optimizers , and how do you use them?**
 
-*Answer to be added.*
+**Answer:**
+
+**Optimizers** update model parameters based on computed gradients to minimize the loss function.
+
+| Optimizer | Key Feature | Best For |
+|-----------|------------|----------|
+| `SGD` | Simple, effective with momentum | CNNs, large-scale training |
+| `Adam` | Adaptive learning rate per parameter | Default choice, most tasks |
+| `AdamW` | Adam with decoupled weight decay | Transformers, modern architectures |
+| `RMSprop` | Adaptive, good for non-stationary | RNNs |
+| `LBFGS` | Quasi-Newton method | Small-scale, full-batch |
+
+```python
+import torch.optim as optim
+
+# Adam (default choice)
+optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
+
+# SGD with momentum
+optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, nesterov=True)
+
+# Discriminative learning rates (different LR per layer group)
+optimizer = optim.Adam([
+    {'params': model.backbone.parameters(), 'lr': 1e-5},
+    {'params': model.head.parameters(), 'lr': 1e-3}
+])
+
+# Learning rate scheduling
+scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50)
+# Or:
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, factor=0.5)
+
+# Training loop with scheduler
+for epoch in range(epochs):
+    train_one_epoch(model, optimizer)
+    val_loss = evaluate(model)
+    scheduler.step(val_loss)  # For ReduceLROnPlateau
+    # scheduler.step()        # For other schedulers
+```
+
+> **Interview Tip:** **Adam** is the safe default. **SGD with momentum** often achieves better final accuracy with proper LR scheduling. Always use a **learning rate scheduler** (cosine annealing is popular). Mention **discriminative learning rates** for transfer learning.
 
 ---
 
@@ -1367,7 +1758,59 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **How do you create a data loader in PyTorch for custom datasets ?**
 
-*Answer to be added.*
+**Answer:**
+
+Creating a custom DataLoader involves implementing a `Dataset` class with `__len__` and `__getitem__`, then wrapping it with `DataLoader`.
+
+```python
+import torch
+from torch.utils.data import Dataset, DataLoader
+from PIL import Image
+import os
+
+class ImageDataset(Dataset):
+    def __init__(self, root_dir, labels_dict, transform=None):
+        self.root_dir = root_dir
+        self.image_files = list(labels_dict.keys())
+        self.labels = list(labels_dict.values())
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.image_files)
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.root_dir, self.image_files[idx])
+        image = Image.open(img_path).convert('RGB')
+        label = self.labels[idx]
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, torch.tensor(label, dtype=torch.long)
+
+# DataLoader with options
+loader = DataLoader(
+    dataset,
+    batch_size=32,
+    shuffle=True,
+    num_workers=4,          # Parallel loading threads
+    pin_memory=True,        # Faster CPU->GPU transfer
+    persistent_workers=True, # Keep workers alive between epochs
+    collate_fn=None,        # Custom batching logic (optional)
+    drop_last=True          # Drop incomplete final batch
+)
+
+# Custom collate function (for variable-length sequences)
+def custom_collate(batch):
+    data = [item[0] for item in batch]
+    labels = torch.stack([item[1] for item in batch])
+    data_padded = torch.nn.utils.rnn.pad_sequence(data, batch_first=True)
+    return data_padded, labels
+
+loader = DataLoader(dataset, batch_size=32, collate_fn=custom_collate)
+```
+
+> **Interview Tip:** Use `pin_memory=True` + `num_workers > 0` for GPU training. Implement `collate_fn` for variable-length sequences. Use `persistent_workers=True` to avoid worker respawn overhead between epochs.
 
 ---
 
@@ -1375,7 +1818,58 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **How do you manage and preprocess time-series data in PyTorch for RNNs ?**
 
-*Answer to be added.*
+**Answer:**
+
+| Step | Action | Details |
+|------|--------|---------|
+| 1 | **Normalize** | StandardScaler or MinMaxScaler |
+| 2 | **Create sequences** | Sliding window of fixed length |
+| 3 | **Shape data** | (batch, seq_len, features) |
+| 4 | **Split temporally** | Never shuffle; use chronological split |
+| 5 | **Build RNN** | LSTM/GRU for long dependencies |
+
+```python
+import torch
+import torch.nn as nn
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+# 1. Prepare sliding windows
+def create_sequences(data, seq_length, forecast_horizon=1):
+    X, y = [], []
+    for i in range(len(data) - seq_length - forecast_horizon + 1):
+        X.append(data[i:i + seq_length])
+        y.append(data[i + seq_length:i + seq_length + forecast_horizon])
+    return np.array(X), np.array(y)
+
+# 2. Normalize and split (temporal order!)
+scaler = StandardScaler()
+data_scaled = scaler.fit_transform(data)
+
+seq_len = 60
+X, y = create_sequences(data_scaled, seq_len)
+
+split = int(0.8 * len(X))
+X_train, X_test = X[:split], X[split:]  # No shuffle for time-series!
+
+# 3. Convert to tensors: (batch, seq_len, features)
+X_train = torch.FloatTensor(X_train)
+y_train = torch.FloatTensor(y_train)
+
+# 4. LSTM model
+class TimeSeriesLSTM(nn.Module):
+    def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
+        super().__init__()
+        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers,
+                           batch_first=True, dropout=0.2)
+        self.fc = nn.Linear(hidden_dim, output_dim)
+
+    def forward(self, x):
+        lstm_out, (h_n, c_n) = self.lstm(x)
+        return self.fc(lstm_out[:, -1, :])  # Use last time step
+```
+
+> **Interview Tip:** Never shuffle time-series data. Use **walk-forward validation** instead of random splits. Normalize using only training data statistics. Shape must be `(batch, seq_len, features)` for `batch_first=True`.
 
 ---
 
@@ -1383,7 +1877,50 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **Explain the concept of data augmentation and its implementation in PyTorch**
 
-*Answer to be added.*
+**Answer:**
+
+**Data augmentation** artificially increases training set diversity by applying random transformations, improving model generalization without collecting more data.
+
+| Transform | Use Case | API |
+|-----------|----------|-----|
+| `RandomHorizontalFlip` | Natural images | `torchvision.transforms` |
+| `RandomRotation` | Rotation-invariant tasks | `torchvision.transforms` |
+| `ColorJitter` | Lighting variation | `torchvision.transforms` |
+| `RandomCrop` | Position invariance | `torchvision.transforms` |
+| `MixUp, CutMix` | Advanced regularization | Custom implementation |
+
+```python
+from torchvision import transforms
+
+# Training transforms (with augmentation)
+train_transform = transforms.Compose([
+    transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomRotation(15),
+    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+    transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    transforms.RandomErasing(p=0.3)  # Cutout-style
+])
+
+# Validation/test transforms (NO augmentation)
+val_transform = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+])
+
+# AutoAugment (learned augmentation policy)
+train_transform = transforms.Compose([
+    transforms.AutoAugment(transforms.AutoAugmentPolicy.IMAGENET),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+])
+```
+
+> **Interview Tip:** Only augment **training data**, never validation/test. For state-of-the-art, use **AutoAugment** or **RandAugment** (learned policies). **MixUp** and **CutMix** are strong regularizers that blend samples together.
 
 ---
 
@@ -1391,7 +1928,56 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **How do you use GPU accelerators for distributed training in PyTorch?**
 
-*Answer to be added.*
+**Answer:**
+
+| Strategy | PyTorch API | Description |
+|----------|------------|-------------|
+| **DataParallel** | `nn.DataParallel` | Simple multi-GPU (single machine) |
+| **DistributedDataParallel** | `nn.parallel.DistributedDataParallel` | Recommended, multi-GPU/multi-node |
+| **FSDP** | `FullyShardedDataParallel` | Memory-efficient for very large models |
+| **DeepSpeed** | Third-party | ZeRO optimization, large models |
+
+```python
+import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+# Setup distributed training
+def setup(rank, world_size):
+    dist.init_process_group("nccl", rank=rank, world_size=world_size)
+    torch.cuda.set_device(rank)
+
+def cleanup():
+    dist.destroy_process_group()
+
+def train(rank, world_size):
+    setup(rank, world_size)
+
+    model = MyModel().to(rank)
+    model = DDP(model, device_ids=[rank])
+
+    # DistributedSampler ensures each GPU gets different data
+    sampler = torch.utils.data.distributed.DistributedSampler(
+        dataset, num_replicas=world_size, rank=rank
+    )
+    loader = DataLoader(dataset, batch_size=32, sampler=sampler)
+
+    optimizer = torch.optim.Adam(model.parameters())
+    for epoch in range(epochs):
+        sampler.set_epoch(epoch)  # Important for proper shuffling
+        for x, y in loader:
+            x, y = x.to(rank), y.to(rank)
+            loss = criterion(model(x), y)
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+
+    cleanup()
+
+# Launch: torchrun --nproc_per_node=4 train.py
+```
+
+> **Interview Tip:** Always prefer **DistributedDataParallel** over DataParallel (it's faster due to per-GPU gradient reduction). Use `DistributedSampler` with `set_epoch()` for proper shuffling. For models exceeding GPU memory, use **FSDP** or **DeepSpeed**.
 
 ---
 
@@ -1399,7 +1985,42 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **Compare recurrent neural networks (RNNs) , long short-term memory networks (LSTMs) , and gated recurrent units (GRUs) in the context of PyTorch**
 
-*Answer to be added.*
+**Answer:**
+
+| Feature | RNN | LSTM | GRU |
+|---------|-----|------|-----|
+| **Gates** | None | 3 (input, forget, output) | 2 (reset, update) |
+| **Memory** | Short-term only | Long-term + short-term | Combined memory |
+| **Parameters** | Fewest | Most | Fewer than LSTM |
+| **Vanishing gradient** | Severe | Solved | Solved |
+| **Speed** | Fastest | Slowest | Faster than LSTM |
+| **Performance** | Worst | Best for long sequences | Near-LSTM, more efficient |
+
+```python
+import torch.nn as nn
+
+# SimpleRNN: h_t = tanh(W_hh * h_{t-1} + W_xh * x_t)
+rnn = nn.RNN(input_size=64, hidden_size=128, num_layers=2, batch_first=True)
+
+# LSTM: 3 gates control information flow
+# Forget gate: what to discard from cell state
+# Input gate: what new info to store
+# Output gate: what to output from cell state
+lstm = nn.LSTM(input_size=64, hidden_size=128, num_layers=2,
+               batch_first=True, dropout=0.2, bidirectional=True)
+
+# GRU: 2 gates (simplified LSTM)
+# Reset gate: controls how much past info to forget
+# Update gate: controls how much new info to add
+gru = nn.GRU(input_size=64, hidden_size=128, num_layers=2,
+             batch_first=True, dropout=0.2)
+
+# Usage
+output, (h_n, c_n) = lstm(input_tensor)  # LSTM returns cell state
+output, h_n = gru(input_tensor)           # GRU has no cell state
+```
+
+> **Interview Tip:** **LSTM** is best for tasks requiring long-range dependencies. **GRU** is preferred when training speed matters and performance is comparable. For modern NLP, **Transformers** have largely replaced all three architectures.
 
 ---
 
@@ -1407,7 +2028,52 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **Discuss the latest research on neural architecture search (NAS) and its application within PyTorch**
 
-*Answer to be added.*
+**Answer:**
+
+**Neural Architecture Search (NAS)** automates the design of neural network architectures by searching over a defined search space to find optimal configurations.
+
+| NAS Approach | Description | Example |
+|-------------|-------------|---------|
+| **Reinforcement Learning** | Controller network generates architectures | NASNet |
+| **Evolutionary** | Mutate and select best architectures | AmoebaNet |
+| **Differentiable (DARTS)** | Relaxed search with gradient descent | DARTS, ProxylessNAS |
+| **One-shot** | Train supernet, evaluate sub-networks | OFA, BigNAS |
+
+```python
+# Example using NNI (Neural Network Intelligence) with PyTorch
+# pip install nni
+
+import torch.nn as nn
+
+# Define search space
+class SearchableBlock(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+        self.ops = nn.ModuleDict({
+            'conv3x3': nn.Conv2d(in_channels, out_channels, 3, padding=1),
+            'conv5x5': nn.Conv2d(in_channels, out_channels, 5, padding=2),
+            'sep_conv': nn.Sequential(
+                nn.Conv2d(in_channels, in_channels, 3, padding=1, groups=in_channels),
+                nn.Conv2d(in_channels, out_channels, 1)
+            ),
+            'skip': nn.Identity() if in_channels == out_channels else
+                    nn.Conv2d(in_channels, out_channels, 1)
+        })
+
+    def forward(self, x, choice):
+        return self.ops[choice](x)
+
+# Using optuna for hyperparameter + architecture search
+# import optuna
+# def objective(trial):
+#     n_layers = trial.suggest_int('n_layers', 2, 6)
+#     hidden = trial.suggest_categorical('hidden', [64, 128, 256])
+#     activation = trial.suggest_categorical('activation', ['relu', 'gelu'])
+#     model = build_model(n_layers, hidden, activation)
+#     return evaluate(model)
+```
+
+> **Interview Tip:** DARTS (Differentiable Architecture Search) is the most practical NAS approach as it uses gradient descent instead of expensive RL/evolutionary methods. In practice, most practitioners use well-known architectures (EfficientNet, ResNet) rather than running NAS from scratch. Mention **optuna** for practical architecture/hyperparameter search.
 
 ---
 
@@ -1415,7 +2081,73 @@ Mention specific community tools you've used (Lightning for training, timm for m
 
 **How can generative adversarial networks (GANs) be implemented in PyTorch, and what are some of their challenges?**
 
-*Answer to be added.*
+**Answer:**
+
+**GANs** consist of a **Generator** (creates fake data) and **Discriminator** (classifies real vs fake), trained in an adversarial minimax game.
+
+| Challenge | Solution |
+|-----------|----------|
+| **Mode collapse** | Spectral norm, diversity loss, WGAN |
+| **Training instability** | WGAN-GP, progressive training |
+| **Evaluation** | FID score, Inception Score |
+| **Convergence** | Two-timescale update, careful LR tuning |
+
+```python
+import torch
+import torch.nn as nn
+
+class Generator(nn.Module):
+    def __init__(self, latent_dim=100):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(latent_dim, 256), nn.BatchNorm1d(256), nn.ReLU(),
+            nn.Linear(256, 512), nn.BatchNorm1d(512), nn.ReLU(),
+            nn.Linear(512, 784), nn.Tanh()
+        )
+    def forward(self, z):
+        return self.net(z).view(-1, 1, 28, 28)
+
+class Discriminator(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(784, 512), nn.LeakyReLU(0.2),
+            nn.Linear(512, 256), nn.LeakyReLU(0.2),
+            nn.Linear(256, 1), nn.Sigmoid()
+        )
+    def forward(self, x):
+        return self.net(x)
+
+# Training
+G = Generator().to(device)
+D = Discriminator().to(device)
+g_opt = torch.optim.Adam(G.parameters(), lr=2e-4, betas=(0.5, 0.999))
+d_opt = torch.optim.Adam(D.parameters(), lr=2e-4, betas=(0.5, 0.999))
+criterion = nn.BCELoss()
+
+for epoch in range(epochs):
+    for real_imgs, _ in dataloader:
+        batch_size = real_imgs.size(0)
+        real_imgs = real_imgs.to(device)
+
+        # Train Discriminator
+        z = torch.randn(batch_size, 100).to(device)
+        fake_imgs = G(z).detach()
+        d_real = D(real_imgs)
+        d_fake = D(fake_imgs)
+        d_loss = criterion(d_real, torch.ones_like(d_real)) + \
+                 criterion(d_fake, torch.zeros_like(d_fake))
+        d_opt.zero_grad(); d_loss.backward(); d_opt.step()
+
+        # Train Generator
+        z = torch.randn(batch_size, 100).to(device)
+        fake_imgs = G(z)
+        g_loss = criterion(D(fake_imgs), torch.ones_like(d_real))
+        g_opt.zero_grad(); g_loss.backward(); g_opt.step()
+```
+
+> **Interview Tip:** Use **LeakyReLU** in discriminator, **BatchNorm** in generator. Use Adam with `betas=(0.5, 0.999)`. For stable training, consider **WGAN-GP** (Wasserstein loss + gradient penalty) or **StyleGAN** architecture.
 
 ---
 ## Question 39
@@ -1755,7 +2487,42 @@ class GAT(nn.Module):
 
 **How do you check if your PyTorch model is utilizing the GPU ?**
 
-*Answer to be added.*
+**Answer:**
+
+```python
+import torch
+
+# Check GPU availability
+print(f"CUDA available: {torch.cuda.is_available()}")
+print(f"Number of GPUs: {torch.cuda.device_count()}")
+print(f"Current GPU: {torch.cuda.current_device()}")
+print(f"GPU name: {torch.cuda.get_device_name(0)}")
+
+# Check if model is on GPU
+model = MyModel()
+print(f"Model device: {next(model.parameters()).device}")  # cpu
+
+model = model.to('cuda')
+print(f"Model device: {next(model.parameters()).device}")  # cuda:0
+
+# Check if tensor is on GPU
+tensor = torch.randn(3, 3)
+print(f"Tensor device: {tensor.device}")  # cpu
+tensor = tensor.cuda()
+print(f"Tensor device: {tensor.device}")  # cuda:0
+
+# Monitor GPU memory
+print(f"Allocated: {torch.cuda.memory_allocated() / 1024**2:.1f} MB")
+print(f"Cached: {torch.cuda.memory_reserved() / 1024**2:.1f} MB")
+print(f"Max allocated: {torch.cuda.max_memory_allocated() / 1024**2:.1f} MB")
+
+# Best practice: device-agnostic code
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = model.to(device)
+data = data.to(device)
+```
+
+> **Interview Tip:** Always use `device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')` for device-agnostic code. Check `next(model.parameters()).device` to verify model placement. Use `torch.cuda.memory_allocated()` to debug OOM errors.
 
 ---
 
@@ -1763,7 +2530,64 @@ class GAT(nn.Module):
 
 **What strategies can you use to monitor and decrease overfitting in a PyTorch model?**
 
-*Answer to be added.*
+**Answer:**
+
+| Strategy | Implementation | Effect |
+|----------|---------------|--------|
+| **Dropout** | `nn.Dropout(p=0.5)` | Random neuron deactivation |
+| **Weight decay** | `optimizer(weight_decay=1e-4)` | L2 regularization |
+| **Early stopping** | Monitor val loss, stop when it increases | Prevent overtraining |
+| **Data augmentation** | `torchvision.transforms` | Increase training diversity |
+| **Batch normalization** | `nn.BatchNorm2d(channels)` | Stabilize + slight regularization |
+| **Label smoothing** | `CrossEntropyLoss(label_smoothing=0.1)` | Prevent overconfidence |
+| **Gradient clipping** | `torch.nn.utils.clip_grad_norm_` | Prevent exploding gradients |
+
+```python
+import torch
+import torch.nn as nn
+
+# 1. Dropout
+model = nn.Sequential(
+    nn.Linear(256, 128), nn.ReLU(), nn.Dropout(0.5),
+    nn.Linear(128, 10)
+)
+
+# 2. Weight decay (L2 regularization)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
+
+# 3. Early stopping
+class EarlyStopping:
+    def __init__(self, patience=5):
+        self.patience = patience
+        self.counter = 0
+        self.best_loss = float('inf')
+
+    def __call__(self, val_loss):
+        if val_loss < self.best_loss:
+            self.best_loss = val_loss
+            self.counter = 0
+        else:
+            self.counter += 1
+        return self.counter >= self.patience
+
+early_stop = EarlyStopping(patience=5)
+
+# 4. Gradient clipping
+torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+# 5. Monitor train vs val gap
+for epoch in range(epochs):
+    train_loss = train(model)
+    val_loss = evaluate(model)
+    gap = train_loss - val_loss
+    if gap > 0.1:
+        print("Warning: potential overfitting!")
+    if early_stop(val_loss):
+        print("Early stopping triggered")
+        break
+```
+
+> **Interview Tip:** Combine **Dropout + Weight Decay + Early Stopping** as a baseline. Monitor the gap between train and val loss. If the gap is large, the model is overfitting; if both are high, the model is underfitting.
 
 ---
 
@@ -1771,7 +2595,60 @@ class GAT(nn.Module):
 
 **How would you create a PyTorch extension module with custom C++/CUDA operations ?**
 
-*Answer to be added.*
+**Answer:**
+
+PyTorch allows custom C++ and CUDA extensions for operations that need maximum performance or aren't available in standard PyTorch.
+
+| Method | Use Case | Difficulty |
+|--------|----------|------------|
+| **torch.utils.cpp_extension** | Custom C++ ops | Medium |
+| **CUDA kernels** | GPU-optimized operations | Hard |
+| **JIT compilation** | On-the-fly compilation | Easy |
+
+```python
+# Method 1: JIT compilation (easiest)
+from torch.utils.cpp_extension import load
+
+# my_extension.cpp file:
+# #include <torch/extension.h>
+# torch::Tensor my_add(torch::Tensor a, torch::Tensor b) {
+#     return a + b;
+# }
+# PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
+#     m.def("my_add", &my_add, "Custom add");
+# }
+
+my_ext = load(name="my_extension", sources=["my_extension.cpp"])
+result = my_ext.my_add(tensor_a, tensor_b)
+
+# Method 2: Setup-based (for distribution)
+# setup.py:
+from torch.utils.cpp_extension import BuildExtension, CUDAExtension
+from setuptools import setup
+
+setup(
+    name='my_cuda_ext',
+    ext_modules=[
+        CUDAExtension('my_cuda_ext', [
+            'my_extension.cpp',
+            'my_kernel.cu',     # CUDA kernel
+        ])
+    ],
+    cmdclass={'build_ext': BuildExtension}
+)
+
+# Method 3: Custom autograd with C++
+class MyCustomOp(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, input):
+        return my_ext.forward(input)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        return my_ext.backward(grad_output)
+```
+
+> **Interview Tip:** Custom C++/CUDA extensions are used for performance-critical operations not available in PyTorch (e.g., custom attention mechanisms, specialized loss functions). Start with the JIT compilation approach (`load()`) for prototyping, then package with `setup.py` for distribution.
 
 ---
 
@@ -1779,7 +2656,64 @@ class GAT(nn.Module):
 
 **How do you ensure reproducibility of experiments when using PyTorch?**
 
-*Answer to be added.*
+**Answer:**
+
+Ensuring reproducible results in PyTorch requires controlling all sources of randomness.
+
+| Source | Fix |
+|--------|-----|
+| Python random | `random.seed(42)` |
+| NumPy random | `np.random.seed(42)` |
+| PyTorch CPU | `torch.manual_seed(42)` |
+| PyTorch GPU | `torch.cuda.manual_seed_all(42)` |
+| cuDNN | `torch.backends.cudnn.deterministic = True` |
+| DataLoader | Set `worker_init_fn` and `generator` |
+
+```python
+import torch
+import numpy as np
+import random
+
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)           # For multi-GPU
+    torch.backends.cudnn.deterministic = True   # Deterministic cuDNN
+    torch.backends.cudnn.benchmark = False      # Disable auto-tuner
+
+set_seed(42)
+
+# DataLoader reproducibility
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
+
+g = torch.Generator()
+g.manual_seed(42)
+
+loader = DataLoader(
+    dataset,
+    batch_size=32,
+    shuffle=True,
+    worker_init_fn=seed_worker,
+    generator=g
+)
+
+# Save and load complete training state for resumability
+checkpoint = {
+    'model': model.state_dict(),
+    'optimizer': optimizer.state_dict(),
+    'epoch': epoch,
+    'rng_state': torch.get_rng_state(),
+    'cuda_rng_state': torch.cuda.get_rng_state_all()
+}
+torch.save(checkpoint, 'checkpoint.pt')
+```
+
+> **Interview Tip:** Full reproducibility requires seeding ALL random sources + `deterministic=True`. Note that `cudnn.deterministic=True` may slow training by 10-20%. For benchmarking speed (not reproducibility), set `cudnn.benchmark=True` instead.
 
 ---
 
@@ -1787,6 +2721,72 @@ class GAT(nn.Module):
 
 **Portray how PyTorch Lightning can simplify the standard PyTorch workflow**
 
-*Answer to be added.*
+**Answer:**
+
+**PyTorch Lightning** is a high-level framework that organizes PyTorch code into a structured format, eliminating boilerplate while keeping full flexibility.
+
+| Feature | Vanilla PyTorch | PyTorch Lightning |
+|---------|----------------|-------------------|
+| Training loop | Manual | Automatic |
+| Multi-GPU | Manual DDP setup | `Trainer(devices=4)` |
+| Mixed precision | Manual AMP | `Trainer(precision='16-mixed')` |
+| Logging | Manual | Built-in (TensorBoard, W&B) |
+| Checkpointing | Manual | Automatic |
+| Early stopping | Custom class | Built-in callback |
+
+```python
+import pytorch_lightning as pl
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+
+class LitModel(pl.LightningModule):
+    def __init__(self, input_dim, hidden_dim, output_dim, lr=1e-3):
+        super().__init__()
+        self.save_hyperparameters()
+        self.model = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim), nn.ReLU(), nn.Dropout(0.3),
+            nn.Linear(hidden_dim, output_dim)
+        )
+        self.criterion = nn.CrossEntropyLoss()
+
+    def forward(self, x):
+        return self.model(x)
+
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        loss = self.criterion(self(x), y)
+        self.log('train_loss', loss, prog_bar=True)
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        loss = self.criterion(self(x), y)
+        acc = (self(x).argmax(1) == y).float().mean()
+        self.log_dict({'val_loss': loss, 'val_acc': acc}, prog_bar=True)
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50)
+        return [optimizer], [scheduler]
+
+# Train with all the bells and whistles
+trainer = pl.Trainer(
+    max_epochs=50,
+    accelerator='gpu',
+    devices=2,                         # Multi-GPU
+    precision='16-mixed',              # Mixed precision
+    callbacks=[
+        pl.callbacks.EarlyStopping(monitor='val_loss', patience=5),
+        pl.callbacks.ModelCheckpoint(monitor='val_loss', save_top_k=3)
+    ],
+    logger=pl.loggers.TensorBoardLogger('logs/')
+)
+
+model = LitModel(784, 256, 10)
+trainer.fit(model, train_loader, val_loader)
+```
+
+> **Interview Tip:** PyTorch Lightning reduces boilerplate by 40-50% while adding multi-GPU, mixed precision, and logging for free. The `LightningModule` organizes code into `training_step`, `validation_step`, and `configure_optimizers`. Use it for production; use vanilla PyTorch for learning fundamentals.
 
 ---

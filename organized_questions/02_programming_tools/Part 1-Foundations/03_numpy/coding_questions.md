@@ -1541,7 +1541,60 @@ print(f"Weights: {w}, Bias: {b:.2f}")  # Close to [2, -1, 0.5], 3.0
 
 **How do you concatenate two arrays in NumPy ?**
 
-*Answer to be added.*
+### Array Concatenation in NumPy
+
+```python
+import numpy as np
+
+# 1D concatenation
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+
+result = np.concatenate([a, b])
+print(result)  # [1 2 3 4 5 6]
+
+# 2D concatenation along rows (axis=0, default)
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[5, 6], [7, 8]])
+
+row_concat = np.concatenate([A, B], axis=0)
+print(row_concat)
+# [[1 2]
+#  [3 4]
+#  [5 6]
+#  [7 8]]  → shape (4, 2)
+
+# 2D concatenation along columns (axis=1)
+col_concat = np.concatenate([A, B], axis=1)
+print(col_concat)
+# [[1 2 5 6]
+#  [3 4 7 8]]  → shape (2, 4)
+```
+
+### Concatenation Methods Comparison
+
+| Method | Description | Equivalent |
+|--------|-------------|------------|
+| `np.concatenate([a,b], axis=0)` | General-purpose join | Flexible axis |
+| `np.vstack([a,b])` | Vertical stack (row-wise) | `concatenate` axis=0 |
+| `np.hstack([a,b])` | Horizontal stack (column-wise) | `concatenate` axis=1 |
+| `np.dstack([a,b])` | Depth stack (3rd axis) | `concatenate` axis=2 |
+| `np.append(a, b)` | Append (flattens by default) | Less efficient |
+
+```python
+# Multiple arrays at once
+c = np.array([7, 8, 9])
+result = np.concatenate([a, b, c])
+print(result)  # [1 2 3 4 5 6 7 8 9]
+
+# Important: arrays must match in all dimensions except the concatenation axis
+A = np.ones((3, 4))   # 3×4
+B = np.zeros((2, 4))  # 2×4
+result = np.concatenate([A, B], axis=0)  # OK → 5×4
+# np.concatenate([A, B], axis=1)  # ERROR: mismatch on axis 0 (3 vs 2)
+```
+
+> **Interview Tip:** `np.concatenate` is the most flexible. Use `vstack`/`hstack` for readability. For building datasets row by row, prefer collecting in a list and calling `np.array()` once — repeated concatenation is O(n²).
 
 ---
 
@@ -1549,7 +1602,71 @@ print(f"Weights: {w}, Bias: {b:.2f}")  # Close to [2, -1, 0.5], 3.0
 
 **How do you calculate the eigenvalues and eigenvectors of a matrix in NumPy ?**
 
-*Answer to be added.*
+### Eigenvalues and Eigenvectors
+
+For a square matrix $A$, eigenvalues $\lambda$ and eigenvectors $v$ satisfy: $Av = \lambda v$
+
+```python
+import numpy as np
+
+# Symmetric matrix (common in ML: covariance matrices)
+A = np.array([[4, 2],
+              [2, 3]])
+
+# Method 1: np.linalg.eig (general matrices)
+eigenvalues, eigenvectors = np.linalg.eig(A)
+print(f"Eigenvalues: {eigenvalues}")     # [5. 2.]
+print(f"Eigenvectors:\n{eigenvectors}")  # columns are eigenvectors
+
+# Method 2: np.linalg.eigh (symmetric/Hermitian — faster, numerically stable)
+eigenvalues, eigenvectors = np.linalg.eigh(A)  # sorted ascending
+print(f"Eigenvalues: {eigenvalues}")     # [2. 5.]
+
+# Verify: A @ v = lambda * v
+for i in range(len(eigenvalues)):
+    v = eigenvectors[:, i]
+    lv = eigenvalues[i] * v
+    av = A @ v
+    print(f"λ={eigenvalues[i]:.1f}: A@v = {av}, λ*v = {lv}")  # should match
+```
+
+### ML Applications
+
+```python
+# PCA using eigendecomposition
+def pca_eigen(X, n_components=2):
+    """PCA via eigendecomposition of covariance matrix."""
+    X_centered = X - X.mean(axis=0)
+    cov_matrix = np.cov(X_centered, rowvar=False)
+    
+    eigenvalues, eigenvectors = np.linalg.eigh(cov_matrix)
+    
+    # Sort by largest eigenvalue
+    idx = np.argsort(eigenvalues)[::-1]
+    eigenvalues = eigenvalues[idx]
+    eigenvectors = eigenvectors[:, idx]
+    
+    # Project data
+    components = eigenvectors[:, :n_components]
+    X_pca = X_centered @ components
+    
+    explained_variance = eigenvalues[:n_components] / eigenvalues.sum()
+    return X_pca, explained_variance
+
+X = np.random.randn(100, 5)
+X_pca, var_explained = pca_eigen(X, n_components=2)
+print(f"Variance explained: {var_explained}")
+```
+
+### Key Functions
+| Function | Use Case |
+|----------|----------|
+| `np.linalg.eig(A)` | General square matrices |
+| `np.linalg.eigh(A)` | Symmetric matrices (PCA, covariance) |
+| `np.linalg.eigvals(A)` | Eigenvalues only (faster) |
+| `np.linalg.svd(A)` | SVD (related, works on non-square) |
+
+> **Interview Tip:** Use `eigh` for symmetric matrices (covariance, kernel matrices) — it's faster and returns sorted real eigenvalues. For large sparse matrices, use `scipy.sparse.linalg.eigsh`. Eigendecomposition is the foundation of **PCA**, **spectral clustering**, and **graph algorithms**.
 
 ---
 
@@ -1557,7 +1674,72 @@ print(f"Weights: {w}, Bias: {b:.2f}")  # Close to [2, -1, 0.5], 3.0
 
 **Explain how to generate random data with NumPy**
 
-*Answer to be added.*
+### Random Data Generation in NumPy
+
+### Modern API (`np.random.default_rng` — recommended)
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(seed=42)  # reproducible
+
+# Uniform distribution [0, 1)
+rng.random(5)                        # 5 random floats
+rng.random((3, 4))                   # 3×4 matrix
+
+# Uniform integers
+rng.integers(0, 10, size=5)          # 5 integers in [0, 10)
+rng.integers(1, 7, size=(3, 3))      # 3×3 dice rolls
+
+# Normal (Gaussian) distribution
+rng.normal(loc=0, scale=1, size=1000)     # standard normal
+rng.normal(loc=100, scale=15, size=100)   # IQ-like distribution
+
+# Other distributions
+rng.uniform(low=0, high=1, size=10)       # uniform [low, high)
+rng.exponential(scale=1.0, size=10)       # exponential
+rng.poisson(lam=5, size=10)               # Poisson
+rng.binomial(n=10, p=0.5, size=10)        # binomial
+rng.choice([1, 2, 3, 4], size=3)          # random selection
+```
+
+### Legacy API (`np.random.*` — still common)
+
+```python
+np.random.seed(42)
+np.random.rand(3, 4)           # uniform [0, 1), shape (3, 4)
+np.random.randn(3, 4)          # standard normal, shape (3, 4)
+np.random.randint(0, 10, (3,)) # integers in [0, 10)
+np.random.choice(5, 3)         # 3 choices from [0, 5)
+np.random.shuffle(arr)         # in-place shuffle
+np.random.permutation(10)      # shuffled range
+```
+
+### ML Use Cases
+
+```python
+rng = np.random.default_rng(42)
+
+# Generate synthetic classification data
+n_samples = 1000
+X = np.vstack([
+    rng.normal(loc=[0, 0], scale=1, size=(n_samples//2, 2)),  # class 0
+    rng.normal(loc=[3, 3], scale=1, size=(n_samples//2, 2)),  # class 1
+])
+y = np.array([0] * (n_samples//2) + [1] * (n_samples//2))
+
+# Weight initialization for neural networks
+def xavier_init(fan_in, fan_out):
+    limit = np.sqrt(6 / (fan_in + fan_out))
+    return rng.uniform(-limit, limit, (fan_in, fan_out))
+
+# Bootstrap sampling
+def bootstrap_sample(X, y):
+    idx = rng.integers(0, len(X), size=len(X))  # sample with replacement
+    return X[idx], y[idx]
+```
+
+> **Interview Tip:** Always use `np.random.default_rng(seed)` for reproducibility. The legacy `np.random.seed()` uses global state (not thread-safe). For ML, random generation is critical for **weight initialization**, **data augmentation**, **dropout**, and **cross-validation splits**.
 
 ---
 
@@ -1565,6 +1747,74 @@ print(f"Weights: {w}, Bias: {b:.2f}")  # Close to [2, -1, 0.5], 3.0
 
 **How do you stack multiple arrays vertically and horizontally ?**
 
-*Answer to be added.*
+### Stacking Arrays in NumPy
+
+```python
+import numpy as np
+
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+c = np.array([7, 8, 9])
+
+# Vertical stacking (row-wise) — np.vstack
+result = np.vstack([a, b, c])
+print(result)
+# [[1 2 3]
+#  [4 5 6]
+#  [7 8 9]]  → shape (3, 3)
+
+# Horizontal stacking (column-wise) — np.hstack
+result = np.hstack([a, b, c])
+print(result)
+# [1 2 3 4 5 6 7 8 9]  → shape (9,)
+
+# For 2D arrays
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[5, 6], [7, 8]])
+
+print(np.vstack([A, B]))
+# [[1 2]
+#  [3 4]
+#  [5 6]
+#  [7 8]]  → shape (4, 2)
+
+print(np.hstack([A, B]))
+# [[1 2 5 6]
+#  [3 4 7 8]]  → shape (2, 4)
+```
+
+### All Stacking Methods
+
+| Method | Axis | Input 1D | Input 2D |
+|--------|------|----------|----------|
+| `np.vstack` | Rows (axis=0) | Stacks as rows | Appends rows |
+| `np.hstack` | Columns (axis=1) | Concatenates flat | Appends columns |
+| `np.dstack` | Depth (axis=2) | 3D stack | 3D stack |
+| `np.column_stack` | Columns | Treats 1D as columns | Same as hstack |
+| `np.row_stack` | Rows | Same as vstack | Same as vstack |
+| `np.stack` | New axis | Creates new dimension | Creates new dimension |
+
+```python
+# np.stack creates a NEW dimension
+result = np.stack([a, b, c], axis=0)  # shape (3, 3) — like vstack
+result = np.stack([a, b, c], axis=1)  # shape (3, 3) — transposed
+
+# column_stack: treats 1D arrays as columns
+result = np.column_stack([a, b, c])
+print(result)
+# [[1 4 7]
+#  [2 5 8]
+#  [3 6 9]]  → shape (3, 3)
+
+# ML example: stack features into a feature matrix
+age = np.array([25, 30, 35])
+income = np.array([50000, 60000, 70000])
+score = np.array([0.8, 0.6, 0.9])
+
+X = np.column_stack([age, income, score])
+print(X.shape)  # (3, 3) — 3 samples, 3 features
+```
+
+> **Interview Tip:** `vstack`/`hstack` are most commonly used. Remember that `np.stack` creates a **new dimension** (useful for batching), while `vstack`/`hstack` concatenate along existing dimensions. For building feature matrices, `np.column_stack` is the most intuitive.
 
 ---

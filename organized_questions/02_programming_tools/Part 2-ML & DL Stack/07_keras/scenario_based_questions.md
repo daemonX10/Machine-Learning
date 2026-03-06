@@ -1011,7 +1011,69 @@ learner.learn_task(X_task2, y_task2)
 
 **How would you architect a Keras model to handle a large-scale image recognition problem ?**
 
-*Answer to be added.*
+### Answer
+
+### Architecture Design
+
+| Component | Choice | Reason |
+|-----------|--------|--------|
+| **Base Model** | EfficientNet / ResNet pre-trained | Transfer learning for fast convergence |
+| **Input Pipeline** | `tf.data` with prefetching | Handle large datasets efficiently |
+| **Augmentation** | Keras preprocessing layers | On-GPU augmentation |
+| **Training** | Mixed precision + distributed | Scale to millions of images |
+| **Regularization** | Dropout, label smoothing, weight decay | Prevent overfitting |
+
+```python
+import tensorflow as tf
+from tensorflow import keras
+
+# 1. Efficient data pipeline for large datasets
+train_ds = tf.keras.utils.image_dataset_from_directory(
+    'train/', image_size=(224, 224), batch_size=64, label_mode='categorical'
+)
+train_ds = train_ds.cache().shuffle(10000).prefetch(tf.data.AUTOTUNE)
+
+# 2. On-GPU augmentation
+augmentation = keras.Sequential([
+    keras.layers.RandomFlip("horizontal"),
+    keras.layers.RandomRotation(0.2),
+    keras.layers.RandomZoom(0.2),
+])
+
+# 3. Transfer learning with EfficientNet
+base = keras.applications.EfficientNetB3(weights='imagenet', include_top=False,
+                                          input_shape=(224, 224, 3))
+base.trainable = False  # Freeze initially
+
+model = keras.Sequential([
+    augmentation,
+    base,
+    keras.layers.GlobalAveragePooling2D(),
+    keras.layers.Dropout(0.4),
+    keras.layers.Dense(512, activation='relu'),
+    keras.layers.Dropout(0.3),
+    keras.layers.Dense(num_classes, activation='softmax')
+])
+
+# 4. Mixed precision for 2-3x speedup
+tf.keras.mixed_precision.set_global_policy('mixed_float16')
+
+# 5. Multi-GPU training
+strategy = tf.distribute.MirroredStrategy()
+with strategy.scope():
+    model.compile(
+        optimizer=keras.optimizers.Adam(1e-3),
+        loss=keras.losses.CategoricalCrossentropy(label_smoothing=0.1),
+        metrics=['accuracy', 'top_k_categorical_accuracy']
+    )
+
+model.fit(train_ds, epochs=20, callbacks=[
+    keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True),
+    keras.callbacks.ModelCheckpoint('best.keras', save_best_only=True)
+])
+```
+
+> **Interview Tip:** For large-scale image recognition, mention: **transfer learning** (don't train from scratch), **tf.data pipelines** with prefetching, **mixed-precision training**, and **distributed strategies** for multi-GPU scaling.
 
 ---
 
@@ -1019,7 +1081,60 @@ learner.learn_task(X_task2, y_task2)
 
 **How would you use Keras to build models for sequence-to-sequence tasks , such as machine translation ?**
 
-*Answer to be added.*
+### Answer
+
+### Architecture
+
+| Component | Choice | Purpose |
+|-----------|--------|---------|
+| **Encoder** | Bidirectional LSTM/GRU | Compress source sentence into context |
+| **Decoder** | LSTM/GRU with attention | Generate target tokens one by one |
+| **Attention** | Bahdanau or multi-head | Focus on relevant source positions |
+| **Embedding** | Learned or pre-trained | Convert tokens to dense vectors |
+| **Modern alternative** | Transformer | State-of-the-art for translation |
+
+```python
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+# Encoder
+encoder_input = layers.Input(shape=(None,), name='encoder_input')
+encoder_embed = layers.Embedding(src_vocab_size, 256, mask_zero=True)(encoder_input)
+encoder_lstm = layers.Bidirectional(
+    layers.LSTM(256, return_sequences=True, return_state=True)
+)
+encoder_out, fwd_h, fwd_c, bwd_h, bwd_c = encoder_lstm(encoder_embed)
+state_h = layers.Concatenate()([fwd_h, bwd_h])
+state_c = layers.Concatenate()([fwd_c, bwd_c])
+
+# Attention mechanism
+attention = layers.Attention()
+
+# Decoder
+decoder_input = layers.Input(shape=(None,), name='decoder_input')
+decoder_embed = layers.Embedding(tgt_vocab_size, 256, mask_zero=True)(decoder_input)
+decoder_lstm = layers.LSTM(512, return_sequences=True)
+decoder_out = decoder_lstm(decoder_embed, initial_state=[state_h, state_c])
+
+# Apply attention: decoder attends to encoder outputs
+context = attention([decoder_out, encoder_out])
+decoder_combined = layers.Concatenate()([decoder_out, context])
+output = layers.TimeDistributed(layers.Dense(tgt_vocab_size, activation='softmax'))(decoder_combined)
+
+model = keras.Model([encoder_input, decoder_input], output)
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
+
+# For production: use Transformer architecture (tf.keras.layers.MultiHeadAttention)
+```
+
+### Inference (Autoregressive Decoding)
+1. Encode source sentence
+2. Start with `<START>` token
+3. Predict next token, append to output
+4. Repeat until `<END>` token or max length
+
+> **Interview Tip:** Mention that while LSTM seq2seq is foundational, modern translation uses **Transformers** (`MultiHeadAttention`). Key concepts: **teacher forcing** during training, **beam search** during inference, and **BLEU score** for evaluation.
 
 ---
 ## Question 13

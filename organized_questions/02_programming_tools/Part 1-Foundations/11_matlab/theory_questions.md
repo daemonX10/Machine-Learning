@@ -1524,7 +1524,55 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **Explain the MATLAB environment and its primary components**
 
-*Answer to be added.*
+### MATLAB Environment Overview
+
+MATLAB (Matrix Laboratory) is an integrated numerical computing environment with several key components:
+
+### Primary Components
+
+| Component | Purpose |
+|-----------|--------|
+| **Command Window** | Interactive console for executing commands and expressions |
+| **Workspace** | Displays all variables currently in memory with their values, types, and sizes |
+| **Editor** | Script/function editor with syntax highlighting, debugging, and code folding |
+| **Current Folder** | File browser for navigating directories and managing scripts |
+| **Command History** | Log of previously executed commands (searchable) |
+| **Figure Window** | Displays plots, images, and GUI elements |
+| **Variable Editor** | Spreadsheet-like view for inspecting/editing matrices and tables |
+
+### Additional Tools
+
+```matlab
+% App Designer       - build GUIs with drag-and-drop
+% Simulink           - model-based design for dynamic systems
+% Live Editor        - notebook-style (.mlx) combining code, output, and text
+% Profiler           - identify performance bottlenecks
+% MATLAB Drive       - cloud storage for scripts and data
+```
+
+### Toolboxes (Domain-Specific Add-ons)
+```
+Statistics & ML Toolbox     - classification, regression, clustering
+Deep Learning Toolbox       - neural networks, CNNs, LSTMs
+Image Processing Toolbox    - filtering, segmentation, feature extraction
+Signal Processing Toolbox   - FFT, filtering, spectral analysis
+Optimization Toolbox        - linear/nonlinear optimization
+Control System Toolbox      - transfer functions, PID controllers
+```
+
+### Key Workflow Features
+```matlab
+% Help system
+help mean            % quick help in command window
+doc mean             % full documentation browser
+lookfor 'correlation' % search for functions by keyword
+
+% Path management
+addpath('my_functions/')  % add directory to search path
+savepath                  % save path for future sessions
+```
+
+> **Interview Tip:** MATLAB's strength is its **all-in-one environment** — editor, debugger, profiler, and visualizer are tightly integrated. Unlike Python (which needs separate packages: NumPy, Matplotlib, Jupyter), MATLAB provides everything out of the box. The tradeoff is cost (commercial license) and less open-source ecosystem support.
 
 ---
 
@@ -1532,7 +1580,70 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **What is the difference between MATLAB and Octave ?**
 
-*Answer to be added.*
+### MATLAB vs. GNU Octave
+
+Octave is a free, open-source alternative designed to be largely compatible with MATLAB.
+
+| Feature | MATLAB | Octave |
+|---------|--------|--------|
+| **License** | Commercial ($$$) | Free (GPL) |
+| **IDE** | Full-featured (Editor, Debugger, Profiler, App Designer) | Basic GUI or command line |
+| **Toolboxes** | 90+ official toolboxes | Community packages (Octave Forge) |
+| **Performance** | Highly optimized (JIT, multi-threaded) | Slower for large computations |
+| **Simulink** | Yes | No equivalent |
+| **GPU Computing** | Built-in `gpuArray` | Limited |
+| **Deep Learning** | Deep Learning Toolbox | Not available |
+| **Syntax** | Reference standard | 99% compatible |
+| **Support** | MathWorks support | Community only |
+| **Deployment** | MATLAB Compiler, Coder | Limited |
+
+### Key Syntax Differences
+
+```matlab
+% ---- String Handling ----
+% MATLAB: both single and double quotes
+str1 = 'hello';      % character array (both)
+str2 = "hello";      % string object (MATLAB only, R2017a+)
+
+% Octave: single quotes only (double quotes also work but differ)
+
+% ---- End of Block ----
+% MATLAB: end / endfor / endwhile / endif are all just 'end'
+for i = 1:5
+    disp(i);
+end
+
+% Octave: supports both 'end' and specific keywords
+for i = 1:5
+    disp(i);
+endfor  % Octave-specific (also accepts 'end')
+
+% ---- Line Continuation ----
+% MATLAB: uses ...
+result = 1 + 2 + ...
+         3 + 4;
+
+% Octave: uses ... or \
+result = 1 + 2 + \
+         3 + 4;
+
+% ---- Increment Operators ----
+% MATLAB: no ++ or -- operators
+x = x + 1;
+
+% Octave: supports ++, --
+x++;
+```
+
+### When to Use Each
+```
+MATLAB  →  Industry / academia with license, Simulink needed,
+           toolbox-specific work, deployment, GPU computing
+Octave  →  Learning MATLAB syntax for free, academic projects,
+           budget constraints, Linux servers
+```
+
+> **Interview Tip:** Octave is ideal for **learning and prototyping** when you can't access MATLAB. Most interview-level MATLAB code runs identically on both. However, for production ML/DL, Python (free) has largely replaced both in industry. MATLAB remains dominant in **control systems**, **signal processing**, and **automotive** (Simulink).
 
 ---
 
@@ -1540,7 +1651,75 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **Explain the use of the MATLAB workspace and how it helps in managing variables**
 
-*Answer to be added.*
+### MATLAB Workspace
+
+The workspace is MATLAB's variable storage area — it holds all variables created during the session and is visible in the Workspace panel.
+
+### Core Operations
+
+```matlab
+% ---- Create variables ----
+x = 42;
+A = [1 2 3; 4 5 6];
+name = 'Alice';
+
+% ---- Inspect workspace ----
+who        % list variable names
+whos       % detailed list: name, size, bytes, class
+
+%   Name    Size    Bytes   Class
+%   A       2x3     48      double
+%   name    1x5     10      char
+%   x       1x1     8       double
+
+% ---- Memory management ----
+clear x         % remove specific variable
+clear A name    % remove multiple
+clear all       % remove ALL variables (use with caution)
+clearvars -except x  % keep only x, clear everything else
+
+% ---- Check existence ----
+exist('x', 'var')   % returns 1 if variable exists, 0 otherwise
+isempty(A)          % check if variable is empty
+
+% ---- Save and load workspace ----
+save('mydata.mat')             % save entire workspace to .mat file
+save('subset.mat', 'A', 'x')   % save specific variables
+load('mydata.mat')             % restore all variables
+load('subset.mat', 'x')       % load specific variable
+
+% ---- Save as text (v7.3 for large files) ----
+save('bigdata.mat', '-v7.3')   % HDF5 format, supports >2GB
+```
+
+### Workspace vs. Function Scope
+
+```matlab
+% Base workspace: variables from Command Window and scripts
+x = 10;
+my_script;   % script shares the base workspace
+
+% Function workspace: private to each function
+function result = my_func(a)
+    b = a * 2;   % 'b' exists only inside my_func
+    result = b;
+end
+% 'b' is NOT visible in base workspace
+
+% Sharing between scopes
+global G;      % accessible from any function that declares it global
+persistent P;  % retains value between function calls
+assignin('base', 'var', value);  % inject variable into base workspace
+evalin('base', 'expression');    % evaluate in base workspace
+```
+
+### Variable Editor
+```matlab
+openvar('A')   % open matrix in spreadsheet-like editor
+               % allows visual inspection and editing of large matrices
+```
+
+> **Interview Tip:** The workspace is MATLAB's equivalent of Python's `globals()` dictionary but with a visual GUI. Key distinction: **scripts** share the base workspace (can accidentally overwrite variables) while **functions** have isolated scopes. Always prefer functions over scripts to avoid namespace pollution. Use `save`/`load` with `.mat` files for session persistence.
 
 ---
 
@@ -1548,7 +1727,80 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **What are MATLAB’s built-in functions for statistical analysis ?**
 
-*Answer to be added.*
+### MATLAB Statistics Functions
+
+### Core Statistical Functions (Built-in)
+
+```matlab
+data = [4 8 15 16 23 42 8 15 16];
+
+% ---- Central Tendency ----
+mean(data)        % arithmetic mean = 16.33
+median(data)      % median = 15
+mode(data)        % most frequent value = 8 (or 15, 16 - returns first)
+
+% ---- Dispersion ----
+std(data)         % standard deviation (sample, N-1)
+var(data)         % variance (sample, N-1)
+std(data, 1)      % population std (N)
+range(data)       % max - min = 38
+iqr(data)         % interquartile range (Q3 - Q1)
+
+% ---- Extremes & Percentiles ----
+max(data)         % 42
+min(data)         % 4
+prctile(data, [25 50 75])  % 25th, 50th, 75th percentiles
+quantile(data, 0.95)       % 95th quantile
+
+% ---- Correlation & Covariance ----
+X = randn(100, 3);
+corrcoef(X)       % correlation matrix
+cov(X)            % covariance matrix
+corr(X(:,1), X(:,2))  % pairwise correlation
+
+% ---- Distribution Fitting ----
+histogram(data, 'Normalization', 'pdf');  % probability density
+normfit(data)     % fit normal distribution (returns mu, sigma)
+```
+
+### Statistics Toolbox Functions
+
+```matlab
+% ---- Hypothesis Testing ----
+[h, p] = ttest(data, 15)       % one-sample t-test (H0: mean = 15)
+[h, p] = ttest2(group1, group2) % two-sample t-test
+[p, tbl] = anova1(data, groups) % one-way ANOVA
+[h, p] = chi2gof(data)         % chi-squared goodness of fit
+[h, p] = kstest(data)          % Kolmogorov-Smirnov normality test
+
+% ---- Regression ----
+mdl = fitlm(X, y);             % linear regression
+mdl = fitglm(X, y, 'Distribution', 'binomial');  % logistic regression
+[b, stats] = robustfit(X, y);  % robust regression
+
+% ---- Descriptive Summary ----
+grpstats(data, groups)          % group-wise statistics
+tabulate(categories)            % frequency table
+bootstrap(1000, @mean, data)    % bootstrap confidence interval
+
+% ---- Probability Distributions ----
+normpdf(x, mu, sigma)   % normal PDF
+normcdf(x, mu, sigma)   % normal CDF
+norminv(p, mu, sigma)   % inverse CDF (quantile function)
+normrnd(mu, sigma, [m,n])  % random samples
+% Replace 'norm' with: t, chi2, f, bino, poiss, exp, gamma, beta
+```
+
+| Category | Functions |
+|----------|----------|
+| Central tendency | `mean`, `median`, `mode`, `trimmean` |
+| Dispersion | `std`, `var`, `range`, `iqr`, `mad` |
+| Correlation | `corrcoef`, `cov`, `corr` |
+| Testing | `ttest`, `ttest2`, `anova1`, `chi2gof` |
+| Distributions | `normpdf/cdf/inv/rnd`, `fitdist` |
+| Regression | `fitlm`, `fitglm`, `polyfit` |
+
+> **Interview Tip:** MATLAB distinguishes **sample** statistics (default, divides by N-1) from **population** statistics (use flag 1, divides by N). The Statistics Toolbox adds hypothesis testing, distribution fitting, and advanced regression - essential for data science workflows.
 
 ---
 
@@ -1556,7 +1808,104 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **Explain how matrix operations are performed in MATLAB**
 
-*Answer to be added.*
+### Matrix Operations in MATLAB
+
+MATLAB was designed for matrix computation — matrices are first-class citizens.
+
+### Creating Matrices
+
+```matlab
+% Manual creation
+A = [1 2 3; 4 5 6; 7 8 9];
+
+% Special matrices
+I = eye(3);           % 3x3 identity
+Z = zeros(3, 4);      % 3x4 zeros
+O = ones(2, 3);       % 2x3 ones
+R = rand(3);          % 3x3 random [0,1]
+D = diag([1 2 3]);    % diagonal matrix
+```
+
+### Arithmetic Operations
+
+```matlab
+A = [1 2; 3 4];
+B = [5 6; 7 8];
+
+% Matrix operations
+C = A + B;       % element-wise addition
+C = A - B;       % element-wise subtraction
+C = A * B;       % matrix multiplication (dot product)
+C = A ^ 2;       % matrix power (A * A)
+
+% Element-wise operations (use dot prefix)
+C = A .* B;      % element-wise multiplication
+C = A ./ B;      % element-wise division
+C = A .^ 2;      % element-wise power
+```
+
+### Matrix Algebra
+
+```matlab
+% Transpose
+A'                % conjugate transpose
+A.'               % non-conjugate transpose (matters for complex)
+
+% Inverse and determinant
+inv(A)            % matrix inverse (avoid in practice)
+det(A)            % determinant
+pinv(A)           % pseudo-inverse (for non-square/singular)
+
+% Solving linear systems  Ax = b
+x = A \ b;        % left division (preferred over inv(A)*b)
+x = b' / A';      % right division
+
+% Decompositions
+[L, U, P] = lu(A);          % LU decomposition
+[Q, R] = qr(A);             % QR decomposition
+[U, S, V] = svd(A);         % singular value decomposition
+[V, D] = eig(A);            % eigenvalues and eigenvectors
+R = chol(A);                % Cholesky (symmetric positive definite)
+```
+
+### Matrix Properties
+
+```matlab
+size(A)           % dimensions [rows, cols]
+rank(A)           % matrix rank
+trace(A)          % sum of diagonal elements
+norm(A)           % matrix norm (default: 2-norm)
+cond(A)           % condition number
+null(A)           % null space
+orth(A)           % column space (orthonormal basis)
+```
+
+### Indexing and Manipulation
+
+```matlab
+A(2, 3)           % element at row 2, col 3
+A(1, :)           % entire first row
+A(:, 2)           % entire second column
+A(1:2, 2:3)       % submatrix
+
+% Concatenation
+C = [A B];         % horizontal concatenation
+C = [A; B];        % vertical concatenation
+
+% Reshaping
+reshape(A, 1, [])  % flatten to row vector
+A(:)               % flatten to column vector
+```
+
+| Operation | Syntax | Equivalent Math |
+|-----------|--------|-----------------|
+| Multiply | `A * B` | $AB$ |
+| Element-wise | `A .* B` | $a_{ij} \cdot b_{ij}$ |
+| Solve $Ax=b$ | `A \ b` | $x = A^{-1}b$ |
+| Transpose | `A'` | $A^T$ |
+| Eigenvalues | `eig(A)` | $Av = \lambda v$ |
+
+> **Interview Tip:** The `*` vs `.*` distinction is critical in MATLAB. Matrix multiply (`*`) follows linear algebra rules ($O(n^3)$), while element-wise (`.*`) is a Hadamard product ($O(n^2)$). Always use `A \ b` instead of `inv(A) * b` for solving linear systems — it's faster and more numerically stable.
 
 ---
 
@@ -1564,7 +1913,88 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **What are element-wise operations , and how do you perform them in MATLAB ?**
 
-*Answer to be added.*
+### Element-Wise Operations in MATLAB
+
+Element-wise operations apply a function independently to each corresponding element of arrays, rather than following matrix algebra rules.
+
+### Syntax: The Dot (`.`) Prefix
+
+```matlab
+A = [1 2; 3 4];
+B = [5 6; 7 8];
+
+% ---- Matrix vs Element-wise ----
+A * B        % Matrix multiplication: [19 22; 43 50]
+A .* B       % Element-wise:          [5 12; 21 32]
+
+A ^ 2        % Matrix power: A * A = [7 10; 15 22]
+A .^ 2       % Element-wise:         [1 4; 9 16]
+
+% Division
+A / B        % Matrix right division: A * inv(B)
+A ./ B       % Element-wise: [1/5  2/6;  3/7  4/8]
+
+% Left division
+A \ B        % Matrix left division: inv(A) * B
+A .\ B       % Element-wise: [5/1  6/2;  7/3  8/4]
+```
+
+### Common Element-Wise Operations
+
+```matlab
+% Arithmetic
+A + B       % addition (always element-wise)
+A - B       % subtraction (always element-wise)
+A .* B      % element-wise multiplication
+A ./ B      % element-wise division
+A .^ n      % element-wise power
+
+% Mathematical functions (inherently element-wise)
+sqrt(A)     % [1.00 1.41; 1.73 2.00]
+sin(A)      % sine of each element
+exp(A)      % e^x for each element
+log(A)      % natural log of each element
+abs(A)      % absolute value of each element
+
+% Comparison (return logical arrays)
+A > 2       % [0 0; 1 1]
+A == B      % [0 0; 0 0]
+A >= 3      % [0 0; 1 1]
+
+% Logical
+A > 1 & B < 7   % element-wise AND
+A > 3 | B > 7   % element-wise OR
+~(A > 2)        % element-wise NOT
+```
+
+### Practical ML Example
+
+```matlab
+% Sigmoid function (element-wise by nature)
+sigmoid = @(z) 1 ./ (1 + exp(-z));
+
+z = [-2 -1 0 1 2];
+result = sigmoid(z);
+% [0.119  0.269  0.500  0.731  0.881]
+
+% Mean Squared Error (element-wise then aggregate)
+y_true = [1 0 1 1];
+y_pred = [0.9 0.2 0.8 0.7];
+mse = mean((y_true - y_pred) .^ 2);  % 0.0350
+
+% Feature normalization
+X = randn(100, 5);
+X_norm = (X - mean(X)) ./ std(X);   % z-score, element-wise
+```
+
+| Operator | Matrix | Element-wise |
+|----------|--------|--------------|
+| `*` / `.*` | Matrix product | Hadamard product |
+| `^` / `.^` | Matrix power | Per-element power |
+| `/` / `./` | Right division ($AB^{-1}$) | Per-element division |
+| `\` / `.\` | Left division ($A^{-1}B$) | Per-element division |
+
+> **Interview Tip:** All MATLAB math functions (`sin`, `exp`, `sqrt`) are already element-wise. The dot prefix is only needed for `*`, `^`, `/`, and `\` to distinguish from their matrix counterparts. Forgetting the dot (e.g., `A * B` instead of `A .* B`) is one of the most common MATLAB bugs.
 
 ---
 
@@ -1572,7 +2002,89 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **Explain the concept of broadcasting in MATLAB**
 
-*Answer to be added.*
+### Broadcasting in MATLAB
+
+Broadcasting (called **implicit expansion** in MATLAB, introduced in R2016b) automatically expands arrays with compatible sizes for element-wise operations without explicit `repmat`.
+
+### How It Works
+
+```matlab
+% Before R2016b: needed repmat
+A = [1; 2; 3];           % 3x1 column vector
+B = [10 20 30];           % 1x3 row vector
+
+% Old way
+C = repmat(A, 1, 3) + repmat(B, 3, 1);
+
+% New way: implicit expansion (broadcasting)
+C = A + B;
+% C = [11 21 31;
+%      12 22 32;
+%      13 23 33]
+```
+
+### Broadcasting Rules
+
+```
+Dimension compatibility:
+  - Same size           → operate element-wise
+  - One is size 1       → expand (broadcast) to match
+  - Different (not 1)   → ERROR
+
+Examples:
+  (3x1) + (1x3)  →  (3x3)   ✔  both expand
+  (3x4) + (1x4)  →  (3x4)   ✔  row broadcasts
+  (3x4) + (3x1)  →  (3x4)   ✔  column broadcasts
+  (3x4) + (2x4)  →  ERROR   ✘  3 vs 2, neither is 1
+```
+
+### Practical Examples
+
+```matlab
+% ---- Center data (subtract column means) ----
+X = rand(100, 5);         % 100 samples, 5 features
+X_centered = X - mean(X); % mean(X) is 1x5, broadcasts over 100 rows
+
+% ---- Z-score normalization ----
+X_norm = (X - mean(X)) ./ std(X);   % both 1x5, broadcast to 100x5
+
+% ---- Distance from each point to each center ----
+points = rand(100, 2);    % 100 points (100x2)
+centers = rand(5, 2);     % 5 centers (5x2)
+
+% Compute pairwise distances using broadcasting
+% Reshape points to (100x1x2) and centers to (1x5x2)
+diff = reshape(points, [], 1, 2) - reshape(centers, 1, [], 2);
+dist = sqrt(sum(diff.^2, 3));  % result: 100x5 distance matrix
+
+% ---- Outer product ----
+a = [1; 2; 3];   % 3x1
+b = [4 5 6];     % 1x3
+outer = a .* b;  % 3x3 outer product via broadcasting
+
+% ---- Apply threshold per column ----
+data = rand(50, 4);
+thresholds = [0.3 0.5 0.7 0.2];   % 1x4
+mask = data > thresholds;           % broadcasts 1x4 across 50 rows
+```
+
+### Broadcasting vs. `bsxfun`
+
+```matlab
+% bsxfun was the pre-R2016b way to broadcast
+C = bsxfun(@plus, A, B);    % old way
+C = A + B;                   % new way (implicit expansion)
+
+% bsxfun still works but is no longer necessary
+```
+
+| Approach | MATLAB Version | Readability | Performance |
+|----------|---------------|-------------|-------------|
+| `repmat` | All | Low | Slow (copies data) |
+| `bsxfun` | R2007a+ | Medium | Fast |
+| Implicit expansion | R2016b+ | High | Fast |
+
+> **Interview Tip:** MATLAB's broadcasting is equivalent to NumPy's broadcasting. The key rule: dimensions are compatible when they're equal or one of them is 1. Unlike NumPy, MATLAB added this feature relatively late (R2016b), so older code uses `bsxfun` or `repmat`. Always prefer implicit expansion for readability.
 
 ---
 
@@ -1580,7 +2092,107 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **How do you create a basic plot in MATLAB ?**
 
-*Answer to be added.*
+### Basic Plotting in MATLAB
+
+```matlab
+% ---- Line Plot ----
+x = 0:0.1:2*pi;
+y = sin(x);
+
+figure;
+plot(x, y);
+title('Sine Wave');
+xlabel('x (radians)');
+ylabel('sin(x)');
+grid on;
+
+% ---- Customized Line Plot ----
+figure;
+plot(x, sin(x), 'r-', 'LineWidth', 2);    % red solid line
+hold on;
+plot(x, cos(x), 'b--', 'LineWidth', 2);   % blue dashed line
+hold off;
+title('Trigonometric Functions');
+xlabel('x');
+ylabel('y');
+legend('sin(x)', 'cos(x)');
+grid on;
+```
+
+### Line Style Specifiers
+
+```matlab
+% Format: 'ColorMarkerLineStyle'
+plot(x, y, 'r-')    % red solid
+plot(x, y, 'b--')   % blue dashed
+plot(x, y, 'g:')    % green dotted
+plot(x, y, 'ko')    % black circles
+plot(x, y, 'ms-')   % magenta squares with solid line
+
+% Colors: r g b c m y k w
+% Markers: o + * . x s d ^ v > < p h
+% Lines:  - -- : -.
+```
+
+### Common Plot Types
+
+```matlab
+% ---- Scatter Plot ----
+scatter(x, y, 50, 'filled');  % 50 = marker size
+
+% ---- Bar Chart ----
+categories = {'A', 'B', 'C', 'D'};
+values = [25 40 35 30];
+bar(values);
+set(gca, 'XTickLabel', categories);
+
+% ---- Histogram ----
+data = randn(1000, 1);
+histogram(data, 30);
+
+% ---- Subplot (multiple plots) ----
+figure;
+subplot(2, 2, 1); plot(x, sin(x));  title('sin');
+subplot(2, 2, 2); plot(x, cos(x));  title('cos');
+subplot(2, 2, 3); plot(x, tan(x));  title('tan');
+subplot(2, 2, 4); plot(x, x.^2);    title('x^2');
+
+% ---- 3D Plots ----
+[X, Y] = meshgrid(-3:0.1:3);
+Z = X.^2 + Y.^2;
+figure;
+surf(X, Y, Z);         % surface plot
+colorbar;
+title('Paraboloid');
+
+% ---- Pie Chart ----
+pie([30 25 20 15 10], {'A','B','C','D','E'});
+
+% ---- Heatmap ----
+heatmap(rand(5, 5));
+```
+
+### Plot Customization
+
+```matlab
+figure;
+plot(x, y);
+
+% Axes
+xlim([0 2*pi]);      % x-axis range
+ylim([-1.5 1.5]);    % y-axis range
+axis equal;          % equal aspect ratio
+
+% Text and annotations
+text(pi, 0, '\leftarrow \pi', 'FontSize', 14);
+annotation('arrow', [0.5 0.6], [0.5 0.7]);
+
+% Save figure
+saveas(gcf, 'plot.png');        % save as PNG
+exportgraphics(gcf, 'plot.pdf');% high-quality PDF (R2020a+)
+```
+
+> **Interview Tip:** `hold on` / `hold off` controls whether subsequent plots overlay or replace. `subplot(rows, cols, index)` creates multi-panel figures. For publication-quality figures, use `exportgraphics` (R2020a+) or `print('-dpdf', 'file.pdf')`. MATLAB's plotting is more concise than Matplotlib but less flexible for complex layouts.
 
 ---
 
@@ -1588,7 +2200,133 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **How can you improve the performance of your MATLAB code ?**
 
-*Answer to be added.*
+### MATLAB Performance Optimization
+
+### 1. Preallocate Arrays
+
+```matlab
+% BAD: array grows each iteration (O(n^2) due to reallocation)
+result = [];
+for i = 1:100000
+    result = [result, i^2];  % copies entire array each time!
+end
+
+% GOOD: preallocate (O(n))
+result = zeros(1, 100000);
+for i = 1:100000
+    result(i) = i^2;
+end
+% Speedup: 100-1000x for large arrays
+```
+
+### 2. Vectorize Operations
+
+```matlab
+% BAD: loop
+for i = 1:length(x)
+    y(i) = sin(x(i))^2 + cos(x(i))^2;
+end
+
+% GOOD: vectorized
+y = sin(x).^2 + cos(x).^2;
+% Speedup: 10-100x
+```
+
+### 3. Use Built-in Functions
+
+```matlab
+% BAD: manual sum
+total = 0;
+for i = 1:length(data)
+    total = total + data(i);
+end
+
+% GOOD: built-in (C-optimized)
+total = sum(data);
+% Also: mean, max, min, cumsum, diff, sort
+```
+
+### 4. Logical Indexing
+
+```matlab
+% BAD: loop with if
+for i = 1:length(data)
+    if data(i) > threshold
+        data(i) = threshold;
+    end
+end
+
+% GOOD: logical indexing
+data(data > threshold) = threshold;
+% Or: data = min(data, threshold);
+```
+
+### 5. Avoid Unnecessary Copies
+
+```matlab
+% BAD: function modifies and returns large array
+function A = process(A)
+    A(1,1) = 0;  % in-place if only output = input
+end
+
+% Use sparse matrices for large sparse data
+A = sparse(rows, cols, values, m, n);  % much less memory
+```
+
+### 6. Profile Your Code
+
+```matlab
+profile on;
+my_function(data);
+profile viewer;   % interactive GUI showing time per line
+
+% Timing specific sections
+tic;
+result = expensive_operation(data);
+toc;              % prints elapsed time
+
+% More accurate
+timeit(@() my_function(data));  % averages multiple runs
+```
+
+### 7. Parallel Computing
+
+```matlab
+% parfor: parallel for loop
+parpool(4);  % start 4 workers
+parfor i = 1:1000
+    results(i) = heavy_computation(i);
+end
+
+% GPU computing
+gA = gpuArray(A);
+gB = gpuArray(B);
+gC = gA * gB;        % runs on GPU
+C = gather(gC);      % bring back to CPU
+```
+
+### 8. Data Types
+
+```matlab
+% Use appropriate data types
+data_single = single(data);   % 4 bytes vs 8 bytes (double)
+data_int = int32(data);       % integer operations
+data_logical = logical(mask); % 1 byte per element
+```
+
+### Performance Checklist
+
+| Technique | Typical Speedup | Effort |
+|-----------|----------------|--------|
+| Preallocation | 100-1000x | Low |
+| Vectorization | 10-100x | Medium |
+| Built-in functions | 5-50x | Low |
+| Logical indexing | 5-20x | Low |
+| Parallel computing | 2-8x (per core) | Medium |
+| GPU computing | 10-100x | High |
+| MEX (C/C++) | 2-10x | High |
+
+> **Interview Tip:** The **Profiler** (`profile viewer`) is your first step — find the bottleneck before optimizing. The biggest wins come from **preallocation** and **vectorization**. Only use `parfor` or GPU when vectorization isn't possible, as the overhead of parallelism can actually slow down small tasks.
 
 ---
 
@@ -1596,7 +2334,127 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **Explain the use of vectorization for optimizing computations in MATLAB**
 
-*Answer to be added.*
+### Vectorization in MATLAB
+
+Vectorization replaces explicit loops with array operations that execute in optimized, precompiled C/Fortran code.
+
+### Why Vectorization Matters
+
+```matlab
+n = 1000000;
+x = rand(n, 1);
+y = rand(n, 1);
+
+% ---- Loop version (SLOW) ----
+tic;
+z = zeros(n, 1);
+for i = 1:n
+    z(i) = x(i)^2 + 2*x(i)*y(i) + y(i)^2;
+end
+toc;  % ~0.5 seconds
+
+% ---- Vectorized version (FAST) ----
+tic;
+z = x.^2 + 2.*x.*y + y.^2;
+toc;  % ~0.005 seconds  (100x faster)
+```
+
+### Common Vectorization Patterns
+
+```matlab
+% ---- Replace if-else loops with logical indexing ----
+% Loop:
+for i = 1:n
+    if x(i) > 0
+        result(i) = sqrt(x(i));
+    else
+        result(i) = 0;
+    end
+end
+
+% Vectorized:
+result = zeros(size(x));
+mask = x > 0;
+result(mask) = sqrt(x(mask));
+
+% ---- Replace accumulation loops with cumsum/cumprod ----
+% Loop:
+running_sum = zeros(n, 1);
+running_sum(1) = x(1);
+for i = 2:n
+    running_sum(i) = running_sum(i-1) + x(i);
+end
+
+% Vectorized:
+running_sum = cumsum(x);
+
+% ---- Replace nested loops with matrix operations ----
+% Loop (matrix multiply):
+C = zeros(m, p);
+for i = 1:m
+    for j = 1:p
+        for k = 1:n
+            C(i,j) = C(i,j) + A(i,k) * B(k,j);
+        end
+    end
+end
+
+% Vectorized:
+C = A * B;
+
+% ---- Replace distance loops with broadcasting ----
+% Loop:
+for i = 1:n
+    for j = 1:m
+        dist(i,j) = sqrt(sum((X(i,:) - Y(j,:)).^2));
+    end
+end
+
+% Vectorized:
+dist = pdist2(X, Y);  % or use broadcasting
+```
+
+### ML-Specific Vectorization
+
+```matlab
+% ---- Gradient Descent (vectorized) ----
+% Loop version:
+for j = 1:num_features
+    gradient(j) = 0;
+    for i = 1:num_samples
+        gradient(j) = gradient(j) + (h(i) - y(i)) * X(i,j);
+    end
+    gradient(j) = gradient(j) / num_samples;
+end
+
+% Vectorized:
+gradient = (1/num_samples) * X' * (h - y);
+
+% ---- Cost Function ----
+% Loop:
+cost = 0;
+for i = 1:m
+    cost = cost + (h(i) - y(i))^2;
+end
+cost = cost / (2*m);
+
+% Vectorized:
+cost = (1/(2*m)) * sum((h - y).^2);
+% Or: cost = (1/(2*m)) * (h - y)' * (h - y);
+```
+
+### Vectorization Decision Guide
+
+| Pattern | Loop | Vectorized Alternative |
+|---------|------|------------------------|
+| Element-wise math | `for` + indexing | Array operators `.* ./ .^` |
+| Conditional assignment | `if` inside `for` | Logical indexing |
+| Running totals | Accumulator loop | `cumsum`, `cumprod` |
+| Matrix multiply | Triple nested loop | `*` operator |
+| Pairwise distances | Double loop | `pdist2` or broadcasting |
+| Aggregation | Sum in loop | `sum`, `mean`, `max` |
+
+> **Interview Tip:** Vectorization is MATLAB's #1 performance technique. It works because: (1) operations run in compiled C, not interpreted MATLAB, (2) BLAS/LAPACK libraries use SIMD and multi-threading, (3) contiguous memory layout enables CPU cache efficiency. If you can express it as a matrix operation, do so.
 
 ---
 
@@ -1604,6 +2462,143 @@ MATLAB's Computer Vision Toolbox provides **end-to-end workflows** from data lab
 
 **Discuss the implementation of logistic regression in MATLAB**
 
-*Answer to be added.*
+### Logistic Regression in MATLAB
+
+Logistic regression models the probability of a binary outcome using the sigmoid function.
+
+### Mathematical Foundation
+
+$$h_\theta(x) = \sigma(\theta^T x) = \frac{1}{1 + e^{-\theta^T x}}$$
+
+$$J(\theta) = -\frac{1}{m}\sum_{i=1}^{m}[y^{(i)}\log(h_\theta(x^{(i)})) + (1-y^{(i)})\log(1-h_\theta(x^{(i)}))]$$
+
+### From-Scratch Implementation
+
+```matlab
+function [theta, cost_history] = logistic_regression(X, y, alpha, num_iters)
+% LOGISTIC_REGRESSION  Train logistic regression via gradient descent.
+%   X: m x n feature matrix (add intercept column before calling)
+%   y: m x 1 binary labels (0 or 1)
+%   alpha: learning rate
+%   num_iters: number of gradient descent iterations
+
+    [m, n] = size(X);
+    theta = zeros(n, 1);       % initialize parameters
+    cost_history = zeros(num_iters, 1);
+    
+    for iter = 1:num_iters
+        % Forward pass: compute predictions
+        z = X * theta;
+        h = sigmoid(z);         % predicted probabilities
+        
+        % Compute cost (cross-entropy loss)
+        cost_history(iter) = -(1/m) * (y' * log(h) + (1-y)' * log(1-h));
+        
+        % Compute gradient
+        gradient = (1/m) * X' * (h - y);
+        
+        % Update parameters
+        theta = theta - alpha * gradient;
+    end
+end
+
+function g = sigmoid(z)
+    g = 1 ./ (1 + exp(-z));
+end
+
+function p = predict(X, theta)
+    p = sigmoid(X * theta) >= 0.5;
+end
+```
+
+### Complete Example
+
+```matlab
+% Generate sample data
+rng(42);
+X_raw = randn(200, 2);       % 200 samples, 2 features
+y = double(X_raw(:,1) + X_raw(:,2) > 0);  % binary labels
+
+% Add intercept column
+X = [ones(size(X_raw, 1), 1), X_raw];
+
+% Split train/test
+train_idx = 1:160;
+test_idx = 161:200;
+X_train = X(train_idx, :);  y_train = y(train_idx);
+X_test = X(test_idx, :);    y_test = y(test_idx);
+
+% Train
+alpha = 0.1;
+num_iters = 1000;
+[theta, cost_history] = logistic_regression(X_train, y_train, alpha, num_iters);
+
+% Plot cost convergence
+figure;
+plot(cost_history);
+title('Training Cost'); xlabel('Iteration'); ylabel('Cost');
+
+% Evaluate
+y_pred = predict(X_test, theta);
+accuracy = mean(y_pred == y_test) * 100;
+fprintf('Accuracy: %.1f%%\n', accuracy);
+
+% Decision boundary
+figure;
+gscatter(X_raw(:,1), X_raw(:,2), y);
+hold on;
+x1_range = linspace(min(X_raw(:,1)), max(X_raw(:,1)), 100);
+x2_boundary = -(theta(1) + theta(2)*x1_range) / theta(3);
+plot(x1_range, x2_boundary, 'k-', 'LineWidth', 2);
+title('Logistic Regression Decision Boundary');
+legend('Class 0', 'Class 1', 'Boundary');
+hold off;
+```
+
+### Using MATLAB Built-in Functions
+
+```matlab
+% Method 1: fitglm (Statistics Toolbox)
+mdl = fitglm(X_raw, y, 'Distribution', 'binomial');
+y_pred = predict(mdl, X_raw) >= 0.5;
+
+% Method 2: mnrfit (multinomial logistic regression)
+[B, dev, stats] = mnrfit(X_raw, y + 1);  % labels must be 1,2
+
+% Method 3: fitclinear (for large datasets)
+mdl = fitclinear(X_raw, y, 'Learner', 'logistic');
+
+% Method 4: Using fminunc (optimization)
+options = optimoptions('fminunc', 'Algorithm', 'quasi-newton', ...
+    'GradObj', 'on', 'MaxIter', 400);
+costFn = @(t) cost_function(t, X, y);
+theta = fminunc(costFn, zeros(size(X,2),1), options);
+```
+
+### Regularized Logistic Regression
+
+```matlab
+function [J, grad] = cost_function_reg(theta, X, y, lambda)
+    m = length(y);
+    h = sigmoid(X * theta);
+    
+    % Cost with L2 regularization (don't regularize theta(1))
+    reg_term = (lambda/(2*m)) * sum(theta(2:end).^2);
+    J = -(1/m) * (y'*log(h) + (1-y)'*log(1-h)) + reg_term;
+    
+    % Gradient with regularization
+    grad = (1/m) * X' * (h - y);
+    grad(2:end) = grad(2:end) + (lambda/m) * theta(2:end);
+end
+```
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| From scratch | Full understanding, customizable | Slower, more code |
+| `fitglm` | Statistical output (p-values, CI) | Requires Statistics Toolbox |
+| `fminunc` | Faster convergence (quasi-Newton) | Need to define cost function |
+| `fitclinear` | Scales to large data | Less statistical detail |
+
+> **Interview Tip:** The from-scratch implementation demonstrates understanding of **gradient descent**, **cross-entropy loss**, and **vectorization**. In practice, use `fitglm` for statistical analysis (gives p-values and confidence intervals) or `fminunc` for faster convergence. Always add regularization (`lambda > 0`) to prevent overfitting.
 
 ---

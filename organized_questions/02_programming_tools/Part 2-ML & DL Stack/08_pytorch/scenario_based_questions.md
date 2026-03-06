@@ -1086,7 +1086,47 @@ class InferenceService:
 
 **How would you handle imbalanced classes when training a classification model in PyTorch?**
 
-*Answer to be added.*
+### Answer
+
+| Strategy | Implementation | Best For |
+|----------|---------------|----------|
+| **Weighted loss** | `CrossEntropyLoss(weight=class_weights)` | Most cases, simplest |
+| **Oversampling** | `WeightedRandomSampler` | Training data balancing |
+| **Focal loss** | Custom loss function | Severe imbalance |
+| **Class-balanced batches** | Custom sampler | Ensures all classes seen |
+
+```python
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, WeightedRandomSampler
+import numpy as np
+
+# Method 1: Weighted CrossEntropyLoss
+class_counts = np.bincount(y_train)
+class_weights = 1.0 / class_counts
+class_weights = torch.FloatTensor(class_weights / class_weights.sum()).to(device)
+criterion = nn.CrossEntropyLoss(weight=class_weights)
+
+# Method 2: WeightedRandomSampler (oversample minority in each batch)
+sample_weights = [class_weights[label] for label in y_train]
+sampler = WeightedRandomSampler(sample_weights, num_samples=len(sample_weights),
+                                 replacement=True)
+train_loader = DataLoader(train_dataset, batch_size=32, sampler=sampler)
+
+# Method 3: Focal Loss (reduces easy example contribution)
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=1, gamma=2):
+        super().__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+
+    def forward(self, inputs, targets):
+        ce_loss = nn.functional.cross_entropy(inputs, targets, reduction='none')
+        pt = torch.exp(-ce_loss)
+        return (self.alpha * (1 - pt) ** self.gamma * ce_loss).mean()
+```
+
+> **Interview Tip:** Start with **weighted loss** (simplest). Use `WeightedRandomSampler` for batch-level balancing. For extreme imbalance, combine weighted loss + oversampling. Always use **F1-score**, not accuracy, for evaluation.
 
 ---
 
@@ -1094,7 +1134,47 @@ class InferenceService:
 
 **How can PyTorch be utilized for real-time inference , and what concerns would you have in such a setting?**
 
-*Answer to be added.*
+### Answer
+
+| Concern | Solution |
+|---------|----------|
+| **Latency** | Model optimization, TorchScript, ONNX Runtime |
+| **Throughput** | Batching, GPU inference, async processing |
+| **Memory** | Quantization, pruning, model distillation |
+| **Deployment** | TorchServe, ONNX Runtime, TensorRT |
+
+```python
+import torch
+
+# 1. Optimize for inference
+model.eval()
+
+# 2. TorchScript (JIT compilation)
+scripted_model = torch.jit.script(model)  # or torch.jit.trace(model, sample_input)
+scripted_model.save("model_scripted.pt")
+
+# 3. Quantization (reduce model size and latency)
+quantized_model = torch.quantization.quantize_dynamic(
+    model, {torch.nn.Linear}, dtype=torch.qint8
+)
+
+# 4. ONNX export for cross-platform inference
+dummy_input = torch.randn(1, 3, 224, 224)
+torch.onnx.export(model, dummy_input, "model.onnx",
+                   input_names=['input'], output_names=['output'],
+                   dynamic_axes={'input': {0: 'batch_size'}})
+
+# 5. Inference with no gradient computation
+with torch.no_grad():
+    torch.cuda.synchronize()  # Ensure accurate timing
+    output = model(input_tensor.to(device))
+
+# 6. Half precision (FP16) for faster GPU inference
+model.half()
+input_tensor = input_tensor.half()
+```
+
+> **Interview Tip:** For real-time inference, prioritize: (1) `torch.no_grad()` + `model.eval()`, (2) TorchScript or ONNX export, (3) quantization, (4) batching requests. Mention **TensorRT** for NVIDIA GPU optimization and **ONNX Runtime** for cross-platform deployment.
 
 ---
 
@@ -1102,7 +1182,57 @@ class InferenceService:
 
 **Discuss a scenario where you would need to convert a PyTorch model to ONNX format**
 
-*Answer to be added.*
+### Answer
+
+### When to Use ONNX
+
+| Scenario | Reason |
+|----------|--------|
+| **Cross-framework** | Run PyTorch model in TensorFlow, CoreML, etc. |
+| **Production inference** | ONNX Runtime is highly optimized |
+| **Edge deployment** | Convert to TFLite, CoreML via ONNX |
+| **Hardware acceleration** | TensorRT, OpenVINO support ONNX |
+
+```python
+import torch
+import torch.onnx
+
+# 1. Export PyTorch model to ONNX
+model.eval()
+dummy_input = torch.randn(1, 3, 224, 224).to(device)
+
+torch.onnx.export(
+    model,
+    dummy_input,
+    "model.onnx",
+    export_params=True,
+    opset_version=13,
+    do_constant_folding=True,
+    input_names=['input'],
+    output_names=['output'],
+    dynamic_axes={
+        'input': {0: 'batch_size'},
+        'output': {0: 'batch_size'}
+    }
+)
+
+# 2. Verify ONNX model
+import onnx
+onnx_model = onnx.load("model.onnx")
+onnx.checker.check_model(onnx_model)
+
+# 3. Run inference with ONNX Runtime
+import onnxruntime as ort
+session = ort.InferenceSession("model.onnx", providers=['CUDAExecutionProvider'])
+result = session.run(None, {'input': input_numpy})
+
+# 4. Compare outputs
+torch_out = model(dummy_input).detach().cpu().numpy()
+onnx_out = session.run(None, {'input': dummy_input.cpu().numpy()})[0]
+assert np.allclose(torch_out, onnx_out, atol=1e-5)
+```
+
+> **Interview Tip:** Always verify ONNX output matches PyTorch output with `np.allclose()`. Use `dynamic_axes` for variable batch sizes. ONNX Runtime typically provides **2-3x speedup** over native PyTorch inference.
 
 ---
 
@@ -1110,7 +1240,67 @@ class InferenceService:
 
 **Propose a method for deploying a PyTorch model as a REST API service**
 
-*Answer to be added.*
+### Answer
+
+| Approach | Tool | Best For |
+|----------|------|----------|
+| **FastAPI** | Python web framework | Custom APIs, flexibility |
+| **TorchServe** | PyTorch's official serving | Production, scaling |
+| **Flask** | Lightweight Python framework | Quick prototypes |
+| **Docker + K8s** | Containerization | Production scaling |
+
+```python
+# FastAPI deployment (recommended)
+from fastapi import FastAPI, File, UploadFile
+import torch
+from torchvision import transforms
+from PIL import Image
+import io
+
+app = FastAPI()
+
+# Load model once at startup
+model = torch.jit.load("model_scripted.pt")
+model.eval()
+
+transform = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+])
+
+@app.post("/predict")
+async def predict(file: UploadFile = File(...)):
+    image_bytes = await file.read()
+    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    input_tensor = transform(image).unsqueeze(0)
+
+    with torch.no_grad():
+        output = model(input_tensor)
+        probabilities = torch.nn.functional.softmax(output[0], dim=0)
+        top5_prob, top5_idx = torch.topk(probabilities, 5)
+
+    return {
+        "predictions": [
+            {"class": idx.item(), "probability": prob.item()}
+            for prob, idx in zip(top5_prob, top5_idx)
+        ]
+    }
+
+# Run: uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+### Production Considerations
+
+| Concern | Solution |
+|---------|----------|
+| Scalability | Load balancer + multiple workers |
+| GPU sharing | Batching requests, NVIDIA Triton |
+| Monitoring | Prometheus + Grafana |
+| Model versioning | MLflow, DVC |
+
+> **Interview Tip:** Use **FastAPI** over Flask for async support and auto-generated docs. Always use **TorchScript** (`torch.jit`) for deployment. For high-throughput, consider **TorchServe** or **NVIDIA Triton** for GPU request batching.
 
 ---
 
@@ -1118,7 +1308,58 @@ class InferenceService:
 
 **Describe your approach to fine-tuning a pre-trained model in PyTorch for a new task**
 
-*Answer to be added.*
+### Answer
+
+### Step-by-Step Approach
+
+| Phase | Action | Learning Rate |
+|-------|--------|---------------|
+| 1. Feature extraction | Freeze base, train head | Normal (1e-3) |
+| 2. Fine-tuning | Unfreeze top layers | Low (1e-5) |
+| 3. Full fine-tuning | Unfreeze all (optional) | Very low (1e-6) |
+
+```python
+import torch
+import torch.nn as nn
+import torchvision.models as models
+
+# 1. Load pre-trained model
+model = models.resnet50(weights='IMAGENET1K_V2')
+
+# 2. Freeze all layers
+for param in model.parameters():
+    param.requires_grad = False
+
+# 3. Replace classification head
+num_features = model.fc.in_features
+model.fc = nn.Sequential(
+    nn.Dropout(0.3),
+    nn.Linear(num_features, 256),
+    nn.ReLU(),
+    nn.Dropout(0.2),
+    nn.Linear(256, num_classes)
+)
+
+# 4. Phase 1: Train head only
+optimizer = torch.optim.Adam(model.fc.parameters(), lr=1e-3)
+train(model, train_loader, optimizer, epochs=5)
+
+# 5. Phase 2: Fine-tune top layers
+for param in model.layer4.parameters():
+    param.requires_grad = True
+
+# Use different learning rates for different parts
+optimizer = torch.optim.Adam([
+    {'params': model.layer4.parameters(), 'lr': 1e-5},
+    {'params': model.fc.parameters(), 'lr': 1e-4}
+])
+train(model, train_loader, optimizer, epochs=10)
+
+# Tip: Use cosine annealing scheduler
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10)
+```
+
+> **Interview Tip:** Use **discriminative learning rates** (lower LR for earlier layers, higher for head). Always train the head first with frozen base, then gradually unfreeze. Monitor validation loss to avoid catastrophic forgetting.
 
 ---
 
@@ -1126,7 +1367,72 @@ class InferenceService:
 
 **Discuss a project where PyTorch played a key role in developing a machine learning solution**
 
-*Answer to be added.*
+### Answer
+
+### Example: Medical Image Classification System
+
+| Phase | Action | Tools |
+|-------|--------|-------|
+| **Problem** | Detect pneumonia from chest X-rays | Medical domain knowledge |
+| **Data** | NIH Chest X-ray dataset (112K images) | PyTorch DataLoader |
+| **Model** | DenseNet-121 with transfer learning | torchvision.models |
+| **Training** | Mixed precision, cosine annealing | PyTorch AMP |
+| **Evaluation** | AUC-ROC, sensitivity, specificity | sklearn.metrics |
+| **Deployment** | TorchServe + Docker on AWS | Production infrastructure |
+
+```python
+import torch
+import torch.nn as nn
+import torchvision.models as models
+from torch.cuda.amp import autocast, GradScaler
+
+# 1. Custom dataset with medical image preprocessing
+class ChestXrayDataset(torch.utils.data.Dataset):
+    def __init__(self, image_paths, labels, transform):
+        self.image_paths = image_paths
+        self.labels = labels
+        self.transform = transform
+
+    def __getitem__(self, idx):
+        image = Image.open(self.image_paths[idx]).convert('RGB')
+        return self.transform(image), self.labels[idx]
+
+    def __len__(self):
+        return len(self.image_paths)
+
+# 2. Transfer learning with DenseNet
+model = models.densenet121(weights='IMAGENET1K_V1')
+model.classifier = nn.Sequential(
+    nn.Dropout(0.3),
+    nn.Linear(model.classifier.in_features, 14)  # 14 pathology classes
+)
+
+# 3. Handle class imbalance
+pos_weights = torch.FloatTensor(compute_class_weights(train_labels)).to(device)
+criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weights)
+
+# 4. Mixed precision training
+scaler = GradScaler()
+for epoch in range(epochs):
+    for images, labels in train_loader:
+        with autocast():
+            outputs = model(images.to(device))
+            loss = criterion(outputs, labels.to(device))
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
+        optimizer.zero_grad()
+
+# 5. Results: 0.92 AUC-ROC, deployed via TorchServe
+```
+
+### Lessons Learned
+- **Data quality** matters more than model architecture
+- **Transfer learning** is essential when domain data is limited
+- **Class imbalance** handling is critical in medical datasets
+- **Interpretability** (Grad-CAM) is required for clinical acceptance
+
+> **Interview Tip:** Structure your case study as: **Problem -> Data -> Model -> Training -> Evaluation -> Deployment -> Lessons Learned**. Mention specific metrics and real challenges you encountered.
 
 ---
 

@@ -6105,7 +6105,46 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain the difference between Python 2 and Python 3**
 
-*Answer to be added.*
+**Answer:**
+
+Python 3 (released 2008) is the modern, actively maintained version. Python 2 reached **end-of-life on January 1, 2020**.
+
+### Key Differences
+
+| Feature | Python 2 | Python 3 |
+|---------|----------|----------|
+| **Print** | `print "hello"` (statement) | `print("hello")` (function) |
+| **Integer Division** | `5/2 = 2` (floor) | `5/2 = 2.5` (true division) |
+| **Strings** | ASCII by default | Unicode by default |
+| **range()** | Returns list | Returns iterator (lazy) |
+| **Input** | `raw_input()` | `input()` |
+| **Exception Syntax** | `except Error, e:` | `except Error as e:` |
+| **Iterators** | `.next()` method | `next()` built-in |
+| **Type hints** | Not supported | Supported (3.5+) |
+| **f-strings** | Not available | Available (3.6+) |
+| **Walrus operator** | Not available | `:=` (3.8+) |
+
+### ML-Relevant Differences
+
+```python
+# Python 3 features critical for ML:
+
+# 1. Type hints for readable ML code
+def train_model(X: np.ndarray, y: np.ndarray, lr: float = 0.01) -> Model:
+    ...
+
+# 2. F-strings for logging
+print(f"Epoch {epoch}: loss={loss:.4f}, acc={acc:.4f}")
+
+# 3. Unpacking generalizations
+first, *middle, last = data_splits
+
+# 4. Matrix multiplication operator (@)
+result = X @ W + b  # Instead of np.dot(X, W)
+```
+
+### Interview Tip
+All modern ML libraries (TensorFlow 2.x, PyTorch, Scikit-learn) **only support Python 3**. If asked about Python 2, emphasize migration strategies and that no new ML projects should use Python 2.
 
 ---
 
@@ -6113,7 +6152,75 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **How does Python manage memory ?**
 
-*Answer to be added.*
+**Answer:**
+
+Python uses **automatic memory management** with a private heap managed by the Python memory manager.
+
+### Memory Management Components
+
+| Component | Role |
+|-----------|------|
+| **Private Heap** | All Python objects stored here; programmer has no direct access |
+| **Memory Allocator** | `pymalloc` for small objects (<512 bytes) |
+| **Reference Counting** | Primary mechanism — each object tracks how many references point to it |
+| **Garbage Collector** | Handles circular references that reference counting can't resolve |
+| **Memory Pools** | Pre-allocated blocks for small objects (arenas → pools → blocks) |
+
+### Reference Counting
+
+```python
+import sys
+
+a = [1, 2, 3]          # refcount = 1
+b = a                   # refcount = 2
+print(sys.getrefcount(a))  # 3 (includes temp ref from getrefcount)
+
+del b                   # refcount drops to 1
+del a                   # refcount drops to 0 → memory freed
+```
+
+### Garbage Collection (Cyclic References)
+
+```python
+import gc
+
+# Circular reference — reference counting can't free this
+class Node:
+    def __init__(self):
+        self.ref = None
+
+a = Node()
+b = Node()
+a.ref = b
+b.ref = a  # Circular!
+del a, b   # Refcount never reaches 0
+
+# GC detects and collects circular references
+gc.collect()  # Force garbage collection
+print(gc.get_stats())  # View GC statistics
+```
+
+### ML Memory Considerations
+
+```python
+# 1. Large arrays — use generators to avoid loading all data in memory
+def data_generator(file_path, batch_size=32):
+    while True:
+        chunk = pd.read_csv(file_path, chunksize=batch_size)
+        for batch in chunk:
+            yield batch.values
+
+# 2. Delete unused variables explicitly
+del large_dataframe
+gc.collect()
+
+# 3. Use memory-efficient dtypes
+df['category'] = df['category'].astype('category')  # Saves memory
+df['value'] = df['value'].astype('float32')  # 32-bit instead of 64-bit
+```
+
+### Interview Tip
+Python's GC uses **generational collection** with 3 generations (0, 1, 2). New objects start in generation 0; surviving objects are promoted. This is efficient because most objects are short-lived. In ML, memory leaks often occur from **accumulated training history** or **cached tensors on GPU**.
 
 ---
 
@@ -6121,7 +6228,65 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is PEP 8 and why is it important?**
 
-*Answer to be added.*
+**Answer:**
+
+**PEP 8** is the official **Style Guide for Python Code**, authored by Guido van Rossum. It defines conventions for writing clean, readable, consistent Python code.
+
+### Key PEP 8 Rules
+
+| Rule | Convention |
+|------|------------|
+| **Indentation** | 4 spaces (no tabs) |
+| **Line Length** | Max 79 characters (72 for docstrings) |
+| **Blank Lines** | 2 before top-level definitions, 1 between methods |
+| **Imports** | One per line, grouped (stdlib → third-party → local) |
+| **Naming** | `snake_case` for functions/variables, `PascalCase` for classes, `UPPER_CASE` for constants |
+| **Whitespace** | No extra spaces around `=` in keyword args, one space around operators |
+| **Comparisons** | Use `is` / `is not` for `None`, not `==` / `!=` |
+
+### ML Code Example
+
+```python
+# Good PEP 8 style
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+
+MAX_DEPTH = 10
+N_ESTIMATORS = 100
+
+
+class ModelTrainer:
+    """Handles model training and evaluation."""
+
+    def __init__(self, random_state=42):
+        self.random_state = random_state
+        self.model = None
+
+    def train(self, X_train, y_train):
+        """Train a random forest classifier."""
+        self.model = RandomForestClassifier(
+            n_estimators=N_ESTIMATORS,
+            max_depth=MAX_DEPTH,
+            random_state=self.random_state,
+        )
+        self.model.fit(X_train, y_train)
+        return self
+```
+
+### Enforcement Tools
+
+| Tool | Purpose |
+|------|----------|
+| **flake8** | Linting (checks PEP 8 compliance) |
+| **black** | Auto-formatter (opinionated) |
+| **isort** | Sorts imports automatically |
+| **pylint** | Comprehensive linting + code analysis |
+| **mypy** | Type checking (PEP 484) |
+
+### Interview Tip
+PEP 8 is important because **code is read more often than written**. In ML teams, consistent style reduces friction in code reviews and makes shared notebooks/pipelines easier to maintain. Most teams use **black** for automatic formatting.
 
 ---
 
@@ -6129,7 +6294,84 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Describe how a dictionary works in Python . What are keys and values ?**
 
-*Answer to be added.*
+**Answer:**
+
+A **dictionary** (`dict`) is a mutable, unordered (insertion-ordered since Python 3.7+) collection of **key-value pairs**. Internally, it uses a **hash table** for O(1) average-case lookups.
+
+### How It Works Internally
+
+```
+Key → hash(key) → index in hash table → value
+```
+
+- **Keys** must be **hashable** (immutable): strings, numbers, tuples
+- **Values** can be any Python object
+- Hash collisions are resolved using **open addressing** (probing)
+
+### Basic Operations
+
+```python
+# Creation
+model_config = {
+    'learning_rate': 0.001,
+    'epochs': 100,
+    'batch_size': 32,
+    'optimizer': 'adam'
+}
+
+# Access — O(1)
+lr = model_config['learning_rate']       # KeyError if missing
+lr = model_config.get('learning_rate', 0.01)  # Default if missing
+
+# Modify
+model_config['epochs'] = 200
+model_config.update({'dropout': 0.5, 'layers': [64, 32]})
+
+# Iteration
+for key, value in model_config.items():
+    print(f"{key}: {value}")
+
+# Comprehension
+squared = {k: v**2 for k, v in {'a': 1, 'b': 2, 'c': 3}.items()}
+```
+
+### ML Use Cases
+
+```python
+# 1. Hyperparameter grids
+param_grid = {
+    'n_estimators': [100, 200, 500],
+    'max_depth': [5, 10, None],
+    'min_samples_split': [2, 5, 10]
+}
+
+# 2. Feature mappings
+category_map = {'cat': 0, 'dog': 1, 'bird': 2}
+encoded = [category_map[label] for label in labels]
+
+# 3. Metrics storage
+results = {'accuracy': 0.95, 'precision': 0.93, 'recall': 0.91, 'f1': 0.92}
+
+# 4. Model registry
+models = {
+    'rf': RandomForestClassifier(),
+    'xgb': XGBClassifier(),
+    'svm': SVC()
+}
+```
+
+### Time Complexity
+
+| Operation | Average | Worst |
+|-----------|---------|-------|
+| `d[key]` | O(1) | O(n) |
+| `d[key] = val` | O(1) | O(n) |
+| `key in d` | O(1) | O(n) |
+| `del d[key]` | O(1) | O(n) |
+| Iteration | O(n) | O(n) |
+
+### Interview Tip
+Dictionaries are the backbone of Python — used in namespaces, class attributes, function kwargs, and JSON handling. In ML, they're essential for **config management**, **results tracking**, and **label encoding**. Since Python 3.7, insertion order is guaranteed.
 
 ---
 
@@ -6137,7 +6379,82 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is list comprehension and give an example of its use?**
 
-*Answer to be added.*
+**Answer:**
+
+**List comprehension** is a concise, Pythonic way to create lists by applying an expression to each item in an iterable, optionally with filtering.
+
+### Syntax
+
+```python
+[expression for item in iterable if condition]
+```
+
+### Examples
+
+```python
+# Basic
+squares = [x**2 for x in range(10)]
+# [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+# With condition
+even_squares = [x**2 for x in range(10) if x % 2 == 0]
+# [0, 4, 16, 36, 64]
+
+# Nested
+flattened = [x for row in [[1,2],[3,4],[5,6]] for x in row]
+# [1, 2, 3, 4, 5, 6]
+
+# With function
+clean_names = [name.strip().lower() for name in raw_names]
+```
+
+### ML Use Cases
+
+```python
+# 1. Feature selection
+numeric_cols = [col for col in df.columns if df[col].dtype in ['int64', 'float64']]
+
+# 2. File loading
+import glob
+data_files = [pd.read_csv(f) for f in glob.glob('data/*.csv')]
+
+# 3. Text preprocessing
+tokens = [word.lower() for word in sentence.split() if word.isalpha()]
+
+# 4. Model evaluation
+accuracies = [model.score(X_test, y_test) for model in trained_models]
+
+# 5. One-hot encoding manually
+categories = ['cat', 'dog', 'bird']
+one_hot = [[1 if c == label else 0 for c in categories] for label in labels]
+```
+
+### Comprehension Variants
+
+| Type | Syntax | Returns |
+|------|--------|---------|
+| **List** | `[x for x in iterable]` | `list` |
+| **Set** | `{x for x in iterable}` | `set` (unique) |
+| **Dict** | `{k: v for k, v in items}` | `dict` |
+| **Generator** | `(x for x in iterable)` | `generator` (lazy) |
+
+### Performance
+
+```python
+# List comprehension is ~30% faster than equivalent for-loop
+# Because it's optimized at the bytecode level
+
+# For loop (slower)
+result = []
+for x in range(1000000):
+    result.append(x**2)
+
+# Comprehension (faster)
+result = [x**2 for x in range(1000000)]
+```
+
+### Interview Tip
+List comprehensions are preferred over `map()` and `filter()` in Python for readability. However, for **large datasets** in ML, prefer **NumPy vectorized operations** over list comprehensions — they're orders of magnitude faster due to C-level execution.
 
 ---
 
@@ -6145,7 +6462,82 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain the concept of generators in Python . How do they differ from list comprehensions ?**
 
-*Answer to be added.*
+**Answer:**
+
+**Generators** are functions that produce a sequence of values lazily using `yield`, returning one value at a time instead of storing the entire sequence in memory.
+
+### Generator Function vs List
+
+```python
+# List — stores ALL values in memory
+def get_squares_list(n):
+    return [x**2 for x in range(n)]
+
+# Generator — yields ONE value at a time
+def get_squares_gen(n):
+    for x in range(n):
+        yield x**2
+
+# Memory comparison
+import sys
+list_result = get_squares_list(1000000)   # ~8 MB in memory
+gen_result = get_squares_gen(1000000)     # ~120 bytes (constant!)
+print(sys.getsizeof(list_result))  # 8448728
+print(sys.getsizeof(gen_result))   # 120
+```
+
+### Generator Expression vs List Comprehension
+
+```python
+# List comprehension — [] — eager, stores all
+squares_list = [x**2 for x in range(1000000)]
+
+# Generator expression — () — lazy, yields one at a time
+squares_gen = (x**2 for x in range(1000000))
+```
+
+### Key Differences
+
+| Feature | List Comprehension | Generator |
+|---------|-------------------|----------|
+| **Syntax** | `[expr for x in iter]` | `(expr for x in iter)` or `yield` |
+| **Memory** | Stores all elements | O(1) memory |
+| **Speed** | Faster for small data | Faster for large/streaming data |
+| **Reusable** | Yes (iterate multiple times) | No (exhausted after one pass) |
+| **Indexing** | Supports `list[i]` | No indexing |
+| **Use case** | Small-medium data | Large data, streaming |
+
+### ML Use Cases
+
+```python
+# 1. Data batching for training
+def batch_generator(X, y, batch_size=32):
+    n_samples = len(X)
+    indices = np.arange(n_samples)
+    np.random.shuffle(indices)
+    for start in range(0, n_samples, batch_size):
+        batch_idx = indices[start:start + batch_size]
+        yield X[batch_idx], y[batch_idx]
+
+# Usage
+for X_batch, y_batch in batch_generator(X_train, y_train):
+    model.partial_fit(X_batch, y_batch)
+
+# 2. Large file processing
+def read_large_csv(filepath, chunk_size=10000):
+    for chunk in pd.read_csv(filepath, chunksize=chunk_size):
+        processed = preprocess(chunk)
+        yield processed
+
+# 3. Infinite data augmentation
+def augmentation_generator(images):
+    while True:
+        for img in images:
+            yield random_augment(img)
+```
+
+### Interview Tip
+Generators are essential for ML when datasets don't fit in memory. Keras/TensorFlow's `fit()` method accepts generators directly via `fit_generator()` (or `fit()` in TF 2.x). The `yield` keyword turns any function into a generator, enabling **lazy evaluation** — a core concept for scalable data pipelines.
 
 ---
 
@@ -6153,7 +6545,78 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Discuss the usage of *args and **kwargs in function definitions**
 
-*Answer to be added.*
+**Answer:**
+
+`*args` and `**kwargs` allow functions to accept a **variable number of arguments**, making them flexible and extensible.
+
+### How They Work
+
+```python
+def example(*args, **kwargs):
+    print(f"args (tuple): {args}")
+    print(f"kwargs (dict): {kwargs}")
+
+example(1, 2, 3, name='model', lr=0.01)
+# args (tuple): (1, 2, 3)
+# kwargs (dict): {'name': 'model', 'lr': 0.01}
+```
+
+### Rules
+
+| Rule | Description |
+|------|------------|
+| `*args` | Collects extra **positional** arguments into a **tuple** |
+| `**kwargs` | Collects extra **keyword** arguments into a **dict** |
+| **Order** | `def f(a, b, *args, **kwargs)` — positional first, then *args, then **kwargs |
+| **Names** | `args` and `kwargs` are conventions; any name works (`*data`, `**config`) |
+
+### ML Use Cases
+
+```python
+# 1. Flexible model wrapper
+class ModelWrapper:
+    def __init__(self, model_class, *args, **kwargs):
+        self.model = model_class(*args, **kwargs)
+    
+    def fit(self, X, y, **fit_kwargs):
+        return self.model.fit(X, y, **fit_kwargs)
+
+# Usage — passes all kwargs to underlying model
+wrapper = ModelWrapper(RandomForestClassifier, n_estimators=100, max_depth=5)
+wrapper.fit(X_train, y_train, sample_weight=weights)
+
+# 2. Decorator preserving function signature
+from functools import wraps
+import time
+
+def timer(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        print(f"{func.__name__} took {time.time()-start:.2f}s")
+        return result
+    return wrapper
+
+@timer
+def train_model(X, y, epochs=100, lr=0.01):
+    ...
+
+# 3. Config-driven training
+def train(**config):
+    model = config.pop('model_class')(**config)
+    model.fit(X_train, y_train)
+    return model
+
+train(model_class=RandomForestClassifier, n_estimators=200, max_depth=10)
+
+# 4. Unpacking operator
+params = {'n_estimators': 100, 'max_depth': 5}
+model = RandomForestClassifier(**params)  # Unpacks dict as keyword args
+```
+
+### Interview Tip
+`*args` and `**kwargs` are fundamental for writing **reusable ML code** — wrapper classes, decorators, pipeline builders, and config-driven training all rely on them. Scikit-learn's `set_params(**params)` and PyTorch's `forward(*args)` use this pattern extensively.
 
 ---
 
@@ -6161,7 +6624,61 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **How does Python’s garbage collection work?**
 
-*Answer to be added.*
+**Answer:**
+
+Python uses a **two-pronged** garbage collection strategy: **reference counting** (primary) and a **generational garbage collector** (supplementary for cyclic references).
+
+### 1. Reference Counting
+
+Every object maintains a count of references pointing to it. When the count reaches zero, memory is immediately freed.
+
+```python
+import sys
+
+a = [1, 2, 3]            # refcount = 1
+b = a                     # refcount = 2
+print(sys.getrefcount(a)) # 3 (includes temp ref from getrefcount)
+del b                     # refcount drops to 1
+del a                     # refcount drops to 0 → memory freed
+```
+
+### 2. Generational Garbage Collector
+
+Handles **cyclic references** that reference counting cannot resolve. Uses three generations:
+
+| Generation | Contains | Collection Frequency |
+|-----------|----------|---------------------|
+| **Gen 0** | Newly created objects | Most frequent |
+| **Gen 1** | Survived one Gen-0 collection | Less frequent |
+| **Gen 2** | Long-lived objects | Least frequent |
+
+```python
+import gc
+print(gc.get_threshold())  # (700, 10, 10)
+
+class Node:
+    def __init__(self):
+        self.ref = None
+
+a, b = Node(), Node()
+a.ref, b.ref = b, a  # Circular!
+del a, b              # Refcount never reaches 0, GC handles it
+gc.collect()           # Force collection
+```
+
+### ML Memory Tips
+
+```python
+gc.disable()
+for epoch in range(100):
+    train_one_epoch(model, data)
+    if epoch % 10 == 0:
+        gc.collect()
+gc.enable()
+```
+
+### Interview Tip
+In ML, memory leaks often come from **accumulated training history**, **cached GPU tensors**, or **growing metric lists**. Disabling GC during training can improve performance by 5-10%.
 
 ---
 
@@ -6169,7 +6686,65 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What are decorators , and can you provide an example of when you’d use one?**
 
-*Answer to be added.*
+**Answer:**
+
+A **decorator** is a function that takes another function as input and extends its behavior without modifying the original code. It uses the `@` syntax.
+
+### How It Works
+
+```python
+def my_decorator(func):
+    def wrapper(*args, **kwargs):
+        print("Before")
+        result = func(*args, **kwargs)
+        print("After")
+        return result
+    return wrapper
+
+@my_decorator
+def greet(name):
+    print(f"Hello, {name}!")
+```
+
+### ML-Relevant Examples
+
+```python
+import time, functools
+
+# 1. Timer decorator
+def timer(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = func(*args, **kwargs)
+        print(f"{func.__name__} took {time.perf_counter()-start:.4f}s")
+        return result
+    return wrapper
+
+@timer
+def train_model(X, y):
+    model = RandomForestClassifier(n_estimators=500)
+    model.fit(X, y)
+    return model
+
+# 2. Caching with lru_cache
+from functools import lru_cache
+
+@lru_cache(maxsize=128)
+def compute_features(data_hash):
+    return expensive_feature_engineering(data_hash)
+
+# 3. Input validation
+def validate_input(func):
+    @functools.wraps(func)
+    def wrapper(X, y, *args, **kwargs):
+        assert X.shape[0] == y.shape[0], "X and y must have same samples"
+        return func(X, y, *args, **kwargs)
+    return wrapper
+```
+
+### Interview Tip
+Decorators follow the **Open/Closed Principle**. Common built-ins: `@staticmethod`, `@classmethod`, `@property`, `@functools.lru_cache`. In ML, invaluable for **logging**, **timing**, **caching**, and **validation**.
 
 ---
 
@@ -6177,7 +6752,68 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is NumPy and how is it useful in machine learning ?**
 
-*Answer to be added.*
+**Answer:**
+
+**NumPy** (Numerical Python) is the foundational library for numerical computing in Python. It provides the `ndarray` — a fast, memory-efficient multi-dimensional array that underpins virtually every ML library.
+
+### Why NumPy Is Essential for ML
+
+| Feature | Benefit for ML |
+|---------|---------------|
+| **Vectorized operations** | 10-100x faster than Python loops |
+| **N-dimensional arrays** | Natural representation for tensors, images, batches |
+| **Broadcasting** | Efficient element-wise operations on different shapes |
+| **Linear algebra** | Matrix multiplication, eigenvalues, SVD |
+| **Random module** | Data generation, shuffling, sampling |
+| **Memory efficiency** | Contiguous C-array storage, typed data |
+
+### Core ML Operations
+
+```python
+import numpy as np
+
+# 1. Data representation
+X = np.array([[1, 2], [3, 4], [5, 6]])  # Feature matrix (n_samples, n_features)
+y = np.array([0, 1, 0])                  # Labels
+
+# 2. Matrix operations (core of ML algorithms)
+weights = np.random.randn(2, 1)           # Weight initialization
+predictions = X @ weights                  # Matrix multiplication
+
+# 3. Statistical operations
+mean = np.mean(X, axis=0)                 # Feature means
+std = np.std(X, axis=0)                   # Feature std
+X_normalized = (X - mean) / std           # Standardization
+
+# 4. Distance calculations
+from numpy.linalg import norm
+distances = norm(X[:, np.newaxis] - X, axis=2)  # Pairwise distances
+
+# 5. Gradient computation (manual)
+def gradient_descent(X, y, lr=0.01, epochs=100):
+    w = np.zeros(X.shape[1])
+    for _ in range(epochs):
+        pred = X @ w
+        error = pred - y
+        gradient = (2/len(y)) * X.T @ error
+        w -= lr * gradient
+    return w
+```
+
+### NumPy in the ML Ecosystem
+
+```
+NumPy (foundation)
+  ├─ Pandas (DataFrames built on NumPy arrays)
+  ├─ Scikit-learn (input/output are NumPy arrays)
+  ├─ TensorFlow (tf.Tensor ↔ np.ndarray)
+  ├─ PyTorch (torch.Tensor ↔ np.ndarray)
+  ├─ Matplotlib (plots NumPy arrays)
+  └─ SciPy (scientific computing on NumPy)
+```
+
+### Interview Tip
+NumPy is fast because operations run in **compiled C code** on **contiguous memory blocks**, avoiding Python's interpreter overhead. Always prefer NumPy vectorized operations over Python loops in ML code — this is called **vectorization** and is the single most important optimization technique.
 
 ---
 
@@ -6185,7 +6821,76 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **How does Scikit-learn fit into the machine learning workflow ?**
 
-*Answer to be added.*
+**Answer:**
+
+**Scikit-learn** is the most widely used ML library in Python, providing a unified API for the entire ML pipeline from data preprocessing to model evaluation.
+
+### Scikit-learn in the ML Workflow
+
+```
+Data → Preprocessing → Feature Engineering → Model Selection → Training → Evaluation → Deployment
+       ____________________________________________  _______________________
+                  Scikit-learn covers all of this
+```
+
+### Unified API Pattern
+
+Every Scikit-learn estimator follows the same interface:
+
+```python
+from sklearn.ensemble import RandomForestClassifier
+
+model = RandomForestClassifier()  # 1. Instantiate
+model.fit(X_train, y_train)        # 2. Train
+predictions = model.predict(X_test) # 3. Predict
+score = model.score(X_test, y_test) # 4. Evaluate
+```
+
+### Complete ML Pipeline
+
+```python
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.model_selection import cross_val_score, GridSearchCV
+from sklearn.metrics import classification_report
+
+# Build pipeline
+pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', StandardScaler()),
+    ('classifier', RandomForestClassifier())
+])
+
+# Cross-validation
+scores = cross_val_score(pipeline, X, y, cv=5, scoring='accuracy')
+print(f"CV Accuracy: {scores.mean():.4f} ± {scores.std():.4f}")
+
+# Hyperparameter tuning
+param_grid = {
+    'classifier__n_estimators': [100, 200],
+    'classifier__max_depth': [5, 10, None]
+}
+grid = GridSearchCV(pipeline, param_grid, cv=5)
+grid.fit(X_train, y_train)
+print(classification_report(y_test, grid.predict(X_test)))
+```
+
+### Key Modules
+
+| Module | Purpose |
+|--------|--------|
+| `sklearn.preprocessing` | Scaling, encoding, imputation |
+| `sklearn.model_selection` | CV, train/test split, grid search |
+| `sklearn.linear_model` | Linear/logistic regression, SGD |
+| `sklearn.ensemble` | Random Forest, Gradient Boosting |
+| `sklearn.cluster` | KMeans, DBSCAN, hierarchical |
+| `sklearn.decomposition` | PCA, NMF, SVD |
+| `sklearn.metrics` | Accuracy, F1, ROC-AUC, MSE |
+| `sklearn.pipeline` | Chain preprocessing + model |
+
+### Interview Tip
+Scikit-learn excels for **tabular data** and **classical ML**. For **deep learning**, switch to TensorFlow/PyTorch. For **large-scale data**, use Spark MLlib or Dask-ML. Always mention **Pipelines** in interviews — they prevent data leakage and make code production-ready.
 
 ---
 
@@ -6193,7 +6898,85 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain Matplotlib and Seaborn libraries for data visualization**
 
-*Answer to be added.*
+**Answer:**
+
+**Matplotlib** is Python's foundational plotting library, and **Seaborn** builds on top of it with statistical visualizations and a more polished API.
+
+### Comparison
+
+| Feature | Matplotlib | Seaborn |
+|---------|-----------|--------|
+| **Level** | Low-level, full control | High-level, statistical |
+| **API** | Verbose | Concise |
+| **Style** | Basic (customizable) | Beautiful defaults |
+| **Stats** | Manual | Built-in (regression, distributions) |
+| **Data input** | Arrays | DataFrames (Pandas-native) |
+| **Use case** | Custom plots, subplots | EDA, statistical visualization |
+
+### Matplotlib Examples
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1. Training curve
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+axes[0].plot(history['train_loss'], label='Train')
+axes[0].plot(history['val_loss'], label='Validation')
+axes[0].set_title('Loss Curve')
+axes[0].set_xlabel('Epoch')
+axes[0].legend()
+
+axes[1].plot(history['train_acc'], label='Train')
+axes[1].plot(history['val_acc'], label='Validation')
+axes[1].set_title('Accuracy Curve')
+axes[1].set_xlabel('Epoch')
+axes[1].legend()
+plt.tight_layout()
+plt.show()
+
+# 2. Confusion matrix
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+cm = confusion_matrix(y_true, y_pred)
+ConfusionMatrixDisplay(cm, display_labels=['Cat', 'Dog']).plot()
+```
+
+### Seaborn Examples
+
+```python
+import seaborn as sns
+
+# 1. Feature distributions
+sns.histplot(data=df, x='age', hue='target', kde=True)
+
+# 2. Correlation heatmap
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm', center=0)
+
+# 3. Pairwise relationships
+sns.pairplot(df, hue='species', diag_kind='kde')
+
+# 4. Feature importance
+sns.barplot(x=importances, y=feature_names, orient='h')
+
+# 5. Box plots for outlier detection
+sns.boxplot(data=df[numeric_cols])
+```
+
+### When to Use Each
+
+| Task | Recommended |
+|------|------------|
+| EDA / quick exploration | Seaborn |
+| Correlation heatmaps | Seaborn |
+| Training curves | Matplotlib |
+| Custom multi-panel figures | Matplotlib |
+| Statistical relationships | Seaborn |
+| Publication-quality plots | Matplotlib + custom styling |
+| Interactive plots | Plotly (neither) |
+
+### Interview Tip
+In ML interviews, demonstrate you use visualization for **EDA** (distributions, correlations), **model diagnostics** (learning curves, confusion matrices), and **results communication** (feature importances, ROC curves). Seaborn for exploration, Matplotlib for customization.
 
 ---
 
@@ -6201,7 +6984,68 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is TensorFlow and Keras , and how do they relate to each other?**
 
-*Answer to be added.*
+**Answer:**
+
+**TensorFlow** is Google's open-source deep learning framework for building and deploying ML models. **Keras** is a high-level API that was originally a standalone library but is now the **official high-level API of TensorFlow** (integrated as `tf.keras` since TF 2.0).
+
+### Relationship
+
+```
+TensorFlow 2.x
+  ├── tf.keras (High-level API) ← Keras integrated here
+  ├── tf.data (Data pipelines)
+  ├── tf.distribute (Multi-GPU/TPU training)
+  ├── tf.lite (Mobile deployment)
+  ├── tf.saved_model (Model serialization)
+  └── Low-level ops (tf.matmul, tf.GradientTape)
+```
+
+### TensorFlow Low-Level vs Keras High-Level
+
+```python
+import tensorflow as tf
+
+# ===== Keras (High-Level) — Most common =====
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(128, activation='relu', input_shape=(784,)),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dense(64, activation='relu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+
+model.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+model.fit(X_train, y_train, epochs=10, validation_split=0.2,
+          callbacks=[tf.keras.callbacks.EarlyStopping(patience=3)])
+
+# ===== TensorFlow Low-Level — Custom training =====
+@tf.function
+def train_step(model, X, y, optimizer, loss_fn):
+    with tf.GradientTape() as tape:
+        predictions = model(X, training=True)
+        loss = loss_fn(y, predictions)
+    gradients = tape.gradient(loss, model.trainable_variables)
+    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+    return loss
+```
+
+### Key Features
+
+| Feature | TensorFlow | Keras |
+|---------|-----------|-------|
+| **Level** | Low-level + high-level | High-level only |
+| **Flexibility** | Maximum control | Simplified API |
+| **Deployment** | TF Serving, TF Lite, TF.js | Via TensorFlow |
+| **Hardware** | GPU, TPU, distributed | Via TensorFlow |
+| **Eager mode** | Default in TF 2.x | Always eager |
+| **Graph mode** | `@tf.function` | Automatic |
+
+### Interview Tip
+Since TF 2.0, **Keras is TensorFlow's primary API** — there's no reason to use the low-level API unless you need custom training loops or custom gradient computation. For research, many prefer **PyTorch** for its Pythonic feel; for production deployment, TensorFlow has stronger tooling (TF Serving, TF Lite, TF.js).
 
 ---
 
@@ -6209,7 +7053,57 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain the process of data cleaning and why it’s important in machine learning**
 
-*Answer to be added.*
+**Answer:**
+
+**Data cleaning** detects and corrects corrupt, inaccurate, or irrelevant records. It consumes **60-80% of ML project time** and directly impacts model quality.
+
+### Why It’s Critical
+
+> "Garbage in, garbage out" — No model can compensate for bad data.
+
+| Issue | Impact on ML |
+|-------|-------------|
+| Missing values | Biased predictions, training errors |
+| Duplicates | Overfitting, inflated metrics |
+| Outliers | Skewed model parameters |
+| Inconsistent formats | Parsing errors, wrong features |
+| Incorrect labels | Model learns wrong patterns |
+
+### Data Cleaning Steps
+
+```python
+import pandas as pd
+import numpy as np
+
+# 1. INSPECT
+df.info()
+df.describe()
+df.isnull().sum()
+df.duplicated().sum()
+
+# 2. HANDLE MISSING VALUES
+df['age'].fillna(df['age'].median(), inplace=True)
+df['city'].fillna(df['city'].mode()[0], inplace=True)
+df.dropna(subset=['target'], inplace=True)
+
+# 3. REMOVE DUPLICATES
+df.drop_duplicates(inplace=True)
+
+# 4. FIX DATA TYPES
+df['date'] = pd.to_datetime(df['date'])
+df['price'] = pd.to_numeric(df['price'], errors='coerce')
+
+# 5. HANDLE OUTLIERS (IQR method)
+Q1, Q3 = df['salary'].quantile([0.25, 0.75])
+IQR = Q3 - Q1
+df = df[df['salary'].between(Q1 - 1.5*IQR, Q3 + 1.5*IQR)]
+
+# 6. STANDARDIZE TEXT
+df['name'] = df['name'].str.strip().str.lower()
+```
+
+### Interview Tip
+Always discuss cleaning as a **systematic process**: inspect → handle missing → remove duplicates → fix types → handle outliers → standardize → validate. Never impute using test set statistics (data leakage).
 
 ---
 
@@ -6217,7 +7111,85 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What are the common steps involved in data preprocessing for a machine learning model ?**
 
-*Answer to be added.*
+**Answer:**
+
+Data preprocessing transforms raw data into a format suitable for ML algorithms. It bridges **raw data** and **model-ready data**.
+
+### Preprocessing Pipeline
+
+```
+Raw Data → Clean → Transform → Encode → Scale → Split → Model-Ready
+```
+
+### Step-by-Step
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder, OneHotEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+
+# Step 1: Load & Inspect
+df = pd.read_csv('data.csv')
+df.info()
+df.describe()
+
+# Step 2: Handle Missing Values
+num_imputer = SimpleImputer(strategy='median')
+cat_imputer = SimpleImputer(strategy='most_frequent')
+
+# Step 3: Encode Categorical Variables
+# Nominal → One-Hot Encoding
+# Ordinal → Label/Ordinal Encoding
+
+# Step 4: Feature Scaling
+# StandardScaler (z-score) or MinMaxScaler (0-1)
+
+# Step 5: Feature Engineering
+df['age_squared'] = df['age'] ** 2
+df['income_per_age'] = df['income'] / df['age']
+
+# Step 6: Split Data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# Complete Pipeline (best practice)
+numeric_features = ['age', 'income', 'score']
+categorical_features = ['gender', 'city']
+
+preprocessor = ColumnTransformer([
+    ('num', Pipeline([
+        ('imputer', SimpleImputer(strategy='median')),
+        ('scaler', StandardScaler())
+    ]), numeric_features),
+    ('cat', Pipeline([
+        ('imputer', SimpleImputer(strategy='most_frequent')),
+        ('encoder', OneHotEncoder(handle_unknown='ignore'))
+    ]), categorical_features)
+])
+
+# Fit on training data only!
+X_train_processed = preprocessor.fit_transform(X_train)
+X_test_processed = preprocessor.transform(X_test)  # No fit!
+```
+
+### Summary Table
+
+| Step | Purpose | Common Tools |
+|------|---------|-------------|
+| Missing values | Fill/drop NaNs | `SimpleImputer`, `KNNImputer` |
+| Encoding | Convert categories to numbers | `OneHotEncoder`, `LabelEncoder` |
+| Scaling | Normalize feature ranges | `StandardScaler`, `MinMaxScaler` |
+| Feature engineering | Create informative features | Domain knowledge, `PolynomialFeatures` |
+| Splitting | Separate train/test | `train_test_split` |
+| Dimensionality reduction | Reduce features | `PCA`, `SelectKBest` |
+
+### Interview Tip
+The most important preprocessing rule: **fit on training data, transform on both**. This prevents **data leakage**. Always use `sklearn.pipeline.Pipeline` to ensure this happens automatically and your preprocessing is reproducible.
 
 ---
 
@@ -6225,7 +7197,58 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Describe the concept of feature scaling and why it is necessary**
 
-*Answer to be added.*
+**Answer:**
+
+**Feature scaling** transforms features to a similar range/distribution so that no single feature dominates the model due to its magnitude.
+
+### Why It's Necessary
+
+Many ML algorithms are **sensitive to feature scales**:
+
+| Algorithm | Scale Sensitive? | Why |
+|-----------|-----------------|-----|
+| Linear/Logistic Regression | Yes | Gradient descent converges faster |
+| SVM | Yes | Distance-based kernel computations |
+| KNN | Yes | Euclidean distance dominated by large scales |
+| K-Means | Yes | Distance-based clustering |
+| PCA | Yes | Maximizes variance (large-scale features dominate) |
+| Neural Networks | Yes | Gradient flow and convergence |
+| Decision Trees | **No** | Split on thresholds, scale-invariant |
+| Random Forest | **No** | Ensemble of decision trees |
+| XGBoost | **No** | Tree-based, handles any scale |
+
+### Scaling Methods
+
+```python
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+
+# 1. Standardization (Z-score) — Most common
+# x_scaled = (x - mean) / std → mean=0, std=1
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X_train)
+
+# 2. Min-Max Scaling — Scales to [0, 1]
+# x_scaled = (x - min) / (max - min)
+scaler = MinMaxScaler()
+X_scaled = scaler.fit_transform(X_train)
+
+# 3. Robust Scaling — Uses median/IQR (outlier-resistant)
+# x_scaled = (x - median) / IQR
+scaler = RobustScaler()
+X_scaled = scaler.fit_transform(X_train)
+```
+
+### When to Use Which
+
+| Method | Best For |
+|--------|----------|
+| **StandardScaler** | Normally distributed features, most ML algorithms |
+| **MinMaxScaler** | Neural networks, image pixel values |
+| **RobustScaler** | Data with many outliers |
+| **Log transform** | Highly skewed distributions |
+
+### Interview Tip
+Critical rule: **fit the scaler on training data only**, then transform both train and test. This prevents data leakage. Using `sklearn.pipeline.Pipeline` automates this correctly.
 
 ---
 
@@ -6233,7 +7256,65 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain the difference between label encoding and one-hot encoding**
 
-*Answer to be added.*
+**Answer:**
+
+Both convert **categorical variables** into numeric format, but they do so differently and are suited for different situations.
+
+### Label Encoding
+
+Assigns each category a unique integer.
+
+```python
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+colors = ['red', 'blue', 'green', 'red', 'blue']
+encoded = le.fit_transform(colors)
+# [2, 0, 1, 2, 0]  (alphabetical order)
+```
+
+### One-Hot Encoding
+
+Creates a binary column for each category.
+
+```python
+from sklearn.preprocessing import OneHotEncoder
+import pandas as pd
+
+ohe = OneHotEncoder(sparse_output=False)
+encoded = ohe.fit_transform(colors.reshape(-1, 1))
+# [[0, 0, 1],  # red
+#  [1, 0, 0],  # blue
+#  [0, 1, 0],  # green
+#  [0, 0, 1],  # red
+#  [1, 0, 0]]  # blue
+
+# Or using Pandas
+pd.get_dummies(df['color'], prefix='color')
+```
+
+### Comparison
+
+| Feature | Label Encoding | One-Hot Encoding |
+|---------|---------------|------------------|
+| **Output** | Single column (integers) | Multiple binary columns |
+| **Ordinality** | Implies order (0 < 1 < 2) | No implied order |
+| **Dimensionality** | Same | Increases (n categories = n columns) |
+| **Best for** | Ordinal data, tree models | Nominal data, linear models |
+| **Risk** | Model may assume false order | High cardinality → curse of dimensionality |
+
+### When to Use Each
+
+| Scenario | Encoding |
+|----------|----------|
+| Education: High School < Bachelor's < Master's | **Label** (ordinal) |
+| Color: Red, Blue, Green | **One-Hot** (nominal) |
+| Tree-based models (RF, XGBoost) | **Label** (trees handle it) |
+| Linear models, Neural Networks | **One-Hot** (no false ordering) |
+| High cardinality (1000+ categories) | **Target encoding** or **embeddings** |
+
+### Interview Tip
+Never use label encoding for **nominal** (unordered) categories with linear models — it creates false ordinal relationships. For **high-cardinality** features (e.g., zip codes), consider **target encoding**, **frequency encoding**, or **learned embeddings** rather than one-hot (which adds too many dimensions).
 
 ---
 
@@ -6241,7 +7322,53 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is the purpose of data splitting in train , validation , and test sets ?**
 
-*Answer to be added.*
+**Answer:**
+
+Data splitting ensures we can **train**, **tune**, and **honestly evaluate** a model on separate data, preventing overfitting and providing realistic performance estimates.
+
+### Three-Way Split
+
+| Set | Purpose | Typical Size |
+|-----|---------|-------------|
+| **Training** | Learn model parameters (weights) | 60-80% |
+| **Validation** | Tune hyperparameters, model selection | 10-20% |
+| **Test** | Final unbiased performance evaluation | 10-20% |
+
+```python
+from sklearn.model_selection import train_test_split
+
+# Two-step split
+X_train_val, X_test, y_train_val, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+X_train, X_val, y_train, y_val = train_test_split(
+    X_train_val, y_train_val, test_size=0.25, random_state=42, stratify=y_train_val
+)  # 0.25 of 0.8 = 0.2 of total
+
+print(f"Train: {len(X_train)}, Val: {len(X_val)}, Test: {len(X_test)}")
+# Roughly 60/20/20 split
+```
+
+### Why Each Set Matters
+
+```
+Training Set → model.fit(X_train, y_train)        # Learn patterns
+Validation Set → model.score(X_val, y_val)         # Tune hyperparameters
+Test Set → model.score(X_test, y_test)              # Final evaluation (used ONCE)
+```
+
+### Common Mistakes
+
+| Mistake | Consequence |
+|---------|------------|
+| No validation set | Overfitting to test set during tuning |
+| Using test set for tuning | Optimistic, biased performance estimate |
+| Random split on time-series | Data leakage (future data in training) |
+| No stratification | Imbalanced class representation |
+| Preprocessing before split | Data leakage (test info in training) |
+
+### Interview Tip
+The test set is a **one-time-use** resource — if you tune hyperparameters based on test set performance, you're effectively fitting to the test set. For small datasets, use **cross-validation** instead of a fixed validation split. For time-series data, always use **chronological splitting** (no random shuffle).
 
 ---
 
@@ -6249,7 +7376,83 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Describe the process of building a machine learning model in Python**
 
-*Answer to be added.*
+**Answer:**
+
+### End-to-End ML Workflow
+
+```
+1. Define Problem → 2. Collect Data → 3. EDA → 4. Preprocess → 5. Feature Engineering
+→ 6. Model Selection → 7. Training → 8. Evaluation → 9. Tuning → 10. Deployment
+```
+
+### Complete Example
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, roc_auc_score
+import matplotlib.pyplot as plt
+
+# Step 1: Load & Explore
+df = pd.read_csv('data.csv')
+print(df.shape, df.dtypes)
+print(df.describe())
+print(df['target'].value_counts())
+
+# Step 2: EDA
+df.hist(figsize=(12, 8))
+print(df.corr()['target'].sort_values())
+
+# Step 3: Prepare Features & Target
+X = df.drop('target', axis=1)
+y = df['target']
+
+# Step 4: Split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# Step 5: Build Pipeline
+pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', StandardScaler()),
+    ('classifier', RandomForestClassifier(random_state=42))
+])
+
+# Step 6: Cross-Validate Multiple Models
+models = {
+    'Logistic Regression': LogisticRegression(),
+    'Random Forest': RandomForestClassifier(),
+    'Gradient Boosting': GradientBoostingClassifier()
+}
+
+for name, model in models.items():
+    pipeline.set_params(classifier=model)
+    scores = cross_val_score(pipeline, X_train, y_train, cv=5, scoring='accuracy')
+    print(f"{name}: {scores.mean():.4f} ± {scores.std():.4f}")
+
+# Step 7: Hyperparameter Tuning (best model)
+param_grid = {
+    'classifier__n_estimators': [100, 200, 500],
+    'classifier__max_depth': [5, 10, None]
+}
+grid = GridSearchCV(pipeline, param_grid, cv=5, scoring='accuracy')
+grid.fit(X_train, y_train)
+
+# Step 8: Final Evaluation
+y_pred = grid.predict(X_test)
+print(classification_report(y_test, y_pred))
+print(f"ROC-AUC: {roc_auc_score(y_test, grid.predict_proba(X_test)[:,1]):.4f}")
+```
+
+### Interview Tip
+Always frame your answer around the **systematic workflow**: problem definition → data → EDA → preprocessing → baseline model → iterate → evaluate. Emphasize **pipelines** for reproducibility, **cross-validation** for robust estimates, and **test set isolation** for unbiased evaluation.
 
 ---
 
@@ -6257,7 +7460,67 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain cross-validation and where it fits in the model training process**
 
-*Answer to be added.*
+**Answer:**
+
+**Cross-validation (CV)** is a resampling technique that evaluates model performance by training and testing on different subsets of the data, providing a more reliable performance estimate than a single train/test split.
+
+### K-Fold Cross-Validation
+
+```
+Fold 1: [TEST] [Train] [Train] [Train] [Train]
+Fold 2: [Train] [TEST] [Train] [Train] [Train]
+Fold 3: [Train] [Train] [TEST] [Train] [Train]
+Fold 4: [Train] [Train] [Train] [TEST] [Train]
+Fold 5: [Train] [Train] [Train] [Train] [TEST]
+
+Final Score = Average of all fold scores
+```
+
+### Implementation
+
+```python
+from sklearn.model_selection import (
+    cross_val_score, KFold, StratifiedKFold, 
+    LeaveOneOut, TimeSeriesSplit
+)
+
+# Basic k-fold CV
+scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+print(f"Accuracy: {scores.mean():.4f} ± {scores.std():.4f}")
+
+# Stratified K-Fold (maintains class balance)
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+scores = cross_val_score(model, X, y, cv=skf, scoring='f1')
+
+# Time Series CV (chronological order)
+tscv = TimeSeriesSplit(n_splits=5)
+scores = cross_val_score(model, X, y, cv=tscv)
+
+# Nested CV (for unbiased model selection + hyperparameter tuning)
+from sklearn.model_selection import GridSearchCV
+
+inner_cv = StratifiedKFold(n_splits=3)
+outer_cv = StratifiedKFold(n_splits=5)
+
+grid = GridSearchCV(model, param_grid, cv=inner_cv)
+nested_scores = cross_val_score(grid, X, y, cv=outer_cv)
+```
+
+### Where CV Fits in the Workflow
+
+```
+Data → [Train+Val | Test]
+          │
+          └── Cross-Validation (on Train+Val only)
+              ├── Model comparison
+              ├── Hyperparameter tuning
+              └── Performance estimation
+          
+          Test set used ONCE at the very end
+```
+
+### Interview Tip
+CV is used for **model selection and hyperparameter tuning**, NOT for final evaluation (that's the test set). Default to **Stratified K-Fold** for classification, **TimeSeriesSplit** for temporal data, and **5 or 10 folds** as standard choices. Mention **nested CV** for simultaneously tuning hyperparameters and estimating generalization.
 
 ---
 
@@ -6265,7 +7528,63 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is the bias-variance tradeoff in machine learning ?**
 
-*Answer to be added.*
+**Answer:**
+
+The **bias-variance tradeoff** describes the tension between two sources of prediction error that affect a model's ability to generalize.
+
+$$\text{Total Error} = \text{Bias}^2 + \text{Variance} + \text{Irreducible Noise}$$
+
+### Definitions
+
+| Term | Definition | Effect |
+|------|-----------|--------|
+| **Bias** | Error from wrong assumptions (model too simple) | **Underfitting** |
+| **Variance** | Error from sensitivity to training data fluctuations | **Overfitting** |
+| **Irreducible noise** | Inherent noise in the data | Cannot be reduced |
+
+### Visual Intuition
+
+```
+High Bias, Low Variance    Low Bias, Low Variance    Low Bias, High Variance
+(Underfitting)              (Ideal!)                  (Overfitting)
+
+    . . .                      . .                      .       .
+  .   .   .                   . O .                        .  
+    . .                        . .                     .     .
+                                                           .   .
+   O = target                 O = target               O = target
+   Consistent but wrong    Close and consistent     Close but scattered
+```
+
+### Examples
+
+| Model | Bias | Variance |
+|-------|------|----------|
+| Linear Regression | High | Low |
+| Decision Tree (deep) | Low | High |
+| Random Forest | Low | Low (averaging reduces variance) |
+| KNN (k=1) | Low | High |
+| KNN (k=n) | High | Low |
+
+### Managing the Tradeoff
+
+```python
+# High Bias → Increase complexity
+# - Use more features
+# - Use more complex model
+# - Reduce regularization
+
+# High Variance → Decrease complexity
+# - More training data
+# - Regularization (L1/L2)
+# - Ensemble methods (bagging)
+# - Feature selection
+# - Dropout (neural networks)
+# - Early stopping
+```
+
+### Interview Tip
+The sweet spot is **low bias + low variance**. Ensemble methods like **Random Forest** (reduces variance via bagging) and **Gradient Boosting** (reduces bias iteratively) are popular because they manage this tradeoff well. Always discuss this in terms of **underfitting vs. overfitting** with practical solutions.
 
 ---
 
@@ -6273,7 +7592,53 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Describe the steps taken to improve a model’s accuracy**
 
-*Answer to be added.*
+**Answer:**
+
+### Systematic Improvement Strategy
+
+| Step | Action | Impact |
+|------|--------|--------|
+| 1. **More/better data** | Collect more samples, fix labels | Highest impact |
+| 2. **Feature engineering** | Create domain-specific features | High impact |
+| 3. **Data cleaning** | Handle outliers, missing values | Medium-high |
+| 4. **Algorithm selection** | Try multiple algorithms | Medium |
+| 5. **Hyperparameter tuning** | Grid/random/Bayesian search | Medium |
+| 6. **Ensemble methods** | Combine models (stacking/blending) | Medium |
+| 7. **Regularization** | L1/L2, dropout, early stopping | Depends on problem |
+
+### Implementation
+
+```python
+# 1. Better Features
+df['price_per_sqft'] = df['price'] / df['sqft']
+
+# 2. Handle Class Imbalance
+from imblearn.over_sampling import SMOTE
+X_resampled, y_resampled = SMOTE().fit_resample(X_train, y_train)
+
+# 3. Hyperparameter Tuning
+from sklearn.model_selection import RandomizedSearchCV
+search = RandomizedSearchCV(model, param_distributions, n_iter=50, cv=5)
+search.fit(X_train, y_train)
+
+# 4. Ensemble (Stacking)
+from sklearn.ensemble import StackingClassifier
+stacking = StackingClassifier(estimators=[
+    ('rf', RandomForestClassifier()),
+    ('gb', GradientBoostingClassifier()),
+], final_estimator=LogisticRegression())
+```
+
+### Diagnosis First
+
+```
+Train HIGH, Val LOW   →  Overfitting  →  Regularize, more data
+Train LOW, Val LOW    →  Underfitting →  More complex model
+Train HIGH, Val HIGH  →  Good! Check test set
+```
+
+### Interview Tip
+Always **diagnose before improving**. 80% of gains come from data quality, 20% from model sophistication.
 
 ---
 
@@ -6281,7 +7646,71 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What are hyperparameters , and how do you tune them?**
 
-*Answer to be added.*
+**Answer:**
+
+**Hyperparameters** are configuration values set **before training** that control the learning process. Unlike model parameters (weights/biases), they are not learned from data.
+
+### Parameters vs Hyperparameters
+
+| | Parameters | Hyperparameters |
+|--|-----------|----------------|
+| **Set by** | Learning algorithm | Data scientist |
+| **When** | During training | Before training |
+| **Examples** | Weights, biases, splits | Learning rate, n_estimators, max_depth |
+| **Optimized by** | Gradient descent, etc. | Grid search, random search, Bayesian |
+
+### Common Hyperparameters
+
+| Model | Key Hyperparameters |
+|-------|--------------------|
+| Random Forest | `n_estimators`, `max_depth`, `min_samples_split` |
+| XGBoost | `learning_rate`, `max_depth`, `n_estimators`, `subsample` |
+| SVM | `C`, `kernel`, `gamma` |
+| Neural Network | `learning_rate`, `batch_size`, `epochs`, `layers`, `dropout` |
+| KNN | `n_neighbors`, `weights`, `metric` |
+
+### Tuning Methods
+
+```python
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+
+# 1. Grid Search — Exhaustive (all combinations)
+param_grid = {
+    'n_estimators': [100, 200, 500],
+    'max_depth': [5, 10, None]
+}
+grid = GridSearchCV(model, param_grid, cv=5, scoring='accuracy')
+grid.fit(X_train, y_train)
+print(grid.best_params_)
+
+# 2. Random Search — Faster, samples randomly
+from scipy.stats import uniform, randint
+param_distributions = {
+    'n_estimators': randint(50, 500),
+    'max_depth': randint(3, 20),
+    'learning_rate': uniform(0.001, 0.3)
+}
+random_search = RandomizedSearchCV(model, param_distributions, n_iter=100, cv=5)
+
+# 3. Bayesian Optimization — Smart search
+import optuna
+
+def objective(trial):
+    params = {
+        'n_estimators': trial.suggest_int('n_estimators', 50, 500),
+        'max_depth': trial.suggest_int('max_depth', 3, 20),
+        'learning_rate': trial.suggest_float('learning_rate', 0.001, 0.3, log=True)
+    }
+    model = XGBClassifier(**params)
+    score = cross_val_score(model, X_train, y_train, cv=5).mean()
+    return score
+
+study = optuna.create_study(direction='maximize')
+study.optimize(objective, n_trials=100)
+```
+
+### Interview Tip
+**Random search** is usually better than grid search (same compute, broader coverage). **Bayesian optimization** (Optuna, Hyperopt) is the best approach for expensive models. Always tune using **cross-validation on training data** — never look at the test set during tuning.
 
 ---
 
@@ -6289,7 +7718,48 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is a confusion matrix , and how is it interpreted?**
 
-*Answer to be added.*
+**Answer:**
+
+A **confusion matrix** is a table that summarizes a classification model's predictions vs. actual labels, showing where the model gets "confused."
+
+### Structure (Binary Classification)
+
+|  | Predicted Positive | Predicted Negative |
+|--|-------------------|-------------------|
+| **Actual Positive** | True Positive (TP) | False Negative (FN) |
+| **Actual Negative** | False Positive (FP) | True Negative (TN) |
+
+### Derived Metrics
+
+| Metric | Formula | Meaning |
+|--------|---------|---------|
+| **Accuracy** | (TP+TN) / Total | Overall correctness |
+| **Precision** | TP / (TP+FP) | Of predicted positives, how many are correct |
+| **Recall (Sensitivity)** | TP / (TP+FN) | Of actual positives, how many were found |
+| **Specificity** | TN / (TN+FP) | Of actual negatives, how many were correct |
+| **F1 Score** | 2·(Prec·Rec)/(Prec+Rec) | Harmonic mean of precision and recall |
+
+### Implementation
+
+```python
+from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+
+# Generate confusion matrix
+cm = confusion_matrix(y_true, y_pred)
+print(cm)
+
+# Detailed report
+print(classification_report(y_true, y_pred, target_names=['Negative', 'Positive']))
+
+# Visual display
+ConfusionMatrixDisplay(cm, display_labels=['Negative', 'Positive']).plot(cmap='Blues')
+plt.title('Confusion Matrix')
+plt.show()
+```
+
+### Interview Tip
+Always discuss which metric matters for the **specific problem**: medical diagnosis → high **recall** (catch all disease cases); spam filter → high **precision** (don't mark good emails as spam). Accuracy alone is misleading for **imbalanced datasets**.
 
 ---
 
@@ -6297,7 +7767,57 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain the ROC curve and the area under the curve (AUC) metric**
 
-*Answer to be added.*
+**Answer:**
+
+The **ROC (Receiver Operating Characteristic) curve** plots the **True Positive Rate** (Recall) vs. **False Positive Rate** at various classification thresholds. **AUC** measures the total area under this curve.
+
+### Key Concepts
+
+| Term | Formula | Description |
+|------|---------|-------------|
+| **TPR (Recall)** | TP / (TP + FN) | How many positives were caught |
+| **FPR** | FP / (FP + TN) | How many negatives were wrongly flagged |
+| **AUC** | Area under ROC | Overall discriminative ability |
+
+### AUC Interpretation
+
+| AUC Value | Meaning |
+|-----------|---------|
+| 1.0 | Perfect classifier |
+| 0.9-1.0 | Excellent |
+| 0.8-0.9 | Good |
+| 0.7-0.8 | Fair |
+| 0.5 | Random guessing (no discrimination) |
+| < 0.5 | Worse than random |
+
+### Implementation
+
+```python
+from sklearn.metrics import roc_curve, roc_auc_score, auc
+import matplotlib.pyplot as plt
+
+# Get predicted probabilities
+y_proba = model.predict_proba(X_test)[:, 1]
+
+# Calculate ROC curve
+fpr, tpr, thresholds = roc_curve(y_test, y_proba)
+roc_auc = auc(fpr, tpr)
+
+# Plot
+plt.plot(fpr, tpr, label=f'AUC = {roc_auc:.3f}')
+plt.plot([0, 1], [0, 1], 'k--', label='Random')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.legend()
+plt.show()
+
+# AUC score
+print(f"AUC: {roc_auc_score(y_test, y_proba):.4f}")
+```
+
+### Interview Tip
+AUC is **threshold-independent** — it evaluates the model across all thresholds, making it ideal for comparing models. For **imbalanced datasets**, prefer **Precision-Recall AUC** over ROC-AUC, since ROC can be overly optimistic when negatives vastly outnumber positives.
 
 ---
 
@@ -6305,7 +7825,48 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain different validation strategies , such as k-fold cross-validation**
 
-*Answer to be added.*
+**Answer:**
+
+Validation strategies ensure reliable model evaluation by testing on data not used for training.
+
+### Comparison of Strategies
+
+| Strategy | How It Works | Best For |
+|----------|-------------|----------|
+| **Holdout** | Single train/test split | Large datasets, quick experiments |
+| **K-Fold CV** | K splits, each used once as test | General purpose (k=5 or 10) |
+| **Stratified K-Fold** | K-Fold maintaining class ratios | Imbalanced classification |
+| **Leave-One-Out (LOO)** | N folds (each sample is test once) | Very small datasets |
+| **Time Series Split** | Chronological splits | Temporal data |
+| **Repeated K-Fold** | Multiple rounds of K-Fold | Reducing variance in estimates |
+| **Group K-Fold** | Keeps groups together | Grouped/clustered data |
+
+### Implementation
+
+```python
+from sklearn.model_selection import (
+    KFold, StratifiedKFold, LeaveOneOut,
+    TimeSeriesSplit, RepeatedStratifiedKFold, cross_val_score
+)
+
+# 1. K-Fold
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+# 2. Stratified K-Fold (recommended for classification)
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+scores = cross_val_score(model, X, y, cv=skf, scoring='accuracy')
+
+# 3. Time Series Split
+tscv = TimeSeriesSplit(n_splits=5)
+scores = cross_val_score(model, X, y, cv=tscv)
+
+# 4. Repeated Stratified K-Fold
+rskf = RepeatedStratifiedKFold(n_splits=5, n_repeats=3, random_state=42)
+scores = cross_val_score(model, X, y, cv=rskf)
+```
+
+### Interview Tip
+Default to **Stratified K-Fold** for classification and **K-Fold** for regression. Use **TimeSeriesSplit** for temporal data (never shuffle!). **LOO** is computationally expensive and high-variance — only use for very small datasets (<100 samples).
 
 ---
 
@@ -6313,7 +7874,57 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is dimensionality reduction , and when would you use it?**
 
-*Answer to be added.*
+**Answer:**
+
+**Dimensionality reduction** transforms high-dimensional data into a lower-dimensional representation while preserving the most important information.
+
+### Why Use It
+
+| Problem | Solution via Dim. Reduction |
+|---------|---------------------------|
+| **Curse of dimensionality** | Fewer features = better generalization |
+| **Visualization** | Reduce to 2D/3D for plotting |
+| **Speed** | Fewer features = faster training |
+| **Multicollinearity** | Removes correlated features |
+| **Noise reduction** | Drops low-variance dimensions |
+
+### Methods
+
+| Method | Type | Best For |
+|--------|------|----------|
+| **PCA** | Linear, unsupervised | General purpose, numeric data |
+| **t-SNE** | Non-linear, unsupervised | Visualization (2D/3D) |
+| **UMAP** | Non-linear, unsupervised | Visualization + clustering |
+| **LDA** | Linear, supervised | Classification preprocessing |
+| **Feature Selection** | Filter/wrapper | When interpretability matters |
+| **Autoencoders** | Non-linear, neural net | Complex non-linear patterns |
+
+### Implementation
+
+```python
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+
+# PCA — keep 95% of variance
+pca = PCA(n_components=0.95)
+X_reduced = pca.fit_transform(X_scaled)
+print(f"Reduced from {X_scaled.shape[1]} to {X_reduced.shape[1]} features")
+
+# Explained variance
+import matplotlib.pyplot as plt
+plt.plot(range(1, len(pca.explained_variance_ratio_)+1),
+         pca.explained_variance_ratio_.cumsum())
+plt.xlabel('Number of Components')
+plt.ylabel('Cumulative Explained Variance')
+
+# t-SNE for visualization
+tsne = TSNE(n_components=2, perplexity=30, random_state=42)
+X_2d = tsne.fit_transform(X)
+plt.scatter(X_2d[:, 0], X_2d[:, 1], c=y, cmap='viridis')
+```
+
+### Interview Tip
+PCA is for **preprocessing** (feed reduced features to a model), while t-SNE/UMAP are for **visualization only** (don't use them as preprocessing). Always **standardize** data before PCA. Mention the **scree plot** to choose the right number of components.
 
 ---
 
@@ -6321,7 +7932,54 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain the difference between batch learning and online learning**
 
-*Answer to be added.*
+**Answer:**
+
+**Batch learning** trains on the entire dataset at once, while **online learning** updates the model incrementally with one sample (or mini-batch) at a time.
+
+### Comparison
+
+| Feature | Batch Learning | Online Learning |
+|---------|---------------|----------------|
+| **Data** | Entire dataset at once | One sample/mini-batch at a time |
+| **Training** | Offline, periodic retraining | Continuous, real-time updates |
+| **Memory** | Must fit all data in memory | Constant memory (O(1)) |
+| **Adaptability** | Static until retrained | Adapts to new patterns instantly |
+| **Concept drift** | Requires full retraining | Handles naturally |
+| **Example** | Random Forest, standard NN training | SGD, Passive-Aggressive, River |
+
+### Implementation
+
+```python
+# Batch Learning
+from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier()
+model.fit(X_train, y_train)  # Trains on ALL data at once
+
+# Online Learning
+from sklearn.linear_model import SGDClassifier
+model = SGDClassifier()
+for X_batch, y_batch in data_stream:
+    model.partial_fit(X_batch, y_batch, classes=[0, 1])
+
+# Mini-batch Learning (compromise)
+from sklearn.cluster import MiniBatchKMeans
+kmeans = MiniBatchKMeans(n_clusters=10, batch_size=100)
+for X_batch in data_batches:
+    kmeans.partial_fit(X_batch)
+```
+
+### When to Use Each
+
+| Scenario | Approach |
+|----------|----------|
+| Static dataset, powerful hardware | Batch |
+| Streaming data (IoT, logs, clicks) | Online |
+| Data too large for memory | Online / Mini-batch |
+| Need highest accuracy | Batch |
+| Need real-time adaptation | Online |
+
+### Interview Tip
+Online learning's key parameter is the **learning rate** — too high forgets old data (plasticity), too low adapts too slowly (stability). This is the **stability-plasticity dilemma**. Mention `partial_fit()` in Scikit-learn for online-capable estimators.
 
 ---
 
@@ -6329,7 +7987,59 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is the role of attention mechanisms in natural language processing models?**
 
-*Answer to be added.*
+**Answer:**
+
+**Attention mechanisms** allow models to focus on the most relevant parts of the input when producing each part of the output, rather than compressing all information into a fixed-length vector.
+
+### The Problem Attention Solves
+
+```
+Without Attention (Seq2Seq):
+[I] [love] [machine] [learning] → [fixed-size vector] → [J'aime] [le] [ML]
+                                    ↑ Bottleneck!
+
+With Attention:
+[I] [love] [machine] [learning]
+ ↕     ↕       ↕          ↕        ← Dynamic connections
+[J'aime] [le] [apprentissage] [automatique]
+```
+
+### Types of Attention
+
+| Type | Description | Used In |
+|------|-------------|---------|
+| **Bahdanau (Additive)** | Learned alignment weights | Original seq2seq |
+| **Luong (Multiplicative)** | Dot-product based | Efficient seq2seq |
+| **Self-Attention** | Attends to other positions in same sequence | Transformer |
+| **Multi-Head Attention** | Multiple parallel attention heads | Transformer, BERT, GPT |
+| **Cross-Attention** | Attends between encoder and decoder | Translation, T5 |
+
+### Self-Attention (Transformer Core)
+
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+
+```python
+import torch
+import torch.nn.functional as F
+
+def self_attention(Q, K, V):
+    d_k = Q.size(-1)
+    scores = torch.matmul(Q, K.transpose(-2, -1)) / (d_k ** 0.5)
+    weights = F.softmax(scores, dim=-1)
+    return torch.matmul(weights, V), weights
+```
+
+### Impact on NLP
+
+| Before Attention | After Attention |
+|-----------------|----------------|
+| RNNs, LSTMs (sequential) | Transformers (parallel) |
+| Fixed context window | Global context |
+| Vanishing gradients | Direct connections |
+| Slow training | Highly parallelizable |
+
+### Interview Tip
+Attention is the foundation of **all modern NLP**: BERT (bidirectional self-attention), GPT (causal self-attention), T5 (encoder-decoder attention). The key insight is replacing recurrence with **self-attention**, enabling parallelism and capturing long-range dependencies.
 
 ---
 
@@ -6337,7 +8047,85 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain how to use context managers in Python and provide a machine learning-related example**
 
-*Answer to be added.*
+**Answer:**
+
+**Context managers** use the `with` statement to automatically handle **setup and cleanup** (resource acquisition and release), ensuring resources are properly managed even if exceptions occur.
+
+### How They Work
+
+```python
+# Using with statement (recommended)
+with open('data.csv', 'r') as f:
+    data = f.read()
+# File automatically closed, even if exception occurs
+
+# Equivalent manual approach
+f = open('data.csv', 'r')
+try:
+    data = f.read()
+finally:
+    f.close()
+```
+
+### Creating Custom Context Managers
+
+```python
+# Method 1: Class-based
+class Timer:
+    def __enter__(self):
+        self.start = time.perf_counter()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.elapsed = time.perf_counter() - self.start
+        print(f"Elapsed: {self.elapsed:.4f}s")
+        return False  # Don't suppress exceptions
+
+with Timer() as t:
+    model.fit(X_train, y_train)
+
+# Method 2: contextlib decorator
+from contextlib import contextmanager
+
+@contextmanager
+def gpu_memory_manager():
+    try:
+        torch.cuda.empty_cache()
+        yield
+    finally:
+        torch.cuda.empty_cache()
+        gc.collect()
+
+with gpu_memory_manager():
+    train_large_model()
+```
+
+### ML Use Cases
+
+```python
+# 1. MLflow experiment tracking
+import mlflow
+
+with mlflow.start_run():
+    mlflow.log_param("lr", 0.01)
+    model.fit(X_train, y_train)
+    mlflow.log_metric("accuracy", accuracy)
+    mlflow.sklearn.log_model(model, "model")
+
+# 2. TensorFlow GPU memory management
+with tf.device('/GPU:0'):
+    model.fit(X_train, y_train)
+
+# 3. Temporary directory for model artifacts
+import tempfile
+with tempfile.TemporaryDirectory() as tmpdir:
+    model_path = f"{tmpdir}/model.pkl"
+    joblib.dump(model, model_path)
+    upload_to_s3(model_path)
+```
+
+### Interview Tip
+Context managers implement the **RAII pattern** (Resource Acquisition Is Initialization). In ML, they're essential for **GPU memory management**, **experiment tracking** (MLflow, W&B), **database connections**, and **temporary file handling**.
 
 ---
 
@@ -6345,7 +8133,82 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What are slots in Python classes and how could they be useful in machine learning applications?**
 
-*Answer to be added.*
+**Answer:**
+
+**`__slots__`** restricts a class to a fixed set of attributes by replacing the default `__dict__` with a more memory-efficient structure.
+
+### How It Works
+
+```python
+# Without __slots__ (default)
+class DataPointDict:
+    def __init__(self, x, y, label):
+        self.x = x
+        self.y = y
+        self.label = label
+
+# With __slots__
+class DataPointSlots:
+    __slots__ = ['x', 'y', 'label']
+    
+    def __init__(self, x, y, label):
+        self.x = x
+        self.y = y
+        self.label = label
+```
+
+### Memory Comparison
+
+```python
+import sys
+
+d = DataPointDict(1.0, 2.0, 'cat')
+s = DataPointSlots(1.0, 2.0, 'cat')
+
+print(sys.getsizeof(d) + sys.getsizeof(d.__dict__))  # ~200 bytes
+print(sys.getsizeof(s))                                # ~64 bytes
+# ~3x memory reduction per object!
+```
+
+### ML Applications
+
+```python
+# 1. Efficient data containers for large datasets
+class Sample:
+    __slots__ = ['features', 'label', 'weight', 'id']
+    def __init__(self, features, label, weight=1.0, id=None):
+        self.features = features
+        self.label = label
+        self.weight = weight
+        self.id = id
+
+# Processing 10M samples: saves ~1.3 GB of memory!
+samples = [Sample(feat, lab) for feat, lab in zip(features, labels)]
+
+# 2. Lightweight node for graph-based ML
+class TreeNode:
+    __slots__ = ['feature_idx', 'threshold', 'left', 'right', 'value']
+    def __init__(self):
+        self.feature_idx = None
+        self.threshold = None
+        self.left = None
+        self.right = None
+        self.value = None
+```
+
+### Tradeoffs
+
+| Feature | With `__slots__` | Without `__slots__` |
+|---------|-----------------|-------------------|
+| Memory per instance | ~40-64 bytes | ~150-200 bytes |
+| Attribute access | Slightly faster | Standard |
+| Dynamic attributes | Not allowed | Allowed |
+| `__dict__` | Not available | Available |
+| Inheritance | Must redeclare slots | Inherited automatically |
+| Pickle/serialization | Works with care | Works normally |
+
+### Interview Tip
+Use `__slots__` when creating **millions of small objects** (data points, graph nodes, tokens). In ML, this is relevant for **custom dataset loaders**, **tree node implementations**, and **streaming data pipelines**. Don't use it for configuration/settings classes where flexibility matters.
 
 ---
 
@@ -6353,7 +8216,75 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **Explain the concept of microservices architecture in deploying machine learning models**
 
-*Answer to be added.*
+**Answer:**
+
+**Microservices architecture** decomposes an ML system into small, independent services that communicate via APIs, each handling a specific capability.
+
+### Monolithic vs Microservices
+
+```
+Monolithic:                    Microservices:
+┌─────────────────┐           ┌──────────┐  ┌──────────┐
+│ Data Ingestion  │           │ Data     │  │ Feature  │
+│ Feature Eng.    │           │ Service  │  │ Service  │
+│ Model Inference │           └────┬─────┘  └────┬─────┘
+│ Post-processing │                │             │
+│ API Layer       │           ┌────┴─────────────┴─────┐
+└─────────────────┘           │    API Gateway         │
+                              └────┬─────────────┬─────┘
+                              ┌────┴─────┐  ┌────┴─────┐
+                              │ Model A  │  │ Model B  │
+                              │ Service  │  │ Service  │
+                              └──────────┘  └──────────┘
+```
+
+### ML Microservices Pattern
+
+| Service | Responsibility | Technology |
+|---------|---------------|------------|
+| **Data Ingestion** | Collect & validate input | FastAPI, Kafka |
+| **Feature Store** | Compute & serve features | Feast, Tecton |
+| **Model Service** | Run inference | TF Serving, TorchServe |
+| **Post-Processing** | Format results, business logic | FastAPI |
+| **Monitoring** | Track drift & performance | Prometheus, Grafana |
+| **A/B Testing** | Route traffic between models | Istio, custom |
+
+### Implementation Example
+
+```python
+# Model Prediction Service (FastAPI)
+from fastapi import FastAPI
+import joblib
+import numpy as np
+
+app = FastAPI()
+model = joblib.load('model.pkl')
+
+@app.post("/predict")
+async def predict(features: list[float]):
+    prediction = model.predict(np.array([features]))
+    return {"prediction": prediction.tolist()}
+
+# Docker containerization
+# Dockerfile:
+# FROM python:3.11-slim
+# COPY . /app
+# RUN pip install -r requirements.txt
+# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### Benefits for ML
+
+| Benefit | Description |
+|---------|-------------|
+| **Independent scaling** | Scale model service separately from data service |
+| **Independent deployment** | Update one model without redeploying everything |
+| **Technology flexibility** | Different languages/frameworks per service |
+| **Fault isolation** | One service failing doesn't crash everything |
+| **Team autonomy** | Different teams own different services |
+
+### Interview Tip
+Key tools: **Docker** (containerization), **Kubernetes** (orchestration), **FastAPI/Flask** (API), **gRPC** (high-performance inter-service communication), and **Istio** (service mesh). Mention challenges: network latency, distributed debugging, and data consistency.
 
 ---
 
@@ -6361,7 +8292,68 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What are the considerations for scaling a machine learning application with Python ?**
 
-*Answer to be added.*
+**Answer:**
+
+Scaling ML applications involves handling increasing **data volume**, **model complexity**, **user traffic**, and **deployment requirements**.
+
+### Scaling Dimensions
+
+| Dimension | Challenge | Solutions |
+|-----------|-----------|----------|
+| **Data** | Dataset too large for memory | Dask, PySpark, chunked processing |
+| **Training** | Model takes too long to train | Distributed training, GPU/TPU |
+| **Inference** | High latency or throughput | Batching, model optimization, caching |
+| **Deployment** | Handle many concurrent requests | Kubernetes, load balancing |
+
+### Key Strategies
+
+```python
+# 1. Data Scaling — Chunked Processing
+import dask.dataframe as dd
+ddf = dd.read_csv('data_*.csv')
+result = ddf.groupby('key').mean().compute()
+
+# 2. Training Scaling — Distributed
+import ray
+from ray import tune
+
+ray.init()
+# Distributed hyperparameter tuning
+analysis = tune.run(train_fn, num_samples=100, resources_per_trial={"gpu": 1})
+
+# 3. Inference Scaling — Model Optimization
+import onnxruntime as ort
+# Convert model to ONNX for faster inference
+session = ort.InferenceSession("model.onnx")
+result = session.run(None, {"input": X_test})
+
+# 4. Caching Predictions
+from functools import lru_cache
+import redis
+
+r = redis.Redis()
+def cached_predict(features_hash):
+    cached = r.get(features_hash)
+    if cached:
+        return cached
+    pred = model.predict(features)
+    r.setex(features_hash, 3600, pred)
+    return pred
+```
+
+### Production Scaling Stack
+
+| Layer | Tool | Purpose |
+|-------|------|---------|
+| Containerization | Docker | Reproducible environments |
+| Orchestration | Kubernetes | Auto-scaling, health checks |
+| Model Serving | TF Serving, TorchServe | Optimized inference |
+| Load Balancing | Nginx, AWS ALB | Distribute traffic |
+| Monitoring | Prometheus + Grafana | Track latency, errors |
+| CI/CD | GitHub Actions, Jenkins | Automated deployment |
+
+### Interview Tip
+The GIL (Global Interpreter Lock) limits Python's multi-threading for CPU-bound tasks. Solutions: **multiprocessing** (parallel processes), **Cython/Numba** (compiled code), **C extensions** (NumPy, TensorFlow do this), or **async I/O** (for I/O-bound services). Always mention the GIL when discussing Python scaling.
 
 ---
 
@@ -6369,7 +8361,69 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is model versioning , and how can it be managed in a real-world application ?**
 
-*Answer to be added.*
+**Answer:**
+
+**Model versioning** tracks different iterations of ML models along with their code, data, hyperparameters, and metrics — enabling reproducibility, rollback, and comparison.
+
+### What to Version
+
+| Artifact | Why | Tool |
+|----------|-----|------|
+| **Model weights** | Reproduce exact predictions | MLflow, DVC |
+| **Training code** | Reproduce training process | Git |
+| **Data** | Ensure same training data | DVC, Delta Lake |
+| **Hyperparameters** | Know what was tuned | MLflow, W&B |
+| **Metrics** | Compare model performance | MLflow, W&B |
+| **Environment** | Reproduce dependencies | Docker, conda |
+
+### Implementation with MLflow
+
+```python
+import mlflow
+import mlflow.sklearn
+
+# Start experiment
+mlflow.set_experiment("customer_churn")
+
+with mlflow.start_run(run_name="rf_v2"):
+    # Log parameters
+    mlflow.log_params({
+        "n_estimators": 200,
+        "max_depth": 10,
+        "data_version": "v2.1"
+    })
+    
+    # Train model
+    model = RandomForestClassifier(n_estimators=200, max_depth=10)
+    model.fit(X_train, y_train)
+    
+    # Log metrics
+    accuracy = model.score(X_test, y_test)
+    mlflow.log_metrics({"accuracy": accuracy, "f1": f1})
+    
+    # Log model
+    mlflow.sklearn.log_model(model, "model",
+        registered_model_name="churn_predictor")
+
+# Model registry — manage lifecycle
+from mlflow.tracking import MlflowClient
+client = MlflowClient()
+client.transition_model_version_stage(
+    name="churn_predictor", version=3, stage="Production"
+)
+```
+
+### Model Lifecycle
+
+```
+Development → Staging → Production → Archived
+    │            │          │           │
+    └── Experiment tracking  │      Rollback target
+                     A/B testing
+```
+
+### Interview Tip
+Model versioning is part of **MLOps** — the ML equivalent of DevOps. Key tools: **MLflow** (open-source, full lifecycle), **DVC** (data + model versioning with Git), **Weights & Biases** (experiment tracking), **BentoML** (serving). Always version **code + data + model + environment** together for true reproducibility.
 
 ---
 
@@ -6377,6 +8431,64 @@ Continuous learning has 3 main strategies: **full retraining** (most reliable, e
 
 **What is the role of Explainable AI (XAI) and how can Python libraries help achieve it?**
 
-*Answer to be added.*
+**Answer:**
+
+**Explainable AI (XAI)** provides techniques to make ML model predictions understandable to humans, building trust, enabling debugging, and meeting regulatory requirements.
+
+### Why XAI Matters
+
+| Reason | Description |
+|--------|-------------|
+| **Trust** | Users need to understand why a model made a decision |
+| **Debugging** | Identify if model learned spurious correlations |
+| **Regulation** | GDPR's "right to explanation" for automated decisions |
+| **Fairness** | Detect and mitigate bias in predictions |
+| **Improvement** | Understand model weaknesses for improvement |
+
+### XAI Methods
+
+| Method | Type | Scope | Description |
+|--------|------|-------|-------------|
+| **SHAP** | Model-agnostic | Local + Global | Shapley values from game theory |
+| **LIME** | Model-agnostic | Local | Local perturbation-based explanations |
+| **Feature Importance** | Model-specific | Global | Tree-based importance scores |
+| **Partial Dependence** | Model-agnostic | Global | Effect of a feature on predictions |
+| **Grad-CAM** | Neural net specific | Local | Visual attention for CNNs |
+| **Attention Weights** | Transformer specific | Local | Token importance in NLP |
+
+### Implementation
+
+```python
+# 1. SHAP (SHapley Additive exPlanations)
+import shap
+
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X_test)
+
+# Global feature importance
+shap.summary_plot(shap_values, X_test, feature_names=feature_names)
+
+# Local explanation (single prediction)
+shap.force_plot(explainer.expected_value, shap_values[0], X_test.iloc[0])
+
+# 2. LIME (Local Interpretable Model-Agnostic Explanations)
+from lime.lime_tabular import LimeTabularExplainer
+
+explainer = LimeTabularExplainer(X_train.values, feature_names=feature_names)
+explanation = explainer.explain_instance(X_test.iloc[0].values, model.predict_proba)
+explanation.show_in_notebook()
+
+# 3. Partial Dependence Plots
+from sklearn.inspection import PartialDependenceDisplay
+PartialDependenceDisplay.from_estimator(model, X_test, features=[0, 1, (0, 1)])
+
+# 4. Permutation Importance
+from sklearn.inspection import permutation_importance
+result = permutation_importance(model, X_test, y_test, n_repeats=10)
+sorted_idx = result.importances_mean.argsort()[::-1]
+```
+
+### Interview Tip
+**SHAP** is the gold standard for XAI — it's mathematically grounded (Shapley values guarantee fair attribution), model-agnostic, and provides both local and global explanations. Always mention the **accuracy-interpretability tradeoff**: simpler models (linear regression, decision trees) are inherently interpretable, while complex models (deep learning, XGBoost) need post-hoc explanations.
 
 ---
